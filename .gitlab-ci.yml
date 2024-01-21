@@ -17,6 +17,7 @@ variables:
   # Ignore a Composer warning
   COMPOSER_ALLOW_SUPERUSER: 1
   # Configure MySQL/MariaDB service (https://hub.docker.com/_/mysql/, https://hub.docker.com/_/mariadb/)
+  DB_HOST: mysql
   MYSQL_DATABASE: hello_world_test
   MYSQL_ROOT_PASSWORD: mysql
   # Configure PostgreSQL service (https://hub.docker.com/_/postgres/)
@@ -44,17 +45,17 @@ before_script:
 .job_template_mysql: &job_definition_mysql
   stage: test
   variables:
-    HZ_TEST_DB_HOST: mysql
+    HZ_TEST_DB_HOST: $DB_HOST
     HZ_TEST_DB_TYPE: mysql
     HZ_TEST_DB_USER: root
     HZ_TEST_DB_PASS: $MYSQL_ROOT_PASSWORD
     HZ_TEST_DB_DATABASE: $MYSQL_DATABASE
   script:
     # Import hubzilla's DB schema
-    - echo "USE $MYSQL_DATABASE; $(cat ./install/schema_mysql.sql)" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
+    - echo "USE $MYSQL_DATABASE; $(cat ./install/schema_mysql.sql)" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host="$DB_HOST" "$MYSQL_DATABASE"
     # Show databases and relations/tables of hubzilla's database
-    - echo "SHOW DATABASES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
-    - echo "USE $MYSQL_DATABASE; SHOW TABLES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
+    - echo "SHOW DATABASES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host="$DB_HOST" "$MYSQL_DATABASE"
+    - echo "USE $MYSQL_DATABASE; SHOW TABLES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host="$DB_HOST" "$MYSQL_DATABASE"
     # Run the actual tests
     - touch dbfail.out
     - vendor/bin/phpunit --configuration tests/phpunit.xml --verbose --stop-on-error --coverage-text --colors=never --log-junit tests/results/junit.xml || exit_code=$?
@@ -107,6 +108,14 @@ php8.1_mysql8.0.22:
   <<: *job_definition_mysql
   <<: *artifacts_template
 
+# PHP8.1 with MariaDB 10.6
+php8.1_mariadb10.6:
+  image: php:8.1
+  services:
+    - name: mariadb:10.6
+      alias: mysql
+  <<: *job_definition_mysql
+  <<: *artifacts_template
 
 # PHP8.1 with PostgreSQL 12
 php8.1_postgres12:
