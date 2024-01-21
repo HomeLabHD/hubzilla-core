@@ -100,7 +100,10 @@ There are several ways to deploy a new hub.
 
 * some form of email server or email gateway such that PHP mail() works.
 
-* Mysql 5.x or MariaDB or postgres database server.
+* A supported database server. The supported databases are:
+  - Mysql version 8.0.22 or later
+  - MariaDB version 10.4 or later
+  - PostgreSQL version 12 or later
 
 * ability to schedule jobs with cron.
 
