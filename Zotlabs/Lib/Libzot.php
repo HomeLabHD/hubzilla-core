@@ -1827,7 +1827,7 @@ class Libzot {
 
 				if ($relay && $item_id) {
 					logger('process_delivery: invoking relay');
-					Master::Summon(['Notifier', 'relay', intval($item_id)]);
+					Master::Summon(['Notifier', 'relay', intval($item_id), 'delete']);
 					$DR->update('relayed');
 					$result[] = $DR->get();
 				}
