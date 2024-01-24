@@ -1157,7 +1157,6 @@ class Libzot {
 			else {
 				$item = [];
 			}
-
 			logger($AS->debug(), LOGGER_DATA);
 
 		}
@@ -1364,11 +1363,13 @@ class Libzot {
 
 	static function find_parent_owner_hashes($env, $act) {
 		$r = [];
-		$thread_parent = self::find_parent($env, $act);
-		if ($thread_parent) {
-			$uids = q("SELECT uid FROM item WHERE thr_parent = '%s' OR parent_mid = '%s'",
-				dbesc($thread_parent),
-				dbesc($thread_parent)
+		$parent = self::find_parent($env, $act);
+
+		if ($parent) {
+			$uids = q("SELECT uid FROM item WHERE thr_parent = '%s' OR parent_mid = '%s' OR mid = '%s'",
+				dbesc($parent),
+				dbesc($parent),
+				dbesc($parent)
 			);
 
 			if ($uids) {
@@ -1579,6 +1580,39 @@ class Libzot {
 				continue;
 			}
 
+			$arr['item_wall'] = 0;
+
+			// This is our own post, possibly coming from a channel clone
+			if ($arr['owner_xchan'] === $d) {
+				$arr['item_wall'] = 1;
+			}
+
+			if (isset($arr['item_deleted']) && $arr['item_deleted']) {
+
+				// remove_community_tag is a no-op if this isn't a community tag activity
+				// self::remove_community_tag($sender, $arr, $channel['channel_id']);
+
+				// set these just in case we need to store a fresh copy of the deleted post.
+				// This could happen if the delete got here before the original post did.
+
+				$arr['aid'] = $channel['channel_account_id'];
+				$arr['uid'] = $channel['channel_id'];
+
+				$item_id = self::delete_imported_item($sender, $act, $arr, $channel['channel_id'], $relay);
+				$DR->update(($item_id) ? 'deleted' : 'delete_failed');
+				$result[] = $DR->get();
+
+				if ($relay && $item_id) {
+					logger('process_delivery: invoking relay');
+					Master::Summon(['Notifier', 'relay', intval($item_id), 'delete']);
+					$DR->update('relayed');
+					$result[] = $DR->get();
+				}
+
+				continue;
+			}
+
+
 			// allow public postings to the sys channel regardless of permissions, but not
 			// for comments travelling upstream. Wait and catch them on the way down.
 			// They may have been blocked by the owner.
@@ -1605,118 +1639,22 @@ class Libzot {
 			}
 
 			$tag_delivery = tgroup_check($channel['channel_id'], $arr);
-			$perm         = 'send_stream';
-			if (($arr['mid'] !== $arr['parent_mid']) && ($relay))
-				$perm = 'post_comments';
 
-			// This is our own post, possibly coming from a channel clone
-
-			if ($arr['owner_xchan'] == $d) {
-				$arr['item_wall'] = 1;
-			}
-			else {
-				$arr['item_wall'] = 0;
-			}
-
-			$friendofriend = false;
-
-			if ((!$tag_delivery) && (!$local_public)) {
-				$allowed = (perm_is_allowed($channel['channel_id'], $sender, $perm));
-
-				$permit_mentions = intval(PConfig::Get($channel['channel_id'], 'system', 'permit_all_mentions') && i_am_mentioned($channel, $arr));
-
-				if (!$allowed) {
-					if ($perm === 'post_comments') {
-						$parent = q("select * from item where mid = '%s' and uid = %d limit 1",
-							dbesc($arr['parent_mid']),
-							intval($channel['channel_id'])
-						);
-						if ($parent) {
-							$allowed = can_comment_on_post($sender, $parent[0]);
-							if (!$allowed && $permit_mentions) {
-								$allowed = true;
-							}
-
-							if (!$allowed) {
-								if (PConfig::Get($channel['channel_id'], 'system', 'moderate_unsolicited_comments') && $arr['obj_type'] !== 'Answer') {
-									$arr['item_blocked'] = ITEM_MODERATED;
-									$allowed = true;
-								}
-							}
-						}
-
-					}
-					elseif ($permit_mentions) {
-						$allowed = true;
-					}
-
-
-				}
-
-				if ($request) {
-					// Conversation fetches (e.g. $request == true) take place for
-					//   a) new comments on expired posts
-					//   b) hyperdrive (friend-of-friend) conversations
-					//   c) Repeats of posts by others
-
-
-					// over-ride normal connection permissions for hyperdrive (friend-of-friend) conversations
-					// (if hyperdrive is enabled) and repeated posts by a friend.
-					// If $allowed is already true, this is probably the conversation of a direct friend or a
-					// conversation fetch for a new comment on an expired post
-					// Comments of all these activities are allowed and will only be rejected (later) if the parent
-					// doesn't exist.
-
-					if ($perm === 'send_stream') {
-						if ($force || get_pconfig($channel['channel_id'], 'system', 'hyperdrive', false)) {
-							$allowed = true;
-						}
-					}
-					else {
-						$allowed = true;
-					}
-
-					$friendofriend = true;
-				}
-
-				if (intval($arr['item_private']) === 2) {
-					if (!perm_is_allowed($channel['channel_id'], $sender, 'post_mail')) {
-						$allowed = false;
-					}
-				}
-
-				if (!$allowed) {
-					logger("permission denied for delivery to channel {$channel['channel_id']} {$channel['channel_address']}");
-					$DR->update('permission denied');
-					$result[] = $DR->get();
-					continue;
-				}
-			}
-
-			//	logger('item: ' . print_r($arr,true), LOGGER_DATA);
+			$perm = 'send_stream';
 
 			if ($arr['mid'] !== $arr['parent_mid']) {
 
-				logger('checking source: "' . $arr['mid'] . '" != "' . $arr['parent_mid'] . '"');
+				if ($relay)
+					$perm = 'post_comments';
 
-				// check source route.
-				// We are only going to accept comments from this sender if the comment has the same route as the top-level-post,
-				// this is so that permissions mismatches between senders apply to the entire conversation
-				// As a side effect we will also do a preliminary check that we have the top-level-post, otherwise
-				// processing it is pointless.
-
-				$r = q("select route, id, parent_mid, mid, owner_xchan, item_private, obj_type from item where mid = '%s' and uid = %d limit 1",
+				$parent = q("select * from item where mid = '%s' and uid = %d limit 1",
 					dbesc($arr['parent_mid']),
 					intval($channel['channel_id'])
 				);
 
-				if (!$r) {
+				if (!$parent) {
 					$DR->update('comment parent not found');
 					$result[] = $DR->get();
-
-					if ($relay || $request || $local_public) {
-						continue;
-					}
 
 					// We don't seem to have a copy of this conversation or at least the parent
 					// - so request a copy of the entire conversation to date.
@@ -1729,28 +1667,49 @@ class Libzot {
 					// the top level post is unlikely to be imported and
 					// this is just an exercise in futility.
 
-					if ($arr['verb'] === 'Announce') {
-						Activity::fetch_and_store_parents($channel, $sender, $arr, true);
-					}
-					else {
-						if (perm_is_allowed($channel['channel_id'], $sender, 'send_stream')) {
-							Master::Summon(['Zotconvo', $channel['channel_id'], $arr['parent_mid']]);
-						}
+					if ($relay || $request || $local_public || !perm_is_allowed($channel['channel_id'], $sender, 'send_stream')) {
 						continue;
 					}
+
+					if ($arr['verb'] === 'Announce') {
+
+						// TODO: move this to background
+
+						if (!Activity::fetch_and_store_parents($channel, $sender, $arr, true)) {
+							continue;
+						}
+
+						$parent = q("select * from item where mid = '%s' and uid = %d limit 1",
+							dbesc($arr['parent_mid']),
+							intval($channel['channel_id'])
+						);
+
+					}
+					else {
+						Master::Summon(['Zotconvo', $channel['channel_id'], $arr['parent_mid']]);
+						continue;
+					}
+
 				}
 
-				if ($r[0]['obj_type'] === 'Question') {
+				logger('checking source: "' . $arr['mid'] . '" != "' . $arr['parent_mid'] . '"');
+
+				// check source route.
+				// We are only going to accept comments from this sender if the comment has the same route as the top-level-post,
+				// this is so that permissions mismatches between senders apply to the entire conversation
+				// As a side effect we will also do a preliminary check that we have the top-level-post, otherwise
+				// processing it is pointless.
+
+				if ($parent[0]['obj_type'] === 'Question') {
 					// route checking doesn't work correctly here because we've changed the privacy
-					$r[0]['route'] = EMPTY_STR;
+					$parent[0]['route'] = EMPTY_STR;
 					// If this is a poll response, convert the obj_type to our (internal-only) "Answer" type
 					if ($arr['obj_type'] === ACTIVITY_OBJ_COMMENT && $arr['title'] && (!$arr['body'])) {
 						$arr['obj_type'] = 'Answer';
 					}
 				}
 
-
-				if ($relay || $friendofriend || (intval($r[0]['item_private']) === 0 && intval($arr['item_private']) === 0)) {
+				if ($relay || (intval($parent[0]['item_private']) === 0 && intval($arr['item_private']) === 0)) {
 					// reset the route in case it travelled a great distance upstream
 					// use our parent's route so when we go back downstream we'll match
 					// with whatever route our parent has.
@@ -1758,10 +1717,8 @@ class Libzot {
 					// but we are now getting comments via listener delivery
 					// and if there is no privacy on this or the parent, we don't care about the route,
 					// so just set the owner and route accordingly.
-					$arr['route']       = $r[0]['route'];
-					$arr['owner_xchan'] = $r[0]['owner_xchan'];
-
-
+					$arr['route']       = $parent[0]['route'];
+					$arr['owner_xchan'] = $parent[0]['owner_xchan'];
 				}
 				else {
 
@@ -1771,7 +1728,7 @@ class Libzot {
 					// only compare the last hop since it could have arrived at the last location any number of ways.
 					// Always accept empty routes and firehose items (route contains 'undefined') .
 
-					$existing_route = explode(',', $r[0]['route']);
+					$existing_route = explode(',', $parent[0]['route']);
 					$routes         = count($existing_route);
 					if ($routes) {
 						$last_hop         = array_pop($existing_route);
@@ -1788,8 +1745,8 @@ class Libzot {
 					$current_route = ((isset($arr['route']) && $arr['route']) ? $arr['route'] . ',' : '') . $sender;
 
 					if ($last_hop && $last_hop != $sender) {
-						logger('comment route mismatch: parent route = ' . $r[0]['route'] . ' expected = ' . $current_route, LOGGER_DEBUG);
-						logger('comment route mismatch: parent msg = ' . $r[0]['id'], LOGGER_DEBUG);
+						logger('comment route mismatch: parent route = ' . $parent[0]['route'] . ' expected = ' . $current_route, LOGGER_DEBUG);
+						logger('comment route mismatch: parent msg = ' . $parent[0]['id'], LOGGER_DEBUG);
 						$DR->update('comment route mismatch');
 						$result[] = $DR->get();
 						continue;
@@ -1802,6 +1759,76 @@ class Libzot {
 				}
 			}
 
+			if (!$tag_delivery && !$local_public) {
+				$allowed = (perm_is_allowed($channel['channel_id'], $sender, $perm));
+
+				$permit_mentions = intval(PConfig::Get($channel['channel_id'], 'system', 'permit_all_mentions') && i_am_mentioned($channel, $arr));
+
+				if (!$allowed) {
+					if ($parent && $perm === 'send_stream') {
+						// if we own the parent we will accept its comments
+						$allowed = true;
+					}
+
+					elseif ($parent && $perm === 'post_comments') {
+						$allowed = can_comment_on_post($sender, $parent[0]);
+
+						if (!$allowed && $permit_mentions) {
+							$allowed = true;
+						}
+
+						if (!$allowed) {
+							if (PConfig::Get($channel['channel_id'], 'system', 'moderate_unsolicited_comments') && $arr['obj_type'] !== 'Answer') {
+								$arr['item_blocked'] = ITEM_MODERATED;
+								$allowed = true;
+							}
+						}
+
+					}
+					elseif ($permit_mentions) {
+						$allowed = true;
+					}
+
+
+				}
+
+				if ($request) {
+					// Conversation fetches (e.g. $request == true) take place for
+					//   a) new comments on expired posts
+					//   b) if we received an announce
+
+
+					// over-ride normal connection permissions for hyperdrive (friend-of-friend) conversations
+					// (if hyperdrive is enabled) and repeated posts by a friend.
+					// If $allowed is already true, this is probably the conversation of a direct friend or a
+					// conversation fetch for a new comment on an expired post
+					// Comments of all these activities are allowed and will only be rejected (later) if the parent
+					// doesn't exist.
+
+					if ($perm === 'send_stream') {
+						if ($force) {
+							$allowed = true;
+						}
+					}
+					else {
+						$allowed = true;
+					}
+				}
+
+				if (intval($arr['item_private']) === 2) {
+					if (!perm_is_allowed($channel['channel_id'], $sender, 'post_mail')) {
+						$allowed = false;
+					}
+				}
+
+				if (!$allowed) {
+					logger("permission denied for delivery to channel {$channel['channel_id']} {$channel['channel_address']}");
+					$DR->update('permission denied');
+					$result[] = $DR->get();
+					continue;
+				}
+			}
+
 			// This is used to fetch allow/deny rules if either the sender
 			// or  owner is  a connection. post_is_importable() evaluates all of them
 			$abook = q("select * from abook where abook_channel = %d and ( abook_xchan = '%s' OR abook_xchan = '%s' )",
@@ -1810,34 +1837,8 @@ class Libzot {
 				dbesc($arr['author_xchan'])
 			);
 
-			if (isset($arr['item_deleted']) && $arr['item_deleted']) {
-
-				// remove_community_tag is a no-op if this isn't a community tag activity
-				self::remove_community_tag($sender, $arr, $channel['channel_id']);
-
-				// set these just in case we need to store a fresh copy of the deleted post.
-				// This could happen if the delete got here before the original post did.
-
-				$arr['aid'] = $channel['channel_account_id'];
-				$arr['uid'] = $channel['channel_id'];
-
-				$item_id = self::delete_imported_item($sender, $act, $arr, $channel['channel_id'], $relay);
-				$DR->update(($item_id) ? 'deleted' : 'delete_failed');
-				$result[] = $DR->get();
-
-				if ($relay && $item_id) {
-					logger('process_delivery: invoking relay');
-					Master::Summon(['Notifier', 'relay', intval($item_id), 'delete']);
-					$DR->update('relayed');
-					$result[] = $DR->get();
-				}
-
-				continue;
-			}
-
 			// reactions such as like and dislike could	have an	mid with /activity/ in it.
 			// Check for both forms in order to prevent duplicates.
-
 			$r = q("select * from item where mid in ('%s','%s') and uid = %d limit 1",
 				dbesc($arr['mid']),
 				dbesc(str_replace(z_root() . '/activity/', z_root() . '/item/', $arr['mid'])),
@@ -1845,7 +1846,6 @@ class Libzot {
 			);
 
 			if ($r) {
-
 				$item_id = $r[0]['id'];
 
 				if (intval($r[0]['item_deleted'])) {
@@ -1915,7 +1915,6 @@ class Libzot {
 				if (post_is_importable($arr['uid'], $arr, $abook)) {
 					$item_result = item_store($arr);
 					if ($item_result['success']) {
-
 						$item_id = $item_result['item_id'];
 
 						if ($item_source && in_array($item_result['item']['obj_type'], ['Event', ACTIVITY_OBJ_EVENT])) {
@@ -1957,6 +1956,7 @@ class Libzot {
 			// preserve conversations with which you are involved from expiration
 
 			$stored = ((isset($item_result['item'])) ? $item_result['item'] : false);
+
 			if ((is_array($stored)) && ($stored['id'] != $stored['parent'])
 				&& ($stored['author_xchan'] === $channel['channel_hash'])) {
 				retain_item($stored['item']['parent']);
@@ -2320,12 +2320,20 @@ class Libzot {
 				// this information from the metadata should have no other discernible impact.
 
 				if (($stored['id'] != $stored['parent']) && intval($stored['item_origin'])) {
-					q("update item set item_origin = 0 where id = %d and uid = %d",
-						intval($stored['id']),
-						intval($stored['uid'])
+					q("update item set item_origin = 0 where id = %d",
+						intval($stored['id'])
 					);
 				}
-			}
+			} else {
+                if ($stored['id'] !== $stored['parent']) {
+                    q(
+                        "update item set commented = '%s', changed = '%s' where id = %d",
+                        dbesc(datetime_convert()),
+                        dbesc(datetime_convert()),
+                        intval($stored['parent'])
+                    );
+                }
+            }
 
 
 			// Use phased deletion to set the deleted flag, call both tag_deliver and the notifier to notify downstream channels
