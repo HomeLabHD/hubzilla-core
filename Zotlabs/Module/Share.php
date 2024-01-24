@@ -115,6 +115,8 @@ class Share extends \Zotlabs\Web\Controller {
 		$arr['obj_type'] = $item['obj_type'];
 		$arr['verb'] = ACTIVITY_SHARE;
 
+		call_hooks('post_local', $arr);
+
 		$post = item_store($arr);
 
 		$post_id = $post['item_id'];
