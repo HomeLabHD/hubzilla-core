@@ -1869,31 +1869,6 @@ class Activity {
 		}
 	}
 
-	static function create_action($channel, $observer_hash, $act) {
-
-		if (in_array($act->obj['type'], ['Note', 'Article', 'Video'])) {
-			self::create_note($channel, $observer_hash, $act);
-		}
-
-
-	}
-
-	static function announce_action($channel, $observer_hash, $act) {
-
-		if (in_array($act->type, ['Announce'])) {
-			self::announce_note($channel, $observer_hash, $act);
-		}
-
-	}
-
-	static function like_action($channel, $observer_hash, $act) {
-
-		if (in_array($act->obj['type'], ['Note', 'Article', 'Video'])) {
-			self::like_note($channel, $observer_hash, $act);
-		}
-
-
-	}
 
 	// sort function width decreasing
 	static function vid_sort($a, $b) {
@@ -2965,6 +2940,24 @@ class Activity {
 				intval($channel['channel_id'])
 			);
 
+			if (!$parent) {
+				if (perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') || $is_sys_channel) {
+					if ($item['verb'] === 'Announce') {
+						$force = true;
+					}
+
+					if ($fetch_parents) {
+						Master::Summon(['Fetchparents', $channel['channel_id'], $observer_hash, $item['mid'], $force]);
+						//self::fetch_and_store_parents($channel, $observer_hash, $item, $act, $force);
+						return;
+					}
+
+					logger('no parent');
+					return;
+				}
+			}
+
+
 			// TODO: if we do not have a parent stop here and move the fetch to background?
 
 			if ($parent && $parent[0]['obj_type'] === 'Question') {
@@ -3159,35 +3152,8 @@ class Activity {
 		}
 
 		if ($is_child_node) {
-			if (!$parent) {
-				if (!plugin_is_installed('pubcrawl')) {
-					return;
-				}
 
-				$fetch = false;
-
-				if (perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') || $is_sys_channel) {
-					if ($item['verb'] === 'Announce') {
-						$force = true;
-					}
-
-					$fetch = (($fetch_parents) ? self::fetch_and_store_parents($channel, $observer_hash, $item, $force) : false);
-				}
-
-				if ($fetch) {
-					$parent = q("select * from item where mid = '%s' and uid = %d",
-						dbesc($item['parent_mid']),
-						intval($item['uid'])
-					);
-				}
-			}
-
-			if (!$parent) {
-				logger('no parent');
-				return;
-			}
-
-			$item['owner_xchan'] = (($item['verb'] === 'Announce') ? $parent[0]['author_xchan'] : $parent[0]['owner_xchan']);
+			$item['owner_xchan'] = $parent[0]['owner_xchan'];
 
 			if ($parent[0]['parent_mid'] !== $item['parent_mid']) {
 				$item['thr_parent'] = $item['parent_mid'];
@@ -3306,14 +3272,43 @@ class Activity {
 
 	}
 
-	static public function fetch_and_store_parents($channel, $observer_hash, $item, $force = false) {
+	/**
+	 * @brief fetch a thread upwards by either providing a message id or an item/activity pair
+	 *
+	 * @param array $channel
+	 * @param array $observer_hash
+	 * @param array $item string|array
+	 * @param object $act activitystreams object (optional) default null
+	 * @param bool $force disregard permissions and force storage (optional) default false
+	 * @return bool
+	 */
+
+	static public function fetch_and_store_parents($channel, $observer_hash, $item, $act = null, $force = false) {
 		logger('fetching parents');
 
-		$p = [];
+		if (!$item) {
+			return false;
+		}
 
-		$announce_init = $item['verb'] === 'Announce';
+		$p = [];
+		$announce_init = false;
+
+		if (is_object($act) && is_array($item)) {
+			$p[] = [$act, $item];
+			$announce_init = ($item['verb'] === 'Announce');
+		}
+
+		if (is_string($item)) {
+			$mid = $item;
+			$item = [
+				'parent_mid' => $mid,
+				'mid' => ''
+			];
+		}
 
 		$current_item = $item;
+
+		$i = 0;
 
 		while ($current_item['parent_mid'] !== $current_item['mid']) {
 			$n = self::fetch($current_item['parent_mid'], $channel);
@@ -3357,6 +3352,19 @@ class Activity {
 
 				$item['item_fetched'] = true;
 
+				if ($announce_init) {
+					// Store the sender of the initial announce
+					$item['source_xchan'] = $observer_hash;
+					// WARNING: the presence of both source_xchan and non-zero item_uplink here will cause a delivery loop
+					$item['item_uplink']  = 0;
+					$item['verb'] = 'Announce';
+					$item['parent_mid'] = $item['thr_parent'] = $item['mid'];
+					$item['item_thread_top'] = 1;
+				}
+				else {
+					$announce_init = ($i === 0 && $item['verb'] === 'Announce');
+				}
+
 				if (intval($channel['channel_system']) && intval($item['item_private'])) {
 					$p = [];
 					break;
@@ -3367,26 +3375,17 @@ class Activity {
 					break;
 				}
 
-				if ($announce_init) {
-					// Store the sender of the initial announce
-					$item['source_xchan'] = $observer_hash;
-					// WARNING: the presence of both source_xchan and non-zero item_uplink here will cause a delivery loop
-					$item['item_uplink']  = 0;
-					$item['verb'] = 'Announce';
-					$item['parent_mid'] = $item['thr_parent'] = $item['mid'];
-					$item['item_thread_top'] = 1;
-				}
-
 				array_unshift($p, [$a, $item]);
 
-				if ($announce_init || $item['parent_mid'] === $item['mid']) {
+				if ($item['parent_mid'] === $item['mid']) {
 					break;
 				}
+
 			}
 
 			$current_item = $item;
+			$i++;
 		}
-
 
 		if ($p) {
 			foreach ($p as $pv) {
@@ -3396,407 +3395,9 @@ class Activity {
 			}
 			return true;
 		}
-
 		return false;
 	}
 
-	/*
-		static public function fetch_and_store_parents($channel, $item) {
-
-			logger('fetching parents');
-
-			$p = [];
-
-			$current_item = $item;
-
-			while ($current_item['parent_mid'] !== $current_item['mid']) {
-				$n = self::fetch($current_item['parent_mid'], $channel);
-				if (!$n) {
-					break;
-				}
-				$a = new ActivityStreams($n);
-
-				//logger($a->debug());
-
-				if (!$a->is_valid()) {
-					break;
-				}
-
-				if (is_array($a->actor) && array_key_exists('id', $a->actor)) {
-					self::actor_store($a->actor);
-				}
-
-				$replies = null;
-				if (isset($a->obj['replies']['first']['items'])) {
-					$replies = $a->obj['replies']['first']['items'];
-					// we already have this one
-					array_diff($replies, [$current_item['mid']]);
-				}
-
-				$item = null;
-
-				switch ($a->type) {
-					case 'Create':
-					case 'Update':
-						//case 'Like':
-						//case 'Dislike':
-					case 'Announce':
-						$item = self::decode_note($a);
-						break;
-					default:
-						break;
-
-				}
-
-				$hookinfo = [
-					'a'    => $a,
-					'item' => $item
-				];
-
-				call_hooks('fetch_and_store', $hookinfo);
-
-				$item = $hookinfo['item'];
-
-				if ($item) {
-
-					array_unshift($p, [$a, $item, $replies]);
-
-					if ($item['parent_mid'] === $item['mid'] || count($p) > 20) {
-						break;
-					}
-
-				}
-				$current_item = $item;
-			}
-
-			if ($p) {
-				foreach ($p as $pv) {
-					self::store($channel, $pv[0]->actor['id'], $pv[0], $pv[1], false);
-					if ($pv[2])
-						self::fetch_and_store_replies($channel, $pv[2]);
-				}
-				return true;
-			}
-
-			return false;
-		}
-
-	static public function fetch_and_store_replies($channel, $arr) {
-
-		logger('fetching replies');
-		logger(print_r($arr, true));
-
-		$p = [];
-
-		foreach ($arr as $url) {
-
-			$n = self::fetch($url, $channel);
-			if (!$n) {
-				break;
-			}
-
-			$a = new ActivityStreams($n);
-
-			if (!$a->is_valid()) {
-				break;
-			}
-
-			$item = null;
-
-			switch ($a->type) {
-				case 'Create':
-				case 'Update':
-				case 'Like':
-				case 'Dislike':
-				case 'Announce':
-					$item = self::decode_note($a);
-					break;
-				default:
-					break;
-			}
-
-			$hookinfo = [
-				'a'    => $a,
-				'item' => $item
-			];
-
-			call_hooks('fetch_and_store', $hookinfo);
-
-			$item = $hookinfo['item'];
-
-			if ($item) {
-				array_unshift($p, [$a, $item]);
-			}
-
-		}
-
-		if ($p) {
-			foreach ($p as $pv) {
-				self::store($channel, $pv[0]->actor['id'], $pv[0], $pv[1], false);
-			}
-		}
-
-	}
-*/
-
-/* this is deprecated and not used anymore
-	static function announce_note($channel, $observer_hash, $act) {
-
-		$s              = [];
-		$is_sys_channel = is_sys_channel($channel['channel_id']);
-
-		if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') && !$is_sys_channel) {
-			logger('no permission');
-			return;
-		}
-
-		$content = self::get_content($act->obj);
-
-		if (!$content) {
-			logger('no content');
-			return;
-		}
-
-		$s['owner_xchan'] = $s['author_xchan'] = $observer_hash;
-
-		$s['aid']   = $channel['channel_account_id'];
-		$s['uid']   = $channel['channel_id'];
-		$s['mid']   = urldecode($act->obj['id']);
-		$s['plink'] = urldecode($act->obj['id']);
-
-		if (!$s['created'])
-			$s['created'] = datetime_convert();
-
-		if (!$s['edited'])
-			$s['edited'] = $s['created'];
-
-
-		$s['parent_mid'] = $s['mid'];
-
-		$s['verb']     = ACTIVITY_POST;
-		$s['obj_type'] = ACTIVITY_OBJ_NOTE;
-		$s['app']      = t('ActivityPub');
-
-		if ($channel['channel_system']) {
-			if (!MessageFilter::evaluate($s, get_config('system', 'pubstream_incl'), get_config('system', 'pubstream_excl'))) {
-				logger('post is filtered');
-				return;
-			}
-		}
-
-		$abook = q("select * from abook where abook_xchan = '%s' and abook_channel = %d limit 1",
-			dbesc($observer_hash),
-			intval($channel['channel_id'])
-		);
-
-		if ($abook) {
-			if (!post_is_importable($s, $abook[0])) {
-				logger('post is filtered');
-				return;
-			}
-		}
-
-		if ($act->obj['conversation']) {
-			set_iconfig($s, 'ostatus', 'conversation', $act->obj['conversation'], 1);
-		}
-
-		$a = self::decode_taxonomy($act->obj);
-		if ($a) {
-			$s['term'] = $a;
-		}
-
-		$a = self::decode_attachment($act->obj);
-		if ($a) {
-			$s['attach'] = $a;
-		}
-
-		$body = "[share author='" . urlencode($act->sharee['name']) .
-			"' profile='" . $act->sharee['url'] .
-			"' avatar='" . $act->sharee['photo_s'] .
-			"' link='" . ((is_array($act->obj['url'])) ? $act->obj['url']['href'] : $act->obj['url']) .
-			"' auth='" . ((is_matrix_url($act->obj['url'])) ? 'true' : 'false') .
-			"' posted='" . $act->obj['published'] .
-			"' message_id='" . $act->obj['id'] .
-			"']";
-
-		if ($content['name'])
-			$body .= self::bb_content($content, 'name') . "\r\n";
-
-		$body .= self::bb_content($content, 'content');
-
-		if ($act->obj['type'] === 'Note' && $s['attach']) {
-			$body .= self::bb_attach($s['attach'], $body);
-		}
-
-		$body .= "[/share]";
-
-		$s['title'] = self::bb_content($content, 'name');
-		$s['body']  = $body;
-
-		if ($act->recips && (!in_array(ACTIVITY_PUBLIC_INBOX, $act->recips)))
-			$s['item_private'] = 1;
-
-		set_iconfig($s, 'activitypub', 'recips', $act->raw_recips);
-
-		$r = q("select created, edited from item where mid = '%s' and uid = %d limit 1",
-			dbesc($s['mid']),
-			intval($s['uid'])
-		);
-		if ($r) {
-			if ($s['edited'] > $r[0]['edited']) {
-				$x = item_store_update($s);
-			}
-			else {
-				return;
-			}
-		}
-		else {
-			$x = item_store($s);
-		}
-
-		if (is_array($x) && $x['item_id']) {
-			if ($s['owner_xchan'] === $channel['channel_hash']) {
-				// We are the owner of this conversation, so send all received comments back downstream
-				Master::Summon(['Notifier', 'comment-import', $x['item_id']]);
-			}
-			$r = q("select * from item where id = %d limit 1",
-				intval($x['item_id'])
-			);
-			if ($r) {
-				send_status_notifications($x['item_id'], $r[0]);
-			}
-
-			sync_an_item($channel['channel_id'], $x['item_id']);
-		}
-
-	}
-*/
-
-	static function like_note($channel, $observer_hash, $act) {
-
-		$s = [];
-
-		$parent = $act->obj['id'];
-
-		if ($act->type === 'Like')
-			$s['verb'] = ACTIVITY_LIKE;
-		if ($act->type === 'Dislike')
-			$s['verb'] = ACTIVITY_DISLIKE;
-
-		if (!$parent)
-			return;
-
-		$r = q("select * from item where uid = %d and ( mid = '%s' or  mid = '%s' ) limit 1",
-			intval($channel['channel_id']),
-			dbesc($parent),
-			dbesc(urldecode(basename($parent)))
-		);
-
-		if (!$r) {
-			logger('parent not found.');
-			return;
-		}
-
-		xchan_query($r);
-		$parent_item = $r[0];
-
-		if ($parent_item['owner_xchan'] === $channel['channel_hash']) {
-			if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'post_comments')) {
-				logger('no comment permission.');
-				return;
-			}
-		}
-
-		if ($parent_item['mid'] === $parent_item['parent_mid']) {
-			$s['parent_mid'] = $parent_item['mid'];
-		}
-		else {
-			$s['thr_parent'] = $parent_item['mid'];
-			$s['parent_mid'] = $parent_item['parent_mid'];
-		}
-
-		$s['owner_xchan']  = $parent_item['owner_xchan'];
-		$s['author_xchan'] = $observer_hash;
-
-		$s['aid'] = $channel['channel_account_id'];
-		$s['uid'] = $channel['channel_id'];
-		$s['mid'] = $act->id;
-
-		if (!$s['parent_mid'])
-			$s['parent_mid'] = $s['mid'];
-
-
-		$post_type = (($parent_item['resource_type'] === 'photo') ? t('photo') : t('post'));
-
-		$links   = [['rel' => 'alternate', 'type' => 'text/html', 'href' => $parent_item['plink']]];
-		$objtype = (($parent_item['resource_type'] === 'photo') ? ACTIVITY_OBJ_PHOTO : ACTIVITY_OBJ_NOTE);
-
-		$z = q("select * from xchan where xchan_hash = '%s' limit 1",
-			dbesc($parent_item['author_xchan'])
-		);
-		if ($z)
-			$item_author = $z[0];
-
-		$object = json_encode([
-			'type'    => $post_type,
-			'id'      => $parent_item['mid'],
-			'parent'  => (($parent_item['thr_parent']) ? $parent_item['thr_parent'] : $parent_item['parent_mid']),
-			'link'    => $links,
-			'title'   => $parent_item['title'],
-			'content' => $parent_item['body'],
-			'created' => $parent_item['created'],
-			'edited'  => $parent_item['edited'],
-			'author'  => [
-				'name'     => $item_author['xchan_name'],
-				'address'  => $item_author['xchan_addr'],
-				'guid'     => $item_author['xchan_guid'],
-				'guid_sig' => $item_author['xchan_guid_sig'],
-				'link'     => [
-					['rel' => 'alternate', 'type' => 'text/html', 'href' => $item_author['xchan_url']],
-					['rel' => 'photo', 'type' => $item_author['xchan_photo_mimetype'], 'href' => $item_author['xchan_photo_m']]],
-			],
-		], JSON_UNESCAPED_SLASHES
-		);
-
-		if ($act->type === 'Like')
-			$bodyverb = t('%1$s likes %2$s\'s %3$s');
-		if ($act->type === 'Dislike')
-			$bodyverb = t('%1$s doesn\'t like %2$s\'s %3$s');
-
-		$ulink     = '[url=' . $item_author['xchan_url'] . ']' . $item_author['xchan_name'] . '[/url]';
-		$alink     = '[url=' . $parent_item['author']['xchan_url'] . ']' . $parent_item['author']['xchan_name'] . '[/url]';
-		$plink     = '[url=' . z_root() . '/display/' . urlencode($act->id) . ']' . $post_type . '[/url]';
-		$s['body'] = sprintf($bodyverb, $ulink, $alink, $plink);
-
-		$s['app'] = t('ActivityPub');
-
-		// set the route to that of the parent so downstream hubs won't reject it.
-
-		$s['route']        = $parent_item['route'];
-		$s['item_private'] = $parent_item['item_private'];
-		$s['obj_type']     = $objtype;
-		$s['obj']          = $object;
-
-		if ($act->obj['conversation']) {
-			set_iconfig($s, 'ostatus', 'conversation', $act->obj['conversation'], 1);
-		}
-
-		if ($act->recips && (!in_array(ACTIVITY_PUBLIC_INBOX, $act->recips)))
-			$s['item_private'] = 1;
-
-		set_iconfig($s, 'activitypub', 'recips', $act->raw_recips);
-
-		$result = item_store($s);
-
-		if ($result['success']) {
-			// if the message isn't already being relayed, notify others
-			if (intval($parent_item['item_origin']))
-				Master::Summon(['Notifier', 'comment-import', $result['item_id']]);
-			sync_an_item($channel['channel_id'], $result['item_id']);
-		}
-
-		return;
-	}
 
 	public static function bb_attach($item) {
 

@@ -65,8 +65,6 @@ class Share extends \Zotlabs\Web\Controller {
 
 		$item = $r[0];
 
-		$owner_uid = $r[0]['uid'];
-		$owner_aid = $r[0]['aid'];
 /*
 		$can_comment = false;
 		if((array_key_exists('owner',$item)) && intval($item['owner']['abook_self']))
@@ -96,21 +94,33 @@ class Share extends \Zotlabs\Web\Controller {
 		else
 			killme();
 
-
-		$arr['aid'] = $owner_aid;
-		$arr['uid'] = $owner_uid;
+		$arr['aid'] =  $item['aid'];
+		$arr['uid'] =  $item['uid'];
 
 		$arr['item_origin'] = 1;
 		$arr['item_wall'] = $item['item_wall'];
+		$arr['item_private'] = $item['item_private'];
 		$arr['uuid'] = item_message_id();
 		$arr['mid'] = z_root() . '/activity/' . $arr['uuid'];
-		$arr['parent_mid'] = $item['mid'];
+		$arr['parent_mid'] = $item['parent_mid'];
+		$arr['thr_parent'] = $item['mid'];
+
+		$created = datetime_convert();
+
+		$arr['created'] = $created;
+		$arr['edited'] = $created;
+		$arr['commented'] = $created;
+		$arr['received'] = $created;
+		$arr['changed'] = $created;
+		$arr['item_type'] = ITEM_TYPE_POST;
 
 		$mention = '@[zrl=' . $item['author']['xchan_url'] . ']' . $item['author']['xchan_name'] . '[/zrl]';
 		$arr['body'] = sprintf( t('&#x1f501; Repeated %1$s\'s %2$s'), $mention, Activity::activity_obj_mapper($item['obj_type']));
 
 		$arr['author_xchan'] = $channel['channel_hash'];
 		$arr['owner_xchan'] = $item['author_xchan'];
+		$arr['source_xchan'] = '';
+
 		$arr['obj'] = $item['obj'];
 		$arr['obj_type'] = $item['obj_type'];
 		$arr['verb'] = ACTIVITY_SHARE;

@@ -58,7 +58,9 @@ function format_event_html($ev) {
 				$ev['dtend'] , $bd_format )))
 			. '</span></div>'  . "\r\n";
 
-	$o .= '<div class="event-description">' . zidify_links(smilies(bbcode($ev['description']))) .  '</div>' . "\r\n";
+	if (!empty($ev['description'])) {
+		$o .= '<div class="event-description">' . zidify_links(smilies(bbcode($ev['description']))) .  '</div>' . "\r\n";
+	}
 
 	if(isset($ev['location']) && $ev['location'])
 		$o .= '<div class="event-location"><span class="event-label"> ' . t('Location:') . '</span>&nbsp;<span class="location">'
@@ -117,6 +119,7 @@ function format_event_obj($jobject) {
 
 		$dtdiff = $dtstart->diff($dtend_obj);
 
+		$oneday = false;
 		if($allday && ($dtdiff->days < 2))
 			$oneday = true;
 

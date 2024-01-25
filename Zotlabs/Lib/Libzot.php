@@ -1672,24 +1672,13 @@ class Libzot {
 					}
 
 					if ($arr['verb'] === 'Announce') {
-
-						// TODO: move this to background
-
-						if (!Activity::fetch_and_store_parents($channel, $sender, $arr, true)) {
-							continue;
-						}
-
-						$parent = q("select * from item where mid = '%s' and uid = %d limit 1",
-							dbesc($arr['parent_mid']),
-							intval($channel['channel_id'])
-						);
-
+						Master::Summon(['Fetchparents', $channel['channel_id'], $sender, $arr['mid'], true]);
 					}
 					else {
 						Master::Summon(['Zotconvo', $channel['channel_id'], $arr['parent_mid']]);
-						continue;
 					}
 
+					continue;
 				}
 
 				logger('checking source: "' . $arr['mid'] . '" != "' . $arr['parent_mid'] . '"');

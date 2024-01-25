@@ -1097,6 +1097,10 @@ function parseIdentityAwareHTML($Text) {
 
 function bbcode($Text, $options = []) {
 
+	if (!$Text) {
+		return EMPTY_STR;
+	}
+
 	if(! is_array($options)) {
 		$options = [];
 	}
