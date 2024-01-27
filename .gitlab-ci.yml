@@ -99,13 +99,13 @@ before_script:
       - tests/results/
 
 
-# PHP8.0 with MySQL 5.7
-php8.1_mysql5.7:
+# PHP8.1 with MySQL 8.0
+php8.1_mysql8.0.22:
   <<: *job_definition_mysql
   <<: *artifacts_template
   image: php:8.1
   services:
-    - mysql:5.7
+    - mysql:8.0
 
 
 # PHP8.1 with PostgreSQL 12
