@@ -90,6 +90,15 @@ class ActivityStreams {
 		// Attempt to assemble an Activity from what we were given.
 		if ($this->is_valid()) {
 			$this->id     = $this->get_property_obj('id');
+
+			if  (!$this->id) {
+				logger('Data with mmissing id: ' . print_r($this->data, true));
+				return;
+			}
+
+			// cache for future use
+			ASCache::Set($this->id, 'json:' . $this->raw);
+
 			$this->type   = $this->get_primary_type();
 			$this->actor  = $this->get_actor('actor', '', '');
 			$this->obj    = $this->get_compound_property('object');
@@ -394,11 +403,21 @@ class ActivityStreams {
 		$x = $this->get_property_obj($property, $base, $namespace);
 
 		if ($this->is_url($x)) {
-			$y = $this->fetch_property($x);
+			$cached = ASCache::Get($x);
+			if ($cached) {
+				$y = unserialise($cached);
+			}
+			else {
+				$y = $this->fetch_property($x);
+				if ($y) {
+					ASCache::Set($x, serialise($y));
+				}
+			}
 			if (is_array($y)) {
 				$x = $y;
 			}
 		}
+
 
 		// verify and unpack JSalmon signature if present
 

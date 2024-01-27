@@ -153,6 +153,7 @@ class Activity {
 			}
 			else {
 				logger('logger_stats_data cmd:Activity_fetch' . ' start:' . $start_timestamp . ' ' . 'end:' . microtime(true) . ' meta:' . $url . '#' . random_string(16));
+				btlogger('activity fetch');
 			}
 
 			return json_decode($x['body'], true);
@@ -363,7 +364,7 @@ class Activity {
 		if ($items) {
 			$x = [];
 			foreach ($items as $i) {
-				$m = get_iconfig($i['id'], 'activitypub', 'rawmsg');
+				$m = IConfig::Get($i['id'], 'activitypub', 'rawmsg');
 				if ($m) {
 					if (is_string($m))
 						$t = json_decode($m, true);
@@ -498,7 +499,7 @@ class Activity {
 		// set this for descendants even if the current item is not private
 		// because it may have been relayed from a private item.
 
-		$token = get_iconfig($i, 'ocap', 'relay');
+		$token = IConfig::Get($i, 'ocap', 'relay');
 		if ($token && $has_images) {
 			$matches_processed = [];
 			for ($n = 0; $n < count($images); $n++) {
@@ -1083,11 +1084,11 @@ class Activity {
 		$ret['type'] = 'Person';
 
 		if ($c) {
-			if (get_pconfig($c['channel_id'], 'system', 'group_actor')) {
+			if (PConfig::Get($c['channel_id'], 'system', 'group_actor')) {
 				$ret['type'] = 'Group';
 			}
 
-			$ret['manuallyApprovesFollowers'] = ((get_pconfig($c['channel_id'], 'system', 'autoperms')) ? false : true);
+			$ret['manuallyApprovesFollowers'] = ((PConfig::Get($c['channel_id'], 'system', 'autoperms')) ? false : true);
 		}
 
 		$ret['id'] = $id;
@@ -1396,7 +1397,7 @@ class Activity {
 			}
 		}
 
-		$role = get_pconfig($channel['channel_id'], 'system', 'permissions_role', 'personal');
+		$role = PConfig::Get($channel['channel_id'], 'system', 'permissions_role', 'personal');
 		$x = PermissionRoles::role_perms($role);
 		$their_perms = Permissions::FilledPerms($x['perms_connect']);
 
@@ -1417,7 +1418,7 @@ class Activity {
 
 					// We've already approved them or followed them first
 					// Send an Accept back to them
-					set_abconfig($channel['channel_id'], $person_obj['id'], 'pubcrawl', 'their_follow_id', $their_follow_id);
+					AbConfig::Set($channel['channel_id'], $person_obj['id'], 'pubcrawl', 'their_follow_id', $their_follow_id);
 					Master::Summon(['Notifier', 'permission_accept', $contact['abook_id']]);
 					return;
 
@@ -1429,7 +1430,7 @@ class Activity {
 						if(in_array($k, ['send_stream', 'post_wall'])) {
 							continue; // Those will be set once we accept their follow request
 						}
-						set_abconfig($channel['channel_id'], $contact['abook_xchan'], 'their_perms', $k, $v);
+						AbConfig::Set($channel['channel_id'], $contact['abook_xchan'], 'their_perms', $k, $v);
 					}
 
 					$abook_instance = $contact['abook_instance'];
@@ -1463,7 +1464,7 @@ class Activity {
 
 		// From here on out we assume a Follow activity to somebody we have no existing relationship with
 
-		set_abconfig($channel['channel_id'], $person_obj['id'], 'pubcrawl', 'their_follow_id', $their_follow_id);
+		AbConfig::Set($channel['channel_id'], $person_obj['id'], 'pubcrawl', 'their_follow_id', $their_follow_id);
 
 		// The xchan should have been created by actor_store() above
 
@@ -1481,7 +1482,7 @@ class Activity {
 		$my_perms  = $p['perms'];
 		$automatic = $p['automatic'];
 
-		$closeness = get_pconfig($channel['channel_id'], 'system', 'new_abook_closeness', 80);
+		$closeness = PConfig::Get($channel['channel_id'], 'system', 'new_abook_closeness', 80);
 
 		$r = abook_store_lowlevel(
 			[
@@ -1500,11 +1501,11 @@ class Activity {
 
 		if ($my_perms)
 			foreach ($my_perms as $k => $v)
-				set_abconfig($channel['channel_id'], $ret['xchan_hash'], 'my_perms', $k, $v);
+				AbConfig::Set($channel['channel_id'], $ret['xchan_hash'], 'my_perms', $k, $v);
 
 		if ($their_perms)
 			foreach ($their_perms as $k => $v)
-				set_abconfig($channel['channel_id'], $ret['xchan_hash'], 'their_perms', $k, $v);
+				AbConfig::Set($channel['channel_id'], $ret['xchan_hash'], 'their_perms', $k, $v);
 
 		if ($r) {
 			logger("New ActivityPub follower for {$channel['channel_name']}");
@@ -1540,7 +1541,7 @@ class Activity {
 				unset($clone['abook_account']);
 				unset($clone['abook_channel']);
 
-				$abconfig = load_abconfig($channel['channel_id'], $clone['abook_xchan']);
+				$abconfig = AbConfig::Load($channel['channel_id'], $clone['abook_xchan']);
 
 				if ($abconfig)
 					$clone['abconfig'] = $abconfig;
@@ -1581,7 +1582,7 @@ class Activity {
 			);
 			if ($r) {
 				// remove all permissions they provided
-				del_abconfig($channel['channel_id'], $r[0]['xchan_hash'], 'system', 'their_perms');
+				AbConfig::Delete($channel['channel_id'], $r[0]['xchan_hash'], 'system', 'their_perms');
 			}
 		}
 
@@ -1881,251 +1882,6 @@ class Activity {
 		return (($a_width > $b_width) ? -1 : 1);
 	}
 
-	static function create_note($channel, $observer_hash, $act) {
-
-		$s              = [];
-		$is_sys_channel = is_sys_channel($channel['channel_id']);
-		$parent         = ((array_key_exists('inReplyTo', $act->obj)) ? urldecode($act->obj['inReplyTo']) : '');
-
-		if ($parent) {
-
-			$r = q("select * from item where uid = %d and ( mid = '%s' or  mid = '%s' ) limit 1",
-				intval($channel['channel_id']),
-				dbesc($parent),
-				dbesc(basename($parent))
-			);
-
-			if (!$r) {
-				logger('parent not found.');
-				return;
-			}
-
-			if ($r[0]['owner_xchan'] === $channel['channel_hash']) {
-				if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') && !$is_sys_channel) {
-					logger('no comment permission.');
-					return;
-				}
-			}
-
-			$s['parent_mid']   = $r[0]['mid'];
-			$s['owner_xchan']  = $r[0]['owner_xchan'];
-			$s['author_xchan'] = $observer_hash;
-
-		}
-		else {
-			if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') && !$is_sys_channel) {
-				logger('no send_stream permission');
-				return;
-			}
-			$s['owner_xchan'] = $s['author_xchan'] = $observer_hash;
-		}
-
-		if ($act->recips && (!in_array(ACTIVITY_PUBLIC_INBOX, $act->recips)))
-			$s['item_private'] = 1;
-
-
-		if (array_key_exists('directMessage', $act->obj) && intval($act->obj['directMessage'])) {
-			$s['item_private'] = 2;
-		}
-
-		if (intval($s['item_private']) === 2) {
-			if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'post_mail')) {
-				logger('no post_mail permission');
-				return;
-			}
-		}
-
-		$content = self::get_content($act->obj);
-
-		if (!$content) {
-			logger('no content');
-			return;
-		}
-
-		$s['aid'] = $channel['channel_account_id'];
-		$s['uid'] = $channel['channel_id'];
-
-		// Make sure we use the zot6 identity where applicable
-
-		$s['author_xchan'] = self::find_best_identity($s['author_xchan']);
-		$s['owner_xchan']  = self::find_best_identity($s['owner_xchan']);
-
-		if (!$s['author_xchan']) {
-			logger('No author: ' . print_r($act, true));
-		}
-
-		if (!$s['owner_xchan']) {
-			logger('No owner: ' . print_r($act, true));
-		}
-
-		if (!$s['author_xchan'] || !$s['owner_xchan'])
-			return;
-
-		$s['mid']   = urldecode($act->obj['id']);
-		$s['uuid']  = $act->obj['diaspora:guid'];
-		$s['plink'] = urldecode($act->obj['id']);
-
-
-		if ($act->data['published']) {
-			$s['created'] = datetime_convert('UTC', 'UTC', $act->data['published']);
-		}
-		elseif ($act->obj['published']) {
-			$s['created'] = datetime_convert('UTC', 'UTC', $act->obj['published']);
-		}
-		if ($act->data['updated']) {
-			$s['edited'] = datetime_convert('UTC', 'UTC', $act->data['updated']);
-		}
-		elseif ($act->obj['updated']) {
-			$s['edited'] = datetime_convert('UTC', 'UTC', $act->obj['updated']);
-		}
-		if ($act->data['expires']) {
-			$s['expires'] = datetime_convert('UTC', 'UTC', $act->data['expires']);
-		}
-		elseif ($act->obj['expires']) {
-			$s['expires'] = datetime_convert('UTC', 'UTC', $act->obj['expires']);
-		}
-
-		if (!$s['created'])
-			$s['created'] = datetime_convert();
-
-		if (!$s['edited'])
-			$s['edited'] = $s['created'];
-
-
-		if (!$s['parent_mid'])
-			$s['parent_mid'] = $s['mid'];
-
-
-		$s['title']    = self::bb_content($content, 'name');
-		$s['summary']  = self::bb_content($content, 'summary');
-		$s['body']     = self::bb_content($content, 'content');
-		$s['verb']     = ACTIVITY_POST;
-		$s['obj_type'] = ACTIVITY_OBJ_NOTE;
-
-		$generator = $act->get_property_obj('generator');
-		if (!$generator)
-			$generator = $act->get_property_obj('generator', $act->obj);
-
-		if ($generator && array_key_exists('type', $generator)
-			&& in_array($generator['type'], ['Application', 'Service']) && array_key_exists('name', $generator)) {
-			$s['app'] = escape_tags($generator['name']);
-		}
-
-		if ($channel['channel_system']) {
-			$incl = get_config('system','pubstream_incl');
-			$excl = get_config('system','pubstream_excl');
-
-			if(($incl || $excl) && !MessageFilter::evaluate($s, $incl, $excl)) {
-				logger('post is filtered');
-				return;
-			}
-		}
-
-		$abook = q("select * from abook where (abook_xchan = '%s' OR abook_xchan  = '%s') and abook_channel = %d ",
-			dbesc($s['author_xchan']),
-			dbesc($s['owner_xchan']),
-			intval($channel['channel_id'])
-		);
-
-		if ($abook) {
-			if (!post_is_importable($channel['channel_id'], $s, $abook)) {
-				logger('post is filtered');
-				return;
-			}
-		}
-
-		if ($act->obj['conversation']) {
-			set_iconfig($s, 'ostatus', 'conversation', $act->obj['conversation'], 1);
-		}
-
-		$a = self::decode_taxonomy($act->obj);
-		if ($a) {
-			$s['term'] = $a;
-		}
-
-		$a = self::decode_attachment($act->obj);
-		if ($a) {
-			$s['attach'] = $a;
-		}
-
-		if ($act->obj['type'] === 'Note' && $s['attach']) {
-			$s['body'] .= self::bb_attach($s['attach'], $s['body']);
-		}
-
-		// we will need a hook here to extract magnet links e.g. peertube
-		// right now just link to the largest mp4 we find that will fit in our
-		// standard content region
-
-		if ($act->obj['type'] === 'Video') {
-
-			$vtypes = [
-				'video/mp4',
-				'video/ogg',
-				'video/webm'
-			];
-
-			$mps = [];
-			if (array_key_exists('url', $act->obj) && is_array($act->obj['url'])) {
-				foreach ($act->obj['url'] as $vurl) {
-					if (in_array($vurl['mimeType'], $vtypes)) {
-						if (!array_key_exists('width', $vurl)) {
-							$vurl['width'] = 0;
-						}
-						$mps[] = $vurl;
-					}
-				}
-			}
-			if ($mps) {
-				usort($mps, [__CLASS__, 'vid_sort']);
-				foreach ($mps as $m) {
-					if (intval($m['width']) < 500) {
-						$s['body'] .= "\n\n" . '[video]' . $m['href'] . '[/video]';
-						break;
-					}
-				}
-			}
-		}
-
-		set_iconfig($s, 'activitypub', 'recips', $act->raw_recips);
-		if ($parent) {
-			set_iconfig($s, 'activitypub', 'rawmsg', $act->raw, 1);
-		}
-
-		$x = null;
-
-		$r = q("select created, edited from item where mid = '%s' and uid = %d limit 1",
-			dbesc($s['mid']),
-			intval($s['uid'])
-		);
-		if ($r) {
-			if ($s['edited'] > $r[0]['edited']) {
-				$x = item_store_update($s);
-			}
-			else {
-				return;
-			}
-		}
-		else {
-			$x = item_store($s);
-		}
-
-		if (is_array($x) && $x['item_id']) {
-			if ($parent) {
-				if ($s['owner_xchan'] === $channel['channel_hash']) {
-					// We are the owner of this conversation, so send all received comments back downstream
-					Master::Summon(['Notifier', 'comment-import', $x['item_id']]);
-				}
-				$r = q("select * from item where id = %d limit 1",
-					intval($x['item_id'])
-				);
-				if ($r) {
-					send_status_notifications($x['item_id'], $r[0]);
-				}
-			}
-			sync_an_item($channel['channel_id'], $x['item_id']);
-		}
-
-	}
 
 	static function get_actor_bbmention($id) {
 
@@ -2305,7 +2061,16 @@ class Activity {
 			$content = self::get_content($act->obj);
 		}
 
-		$s['mid'] = $act->objprop('id') ?: $act->obj;
+		$s['mid'] = $act->objprop('id');
+
+		if (!$s['mid'] && is_string($act->obj)) {
+			$s['mid'] = $act->obj;
+		}
+
+		// pleroma fetched activities
+		if (!$s['mid'] && isset($act->obj['data']['id'])) {
+			$s['mid'] = $act->obj['data']['id'];
+		}
 
 		if (!$s['mid']) {
 			return false;
@@ -2883,22 +2648,22 @@ class Activity {
 		}
 
 		if ($ap_rawmsg) {
-			set_iconfig($s, 'activitypub', 'rawmsg', $ap_rawmsg, 1);
+			IConfig::Set($s, 'activitypub', 'rawmsg', $ap_rawmsg, 1);
 		}
 		elseif (!array_key_exists('signed', $raw_arr)) {
-			set_iconfig($s, 'activitypub', 'rawmsg', $act->raw, 1);
+			IConfig::Set($s, 'activitypub', 'rawmsg', $act->raw, 1);
 		}
 
 		if ($diaspora_rawmsg) {
-			set_iconfig($s, 'diaspora', 'fields', $diaspora_rawmsg, 1);
+			IConfig::Set($s, 'diaspora', 'fields', $diaspora_rawmsg, 1);
 		}
 
 		if ($act->raw_recips) {
-			set_iconfig($s, 'activitypub', 'recips', $act->raw_recips);
+			IConfig::Set($s, 'activitypub', 'recips', $act->raw_recips);
 		}
 
 		if ($act->objprop('type') === 'Event' && $act->objprop('timezone')) {
-			set_iconfig($s, 'event', 'timezone', $act->objprop('timezone'), true);
+			IConfig::Set($s, 'event', 'timezone', $act->objprop('timezone'), true);
 		}
 
 		$hookinfo = [
@@ -2947,14 +2712,18 @@ class Activity {
 					}
 
 					if ($fetch_parents) {
-						Master::Summon(['Fetchparents', $channel['channel_id'], $observer_hash, $item['mid'], $force]);
+					//	Cache::set($item['mid'], 'json:' . $act->raw);
+						App::$cache['fetch_objects'][$item['mid']]['channels'][] = $channel['channel_id'];
+						App::$cache['fetch_objects'][$item['mid']]['force'] = intval($force);
+
+						//Master::Summon(['Fetchparents', $channel['channel_id'], $observer_hash, $item['mid'], $force]);
 						//self::fetch_and_store_parents($channel, $observer_hash, $item, $act, $force);
 						return;
 					}
-
-					logger('no parent');
-					return;
 				}
+
+				logger('no parent');
+				return;
 			}
 
 
@@ -2998,7 +2767,7 @@ class Activity {
 				}*/
 
 				if (!$allowed) {
-					if (get_pconfig($channel['channel_id'], 'system', 'moderate_unsolicited_comments') && $item['obj_type'] !== 'Answer') {
+					if (PConfig::Get($channel['channel_id'], 'system', 'moderate_unsolicited_comments') && $item['obj_type'] !== 'Answer') {
 						$item['item_blocked'] = ITEM_MODERATED;
 						$allowed = true;
 					}
@@ -3043,7 +2812,7 @@ class Activity {
 
 		if (tgroup_check($channel['channel_id'], $item) && (!$is_child_node)) {
 			// for forum deliveries, make sure we keep a copy of the signed original
-			set_iconfig($item, 'activitypub', 'rawmsg', $act->raw, 1);
+			IConfig::Set($item, 'activitypub', 'rawmsg', $act->raw, 1);
 			$allowed = true;
 		}
 
@@ -3103,6 +2872,7 @@ class Activity {
 
 		$item['author_xchan'] = self::find_best_identity($item['author_xchan']);
 		$item['owner_xchan']  = self::find_best_identity($item['owner_xchan']);
+		$item['source_xchan']  = ((!empty($item['source_xchan'])) ? self::find_best_identity($item['source_xchan']) : '');
 
 		if (!$item['author_xchan']) {
 			logger('No author: ' . print_r($act, true));
@@ -3116,8 +2886,8 @@ class Activity {
 			return;
 
 		if ($channel['channel_system']) {
-			$incl = get_config('system','pubstream_incl');
-			$excl = get_config('system','pubstream_excl');
+			$incl = Config::Get('system','pubstream_incl');
+			$excl = Config::Get('system','pubstream_excl');
 
 			if(($incl || $excl) && !MessageFilter::evaluate($item, $incl, $excl)) {
 				logger('post is filtered');
@@ -3125,9 +2895,10 @@ class Activity {
 			}
 		}
 
-		$abook = q("select * from abook where ( abook_xchan = '%s' OR abook_xchan  = '%s') and abook_channel = %d ",
+		$abook = q("select * from abook where ( abook_xchan = '%s' OR abook_xchan  = '%s' OR abook_xchan  = '%s') and abook_channel = %d ",
 			dbesc($item['author_xchan']),
 			dbesc($item['owner_xchan']),
+			dbesc($item['source_xchan']),
 			intval($channel['channel_id'])
 		);
 
@@ -3139,13 +2910,13 @@ class Activity {
 		}
 
 		if (array_key_exists('conversation', $act->obj)) {
-			set_iconfig($item, 'ostatus', 'conversation', $act->obj['conversation'], 1);
+			IConfig::Set($item, 'ostatus', 'conversation', $act->obj['conversation'], 1);
 		}
 
 		// This isn't perfect but the best we can do for now.
 		$item['comment_policy'] = ((isset($act->data['commentPolicy'])) ? $act->data['commentPolicy'] : 'authenticated');
 
-		set_iconfig($item, 'activitypub', 'recips', $act->raw_recips);
+		IConfig::Set($item, 'activitypub', 'recips', $act->raw_recips);
 
 		if (intval($act->sigok)) {
 			$item['item_verified'] = 1;
@@ -3311,10 +3082,16 @@ class Activity {
 		$i = 0;
 
 		while ($current_item['parent_mid'] !== $current_item['mid']) {
-			$n = self::fetch($current_item['parent_mid'], $channel);
-
-			if (!$n) {
-				break;
+			$cached = ASCache::Get($current_item['parent_mid']);
+			if ($cached) {
+				$n = unserialise($cached);
+			}
+			else {
+				$n = self::fetch($current_item['parent_mid'], $channel);
+				if (!$n) {
+					break;
+				}
+				ASCache::Set($current_item['parent_mid'], serialise($n));
 			}
 
 			$a = new ActivityStreams($n);

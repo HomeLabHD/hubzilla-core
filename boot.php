@@ -804,6 +804,7 @@ class App {
 	public static $is_sys = false;
 	public static $nav_sel;
 	public static $comanche;
+	public static $cache = []; // general purpose cache
 
 
 	public static $channel_links;

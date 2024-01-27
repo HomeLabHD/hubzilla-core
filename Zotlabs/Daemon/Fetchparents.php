@@ -14,8 +14,8 @@ class Fetchparents {
 			return;
 		}
 
-		$channel = channelx_by_n(intval($argv[1]));
-		if (!$channel) {
+		$channels = explode(',', $argv[1]);
+		if (!$channels) {
 			return;
 		}
 
@@ -31,7 +31,10 @@ class Fetchparents {
 
 		$force = $argv[4] ?? false;
 
-		Activity::fetch_and_store_parents($channel, $observer_hash, $mid, null, $force);
+		foreach ($channels as $channel_id) {
+			$channel = channelx_by_n($channel_id);
+			Activity::fetch_and_store_parents($channel, $observer_hash, $mid, null, $force);
+		}
 
 		return;
 
