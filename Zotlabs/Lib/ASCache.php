@@ -8,7 +8,7 @@ namespace Zotlabs\Lib;
 
 class ASCache {
 	public static function isEnabled() {
-		return Config::Get('system', 'as_object_cache_enabled', false);
+		return Config::Get('system', 'as_object_cache_enabled', true);
 	}
 
 	public static function getAge() {

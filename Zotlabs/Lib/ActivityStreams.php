@@ -405,9 +405,11 @@ class ActivityStreams {
 		if ($this->is_url($x)) {
 			$cached = ASCache::Get($x);
 			if ($cached) {
+				// logger('AS cached: ' . $x);
 				$y = unserialise($cached);
 			}
 			else {
+				// logger('AS fetching: ' . $x);
 				$y = $this->fetch_property($x);
 				if ($y) {
 					ASCache::Set($x, serialise($y));

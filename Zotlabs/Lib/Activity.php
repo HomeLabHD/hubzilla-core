@@ -3084,9 +3084,11 @@ class Activity {
 		while ($current_item['parent_mid'] !== $current_item['mid']) {
 			$cached = ASCache::Get($current_item['parent_mid']);
 			if ($cached) {
+				// logger('cached: ' . $current_item['parent_mid']);
 				$n = unserialise($cached);
 			}
 			else {
+				// logger('fetching: ' . $current_item['parent_mid']);
 				$n = self::fetch($current_item['parent_mid'], $channel);
 				if (!$n) {
 					break;
