@@ -121,7 +121,7 @@ class Sse_bs extends Controller {
 		$mids = [];
 		$str = '';
 
-		$mids_all = unserialise(Cache::get('sse_mids_all_' . session_id()) ?? '{}');
+		$mids_all = unserialise(Cache::get('sse_mids_all_' . session_id())) ?? [];
 
 		foreach($arr as $a) {
 			$mid_str = '\'' . dbesc(unpack_link_id($a)) . '\'';
@@ -443,7 +443,7 @@ class Sse_bs extends Controller {
 			$sql_extra2 = " AND CASE WHEN verb = '" . ACTIVITY_SHARE . "' THEN owner_xchan ELSE author_xchan END IN (" . self::$xchans . ") ";
 
 		$sql_extra3 = '';
-		$sse_mids_all = unserialise(Cache::get('sse_mids_all_' . session_id()) ?? '{}');
+		$sse_mids_all = unserialise(Cache::get('sse_mids_all_' . session_id())) ?? [];
 		if ($sse_mids_all) {
 			$sql_extra3 = " AND mid NOT IN (" . protect_sprintf(implode(',', $sse_mids_all)) . ") ";
 		}
