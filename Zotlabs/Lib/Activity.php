@@ -3702,8 +3702,6 @@ class Activity {
 	 */
 
 	public static function init_background_fetch(string $observer_hash = '') {
-		hz_syslog(print_r(App::$cache, true));
-
 		if (isset(App::$cache['zot_fetch_objects'])) {
 			$channels_str = '';
 
