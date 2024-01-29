@@ -2712,12 +2712,8 @@ class Activity {
 					}
 
 					if ($fetch_parents) {
-					//	Cache::set($item['mid'], 'json:' . $act->raw);
-						App::$cache['fetch_objects'][$item['mid']]['channels'][] = $channel['channel_id'];
-						App::$cache['fetch_objects'][$item['mid']]['force'] = intval($force);
-
-						//Master::Summon(['Fetchparents', $channel['channel_id'], $observer_hash, $item['mid'], $force]);
-						//self::fetch_and_store_parents($channel, $observer_hash, $item, $act, $force);
+						App::$cache['as_fetch_objects'][$item['mid']]['channels'][] = $channel['channel_id'];
+						App::$cache['as_fetch_objects'][$item['mid']]['force'] = intval($force);
 						return;
 					}
 				}
@@ -3697,6 +3693,55 @@ class Activity {
 		}
 
 		return $arr;
+	}
+
+	/**
+	 * @brief Prepares the arguments and inititates the Fetchparents or Zotconvo daemon.
+	 * @param string $observer
+	 *
+	 */
+
+	public static function init_background_fetch(string $observer_hash = '') {
+		hz_syslog(print_r(App::$cache, true));
+
+		if (isset(App::$cache['zot_fetch_objects'])) {
+			$channels_str = '';
+
+			foreach (App::$cache['zot_fetch_objects'] as $mid => $info) {
+				$force = $info['force'];
+
+				foreach ($info['channels'] as $c) {
+					if ($channels_str) {
+						$channels_str .= ',';
+					}
+					$channels_str .= $c;
+				}
+
+				Master::Summon(['Zotconvo', $channels_str, $mid, $force]);
+			}
+		}
+
+		if (isset(App::$cache['as_fetch_objects'])) {
+			if (!$observer_hash) {
+				logger('Attempt to initiate Fetchparents daemon without observer');
+				return;
+			}
+
+			$channels_str = '';
+
+			foreach (App::$cache['as_fetch_objects'] as $mid => $info) {
+				$force = $info['force'];
+
+				foreach ($info['channels'] as $c) {
+					if ($channels_str) {
+						$channels_str .= ',';
+					}
+					$channels_str .= $c;
+				}
+
+				Master::Summon(['Fetchparents', $channels_str, $observer_hash, $mid, $force]);
+			}
+		}
 	}
 
 

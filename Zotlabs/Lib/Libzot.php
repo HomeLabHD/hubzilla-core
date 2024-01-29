@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Lib;
 
+use App;
 use Zotlabs\Web\HTTPSig;
 use Zotlabs\Access\Permissions;
 use Zotlabs\Access\PermissionLimits;
@@ -1321,6 +1322,9 @@ class Libzot {
 		if ($result) {
 			$return = array_merge($return, $result);
 		}
+
+		Activity::init_background_fetch();
+
 		return $return;
 	}
 
@@ -1672,10 +1676,12 @@ class Libzot {
 					}
 
 					if ($arr['verb'] === 'Announce') {
-						Master::Summon(['Fetchparents', $channel['channel_id'], $sender, $arr['mid'], true]);
+						App::$cache['as_fetch_objects'][$arr['mid']]['channels'][] = $channel['channel_id'];
+						App::$cache['as_fetch_objects'][$arr['mid']]['force'] = true;
 					}
 					else {
-						Master::Summon(['Zotconvo', $channel['channel_id'], $arr['parent_mid']]);
+						App::$cache['zot_fetch_objects'][$arr['mid']]['channels'][] = $channel['channel_id'];
+						App::$cache['zot_fetch_objects'][$arr['mid']]['force'] = false;
 					}
 
 					continue;
@@ -2977,7 +2983,7 @@ class Libzot {
 			$ret['site']['admin'] = get_config('system', 'admin_email');
 
 			$visible_plugins = [];
-			if (is_array(\App::$plugins) && count(\App::$plugins)) {
+			if (is_array(App::$plugins) && count(App::$plugins)) {
 				$r = q("select * from addon where hidden = 0");
 				if ($r)
 					foreach ($r as $rr)

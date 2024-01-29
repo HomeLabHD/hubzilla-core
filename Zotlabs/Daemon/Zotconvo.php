@@ -10,7 +10,12 @@ class Zotconvo {
 
 		logger('Zotconvo invoked: ' . print_r($argv, true));
 
-		if ($argc != 3) {
+		if ($argc < 3) {
+			return;
+		}
+
+		$channels = explode(',', $argv[1]);
+		if (!$channels) {
 			return;
 		}
 
@@ -19,12 +24,12 @@ class Zotconvo {
 			return;
 		}
 
-		$channel = channelx_by_n(intval($argv[1]));
-		if (!$channel) {
-			return;
-		}
+		$force = $argv[3] ?? false;
 
-		Libzot::fetch_conversation($channel, $mid);
+		foreach ($channels as $channel_id) {
+			$channel = channelx_by_n($channel_id);
+			Libzot::fetch_conversation($channel, $mid, $force);
+		}
 
 		return;
 
