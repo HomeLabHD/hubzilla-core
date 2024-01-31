@@ -120,8 +120,17 @@ class Sse_bs extends Controller {
 
 		$mids = [];
 		$str = '';
+		$slice = 0;
 
-		$mids_all = unserialise(Cache::get('sse_mids_all_' . session_id())) ?? [];
+		$mids_all = unserialise($_SESSION['sse_mids_all']) ?? [];
+
+		if (count($mids_all) > 3000) {
+			$slice = count($mids_all) - 3000;
+		}
+
+		if ($slice) {
+			$mids_all = array_slice($mids_all, $slice);
+		}
 
 		foreach($arr as $a) {
 			$mid_str = '\'' . dbesc(unpack_link_id($a)) . '\'';
@@ -132,7 +141,7 @@ class Sse_bs extends Controller {
 			}
 		}
 
-		Cache::set('sse_mids_all_' . session_id(), serialise($mids_all));
+		$_SESSION['sse_mids_all'] = serialise($mids_all);
 
 		if(! self::$uid) {
 			return;
@@ -443,7 +452,7 @@ class Sse_bs extends Controller {
 			$sql_extra2 = " AND CASE WHEN verb = '" . ACTIVITY_SHARE . "' THEN owner_xchan ELSE author_xchan END IN (" . self::$xchans . ") ";
 
 		$sql_extra3 = '';
-		$sse_mids_all = unserialise(Cache::get('sse_mids_all_' . session_id())) ?? [];
+		$sse_mids_all = unserialise($_SESSION['sse_mids_all']) ?? [];
 		if ($sse_mids_all) {
 			$sql_extra3 = " AND mid NOT IN (" . protect_sprintf(implode(',', $sse_mids_all)) . ") ";
 		}
