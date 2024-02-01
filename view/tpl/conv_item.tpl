@@ -45,8 +45,8 @@
 							{{/if}}
 							<small class="autotime" title="{{$item.isotime}}"><time class="dt-published" datetime="{{$item.isotime}}">{{$item.localtime}}</time>{{if $item.editedtime}}&nbsp;{{$item.editedtime}}{{/if}}{{if $item.expiretime}}&nbsp;{{$item.expiretime}}{{/if}}</small>
 						</div>
-						{{if $item.thr_parent}}
-						<a href="javascript:doscroll('{{$item.thr_parent}}',{{$item.parent}});" class="ms-3" title="{{$item.top_hint}}"><i class="fa fa-angle-double-up"></i></a>
+						{{if $item.thr_parent_uuid}}
+						<a href="javascript:doscroll('{{$item.thr_parent_uuid}}',{{$item.parent}});" class="ms-3" title="{{$item.top_hint}}"><i class="fa fa-angle-double-up"></i></a>
 						{{/if}}
 						{{if $item.pinned}}
 						<div class="wall-item-pinned" title="{{$item.pinned}}" id="wall-item-pinned-{{$item.id}}"><i class="fa fa-thumb-tack"></i></div>

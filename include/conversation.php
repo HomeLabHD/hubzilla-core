@@ -789,16 +789,14 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 				if(strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC','now - 12 hours')) > 0)
 					$is_new = true;
 
-				$conv_link_mid = (($mode == 'moderate') ? gen_link_id($item['parent_mid']) : gen_link_id($item['mid']));
-
-				$conv_link = z_root() . '/display/' . $conv_link_mid;
+				$conv_link = z_root() . '/display/' . $item['uuid'];
 
 				if(local_channel()) {
-					$conv_link = z_root() . '/hq/' . $conv_link_mid;
+					$conv_link = z_root() . '/hq/' . $item['uuid'];
 				}
 
 				if ($mode === 'pubstream-new') {
-					$conv_link = z_root() . '/pubstream?mid=' . $conv_link_mid;
+					$conv_link = z_root() . '/pubstream?mid=' . $item['uuid'];
 				}
 
 				$contact = [];
@@ -816,8 +814,8 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 					'delete' => t('Delete'),
 					'preview_lbl' => $preview_lbl,
 					'id' => (($preview) ? 'P0' : $item['item_id']),
-					'mid' => gen_link_id($item['mid']),
-					'mids' => json_encode([gen_link_id($item['mid'])]),
+					'mid' => $item['uuid'],
+					'mids' => json_encode([$item['uuid']]),
 					'linktitle' => sprintf( t('View %s\'s profile @ %s'), $profile_name, $profile_link),
 					'author_id' => (($item['author']['xchan_addr']) ? $item['author']['xchan_addr'] : $item['author']['xchan_url']),
 					'profile_url' => $profile_link,
@@ -918,6 +916,8 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 					continue;
 				}
 
+				$mid_uuid_map[$item['mid']] = $item['uuid'];
+
 				$item['pagedrop'] = $page_dropping;
 
 				if($item['id'] == $item['parent'] || $r_preview) {
@@ -936,7 +936,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 				}
 			}
 
-			$threads = $conv->get_template_data($conv_responses);
+			$threads = $conv->get_template_data($conv_responses, $mid_uuid_map);
 			if(!$threads) {
 				logger('[ERROR] conversation : Failed to get template data.', LOGGER_DEBUG);
 				$threads = array();
@@ -1246,7 +1246,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 			if(! $item['thr_parent'])
 				$item['thr_parent'] = $item['parent_mid'];
 
-			$conv_responses[$mode]['mids'][$item['thr_parent']][] = gen_link_id($item['mid']);
+			$conv_responses[$mode]['mids'][$item['thr_parent']][] = $item['uuid'];
 
 			if($item['obj_type'] === 'Answer')
 				continue;

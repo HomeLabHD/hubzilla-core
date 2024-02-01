@@ -825,12 +825,12 @@ function scrollToItem() {
 	if(justifiedGalleryActive)
 		return;
 
-	var submid = ((bParam_mid.length) ? bParam_mid : 'abcdefg');
-	var encoded = ((submid.substr(0,4) == 'b64.') ? true : false);
-	var submid_encoded = ((encoded) ? submid : window.btoa(submid));
+	let submid = ((bParam_mid.length) ? bParam_mid : 'abcdefg');
+	//var encoded = ((submid.substr(0,4) == 'b64.') ? true : false);
+	//var submid_encoded = ((encoded) ? submid : window.btoa(submid));
 
 	$('.thread-wrapper').filter(function() {
-		if($(this).data('b64mids').indexOf(submid_encoded) > -1 && !$(this).hasClass('toplevel_item')) {
+		if($(this).data('b64mids').indexOf(submid) > -1 && !$(this).hasClass('toplevel_item')) {
 			if($('.collapsed-comments').length) {
 				var scrolltoid = $('.collapsed-comments').attr('id').substring(19);
 				$('#collapsed-comments-' + scrolltoid + ' .autotime').timeago();

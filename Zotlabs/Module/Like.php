@@ -513,7 +513,7 @@ class Like extends Controller {
 			$arr['thr_parent'] = $item['mid'];
 			$ulink             = '[zrl=' . $item_author['xchan_url'] . '][bdi]' . $item_author['xchan_name'] . '[/bdi][/zrl]';
 			$alink             = '[zrl=' . $observer['xchan_url'] . '][bdi]' . $observer['xchan_name'] . '[/bdi][/zrl]';
-			$plink             = '[zrl=' . z_root() . '/display/' . gen_link_id($item['mid']) . ']' . $post_type . '[/zrl]';
+			$plink             = '[zrl=' . z_root() . '/display/' . $item['uuid'] . ']' . $post_type . '[/zrl]';
 			$allow_cid         = $item['allow_cid'];
 			$allow_gid         = $item['allow_gid'];
 			$deny_cid          = $item['deny_cid'];

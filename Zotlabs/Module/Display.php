@@ -38,7 +38,14 @@ class Display extends Controller {
 			$item_hash = $_REQUEST['mid'];
 		}
 
-		$item_hash = unpack_link_id($item_hash);
+		$identifier = 'uuid';
+		$encoded_item_hash = null;
+
+		if (str_starts_with($item_hash, 'b64.')) {
+			$encoded_item_hash = $item_hash;
+			$item_hash = unpack_link_id($item_hash);
+			$identifier = 'mid';
+		}
 
 		if ($item_hash === false) {
 			App::$error = 400;
@@ -104,7 +111,7 @@ class Display extends Controller {
 
 		$target_item = null;
 
-		$r = q("select id, uid, mid, parent, parent_mid, thr_parent, verb, item_type, item_deleted, author_xchan, item_blocked from item where mid = '%s' limit 1",
+		$r = q("select id, uid, mid, parent, parent_mid, thr_parent, verb, item_type, item_deleted, author_xchan, item_blocked from item where $identifier = '%s' limit 1",
 			dbesc($item_hash)
 		);
 
@@ -157,13 +164,6 @@ class Display extends Controller {
 
 		if((! $update) && (! $load)) {
 
-			// if the target item is not a post (eg a like) we want to address its thread parent
-
-			//$mid = ((($target_item['verb'] == ACTIVITY_LIKE) || ($target_item['verb'] == ACTIVITY_DISLIKE)) ? $target_item['thr_parent'] : $target_item['mid']);
-
-			// if we got a decoded hash we must encode it again before handing to javascript
-			$mid = gen_link_id($target_item['mid']);
-
 			$o .= '<div id="live-display"></div>' . "\r\n";
 			$o .= "<script> var profile_uid = " . ((intval(local_channel())) ? local_channel() : (-1))
 				. "; var netargs = '?f='; var profile_page = " . App::$pager['page'] . "; </script>\r\n";
@@ -196,7 +196,7 @@ class Display extends Controller {
 				'$dbegin'  => '',
 				'$verb'    => '',
 				'$net'     => '',
-				'$mid'     => (($mid) ? urlencode($mid) : '')
+				'$mid'     => $encoded_item_hash ?? $item_hash
 			));
 
 			head_add_link([

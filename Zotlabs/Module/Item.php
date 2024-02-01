@@ -275,7 +275,7 @@ class Item extends Controller {
 
 
 		if (argc() > 1 && argv(1) !== 'drop') {
-			$x = q("select uid, item_wall, llink, mid from item where mid = '%s' or mid = '%s' or uuid = '%s'",
+			$x = q("select uid, item_wall, llink, mid, uuid from item where mid = '%s' or mid = '%s' or uuid = '%s'",
 				dbesc(z_root() . '/item/' . argv(1)),
 				dbesc(z_root() . '/activity/' . argv(1)),
 				dbesc(argv(1))
@@ -285,7 +285,7 @@ class Item extends Controller {
 					if (intval($xv['item_wall'])) {
 						$c = channelx_by_n($xv['uid']);
 						if ($c) {
-							goaway(z_root() . '/channel/' . $c['channel_address'] . '?mid=' . gen_link_id($xv['mid']));
+							goaway(z_root() . '/channel/' . $c['channel_address'] . '?mid=' . $xv['uuid']);
 						}
 					}
 				}
@@ -1285,7 +1285,7 @@ class Item extends Controller {
 						'from_xchan' => $datarray['author_xchan'],
 						'to_xchan'   => $datarray['owner_xchan'],
 						'item'       => $datarray,
-						'link'       => z_root() . '/display/' . gen_link_id($datarray['mid']),
+						'link'       => z_root() . '/display/' . $datarray['uuid'],
 						'verb'       => ACTIVITY_POST,
 						'otype'      => 'item',
 						'parent'     => $parent,
@@ -1303,7 +1303,7 @@ class Item extends Controller {
 						'from_xchan' => $datarray['author_xchan'],
 						'to_xchan'   => $datarray['owner_xchan'],
 						'item'       => $datarray,
-						'link'       => z_root() . '/display/' . gen_link_id($datarray['mid']),
+						'link'       => z_root() . '/display/' . $datarray['uuid'],
 						'verb'       => ACTIVITY_POST,
 						'otype'      => 'item'
 					]);
@@ -1349,7 +1349,7 @@ class Item extends Controller {
 		}
 
 		$datarray['id']    = $post_id;
-		$datarray['llink'] = z_root() . '/display/' . gen_link_id($datarray['mid']);
+		$datarray['llink'] = z_root() . '/display/' . $datarray['uuid'];
 
 		call_hooks('post_local_end', $datarray);
 
@@ -1373,7 +1373,7 @@ class Item extends Controller {
 
 		if ($return_path) {
 			if ($return_path === 'hq') {
-				goaway(z_root() . '/hq/' . gen_link_id($datarray['mid']));
+				goaway(z_root() . '/hq/' . $datarray['uuid']);
 			}
 
 			goaway(z_root() . "/" . $return_path);

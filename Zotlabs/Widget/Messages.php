@@ -187,7 +187,8 @@ class Messages {
 			$entries[$i]['info'] = $info;
 			$entries[$i]['created'] = datetime_convert('UTC', date_default_timezone_get(), $item['created']);
 			$entries[$i]['summary'] = $summary;
-			$entries[$i]['b64mid'] = gen_link_id($item['mid']);
+			//$entries[$i]['b64mid'] = gen_link_id($item['mid']);
+			$entries[$i]['b64mid'] = $item['uuid'];
 			$entries[$i]['href'] = z_root() . '/hq/' . gen_link_id($item['mid']);
 			$entries[$i]['icon'] = $icon;
 			$entries[$i]['unseen_count'] = (($item['unseen_count']) ? $item['unseen_count'] : (($item['item_unseen']) ? '&#8192;' : ''));

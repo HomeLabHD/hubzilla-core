@@ -1775,13 +1775,18 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 
 	$d1 = new DateTime('now +10 minutes', new DateTimeZone('UTC'));
 	$d2 = new DateTime($arr['created'] . '+00:00');
-	if($d2 > $d1)
+
+	if($d2 > $d1) {
 		$arr['item_delayed'] = 1;
+	}
 
-	$arr['llink'] = z_root() . '/display/' . gen_link_id($arr['mid']);
+	if(empty($arr['llink'])) {
+		$arr['llink'] = z_root() . '/display/' . $arr['uuid'];
+	}
 
-	if(! $arr['plink'])
+	if(empty($arr['plink'])) {
 		$arr['plink'] = $arr['llink'];
+	}
 
 	if($arr['parent_mid'] === $arr['mid']) {
 		$parent_id = 0;
@@ -2501,7 +2506,7 @@ function send_status_notifications($post_id,$item) {
 	if($unfollowed)
 		return;
 
-	$link =  z_root() . '/display/' . gen_link_id($item['mid']);
+	$link =  z_root() . '/display/' . $item['uuid'];
 
 	$y = q("select id from notify where link = '%s' and uid = %d limit 1",
 		dbesc($link),
@@ -3174,7 +3179,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 				$item['mid'] = z_root() . '/item/' . $item['uuid'];
 				$item['parent_mid'] = $item['mid'];
 				$item['thr_parent'] = $item['mid'];
-				$item['llink'] = z_root() . '/display/' . gen_link_id($item['mid']);
+				$item['llink'] = z_root() . '/display/' . $item['uuid'];
 			}
 
 			$r = q("UPDATE item SET author_xchan = '%s', mid = '%s', parent_mid = '%s', thr_parent = '%s', llink = '%s' WHERE id = %d",

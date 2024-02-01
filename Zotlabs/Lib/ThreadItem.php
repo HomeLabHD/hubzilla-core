@@ -34,6 +34,7 @@ class ThreadItem {
 	private $channel = null;
 	private $display_mode = 'normal';
 	private $reload = '';
+	private $mid_uuid_map = [];
 
 
 	public function __construct($data) {
@@ -46,6 +47,7 @@ class ThreadItem {
 
 		// Prepare the children
 		if(isset($data['children'])) {
+
 			foreach($data['children'] as $item) {
 
 				/*
@@ -56,7 +58,6 @@ class ThreadItem {
 					continue;
 				}
 
-
 				$child = new ThreadItem($item);
 				$this->add_child($child);
 			}
@@ -64,6 +65,8 @@ class ThreadItem {
 			// performance: we have already added the children
 			unset($this->data['children']);
 		}
+
+
 
 		// allow a site to configure the order and content of the reaction emoji list
 		if($this->toplevel) {
@@ -82,7 +85,7 @@ class ThreadItem {
 	 *      _ false on failure
 	 */
 
-	public function get_template_data($conv_responses, $thread_level=1, $conv_flags = []) {
+	public function get_template_data($conv_responses, $mid_uuid_map, $thread_level=1, $conv_flags = []) {
 
 		$result = [];
 		$item = $this->get_data();
@@ -351,7 +354,7 @@ class ThreadItem {
 		$dreport_link = '';
 		if((intval($item['item_type']) == ITEM_TYPE_POST) && (! get_config('system','disable_dreport')) && strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC',"now - $keep_reports days")) > 0) {
 			$dreport = t('Delivery Report');
-			$dreport_link = gen_link_id($item['mid']);
+			$dreport_link = '?mid=' . $item['mid'];
 		}
 
 		$is_new = false;
@@ -381,8 +384,8 @@ class ThreadItem {
                 call_hooks('dropdown_extras',$dropdown_extras_arr);
                 $dropdown_extras = $dropdown_extras_arr['dropdown_extras'];
 
-		$midb64 = gen_link_id($item['mid']);
-		$mids = [ $midb64 ];
+		//$midb64 = gen_link_id($item['mid']);
+		$mids = [ $item['uuid'] ];
 		$response_mids = [];
 		foreach($response_verbs as $v) {
 			if(isset($conv_responses[$v]['mids'][$item['mid']])) {
@@ -530,14 +533,12 @@ class ThreadItem {
 			'wait' => t('Please wait'),
 			'thread_level' => $thread_level,
 			'settings' => $settings,
-			'thr_parent' => (($item['parent_mid'] != $item['thr_parent']) ? gen_link_id($item['thr_parent']) : ''),
+			'thr_parent_uuid' => (($item['parent_mid'] != $item['thr_parent']) ? $mid_uuid_map[$item['thr_parent']] : ''),
 			'contact_id' => (($contact) ? $contact['abook_id'] : ''),
 			'moderate' => ($item['item_blocked'] == ITEM_MODERATED),
 			'moderate_approve' => t('Approve'),
 			'moderate_delete' => t('Delete'),
 			'rtl' => in_array($item['lang'], rtl_languages()),
-
-
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);
@@ -560,7 +561,7 @@ class ThreadItem {
 
 		if(($this->get_display_mode() === 'normal') && ($nb_children > 0)) {
 			foreach($children as $child) {
-				$result['children'][] = $child->get_template_data($conv_responses, $thread_level + 1,$conv_flags);
+				$result['children'][] = $child->get_template_data($conv_responses, $mid_uuid_map, $thread_level + 1,$conv_flags);
 			}
 			// Collapse
 			if(($nb_children > $visible_comments) || ($thread_level > 1)) {

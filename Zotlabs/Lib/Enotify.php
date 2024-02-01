@@ -486,6 +486,8 @@ class Enotify {
 
 	require_once('include/html2bbcode.php');
 
+/*
+
 	do {
 		$dups = false;
 		$hash = random_string();
@@ -494,10 +496,12 @@ class Enotify {
 		if ($r)
 			$dups = true;
 	} while ($dups === true);
+*/
+
 
 
 	$datarray = [];
-	$datarray['hash']   = $hash;
+	$datarray['hash']   = $params['item']['uuid'] ?? new_uuid();
 	$datarray['sender_hash'] = $sender['xchan_hash'];
 	$datarray['xname']   = $sender['xchan_name'];
 	$datarray['url']    = $sender['xchan_url'];
@@ -557,7 +561,7 @@ class Enotify {
 	);
 
 	$r = q("select id from notify where hash = '%s' and uid = %d limit 1",
-		dbesc($hash),
+		dbesc($datarray['hash']),
 		intval($recip['channel_id'])
 	);
 	if ($r) {
@@ -871,7 +875,8 @@ class Enotify {
 			'photo' => $item['author']['xchan_photo_s'],
 			'when' => (($edit) ? datetime_convert('UTC', date_default_timezone_get(), $item['edited']) : datetime_convert('UTC', date_default_timezone_get(), $item['created'])),
 			'class' => (intval($item['item_unseen']) ? 'notify-unseen' : 'notify-seen'),
-			'b64mid' => (($item['mid']) ? gen_link_id($item['mid']) : ''),
+		//	'b64mid' => (($item['mid']) ? gen_link_id($item['mid']) : ''),
+			'b64mid' => (($item['uuid']) ? $item['uuid'] : ''),
 			//'b64mid' => ((in_array($item['verb'], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) ? gen_link_id($item['thr_parent']) : gen_link_id($item['mid'])),
 			'thread_top' => (($item['item_thread_top']) ? true : false),
 			'message' => bbcode(escape_tags($itemem_text)),
@@ -897,9 +902,6 @@ class Enotify {
 		if(strpos($message, $tt['xname']) === 0)
 			$message = substr($message, strlen($tt['xname']) + 1);
 
-		$mid = basename($tt['link']);
-
-		$b64mid = gen_link_id($mid);
 		$x = [
 			'notify_link' => (($tt['ntype'] === NOTIFY_MAIL) ? $tt['link'] : z_root() . '/notify/view/' . $tt['id']),
 			'name' => $tt['xname'],
@@ -907,7 +909,7 @@ class Enotify {
 			'photo' => $tt['photo'],
 			'when' => datetime_convert('UTC', date_default_timezone_get(), $tt['created']),
 			'hclass' => (($tt['seen']) ? 'notify-seen' : 'notify-unseen'),
-			'b64mid' => (($tt['otype'] == 'item') ? $b64mid : ''),
+			'b64mid' => (($tt['otype'] == 'item') ? $tt['hash'] : ''),
 			'notify_id' => (($tt['otype'] == 'item') ? $tt['id'] : ''),
 			'message' => $message
 		];

@@ -46,7 +46,7 @@ class Pinned {
 
 		foreach($items as $item) {
 
-			$midb64 = gen_link_id($item['mid']);
+			$midb64 = $item['uuid'];
 
 			if(isset($observer['xchan_hash']) && in_array($observer['xchan_hash'], get_pconfig($item['uid'], 'pinned_hide', $midb64, [])))
 				continue;

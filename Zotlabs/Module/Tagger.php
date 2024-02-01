@@ -86,7 +86,7 @@ class Tagger extends \Zotlabs\Web\Controller {
 		$clean_term = trim($term,'"\' ');
 
 		$links = array(array('rel' => 'alternate','type' => 'text/html',
-			'href' => z_root() . '/display/' . gen_link_id($item['mid'])));
+			'href' => z_root() . '/display/' . $item['uuid']));
 
 		$target = json_encode(array(
 			'type'    => $targettype,

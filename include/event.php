@@ -1417,7 +1417,7 @@ function event_store_item($arr, $event) {
 		if($wall)
 			$item_arr['plink'] = $item_arr['mid'];
 		else
-			$item_arr['plink'] = z_root() . '/display/' . gen_link_id($item_arr['mid']);
+			$item_arr['plink'] = z_root() . '/display/' . $item_arr['uuid'];
 
 		set_iconfig($item_arr, 'event','timezone',$arr['timezone'],true);
 

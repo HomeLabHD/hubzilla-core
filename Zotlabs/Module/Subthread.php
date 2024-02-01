@@ -106,9 +106,6 @@ class Subthread extends \Zotlabs\Web\Controller {
 		else
 			killme();
 
-
-
-
 		$uuid = item_message_id();
 		$mid = z_root() . '/item/' . $uuid;
 
@@ -149,7 +146,7 @@ class Subthread extends \Zotlabs\Web\Controller {
 
 		$ulink = '[zrl=' . $item_author['xchan_url'] . ']' . $item_author['xchan_name'] . '[/zrl]';
 		$alink = '[zrl=' . $observer['xchan_url'] . ']' . $observer['xchan_name'] . '[/zrl]';
-		$plink = '[zrl=' . z_root() . '/display/' . gen_link_id($item['mid']) . ']' . $post_type . '[/zrl]';
+		$plink = '[zrl=' . z_root() . '/display/' . $item['uuid'] . ']' . $post_type . '[/zrl]';
 
 		$arr['body']          =  sprintf( $bodyverb, $alink, $ulink, $plink );
 

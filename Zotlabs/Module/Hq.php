@@ -30,16 +30,11 @@ class Hq extends \Zotlabs\Web\Controller {
 		$item_hash = '';
 
 		if(argc() > 1 && argv(1) !== 'load') {
-			$item_hash = unpack_link_id(argv(1));
+			$item_hash = argv(1);
 		}
 
 		if(isset($_REQUEST['mid'])) {
-			$item_hash = unpack_link_id($_REQUEST['mid']);
-		}
-
-		if($item_hash === false) {
-			notice(t('Malformed message id.') . EOL);
-			return;
+			$item_hash = $_REQUEST['mid'];
 		}
 
 		$item_normal = item_normal();
@@ -54,7 +49,7 @@ class Hq extends \Zotlabs\Web\Controller {
 			// select the target item with a bias to our own item
 			$sql_order = ((local_channel() > $sys['channel_id']) ? 'DESC' : 'ASC');
 
-			$r = q("select id, uid, mid, parent_mid, thr_parent, verb, item_type, item_deleted, item_blocked from item where uid in (%d, %d) and mid = '%s' order by uid $sql_order limit 2",
+			$r = q("select id, uid, mid, parent_mid, thr_parent, verb, item_type, item_deleted, item_blocked from item where uid in (%d, %d) and uuid = '%s' order by uid $sql_order limit 2",
 				intval(local_channel()),
 				intval($sys['channel_id']),
 				dbesc($item_hash)
@@ -118,7 +113,7 @@ class Hq extends \Zotlabs\Web\Controller {
 				//$mid = ((($target_item['verb'] == ACTIVITY_LIKE) || ($target_item['verb'] == ACTIVITY_DISLIKE)) ? $target_item['thr_parent'] : $target_item['mid']);
 
 				// if we got a decoded hash we must encode it again before handing to javascript
-				$mid = gen_link_id($target_item['mid']);
+				// $mid = gen_link_id($target_item['mid']);
 			}
 			else {
 				$mid = '';
@@ -156,7 +151,7 @@ class Hq extends \Zotlabs\Web\Controller {
 				'$dbegin'  => '',
 				'$verb'    => '',
 				'$net'     => '',
-				'$mid'     => (($mid) ? urlencode($mid) : '')
+				'$mid'     => $item_hash
 			]);
 		}
 

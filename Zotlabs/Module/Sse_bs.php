@@ -153,7 +153,7 @@ class Sse_bs extends Controller {
 		call_hooks('update_unseen',$x);
 
 		if($x['update'] === 'unset' || intval($x['update'])) {
-			q("UPDATE item SET item_unseen = 0 WHERE uid = %d AND mid in (%s) AND item_unseen = 1",
+			q("UPDATE item SET item_unseen = 0 WHERE uid = %d AND uuid in (%s) AND item_unseen = 1",
 				intval(self::$uid),
 				$str // this is dbesc() in the above foreach loop
 			);
@@ -454,7 +454,7 @@ class Sse_bs extends Controller {
 		$sql_extra3 = '';
 		$sse_mids_all = unserialise($_SESSION['sse_mids_all']) ?? [];
 		if ($sse_mids_all) {
-			$sql_extra3 = " AND mid NOT IN (" . protect_sprintf(implode(',', $sse_mids_all)) . ") ";
+			$sql_extra3 = " AND uuid NOT IN (" . protect_sprintf(implode(',', $sse_mids_all)) . ") ";
 		}
 
 		$uids = " AND uid IN ( " . $sys['channel_id'] . " ) ";

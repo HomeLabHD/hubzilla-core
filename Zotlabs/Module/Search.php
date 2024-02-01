@@ -75,13 +75,13 @@ class Search extends Controller {
 			if ($f) {
 				$mid = $f[0]['message_id'];
 				foreach ($f as $m) {
-					if (str_starts_with($url, $m['message_id'])) {
+					if (basename($url) === $m['message_id']) {
 						$mid = $m['message_id'];
 						break;
 					}
 				}
 
-				goaway(z_root() . '/hq/' . gen_link_id($mid));
+				goaway(z_root() . '/hq/' . $mid);
 			}
 			else {
 				// try other fetch providers (e.g. diaspora, pubcrawl)
