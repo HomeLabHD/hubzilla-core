@@ -524,16 +524,22 @@ class ActivityStreams {
 		$signer = $this->get_property_obj('verificationMethod', $this->sig);
 
 		$parseUrl = parse_url($signer);
-		if (!empty($parseUrl['fragment']) && str_starts_with($parseUrl['fragment'],'z6Mk')) {
-			$publicKey = $parseUrl['fragment'];
+
+		if (isset($parseUrl['fragment'])) {
+			if (str_starts_with($parseUrl['fragment'], 'z6Mk')) {
+				$publicKey = $parseUrl['fragment'];
+			}
 			unset($parseUrl['fragment']);
+		}
+
+		if (isset($parseUrl['query'])) {
 			unset($parseUrl['query']);
 		}
 
 		$url = unparse_url($parseUrl);
-		//$this->signer = [ 'id' => $url ];
 
 		$hublocs = Activity::get_actor_hublocs($url);
+
 		$hasStoredKey = false;
 		if ($hublocs) {
 			foreach ($hublocs as $hubloc) {
@@ -543,14 +549,26 @@ class ActivityStreams {
 				}
 			}
 		}
+
 		if (!$hasStoredKey) {
 			$this->signer = Activity::get_actor($url);
-			if ($this->signer
-				&& !empty($this->signer['assertionMethod'])
-				&& !empty($this->signer['assertionMethod']['publicKeyMultibase'])) {
-				$publicKey = $this->signer['assertionMethod']['publicKeyMultibase'];
+
+			if (isset($this->signer['assertionMethod'])) {
+				if (!isset($this->signer['assertionMethod'][0])) {
+					$this->signer['assertionMethod'] = [$this->signer['assertionMethod']];
+				}
+
+				foreach($this->signer['assertionMethod'] as $am) {
+					if ($url === $am['controller'] &&
+						$am['type'] === 'Multikey' &&
+						str_starts_with($am['publicKeyMultibase'], 'z6Mk')
+					) {
+						$publicKey = $am['publicKeyMultibase'];
+					}
+				}
 			}
 		}
+
 		if ($publicKey) {
 			$this->sigok = (new JcsEddsa2022)->verify($this->data, $publicKey);
 		}
