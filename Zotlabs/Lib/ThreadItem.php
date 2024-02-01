@@ -373,7 +373,7 @@ class ThreadItem {
 		if($conv->get_mode() === 'channel')
 			$viewthread = z_root() . '/channel/' . $owner_address . '?f=&mid=' . urlencode(gen_link_id($item['mid']));
 
-		$comment_count_txt = ['label' => sprintf(tt('%d Comment', '%d Comments', $total_children), $total_children), 'count' => $total_children];
+		$comment_count_txt = ['label' => sprintf(tt('%d comment', '%d comments', $total_children), $total_children), 'count' => $total_children];
 		$list_unseen_txt = $unseen_comments ? ['label' => sprintf(t('%d unseen'), $unseen_comments), 'count' => $unseen_comments] : [];
 
 		$children = $this->get_children();
@@ -566,7 +566,7 @@ class ThreadItem {
 			// Collapse
 			if(($nb_children > $visible_comments) || ($thread_level > 1)) {
 				$result['children'][0]['comment_firstcollapsed'] = true;
-				$result['children'][0]['num_comments'] = $comment_count_txt;
+				$result['children'][0]['num_comments'] = $comment_count_txt['label'];
 				$result['children'][0]['hide_text'] = sprintf( t('%s show all'), '<i class="fa fa-chevron-down"></i>');
 				if($thread_level > 1) {
 					$result['children'][$nb_children - 1]['comment_lastcollapsed'] = true;
