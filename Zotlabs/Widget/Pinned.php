@@ -203,7 +203,7 @@ class Pinned {
 		if(empty($mids_list))
 			return [];
 
-		$r = q("SELECT * FROM item WHERE mid IN ( '%s' ) AND uid = %d AND id = parent AND item_private = 0 ORDER BY created DESC",
+		$r = q("SELECT * FROM item WHERE uuid IN ( '%s' ) AND uid = %d AND id = parent AND item_private = 0 ORDER BY created DESC",
 			dbesc(implode(",", $mids_list)),
 			intval($this->uid)
 		);

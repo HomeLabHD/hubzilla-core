@@ -384,7 +384,7 @@ class ThreadItem {
                 call_hooks('dropdown_extras',$dropdown_extras_arr);
                 $dropdown_extras = $dropdown_extras_arr['dropdown_extras'];
 
-		//$midb64 = gen_link_id($item['mid']);
+		$midb64 = $item['uuid'];
 		$mids = [ $item['uuid'] ];
 		$response_mids = [];
 		foreach($response_verbs as $v) {
