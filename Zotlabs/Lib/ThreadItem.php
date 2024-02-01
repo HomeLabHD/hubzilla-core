@@ -373,8 +373,8 @@ class ThreadItem {
 		if($conv->get_mode() === 'channel')
 			$viewthread = z_root() . '/channel/' . $owner_address . '?f=&mid=' . urlencode(gen_link_id($item['mid']));
 
-		$comment_count_txt = sprintf(tt('%d Comment', '%d Comments', $total_children), $total_children);
-		$list_unseen_txt = (($unseen_comments) ? sprintf(t('%d unseen'), $unseen_comments) : '');
+		$comment_count_txt = ['label' => sprintf(tt('%d Comment', '%d Comments', $total_children), $total_children), 'count' => $total_children];
+		$list_unseen_txt = $unseen_comments ? ['label' => sprintf(t('%d unseen'), $unseen_comments), 'count' => $unseen_comments] : [];
 
 		$children = $this->get_children();
 
@@ -501,7 +501,7 @@ class ThreadItem {
 			'comment_count' => $total_children,
 			'comment_count_txt' => $comment_count_txt,
 			'list_unseen_txt' => $list_unseen_txt,
-			'markseen' => t('Mark all seen'),
+			'markseen' => t('Mark all comments seen'),
 			'responses' => $responses,
 			'my_responses' => $my_responses,
 			/*
