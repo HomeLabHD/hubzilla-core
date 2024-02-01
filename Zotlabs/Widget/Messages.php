@@ -189,7 +189,7 @@ class Messages {
 			$entries[$i]['summary'] = $summary;
 			//$entries[$i]['b64mid'] = gen_link_id($item['mid']);
 			$entries[$i]['b64mid'] = $item['uuid'];
-			$entries[$i]['href'] = z_root() . '/hq/' . gen_link_id($item['mid']);
+			$entries[$i]['href'] = z_root() . '/hq/' . $item['uuid'];
 			$entries[$i]['icon'] = $icon;
 			$entries[$i]['unseen_count'] = (($item['unseen_count']) ? $item['unseen_count'] : (($item['item_unseen']) ? '&#8192;' : ''));
 			$entries[$i]['unseen_class'] = (($item['item_unseen']) ? 'primary' : 'secondary');
@@ -293,8 +293,8 @@ class Messages {
 			$entries[$i]['info'] = '';
 			$entries[$i]['created'] = datetime_convert('UTC', date_default_timezone_get(), $notice['created']);
 			$entries[$i]['summary'] = $summary;
-			$entries[$i]['b64mid'] = (($notice['ntype'] & NOTIFY_INTRO) ? '' : basename($notice['link']));
-			$entries[$i]['href'] = (($notice['ntype'] & NOTIFY_INTRO) ? $notice['link'] : z_root() . '/hq/' . basename($notice['link']));
+			$entries[$i]['b64mid'] = (($notice['ntype'] & NOTIFY_INTRO) ? '' : ((str_contains($notice['hash'], '-')) ? $notice['hash'] : basename($notice['link'])));
+			$entries[$i]['href'] = (($notice['ntype'] & NOTIFY_INTRO) ? $notice['link'] : z_root() . '/hq/' . ((str_contains($notice['hash'], '-')) ? $notice['hash'] : basename($notice['link'])));
 			$entries[$i]['icon'] = (($notice['ntype'] & NOTIFY_INTRO) ? '<i class="fa fa-user-plus"></i>' : '');
 
 			$i++;

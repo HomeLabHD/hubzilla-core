@@ -37,6 +37,15 @@ class Hq extends \Zotlabs\Web\Controller {
 			$item_hash = $_REQUEST['mid'];
 		}
 
+		$identifier = 'uuid';
+		$encoded_item_hash = null;
+
+		if (str_starts_with($item_hash, 'b64.')) {
+			$encoded_item_hash = $item_hash;
+			$item_hash = unpack_link_id($item_hash);
+			$identifier = 'mid';
+		}
+
 		$item_normal = item_normal();
 		$item_normal_update = item_normal_update();
 		$sys = get_sys_channel();
@@ -49,7 +58,7 @@ class Hq extends \Zotlabs\Web\Controller {
 			// select the target item with a bias to our own item
 			$sql_order = ((local_channel() > $sys['channel_id']) ? 'DESC' : 'ASC');
 
-			$r = q("select id, uid, mid, parent_mid, thr_parent, verb, item_type, item_deleted, item_blocked from item where uid in (%d, %d) and uuid = '%s' order by uid $sql_order limit 2",
+			$r = q("select id, uid, mid, parent_mid, thr_parent, verb, item_type, item_deleted, item_blocked from item where uid in (%d, %d) and $identifier = '%s' order by uid $sql_order limit 2",
 				intval(local_channel()),
 				intval($sys['channel_id']),
 				dbesc($item_hash)
@@ -151,7 +160,7 @@ class Hq extends \Zotlabs\Web\Controller {
 				'$dbegin'  => '',
 				'$verb'    => '',
 				'$net'     => '',
-				'$mid'     => $item_hash
+				'$mid'     => $encoded_item_hash ?? $item_hash
 			]);
 		}
 
