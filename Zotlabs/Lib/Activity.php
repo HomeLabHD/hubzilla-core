@@ -3500,6 +3500,8 @@ class Activity {
 
 	static function get_actor_hublocs($url, $options = 'all') {
 
+		$url = ((strpos($url, '#')) ? substr($url, 0, strpos($url, '#')) : $url);
+
 		switch ($options) {
 			case 'activitypub':
 				$hublocs = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash where hubloc_hash = '%s' and hubloc_deleted = 0 order by hubloc_id desc",
