@@ -1203,7 +1203,7 @@ class Activity {
 			'http://activitystrea.ms/schema/1.0/like'           => 'Like',
 			'http://activitystrea.ms/schema/1.0/favorite'       => 'Like',
 			'http://purl.org/zot/activity/dislike'              => 'Dislike',
-			'http://activitystrea.ms/schema/1.0/tag'            => 'Add',
+	//		'http://activitystrea.ms/schema/1.0/tag'            => 'Add',
 			'http://activitystrea.ms/schema/1.0/follow'         => 'Follow',
 			'http://activitystrea.ms/schema/1.0/unfollow'       => 'Unfollow',
 			'http://activitystrea.ms/schema/1.0/stop-following' => 'Unfollow',
@@ -1213,7 +1213,9 @@ class Activity {
 			'Announce'                                          => 'Announce',
 			'Invite'                                            => 'Invite',
 			'Delete'                                            => 'Delete',
-			'Undo'                                              => 'Undo'
+			'Undo'                                              => 'Undo',
+			'Add'                                               => 'Add',
+			'Remove'                                            => 'Remove'
 		];
 
 		call_hooks('activity_mapper', $acts);
@@ -1252,7 +1254,7 @@ class Activity {
 			'http://activitystrea.ms/schema/1.0/like'           => 'Like',
 			'http://activitystrea.ms/schema/1.0/favorite'       => 'Like',
 			'http://purl.org/zot/activity/dislike'              => 'Dislike',
-			'http://activitystrea.ms/schema/1.0/tag'            => 'Add',
+		//	'http://activitystrea.ms/schema/1.0/tag'            => 'Add',
 			'http://activitystrea.ms/schema/1.0/follow'         => 'Follow',
 			'http://activitystrea.ms/schema/1.0/unfollow'       => 'Unfollow',
 			'http://activitystrea.ms/schema/1.0/stop-following' => 'Unfollow',
@@ -1262,7 +1264,9 @@ class Activity {
 			'Announce'                                          => 'Announce',
 			'Invite'                                            => 'Invite',
 			'Delete'                                            => 'Delete',
-			'Undo'                                              => 'Undo'
+			'Undo'                                              => 'Undo',
+			'Add'                                               => 'Add',
+			'Remove'                                            => 'Remove'
 		];
 
 		call_hooks('activity_decode_mapper', $acts);

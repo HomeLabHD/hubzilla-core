@@ -457,6 +457,10 @@ function visible_activity($item) {
 		return false;
 	}
 
+	if (in_array($item['verb'], ['Add', 'Remove'])) {
+		return false;
+	}
+
 	foreach($hidden_activities as $act) {
 		if((activity_match($item['verb'], $act)) && ($item['mid'] != $item['parent_mid'])) {
 			return false;
