@@ -2187,8 +2187,21 @@ class Activity {
 			if (in_array($act->type, ['EmojiReaction', 'EmojiReact'])) {
 				// Pleroma reactions
 				$t = trim(self::get_textfield($act->data, 'content'));
+
+				// Unicode emojis
 				if (mb_strlen($t) === 1) {
 					$content['content'] = $t;
+				}
+				// Custom emojis
+				elseif (preg_match('/^[:].*[:]$/i', $t, $match)) {
+					$content['content'] = $match[0];
+					if (isset($act->data['tag']) && is_array($act->data['tag'])) {
+						foreach ($act->data['tag'] as $tag) {
+							if ($tag['type'] === 'Emoji' && $tag['name'] === trim($match[0], ':')) {
+								$content['content'] = '[img=32x32]' . $tag['id'] . '[/img]';
+							}
+						}
+					}
 				}
 			}
 		}
