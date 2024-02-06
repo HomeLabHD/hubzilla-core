@@ -1,30 +1,29 @@
 <?php
 /*
  * Copyright (c) 2017 Hubzilla
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal
-* in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in
-* all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-* SOFTWARE.
-*/
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
 namespace Zotlabs\Tests\Unit\includes;
 
 use Zotlabs\Tests\Unit\UnitTestCase;
-use phpmock\phpunit\PHPMock;
 
 require_once 'include/markdown.php';
 
@@ -32,17 +31,15 @@ require_once 'include/markdown.php';
  * @brief Unit Test case for markdown functions.
  */
 class MarkdownTest extends UnitTestCase {
-	use PHPMock;
-
 	/**
 	 * @covers ::html2markdown
 	 * @dataProvider html2markdownProvider
 	 */
-	public function testHtml2markdown($html, $markdown) {
+	public function testHtml2markdown(string $html, string $markdown): void {
 		$this->assertEquals($markdown, html2markdown($html));
 	}
 
-	public function html2markdownProvider() {
+	public function html2markdownProvider(): array {
 		return [
 				'empty text' => [
 						'',
@@ -125,23 +122,10 @@ class MarkdownTest extends UnitTestCase {
 		];
 	}
 
-	/*public function testHtml2markdownException() {
-		//$this->expectException(\InvalidArgumentException::class);
-		// need to stub logger() for this to work
-		$this->assertEquals('', html2markdown('<<invalid'));
-	}*/
+	public function test_bb_to_markdown(): void {
+		$input = "test[b]bold[/b]\n[i]i[/i][ul][li]li1[/li][li]li2[/li][/ul]\n";
+		$expected = "test**bold**  \n*i*\n\n- li1\n- li2";
 
-/*	public function testBB2diasporaMardown() {
-		//stub bbcode() and return our HTML, we just need to test the HTML2Markdown library.
-		$html1 = 'test<b>bold</b><br><i>i</i><ul><li>li1</li><li>li2</li></ul><br>';
-		$bb1 = 'test';
-
-		// php-mock can not mock global functions which is called by a global function.
-		// If the calling function is in a namespace it does work.
-		$bbc = $this->getFunctionMock(__NAMESPACE__, "bbcode");
-		$bbc->expects($this->once())->willReturn('test<b>bold</b><br><i>i</i><ul><li>li1</li><li>li2</li></ul><br>');
-
-		$this->assertEquals($bb1, bb2diaspora($html1));
+		$this->assertEquals($expected, bb_to_markdown($input));
 	}
-*/
 }
