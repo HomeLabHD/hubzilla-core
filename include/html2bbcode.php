@@ -65,6 +65,22 @@ function node2bbcodesub(&$doc, $oldnode, $attributes, $startbb, $endbb)
 			if ($oldNode->hasChildNodes()) {
 				foreach ($oldNode->childNodes as $child) {
 					$newNode = $child->cloneNode(true);
+
+					// Newlines are insignificant in HTML, but not so in BBCode, so let's
+					// unwrap the child nodes of when converting them. Also we compress
+					// consecutive whitespace chars to one.
+					//
+					// The exception is `<pre>` and `<code>` elements which
+					// should keep both newlines and whitespace intact.
+					if ($oldNode->nodeName != 'pre' && $oldNode->nodeName != 'code') {
+						$newNode->nodeValue = str_replace(
+							array("\n<", ">\n", "\r", "\n", "\xC3\x82\xC2\xA0"),
+							array("<", ">", "<br />", " ", ""),
+							$newNode->nodeValue);
+
+						$newNode->nodeValue = preg_replace('=[\s]{2,}=i', " ", $newNode->nodeValue);
+					}
+
 					$oldNode->parentNode->insertBefore($newNode, $oldNode);
 				}
 			}
@@ -124,23 +140,6 @@ function html2bbcode($message)
 	deletenode($doc, 'meta');
 	deletenode($doc, 'xml');
 	deletenode($doc, 'removeme');
-
-	$xpath = new DomXPath($doc);
-	$list = $xpath->query("//pre");
-	foreach ($list as $node) {
-		if ($node->hasChildNodes()) {
-			foreach ($node->childNodes as $child) {
-				$child->nodeValue = str_replace("\n", "\r", $child->nodeValue);
-			}
-		} else {
-			$node->nodeValue = str_replace("\n", "\r", $node->nodeValue);
-		}
-	}
-
-	$message = $doc->saveHTML();
-	$message = str_replace(array("\n<", ">\n", "\r", "\n", "\xC3\x82\xC2\xA0"), array("<", ">", "<br />", " ", ""), $message);
-	$message = preg_replace('= [\s]*=i', " ", $message);
-	@$doc->loadHTML($message);
 
 	node2bbcode($doc, 'html', array(), "", "");
 	node2bbcode($doc, 'body', array(), "", "");

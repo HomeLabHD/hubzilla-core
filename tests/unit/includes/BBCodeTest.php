@@ -37,6 +37,10 @@ class BBCodeTest extends UnitTestCase {
 
 	private function html2bbcode_provider(): array {
 		return [
+			'paragraph over multiple lines' => [
+				"<p>A paragraph over\nmultiple lines\nshould be unwrapped</p>",
+				'A paragraph over multiple lines should be unwrapped'
+			],
 			'image with alt text' => [
 				'<img src="https://example.com/image.jpg" alt="Alt text">',
 				'[img=https://example.com/image.jpg]Alt text[/img]'
@@ -44,6 +48,10 @@ class BBCodeTest extends UnitTestCase {
 			'code block' => [
 				"<pre><code>some\ncode</code></pre>",
 				"[code]some\ncode[/code]"
+			],
+			'code block with indentation' => [
+				"<pre><code>some\n    indented\ncode</code></pre>",
+				"[code]some\n    indented\ncode[/code]"
 			],
 		];
 	}
