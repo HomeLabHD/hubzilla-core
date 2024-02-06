@@ -31,6 +31,43 @@ require_once 'include/markdown.php';
  * @brief Unit Test case for markdown functions.
  */
 class MarkdownTest extends UnitTestCase {
+
+	/**
+	 * @dataProvider markdown_to_bbcode_provider
+	 */
+	public function test_markdown_to_bbcode(string $expected, string $src): void {
+		$this->assertEquals($expected, markdown_to_bb($src));
+	}
+
+	private function markdown_to_bbcode_provider(): array {
+		return [
+			'empty text' => [
+				'',
+				''
+			],
+			'plain text' => [
+				'This is a test',
+				'This is a test'
+			],
+			'bold and italic' => [
+				'This is a test of [b]bold text[/b], [i]italic text[/i] and [b][i]bold and italic text[/i][/b]',
+				'This is a test of **bold text**, *italic text* and ***bold and italic text***'
+			],
+			'multiline text' => [
+				'This text is text wrapped over multiple lines.',
+				"This text is\ntext wrapped\nover multiple\nlines."
+			],
+			'paragraphs' => [
+				"Paragraph one\n\nParagraph two",
+				"Paragraph one\n\nParagraph two",
+			],
+			'inline image' => [
+				'[img=https://example.com/image.jpg]https://example.com/image.jpg[/img]',
+				'![](https://example.com/image.jpg)'
+			],
+		];
+	}
+
 	/**
 	 * @covers ::html2markdown
 	 * @dataProvider html2markdownProvider
