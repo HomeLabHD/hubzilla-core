@@ -69,6 +69,14 @@ class MarkdownTest extends UnitTestCase {
 				'[img=https://example.com/image.jpg]Alt text[/img]',
 				'![Alt text](https://example.com/image.jpg)'
 			],
+			'inline code' => [
+				'[code]some code[/code]',
+				'`some code`'
+			],
+			'code block no language' => [
+				"[code]some code\nover multiple lines[/code]",
+				"```\nsome code\nover multiple lines\n```"
+			],
 		];
 	}
 

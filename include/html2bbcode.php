@@ -127,8 +127,15 @@ function html2bbcode($message)
 
 	$xpath = new DomXPath($doc);
 	$list = $xpath->query("//pre");
-	foreach ($list as $node)
-		$node->nodeValue = str_replace("\n", "\r", $node->nodeValue);
+	foreach ($list as $node) {
+		if ($node->hasChildNodes()) {
+			foreach ($node->childNodes as $child) {
+				$child->nodeValue = str_replace("\n", "\r", $child->nodeValue);
+			}
+		} else {
+			$node->nodeValue = str_replace("\n", "\r", $node->nodeValue);
+		}
+	}
 
 	$message = $doc->saveHTML();
 	$message = str_replace(array("\n<", ">\n", "\r", "\n", "\xC3\x82\xC2\xA0"), array("<", ">", "<br />", " ", ""), $message);

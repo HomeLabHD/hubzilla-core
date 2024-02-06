@@ -41,6 +41,10 @@ class BBCodeTest extends UnitTestCase {
 				'<img src="https://example.com/image.jpg" alt="Alt text">',
 				'[img=https://example.com/image.jpg]Alt text[/img]'
 			],
+			'code block' => [
+				"<pre><code>some\ncode</code></pre>",
+				"[code]some\ncode[/code]"
+			],
 		];
 	}
 }
