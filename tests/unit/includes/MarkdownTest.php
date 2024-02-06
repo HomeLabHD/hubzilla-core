@@ -65,6 +65,10 @@ class MarkdownTest extends UnitTestCase {
 				'[img=https://example.com/image.jpg]https://example.com/image.jpg[/img]',
 				'![](https://example.com/image.jpg)'
 			],
+			'inline image with alt text' => [
+				'[img=https://example.com/image.jpg]Alt text[/img]',
+				'![Alt text](https://example.com/image.jpg)'
+			],
 		];
 	}
 
