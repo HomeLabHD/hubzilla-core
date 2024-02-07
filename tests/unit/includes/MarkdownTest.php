@@ -57,6 +57,10 @@ class MarkdownTest extends UnitTestCase {
 				'This text is text wrapped over multiple lines.',
 				"This text is\ntext wrapped\nover multiple\nlines."
 			],
+			'text with hard linebreak' => [
+				"Line one\nLine two",
+				"Line one  \nLine two"
+			],
 			'paragraphs' => [
 				"Paragraph one\n\nParagraph two",
 				"Paragraph one\n\nParagraph two",
@@ -72,6 +76,10 @@ class MarkdownTest extends UnitTestCase {
 			'inline code' => [
 				'[code]some code[/code]',
 				'`some code`'
+			],
+			'inline code with wrapped text' => [
+				'[code]some code unwrapped[/code]',
+				"`some code\n   unwrapped`"
 			],
 			'code block no language' => [
 				"[code]some code\nover multiple lines[/code]",

@@ -192,7 +192,8 @@ function html2bbcode($message)
 
 	node2bbcode($doc, 'blockquote', array(), '[quote]', '[/quote]');
 
-	node2bbcode($doc, 'br', array(), "\n", '');
+	// Use a temporary tag to keep line breaks
+	node2bbcode($doc, 'br', array(), '[br]', '');
 
 	node2bbcode($doc, 'p', array('class'=>'MsoNormal'), "\n", "");
 	node2bbcode($doc, 'div', array('class'=>'MsoNormal'), "\r", "");
@@ -301,6 +302,9 @@ function html2bbcode($message)
 
 	$message = str_replace(array('[b][b]', '[/b][/b]', '[i][i]', '[/i][/i]'),
 		array('[b]', '[/b]', '[i]', '[/i]'), $message);
+
+	// Restore linebreaks from temp tag
+	$message = str_replace('[br] ', "\n", $message);
 
 	// Handling Yahoo style of mails
 	//	$message = str_replace('[hr][b]From:[/b]', '[quote][b]From:[/b]', $message);
