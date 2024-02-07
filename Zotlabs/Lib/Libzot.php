@@ -1302,6 +1302,8 @@ class Libzot {
 				$relay = (($env['type'] === 'response') ? true : false);
 
 				$result = self::process_delivery($env['sender'], $AS, $item, $deliveries, $relay, false, $message_request);
+
+				Activity::init_background_fetch($env['sender']);
 			}
 			elseif ($env['type'] === 'sync') {
 				// $item = get_channelsync_elements($data);
@@ -1322,8 +1324,6 @@ class Libzot {
 		if ($result) {
 			$return = array_merge($return, $result);
 		}
-
-		Activity::init_background_fetch();
 
 		return $return;
 	}
@@ -1533,7 +1533,7 @@ class Libzot {
 			$local_public = $public;
 			$item_result = null;
 
-			$DR = new DReport(z_root(), $sender, $d, $arr['mid']);
+			$DR = new DReport(z_root(), $sender, $d, $arr['mid'], $arr['uuid']);
 
 			$channel = channelx_by_hash($d);
 
@@ -1671,7 +1671,7 @@ class Libzot {
 					// the top level post is unlikely to be imported and
 					// this is just an exercise in futility.
 
-					if ($relay || $request || $local_public || !perm_is_allowed($channel['channel_id'], $sender, 'send_stream')) {
+					if ($relay || $request || (!$local_public && !perm_is_allowed($channel['channel_id'], $sender, 'send_stream'))) {
 						continue;
 					}
 
@@ -1755,7 +1755,7 @@ class Libzot {
 			}
 
 			if (!$tag_delivery && !$local_public) {
-				$allowed = (perm_is_allowed($channel['channel_id'], $sender, $perm));
+				$allowed = perm_is_allowed($channel['channel_id'], $sender, $perm);
 
 				$permit_mentions = intval(PConfig::Get($channel['channel_id'], 'system', 'permit_all_mentions') && i_am_mentioned($channel, $arr));
 
@@ -1789,18 +1789,17 @@ class Libzot {
 
 				if ($request) {
 					// Conversation fetches (e.g. $request == true) take place for
-					//   a) new comments on expired posts
-					//   b) if we received an announce
+					// a) new comments on expired posts
+					// b) manual import of posts via search (in this case force will be true)
+					// c) import of conversations from friends of friends (those will currently only be accepted in the public stream)
 
-
-					// over-ride normal connection permissions for hyperdrive (friend-of-friend) conversations
-					// (if hyperdrive is enabled) and repeated posts by a friend.
-					// If $allowed is already true, this is probably the conversation of a direct friend or a
-					// conversation fetch for a new comment on an expired post
+					// If it is a toplevel post check permissions for the item author instead of the sender (we might want to remove this if we want friend of friend posts in the network stream).
 					// Comments of all these activities are allowed and will only be rejected (later) if the parent
 					// doesn't exist.
 
 					if ($perm === 'send_stream') {
+						$allowed = perm_is_allowed($channel['channel_id'], $arr['author_xchan'], $perm);
+
 						if ($force) {
 							$allowed = true;
 						}
@@ -2000,11 +1999,14 @@ class Libzot {
 
 		$ret = [];
 
-
 		$signer = q("select hubloc_hash, hubloc_url from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' order by hubloc_id desc limit 1",
 			dbesc($a['signature']['signer'])
 		);
 
+		$signer_hash = $signer[0]['hubloc_hash'] ?? $a['signature']['signer'];
+		$conv_owner = $signer_hash;
+
+		$i = 0;
 
 		foreach ($items as $activity) {
 
@@ -2018,14 +2020,14 @@ class Libzot {
 			}
 
 			if (!$AS->is_valid()) {
-				logger('FOF Activity rejected: ' . print_r($activity, true));
+				logger('Fetched activity rejected: ' . print_r($activity, true));
 				continue;
 			}
 
 			// logger($AS->debug());
 
 			if(empty($AS->actor['id'])) {
-				logger('No actor id: ' . print_r($AS, true));
+				logger('Fetched activity no actor id: ' . print_r($AS, true));
 				continue;
 			}
 
@@ -2038,7 +2040,7 @@ class Libzot {
 					$r = self::zot_record_preferred($r);
 				}
 				if (!$r) {
-					logger('FOF Activity: no actor');
+					logger('Fetched activity: no actor');
 					continue;
 				}
 			}
@@ -2053,7 +2055,7 @@ class Libzot {
 						$ro = self::zot_record_preferred($ro);
 					}
 					if (!$ro) {
-						logger('FOF Activity: no obj actor');
+						logger('Fetched activity: no obj actor');
 						continue;
 					}
 				}
@@ -2068,12 +2070,16 @@ class Libzot {
 
 			$arr['author_xchan'] = $r['hubloc_hash'];
 
-			if ($signer) {
-				$arr['owner_xchan'] = $signer[0]['hubloc_hash'];
+			if ($i === 0) {
+				// Set the author of the toplevel post as conv_owner
+				$conv_owner = $r['hubloc_hash'];
 			}
-			else {
-				$arr['owner_xchan'] = $a['signature']['signer'];
-			}
+
+			$arr['owner_xchan'] = $conv_owner;
+			$arr['source_xchan'] = $signer_hash;
+
+			// WARNING: the presence of both source_xchan and non-zero item_uplink here will cause a delivery loop
+			$arr['item_uplink'] = 0;
 
 			if (isset($AS->meta['hubloc']) || $arr['author_xchan'] === $arr['owner_xchan']) {
 				$arr['item_verified'] = true;
@@ -2087,13 +2093,15 @@ class Libzot {
 				}
 			}
 
-			logger('FOF Activity received: ' . print_r($arr, true), LOGGER_DATA, LOG_DEBUG);
-			logger('FOF Activity recipient: ' . $channel['channel_hash'], LOGGER_DATA, LOG_DEBUG);
+			logger('Fetched activity received: ' . print_r($arr, true), LOGGER_DATA, LOG_DEBUG);
+			logger('Fetched activity recipient: ' . $channel['channel_hash'], LOGGER_DATA, LOG_DEBUG);
 
 			$result = self::process_delivery($arr['owner_xchan'], $AS, $arr, [$channel['channel_hash']], false, false, true, $force);
 			if ($result) {
 				$ret = array_merge($ret, $result);
 			}
+
+			$i++;
 		}
 
 		return $ret;

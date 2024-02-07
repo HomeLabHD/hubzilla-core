@@ -73,15 +73,15 @@ class Search extends Controller {
 			$f = Libzot::fetch_conversation(App::get_channel(), punify($url), true);
 
 			if ($f) {
-				$mid = $f[0]['message_id'];
+				$uuid = $f[0]['message_uuid'];
 				foreach ($f as $m) {
-					if (basename($url) === $m['message_id']) {
-						$mid = $m['message_id'];
+					if ($url === $m['message_id']) {
+						$uuid = $m['message_uuid'];
 						break;
 					}
 				}
 
-				goaway(z_root() . '/hq/' . $mid);
+				goaway(z_root() . '/hq/' . $uuid);
 			}
 			else {
 				// try other fetch providers (e.g. diaspora, pubcrawl)
