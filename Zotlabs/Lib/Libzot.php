@@ -1791,15 +1791,12 @@ class Libzot {
 					// Conversation fetches (e.g. $request == true) take place for
 					// a) new comments on expired posts
 					// b) manual import of posts via search (in this case force will be true)
-					// c) import of conversations from friends of friends (those will currently only be accepted in the public stream)
+					// c) import of conversations from friends of friends (they can currently arriuve from streams if a channel is configured to do so)
 
-					// If it is a toplevel post check permissions for the item author instead of the sender (we might want to remove this if we want friend of friend posts in the network stream).
 					// Comments of all these activities are allowed and will only be rejected (later) if the parent
 					// doesn't exist.
 
 					if ($perm === 'send_stream') {
-						$allowed = perm_is_allowed($channel['channel_id'], $arr['author_xchan'], $perm);
-
 						if ($force) {
 							$allowed = true;
 						}
