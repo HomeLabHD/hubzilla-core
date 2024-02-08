@@ -10,6 +10,10 @@ Originally made for the syncom project: http://wiki.piratenpartei.de/Syncom
 function node2bbcode(&$doc, $oldnode, $attributes, $startbb, $endbb)
 {
 	do {
+		if (empty($startbb) && empty($endbb)) {
+			break;
+		}
+
 		$done = node2bbcodesub($doc, $oldnode, $attributes, $startbb, $endbb);
 	} while ($done);
 }
@@ -65,6 +69,22 @@ function node2bbcodesub(&$doc, $oldnode, $attributes, $startbb, $endbb)
 			if ($oldNode->hasChildNodes()) {
 				foreach ($oldNode->childNodes as $child) {
 					$newNode = $child->cloneNode(true);
+
+					// Newlines are insignificant in HTML, but not so in BBCode, so let's
+					// unwrap the child nodes of when converting them. Also we compress
+					// consecutive whitespace chars to one.
+					//
+					// The exception is `<pre>` and `<code>` elements which
+					// should keep both newlines and whitespace intact.
+					if ($oldNode->nodeName != 'pre' && $oldNode->nodeName != 'code') {
+						$newNode->nodeValue = str_replace(
+							array("\n<", ">\n", "\r", "\n", "\xC3\x82\xC2\xA0"),
+							array("<", ">", "<br />", " ", ""),
+							$newNode->nodeValue);
+
+						$newNode->nodeValue = preg_replace('=[\s]{2,}=i', " ", $newNode->nodeValue);
+					}
+
 					$oldNode->parentNode->insertBefore($newNode, $oldNode);
 				}
 			}
@@ -125,16 +145,6 @@ function html2bbcode($message)
 	deletenode($doc, 'xml');
 	deletenode($doc, 'removeme');
 
-	$xpath = new DomXPath($doc);
-	$list = $xpath->query("//pre");
-	foreach ($list as $node)
-		$node->nodeValue = str_replace("\n", "\r", $node->nodeValue);
-
-	$message = $doc->saveHTML();
-	$message = str_replace(array("\n<", ">\n", "\r", "\n", "\xC3\x82\xC2\xA0"), array("<", ">", "<br />", " ", ""), $message);
-	$message = preg_replace('= [\s]*=i', " ", $message);
-	@$doc->loadHTML($message);
-
 	node2bbcode($doc, 'html', array(), "", "");
 	node2bbcode($doc, 'body', array(), "", "");
 
@@ -182,7 +192,8 @@ function html2bbcode($message)
 
 	node2bbcode($doc, 'blockquote', array(), '[quote]', '[/quote]');
 
-	node2bbcode($doc, 'br', array(), "\n", '');
+	// Use a temporary tag to keep line breaks
+	node2bbcode($doc, 'br', array(), '[br]', '');
 
 	node2bbcode($doc, 'p', array('class'=>'MsoNormal'), "\n", "");
 	node2bbcode($doc, 'div', array('class'=>'MsoNormal'), "\r", "");
@@ -219,6 +230,7 @@ function html2bbcode($message)
 	node2bbcode($doc, 'a', array('href'=>'/(.+)/'), '[url=$1]', '[/url]');
 
 	node2bbcode($doc, 'img', array('src'=>'/(.+)/', 'width'=>'/(\d+)/', 'height'=>'/(\d+)/'), '[img=$2x$3]$1', '[/img]');
+	node2bbcode($doc, 'img', array('src'=>'/(.+)/', 'alt'=>'/(.+)/'), '[img=$1]$2', '[/img]');
 	node2bbcode($doc, 'img', array('src'=>'/(.+)/'), '[img]$1', '[/img]');
 
 
@@ -226,6 +238,7 @@ function html2bbcode($message)
 	node2bbcode($doc, 'audio', array('src'=>'/(.+)/'), '[audio]$1', '[/audio]');
 //	node2bbcode($doc, 'iframe', array('src'=>'/(.+)/'), '[iframe]$1', '[/iframe]');
 
+	node2bbcode($doc, 'code', array('class'=>'/(.+)/'), '[code=$1]', '[/code]');
 	node2bbcode($doc, 'code', array(), '[code]', '[/code]');
 
 	$message = $doc->saveHTML();
@@ -290,6 +303,9 @@ function html2bbcode($message)
 
 	$message = str_replace(array('[b][b]', '[/b][/b]', '[i][i]', '[/i][/i]'),
 		array('[b]', '[/b]', '[i]', '[/i]'), $message);
+
+	// Restore linebreaks from temp tag
+	$message = str_replace('[br] ', "\n", $message);
 
 	// Handling Yahoo style of mails
 	//	$message = str_replace('[hr][b]From:[/b]', '[quote][b]From:[/b]', $message);
