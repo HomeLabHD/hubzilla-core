@@ -89,6 +89,10 @@ class MarkdownTest extends UnitTestCase {
 				"[code]some code\n    over multiple lines\n    with indentation[/code]",
 				"```\nsome code\n    over multiple lines\n    with indentation\n```"
 			],
+			'code block with language' => [
+				"[code=php]&lt;?php\necho phpinfo();[/code]",
+				"```php\n<?php\necho phpinfo();\n```"
+			],
 		];
 	}
 
