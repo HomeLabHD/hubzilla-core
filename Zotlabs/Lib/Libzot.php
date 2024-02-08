@@ -1284,7 +1284,7 @@ class Libzot {
 					}
 				}
 
-				if (isset($AS->meta['hubloc']) && $AS->meta['hubloc']) {
+				if (!empty($AS->meta['hubloc']) || $AS->sigok) {
 					$item['item_verified'] = true;
 				}
 
@@ -2076,7 +2076,7 @@ class Libzot {
 			// WARNING: the presence of both source_xchan and non-zero item_uplink here will cause a delivery loop
 			$arr['item_uplink'] = 0;
 
-			if (isset($AS->meta['hubloc']) || $arr['author_xchan'] === $arr['owner_xchan']) {
+			if (!empty($AS->meta['hubloc']) || $arr['author_xchan'] === $arr['owner_xchan'] || $AS->sigok) {
 				$arr['item_verified'] = true;
 			}
 
