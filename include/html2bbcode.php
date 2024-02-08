@@ -195,12 +195,13 @@ function html2bbcode($message)
 	// Use a temporary tag to keep line breaks
 	node2bbcode($doc, 'br', array(), '[br]', '');
 
+	node2bbcode($doc, 'a', array('href'=>'/(.+)/'), '[url=$1]', '[/url]');
+
 	node2bbcode($doc, 'p', array('class'=>'MsoNormal'), "\n", "");
 	node2bbcode($doc, 'div', array('class'=>'MsoNormal'), "\r", "");
 
 	node2bbcode($doc, 'span', array(), "", "");
 
-	node2bbcode($doc, 'span', array(), "", "");
 	node2bbcode($doc, 'pre', array(), "", "");
 	node2bbcode($doc, 'div', array(), "\r", "\r");
 	node2bbcode($doc, 'p', array(), "\n", "\n");
@@ -226,8 +227,6 @@ function html2bbcode($message)
 	node2bbcode($doc, 'h4', array(), "\n\n[h4]", "[/h4]\n");
 	node2bbcode($doc, 'h5', array(), "\n\n[h5]", "[/h5]\n");
 	node2bbcode($doc, 'h6', array(), "\n\n[h6]", "[/h6]\n");
-
-	node2bbcode($doc, 'a', array('href'=>'/(.+)/'), '[url=$1]', '[/url]');
 
 	node2bbcode($doc, 'img', array('src'=>'/(.+)/', 'width'=>'/(\d+)/', 'height'=>'/(\d+)/'), '[img=$2x$3]$1', '[/img]');
 	node2bbcode($doc, 'img', array('src'=>'/(.+)/', 'alt'=>'/(.+)/'), '[img=$1]$2', '[/img]');
@@ -305,7 +304,7 @@ function html2bbcode($message)
 		array('[b]', '[/b]', '[i]', '[/i]'), $message);
 
 	// Restore linebreaks from temp tag
-	$message = str_replace('[br] ', "\n", $message);
+	$message = str_replace('[br]', "\n", $message);
 
 	// Handling Yahoo style of mails
 	//	$message = str_replace('[hr][b]From:[/b]', '[quote][b]From:[/b]', $message);
