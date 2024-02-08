@@ -1783,8 +1783,6 @@ class Libzot {
 					elseif ($permit_mentions) {
 						$allowed = true;
 					}
-
-
 				}
 
 				if ($request) {
