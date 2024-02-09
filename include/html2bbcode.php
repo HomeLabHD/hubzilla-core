@@ -221,12 +221,12 @@ function html2bbcode($message)
 	node2bbcode($doc, 'tr', array(), "[tr]", "[/tr]");
 	node2bbcode($doc, 'td', array(), "[td]", "[/td]");
 
-	node2bbcode($doc, 'h1', array(), "\n\n[h1]", "[/h1]\n");
-	node2bbcode($doc, 'h2', array(), "\n\n[h2]", "[/h2]\n");
-	node2bbcode($doc, 'h3', array(), "\n\n[h3]", "[/h3]\n");
-	node2bbcode($doc, 'h4', array(), "\n\n[h4]", "[/h4]\n");
-	node2bbcode($doc, 'h5', array(), "\n\n[h5]", "[/h5]\n");
-	node2bbcode($doc, 'h6', array(), "\n\n[h6]", "[/h6]\n");
+	node2bbcode($doc, 'h1', array(), "[h1]", "[/h1]");
+	node2bbcode($doc, 'h2', array(), "[h2]", "[/h2]");
+	node2bbcode($doc, 'h3', array(), "[h3]", "[/h3]");
+	node2bbcode($doc, 'h4', array(), "[h4]", "[/h4]");
+	node2bbcode($doc, 'h5', array(), "[h5]", "[/h5]");
+	node2bbcode($doc, 'h6', array(), "[h6]", "[/h6]");
 
 	node2bbcode($doc, 'img', array('src'=>'/(.+)/', 'width'=>'/(\d+)/', 'height'=>'/(\d+)/'), '[img=$2x$3]$1', '[/img]');
 	node2bbcode($doc, 'img', array('src'=>'/(.+)/', 'alt'=>'/(.+)/'), '[img=$1]$2', '[/img]');
@@ -279,6 +279,8 @@ function html2bbcode($message)
 		$oldmessage = $message;
 		$message = str_replace(array(
 					"[/size]\n\n",
+					"\n[br]",
+					"[br]\n",
 					"\n[hr]",
 					"[hr]\n",
 					"\n[list",
@@ -289,6 +291,8 @@ function html2bbcode($message)
 					"\n[*]"),
 				array(
 					"[/size]\n",
+					"[br]",
+					"[br]",
 					"[hr]",
 					"[hr]",
 					"[list",
@@ -304,7 +308,7 @@ function html2bbcode($message)
 		array('[b]', '[/b]', '[i]', '[/i]'), $message);
 
 	// Restore linebreaks from temp tag
-	$message = preg_replace('/\[br\]\s{1}|\[br\]/', "\n", $message);
+	$message = preg_replace('/\[br\]\s?/', "\n", $message);
 
 	// Handling Yahoo style of mails
 	//	$message = str_replace('[hr][b]From:[/b]', '[quote][b]From:[/b]', $message);
