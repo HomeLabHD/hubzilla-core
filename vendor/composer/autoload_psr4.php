@@ -15,6 +15,7 @@ return array(
     'StephenHill\\Benchmarks\\' => array($vendorDir . '/stephenhill/base58/benchmarks'),
     'StephenHill\\' => array($vendorDir . '/stephenhill/base58/src'),
     'SimplePie\\' => array($vendorDir . '/simplepie/simplepie/src'),
+    'ScssPhp\\ScssPhp\\' => array($vendorDir . '/scssphp/scssphp/src'),
     'Sabre\\Xml\\' => array($vendorDir . '/sabre/xml/lib'),
     'Sabre\\VObject\\' => array($vendorDir . '/sabre/vobject/lib'),
     'Sabre\\Uri\\' => array($vendorDir . '/sabre/uri/lib'),

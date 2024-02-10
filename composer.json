@@ -53,7 +53,8 @@
         "spomky-labs/otphp": "^11.1",
         "patrickschur/language-detection": "^5.3",
         "stephenhill/base58": "^1.1",
-        "mmccook/php-json-canonicalization-scheme": "^1.0"
+        "mmccook/php-json-canonicalization-scheme": "^1.0",
+        "scssphp/scssphp": "^1.12"
     },
     "require-dev": {
 		"ext-yaml": "*",

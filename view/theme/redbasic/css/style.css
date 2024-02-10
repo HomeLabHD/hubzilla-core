@@ -7,21 +7,13 @@
 
 /* bootstrap variables */
 
-:root {
-	--bs-border-radius: $radius;
-	--bs-highlight-bg: var(--bs-warning);
-}
 
 [data-bs-theme=light] {
-	--bs-link-color: $link_color;
-	--bs-link-hover-color: $link_hover_color;
 	--hz-body-bg: $bgcolor;
 	--hz-body-bg-image: url('$background_image');
 }
 
 [data-bs-theme=dark] {
-	--bs-link-color: $link_color_dark;
-	--bs-link-hover-color: $link_hover_color_dark;
 	--hz-body-bg: $bgcolor_dark;
 	--hz-body-bg-image: url('$background_image_dark');
 }
@@ -32,10 +24,6 @@
 
 [data-bs-theme=dark] .navbar.bg-body-tertiary {
 	background-color: $nav_bg_dark !important;
-}
-
-.btn {
-	--bs-btn-border-radius: $radius;
 }
 
 
@@ -459,7 +447,7 @@ footer {
 
 .photo,
 .contact-block-img {
-	border-radius: $radius;
+	border-radius: var(--bs-border-radius);
 }
 
 #side-bar-photos-albums {
@@ -472,7 +460,7 @@ footer {
 
 .profile-match-photo img,
 .directory-photo-img {
-	border-radius: $radius;
+	border-radius: var(--bs-border-radius);
 }
 
 .profile-match-photo img {
@@ -1354,10 +1342,6 @@ main.fullscreen .section-content-wrapper-np {
 
 /* bootstrap overrides */
 
-.form-control {
-	border-radius: $radius;
-}
-
 blockquote {
 	font-size: 1rem;
 	font-style: italic;
@@ -1674,3 +1658,5 @@ dl.bb-dl > dd > li {
 		transform: translateX(80vw);
 	}
 }
+
+

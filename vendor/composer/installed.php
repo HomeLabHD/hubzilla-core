@@ -3,7 +3,7 @@
         'name' => 'zotlabs/hubzilla',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '659a8c967cff97e81c3b8defe047437838b7dff4',
+        'reference' => '067a66b9278e3c8ff2c624f38f2817715eb8a316',
         'type' => 'application',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -250,6 +250,15 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'scssphp/scssphp' => array(
+            'pretty_version' => 'v1.12.1',
+            'version' => '1.12.1.0',
+            'reference' => '394ed1e960138710a60d035c1a85d43d0bf0faeb',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../scssphp/scssphp',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'simplepie/simplepie' => array(
             'pretty_version' => '1.8.0',
             'version' => '1.8.0.0',
@@ -331,7 +340,7 @@
         'zotlabs/hubzilla' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '659a8c967cff97e81c3b8defe047437838b7dff4',
+            'reference' => '067a66b9278e3c8ff2c624f38f2817715eb8a316',
             'type' => 'application',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
