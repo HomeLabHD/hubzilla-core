@@ -39,8 +39,11 @@ class RedbasicConfig {
 			return;
 		}
 
-		$arr = array();
 		$arr['primary_color'] = get_pconfig(local_channel(),'redbasic', 'primary_color');
+		$arr['success_color'] = get_pconfig(local_channel(),'redbasic', 'success_color');
+		$arr['info_color'] = get_pconfig(local_channel(),'redbasic', 'info_color');
+		$arr['warning_color'] = get_pconfig(local_channel(),'redbasic', 'warning_color');
+		$arr['danger_color'] = get_pconfig(local_channel(),'redbasic', 'danger_color');
 		$arr['dark_mode'] = get_pconfig(local_channel(),'redbasic', 'dark_mode');
 		$arr['navbar_dark_mode'] = get_pconfig(local_channel(),'redbasic', 'navbar_dark_mode');
 		$arr['narrow_navbar'] = get_pconfig(local_channel(),'redbasic', 'narrow_navbar' );
@@ -68,22 +71,39 @@ class RedbasicConfig {
 			if (isset($_POST['redbasic_primary_color']) || isset($_POST['redbasic_radius'])) {
 
 				$primary_color = '';
+				$success_color = '';
+				$info_color = '';
+				$warning_color = '';
+				$danger_color = '';
 				$radius = floatval($_POST['redbasic_radius']);
 
 				if (preg_match('/^#([A-Fa-f0-9]{3}){1,2}$/', $_POST['redbasic_primary_color'])) {
 					$primary_color = $_POST['redbasic_primary_color'];
 				}
+				if (preg_match('/^#([A-Fa-f0-9]{3}){1,2}$/', $_POST['redbasic_success_color'])) {
+					$success_color = $_POST['redbasic_success_color'];
+				}
+				if (preg_match('/^#([A-Fa-f0-9]{3}){1,2}$/', $_POST['redbasic_info_color'])) {
+					$info_color = $_POST['redbasic_info_color'];
+				}
+				if (preg_match('/^#([A-Fa-f0-9]{3}){1,2}$/', $_POST['redbasic_warning_color'])) {
+					$warning_color = $_POST['redbasic_warning_color'];
+				}
+				if (preg_match('/^#([A-Fa-f0-9]{3}){1,2}$/', $_POST['redbasic_danger_color'])) {
+					$danger_color = $_POST['redbasic_danger_color'];
+				}
 
-				if ($primary_color || $radius) {
+				if ($primary_color || $success_color || $info_color || $warning_color || $danger_color || $radius) {
 
 					try {
-						$cache_dir = 'store/[data]/[scss]';
+						$cache_dir = 'store/[data]/[scss]/';
 						if(!is_dir($cache_dir)) {
 							os_mkdir($cache_dir, STORAGE_DEFAULT_PERMISSIONS, true);
 						}
 
 						$options = [
 							'cacheDir' => $cache_dir,
+							'prefix' => 'redbasic_',
 							'forceRefresh' => false
 						];
 
@@ -95,9 +115,24 @@ class RedbasicConfig {
 						if ($primary_color) {
 							$variables['$primary'] = $primary_color;
 						}
-
+						if ($success_color) {
+							$variables['$success'] = $success_color;
+						}
+						if ($info_color) {
+							$variables['$info'] = $info_color;
+						}
+						if ($warning_color) {
+							$variables['$warning'] = $warning_color;
+						}
+						if ($danger_color) {
+							$variables['$danger'] = $danger_color;
+						}
 						if ($radius) {
 							$variables['$border-radius'] = $radius . 'rem';
+							$variables['$border-radius-sm'] = $radius/1.5 . 'rem';
+							$variables['$border-radius-lg'] = $radius*1.333 . 'rem';
+							$variables['$border-radius-xl'] = $radius*2.666 . 'rem';
+							$variables['$border-radius-xxl'] = $radius*5.333 . 'rem';
 						}
 
 						// Replace Bootstrap Variables with Customizer Variables
@@ -116,6 +151,11 @@ class RedbasicConfig {
 			}
 
 			set_pconfig(local_channel(), 'redbasic', 'primary_color', $_POST['redbasic_primary_color']);
+			set_pconfig(local_channel(), 'redbasic', 'success_color', $_POST['redbasic_success_color']);
+			set_pconfig(local_channel(), 'redbasic', 'info_color', $_POST['redbasic_info_color']);
+			set_pconfig(local_channel(), 'redbasic', 'warning_color', $_POST['redbasic_warning_color']);
+			set_pconfig(local_channel(), 'redbasic', 'danger_color', $_POST['redbasic_danger_color']);
+
 			set_pconfig(local_channel(), 'redbasic', 'narrow_navbar', $_POST['redbasic_narrow_navbar']);
 			set_pconfig(local_channel(), 'redbasic', 'navbar_dark_mode', $_POST['redbasic_navbar_dark_mode']);
 			set_pconfig(local_channel(), 'redbasic', 'dark_mode', $_POST['redbasic_dark_mode']);
@@ -154,6 +194,10 @@ class RedbasicConfig {
 			'$light' => t('Light style'),
 			'$common' => t('Common settings'),
 			'$primary_color' => array('redbasic_primary_color', t('Primary theme color'), $arr['primary_color']),
+			'$success_color' => array('redbasic_success_color', t('Success theme color'), $arr['success_color']),
+			'$info_color' => array('redbasic_info_color', t('Info theme color'), $arr['info_color']),
+			'$warning_color' => array('redbasic_warning_color', t('Warning theme color'), $arr['warning_color']),
+			'$danger_color' => array('redbasic_danger_color', t('Danger theme color'), $arr['danger_color']),
 			'$dark_mode' => array('redbasic_dark_mode',t('Default to dark mode'),$arr['dark_mode'], '', array(t('No'),t('Yes'))),
 			'$navbar_dark_mode' => array('redbasic_navbar_dark_mode',t('Always use light icons for navbar'),$arr['navbar_dark_mode'], t('Enable this option if you use a dark navbar color in light mode'), array(t('No'),t('Yes'))),
 			'$narrow_navbar' => array('redbasic_narrow_navbar',t('Narrow navbar'),$arr['narrow_navbar'], '', array(t('No'),t('Yes'))),

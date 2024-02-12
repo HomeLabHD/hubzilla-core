@@ -1224,32 +1224,32 @@ img.mail-conv-sender-photo {
 
 .section-content-success-wrapper {
 	padding: 21px 10px;
-	color: #155724;
-	background-color: #d4edda;
+	color: var(--bs-success-text-emphasis);
+	background-color: var(--bs-success-bg-subtle);
 	border-bottom: 3px solid var(--bs-body-bg);
 	text-align: center;
 }
 
 .section-content-info-wrapper {
 	padding: 21px 10px;
-	color: #0c5460;
-	background-color: #d1ecf1;
+	color: var(--bs-info-text-emphasis);
+	background-color: var(--bs-info-bg-subtle);
 	border-bottom: 3px solid var(--bs-body-bg);
 	text-align: center;
 }
 
 .section-content-warning-wrapper {
 	padding: 21px 10px;
-	color: #856404;
-	background-color: #fff3cd;
+	color: var(--bs-warning-text-emphasis);
+	background-color: var(--bs-warning-bg-subtle);
 	border-bottom: 3px solid var(--bs-body-bg);
 	text-align: center;
 }
 
 .section-content-danger-wrapper {
 	padding: 21px 10px;
-	color: #721c24;
-	background-color: #f8d7da;
+	color: var(--bs-danger-text-emphasis);
+	background-color: var(--bs-danger-bg-subtle);
 	border-bottom: 3px solid var(--bs-body-bg);
 	text-align: center;
 }

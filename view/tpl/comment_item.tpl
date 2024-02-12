@@ -22,35 +22,35 @@
 				<div id="comment-tools-{{$id}}" class="pt-2 comment-tools">
 					<div id="comment-edit-bb-{{$id}}" class="btn-toolbar float-start">
 						<div class="btn-group me-2">
-							<button class="btn btn-outline-secondary btn-sm" title="{{$edbold}}" onclick="insertbbcomment('{{$comment}}','b', {{$id}}); return false;">
+							<button class="btn btn-outline-secondary btn-sm border-0" title="{{$edbold}}" onclick="insertbbcomment('{{$comment}}','b', {{$id}}); return false;">
 								<i class="fa fa-bold comment-icon"></i>
 							</button>
-							<button class="btn btn-outline-secondary btn-sm" title="{{$editalic}}" onclick="insertbbcomment('{{$comment}}','i', {{$id}}); return false;">
+							<button class="btn btn-outline-secondary btn-sm border-0" title="{{$editalic}}" onclick="insertbbcomment('{{$comment}}','i', {{$id}}); return false;">
 								<i class="fa fa-italic comment-icon"></i>
 							</button>
-							<button class="btn btn-outline-secondary btn-sm" title="{{$eduline}}" onclick="insertbbcomment('{{$comment}}','u', {{$id}}); return false;">
+							<button class="btn btn-outline-secondary btn-sm border-0" title="{{$eduline}}" onclick="insertbbcomment('{{$comment}}','u', {{$id}}); return false;">
 								<i class="fa fa-underline comment-icon"></i>
 							</button>
-							<button class="btn btn-outline-secondary btn-sm" title="{{$edquote}}" onclick="insertbbcomment('{{$comment}}','quote', {{$id}}); return false;">
+							<button class="btn btn-outline-secondary btn-sm border-0" title="{{$edquote}}" onclick="insertbbcomment('{{$comment}}','quote', {{$id}}); return false;">
 								<i class="fa fa-quote-left comment-icon"></i>
 							</button>
-							<button class="btn btn-outline-secondary btn-sm" title="{{$edcode}}" onclick="insertbbcomment('{{$comment}}','code', {{$id}}); return false;">
+							<button class="btn btn-outline-secondary btn-sm border-0" title="{{$edcode}}" onclick="insertbbcomment('{{$comment}}','code', {{$id}}); return false;">
 								<i class="fa fa-terminal comment-icon"></i>
 							</button>
 						</div>
 						<div class="btn-group me-2">
 							{{if $can_upload}}
-							<button class="btn btn-outline-secondary btn-sm" title="{{$edatt}}" onclick="insertCommentAttach('{{$comment}}',{{$id}}); return false;">
+							<button class="btn btn-outline-secondary btn-sm border-0" title="{{$edatt}}" onclick="insertCommentAttach('{{$comment}}',{{$id}}); return false;">
 								<i class="fa fa-paperclip comment-icon"></i>
 							</button>
 							{{/if}}
-							<button class="btn btn-outline-secondary btn-sm" title="{{$edurl}}" onclick="insertCommentURL('{{$comment}}',{{$id}}); return false;">
+							<button class="btn btn-outline-secondary btn-sm border-0" title="{{$edurl}}" onclick="insertCommentURL('{{$comment}}',{{$id}}); return false;">
 								<i class="fa fa-link comment-icon"></i>
 							</button>
 						</div>
 						{{if $feature_encrypt}}
 						<div class="btn-group me-2">
-							<button class="btn btn-outline-secondary btn-sm" title="{{$encrypt}}" onclick="hz_encrypt('{{$cipher}}','#comment-edit-text-' + '{{$id}}'); return false;">
+							<button class="btn btn-outline-secondary btn-sm border-0" title="{{$encrypt}}" onclick="hz_encrypt('{{$cipher}}','#comment-edit-text-' + '{{$id}}'); return false;">
 								<i class="fa fa-key comment-icon"></i>
 							</button>
 						</div>
