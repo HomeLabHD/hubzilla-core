@@ -1,0 +1,10 @@
+// See https://getbootstrap.com/docs/5.3/customize/sass/ for more infos
+
+// required import
+@import "vendor/twbs/bootstrap/scss/_functions";
+
+$primary: #ff0000; // set the $primary variable
+
+
+// set changes
+@import "vendor/twbs/bootstrap/scss/bootstrap";
