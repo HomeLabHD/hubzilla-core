@@ -2712,6 +2712,17 @@ class Activity {
 			$item['owner_xchan'] = $observer_hash;
 		}
 
+		// An ugly and imperfect way to recognise a mastodon direct message
+		if (
+			$item['item_private'] === 1 &&
+			!isset($act->raw_recips['cc']) &&
+			is_array($act->raw_recips['to']) &&
+			in_array(channel_url($channel), $act->raw_recips['to']) &&
+			!in_array($act->actor['followers'], $act->raw_recips['to'])
+		) {
+			$item['item_private'] = 2;
+		}
+
 		$allowed = false;
 		$permit_mentions = intval(PConfig::Get($channel['channel_id'], 'system','permit_all_mentions') && i_am_mentioned($channel, $item));
 
@@ -2830,8 +2841,8 @@ class Activity {
 		}
 
 		if (intval($item['item_private']) === 2) {
-			if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'post_mail')) {
-				$allowed = false;
+			if (perm_is_allowed($channel['channel_id'], $observer_hash, 'post_mail')) {
+				$allowed = true;
 			}
 		}
 
@@ -2976,17 +2987,6 @@ class Activity {
 					$item['allow_gid'] = $item['deny_cid'] = $item['deny_gid'] = '';
 				}
 			}
-		}
-
-		// An ugly and imperfect way to recognise a mastodon direct message
-		if (
-			$item['item_private'] === 1 &&
-			!isset($act->raw_recips['cc']) &&
-			is_array($act->raw_recips['to']) &&
-			in_array(channel_url($channel), $act->raw_recips['to']) &&
-			!in_array($act->actor['followers'], $act->raw_recips['to'])
-		) {
-			$item['item_private'] = 2;
 		}
 
 		// TODO: not implemented
