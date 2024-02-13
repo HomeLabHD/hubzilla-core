@@ -269,7 +269,7 @@ a.wikilist {
 }
 
 /* hq_controls */
-.hq_controls_fixed_bottom_center {
+.hq_controls.hq_controls_fixed_bottom_center {
 	z-index: 1028;
 	position: fixed;
 	bottom: 0px;
@@ -277,3 +277,16 @@ a.wikilist {
 	transform: translateX(-50%);
 }
 
+.hq_controls .btn.rounded-circle {
+	width: 2.7rem;
+	height: 2.7rem;
+	padding: 0;
+	font-size: 1rem;
+}
+
+.hq_controls_fixed_bottom_center .btn.rounded-circle {
+	width: 3.2rem;
+	height: 3.2rem;
+	padding: 0;
+	font-size: 1.5rem;
+}
