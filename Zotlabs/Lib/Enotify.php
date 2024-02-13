@@ -512,7 +512,7 @@ class Enotify {
 	$datarray['link']   = $itemlink;
 	$datarray['parent'] = $parent_mid;
 	$datarray['parent_item'] = $parent_item;
-	$datarray['ntype']   = $params['type'] ?? '';
+	$datarray['ntype']   = $params['type'] ?? 0;
 	$datarray['verb']   = $params['verb'] ?? '';
 	$datarray['otype']  = $params['otype'] ?? '';
  	$datarray['abort']  = false;
@@ -560,8 +560,9 @@ class Enotify {
 		dbesc($datarray['otype'])
 	);
 
-	$r = q("select id from notify where hash = '%s' and uid = %d limit 1",
+	$r = q("select id from notify where hash = '%s' and ntype = %d and uid = %d limit 1",
 		dbesc($datarray['hash']),
+		intval($datarray['ntype']),
 		intval($recip['channel_id'])
 	);
 	if ($r) {
