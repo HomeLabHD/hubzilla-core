@@ -2189,7 +2189,7 @@ class Activity {
 				$t = trim(self::get_textfield($act->data, 'content'));
 
 				// Unicode emojis
-				if (mb_strlen($t) === 1) {
+				if (grapheme_strlen($t) === 1) {
 					$content['content'] = $t;
 				}
 				// Custom emojis
