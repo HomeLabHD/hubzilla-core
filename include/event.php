@@ -996,7 +996,7 @@ function event_import_ical($ical, $uid) {
 	$ev['timezone'] = 'UTC';
 
 	// Try to get an usable olson format timezone
-	if($ev['adjust']) {
+	if($ev['adjust'] && isset($ical->DTSTART['TZID'])) {
 		//TODO: we should pass the vcalendar to getTimeZone() to be more accurate
 		// we do not have it here since parse_ical_file() is passing the vevent only.
 		$timezone_obj = \Sabre\VObject\TimeZoneUtil::getTimeZone($ical->DTSTART['TZID']);
