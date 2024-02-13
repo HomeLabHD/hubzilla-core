@@ -2601,7 +2601,7 @@ class Activity {
 			$s['item_private'] = 0;
 		}
 
-		if ($act->objprop('directMessage')) {
+		if ($act->objprop('directMessage') || empty($act->recips)) {
 			$s['item_private'] = 2;
 		}
 
