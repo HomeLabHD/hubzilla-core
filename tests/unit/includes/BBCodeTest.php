@@ -53,6 +53,10 @@ class BBCodeTest extends UnitTestCase {
 				"<pre><code>some\n    indented\ncode</code></pre>",
 				"[code]some\n    indented\ncode[/code]"
 			],
+			'paragraph with a mention and some text' => [
+				'<p><span class="h-card" translate="no"><a href="https://example.org/@profile" class="u-url mention">@<span>profile</span></a></span> some content</p>',
+				'[url=https://example.org/@profile]@profile[/url] some content'
+			]
 		];
 	}
 }
