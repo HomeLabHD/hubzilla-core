@@ -2601,7 +2601,7 @@ class Activity {
 			$s['item_private'] = 0;
 		}
 
-		if ($act->objprop('directMessage') || empty($act->recips)) {
+		if ($act->objprop('directMessage')) {
 			$s['item_private'] = 2;
 		}
 
@@ -2712,13 +2712,13 @@ class Activity {
 			$item['owner_xchan'] = $observer_hash;
 		}
 
-		// An ugly and imperfect way to recognise a mastodon direct message
-		if (
-			$item['item_private'] === 1 &&
+		// An ugly and imperfect way to recognise a mastodon or friendica direct message
+		if (empty($act->recips) || // friendica
+			($item['item_private'] === 1 &&
 			!isset($act->raw_recips['cc']) &&
 			is_array($act->raw_recips['to']) &&
 			in_array(channel_url($channel), $act->raw_recips['to']) &&
-			!in_array($act->actor['followers'], $act->raw_recips['to'])
+			!in_array($act->actor['followers'], $act->raw_recips['to']))
 		) {
 			$item['item_private'] = 2;
 		}
