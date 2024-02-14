@@ -267,31 +267,41 @@ function purify_html($s, $allow_position = false) {
 
 
 	//data- attributes used by the bootstrap library
-	$def->info_global_attr['data-dismiss'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-target'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-toggle'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-backdrop'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-keyboard'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-show'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-spy'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-offset'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-animation'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-container'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-delay'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-placement'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-title'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-trigger'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-content'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-trigger'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-parent'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-ride'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-slide-to'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-slide'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-interval'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-pause'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-wrap'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-offset-top'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-offset-bottom'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-target'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-ride'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-slide'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-toggle'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-animation'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-title'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-delay'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-parent'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-offset'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-dismiss'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-backdrop'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-keyboard'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-content'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-container'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-trigger'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-spy'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-placement'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-slide-to'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-interval'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-pause'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-wrap'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-display'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-root-margin'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-smooth-scroll'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-dismiss'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-delay'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-autohide'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-scroll'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-reference'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-config'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-custom-class'] = new HTMLPurifier_AttrDef_Text;
+	//old
+	$def->info_global_attr['data-bs-show'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-offset-top'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-offset-bottom'] = new HTMLPurifier_AttrDef_Text;
 
 	//some html5 elements
 	//Block
