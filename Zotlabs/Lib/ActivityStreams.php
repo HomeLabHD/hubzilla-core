@@ -89,7 +89,7 @@ class ActivityStreams {
 
 		// Attempt to assemble an Activity from what we were given.
 		if ($this->is_valid()) {
-			$this->id     = $this->get_property_obj('id');
+			$this->id = $this->get_property_obj('id');
 
 			if  (!$this->id) {
 				logger('Data with mmissing id: ' . print_r($this->data, true));
@@ -130,24 +130,31 @@ class ActivityStreams {
 				}
 			}
 
-			// fetch recursive or embedded activities
+			// Fetch recursive or embedded activities
 
 			if ($this->obj && is_array($this->obj) && array_key_exists('object', $this->obj)) {
 				$this->obj['object'] = $this->get_compound_property('object', $this->obj);
 			}
 
-			if ($this->obj && is_array($this->obj) && isset($this->obj['actor']))
+			// Enumerate and store actors in referenced objects
+
+			if ($this->obj && is_array($this->obj) && isset($this->obj['actor'])) {
 				$this->obj['actor'] = $this->get_actor('actor', $this->obj);
-			if ($this->tgt && is_array($this->tgt) && isset($this->tgt['actor']))
+			}
+
+			if ($this->tgt && is_array($this->tgt) && isset($this->tgt['actor'])) {
 				$this->tgt['actor'] = $this->get_actor('actor', $this->tgt);
+			}
+
+			// Determine if this is a followup or response activity
 
 			$this->parent_id = $this->get_property_obj('inReplyTo');
 
-			if (!$this->parent_id && is_array($this->obj) && isset($this->obj['inReplyTo'])) {
-				$this->parent_id = $this->obj['inReplyTo'];
+			if (!$this->parent_id && isset($this->obj['inReplyTo'])) {
+				$this->parent_id = ((is_array($this->obj['inReplyTo'])) ? $this->obj['inReplyTo']['id'] : $this->obj['inReplyTo']);
 			}
 
-			if (!$this->parent_id && is_array($this->obj) && isset($this->obj['id'])) {
+			if (!$this->parent_id && isset($this->obj['id'])) {
 				$this->parent_id = $this->obj['id'];
 			}
 
