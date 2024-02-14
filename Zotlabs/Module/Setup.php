@@ -527,6 +527,7 @@ class Setup extends \Zotlabs\Web\Controller {
 		$this->check_add($ck_funcs, t('mb_string PHP module'), true, true);
 		$this->check_add($ck_funcs, t('xml PHP module'), true, true);
 		$this->check_add($ck_funcs, t('zip PHP module'), true, true);
+		$this->check_add($ck_funcs, t('intl PHP module'), true, true);
 
 		if(function_exists('apache_get_modules')){
 			if(! in_array('mod_rewrite', apache_get_modules())) {
@@ -582,6 +583,10 @@ class Setup extends \Zotlabs\Web\Controller {
 		if(! extension_loaded('zip')) {
 			$ck_funcs[6]['status'] = false;
 			$ck_funcs[6]['help'] = t('Error: zip PHP module required but not installed.');
+		}
+		if(! extension_loaded('intl')) {
+			$ck_funcs[6]['status'] = false;
+			$ck_funcs[6]['help'] = t('Error: intl PHP module required but not installed.');
 		}
 
 		$checks = array_merge($checks, $ck_funcs);
