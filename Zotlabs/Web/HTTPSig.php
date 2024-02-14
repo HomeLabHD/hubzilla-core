@@ -44,37 +44,42 @@ class HTTPSig {
 		}
 	}
 
-	static function find_headers($data, &$body) {
+	public static function find_headers($data, &$body) {
 
 		// decide if $data arrived via controller submission or curl
+		// changes $body for the caller
 
-		if (is_array($data) && $data['header']) {
-			if (!$data['success'])
+		if (is_array($data) && array_key_exists('header', $data)) {
+			if (!$data['success']) {
+				$body = EMPTY_STR;
 				return [];
+			}
 
-			$h                           = new HTTPHeaders($data['header']);
-			$headers                     = $h->fetcharr();
-			$body                        = $data['body'];
+			if (!$data['header']) {
+				$body = EMPTY_STR;
+				return [];
+			}
+
+			$h = new HTTPHeaders($data['header']);
+			$headers = $h->fetcharr();
+			$body = $data['body'];
 			$headers['(request-target)'] = $data['request_target'];
-		}
-
-		else {
-			$headers                     = [];
+		} else {
+			$headers = [];
 			$headers['(request-target)'] = strtolower($_SERVER['REQUEST_METHOD']) . ' ' . $_SERVER['REQUEST_URI'];
-			$headers['content-type']     = $_SERVER['CONTENT_TYPE'];
-			$headers['content-length']   = $_SERVER['CONTENT_LENGTH'];
+			$headers['content-type'] = $_SERVER['CONTENT_TYPE'];
+			$headers['content-length'] = $_SERVER['CONTENT_LENGTH'];
 
 			foreach ($_SERVER as $k => $v) {
 				if (strpos($k, 'HTTP_') === 0) {
-					$field           = str_replace('_', '-', strtolower(substr($k, 5)));
+					$field = str_replace('_', '-', strtolower(substr($k, 5)));
 					$headers[$field] = $v;
 				}
 			}
 		}
 
 		//logger('SERVER: ' . print_r($_SERVER,true), LOGGER_ALL);
-
-		//logger('headers: ' . print_r($headers,true), LOGGER_ALL);
+		//logger('found_headers: ' . print_r($headers,true), LOGGER_ALL);
 
 		return $headers;
 	}
@@ -101,6 +106,10 @@ class HTTPSig {
 
 		if (!$headers)
 			return $result;
+
+		if (is_array($body)) {
+			btlogger('body is array:' . print_r($body, true));
+		}
 
 		$sig_block = null;
 
@@ -217,8 +226,10 @@ class HTTPSig {
 			$result['content_signed'] = true;
 			$digest = explode('=', $headers['digest'], 2);
 			$digest[0] = strtoupper($digest[0]);
+
 			if ($digest[0] === 'SHA-256')
 				$hashalg = 'sha256';
+
 			if ($digest[0] === 'SHA-512')
 				$hashalg = 'sha512';
 
