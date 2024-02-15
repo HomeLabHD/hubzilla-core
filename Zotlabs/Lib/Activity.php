@@ -1659,7 +1659,7 @@ class Activity {
 		if ($ap_hubloc) {
 			// we already have a stored record. Determine if it needs updating.
 			if ($ap_hubloc['hubloc_updated'] < datetime_convert('UTC', 'UTC', ' now - 3 days') || $force) {
-				$person_obj = self::get_cached_actor($url);
+				$person_obj = self::get_actor($url, $force);
 			}
 			else {
 				return;
@@ -2370,6 +2370,7 @@ class Activity {
 		}
 
 		if (!$response_activity) {
+/*
 			if ($act->type === 'Announce') {
 				$s['author_xchan'] = self::get_attributed_to_actor_url($act);
 				$s['mid'] = $act->objprop('id') ?: $act->obj;
@@ -2379,6 +2380,7 @@ class Activity {
 					$s['parent_mid'] = $act->objprop('id') ?: $act->obj;
 				}
 			}
+*/
 
 			// we will need a hook here to extract magnet links e.g. peertube
 			// right now just link to the largest mp4 we find that will fit in our
@@ -2713,12 +2715,12 @@ class Activity {
 		}
 
 		// An ugly and imperfect way to recognise a mastodon or friendica direct message
-		if (empty($act->recips) || // friendica
-			($item['item_private'] === 1 &&
+		if (
+			$item['item_private'] === 1 &&
 			!isset($act->raw_recips['cc']) &&
 			is_array($act->raw_recips['to']) &&
 			in_array(channel_url($channel), $act->raw_recips['to']) &&
-			!in_array($act->actor['followers'], $act->raw_recips['to']))
+			!in_array($act->actor['followers'], $act->raw_recips['to'])
 		) {
 			$item['item_private'] = 2;
 		}
@@ -3076,10 +3078,12 @@ class Activity {
 
 		$p = [];
 		$announce_init = false;
+		$group_announce_init = false;
 
 		if (is_object($act) && is_array($item)) {
 			$p[] = [$act, $item];
 			$announce_init = ($item['verb'] === 'Announce');
+			$group_announce_init = ($announce_init && $act->actor['type'] === 'Group');
 		}
 
 		if (is_string($item)) {
@@ -3149,12 +3153,22 @@ class Activity {
 					$item['source_xchan'] = $observer_hash;
 					// WARNING: the presence of both source_xchan and non-zero item_uplink here will cause a delivery loop
 					$item['item_uplink']  = 0;
-					$item['verb'] = 'Announce';
-					$item['parent_mid'] = $item['thr_parent'] = $item['mid'];
-					$item['item_thread_top'] = 1;
+
+					if ($item['item_thread_top']) {
+						$item['verb'] = 'Announce';
+					}
+
+					if (!$group_announce_init) {
+						// Force a new thread if the announce init actor is not a group
+						$item['verb'] = 'Announce';
+						$item['parent_mid'] = $item['thr_parent'] = $item['mid'];
+						$item['item_thread_top'] = 1;
+					}
+
 				}
 				else {
 					$announce_init = ($i === 0 && $item['verb'] === 'Announce');
+					$group_announce_init = ($announce_init && $a->actor['type'] === 'Group');
 				}
 
 				if (intval($channel['channel_system']) && intval($item['item_private'])) {
@@ -3483,11 +3497,11 @@ class Activity {
 		return $hookdata['actor'];
 	}
 
-	static function get_actor($actor_id) {
+	static function get_actor($actor_id, $force = false) {
 		// remove fragment
 		$actor_id = ((strpos($actor_id, '#')) ? substr($actor_id, 0, strpos($actor_id, '#')) : $actor_id);
 
-		$actor = self::get_cached_actor($actor_id);
+		$actor = ((!$force) ? self::get_cached_actor($actor_id) : null);
 
 		if ($actor) {
 			return $actor;

@@ -494,28 +494,32 @@ class Contactedit extends Controller {
 			'message' => ''
 		];
 
-		if ($cmd === 'resetphoto') {
-			q("update xchan set xchan_photo_date = '2001-01-01 00:00:00' where xchan_hash = '%s'",
+		if ($cmd === 'refresh') {
+			q("update xchan set xchan_photo_date = '0001-01-01 00:00:00', xchan_name_date = '0001-01-01 00:00:00' where xchan_hash = '%s'",
 				dbesc($contact['xchan_hash'])
 			);
-			$cmd = 'refresh';
-		}
 
-		if ($cmd === 'refresh') {
 			if ($contact['xchan_network'] === 'zot6') {
 				if (Libzot::refresh($contact, App::get_channel())) {
 					$ret['success'] = true;
 					$ret['message'] = t('Refresh succeeded');
 				}
 				else {
-					$ret['message'] = t('Refresh failed - channel is currently unavailable');
+					$ret['message'] = t('Refresh failed');
 				}
 			}
 			else {
 				// if you are on a different network we'll force a refresh of the connection basic info
-				Master::Summon(['Notifier', 'permission_update', $contact['abook_id']]);
-				$ret['success'] = true;
-				$ret['message'] = t('Refresh succeeded');
+				$hookinfo = [
+					'contact' => $contact,
+					'success' => false,
+					'message' => ''
+				];
+
+				call_hooks('actor_refetch', $hookinfo);
+
+				$ret['success'] = $hookinfo['success'];
+				$ret['message'] = $hookinfo['message'];
 			}
 
 			return $ret;
@@ -625,15 +629,9 @@ class Contactedit extends Controller {
 		return [
 
 			'refresh' => [
-				'label' => t('Refresh Permissions'),
-				'title' => t('Fetch updated permissions'),
+				'label' => t('Refresh'),
+				'title' => t('Refetch contact info'),
 			],
-
-			'rephoto' => [
-				'label' => t('Refresh Photo'),
-				'title' => t('Fetch updated photo'),
-			],
-
 
 			'block' => [
 				'label' => (intval($contact['abook_blocked']) ? t('Unblock') : t('Block')),
