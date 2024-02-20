@@ -30,7 +30,7 @@ empty line above';
 		$this->assertEquals('Your HTML parser does not support HTML5 audio.', purify_html('<audio controls><source src="movie.ogg" "type="audio/ogg">Your HTML parser does not support HTML5 audio.</audio>'));
 
 		// preserve f6 and bootstrap additional data attributes from our own configuration
-		$this->assertEquals('<div data-title="title">text</div>', purify_html('<div data-title="title">text</div>'));
+		$this->assertEquals('<div data-bs-title="title">text</div>', purify_html('<div data-bs-title="title">text</div>'));
 		$this->assertEquals('<ul data-accordion-menu=""><li>item1</li></ul>', purify_html('<ul data-accordion-menu><li>item1</li></ul>'));
 		$this->assertEquals('<ul><li>item1</li></ul>', purify_html('<ul data-accordion-menu-unknown><li>item1</li></ul>'));
 	}
