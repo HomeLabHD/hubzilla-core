@@ -114,6 +114,13 @@ function escape_tags($string) {
 	return (htmlspecialchars($string, ENT_COMPAT, 'UTF-8', false));
 }
 
+function unescape_tags($string) {
+	if (!$string) {
+		return EMPTY_STR;
+	}
+	return (htmlspecialchars_decode($string, ENT_COMPAT));
+}
+
 /**
  * Escape URL's so they're safe for use in HTML and in HTML element attributes.
  */

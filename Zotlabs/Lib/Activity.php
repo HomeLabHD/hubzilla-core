@@ -517,7 +517,7 @@ class Activity {
 		}
 
 		if ($i['title'])
-			$ret['name'] = $i['title'];
+			$ret['name'] = unescape_tags($i['title']);
 
 		$ret['published'] = datetime_convert('UTC', 'UTC', $i['created'], ATOM_TIME);
 		if ($i['created'] !== $i['edited'])
@@ -564,11 +564,11 @@ class Activity {
 
 		if ($i['mimetype'] === 'text/bbcode') {
 			if ($i['title'])
-				$ret['name'] = bbcode($i['title'], ['cache' => true]);
+				$ret['name'] = unescape_tags($i['title']);
 			if ($i['summary'])
-				$ret['summary'] = bbcode($i['summary'], ['cache' => true]);
-			$ret['content'] = bbcode($i['body'], ['cache' => true]);
-			$ret['source']  = ['content' => $i['body'], 'mediaType' => 'text/bbcode'];
+				$ret['summary'] = unescape_tags($i['summary']);
+			$ret['content'] = bbcode(unescape_tags($i['body']), ['cache' => true]);
+			$ret['source']  = ['content' => unescape_tags($i['body']), 'mediaType' => 'text/bbcode'];
 		}
 
 		$actor = self::encode_person($i['author'], false);

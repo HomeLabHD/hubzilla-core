@@ -679,7 +679,7 @@ class Item extends Controller {
 			$verb                = $orig_post['verb'];
 			$app                 = $orig_post['app'];
 			$title               = escape_tags(trim($_REQUEST['title']));
-			$summary             = trim($_REQUEST['summary']);
+			$summary             = escape_tags(trim($_REQUEST['summary']));
 			$body                = trim($_REQUEST['body']);
 			$item_flags          = $orig_post['item_flags'];
 			$item_origin         = $orig_post['item_origin'];
@@ -740,7 +740,7 @@ class Item extends Controller {
 			$coord    = ((isset($_REQUEST['coord'])) ? notags(trim($_REQUEST['coord'])) : '');
 			$verb     = ((isset($_REQUEST['verb'])) ? notags(trim($_REQUEST['verb'])) : '');
 			$title    = ((isset($_REQUEST['title'])) ? escape_tags(trim($_REQUEST['title'])) : '');
-			$summary  = ((isset($_REQUEST['summary'])) ? trim($_REQUEST['summary']) : '');
+			$summary  = ((isset($_REQUEST['summary'])) ? escape_tags(trim($_REQUEST['summary'])) : '');
 			$body     = ((isset($_REQUEST['body'])) ? trim($_REQUEST['body']) : '');
 			$body     .= ((isset($_REQUEST['attachment'])) ? trim($_REQUEST['attachment']) : '');
 			$postopts = '';
@@ -793,7 +793,6 @@ class Item extends Controller {
 			&& ($channel['channel_pageflags'] & PAGE_ALLOWCODE)) ? true : false);
 
 		if ($preview) {
-			$summary = z_input_filter($summary, $mimetype, $execflag);
 			$body    = z_input_filter($body, $mimetype, $execflag);
 		}
 
