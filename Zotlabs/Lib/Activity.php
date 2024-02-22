@@ -612,11 +612,12 @@ class Activity {
 			if (!array_key_exists(0, $ptr)) {
 				$ptr = [$ptr];
 			}
+
 			foreach ($ptr as $t) {
 				if (is_array($t) && !array_key_exists('type', $t))
 					$t['type'] = 'Hashtag';
 
-				if (is_array($t) && array_key_exists('href', $t) && array_key_exists('name', $t)) {
+				if (is_array($t) && (array_key_exists('href', $t) || array_key_exists('id', $t)) && array_key_exists('name', $t)) {
 					switch ($t['type']) {
 						case 'Hashtag':
 							$ret[] = ['ttype' => TERM_HASHTAG, 'url' => $t['href'], 'term' => escape_tags((substr($t['name'], 0, 1) === '#') ? substr($t['name'], 1) : $t['name'])];
@@ -628,6 +629,10 @@ class Activity {
 
 						case 'Bookmark':
 							$ret[] = ['ttype' => TERM_BOOKMARK, 'url' => $t['href'], 'term' => escape_tags($t['name'])];
+							break;
+
+						case 'Emoji':
+							$ret[] = ['ttype' => TERM_EMOJI, 'url' => $t['icon']['url'], 'term' => escape_tags($t['name'])];
 							break;
 
 						default:
@@ -1228,6 +1233,7 @@ class Activity {
 
 		if (strpos($verb, ACTIVITY_REACT) !== false)
 			return 'emojiReaction';
+
 		if (strpos($verb, ACTIVITY_MOOD) !== false)
 			return 'Create';
 
@@ -2184,7 +2190,7 @@ class Activity {
 				$content['content'] = (($act->tgt && $act->tgt['type'] === 'Image') ? '[img=32x32]' . $act->tgt['url'] . '[/img]' : '&#x' . $act->tgt['name'] . ';');
 			}
 
-			if (in_array($act->type, ['EmojiReaction', 'EmojiReact'])) {
+			if (in_array($act->type, ['EmojiReact'])) {
 				// Pleroma reactions
 				$t = trim(self::get_textfield($act->data, 'content'));
 
@@ -2192,14 +2198,15 @@ class Activity {
 				if (grapheme_strlen($t) === 1) {
 					$content['content'] = $t;
 				}
+
 				// Custom emojis
-				elseif (preg_match('/^[:].*[:]$/i', $t, $match)) {
-					$content['content'] = $match[0];
-					if (isset($act->data['tag']) && is_array($act->data['tag'])) {
-						foreach ($act->data['tag'] as $tag) {
-							if ($tag['type'] === 'Emoji' && $tag['name'] === trim($match[0], ':')) {
-								$content['content'] = '[img=32x32]' . $tag['id'] . '[/img]';
-							}
+				$e = self::decode_taxonomy($act->data);
+
+				if ($e) {
+					$s['term'] = $e;
+					foreach ($e as $ee) {
+						if ($ee['ttype'] === TERM_EMOJI) {
+							$content['content'] = '[img=32x32]' . $ee['url'] . '[/img]';
 						}
 					}
 				}
@@ -2329,15 +2336,9 @@ class Activity {
 
 		if (is_array($act->obj) && !$response_activity) {
 			$a = self::decode_taxonomy($act->obj);
+
 			if ($a) {
 				$s['term'] = $a;
-				foreach ($a as $b) {
-					if ($b['ttype'] === TERM_EMOJI) {
-						$s['title']   = str_replace($b['term'], '[img=16x16]' . $b['url'] . '[/img]', $s['title']);
-						$s['summary'] = str_replace($b['term'], '[img=16x16]' . $b['url'] . '[/img]', $s['summary']);
-						$s['body']    = str_replace($b['term'], '[img=16x16]' . $b['url'] . '[/img]', $s['body']);
-					}
-				}
 			}
 
 			$a = self::decode_attachment($act->obj);
@@ -2370,17 +2371,6 @@ class Activity {
 		}
 
 		if (!$response_activity) {
-/*
-			if ($act->type === 'Announce') {
-				$s['author_xchan'] = self::get_attributed_to_actor_url($act);
-				$s['mid'] = $act->objprop('id') ?: $act->obj;
-
-				// Do not force new thread if the announce is from a group actor
-				if ($act->actor['type'] !== 'Group') {
-					$s['parent_mid'] = $act->objprop('id') ?: $act->obj;
-				}
-			}
-*/
 
 			// we will need a hook here to extract magnet links e.g. peertube
 			// right now just link to the largest mp4 we find that will fit in our
@@ -2633,33 +2623,6 @@ class Activity {
 				}
 			}
 		}
-
-		// old style: can be removed after most hubs are on 7.0.2
-		elseif (array_key_exists('signed', $raw_arr) && is_array($act->obj) && isset($act->data['attachment']) && is_array($act->obj['attachment'])) {
-			foreach($act->obj['attachment'] as $a) {
-				if (
-					isset($a['type']) && $a['type'] === 'PropertyValue' &&
-					isset($a['name']) && $a['name'] === 'zot.activitypub.rawmsg' &&
-					isset($a['value'])
-				) {
-					$ap_rawmsg = $a['value'];
-				}
-
-				if (
-					isset($a['type']) && $a['type'] === 'PropertyValue' &&
-					isset($a['name']) && $a['name'] === 'zot.diaspora.fields' &&
-					isset($a['value'])
-				) {
-					$diaspora_rawmsg = $a['value'];
-				}
-			}
-		}
-
-		// catch the likes
-		if (!$ap_rawmsg && $response_activity) {
-			$ap_rawmsg = json_encode($act->data, JSON_UNESCAPED_SLASHES);
-		}
-		// end old style
 
 		if (!$ap_rawmsg && array_key_exists('signed', $raw_arr)) {
 			// zap
