@@ -193,8 +193,8 @@ class Sse_bs extends Controller {
 
 		$item_normal = item_normal();
 
-		// Filter internal follow activities
-		$item_normal .= " AND verb NOT IN ('" . dbesc(ACTIVITY_FOLLOW) . "') ";
+		// Filter internal follow activities and strerams add/remove activities
+		$item_normal .= " AND verb NOT IN ('Add', 'Remove', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
 
 		if ($notifications) {
 			$items = q("SELECT * FROM item
@@ -276,8 +276,8 @@ class Sse_bs extends Controller {
 
 		$item_normal = item_normal();
 
-		// Filter internal follow activities
-		$item_normal .= " AND verb NOT IN ('" . dbesc(ACTIVITY_FOLLOW) . "') ";
+		// Filter internal follow activities and strerams add/remove activities
+		$item_normal .= " AND verb NOT IN ('Add', 'Remove', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
 
 		if ($notifications) {
 			$items = q("SELECT * FROM item
@@ -359,8 +359,8 @@ class Sse_bs extends Controller {
 
 		$item_normal = item_normal();
 
-		// Filter internal follow activities
-		$item_normal .= " AND verb NOT IN ('" . dbesc(ACTIVITY_FOLLOW) . "') ";
+		// Filter internal follow activities and strerams add/remove activities
+		$item_normal .= " AND verb NOT IN ('Add', 'Remove', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
 
 		if ($notifications) {
 			$items = q("SELECT * FROM item
@@ -466,8 +466,8 @@ class Sse_bs extends Controller {
 
 		$item_normal = item_normal();
 
-		// Filter internal follow activities
-		$item_normal .= " AND verb NOT IN ('" . dbesc(ACTIVITY_FOLLOW) . "') ";
+		// Filter internal follow activities and strerams add/remove activities
+		$item_normal .= " AND verb NOT IN ('Add', 'Remove', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
 
 		if ($notifications) {
 			$items = q("SELECT * FROM item
@@ -662,9 +662,8 @@ class Sse_bs extends Controller {
 
 		$item_normal = item_normal();
 
-		// Filter internal follow activities
-		$item_normal .= " AND verb NOT IN ('" . dbesc(ACTIVITY_FOLLOW) . "') ";
-
+		// Filter internal follow activities and strerams add/remove activities
+		$item_normal .= " AND verb NOT IN ('Add', 'Remove', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
 
 		$r = q("SELECT * FROM item
 			WHERE (verb = 'Create' OR verb = '%s')
