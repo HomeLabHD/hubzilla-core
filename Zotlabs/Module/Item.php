@@ -298,7 +298,6 @@ class Item extends Controller {
 
 
 	function post() {
-
 		// This will change. Figure out who the observer is and whether or not
 		// they have permission to post here. Else ignore the post.
 
@@ -405,7 +404,7 @@ class Item extends Controller {
 		$pagetitle     = ((x($_REQUEST, 'pagetitle')) ? escape_tags($_REQUEST['pagetitle']) : '');
 		$layout_mid    = ((x($_REQUEST, 'layout_mid')) ? escape_tags($_REQUEST['layout_mid']) : '');
 		$plink         = ((x($_REQUEST, 'permalink')) ? escape_tags($_REQUEST['permalink']) : '');
-		$obj_type      = ((x($_REQUEST, 'obj_type')) ? escape_tags($_REQUEST['obj_type']) : ACTIVITY_OBJ_NOTE);
+		$obj_type      = ((x($_REQUEST, 'obj_type')) ? escape_tags($_REQUEST['obj_type']) : 'Note');
 
 		// allow API to bulk load a bunch of imported items with sending out a bunch of posts.
 		$nopush = ((x($_REQUEST, 'nopush')) ? intval($_REQUEST['nopush']) : 0);
@@ -443,9 +442,6 @@ class Item extends Controller {
 
 			if (!x($_REQUEST, 'type'))
 				$_REQUEST['type'] = 'net-comment';
-
-			if ($obj_type == ACTIVITY_OBJ_NOTE)
-				$obj_type = ACTIVITY_OBJ_COMMENT;
 
 			if ($parent) {
 				$r = q("SELECT * FROM item WHERE id = %d LIMIT 1",
@@ -1008,7 +1004,7 @@ class Item extends Controller {
 
 
 		if (!strlen($verb))
-			$verb = ACTIVITY_POST;
+			$verb = 'Create';
 
 		$notify_type = (($parent) ? 'comment-new' : 'wall-new');
 
@@ -1219,18 +1215,6 @@ class Item extends Controller {
 				$this->add_listeners($datarray);
 			}
 
-			// We only need edit activities for other federated protocols
-			// which do not support edits natively. While this does federate
-			// edits, it presents a number of issues locally - such as #757 and #758.
-			// The SQL check for an edit activity would not perform that well so to fix these issues
-			// requires an additional item flag (perhaps 'item_edit_activity') that we can add to the
-			// query for searches and notifications.
-
-			// For now we'll just forget about trying to make edits work on network protocols that
-			// don't support them.
-
-			// item_create_edit_activity($x);
-
 			if (!$parent) {
 				$r = q("select * from item where id = %d",
 					intval($post_id)
@@ -1285,7 +1269,7 @@ class Item extends Controller {
 						'to_xchan'   => $datarray['owner_xchan'],
 						'item'       => $datarray,
 						'link'       => z_root() . '/display/' . $datarray['uuid'],
-						'verb'       => ACTIVITY_POST,
+						'verb'       => 'Create',
 						'otype'      => 'item',
 						'parent'     => $parent,
 						'parent_mid' => $parent_item['mid']
@@ -1303,7 +1287,7 @@ class Item extends Controller {
 						'to_xchan'   => $datarray['owner_xchan'],
 						'item'       => $datarray,
 						'link'       => z_root() . '/display/' . $datarray['uuid'],
-						'verb'       => ACTIVITY_POST,
+						'verb'       => 'Create',
 						'otype'      => 'item'
 					]);
 				}

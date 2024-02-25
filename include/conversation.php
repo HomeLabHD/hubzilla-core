@@ -90,7 +90,7 @@ function item_redir_and_replace_images($body, $images, $cid) {
 
 function localize_item(&$item){
 
-	if (activity_match($item['verb'],ACTIVITY_LIKE) || activity_match($item['verb'],ACTIVITY_DISLIKE) || activity_match($item['verb'],ACTIVITY_SHARE)){
+	if (activity_match($item['verb'], ['Like', 'Dislike', ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_SHARE])){
 		if(! $item['obj'])
 			return;
 
@@ -143,7 +143,7 @@ function localize_item(&$item){
 
 		switch($obj['type']) {
 			case ACTIVITY_OBJ_PHOTO:
-			case 'Photo':
+			case 'Image':
 				$post_type = t('photo');
 				break;
 			case ACTIVITY_OBJ_EVENT:
@@ -151,6 +151,7 @@ function localize_item(&$item){
 				$post_type = t('event');
 				break;
 			case ACTIVITY_OBJ_PERSON:
+			case 'Person':
 				$post_type = t('channel');
 				$author_name = $obj['title'];
 				if($obj['link']) {
@@ -189,26 +190,17 @@ function localize_item(&$item){
 
 			$plink = '[zrl=' . zid($item_url) . ']' . $post_type . '[/zrl]';
 
-			if(activity_match($item['verb'],ACTIVITY_LIKE)) {
+			if(activity_match($item['verb'], ['Like', ACTIVITY_LIKE])) {
 				$bodyverb = t('%1$s likes %2$s\'s %3$s');
-			}
-			elseif(activity_match($item['verb'],ACTIVITY_DISLIKE)) {
-				$bodyverb = t('%1$s doesn\'t like %2$s\'s %3$s');
-			}
-			elseif(activity_match($item['verb'],ACTIVITY_SHARE)) {
-				$bodyverb = t('%1$s repeated %2$s\'s %3$s');
-			}
-
-
-			// short version, in notification strings the author will be displayed separately
-
-			if(activity_match($item['verb'],ACTIVITY_LIKE)) {
+				// short version, in notification strings the author will be displayed separately
 				$shortbodyverb = t('likes %1$s\'s %2$s');
 			}
-			elseif(activity_match($item['verb'],ACTIVITY_DISLIKE)) {
+			elseif(activity_match($item['verb'], ['Dislike', ACTIVITY_DISLIKE])) {
+				$bodyverb = t('%1$s doesn\'t like %2$s\'s %3$s');
 				$shortbodyverb = t('doesn\'t like %1$s\'s %2$s');
 			}
-			elseif(activity_match($item['verb'],ACTIVITY_SHARE)) {
+			elseif(activity_match($item['verb'], ACTIVITY_SHARE)) {
+				$bodyverb = t('%1$s repeated %2$s\'s %3$s');
 				$shortbodyverb = t('repeated %1$s\'s %2$s');
 			}
 
@@ -225,9 +217,9 @@ function localize_item(&$item){
 
 	}
 
-	if (activity_match($item['verb'],ACTIVITY_FRIEND)) {
+	if (activity_match($item['verb'], ACTIVITY_FRIEND)) {
 
-		if ($item['obj_type'] == "" || $item['obj_type'] !== ACTIVITY_OBJ_PERSON)
+		if ($item['obj_type'] == "" || !in_array($item['obj_type'], ['Person', ACTIVITY_OBJ_PERSON]))
 			return;
 
 		$Aname = $item['author']['xchan_name'];
@@ -264,7 +256,8 @@ function localize_item(&$item){
 		if(! $verb)
 			return;
 
-		if ($item['obj_type']=="" || $item['obj_type']!== ACTIVITY_OBJ_PERSON) return;
+		if ($item['obj_type']=="" || !in_array($item['obj_type'], ['Person', ACTIVITY_OBJ_PERSON]))
+			return;
 
 		$Aname = $item['author']['xchan_name'];
 		$Alink = $item['author']['xchan_url'];
@@ -314,102 +307,6 @@ function localize_item(&$item){
 		$item['body'] = sprintf($txt, $A, t($verb));
 	}
 
-
-
-/*
-// FIXME store parent item as object or target
-// (and update to json storage)
-
- 	if (activity_match($item['verb'],ACTIVITY_TAG)) {
-		$r = q("SELECT * from item,contact WHERE
-		item.contact-id=contact.id AND item.mid='%s';",
-		 dbesc($item['parent_mid']));
-		if(count($r)==0) return;
-		$obj=$r[0];
-
-		$author	 = '[zrl=' . zid($item['author-link']) . ']' . $item['author-name'] . '[/zrl]';
-		$objauthor =  '[zrl=' . zid($obj['author-link']) . ']' . $obj['author-name'] . '[/zrl]';
-
-		switch($obj['verb']){
-			case ACTIVITY_POST:
-				switch ($obj['obj_type']){
-					case ACTIVITY_OBJ_EVENT:
-						$post_type = t('event');
-						break;
-					default:
-						$post_type = t('status');
-				}
-				break;
-			default:
-				if($obj['resource_id']){
-					$post_type = t('photo');
-					$m=array(); preg_match("/\[[zu]rl=([^]]*)\]/", $obj['body'], $m);
-					$rr['plink'] = $m[1];
-				} else {
-					$post_type = t('status');
-				}
-		}
-		$plink = '[zrl=' . $obj['plink'] . ']' . $post_type . '[/zrl]';
-
-//		$parsedobj = parse_xml_string($xmlhead.$item['obj']);
-
-		$tag = sprintf('#[zrl=%s]%s[/zrl]', $parsedobj->id, $parsedobj->content);
-		$item['body'] = sprintf( t('%1$s tagged %2$s\'s %3$s with %4$s'), $author, $objauthor, $plink, $tag );
-
-	}
-
-	if (activity_match($item['verb'],ACTIVITY_FAVORITE)){
-
-		if ($item['obj_type']== "")
-			return;
-
-		$Aname = $item['author']['xchan_name'];
-		$Alink = $item['author']['xchan_url'];
-
-		$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
-
-//		$obj = parse_xml_string($xmlhead.$item['obj']);
-		if(strlen($obj->id)) {
-			$r = q("select * from item where mid = '%s' and uid = %d limit 1",
-					dbesc($obj->id),
-					intval($item['uid'])
-			);
-			if(count($r) && $r[0]['plink']) {
-				$target = $r[0];
-				$Bname = $target['author-name'];
-				$Blink = $target['author-link'];
-				$A = '[zrl=' . zid($Alink) . ']' . $Aname . '[/zrl]';
-				$B = '[zrl=' . zid($Blink) . ']' . $Bname . '[/zrl]';
-				$P = '[zrl=' . $target['plink'] . ']' . t('post/item') . '[/zrl]';
-				$item['body'] = sprintf( t('%1$s marked %2$s\'s %3$s as favorite'), $A, $B, $P)."\n";
-
-			}
-		}
-	}
-*/
-
-/*
-	$matches = null;
-	if(strpos($item['body'],'[zrl') !== false) {
-		if(preg_match_all('/@\[zrl=(.*?)\]/is',$item['body'],$matches,PREG_SET_ORDER)) {
-			foreach($matches as $mtch) {
-				if(! strpos($mtch[1],'zid='))
-					$item['body'] = str_replace($mtch[0],'@[zrl=' . zid($mtch[1]). ']',$item['body']);
-			}
-		}
-	}
-
-	if(strpos($item['body'],'[zmg') !== false) {
-		// add zid's to public images
-		if(preg_match_all('/\[zrl=(.*?)\/photos\/(.*?)\/image\/(.*?)\]\[zmg(.*?)\]h(.*?)\[\/zmg\]\[\/zrl\]/is',$item['body'],$matches,PREG_SET_ORDER)) {
-			foreach($matches as $mtch) {
-				$item['body'] = str_replace($mtch[0],'[zrl=' . zid( $mtch[1] . '/photos/' . $mtch[2] . '/image/' . $mtch[3]) . '][zmg' . $mtch[4] . ']h' . $mtch[5]  . '[/zmg][/zrl]',$item['body']);
-			}
-		}
-	}
-*/
-
-
 }
 
 /**
@@ -448,7 +345,7 @@ function count_descendants($item) {
  * @return boolean
  */
 function visible_activity($item) {
-	$hidden_activities = [ ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_SHARE, ACTIVITY_AGREE, ACTIVITY_DISAGREE, ACTIVITY_ABSTAIN, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE, ACTIVITY_POLLRESPONSE ];
+	$hidden_activities = ['Like', 'Dislike', 'Accept', 'Reject', 'TentativeAccept', ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_SHARE, ACTIVITY_AGREE, ACTIVITY_DISAGREE, ACTIVITY_ABSTAIN, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE];
 
 	if(intval($item['item_notshown']))
 		return false;
@@ -483,27 +380,6 @@ function visible_activity($item) {
 	return true;
 }
 
-/**
- * @brief Check if a given activity is an edit activity
- *
- *
- * @param array $item
- * @return boolean
- */
-
-function is_edit_activity($item) {
-
-	$post_types = [ ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_COMMENT, basename(ACTIVITY_OBJ_NOTE), basename(ACTIVITY_OBJ_COMMENT)];
-
-	// In order to share edits with networks which have no concept of editing, we'll create
-	// separate activities to indicate the edit. Our network will not require them, since our
-	// edits are automatically applied and the activity indicated.
-
-	if(($item['verb'] === ACTIVITY_UPDATE) && (in_array($item['obj_type'],$post_types)))
-		return true;
-
-	return false;
-}
 
 /**
  * @brief "Render" a conversation or list of items for HTML display.
@@ -726,9 +602,9 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 				$is_new      = false;
 
 				if($mode === 'search' || $mode === 'community') {
-					if(((activity_match($item['verb'],ACTIVITY_LIKE)) || (activity_match($item['verb'],ACTIVITY_DISLIKE)))
-						&& ($item['id'] != $item['parent']))
+					if(activity_match($item['verb'], ['Like', 'Dislike', ACTIVITY_LIKE, ACTIVITY_DISLIKE]) && $item['id'] != $item['parent']) {
 						continue;
+					}
 				}
 
 				$sp = false;
@@ -1192,7 +1068,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 
 	// if this item is a post or comment there's nothing for us to do here, just return.
 
-	if(activity_match($item['verb'],ACTIVITY_POST) && $item['obj_type'] !== 'Answer')
+	if(activity_match($item['verb'], ['Create', ACTIVITY_POST]) && $item['obj_type'] !== 'Answer')
 		return;
 
 	foreach($conv_responses as $mode => $v) {
@@ -1201,10 +1077,10 @@ function builtin_activity_puller($item, &$conv_responses) {
 
 		switch($mode) {
 			case 'like':
-				$verb = ACTIVITY_LIKE;
+				$verb = ['Like', ACTIVITY_LIKE];
 				break;
 			case 'dislike':
-				$verb = ACTIVITY_DISLIKE;
+				$verb = ['Dislike', ACTIVITY_DISLIKE];
 				break;
 			case 'agree':
 				$verb = ACTIVITY_AGREE;
@@ -1216,16 +1092,16 @@ function builtin_activity_puller($item, &$conv_responses) {
 				$verb = ACTIVITY_ABSTAIN;
 				break;
 			case 'attendyes':
-				$verb = ACTIVITY_ATTEND;
+				$verb = ['Accept', ACTIVITY_ATTEND];
 				break;
 			case 'attendno':
-				$verb = ACTIVITY_ATTENDNO;
+				$verb = ['Reject', ACTIVITY_ATTENDNO];
 				break;
 			case 'attendmaybe':
-				$verb = ACTIVITY_ATTENDMAYBE;
+				$verb = ['TentativeAccept', ACTIVITY_ATTENDMAYBE];
 				break;
 			case 'answer':
-				$verb = ACTIVITY_POST;
+				$verb = ['Create', ACTIVITY_POST];
 				break;
 			case 'announce':
 				$verb = 'Announce';

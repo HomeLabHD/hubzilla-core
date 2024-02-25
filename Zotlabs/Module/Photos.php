@@ -1152,8 +1152,9 @@ class Photos extends \Zotlabs\Web\Controller {
 						$template = $tpl;
 						$sparkle = '';
 
-						if(((activity_match($item['verb'],ACTIVITY_LIKE)) || (activity_match($item['verb'],ACTIVITY_DISLIKE))) && ($item['id'] != $item['parent']))
+						if(activity_match($item['verb'], ['Like', 'Dislike', ACTIVITY_LIKE, ACTIVITY_DISLIKE]) && $item['id'] != $item['parent']) {
 							continue;
+						}
 
 						$redirect_url = z_root() . '/redir/' . $item['cid'] ;
 

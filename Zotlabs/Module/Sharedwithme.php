@@ -40,7 +40,7 @@ class Sharedwithme extends Controller {
 		//drop all files - localuser
 		if((argc() > 1) && (argv(1) === 'dropall')) {
 
-			$r = q("SELECT id FROM item WHERE verb = '%s' AND obj_type IN ('Document', 'Video', 'Audio', 'Image') AND uid = %d AND owner_xchan != '%s' $item_normal",
+			$r = q("SELECT id FROM item WHERE (verb = 'Create' OR verb = '%s') AND obj_type IN ('Document', 'Video', 'Audio', 'Image') AND uid = %d AND owner_xchan != '%s' $item_normal",
 				dbesc(ACTIVITY_POST),
 				intval(local_channel()),
 				dbesc($channel['channel_hash'])
@@ -56,7 +56,7 @@ class Sharedwithme extends Controller {
 		}
 
 		//list files
-		$r = q("SELECT id, uid, obj, item_unseen FROM item WHERE verb = '%s' AND obj_type IN ('Document', 'Video', 'Audio', 'Image') AND uid = %d AND owner_xchan != '%s' $item_normal",
+		$r = q("SELECT id, uid, obj, item_unseen FROM item WHERE (verb = 'Create' OR verb = '%s') AND obj_type IN ('Document', 'Video', 'Audio', 'Image') AND uid = %d AND owner_xchan != '%s' $item_normal",
 			dbesc(ACTIVITY_POST),
 			intval(local_channel()),
 			dbesc($channel['channel_hash'])

@@ -225,39 +225,39 @@ class Pinned {
 	private function activity($item, &$conv_responses) {
 
 		foreach(array_keys($conv_responses) as $verb) {
+			$verb_sql = '';
 
 			switch($verb) {
 				case 'like':
-					$v = ACTIVITY_LIKE;
+					$verb_sql = " AND verb IN ('Like', '" . ACTIVITY_LIKE . "') ";
 					break;
 				case 'dislike':
-					$v = ACTIVITY_DISLIKE;
+					$verb_sql = " AND verb IN ('Dislike', '" . ACTIVITY_DISLIKE . "') ";
 					break;
 				case 'agree':
-					$v = ACTIVITY_AGREE;
+					$verb_sql = " AND verb = '" . ACTIVITY_AGREE . "' ";
 					break;
 				case 'disagree':
-					$v = ACTIVITY_DISAGREE;
+					$verb_sql = " AND verb = '" . ACTIVITY_DISAGREE . "' ";
 					break;
 				case 'abstain':
-					$v = ACTIVITY_ABSTAIN;
+					$verb_sql = " AND verb = '" . ACTIVITY_ABSTAIN . "' ";
 					break;
 				case 'attendyes':
-					$v = ACTIVITY_ATTEND;
+					$verb_sql = " AND verb IN ('Accept', '" . ACTIVITY_ATTEND . "') ";
 					break;
 				case 'attendno':
-					$v = ACTIVITY_ATTENDNO;
+					$verb_sql = " AND verb IN ('Reject', '" . ACTIVITY_ATTENDNO . "') ";
 					break;
 				case 'attendmaybe':
-					$v = ACTIVITY_ATTENDMAYBE;
+					$verb_sql = " AND verb IN ('TentativeAccept', '" . ACTIVITY_ATTENDMAYBE . "') ";
 					break;
 				default:
 					break;
 			}
 
-			$r = q("SELECT * FROM item WHERE parent = %d AND id <> parent AND verb = '%s' AND item_deleted = 0",
-				intval($item['id']),
-				dbesc($v)
+			$r = q("SELECT * FROM item WHERE parent = %d AND id <> parent $verb_sql AND item_deleted = 0",
+				intval($item['id'])
 			);
 			if(! $r) {
 				unset($conv_responses[$verb]);

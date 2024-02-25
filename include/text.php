@@ -1776,7 +1776,7 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 
 	$s = '';
 	$photo = '';
-	$is_photo = ((($item['verb'] === ACTIVITY_POST) && ($item['obj_type'] === ACTIVITY_OBJ_PHOTO)) ? true : false);
+	$is_photo = (((in_array($item['verb'], ['Create', ACTIVITY_POST])) && (in_array($item['obj_type'], ['Image', ACTIVITY_OBJ_PHOTO]))) ? true : false);
 
 	if ($is_photo) {
 		$object = json_decode($item['obj'],true);
@@ -1821,7 +1821,7 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 	}
 
 
-	$poll = (($item['obj_type'] === 'Question' && in_array($item['verb'],[ ACTIVITY_POST, ACTIVITY_UPDATE, ACTIVITY_SHARE ])) ? format_poll($item, $s, $opts) : false);
+	$poll = (($item['obj_type'] === 'Question' && in_array($item['verb'],['Create', ACTIVITY_POST, ACTIVITY_UPDATE, ACTIVITY_SHARE])) ? format_poll($item, $s, $opts) : false);
 	if ($poll) {
 		$s = $poll;
 	}
@@ -2120,7 +2120,7 @@ function prepare_text($text, $content_type = 'text/bbcode', $opts = false) {
 
 
 function create_export_photo_body(&$item) {
-	if(($item['verb'] === ACTIVITY_POST) && ($item['obj_type'] === ACTIVITY_OBJ_PHOTO)) {
+	if((in_array($item['verb'], ['Create', ACTIVITY_POST])) && (in_array($item['obj_type'], ['Image', ACTIVITY_OBJ_PHOTO]))) {
 		$j = json_decode($item['obj'],true);
 		if($j) {
 			$item['body'] .= "\n\n" . (($j['body']) ? $j['body'] : $j['bbcode']);

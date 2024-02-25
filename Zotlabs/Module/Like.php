@@ -19,15 +19,15 @@ class Like extends Controller {
 	private function reaction_to_activity($reaction) {
 
 		$acts = [
-			'like'        => ACTIVITY_LIKE,
-			'dislike'     => ACTIVITY_DISLIKE,
+			'like'        => 'Like',
+			'dislike'     => 'Dislike',
 			'announce'    => ACTIVITY_SHARE,
 			'agree'       => ACTIVITY_AGREE,
 			'disagree'    => ACTIVITY_DISAGREE,
 			'abstain'     => ACTIVITY_ABSTAIN,
-			'attendyes'   => ACTIVITY_ATTEND,
-			'attendno'    => ACTIVITY_ATTENDNO,
-			'attendmaybe' => ACTIVITY_ATTENDMAYBE
+			'attendyes'   => 'Accept',
+			'attendno'    => 'Reject',
+			'attendmaybe' => 'TentativeAccept'
 		];
 
 		// unlike (etc.) reactions are an undo of positive reactions, rather than a negative action.
@@ -72,11 +72,11 @@ class Like extends Controller {
 			$activities = q("SELECT item.*, item.id AS item_id FROM item
 				WHERE uid = %d $item_normal
 				AND thr_parent = '%s'
-				AND verb IN ('%s', '%s', '%s', '%s', '%s', '%s')",
+				AND verb IN ('%s', '%s', '%s', '%s', '%s', '%s', 'Accept', 'Reject', 'TentativeAccept')",
 				intval($arr['item']['uid']),
 				dbesc($arr['item']['mid']),
-				dbesc(ACTIVITY_LIKE),
-				dbesc(ACTIVITY_DISLIKE),
+				dbesc('Like'),
+				dbesc('Dislike'),
 				dbesc(ACTIVITY_SHARE),
 				dbesc(ACTIVITY_ATTEND),
 				dbesc(ACTIVITY_ATTENDNO),
@@ -135,7 +135,7 @@ class Like extends Controller {
 		}
 
 		$is_rsvp = false;
-		if (in_array($activity, [ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE])) {
+		if (in_array($activity, ['Accept', 'Reject', 'TentativeAccept', ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE])) {
 			$is_rsvp = true;
 		}
 
@@ -184,7 +184,7 @@ class Like extends Controller {
 					}
 				}
 				$post_type = t('channel');
-				$obj_type   = ACTIVITY_OBJ_PROFILE;
+				$obj_type   = 'Profile';
 
 				$profile = $r[0];
 			}
@@ -213,7 +213,7 @@ class Like extends Controller {
 					$public = false;
 
 				$post_type = t('thing');
-				$obj_type   = ACTIVITY_OBJ_PROFILE;
+				$obj_type   = 'Profile';
 				$tgttype   = ACTIVITY_OBJ_THING;
 
 				$links   = array();
@@ -375,9 +375,9 @@ class Like extends Controller {
 			// event participation and consensus items are essentially radio toggles. If you make a subsequent choice,
 			// we need to eradicate your first choice.
 
-			if ($activity === ACTIVITY_ATTEND || $activity === ACTIVITY_ATTENDNO || $activity === ACTIVITY_ATTENDMAYBE) {
-				$verbs      = " '" . dbesc(ACTIVITY_ATTEND) . "','" . dbesc(ACTIVITY_ATTENDNO) . "','" . dbesc(ACTIVITY_ATTENDMAYBE) . "' ";
-				$multi_undo = 1;
+			if (in_array($activity, ['Accept', 'Reject', 'TentativeAccept', ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE])) {
+				$verbs      = "'Accept','Reject','TentativeAccept','" . dbesc(ACTIVITY_ATTEND) . "','" . dbesc(ACTIVITY_ATTENDNO) . "','" . dbesc(ACTIVITY_ATTENDMAYBE) . "' ";
+				$multi_undo = true;
 			}
 			if ($activity === ACTIVITY_AGREE || $activity === ACTIVITY_DISAGREE || $activity === ACTIVITY_ABSTAIN) {
 				$verbs      = " '" . dbesc(ACTIVITY_AGREE) . "','" . dbesc(ACTIVITY_DISAGREE) . "','" . dbesc(ACTIVITY_ABSTAIN) . "' ";
@@ -452,14 +452,20 @@ class Like extends Controller {
 			$arr['item_wall']       = 1;
 		}
 		else {
-			$post_type = (($item['resource_type'] === 'photo') ? t('photo') : t('status'));
-			if (in_array($item['obj_type'], ['Event', ACTIVITY_OBJ_EVENT]))
-				$post_type = t('event');
-
-			$obj_type = (($item['resource_type'] === 'photo') ? ACTIVITY_OBJ_PHOTO : ACTIVITY_OBJ_NOTE);
-
-			if ($obj_type === ACTIVITY_OBJ_NOTE && (!intval($item['item_thread_top'])))
-				$obj_type = ACTIVITY_OBJ_COMMENT;
+			switch ($item['resource_type']) {
+				case 'photo':
+					$obj_type = 'Image';
+					$post_type = t('photo');
+					break;
+				case 'event':
+					$obj_type = 'Invite';
+					$post_type = t('event');
+					break;
+				default:
+					$obj_type = 'Note';
+					$post_type = t('status');
+					break;
+			}
 
 			$object = json_encode(Activity::fetch_item(['id' => $item['mid']]));
 

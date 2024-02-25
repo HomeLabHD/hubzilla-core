@@ -171,7 +171,7 @@ class ThreadStream {
 		 */
 
 
-		if(($item->get_data_value('id') != $item->get_data_value('parent')) && (activity_match($item->get_data_value('verb'),ACTIVITY_LIKE) || activity_match($item->get_data_value('verb'),ACTIVITY_DISLIKE))) {
+		if($item->get_data_value('id') != $item->get_data_value('parent') && activity_match($item->get_data_value('verb'), ['Like', 'Dislike', ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
 			return false;
 		}
 

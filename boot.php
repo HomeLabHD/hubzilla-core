@@ -495,59 +495,50 @@ define('ZOT_APSCHEMA_REV', '/apschema/v1.11');
 define('ACTIVITY_PUBLIC_INBOX', 'https://www.w3.org/ns/activitystreams#Public');
 
 define('ACTIVITY_REACT', NAMESPACE_ZOT . '/activity/react');
-define('ACTIVITY_LIKE', NAMESPACE_ACTIVITY_SCHEMA . 'like');
-define('ACTIVITY_DISLIKE', NAMESPACE_ZOT . '/activity/dislike');
-define('ACTIVITY_AGREE', NAMESPACE_ZOT . '/activity/agree');
-define('ACTIVITY_DISAGREE', NAMESPACE_ZOT . '/activity/disagree');
-define('ACTIVITY_ABSTAIN', NAMESPACE_ZOT . '/activity/abstain');
-define('ACTIVITY_ATTEND', NAMESPACE_ZOT . '/activity/attendyes');
-define('ACTIVITY_ATTENDNO', NAMESPACE_ZOT . '/activity/attendno');
-define('ACTIVITY_ATTENDMAYBE', NAMESPACE_ZOT . '/activity/attendmaybe');
-define('ACTIVITY_POLLRESPONSE', NAMESPACE_ZOT . '/activity/pollresponse');
 
-define('ACTIVITY_OBJ_HEART', NAMESPACE_ZOT . '/activity/heart');
+define('ACTIVITY_LIKE', NAMESPACE_ACTIVITY_SCHEMA . 'like'); // AS2 Like
+define('ACTIVITY_DISLIKE', NAMESPACE_ZOT . '/activity/dislike'); // AS2 Dislike
 
-define('ACTIVITY_FRIEND', NAMESPACE_ACTIVITY_SCHEMA . 'make-friend');
-define('ACTIVITY_REQ_FRIEND', NAMESPACE_ACTIVITY_SCHEMA . 'request-friend');
-define('ACTIVITY_UNFRIEND', NAMESPACE_ACTIVITY_SCHEMA . 'remove-friend');
+define('ACTIVITY_AGREE', NAMESPACE_ZOT . '/activity/agree'); // deprecated - remove from code?
+define('ACTIVITY_DISAGREE', NAMESPACE_ZOT . '/activity/disagree'); // deprecated - remove from code?
+define('ACTIVITY_ABSTAIN', NAMESPACE_ZOT . '/activity/abstain'); // deprecated - remove from code?
+
+define('ACTIVITY_ATTEND', NAMESPACE_ZOT . '/activity/attendyes'); // AS2 Accept
+define('ACTIVITY_ATTENDNO', NAMESPACE_ZOT . '/activity/attendno'); // AS2 Reject
+define('ACTIVITY_ATTENDMAYBE', NAMESPACE_ZOT . '/activity/attendmaybe'); // AS2 TentativeAccept
+
+define('ACTIVITY_FRIEND', NAMESPACE_ACTIVITY_SCHEMA . 'make-friend'); // deprecated - remove from code?
+
 define('ACTIVITY_FOLLOW', NAMESPACE_ACTIVITY_SCHEMA . 'follow');
 define('ACTIVITY_UNFOLLOW', NAMESPACE_ACTIVITY_SCHEMA . 'stop-following');
-define('ACTIVITY_JOIN', NAMESPACE_ACTIVITY_SCHEMA . 'join');
 
-define('ACTIVITY_POST', NAMESPACE_ACTIVITY_SCHEMA . 'post');
+
+define('ACTIVITY_POST', NAMESPACE_ACTIVITY_SCHEMA . 'post'); // AS2 Create
+
 define('ACTIVITY_UPDATE', NAMESPACE_ACTIVITY_SCHEMA . 'update');
-define('ACTIVITY_TAG', NAMESPACE_ACTIVITY_SCHEMA . 'tag');
+
+define('ACTIVITY_TAG', NAMESPACE_ACTIVITY_SCHEMA . 'tag'); // unused
+
 define('ACTIVITY_SHARE', 'Announce');
-//define('ACTIVITY_SHARE', NAMESPACE_ACTIVITY_SCHEMA . 'share');
-define('ACTIVITY_FAVORITE', NAMESPACE_ACTIVITY_SCHEMA . 'favorite');
-define('ACTIVITY_CREATE', NAMESPACE_ACTIVITY_SCHEMA . 'create');
-define('ACTIVITY_DELETE', NAMESPACE_ACTIVITY_SCHEMA . 'delete');
-define('ACTIVITY_WIN', NAMESPACE_ACTIVITY_SCHEMA . 'win');
-define('ACTIVITY_LOSE', NAMESPACE_ACTIVITY_SCHEMA . 'lose');
-define('ACTIVITY_TIE', NAMESPACE_ACTIVITY_SCHEMA . 'tie');
-define('ACTIVITY_COMPLETE', NAMESPACE_ACTIVITY_SCHEMA . 'complete');
+
+define('ACTIVITY_CREATE', NAMESPACE_ACTIVITY_SCHEMA . 'create'); // unused
+
+define('ACTIVITY_DELETE', NAMESPACE_ACTIVITY_SCHEMA . 'delete'); // AS2 Delete
 
 define('ACTIVITY_POKE', NAMESPACE_ZOT . '/activity/poke');
 define('ACTIVITY_MOOD', NAMESPACE_ZOT . '/activity/mood');
 
-define('ACTIVITY_OBJ_COMMENT', NAMESPACE_ACTIVITY_SCHEMA . 'comment');
-define('ACTIVITY_OBJ_ACTIVITY', NAMESPACE_ACTIVITY_SCHEMA . 'activity');
-define('ACTIVITY_OBJ_NOTE', NAMESPACE_ACTIVITY_SCHEMA . 'note');
-define('ACTIVITY_OBJ_ARTICLE', NAMESPACE_ACTIVITY_SCHEMA . 'article');
-define('ACTIVITY_OBJ_PERSON', NAMESPACE_ACTIVITY_SCHEMA . 'person');
-define('ACTIVITY_OBJ_PHOTO', NAMESPACE_ACTIVITY_SCHEMA . 'photo');
-define('ACTIVITY_OBJ_P_PHOTO', NAMESPACE_ACTIVITY_SCHEMA . 'profile-photo');
-define('ACTIVITY_OBJ_ALBUM', NAMESPACE_ACTIVITY_SCHEMA . 'photo-album');
-define('ACTIVITY_OBJ_EVENT', NAMESPACE_ACTIVITY_SCHEMA . 'event');
-define('ACTIVITY_OBJ_GROUP', NAMESPACE_ACTIVITY_SCHEMA . 'group');
-define('ACTIVITY_OBJ_GAME', NAMESPACE_ACTIVITY_SCHEMA . 'game');
-define('ACTIVITY_OBJ_WIKI', NAMESPACE_ACTIVITY_SCHEMA . 'wiki');
-define('ACTIVITY_OBJ_TAGTERM', NAMESPACE_ZOT . '/activity/tagterm');
-define('ACTIVITY_OBJ_PROFILE', NAMESPACE_ZOT . '/activity/profile');
-define('ACTIVITY_OBJ_THING', NAMESPACE_ZOT . '/activity/thing');
-define('ACTIVITY_OBJ_LOCATION', NAMESPACE_ZOT . '/activity/location');
-define('ACTIVITY_OBJ_FILE', NAMESPACE_ZOT . '/activity/file');
-define('ACTIVITY_OBJ_CARD', NAMESPACE_ZOT . '/activity/card');
+define('ACTIVITY_OBJ_COMMENT', NAMESPACE_ACTIVITY_SCHEMA . 'comment'); // AS2 Note
+define('ACTIVITY_OBJ_NOTE', NAMESPACE_ACTIVITY_SCHEMA . 'note'); // AS2 Note
+define('ACTIVITY_OBJ_ARTICLE', NAMESPACE_ACTIVITY_SCHEMA . 'article'); // AS2 Article
+define('ACTIVITY_OBJ_PERSON', NAMESPACE_ACTIVITY_SCHEMA . 'person'); // AS2 Person
+define('ACTIVITY_OBJ_PHOTO', NAMESPACE_ACTIVITY_SCHEMA . 'photo'); // AS2 Image
+define('ACTIVITY_OBJ_EVENT', NAMESPACE_ACTIVITY_SCHEMA . 'event'); // AS2 Event
+
+define('ACTIVITY_OBJ_TAGTERM', NAMESPACE_ZOT . '/activity/tagterm'); // unused
+define('ACTIVITY_OBJ_PROFILE', NAMESPACE_ZOT . '/activity/profile'); // AS2 Profile (broken)
+define('ACTIVITY_OBJ_THING', NAMESPACE_ZOT . '/activity/thing'); // AS2 Page??? (broken)
+
 
 /**
  * Account Flags

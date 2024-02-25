@@ -561,7 +561,7 @@
 			$mod = new Zotlabs\Module\Wall_attach();
 			$media = $mod->post();
 			if($media)
-				$_REQUEST['body'] .= "\n\n" . $media;
+				$_REQUEST['body'] = $media . "\n\n" . $_REQUEST['body'];
 		}
 
 		$mod = new Zotlabs\Module\Item();

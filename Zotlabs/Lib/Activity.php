@@ -27,19 +27,23 @@ class Activity {
 				return $x['asld'];
 			}
 
-			if ($x['type'] === ACTIVITY_OBJ_PERSON) {
+			if (in_array($x['type'], ['Person', ACTIVITY_OBJ_PERSON])) {
 				return self::fetch_person($x);
 			}
-			if ($x['type'] === ACTIVITY_OBJ_PROFILE) {
+
+			if (in_array($x['type'], ['Profile', ACTIVITY_OBJ_PROFILE])) {
 				return self::fetch_profile($x);
 			}
-			if (in_array($x['type'], [ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_ARTICLE])) {
+
+			if (in_array($x['type'], ['Note', 'Article', ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_ARTICLE])) {
 				return self::fetch_item($x);
 			}
+
 			if ($x['type'] === ACTIVITY_OBJ_THING) {
 				return self::fetch_thing($x);
 			}
-			if ($x['type'] === ACTIVITY_OBJ_EVENT) {
+
+			if (in_array($x['type'], ['Event', ACTIVITY_OBJ_EVENT])) {
 				return self::fetch_event($x);
 			}
 
@@ -224,7 +228,7 @@ class Activity {
 		if ($r) {
 			xchan_query($r, true);
 			$r = fetch_post_tags($r);
-			if (in_array($r[0]['verb'], ['Create', 'Invite']) && $r[0]['obj_type'] === ACTIVITY_OBJ_EVENT) {
+			if (in_array($r[0]['verb'], ['Create', 'Invite']) && in_array($r[0]['obj_type'], ['Event', ACTIVITY_OBJ_EVENT])) {
 				$r[0]['verb'] = 'Invite';
 				return self::encode_activity($r[0]);
 			}
@@ -936,7 +940,7 @@ class Activity {
 			if (!is_array($i['obj'])) {
 				$i['obj'] = json_decode($i['obj'], true);
 			}
-			if ($i['obj']['type'] === ACTIVITY_OBJ_PHOTO) {
+			if (in_array($i['obj']['type'], ['Image', ACTIVITY_OBJ_PHOTO])) {
 				$i['obj']['id'] = $i['mid'];
 			}
 
@@ -1174,7 +1178,7 @@ class Activity {
 			if (!is_array($item[$elm])) {
 				$item[$elm] = json_decode($item[$elm], true);
 			}
-			if ($item[$elm]['type'] === ACTIVITY_OBJ_PHOTO) {
+			if (in_array($item[$elm]['type'], ['Image', ACTIVITY_OBJ_PHOTO])) {
 				$item[$elm]['id'] = $item['mid'];
 			}
 
@@ -1208,19 +1212,13 @@ class Activity {
 			'http://activitystrea.ms/schema/1.0/like'           => 'Like',
 			'http://activitystrea.ms/schema/1.0/favorite'       => 'Like',
 			'http://purl.org/zot/activity/dislike'              => 'Dislike',
-	//		'http://activitystrea.ms/schema/1.0/tag'            => 'Add',
+			//'http://activitystrea.ms/schema/1.0/tag'            => 'Add',
 			'http://activitystrea.ms/schema/1.0/follow'         => 'Follow',
 			'http://activitystrea.ms/schema/1.0/unfollow'       => 'Unfollow',
 			'http://activitystrea.ms/schema/1.0/stop-following' => 'Unfollow',
 			'http://purl.org/zot/activity/attendyes'            => 'Accept',
 			'http://purl.org/zot/activity/attendno'             => 'Reject',
 			'http://purl.org/zot/activity/attendmaybe'          => 'TentativeAccept',
-			'Announce'                                          => 'Announce',
-			'Invite'                                            => 'Invite',
-			'Delete'                                            => 'Delete',
-			'Undo'                                              => 'Undo',
-			'Add'                                               => 'Add',
-			'Remove'                                            => 'Remove'
 		];
 
 		call_hooks('activity_mapper', $acts);
@@ -1232,7 +1230,7 @@ class Activity {
 		// Reactions will just map to normal activities
 
 		if (strpos($verb, ACTIVITY_REACT) !== false)
-			return 'emojiReaction';
+			return 'Create';
 
 		if (strpos($verb, ACTIVITY_MOOD) !== false)
 			return 'Create';
@@ -1341,13 +1339,7 @@ class Activity {
 			'http://purl.org/zot/activity/tagterm'             => 'zot:Tag',
 			'http://purl.org/zot/activity/thing'               => 'Object',
 			'http://purl.org/zot/activity/file'                => 'zot:File',
-			'http://purl.org/zot/activity/mood'                => 'zot:Mood',
-			'Invite'                                           => 'Invite',
-			'Question'                                         => 'Question',
-			'Audio'                                            => 'Audio',
-			'Video'                                            => 'Video',
-			'Delete'                                           => 'Delete',
-			'Undo'                                             => 'Undo'
+			'http://purl.org/zot/activity/mood'                => 'zot:Mood'
 		];
 
 		call_hooks('activity_obj_mapper', $objs);
@@ -2256,7 +2248,7 @@ class Activity {
 			$s['body'] .= $quote_bbcode;
 		}
 
-		$s['verb'] = self::activity_decode_mapper($act->type);
+		$s['verb'] = self::activity_mapper($act->type);
 
 		// Mastodon does not provide update timestamps when updating poll tallies which means race conditions may occur here.
 		if ($act->type === 'Update' && $act->objprop('type') === 'Question' && $s['edited'] === $s['created']) {
@@ -2267,62 +2259,15 @@ class Activity {
 			$s['item_deleted'] = 1;
 		}
 
-		if (isset($act->obj['type'])) {
-			$s['obj_type'] = self::activity_obj_decode_mapper($act->obj['type']);
-		}
-
-		if ($s['obj_type'] === ACTIVITY_OBJ_NOTE && $s['mid'] !== $s['parent_mid']) {
-			$s['obj_type'] = ACTIVITY_OBJ_COMMENT;
+		if ($act->objprop('type')) {
+			$s['obj_type'] = self::activity_obj_mapper($act->obj['type']);
 		}
 
 		$s['obj'] = $act->obj;
+
 		if (array_path_exists('actor/id', $s['obj'])) {
 			$s['obj']['actor'] = $s['obj']['actor']['id'];
 		}
-
-/*
-		$eventptr = null;
-
-		if ($act->obj['type'] === 'Invite' && array_path_exists('object/type', $act->obj) && $act->obj['object']['type'] === 'Event') {
-			$eventptr = $act->obj['object'];
-			$s['mid'] = $s['parent_mid'] = $act->obj['id'];
-		}
-
-		if ($act->obj['type'] === 'Event') {
-			if ($act->type === 'Invite') {
-				$s['mid'] = $s['parent_mid'] = $act->id;
-			}
-			$eventptr = $act->obj;
-		}
-
-		if ($eventptr) {
-
-			$s['obj']          = [];
-			$s['obj']['asld']  = $eventptr;
-			$s['obj']['type']  = ACTIVITY_OBJ_EVENT;
-			$s['obj']['id']    = $eventptr['id'];
-			$s['obj']['title'] = html2plain($eventptr['name']);
-
-			if (strpos($act->obj['startTime'], 'Z'))
-				$s['obj']['adjust'] = true;
-			else
-				$s['obj']['adjust'] = true;
-
-			$s['obj']['dtstart'] = datetime_convert('UTC', 'UTC', $eventptr['startTime']);
-			if ($act->obj['endTime'])
-				$s['obj']['dtend'] = datetime_convert('UTC', 'UTC', $eventptr['endTime']);
-			else
-				$s['obj']['nofinish'] = true;
-			$s['obj']['description'] = html2bbcode($eventptr['content']);
-
-			if (array_path_exists('location/content', $eventptr))
-				$s['obj']['location'] = $eventptr['location']['content'];
-
-		}
-		else {
-			$s['obj'] = $act->obj;
-		}
-*/
 
 		$generator = $act->get_property_obj('generator');
 		if ((!$generator) && (!$response_activity)) {
@@ -2715,16 +2660,13 @@ class Activity {
 				return;
 			}
 
-
-			// TODO: if we do not have a parent stop here and move the fetch to background?
-
-			if ($parent && $parent[0]['obj_type'] === 'Question') {
-				if ($item['obj_type'] === ACTIVITY_OBJ_COMMENT && $item['title'] && (!$item['body'])) {
+			if ($parent[0]['obj_type'] === 'Question') {
+				if (in_array($item['obj_type'], ['Note', ACTIVITY_OBJ_COMMENT]) && $item['title'] && (!$item['body'])) {
 					$item['obj_type'] = 'Answer';
 				}
 			}
 
-			if ($parent && $parent[0]['item_wall']) {
+			if ($parent[0]['item_wall']) {
 				// set the owner to the owner of the parent
 				$item['owner_xchan'] = $parent[0]['owner_xchan'];
 
@@ -3313,49 +3255,7 @@ class Activity {
 				$event['nofinish'] = true;
 			}
 		}
-/*
-		$eventptr = null;
 
-		if ($act->obj['type'] === 'Invite' && array_path_exists('object/type', $act->obj) && $act->obj['object']['type'] === 'Event') {
-			$eventptr = $act->obj['object'];
-			$s['mid'] = $s['parent_mid'] = $act->obj['id'];
-		}
-
-		if ($act->obj['type'] === 'Event') {
-			if ($act->type === 'Invite') {
-				$s['mid'] = $s['parent_mid'] = $act->id;
-			}
-			$eventptr = $act->obj;
-		}
-
-		if ($eventptr) {
-
-			$s['obj']          = [];
-			$s['obj']['asld']  = $eventptr;
-			$s['obj']['type']  = ACTIVITY_OBJ_EVENT;
-			$s['obj']['id']    = $eventptr['id'];
-			$s['obj']['title'] = html2plain($eventptr['name']);
-
-			if (strpos($act->obj['startTime'], 'Z'))
-				$s['obj']['adjust'] = true;
-			else
-				$s['obj']['adjust'] = true;
-
-			$s['obj']['dtstart'] = datetime_convert('UTC', 'UTC', $eventptr['startTime']);
-			if ($act->obj['endTime'])
-				$s['obj']['dtend'] = datetime_convert('UTC', 'UTC', $eventptr['endTime']);
-			else
-				$s['obj']['nofinish'] = true;
-			$s['obj']['description'] = html2bbcode($eventptr['content']);
-
-			if (array_path_exists('location/content', $eventptr))
-				$s['obj']['location'] = $eventptr['location']['content'];
-
-		}
-		else {
-			$s['obj'] = $act->obj;
-		}
-*/
 		foreach (['name', 'summary', 'content'] as $a) {
 			if (($x = self::get_textfield($act, $a)) !== false) {
 				$content[$a] = $x;

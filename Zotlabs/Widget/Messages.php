@@ -75,16 +75,16 @@ class Messages {
 		$vnotify_sql_i = '';
 
 		if (!($vnotify & VNOTIFY_LIKE)) {
-			$vnotify_sql_c = " AND c.verb NOT IN ('" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
-			$vnotify_sql_i = " AND i.verb NOT IN ('" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			$vnotify_sql_c = " AND c.verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			$vnotify_sql_i = " AND i.verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 		}
 		elseif (!feature_enabled(local_channel(), 'dislike')) {
-			$vnotify_sql_c = " AND c.verb NOT IN ('" . dbesc(ACTIVITY_DISLIKE) . "') ";
-			$vnotify_sql_i = " AND i.verb NOT IN ('" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			$vnotify_sql_c = " AND c.verb NOT IN ('Dislike', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			$vnotify_sql_i = " AND i.verb NOT IN ('Dislike', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 		}
 
 		if($author) {
-			$author_sql = " AND i.owner_xchan = '" . protect_sprintf(dbesc($author)) . "' ";
+			$author_sql = " AND (i.owner_xchan = '" . protect_sprintf(dbesc($author)) . "' OR i.source_xchan = '" . protect_sprintf(dbesc($author)) . "') ";
 		}
 
 		switch($type) {
@@ -101,11 +101,8 @@ class Messages {
 				$type_sql = ' AND i.item_private IN (0, 1) ';
 		}
 
-		// FEP-5624 filter approvals for comments
-		$approvals_c = " AND c.verb NOT IN ('" . dbesc(ACTIVITY_ATTEND) . "', 'Accept', '" . dbesc(ACTIVITY_ATTENDNO) . "', 'Reject') ";
-
 		$items = q("SELECT *,
-			(SELECT count(*) FROM item c WHERE c.uid = %d AND c.parent = i.parent AND c.item_unseen = 1 AND c.item_thread_top = 0 $item_normal_c $approvals_c $vnotify_sql_c) AS unseen_count
+			(SELECT count(*) FROM item c WHERE c.uid = %d AND c.parent = i.parent AND c.item_unseen = 1 AND c.item_thread_top = 0 $item_normal_c $vnotify_sql_c) AS unseen_count
 			FROM item i WHERE i.uid = %d
 			AND i.created <= '%s'
 			$type_sql

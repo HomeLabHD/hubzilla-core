@@ -112,7 +112,7 @@ class Subthread extends \Zotlabs\Web\Controller {
 		$post_type = (($item['resource_type'] === 'photo') ? t('photo') : t('status'));
 
 		$links = array(array('rel' => 'alternate','type' => 'text/html', 'href' => $item['plink']));
-		$objtype = (($item['resource_type'] === 'photo') ? ACTIVITY_OBJ_PHOTO : ACTIVITY_OBJ_NOTE );
+		$objtype = (($item['resource_type'] === 'photo') ? 'Image' : 'Note');
 
 		$body = $item['body'];
 

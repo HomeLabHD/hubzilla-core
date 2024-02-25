@@ -1311,7 +1311,7 @@ function event_store_item($arr, $event) {
 			dbesc($sig),
 			intval($r[0]['item_flags']),
 			intval($private),
-			dbesc(ACTIVITY_OBJ_EVENT),
+			dbesc('Event'),
 			intval($r[0]['id']),
 			intval($arr['uid'])
 		);
@@ -1408,7 +1408,7 @@ function event_store_item($arr, $event) {
 
 		$item_arr['resource_type']   = 'event';
 		$item_arr['resource_id']     = $event['event_hash'];
-		$item_arr['obj_type']        = ACTIVITY_OBJ_EVENT;
+		$item_arr['obj_type']        = 'Event';
 		$item_arr['body']            = $prefix . format_event_bbcode($arr);
 
 		// if it's local send the permalink to the channel page.

@@ -181,10 +181,10 @@ class Sse_bs extends Controller {
 
 		$sql_extra = '';
 		if (!(self::$vnotify & VNOTIFY_LIKE)) {
-			$sql_extra = " AND verb NOT IN ('" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			$sql_extra = " AND verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 		}
 		elseif (!feature_enabled(self::$uid, 'dislike')) {
-			$sql_extra = " AND verb NOT IN ('" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			$sql_extra = " AND verb NOT IN ('Dislike', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 		}
 
 		$sql_extra2 = '';
@@ -193,8 +193,8 @@ class Sse_bs extends Controller {
 
 		$item_normal = item_normal();
 
-		// Filter FEP-5624 approvals for comments and internal follow activities
-		$item_normal .= " AND verb NOT IN ('" . dbesc(ACTIVITY_ATTEND) . "', 'Accept', '" . dbesc(ACTIVITY_ATTENDNO) . "', 'Reject', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
+		// Filter internal follow activities
+		$item_normal .= " AND verb NOT IN ('" . dbesc(ACTIVITY_FOLLOW) . "') ";
 
 		if ($notifications) {
 			$items = q("SELECT * FROM item
@@ -264,10 +264,10 @@ class Sse_bs extends Controller {
 
 		$sql_extra = '';
 		if (!(self::$vnotify & VNOTIFY_LIKE)) {
-			$sql_extra = " AND verb NOT IN ('" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			$sql_extra = " AND verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 		}
 		elseif (!feature_enabled(self::$uid, 'dislike')) {
-			$sql_extra = " AND verb NOT IN ('" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			$sql_extra = " AND verb NOT IN ('Dislike', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 		}
 
 		$sql_extra2 = '';
@@ -276,8 +276,8 @@ class Sse_bs extends Controller {
 
 		$item_normal = item_normal();
 
-		// Filter FEP-5624 approvals for comments and internal follow activities
-		$item_normal .= " AND verb NOT IN ('" . dbesc(ACTIVITY_ATTEND) . "', 'Accept', '" . dbesc(ACTIVITY_ATTENDNO) . "', 'Reject', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
+		// Filter internal follow activities
+		$item_normal .= " AND verb NOT IN ('" . dbesc(ACTIVITY_FOLLOW) . "') ";
 
 		if ($notifications) {
 			$items = q("SELECT * FROM item
@@ -346,10 +346,10 @@ class Sse_bs extends Controller {
 
 		$sql_extra = '';
 		if (!(self::$vnotify & VNOTIFY_LIKE)) {
-			$sql_extra = " AND verb NOT IN ('" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			$sql_extra = " AND verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 		}
 		elseif (!feature_enabled(self::$uid, 'dislike')) {
-			$sql_extra = " AND verb NOT IN ('" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			$sql_extra = " AND verb NOT IN ('Dislike', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 		}
 
 		$sql_extra2 = '';
@@ -359,8 +359,8 @@ class Sse_bs extends Controller {
 
 		$item_normal = item_normal();
 
-		// Filter FEP-5624 approvals for comments and internal follow activities
-		$item_normal .= " AND verb NOT IN ('" . dbesc(ACTIVITY_ATTEND) . "', 'Accept', '" . dbesc(ACTIVITY_ATTENDNO) . "', 'Reject', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
+		// Filter internal follow activities
+		$item_normal .= " AND verb NOT IN ('" . dbesc(ACTIVITY_FOLLOW) . "') ";
 
 		if ($notifications) {
 			$items = q("SELECT * FROM item
@@ -441,10 +441,10 @@ class Sse_bs extends Controller {
 		$sys = get_sys_channel();
 		$sql_extra = '';
 		if (!(self::$vnotify & VNOTIFY_LIKE)) {
-			$sql_extra = " AND verb NOT IN ('" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			$sql_extra = " AND verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 		}
 		elseif (!feature_enabled(self::$uid, 'dislike')) {
-			$sql_extra = " AND verb NOT IN ('" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			$sql_extra = " AND verb NOT IN ('Dislike', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 		}
 
 		$sql_extra2 = '';
@@ -466,8 +466,8 @@ class Sse_bs extends Controller {
 
 		$item_normal = item_normal();
 
-		// Filter FEP-5624 approvals for comments and internal follow activities
-		$item_normal .= " AND verb NOT IN ('" . dbesc(ACTIVITY_ATTEND) . "', 'Accept', '" . dbesc(ACTIVITY_ATTENDNO) . "', 'Reject', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
+		// Filter internal follow activities
+		$item_normal .= " AND verb NOT IN ('" . dbesc(ACTIVITY_FOLLOW) . "') ";
 
 		if ($notifications) {
 			$items = q("SELECT * FROM item
@@ -592,7 +592,7 @@ class Sse_bs extends Controller {
 
 			$sql_extra = '';
 			if(! (self::$vnotify & VNOTIFY_LIKE))
-				$sql_extra = " AND verb NOT IN ('" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+				$sql_extra = " AND verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 
 			$fcount = count($forums);
 			$i = 0;
@@ -662,12 +662,12 @@ class Sse_bs extends Controller {
 
 		$item_normal = item_normal();
 
-		// Filter FEP-5624 approvals for comments and internal follow activities
-		$item_normal .= " AND verb NOT IN ('" . dbesc(ACTIVITY_ATTEND) . "', 'Accept', '" . dbesc(ACTIVITY_ATTENDNO) . "', 'Reject', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
+		// Filter internal follow activities
+		$item_normal .= " AND verb NOT IN ('" . dbesc(ACTIVITY_FOLLOW) . "') ";
 
 
 		$r = q("SELECT * FROM item
-			WHERE verb = '%s'
+			WHERE (verb = 'Create' OR verb = '%s')
 			AND obj_type IN ('Document', 'Video', 'Audio', 'Image')
 			AND uid = %d
 			AND author_xchan != '%s'

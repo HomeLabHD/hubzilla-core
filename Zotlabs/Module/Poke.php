@@ -47,8 +47,6 @@ class Poke extends Controller {
 		if(! array_key_exists($verb,$verbs))
 			return;
 
-		$activity = ACTIVITY_POKE . '#' . urlencode($verbs[$verb][0]);
-
 		$contact_id = intval($_REQUEST['cid']);
 
 		$xchan = trim($_REQUEST['xchan']);
@@ -116,9 +114,9 @@ class Poke extends Controller {
 		$arr['allow_gid']     = $allow_gid;
 		$arr['deny_cid']      = $deny_cid;
 		$arr['deny_gid']      = $deny_gid;
-		$arr['verb']          = $activity;
+		$arr['verb']          = 'Create';
 		$arr['item_private']  = $item_private;
-		$arr['obj_type']      = ACTIVITY_OBJ_NOTE;
+		$arr['obj_type']      = 'Note';
 		$arr['body']          = '[zrl=' . $channel['xchan_url'] . ']' . $channel['xchan_name'] . '[/zrl]' . ' ' . t($verbs[$verb][0]) . ' ' . '[zrl=' . $target['xchan_url'] . ']' . $target['xchan_name'] . '[/zrl]';
 		$arr['item_origin']   = 1;
 		$arr['item_unseen']   = 1;

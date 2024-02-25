@@ -643,7 +643,7 @@ class ThreadItem {
 		 * Only add what will be displayed
 		 */
 
-		if(activity_match($item->get_data_value('verb'),ACTIVITY_LIKE) || activity_match($item->get_data_value('verb'),ACTIVITY_DISLIKE)) {
+		if(activity_match($item->get_data_value('verb'), ['Like', 'Dislike', ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
 			return false;
 		}
 

@@ -1777,11 +1777,12 @@ function advanced_profile() {
 			$profile['profile_guid'] = App::$profile['profile_guid'];
 		}
 
-		$likers = q("select liker, xchan.*  from likes left join xchan on liker = xchan_hash where channel_id = %d and target_type = '%s' and verb = '%s'",
+		$likers = q("select liker, xchan.*  from likes left join xchan on liker = xchan_hash where channel_id = %d and (target_type = 'Profile' OR target_type = '%s') and (verb = 'Like' OR verb = '%s')",
 			intval(App::$profile['profile_uid']),
 			dbesc(ACTIVITY_OBJ_PROFILE),
 			dbesc(ACTIVITY_LIKE)
 		);
+
 		$profile['likers'] = array();
 		$profile['like_count'] = count($likers);
 		$profile['like_button_label'] = tt('Like','Likes',$profile['like_count'],'noun');

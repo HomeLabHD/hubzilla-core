@@ -112,7 +112,7 @@ class Share {
 		if(! $this->item)
 			return $bb;
 
-		$is_photo = (($this->item['obj_type'] === ACTIVITY_OBJ_PHOTO) ? true : false);
+		$is_photo = ((in_array($this->item['obj_type'], ['Image', ACTIVITY_OBJ_PHOTO])) ? true : false);
 		if($is_photo) {
 			$object = json_decode($this->item['obj'],true);
 			$photo_bb = $object['body'];

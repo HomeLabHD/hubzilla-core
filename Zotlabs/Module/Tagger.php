@@ -67,15 +67,15 @@ class Tagger extends \Zotlabs\Web\Controller {
 
 		switch($item['resource_type']) {
 			case 'photo':
-				$targettype = ACTIVITY_OBJ_PHOTO;
+				$targettype = 'Image';
 				$post_type = t('photo');
 				break;
 			case 'event':
-				$targettype = ACTIVITY_OBJ_EVENT;
+				$targettype = 'Event';
 				$post_type = t('event');
 				break;
 			default:
-				$targettype = ACTIVITY_OBJ_NOTE;
+				$targettype = 'Note';
 				$post_type = t('post');
 				if($item['mid'] != $item['parent_mid'])
 					$post_type = t('comment');

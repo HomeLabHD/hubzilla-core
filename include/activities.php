@@ -2,6 +2,11 @@
 
 function profile_activity($changed, $value) {
 
+	// TODO: we should probably send an Update/Profile or Person activity here.
+	// We could also just send a Note with some changed info?
+	// Profiles are currently a hubzilla specific thing.
+	return;
+
 	if(! local_channel() || ! is_array($changed) || ! count($changed))
 		return;
 
@@ -26,10 +31,10 @@ function profile_activity($changed, $value) {
 	$arr['item_origin'] = 1;
 	$arr['item_thread_top'] = 1;
 	$arr['verb']        = ACTIVITY_UPDATE;
-	$arr['obj_type']    = ACTIVITY_OBJ_PROFILE;
+	$arr['obj_type']    = 'Profile';
 
 	$arr['plink'] = z_root() . '/channel/' . $self['channel_address'] . '/?f=&mid=' . urlencode($arr['mid']);
-				
+
 	$A = '[url=' . z_root() . '/channel/' . $self['channel_address'] . ']' . $self['channel_name'] . '[/url]';
 
 
@@ -47,7 +52,7 @@ function profile_activity($changed, $value) {
 		$changes .= $ch;
 	}
 
-	$prof = '[url=' . z_root() . '/profile/' . $self['channel_address'] . ']' . t('public profile') . '[/url]';	
+	$prof = '[url=' . z_root() . '/profile/' . $self['channel_address'] . ']' . t('public profile') . '[/url]';
 
 	if($t == 1 && strlen($value)) {
 		// if it's a url, the HTML quotes will mess it up, so link it and don't try and zidify it because we don't know what it points to.
@@ -61,24 +66,24 @@ function profile_activity($changed, $value) {
 	}
 	else
 		$message = 	sprintf( t('%1$s has an updated %2$s, changing %3$s.'), $A, $prof, $changes);
- 
 
-	$arr['body'] = $message;  
+
+	$arr['body'] = $message;
 
 	$links   = array();
-	$links[] = array('rel' => 'alternate', 'type' => 'text/html', 
+	$links[] = array('rel' => 'alternate', 'type' => 'text/html',
 		'href' => z_root() . '/profile/' . $self['channel_address']);
-	$links[] = array('rel' => 'photo', 'type' => $self['xchan_photo_mimetype'], 
-		'href' => $self['xchan_photo_l']); 
+	$links[] = array('rel' => 'photo', 'type' => $self['xchan_photo_mimetype'],
+		'href' => $self['xchan_photo_l']);
 
 	$arr['object'] = json_encode(array(
-		'type'  => ACTIVITY_OBJ_PROFILE,
+		'type'  => 'Profile',
 		'title' => $self['channel_name'],
 		'id'    => $self['xchan_url'] . '/' . $self['xchan_hash'],
 		'link'  => $links
 	));
 
-	
+
 	$arr['allow_cid'] = $self['channel_allow_cid'];
 	$arr['allow_gid'] = $self['channel_allow_gid'];
 	$arr['deny_cid']  = $self['channel_deny_cid'];
