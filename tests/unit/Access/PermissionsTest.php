@@ -63,14 +63,6 @@ class PermissionsTest extends UnitTestCase {
 		// There are 17 default perms
 		$permsCount = 17;
 
-		// Create a stub for global function t() with expectation
-		$t = $this->getFunctionMock('Zotlabs\Access', 't');
-		$t->expects($this->exactly(2*$permsCount))->willReturnCallback(
-				function ($string) {
-					return $string;
-				}
-		);
-
 		// static method Perms()
 		$perms = Permissions::Perms();
 
@@ -97,14 +89,6 @@ class PermissionsTest extends UnitTestCase {
 		// There are 17 default perms
 		$permsCount = 17;
 
-		// Create a stub for global function t() with expectation
-		$t = $this->getFunctionMock('Zotlabs\Access', 't');
-		$t->expects($this->exactly(2*$permsCount))->willReturnCallback(
-				function ($string) {
-					return $string;
-				}
-		);
-
 		$perms = Permissions::Perms('view_');
 		$this->assertEquals($permsCount, count($perms));
 
@@ -125,9 +109,6 @@ class PermissionsTest extends UnitTestCase {
 	 * @param array $expected The expected result perms array
 	 */
 	public function testFilledPerms($permarr, $expected) {
-		// Create a stub for global function t()
-		$t = $this->getFunctionMock('Zotlabs\Access', 't');
-
 		$this->assertEquals($expected, Permissions::FilledPerms($permarr));
 	}
 	/**
@@ -209,13 +190,6 @@ class PermissionsTest extends UnitTestCase {
 	 * @uses ::call_hooks
 	 */
 	public function testFilledPermsNull() {
-		// Create a stub for global function t() with expectation
-		$t = $this->getFunctionMock('Zotlabs\Access', 't');
-		$t->expects($this->atLeastOnce());
-		// Create a stub for global function bt() with expectations
-		$bt = $this->getFunctionMock('Zotlabs\Access', 'btlogger');
-		$bt->expects($this->once())->with($this->equalTo('FilledPerms: null'));
-
 		$result = [
 				'view_stream' => 0,
 				'send_stream' => 0,
