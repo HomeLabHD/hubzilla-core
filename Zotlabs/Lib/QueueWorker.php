@@ -29,18 +29,6 @@ class QueueWorker {
 		'Expire'
 	];
 
-	private static function qstart() {
-		q('START TRANSACTION');
-	}
-
-	private static function qcommit() {
-		q("COMMIT");
-	}
-
-	private static function qrollback() {
-		q("ROLLBACK");
-	}
-
 	public static function Summon($argv) {
 
 		if ($argv[0] !== 'Queueworker') {
@@ -66,7 +54,7 @@ class QueueWorker {
 
 			logger('queueworker_stats_summon: cmd:' . $argv[0] . ' ' . 'timestamp:' . time());
 
-			self::qstart();
+			$transaction = new \DbaTransaction(\DBA::$dba);
 			$r = q("INSERT INTO workerq (workerq_priority, workerq_data, workerq_uuid, workerq_cmd) VALUES (%d, '%s', '%s', '%s')",
 				intval($priority),
 				$workinfo_json,
@@ -74,11 +62,11 @@ class QueueWorker {
 				dbesc($argv[0])
 			);
 			if (!$r) {
-				self::qrollback();
+				// Transaction is autmatically rolled back on return
 				logger("INSERT FAILED", LOGGER_DEBUG);
 				return;
 			}
-			self::qcommit();
+			$transaction->commit();
 			logger('INSERTED: ' . $workinfo_json, LOGGER_DEBUG);
 		}
 
@@ -112,7 +100,7 @@ class QueueWorker {
 				return;
 			}
 
-			self::qstart();
+			$transaction = new \DbaTransaction(\DBA::$dba);
 			$r = q("INSERT INTO workerq (workerq_priority, workerq_data, workerq_uuid, workerq_cmd) VALUES (%d, '%s', '%s', '%s')",
 				intval($priority),
 				$workinfo_json,
@@ -120,11 +108,11 @@ class QueueWorker {
 				dbesc($argv[0])
 			);
 			if (!$r) {
-				self::qrollback();
+				// Transaction is automatically rolled back on return
 				logger("Insert failed: " . $workinfo_json, LOGGER_DEBUG);
 				return;
 			}
-			self::qcommit();
+			$transaction->commit();
 			logger('INSERTED: ' . $workinfo_json, LOGGER_DEBUG);
 		}
 
@@ -141,7 +129,7 @@ class QueueWorker {
 			self::$workermaxage = self::$workermaxage > 120 ? self::$workermaxage : 300;
 		}
 
-		self::qstart();
+		$transaction = new \DbaTransaction(\DBA::$dba);
 
 		// skip locked is preferred but is not supported by mariadb < 10.6 which is still used a lot - hence make it optional
 		$sql_quirks = ((Config::Get('system', 'db_skip_locked_supported')) ? 'SKIP LOCKED' : 'NOWAIT');
@@ -159,7 +147,7 @@ class QueueWorker {
 			$u = dbq("update workerq set workerq_reservationid = null where workerq_id in ($ids)");
 		}
 
-		self::qcommit();
+		$transaction->commit();
 
 		//q("update workerq set workerq_reservationid = null where workerq_reservationid is not null and workerq_processtimeout < %s",
 			//db_utcnow()
@@ -197,7 +185,7 @@ class QueueWorker {
 	private static function getWorkId() {
 		self::GetWorkerCount();
 
-		self::qstart();
+		$transaction = new \DbaTransaction(\DBA::$dba);
 
 		// skip locked is preferred but is not supported by mariadb < 10.6 which is still used a lot - hence make it optional
 		$sql_quirks = ((Config::Get('system', 'db_skip_locked_supported')) ? 'SKIP LOCKED' : 'NOWAIT');
@@ -205,7 +193,7 @@ class QueueWorker {
 		$work = dbq("SELECT workerq_id, workerq_cmd FROM workerq WHERE workerq_reservationid IS NULL ORDER BY workerq_priority DESC, workerq_id ASC LIMIT 1 FOR UPDATE $sql_quirks");
 
 		if (!$work) {
-			self::qrollback();
+			// Transaction automatically rolled back on return
 			return false;
 		}
 
@@ -225,13 +213,13 @@ class QueueWorker {
 		);
 
 		if (!$work) {
-			self::qrollback();
+			// Transaction automatically rolled back on return
 			logger("Could not update workerq.", LOGGER_DEBUG);
 			return false;
 		}
 
 		logger("GOTWORK: " . json_encode($work), LOGGER_DEBUG);
-		self::qcommit();
+		$transaction->commit();
 
 		return $id;
 	}
