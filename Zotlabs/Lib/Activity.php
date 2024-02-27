@@ -1227,11 +1227,6 @@ class Activity {
 			return $acts[$verb];
 		}
 
-		// Reactions will just map to normal activities
-
-		if (strpos($verb, ACTIVITY_REACT) !== false)
-			return 'Create';
-
 		if (strpos($verb, ACTIVITY_MOOD) !== false)
 			return 'Create';
 
@@ -2178,6 +2173,7 @@ class Activity {
 				$content['content'] = sprintf(t('&#x1f501; Repeated %1$s\'s %2$s'), $mention, $act->obj['type']);
 			}
 
+			// TODO: Deprecated
 			if ($act->type === 'emojiReaction') {
 				$content['content'] = (($act->tgt && $act->tgt['type'] === 'Image') ? '[img=32x32]' . $act->tgt['url'] . '[/img]' : '&#x' . $act->tgt['name'] . ';');
 			}

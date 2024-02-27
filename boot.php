@@ -494,7 +494,7 @@ define('ZOT_APSCHEMA_REV', '/apschema/v1.11');
 
 define('ACTIVITY_PUBLIC_INBOX', 'https://www.w3.org/ns/activitystreams#Public');
 
-define('ACTIVITY_REACT', NAMESPACE_ZOT . '/activity/react');
+define('ACTIVITY_REACT', NAMESPACE_ZOT . '/activity/react'); // deprecated
 
 define('ACTIVITY_LIKE', NAMESPACE_ACTIVITY_SCHEMA . 'like'); // AS2 Like
 define('ACTIVITY_DISLIKE', NAMESPACE_ZOT . '/activity/dislike'); // AS2 Dislike
@@ -521,12 +521,12 @@ define('ACTIVITY_TAG', NAMESPACE_ACTIVITY_SCHEMA . 'tag'); // unused
 
 define('ACTIVITY_SHARE', 'Announce');
 
-define('ACTIVITY_CREATE', NAMESPACE_ACTIVITY_SCHEMA . 'create'); // unused
+define('ACTIVITY_CREATE', NAMESPACE_ACTIVITY_SCHEMA . 'create'); // deprecated
 
 define('ACTIVITY_DELETE', NAMESPACE_ACTIVITY_SCHEMA . 'delete'); // AS2 Delete
 
-define('ACTIVITY_POKE', NAMESPACE_ZOT . '/activity/poke');
-define('ACTIVITY_MOOD', NAMESPACE_ZOT . '/activity/mood');
+define('ACTIVITY_POKE', NAMESPACE_ZOT . '/activity/poke'); // TODO: deprecate
+define('ACTIVITY_MOOD', NAMESPACE_ZOT . '/activity/mood'); // TODO: deprecate
 
 define('ACTIVITY_OBJ_COMMENT', NAMESPACE_ACTIVITY_SCHEMA . 'comment'); // AS2 Note
 define('ACTIVITY_OBJ_NOTE', NAMESPACE_ACTIVITY_SCHEMA . 'note'); // AS2 Note
