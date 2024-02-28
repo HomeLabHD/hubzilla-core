@@ -217,96 +217,6 @@ function localize_item(&$item){
 
 	}
 
-	if (activity_match($item['verb'], ACTIVITY_FRIEND)) {
-
-		if ($item['obj_type'] == "" || !in_array($item['obj_type'], ['Person', ACTIVITY_OBJ_PERSON]))
-			return;
-
-		$Aname = $item['author']['xchan_name'];
-		$Alink = $item['author']['xchan_url'];
-
-
-		$obj= json_decode($item['obj'],true);
-
-		$Blink = $Bphoto = '';
-
-		if($obj['link']) {
-			$Blink  = get_rel_link($obj['link'],'alternate');
-			$Bphoto = get_rel_link($obj['link'],'photo');
-		}
-		$Bname = $obj['title'];
-
-
-		$A = '[zrl=' . chanlink_url($Alink) . '][bdi]' . $Aname . '[/bdi][/zrl]';
-		$B = '[zrl=' . chanlink_url($Blink) . '][bdi]' . $Bname . '[/bdi][/zrl]';
-		if ($Bphoto!="") $Bphoto = '[zrl=' . chanlink_url($Blink) . '][zmg=80x80]' . $Bphoto . '[/zmg][/zrl]';
-
-		$item['shortlocalize'] = sprintf( t('%1$s is now connected with %2$s'), '[bdi]' . $Aname . '[/bdi]', '[bdi]' . $Bname . '[/bdi]');
-
-		$item['body'] = $item['localize'] = sprintf( t('%1$s is now connected with %2$s'), $A, $B);
-		$item['body'] .= "\n\n\n" . $Bphoto;
-	}
-
-	if (stristr($item['verb'], ACTIVITY_POKE)) {
-
-		/** @FIXME for obscured private posts, until then leave untranslated */
-		return;
-
-		$verb = urldecode(substr($item['verb'],strpos($item['verb'],'#')+1));
-		if(! $verb)
-			return;
-
-		if ($item['obj_type']=="" || !in_array($item['obj_type'], ['Person', ACTIVITY_OBJ_PERSON]))
-			return;
-
-		$Aname = $item['author']['xchan_name'];
-		$Alink = $item['author']['xchan_url'];
-
-		$obj= json_decode($item['obj'],true);
-
-		$Blink = $Bphoto = '';
-
-		if($obj['link']) {
-			$Blink  = get_rel_link($obj['link'],'alternate');
-			$Bphoto = get_rel_link($obj['link'],'photo');
-		}
-		$Bname = $obj['title'];
-
-		$A = '[zrl=' . chanlink_url($Alink) . '][bdi]' . $Aname . '[/bdi][/zrl]';
-		$B = '[zrl=' . chanlink_url($Blink) . '][bdi]' . $Bname . '[/bdi][/zrl]';
-		if ($Bphoto!="") $Bphoto = '[zrl=' . chanlink_url($Blink) . '][zmg=80x80]' . $Bphoto . '[/zmg][/zrl]';
-
-		// we can't have a translation string with three positions but no distinguishable text
-		// So here is the translate string.
-
-		$txt = t('%1$s poked %2$s');
-
-		// now translate the verb
-
-		$txt = str_replace( t('poked'), t($verb), $txt);
-
-		// then do the sprintf on the translation string
-
-		$item['shortlocalize'] = sprintf($txt, '[bdi]' . $Aname . '[/bdi]', '[bdi]' . $Bname . '[/bdi]');
-
-		$item['body'] = $item['localize'] = sprintf($txt, $A, $B);
-		$item['body'] .= "\n\n\n" . $Bphoto;
-	}
-	if (stristr($item['verb'],ACTIVITY_MOOD)) {
-		$verb = urldecode(substr($item['verb'],strpos($item['verb'],'#')+1));
-		if(! $verb)
-			return;
-
-		$Aname = $item['author']['xchan_name'];
-		$Alink = $item['author']['xchan_url'];
-
-		$A = '[zrl=' . chanlink_url($Alink) . '][bdi]' . $Aname . '[/bdi][/zrl]';
-
-		$txt = t('%1$s is %2$s','mood');
-
-		$item['body'] = sprintf($txt, $A, t($verb));
-	}
-
 }
 
 /**
@@ -345,7 +255,7 @@ function count_descendants($item) {
  * @return boolean
  */
 function visible_activity($item) {
-	$hidden_activities = ['Like', 'Dislike', 'Accept', 'Reject', 'TentativeAccept', ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_SHARE, ACTIVITY_AGREE, ACTIVITY_DISAGREE, ACTIVITY_ABSTAIN, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE];
+	$hidden_activities = ['Like', 'Dislike', 'Accept', 'Reject', 'TentativeAccept', ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_SHARE, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE];
 
 	if(intval($item['item_notshown']))
 		return false;
@@ -1081,15 +991,6 @@ function builtin_activity_puller($item, &$conv_responses) {
 				break;
 			case 'dislike':
 				$verb = ['Dislike', ACTIVITY_DISLIKE];
-				break;
-			case 'agree':
-				$verb = ACTIVITY_AGREE;
-				break;
-			case 'disagree':
-				$verb = ACTIVITY_DISAGREE;
-				break;
-			case 'abstain':
-				$verb = ACTIVITY_ABSTAIN;
 				break;
 			case 'attendyes':
 				$verb = ['Accept', ACTIVITY_ATTEND];

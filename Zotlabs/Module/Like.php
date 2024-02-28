@@ -22,9 +22,6 @@ class Like extends Controller {
 			'like'        => 'Like',
 			'dislike'     => 'Dislike',
 			'announce'    => ACTIVITY_SHARE,
-			'agree'       => ACTIVITY_AGREE,
-			'disagree'    => ACTIVITY_DISAGREE,
-			'abstain'     => ACTIVITY_ABSTAIN,
 			'attendyes'   => 'Accept',
 			'attendno'    => 'Reject',
 			'attendmaybe' => 'TentativeAccept'
@@ -372,15 +369,11 @@ class Like extends Controller {
 
 			$multi_undo = false;
 
-			// event participation and consensus items are essentially radio toggles. If you make a subsequent choice,
+			// event participation items are essentially radio toggles. If you make a subsequent choice,
 			// we need to eradicate your first choice.
 
 			if (in_array($activity, ['Accept', 'Reject', 'TentativeAccept', ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE])) {
 				$verbs      = "'Accept','Reject','TentativeAccept','" . dbesc(ACTIVITY_ATTEND) . "','" . dbesc(ACTIVITY_ATTENDNO) . "','" . dbesc(ACTIVITY_ATTENDMAYBE) . "' ";
-				$multi_undo = true;
-			}
-			if ($activity === ACTIVITY_AGREE || $activity === ACTIVITY_DISAGREE || $activity === ACTIVITY_ABSTAIN) {
-				$verbs      = " '" . dbesc(ACTIVITY_AGREE) . "','" . dbesc(ACTIVITY_DISAGREE) . "','" . dbesc(ACTIVITY_ABSTAIN) . "' ";
 				$multi_undo = true;
 			}
 

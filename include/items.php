@@ -2607,7 +2607,6 @@ function tag_deliver($uid, $item_id) {
 		return;
 	}
 
-
 	if ($is_group && intval($item['item_thread_top']) && intval($item['item_wall']) && $item['author_xchan'] !== $item['owner_xchan']) {
 
 		if($item['resource_type'] === 'group_item') {
@@ -2622,39 +2621,6 @@ function tag_deliver($uid, $item_id) {
 			intval($item_id)
 		);
 		return;
-	}
-
-	/*
-	 * Seems like a good place to plug in a poke notification.
-	 */
-
-	if (stristr($item['verb'],ACTIVITY_POKE)) {
-		$poke_notify = true;
-
-		if(($item['obj_type'] == "") || (!in_array($item['obj_type'], ['Person', ACTIVITY_OBJ_PERSON])) || (! $item['obj']))
-			$poke_notify = false;
-
-		$obj = json_decode($item['obj'],true);
-		if($obj) {
-			if($obj['id'] !== $u[0]['channel_hash'])
-				$poke_notify = false;
-		}
-		if(intval($item['item_deleted']))
-			$poke_notify = false;
-
-		$verb = urldecode(substr($item['verb'],strpos($item['verb'],'#')+1));
-		if($poke_notify) {
-			Enotify::submit(array(
-				'to_xchan'     => $u[0]['channel_hash'],
-				'from_xchan'   => $item['author_xchan'],
-				'type'         => NOTIFY_POKE,
-				'item'         => $item,
-				'link'         => $i[0]['llink'],
-				'verb'         => ACTIVITY_POKE,
-				'activity'     => $verb,
-				'otype'        => 'item'
-			));
-		}
 	}
 
 	/*

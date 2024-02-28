@@ -234,15 +234,6 @@ class Pinned {
 				case 'dislike':
 					$verb_sql = " AND verb IN ('Dislike', '" . ACTIVITY_DISLIKE . "') ";
 					break;
-				case 'agree':
-					$verb_sql = " AND verb = '" . ACTIVITY_AGREE . "' ";
-					break;
-				case 'disagree':
-					$verb_sql = " AND verb = '" . ACTIVITY_DISAGREE . "' ";
-					break;
-				case 'abstain':
-					$verb_sql = " AND verb = '" . ACTIVITY_ABSTAIN . "' ";
-					break;
 				case 'attendyes':
 					$verb_sql = " AND verb IN ('Accept', '" . ACTIVITY_ATTEND . "') ";
 					break;
