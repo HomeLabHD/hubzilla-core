@@ -463,9 +463,6 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 	$conv_responses = [
 		'like' => ['title' => t('Likes','title')],
 		'dislike' => ['title' => t('Dislikes','title')],
-		'agree' => ['title' => t('Agree','title')],
-		'disagree' => ['title' => t('Disagree','title')],
-		'abstain' => ['title' => t('Abstain','title')],
 		'attendyes' => ['title' => t('Attending','title')],
 		'attendno' => ['title' => t('Not attending','title')],
 		'attendmaybe' => ['title' => t('Might attend','title')],
@@ -883,13 +880,10 @@ function thread_author_menu($item, $mode = '') {
 		}
 	}
 
-
 	$contact_url = '';
 	$posts_link = '';
-	$poke_link = '';
 
 	if($contact) {
-		$poke_link = ((Apps::system_app_installed($local_channel, 'Poke')) ? z_root() . '/poke/?f=&c=' . $contact['abook_id'] : '');
 		if (isset($contact['abook_self']) && !intval($contact['abook_self']))
 			$contact_url = z_root() . '/connections#' . $contact['abook_id'];
 		$posts_link = z_root() . '/network/?cid=' . $contact['abook_id'];
@@ -940,18 +934,6 @@ function thread_author_menu($item, $mode = '') {
 			'href' => $contact_url,
 			'data' => 'data-id="' . $contact['abook_id'] . '"',
 			'class' => 'contact-edit'
-		];
-	}
-
-	if($poke_link) {
-		$menu[] = [
-			'menu' => 'poke',
-			'title' => t('Poke'),
-			'icon' => 'fw',
-			'action' => '',
-			'href' => $poke_link,
-			'data' => '',
-			'class' => ''
 		];
 	}
 
@@ -1013,6 +995,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 		}
 
 		if((activity_match($item['verb'], $verb)) && ($item['id'] != $item['parent'])) {
+
 			$name = (($item['author']['xchan_name']) ? $item['author']['xchan_name'] : t('Unknown'));
 
 			$moderate = ((intval($item['item_blocked']) === ITEM_MODERATED) ? '<a href="moderate/' . $item['id'] . '/approve" onclick="moderate_approve(' . $item['id'] . '); return false;" class="text-success pe-2" title="' . t('Approve this item') . '"><i class="fa fa-check" ></i></a><a href="moderate/' . $item['id'] . '/drop" onclick="moderate_drop(' . $item['id'] . '); return false;" class="text-danger pe-2" title="' . t('Delete this item') . '"><i class="fa fa-trash-o" ></i></a>' : '');
@@ -1580,15 +1563,6 @@ function get_response_button_text($v,$count) {
 			break;
 		case 'attendmaybe':
 			return ['label' => tt('Undecided','Undecided',$count,'noun'), 'icon' => 'calendar-o', 'class' => 'attendmaybe'];
-			break;
-		case 'agree':
-			return ['label' => tt('Agree','Agrees',$count,'noun'), 'icon' => '', 'class' => ''];
-			break;
-		case 'disagree':
-			return ['label' => tt('Disagree','Disagrees',$count,'noun'), 'icon' => '', 'class' => ''];
-			break;
-		case 'abstain':
-			return ['label' => tt('Abstain','Abstains',$count,'noun'), 'icon' => '', 'class' => ''];
 			break;
 		default:
 			return '';

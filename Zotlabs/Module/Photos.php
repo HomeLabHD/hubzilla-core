@@ -1108,7 +1108,6 @@ class Photos extends \Zotlabs\Web\Controller {
 
 				$conv_responses = array(
 					'like' => array('title' => t('Likes','title')),'dislike' => array('title' => t('Dislikes','title')),
-					'agree' => array('title' => t('Agree','title')),'disagree' => array('title' => t('Disagree','title')), 'abstain' => array('title' => t('Abstain','title')),
 					'attendyes' => array('title' => t('Attending','title')), 'attendno' => array('title' => t('Not attending','title')), 'attendmaybe' => array('title' => t('Might attend','title'))
 				);
 

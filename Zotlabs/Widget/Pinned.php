@@ -77,17 +77,6 @@ class Pinned {
 				}
 			}
 
-			$consensus = (intval($item['item_consensus']) ? true : false);
-			if($consensus) {
-				$conv_responses['agree'] = [ 'title' => t('Agree','title') ];
-				$conv_responses['disagree'] = [ 'title' => t('Disagree','title') ];
-				$conv_responses['abstain'] = [ 'title' => t('Abstain','title') ];
-				if($commentable && $observer) {
-					$conlabels = [ t('I agree'), t('I disagree'), t('I abstain') ];
-					$canvote = true;
-				}
-			}
-
 			$this->activity($item, $conv_responses);
 
 			$verified = (intval($item['item_verified']) ? t('Message signature validated') : '');

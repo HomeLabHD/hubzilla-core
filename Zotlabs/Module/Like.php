@@ -486,12 +486,6 @@ class Like extends Controller {
 			$bodyverb = t('%1$s likes %2$s\'s %3$s');
 		if ($verb === 'dislike')
 			$bodyverb = t('%1$s doesn\'t like %2$s\'s %3$s');
-		if ($verb === 'agree')
-			$bodyverb = t('%1$s agrees with %2$s\'s %3$s');
-		if ($verb === 'disagree')
-			$bodyverb = t('%1$s doesn\'t agree with %2$s\'s %3$s');
-		if ($verb === 'abstain')
-			$bodyverb = t('%1$s abstains from a decision on %2$s\'s %3$s');
 		if ($verb === 'attendyes')
 			$bodyverb = t('%1$s is attending %2$s\'s %3$s');
 		if ($verb === 'attendno')
