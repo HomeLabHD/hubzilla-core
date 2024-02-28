@@ -173,13 +173,27 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 			intval($this->auth->owner_id)
 		);
 
-		$x = attach_syspaths($this->auth->owner_id,$this->folder_hash);
+		$x = attach_syspaths($this->auth->owner_id, $this->folder_hash);
 
 		$y = q("update attach set display_path = '%s' where hash = '%s' and uid = %d",
 			dbesc($x['path']),
 			dbesc($this->folder_hash),
 			intval($this->auth->owner_id)
 		);
+
+		$z = q("select hash from attach where folder = '%s' and uid = %d",
+			dbesc($this->folder_hash),
+			intval($this->auth->owner_id)
+		);
+
+		if($z) {
+			foreach ($z as $zz) {
+				$rs = attach_move($this->auth->owner_id, $zz['hash'], $this->folder_hash, '', false);
+				if(!$rs['success']) {
+					break;
+				}
+			}
+		}
 
 		$ch = channelx_by_n($this->auth->owner_id);
 		if ($ch) {
@@ -481,7 +495,7 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 	}
 
 
-	public function moveInto($targetName,$sourcePath, DAV\INode $sourceNode) {
+	public function moveInto($targetName, $sourcePath, DAV\INode $sourceNode) {
 
 		$channel_id = $this->auth->owner_id;
 		// Files have $sourceNode->data['hash'] set. For directories rely on $sourceNode->folder_hash.
