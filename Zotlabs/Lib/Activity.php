@@ -783,11 +783,6 @@ class Activity {
 		$ret   = [];
 		$reply = false;
 
-		if ($i['verb'] === ACTIVITY_FRIEND) {
-			// Hubzilla 'make-friend' activity, no direct mapping from AS1 to AS2 - make it a note
-			$ret['obj'] = [];
-		}
-
 		$ret['type'] = self::activity_mapper($i['verb']);
 
 		if ((isset($i['item_deleted']) && intval($i['item_deleted'])) && !$recurse) {
@@ -1220,9 +1215,6 @@ class Activity {
 		if (array_key_exists($verb, $acts) && $acts[$verb]) {
 			return $acts[$verb];
 		}
-
-		if (strpos($verb, ACTIVITY_FRIEND) !== false)
-			return 'Create';
 
 		// We should return false, however this will trigger an uncaught execption  and crash
 		// the delivery system if encountered by the JSON-LDSignature library
