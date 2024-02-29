@@ -53,22 +53,26 @@ function profile_activity($changed, $value) {
 		}
 
 		if ($photo) {
-			$value = "\n\n" . '[zmg=' . z_root() . '/photo/' . $value . '-' . $photo_size . ']' . $ch . '[/zmg]';
+			$value = "\n\n" . '[zmg=' . z_root() . '/photo/' . $value . '-' . $photo_size . ']' . $ch . ' ' . $channel['xchan_name'] . '[/zmg]';
 		}
 
-		$message = sprintf(t('%1$s updated %2$s to %3$s'), $channel_link, $changes, $value);
-		$message .= "\n\n" . sprintf(t('Visit %1$s\'s %2$s'), $channel_link, $profile_link);
+		$message = sprintf(t('%1$s\'s %2$s has been updated to %3$s'), $channel_link, $changes, $value);
+
+		if (!$photo) {
+			$message .= "\n\n" . sprintf(t('Visit %1$s\'s %2$s'), $channel_link, $profile_link);
+		}
+
 	} else {
-		$message = sprintf(t('%1$s has updated %2$s, changing %3$s.'), $channel_link, $profile_link, $changes);
+		$message = sprintf(t('%1$s has an updated %2$s, changing %3$s.'), $channel_link, $profile_link, $changes);
 	}
 
 	$arr['body'] = $message;
 
 	$arr['obj'] = [
 		'type' => 'Profile',
-		'summary' => bbcode($message),
+		'content' => bbcode($message),
 		'source' => [
-			'summary'   => $message,
+			'content'   => $message,
 			'mediaType' => 'text/bbcode'
 		],
 		'describes' => Activity::encode_person($channel),

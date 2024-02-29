@@ -177,22 +177,8 @@ class Contactedit extends Controller {
 				intval($channel['channel_id'])
 			);
 			if (($pr) && (!intval($contact['abook_hidden'])) && (intval(get_pconfig($channel['channel_id'], 'system', 'post_newfriend')))) {
-				$xarr = [];
-
-				$xarr['item_wall']       = 1;
-				$xarr['item_origin']     = 1;
-				$xarr['item_thread_top'] = 1;
-				$xarr['owner_xchan']     = $xarr['author_xchan'] = $channel['channel_hash'];
-				$xarr['allow_cid']       = $channel['channel_allow_cid'];
-				$xarr['allow_gid']       = $channel['channel_allow_gid'];
-				$xarr['deny_cid']        = $channel['channel_deny_cid'];
-				$xarr['deny_gid']        = $channel['channel_deny_gid'];
-				$xarr['item_private']    = (($xarr['allow_cid'] || $xarr['allow_gid'] || $xarr['deny_cid'] || $xarr['deny_gid']) ? 1 : 0);
-
 				$xarr['body'] = '[zrl=' . $channel['xchan_url'] . ']' . $channel['xchan_name'] . '[/zrl]' . ' ' . t('is now connected to') . ' ' . '[zrl=' . $contact['xchan_url'] . ']' . $contact['xchan_name'] . '[/zrl]';
-
-				$xarr['body'] .= "\n\n\n" . '[zrl=' . $contact['xchan_url'] . '][zmg=80x80]' . $contact['xchan_photo_m'] . '[/zmg][/zrl]';
-
+				$xarr['body'] .= "\n\n\n" . '[zrl=' . $contact['xchan_url'] . '][zmg=' . $contact['xchan_photo_m'] . ']' . $contact['xchan_name'] . '[/zmg][/zrl]';
 				post_activity_item($xarr);
 
 			}

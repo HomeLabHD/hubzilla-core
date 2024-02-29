@@ -2304,8 +2304,6 @@ class Activity {
 			if ($act->objprop('type') === 'Profile') {
 				$s['parent_mid'] = $s['mid'];
 				$s['item_thread_top'] = 1;
-				$s['summary'] = '';
-				$s['body'] = self::bb_content($content, 'summary');
 			}
 
 
