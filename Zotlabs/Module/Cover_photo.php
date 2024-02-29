@@ -93,8 +93,6 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 				$image_id = substr($image_id,0,-2);
 			}
 
-
-
 			$srcX = intval($_POST['xstart']);
 			$srcY = intval($_POST['ystart']);
 			$srcW = intval($_POST['xfinal']) - $srcX;
@@ -228,7 +226,7 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 						return;
 					}
 
-					$this->send_cover_photo_activity($channel,$base_image,$profile);
+					profile_activity([t('Cover Photo')], $base_image['resource_id']);
 
 					$sync = attach_export_data($channel,$base_image['resource_id']);
 					if($sync)
@@ -244,7 +242,6 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 			goaway(z_root() . '/channel/' . $channel['channel_address']);
 
 		}
-
 
 		$hash = photo_new_resource();
 		$smallest = 0;
@@ -287,45 +284,6 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 
 	}
 
-	function send_cover_photo_activity($channel,$photo,$profile) {
-
-		$arr = array();
-		$arr['item_thread_top'] = 1;
-		$arr['item_origin'] = 1;
-		$arr['item_wall'] = 1;
-
-		if($profile && stripos($profile['gender'],t('female')) !== false)
-			$t = t('%1$s updated her %2$s');
-		elseif($profile && stripos($profile['gender'],t('male')) !== false)
-			$t = t('%1$s updated his %2$s');
-		else
-			$t = t('%1$s updated their %2$s');
-
-		$ptext = '[zrl=' . z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo['resource_id'] . ']' . t('cover photo') . '[/zrl]';
-
-		$ltext = '[zrl=' . z_root() . '/profile/' . $channel['channel_address'] . ']' . '[zmg]' . z_root() . '/photo/' . $photo['resource_id'] . '-8[/zmg][/zrl]';
-
-		$arr['body'] = sprintf($t,$channel['channel_name'],$ptext) . "\n\n" . $ltext;
-
-		$acl = new \Zotlabs\Access\AccessList($channel);
-		$x = $acl->get();
-		$arr['allow_cid'] = $x['allow_cid'];
-
-		$arr['allow_gid'] = $x['allow_gid'];
-		$arr['deny_cid'] = $x['deny_cid'];
-		$arr['deny_gid'] = $x['deny_gid'];
-
-		$arr['uid'] = $channel['channel_id'];
-		$arr['aid'] = $channel['channel_account_id'];
-
-		$arr['owner_xchan'] = $channel['channel_hash'];
-		$arr['author_xchan'] = $channel['channel_hash'];
-
-		post_activity_item($arr);
-
-
-	}
-
 
 	/**
 	 * @brief Generate content of profile-photo view
@@ -333,7 +291,6 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 	 * @return string
 	 *
 	 */
-
 
 	function get() {
 

@@ -1143,7 +1143,6 @@ class Libzot {
 		if ($env['encoding'] === 'activitystreams') {
 
 			$AS = new ActivityStreams($data);
-
 			if (!$AS->is_valid()) {
 				logger('Activity rejected: ' . print_r($data, true));
 				return;

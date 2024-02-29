@@ -60,6 +60,8 @@ require_once('include/bbcode.php');
 require_once('include/items.php');
 require_once('include/conversation.php');
 require_once('include/acl_selectors.php');
+require_once('include/selectors.php');
+require_once('include/activities.php');
 
 define('PLATFORM_NAME', 'hubzilla');
 define('STD_VERSION', '8.9.9');

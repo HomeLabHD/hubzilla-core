@@ -459,7 +459,7 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 
 
 	if(! $arr['mid']) {
-		$arr['uuid']         = ((x($arr,'uuid')) ? $arr['uuid'] : item_message_id());
+		$arr['uuid']         = ((x($arr,'uuid')) ? $arr['uuid'] : new_uuid());
 	}
 	$arr['mid']          = ((x($arr,'mid')) ? $arr['mid'] : z_root() . '/item/' . $arr['uuid']);
 	$arr['parent_mid']   = ((x($arr,'parent_mid')) ? $arr['parent_mid'] : $arr['mid']);
@@ -520,7 +520,7 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 		return $ret;
 
 	if($post_id && $deliver) {
-		Master::Summon([ 'Notifier','activity',$post_id ]);
+		Master::Summon(['Notifier','activity', $post_id]);
 	}
 
 	$ret['success'] = true;
@@ -4790,54 +4790,7 @@ function comment_local_origin($item) {
 	return false;
 }
 
-
-
-function send_profile_photo_activity($channel,$photo,$profile) {
-
-	// for now only create activities for the default profile
-
-	if(! intval($profile['is_default']))
-		return;
-
-	$arr = array();
-	$arr['item_thread_top'] = 1;
-	$arr['item_origin'] = 1;
-	$arr['item_wall'] = 1;
-
-	if(stripos($profile['gender'],t('female')) !== false)
-		$t = t('%1$s updated her %2$s');
-	elseif(stripos($profile['gender'],t('male')) !== false)
-		$t = t('%1$s updated his %2$s');
-	else
-		$t = t('%1$s updated their %2$s');
-
-	$ptext = '[zrl=' . z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo['resource_id'] . ']' . t('profile photo') . '[/zrl]';
-
-	$ltext = '[zrl=' . z_root() . '/profile/' . $channel['channel_address'] . ']' . '[zmg=150x150]' . z_root() . '/photo/' . $photo['resource_id'] . '-4[/zmg][/zrl]';
-
-	$arr['body'] = sprintf($t,$channel['channel_name'],$ptext) . "\n\n" . $ltext;
-
-	$acl = new Zotlabs\Access\AccessList($channel);
-	$x = $acl->get();
-
-	$arr['allow_cid'] = $x['allow_cid'];
-
-	$arr['allow_gid'] = $x['allow_gid'];
-	$arr['deny_cid'] = $x['deny_cid'];
-	$arr['deny_gid'] = $x['deny_gid'];
-
-	$arr['uid'] = $channel['channel_id'];
-	$arr['aid'] = $channel['channel_account_id'];
-
-	$arr['owner_xchan'] = $channel['channel_hash'];
-	$arr['author_xchan'] = $channel['channel_hash'];
-
-	post_activity_item($arr);
-}
-
-
 function sync_an_item($channel_id,$item_id) {
-
 	$r = q("select * from item where id = %d",
 		intval($item_id)
 	);

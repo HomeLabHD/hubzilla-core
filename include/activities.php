@@ -1,100 +1,80 @@
 <?php /** @file */
 
+use Zotlabs\Lib\Activity;
+use Zotlabs\Daemon\Master;
+
 function profile_activity($changed, $value) {
 
-	// TODO: we should probably send an Update/Profile or Person activity here.
-	// We could also just send a Note with some changed info?
-	// Profiles are currently a hubzilla specific thing.
-	return;
-
-	if(! local_channel() || ! is_array($changed) || ! count($changed))
+	if (!local_channel() || !is_array($changed) || !count($changed)) {
 		return;
+	}
 
-	if(! get_pconfig(local_channel(),'system','post_profilechange'))
+	if (!get_pconfig(local_channel(), 'system', 'post_profilechange')) {
 		return;
+	}
 
-	require_once('include/items.php');
+	$channel = App::get_channel();
 
-	$self = App::get_channel();
+	$arr['verb'] = 'Update';
+	$arr['obj_type'] = 'Profile';
 
-	if(! count($self))
-		return;
-
-	$arr = array();
-	$arr['uuid']        = item_message_id();
-	$arr['mid']         = $arr['parent_mid'] = z_root() . '/item/' . $arr['uuid'];
-	$arr['uid']         = local_channel();
-	$arr['aid']         = $self['channel_account_id'];
-	$arr['owner_xchan'] = $arr['author_xchan'] = $self['xchan_hash'];
-
-	$arr['item_wall'] = 1;
-	$arr['item_origin'] = 1;
-	$arr['item_thread_top'] = 1;
-	$arr['verb']        = ACTIVITY_UPDATE;
-	$arr['obj_type']    = 'Profile';
-
-	$arr['plink'] = z_root() . '/channel/' . $self['channel_address'] . '/?f=&mid=' . urlencode($arr['mid']);
-
-	$A = '[url=' . z_root() . '/channel/' . $self['channel_address'] . ']' . $self['channel_name'] . '[/url]';
-
+	$channel_link = '[url=' . z_root() . '/channel/' . $channel['channel_address'] . ']' . $channel['channel_name'] . '[/url]';
 
 	$changes = '';
 	$t = count($changed);
 	$z = 0;
-	foreach($changed as $ch) {
-		if(strlen($changes)) {
-			if ($z == ($t - 1))
+	$photo = false;
+	foreach ($changed as $ch) {
+		if (strlen($changes)) {
+			if ($z == ($t - 1)) {
 				$changes .= t(' and ');
-			else
-				$changes .= ', ';
+			} else {
+				$changes .= t(', ');
+			}
 		}
-		$z ++;
+
+		if (in_array($ch, [t('Profile Photo'), t('Cover Photo')])) {
+			$photo = true;
+			$photo_size = (($ch === t('Profile Photo')) ? 4 : 8);
+		}
+
+		$z++;
 		$changes .= $ch;
 	}
 
-	$prof = '[url=' . z_root() . '/profile/' . $self['channel_address'] . ']' . t('public profile') . '[/url]';
+	$profile_link = '[url=' . z_root() . '/profile/' . $channel['channel_address'] . ']' . t('public profile') . '[/url]';
 
-	if($t == 1 && strlen($value)) {
+	if ($t == 1 && strlen($value)) {
 		// if it's a url, the HTML quotes will mess it up, so link it and don't try and zidify it because we don't know what it points to.
- 		$value = preg_replace_callback("/([^\]\='".'"'."]|^|\#\^)(https?\:\/\/[a-zA-Z0-9\pL\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\+\,]+)/ismu", 'red_zrl_callback', $value);
+		$value = preg_replace_callback("/([^='" . '"' . "]|^|#\^)(https?:\/\/[a-zA-Z0-9\pL:\/\-?&;.=@_~#%\$!+,]+)/ismu", 'red_zrl_callback', $value);
 		// take out the bookmark indicator
-		if(substr($value,0,2) === '#^')
-			$value = str_replace('#^','',$value);
+		if (str_starts_with($value, '#^')) {
+			$value = str_replace('#^', '', $value);
+		}
 
-		$message = sprintf( t('%1$s changed %2$s to &ldquo;%3$s&rdquo;'), $A, $changes, $value);
-		$message .= "\n\n" . sprintf( t('Visit %1$s\'s %2$s'), $A, $prof);
+		if ($photo) {
+			$value = "\n\n" . '[zmg=' . z_root() . '/photo/' . $value . '-' . $photo_size . ']' . $ch . '[/zmg]';
+		}
+
+		$message = sprintf(t('%1$s updated %2$s to %3$s'), $channel_link, $changes, $value);
+		$message .= "\n\n" . sprintf(t('Visit %1$s\'s %2$s'), $channel_link, $profile_link);
+	} else {
+		$message = sprintf(t('%1$s has updated %2$s, changing %3$s.'), $channel_link, $profile_link, $changes);
 	}
-	else
-		$message = 	sprintf( t('%1$s has an updated %2$s, changing %3$s.'), $A, $prof, $changes);
-
 
 	$arr['body'] = $message;
 
-	$links   = array();
-	$links[] = array('rel' => 'alternate', 'type' => 'text/html',
-		'href' => z_root() . '/profile/' . $self['channel_address']);
-	$links[] = array('rel' => 'photo', 'type' => $self['xchan_photo_mimetype'],
-		'href' => $self['xchan_photo_l']);
+	$arr['obj'] = [
+		'type' => 'Profile',
+		'summary' => bbcode($message),
+		'source' => [
+			'summary'   => $message,
+			'mediaType' => 'text/bbcode'
+		],
+		'describes' => Activity::encode_person($channel),
+		'url' => z_root() . '/profile/' . $channel['channel_address']
+	];
 
-	$arr['object'] = json_encode(array(
-		'type'  => 'Profile',
-		'title' => $self['channel_name'],
-		'id'    => $self['xchan_url'] . '/' . $self['xchan_hash'],
-		'link'  => $links
-	));
-
-
-	$arr['allow_cid'] = $self['channel_allow_cid'];
-	$arr['allow_gid'] = $self['channel_allow_gid'];
-	$arr['deny_cid']  = $self['channel_deny_cid'];
-	$arr['deny_gid']  = $self['channel_deny_gid'];
-
-	$res = item_store($arr);
-	$i = $res['item_id'];
-
-	if($i) {
-		// FIXME - limit delivery in notifier.php to those specificed in the perms argument
-	   	Zotlabs\Daemon\Master::Summon(array('Notifier','activity', $i, 'PERMS_R_PROFILE'));
-	}
+	post_activity_item($arr);
 
 }

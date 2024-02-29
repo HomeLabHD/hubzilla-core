@@ -172,10 +172,6 @@ class Activity {
 	}
 
 	static function fetch_person($x) {
-		return self::fetch_profile($x);
-	}
-
-	static function fetch_profile($x) {
 		$r = q("select * from xchan where xchan_url = '%s' limit 1",
 			dbesc($x['id'])
 		);
@@ -189,7 +185,14 @@ class Activity {
 			return [];
 
 		return self::encode_person($r[0]);
+	}
 
+	static function fetch_profile($x) {
+		if (isset($x['describes'])) {
+			return $x;
+		}
+
+		return [];
 	}
 
 	static function fetch_thing($x) {
@@ -977,6 +980,7 @@ class Activity {
 		if (intval($i['item_private']) === 0) {
 			$ret['to'] = [ACTIVITY_PUBLIC_INBOX];
 		}
+
 
 		$hookinfo = [
 			'item' => $i,
@@ -2049,6 +2053,10 @@ class Activity {
 			$s['mid'] = $act->obj['data']['id'];
 		}
 
+		if ($act->objprop('type') === 'Profile') {
+			$s['mid'] = $act->id;
+		}
+
 		if (!$s['mid']) {
 			return false;
 		}
@@ -2293,6 +2301,14 @@ class Activity {
 
 		if (!$response_activity) {
 
+			if ($act->objprop('type') === 'Profile') {
+				$s['parent_mid'] = $s['mid'];
+				$s['item_thread_top'] = 1;
+				$s['summary'] = '';
+				$s['body'] = self::bb_content($content, 'summary');
+			}
+
+
 			// we will need a hook here to extract magnet links e.g. peertube
 			// right now just link to the largest mp4 we find that will fit in our
 			// standard content region
@@ -2438,7 +2454,6 @@ class Activity {
 				}
 			}
 
-
 			if ($act->objprop('type') === 'Page' && !$s['body']) {
 
 				$ptr  = null;
@@ -2479,7 +2494,7 @@ class Activity {
 			}
 		}
 
-		if (in_array($act->objprop('type', ''), ['Note', 'Article', 'Page'])) {
+		if (in_array($act->objprop('type'), ['Note', 'Article', 'Page'])) {
 			$ptr = null;
 
 			if (array_key_exists('url', $act->obj)) {

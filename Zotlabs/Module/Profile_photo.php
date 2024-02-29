@@ -223,7 +223,7 @@ class Profile_photo extends Controller {
 							intval(local_channel())
 						);
 
-						send_profile_photo_activity($channel, $base_image, $profile);
+						profile_activity([t('Profile Photo')], $base_image['resource_id']);
 					}
 					else {
 						q("update profile set photo = '%s', thumb = '%s' where id = %d and uid = %d",

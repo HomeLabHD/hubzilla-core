@@ -85,7 +85,7 @@ function categories_widget($baseurl,$selected = '') {
 			AND term.otype = %d
 			AND item.owner_xchan = '%s'
 			AND item.item_wall = 1
-			AND item.verb != '%s'
+			AND item.verb NOT IN ('Update', '%s')
 			$item_normal
 			$sql_extra
 			ORDER BY term.term ASC",
