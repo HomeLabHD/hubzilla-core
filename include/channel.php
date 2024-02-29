@@ -1771,6 +1771,7 @@ function advanced_profile() {
 		if(App::$profile['gender']) $profile['gender'] = array( t('Gender:'),  App::$profile['gender'] );
 
 		$ob_hash = get_observer_hash();
+/* TODO: AS2 compatibility
 		if($ob_hash && perm_is_allowed(App::$profile['profile_uid'],$ob_hash,'post_like')) {
 			$profile['canlike'] = true;
 			$profile['likethis'] = t('Like this channel');
@@ -1790,7 +1791,7 @@ function advanced_profile() {
 			foreach($likers as $l)
 				$profile['likers'][] = array('name' => $l['xchan_name'],'photo' => zid($l['xchan_photo_s']), 'url' => zid($l['xchan_url']));
 		}
-
+*/
 		if((App::$profile['dob']) && (App::$profile['dob'] != '0000-00-00')) {
 
 			$val = '';

@@ -322,6 +322,8 @@ class Like extends Controller {
 			// parent, copy that as well.
 
 			if ($r) {
+				$obj_type = $r[0]['obj_type'];
+
 				if ($r[0]['uid'] === $sys_channel['channel_id'] && local_channel()) {
 					$r = [copy_of_pubitem(App::get_channel(), $r[0]['mid'])];
 				}
@@ -432,7 +434,7 @@ class Like extends Controller {
 			}
 		}
 
-		$uuid = item_message_id();
+		$uuid = new_uuid();
 
 		$arr = array();
 
@@ -445,17 +447,17 @@ class Like extends Controller {
 			$arr['item_wall']       = 1;
 		}
 		else {
-			switch ($item['resource_type']) {
-				case 'photo':
-					$obj_type = 'Image';
-					$post_type = t('photo');
+			switch ($item['object_type']) {
+				case 'Image':
+					$post_type = t('image');
 					break;
-				case 'event':
-					$obj_type = 'Invite';
+				case 'Invite':
 					$post_type = t('event');
 					break;
+				case 'Profile':
+					$post_type = t('profile');
+					break;
 				default:
-					$obj_type = 'Note';
 					$post_type = t('status');
 					break;
 			}
@@ -527,7 +529,7 @@ class Like extends Controller {
 		if ($obj_type === 'thing' && $r[0]['imgurl']) {
 			$arr['body'] .= "\n\n[zmg=80x80]" . $r[0]['imgurl'] . '[/zmg]';
 		}
-		if ($obj_type === 'profile') {
+		if ($obj_type === 'Profile') {
 			if ($public) {
 				$arr['body'] .= "\n\n" . '[embed]' . z_root() . '/profile/' . $ch[0]['channel_address'] . '[/embed]';
 			}
@@ -580,6 +582,7 @@ class Like extends Controller {
 			$sync_item = fetch_post_tags($r);
 			Libsync::build_sync_packet($profile_uid, ['item' => [encode_item($sync_item[0], true)]]);
 		}
+
 
 		if ($extended_like) {
 			$r = q("insert into likes (channel_id,liker,likee,iid,i_mid,verb,target_type,target_id,target) values (%d,'%s','%s',%d,'%s','%s','%s','%s','%s')",

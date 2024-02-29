@@ -55,15 +55,14 @@ function profile_activity($changed, $value) {
 		if ($photo) {
 			$value = "\n\n" . '[zmg=' . z_root() . '/photo/' . $value . '-' . $photo_size . ']' . $ch . ' ' . $channel['xchan_name'] . '[/zmg]';
 		}
-
-		$message = sprintf(t('%1$s\'s %2$s has been updated to %3$s'), $channel_link, $changes, $value);
-
-		if (!$photo) {
-			$message .= "\n\n" . sprintf(t('Visit %1$s\'s %2$s'), $channel_link, $profile_link);
+		else {
+			$value = '"' . $value . '"';
 		}
 
+		$message = sprintf(t('%1$s %2$s has been updated to %3$s.'), $channel_link . '\'s' . (($photo) ? '' : ' ' . $profile_link), strtolower($changes), $value);
+
 	} else {
-		$message = sprintf(t('%1$s has an updated %2$s, changing %3$s.'), $channel_link, $profile_link, $changes);
+		$message = sprintf(t('%1$s updated the %2$s. Changed %3$s.'), $channel_link, $profile_link, strtolower($changes));
 	}
 
 	$arr['body'] = $message;

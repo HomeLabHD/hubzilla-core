@@ -269,7 +269,6 @@ class Profile_photo extends Controller {
 
 					// Update directory in background
 					Master::Summon(['Directory', $channel['channel_id']]);
-
 				}
 				else
 					notice(t('Unable to process image') . EOL);
