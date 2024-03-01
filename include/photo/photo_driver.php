@@ -117,7 +117,14 @@ function guess_image_type($filename, $data = '') {
 					$body = $data['body'];
 				if ($body) {
 					$image = new Imagick();
-					$image->readImageBlob($body);
+
+					try{
+						$image->readImageBlob($body);
+					} catch (\Exception $e) {
+						logger('Imagick readImageBlob() exception:' . print_r($e, true));
+						return $type;
+					}
+
 					$r = $image->identifyImage();
 					if ($r && is_array($r) && array_key_exists($r['mimetype'], $types))
 						$type = $r['mimetype'];
