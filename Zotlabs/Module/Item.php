@@ -52,7 +52,7 @@ class Item extends Controller {
 
 			$portable_id = EMPTY_STR;
 
-			$item_normal_extra = sprintf(" and not verb in ('%s', '%s') ",
+			$item_normal_extra = sprintf(" and not verb in ('Follow', 'Ignore', '%s', '%s') ",
 				dbesc(ACTIVITY_FOLLOW),
 				dbesc(ACTIVITY_UNFOLLOW)
 			);
@@ -168,7 +168,7 @@ class Item extends Controller {
 
 			$portable_id = EMPTY_STR;
 
-			$item_normal_extra = sprintf(" and not verb in ('%s', '%s') ",
+			$item_normal_extra = sprintf(" and not verb in ('Follow', 'Ignore', '%s', '%s') ",
 				dbesc(ACTIVITY_FOLLOW),
 				dbesc(ACTIVITY_UNFOLLOW)
 			);

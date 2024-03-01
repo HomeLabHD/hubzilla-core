@@ -24,9 +24,9 @@ class Subthread extends \Zotlabs\Web\Controller {
 		$item_id = ((argc() > 2) ? notags(trim(argv(2))) : 0);
 
 		if(argv(1) === 'sub')
-			$activity = ACTIVITY_FOLLOW;
+			$activity = 'Follow';
 		elseif(argv(1) === 'unsub')
-			$activity = ACTIVITY_UNFOLLOW;
+			$activity = 'Ignore';
 
 
 		$i = q("select * from item where id = %d and uid = %d",
@@ -121,9 +121,9 @@ class Subthread extends \Zotlabs\Web\Controller {
 		if(! intval($item['item_thread_top']))
 			$post_type = 'comment';
 
-		if($activity === ACTIVITY_FOLLOW)
+		if($activity === 'Follow')
 			$bodyverb = t('%1$s is following %2$s\'s %3$s');
-		if($activity === ACTIVITY_UNFOLLOW)
+		if($activity === 'Ignore')
 			$bodyverb = t('%1$s stopped following %2$s\'s %3$s');
 
 		$arr = array();

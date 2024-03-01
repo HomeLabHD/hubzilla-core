@@ -512,13 +512,13 @@ define('ACTIVITY_ATTENDMAYBE', NAMESPACE_ZOT . '/activity/attendmaybe'); // AS2 
 
 define('ACTIVITY_FRIEND', NAMESPACE_ACTIVITY_SCHEMA . 'make-friend'); // deprecated
 
-define('ACTIVITY_FOLLOW', NAMESPACE_ACTIVITY_SCHEMA . 'follow');
-define('ACTIVITY_UNFOLLOW', NAMESPACE_ACTIVITY_SCHEMA . 'stop-following');
+define('ACTIVITY_FOLLOW', NAMESPACE_ACTIVITY_SCHEMA . 'follow'); // AS2 Follow
+define('ACTIVITY_UNFOLLOW', NAMESPACE_ACTIVITY_SCHEMA . 'stop-following'); // AS2 Ignore
 
 
 define('ACTIVITY_POST', NAMESPACE_ACTIVITY_SCHEMA . 'post'); // AS2 Create
 
-define('ACTIVITY_UPDATE', NAMESPACE_ACTIVITY_SCHEMA . 'update');
+define('ACTIVITY_UPDATE', NAMESPACE_ACTIVITY_SCHEMA . 'update'); // AS2 Update
 
 define('ACTIVITY_TAG', NAMESPACE_ACTIVITY_SCHEMA . 'tag'); // unused
 
@@ -539,7 +539,7 @@ define('ACTIVITY_OBJ_PHOTO', NAMESPACE_ACTIVITY_SCHEMA . 'photo'); // AS2 Image
 define('ACTIVITY_OBJ_EVENT', NAMESPACE_ACTIVITY_SCHEMA . 'event'); // AS2 Event
 
 define('ACTIVITY_OBJ_TAGTERM', NAMESPACE_ZOT . '/activity/tagterm'); // unused
-define('ACTIVITY_OBJ_PROFILE', NAMESPACE_ZOT . '/activity/profile'); // AS2 Profile (broken)
+define('ACTIVITY_OBJ_PROFILE', NAMESPACE_ZOT . '/activity/profile'); // AS2 Profile
 define('ACTIVITY_OBJ_THING', NAMESPACE_ZOT . '/activity/thing'); // AS2 Page??? (broken)
 
 

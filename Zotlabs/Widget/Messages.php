@@ -62,7 +62,7 @@ class Messages {
 		$channel = App::get_channel();
 		$item_normal = item_normal();
 		// Filter internal follow activities and strerams add/remove activities
-		$item_normal .= " and item.verb not in ('Add', 'Remove', '" . ACTIVITY_FOLLOW . "') ";
+		$item_normal .= " and item.verb not in ('Add', 'Remove', 'Follow', 'Ignore', '" . ACTIVITY_FOLLOW . "') ";
 		$item_normal_i = str_replace('item.', 'i.', $item_normal);
 		$item_normal_c = str_replace('item.', 'c.', $item_normal);
 		$entries = [];

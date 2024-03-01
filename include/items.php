@@ -2487,7 +2487,7 @@ function send_status_notifications($post_id,$item) {
 				// check for an unfollow thread activity - we should probably decode the obj and check the id
 				// but it will be extremely rare for this to be wrong.
 
-				if(($xx['verb'] === ACTIVITY_UNFOLLOW)
+				if((in_array($xx['verb'], ['Ignore', ACTIVITY_UNFOLLOW]))
 					&& (in_array($xx['obj_type'], ['Note', 'Image', ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_PHOTO]))
 					&& ($xx['parent'] != $xx['id']))
 					$unfollowed = true;
@@ -2513,7 +2513,6 @@ function send_status_notifications($post_id,$item) {
 
 	if(! $notify)
 		return;
-
 
 	Enotify::submit(array(
 		'type'         => $type,
@@ -4377,7 +4376,7 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 	$item_normal = item_normal();
 
 	if (! (isset($arr['include_follow']) && intval($arr['include_follow']))) {
-		$item_normal .= sprintf(" and not verb in ('%s', '%s') ",
+		$item_normal .= sprintf(" and not verb in ('Follow', 'Ignore', '%s', '%s') ",
 			dbesc(ACTIVITY_FOLLOW),
 			dbesc(ACTIVITY_UNFOLLOW)
 		);

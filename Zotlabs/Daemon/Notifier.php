@@ -276,7 +276,7 @@ class Notifier {
 			}
 
 			// follow/unfollow is for internal use only
-			if (in_array($target_item['verb'], [ACTIVITY_FOLLOW, ACTIVITY_UNFOLLOW])) {
+			if (in_array($target_item['verb'], ['Follow', 'Ignore', ACTIVITY_FOLLOW, ACTIVITY_UNFOLLOW])) {
 				logger('not fowarding follow/unfollow note activity');
 				return;
 			}
