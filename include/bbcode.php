@@ -1187,8 +1187,8 @@ function bbcode($text, $options = []) {
 
 
 	if($cache) {
-		$observer = false;
-		$channel = false;
+		$observer = null;
+		$channel = null;
 	} else {
 		$observer = App::get_observer();
 		$channel = App::get_channel();
