@@ -2138,12 +2138,13 @@ function get_request_string($url) {
 }
 
 
-/*
+/**
+ * Builds a url from the result of `parse_url`.
  *
- * Takes the output of parse_url and builds a URL from it
+ * @param array $parsed_url		An associative array as produced by `parse_url`.
  *
+ * @return The reassembled URL as a string.
  */
-
 function unparse_url($parsed_url) {
 	$scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
 	$host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';

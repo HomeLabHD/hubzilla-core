@@ -27,6 +27,55 @@ use Zotlabs\Tests\Unit\UnitTestCase;
 
 class BBCodeTest extends UnitTestCase {
 	/**
+	 * Test converting BBCode to HTML
+	 *
+	 * @dataProvider bbcode_to_html_provider
+	 */
+	public function test_parsing_bbcode_to_html(string $src, string $expected): void {
+		$this->assertBBCode($expected, $src);
+	}
+
+	/**
+	 * Test the `[observer]` BBCode tags.
+	 *
+	 * @dataProvider bbcode_observer_provider
+	 */
+	public function test_bbcode_observer(string $src, bool $logged_in, string $lang, string $expected): void {
+		if ($logged_in) {
+			\App::$observer = [
+				'xchan_addr' => '',
+				'xchan_name' => '',
+				'xchan_connurl' => '',
+				'xchan_photo_l' => '',
+
+				// port required in xchan url due to bug in get_rpost_path
+				'xchan_url' => 'https://example.com:666',
+			];
+		} else {
+			\App::$observer = null;
+		}
+
+		\App::$language = $lang;
+
+		$this->assertBBCode($expected, $src);
+	}
+
+	/**
+	 * Test parsing the `[channel]` tag.
+	 */
+	public function test_bbcode_channel(): void {
+		$src = '[channel=1]This is only for channels[/channel][channel=0]This is for everyone else[/channel]';
+
+		// Verify that the right part is shown to users _not_ in a channel
+		\App::$channel = null;
+		$this->assertBBCode('This is for everyone else', $src);
+
+		// Now verify that the right part is shown to users _in_ a channel
+		\App::$channel = [42];
+		$this->assertBBCode('This is only for channels', $src);
+	}
+
+	/**
 	 * Test converting html to BBCode.
 	 *
 	 * @dataProvider html2bbcode_provider
@@ -35,6 +84,95 @@ class BBCodeTest extends UnitTestCase {
 		$this->assertEquals($expected, html2bbcode($src));
 	}
 
+	/**
+	 * Helper method to validate BBCode conversions.
+	 *
+	 * @param string $expected	The expected result of the conversion.
+	 * @param string $src		The BBCode to be converted.
+	 */
+	private function assertBBCode(string $expected, string $src): void {
+		// Note! We turn off trying to create oembeds, as that will trigger a
+		// network request when running the test.
+		$this->assertEquals($expected, bbcode($src, ['tryoembed' => false]));
+	}
+
+	/**
+	 * Dataprovider for test_parsing_bbcode_to_html.
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
+	 */
+	private function bbcode_to_html_provider(): array {
+		return [
+			'code block' => [
+				"[code]\ntestvar = \"this is a test\"\necho \"the message is \$testvar\"\n[/code]",
+				'<pre><code>testvar = "this is a test"<br />echo "the message is $testvar"</code></pre>',
+			],
+		];
+	}
+
+	/**
+	 * Dataprovider for test_bbcode_observer
+	 *
+	 * @returns an array of arrays with the following fields:
+	 *   * `string $src`		- The source string to convert
+	 *   * `bool $logged_in`	- Whether we should test with a logged in user
+	 *   * `string $lang`		- The language code of the simulated user
+	 *   * `string $expected`	- The expecte result of the conversion.
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
+	 */
+	private function bbcode_observer_provider(): array {
+		return [
+			'authenticated observer' => [
+				'[observer=1]This should be visible[/observer][observer=0]but not this[/observer]',
+				true,
+				'en',
+				'This should be visible',
+			],
+			'unauthenticated observer' => [
+				'[observer=1]This should not be visible[/observer][observer=0]but this should be![/observer]',
+				false,
+				'en',
+				'but this should be!',
+			],
+			'authenticated observer.language matching' => [
+				'[observer.language=nb]Kun på norsk[/observer][observer.language!=nb]To everybody else[/observer]',
+				true,
+				'nb',
+				'Kun på norsk',
+			],
+			'authenticated observer.language no match' => [
+				'[observer.language=nb]Kun på norsk[/observer][observer.language!=nb]To everybody else[/observer]',
+				true,
+				'en',
+				'To everybody else',
+			],
+			'multiple observer blocks' => [
+				'[observer=1]This should be visible,[/observer][observer=0] but not this,[/observer][observer=1] and this as well.[/observer]',
+				true,
+				'en',
+				'This should be visible, and this as well.',
+			],
+			'authenticated observer rpost' => [
+				'[rpost=a title]This is the body[/rpost]',
+				true,
+				'en',
+				'<a href="https://example.com:666/rpost?f=&title=a+title&body=This+is+the+body"  target="_blank"  rel="nofollow noopener">https://example.com:666/rpost?f=&title=a+title&body=This+is+the+body</a>',
+			],
+			'unauthenticated observer rpost' => [
+				'[rpost=a title]This is the body[/rpost]',
+				false,
+				'en',
+				'',
+			],
+		];
+	}
+
+	/**
+	 * Dataprovider for test_html2bbcode.
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
+	 */
 	private function html2bbcode_provider(): array {
 		return [
 			'paragraph over multiple lines' => [
