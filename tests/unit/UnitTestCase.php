@@ -23,6 +23,7 @@
 namespace Zotlabs\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\TestResult;
 
 /*
  * Make sure global constants and the global App object is available to the
@@ -41,10 +42,39 @@ require_once 'include/dba/dba_driver.php' ;
  * @author Klaus Weidenbach
  */
 class UnitTestCase extends TestCase {
-	private bool $in_transaction = false;
 	protected array $fixtures = array();
 
-	public static function setUpBeforeClass() : void {
+	/**
+	 * Override the PHPUnit\Framework\TestCase::run method, so we can
+	 * wrap it in a database transaction.
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+	 */
+	public function run(TestResult $result = null): TestResult {
+		// $myclass = get_class($this);
+		// logger("[*] Running test: {$myclass}::{$this->getName(true)}", LOGGER_DEBUG);
+
+		if (! \DBA::$dba) {
+			//logger('[*] Connecting to test db...');
+			$this->connect_to_test_db();
+		}
+
+		// The $transactuion variable is needed to hold the transaction until the
+		// function returns.
+		$transaction = new \DbaTransaction(\DBA::$dba);
+
+		$this->loadFixtures();
+
+		// Make sure app config is reset and loaded from fixtures
+		\App::$config = array();
+		\Zotlabs\Lib\Config::Load('system');
+
+		$result = parent::run($result);
+
+		return $result;
+	}
+
+	protected function connect_to_test_db() : void {
 		if ( !\DBA::$dba ) {
 			\DBA::dba_factory(
 				getenv('HZ_TEST_DB_HOST') ?: 'db',
@@ -68,36 +98,6 @@ class UnitTestCase extends TestCase {
 			}
 
 			\DBA::$dba->dbg(true);
-		}
-	}
-
-	protected function setUp() : void {
-		$myclass = get_class($this);
-		logger("[*] Running test: {$myclass}::{$this->getName(true)}", LOGGER_DEBUG);
-		if ( \DBA::$dba->connected ) {
-			// Create a transaction, so that any actions taken by the
-			// tests does not change the actual contents of the database.
-			$this->in_transaction = \DBA::$dba->db->beginTransaction();
-
-			$this->loadFixtures();
-		}
-
-		// Make sure app config is reset and loaded from fixtures
-		\App::$config = array();
-		\Zotlabs\Lib\Config::Load('system');
-	}
-
-	protected function tearDown() : void {
-		if ( \DBA::$dba->connected && $this->in_transaction ) {
-			// Roll back the transaction, restoring the db to the
-			// state it was before the test was run.
-			if ( \DBA::$dba->db->rollBack() ) {
-				$this->in_transaction = false;
-			} else {
-				throw new \Exception(
-					"Transaction rollback failed! Error is: "
-					. \DBA::$dba->db->errorInfo());
-			}
 		}
 	}
 
