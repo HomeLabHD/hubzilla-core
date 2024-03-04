@@ -211,7 +211,7 @@ class Like extends Controller {
 
 				$post_type = t('thing');
 				$obj_type   = 'Profile';
-				$tgttype   = ACTIVITY_OBJ_THING;
+				$tgttype   = 'Page';
 
 				$links   = array();
 				$links[] = array('rel'  => 'alternate', 'type' => 'text/html',
@@ -219,12 +219,7 @@ class Like extends Controller {
 				if ($r[0]['imgurl'])
 					$links[] = array('rel' => 'photo', 'href' => $r[0]['obj_imgurl']);
 
-				$target = json_encode(array(
-					'type'  => $tgttype,
-					'title' => $r[0]['obj_term'],
-					'id'    => z_root() . '/thing/' . $r[0]['obj_obj'],
-					'link'  => $links
-				));
+				$target = Activity::fetch_thing(['id' => $r[0]['obj_obj']]);
 
 				$plink = '[zrl=' . z_root() . '/thing/' . $r[0]['obj_obj'] . ']' . $r[0]['obj_term'] . '[/zrl]';
 

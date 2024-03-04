@@ -205,14 +205,27 @@ class Activity {
 		if (!$r)
 			return [];
 
+		$channel = channelx_by_n($r[0]['obj_channel']);
+
+		$content = '[zrl=' . $channel['xchan_url'] . ']' . $channel['channel_name'] . '[/zrl] ';
+		$content .= $r[0]['obj_verb'] . ' ';
+		$content .= '[zrl=' . $r[0]['obj_url'] . ']' . $r[0]['obj_term'] . '[/zrl]';
+
 		$x = [
-			'type' => 'Object',
+			'type' => 'Page',
 			'id'   => z_root() . '/thing/' . $r[0]['obj_obj'],
-			'name' => $r[0]['obj_term']
+			'name' => $r[0]['obj_term'],
+			'content' => bbcode($content),
+			'url' => $r[0]['obj_url']
 		];
 
-		if ($r[0]['obj_image'])
-			$x['image'] = $r[0]['obj_image'];
+		if ($r[0]['obj_image']) {
+			$x['icon'] = [
+				'type' => 'Image',
+				'url' => $r[0]['obj_image']
+
+			];
+		}
 
 		return $x;
 
