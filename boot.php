@@ -540,7 +540,7 @@ define('ACTIVITY_OBJ_EVENT', NAMESPACE_ACTIVITY_SCHEMA . 'event'); // AS2 Event
 
 define('ACTIVITY_OBJ_TAGTERM', NAMESPACE_ZOT . '/activity/tagterm'); // unused
 define('ACTIVITY_OBJ_PROFILE', NAMESPACE_ZOT . '/activity/profile'); // AS2 Profile
-define('ACTIVITY_OBJ_THING', NAMESPACE_ZOT . '/activity/thing'); // AS2 Page??? (broken)
+define('ACTIVITY_OBJ_THING', NAMESPACE_ZOT . '/activity/thing'); // AS2 Page
 
 
 /**
