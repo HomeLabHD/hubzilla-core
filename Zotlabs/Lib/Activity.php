@@ -207,23 +207,19 @@ class Activity {
 
 		$channel = channelx_by_n($r[0]['obj_channel']);
 
-		$content = '[zrl=' . $channel['xchan_url'] . ']' . $channel['channel_name'] . '[/zrl] ';
-		$content .= $r[0]['obj_verb'] . ' ';
-		$content .= '[zrl=' . $r[0]['obj_url'] . ']' . $r[0]['obj_term'] . '[/zrl]';
-
 		$x = [
 			'type' => 'Page',
 			'id'   => z_root() . '/thing/' . $r[0]['obj_obj'],
-			'name' => $r[0]['obj_term'],
-			'content' => bbcode($content),
+			'name' => $channel['channel_name'] . ' ' . $r[0]['obj_verb'] . ' ' . $r[0]['obj_term'],
+			'content' => $r[0]['obj_url'],
 			'url' => $r[0]['obj_url']
 		];
 
-		if ($r[0]['obj_image']) {
+		if ($r[0]['obj_imgurl']) {
+			$x['content'] = '<a href="' . $r[0]['obj_url'] . '"><img src="' . $r[0]['obj_imgurl'] . '" alt="' . $r[0]['obj_term'] . '"></a>';
 			$x['icon'] = [
 				'type' => 'Image',
-				'url' => $r[0]['obj_image']
-
+				'url' => $r[0]['obj_imgurl']
 			];
 		}
 

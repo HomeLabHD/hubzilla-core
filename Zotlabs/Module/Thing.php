@@ -5,6 +5,7 @@
 
 namespace Zotlabs\Module;
 
+use App;
 use Zotlabs\Lib\Libsync;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\ActivityStreams;
@@ -218,10 +219,11 @@ class Thing extends \Zotlabs\Web\Controller {
 			$ulink = '[zrl=' . $channel['xchan_url'] . ']' . $channel['channel_name'] . '[/zrl]';
 			$plink = '[zrl=' . $url . ']' . $name . '[/zrl]';
 
-			$arr['body'] = sprintf($bodyverb, $ulink, $translated_verb, $plink);
+			$arr['title'] = $channel['channel_name'] . ' ' . $translated_verb . ' ' . $name;
+			$arr['body'] = $url;
 
 			if($local_photo)
-				$arr['body'] .= "\n\n" . '[zmg]' . $local_photo . '[/zmg]';
+				$arr['body'] = '[zrl=' . $url . '][zmg=' . $local_photo . ']' . $name . '[/zmg][/zrl]';
 
 			$arr['verb'] = 'Create';
 			$arr['obj_type'] = 'Page';
@@ -275,12 +277,12 @@ class Thing extends \Zotlabs\Web\Controller {
 				dbesc(argv(1))
 			);
 
-			if($r) {
+			if ($r) {
 				$channel = channelx_by_n($r[0]['obj_channel']);
 				profile_load($channel['channel_address']);
 
 				return replace_macros(get_markup_template('show_thing.tpl'), array(
-					'$header' => $channel['xchan_name'] . ' ' . $r[0]['obj_verb'],
+					'$header' => $channel['xchan_name'] . ' ' . $r[0]['obj_verb'] . ' ' . $r[0]['obj_term'],
 					'$edit' => t('Edit'),
 					'$delete' => t('Delete'),
 					'$canedit' => ((local_channel() && local_channel() == $r[0]['obj_channel']) ? true : false),
