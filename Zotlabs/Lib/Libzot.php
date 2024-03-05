@@ -2569,9 +2569,14 @@ class Libzot {
 		if (!$observer)
 			return '';
 
-		$parsed = parse_url($observer['xchan_url']);
+		$url = $observer['xchan_url'];
+		if (preg_match('|^https?://|', $url) === 0) {
+			$url = "https://{$url}";
+		}
 
-		return $parsed['scheme'] . '://' . $parsed['host'] . (($parsed['port']) ? ':' . $parsed['port'] : '') . '/rpost?f=';
+		$parsed = parse_url($url);
+
+		return $parsed['scheme'] . '://' . $parsed['host'] . (isset($parsed['port']) ? ':' . $parsed['port'] : '') . '/rpost?f=';
 	}
 
 	/**
