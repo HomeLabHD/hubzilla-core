@@ -27,7 +27,7 @@
 
 {{include file="field_checkbox.tpl" field=$activity}}
 
-<div class="thing-end"></div> 
+<div class="thing-end"></div>
 
 {{if $lockstate}}
 	<button id="dbtn-acl" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#aclModal" onclick="return false;">
@@ -36,6 +36,6 @@
 {{/if}}
 
 
-<input type="submit" class="thing-submit" name="submit" value="{{$submit}}" />
+<input type="submit" class="btn btn-primary btn-sm" name="submit" value="{{$submit}}" />
 </form>
 {{$aclselect}}

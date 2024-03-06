@@ -302,6 +302,8 @@ class Thing extends \Zotlabs\Web\Controller {
 			return;
 		}
 
+		profile_load($channel['channel_address']);
+
 		$acl = new \Zotlabs\Access\AccessList($channel);
 		$channel_acl = $acl->get();
 
