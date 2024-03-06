@@ -1,5 +1,5 @@
 /*!
-FullCalendar Core v6.1.8
+FullCalendar Core v6.1.11
 Docs & License: https://fullcalendar.io
 (c) 2023 Adam Shaw
 */
@@ -15,7 +15,9 @@ var FullCalendar = (function (exports) {
         });
     }
     function ensureElHasStyles(el) {
-        if (el.isConnected) {
+        if (el.isConnected && // sometimes true if SSR system simulates DOM
+            el.getRootNode // sometimes undefined if SSR system simulates DOM
+        ) {
             registerStylesRoot(el.getRootNode());
         }
     }
@@ -274,10 +276,12 @@ var FullCalendar = (function (exports) {
     ----------------------------------------------------------------------------------------------------------------------*/
     function preventSelection(el) {
         el.style.userSelect = 'none';
+        el.style.webkitUserSelect = 'none';
         el.addEventListener('selectstart', preventDefault);
     }
     function allowSelection(el) {
         el.style.userSelect = '';
+        el.style.webkitUserSelect = '';
         el.removeEventListener('selectstart', preventDefault);
     }
     /* Context Menu
@@ -1565,7 +1569,7 @@ var FullCalendar = (function (exports) {
         // (can't be part of plugin system b/c must be provided at runtime)
         handleCustomRendering: identity,
         customRenderingMetaMap: identity,
-        customRenderingReplacesEl: Boolean,
+        customRenderingReplaces: Boolean,
     };
     // do NOT give a type here. need `typeof BASE_OPTION_DEFAULTS` to give real results.
     // raw values.
@@ -4272,7 +4276,7 @@ var FullCalendar = (function (exports) {
     function getSegMeta(seg, todayRange, nowDate) {
         let segRange = seg.eventRange.range;
         return {
-            isPast: segRange.end < (nowDate || todayRange.start),
+            isPast: segRange.end <= (nowDate || todayRange.start),
             isFuture: segRange.start >= (nowDate || todayRange.end),
             isToday: todayRange && rangeContainsMarker(todayRange, segRange.start),
         };
@@ -4815,7 +4819,11 @@ var FullCalendar = (function (exports) {
     }
 
     class SegHierarchy {
-        constructor() {
+        constructor(getEntryThickness = (entry) => {
+            // if no thickness known, assume 1 (if 0, so small it always fits)
+            return entry.thickness || 1;
+        }) {
+            this.getEntryThickness = getEntryThickness;
             // settings
             this.strictOrder = false;
             this.allowReslicing = false;
@@ -4836,51 +4844,45 @@ var FullCalendar = (function (exports) {
             let insertion = this.findInsertion(entry);
             if (this.isInsertionValid(insertion, entry)) {
                 this.insertEntryAt(entry, insertion);
-                return 1;
             }
-            return this.handleInvalidInsertion(insertion, entry, hiddenEntries);
+            else {
+                this.handleInvalidInsertion(insertion, entry, hiddenEntries);
+            }
         }
         isInsertionValid(insertion, entry) {
-            return (this.maxCoord === -1 || insertion.levelCoord + entry.thickness <= this.maxCoord) &&
+            return (this.maxCoord === -1 || insertion.levelCoord + this.getEntryThickness(entry) <= this.maxCoord) &&
                 (this.maxStackCnt === -1 || insertion.stackCnt < this.maxStackCnt);
         }
-        // returns number of new entries inserted
         handleInvalidInsertion(insertion, entry, hiddenEntries) {
             if (this.allowReslicing && insertion.touchingEntry) {
-                return this.splitEntry(entry, insertion.touchingEntry, hiddenEntries);
+                const hiddenEntry = Object.assign(Object.assign({}, entry), { span: intersectSpans(entry.span, insertion.touchingEntry.span) });
+                hiddenEntries.push(hiddenEntry);
+                this.splitEntry(entry, insertion.touchingEntry, hiddenEntries);
             }
-            hiddenEntries.push(entry);
-            return 0;
+            else {
+                hiddenEntries.push(entry);
+            }
         }
+        /*
+        Does NOT add what hit the `barrier` into hiddenEntries. Should already be done.
+        */
         splitEntry(entry, barrier, hiddenEntries) {
-            let partCnt = 0;
-            let splitHiddenEntries = [];
             let entrySpan = entry.span;
             let barrierSpan = barrier.span;
             if (entrySpan.start < barrierSpan.start) {
-                partCnt += this.insertEntry({
+                this.insertEntry({
                     index: entry.index,
                     thickness: entry.thickness,
                     span: { start: entrySpan.start, end: barrierSpan.start },
-                }, splitHiddenEntries);
+                }, hiddenEntries);
             }
             if (entrySpan.end > barrierSpan.end) {
-                partCnt += this.insertEntry({
+                this.insertEntry({
                     index: entry.index,
                     thickness: entry.thickness,
                     span: { start: barrierSpan.end, end: entrySpan.end },
-                }, splitHiddenEntries);
+                }, hiddenEntries);
             }
-            if (partCnt) {
-                hiddenEntries.push({
-                    index: entry.index,
-                    thickness: entry.thickness,
-                    span: intersectSpans(barrierSpan, entrySpan), // guaranteed to intersect
-                }, ...splitHiddenEntries);
-                return partCnt;
-            }
-            hiddenEntries.push(entry);
-            return 0;
         }
         insertEntryAt(entry, insertion) {
             let { entriesByLevel, levelCoords } = this;
@@ -4895,6 +4897,9 @@ var FullCalendar = (function (exports) {
             }
             this.stackCnts[buildEntryKey(entry)] = insertion.stackCnt;
         }
+        /*
+        does not care about limits
+        */
         findInsertion(newEntry) {
             let { levelCoords, entriesByLevel, strictOrder, stackCnts } = this;
             let levelCnt = levelCoords.length;
@@ -4904,10 +4909,10 @@ var FullCalendar = (function (exports) {
             let touchingEntry = null;
             let stackCnt = 0;
             for (let trackingLevel = 0; trackingLevel < levelCnt; trackingLevel += 1) {
-                let trackingCoord = levelCoords[trackingLevel];
+                const trackingCoord = levelCoords[trackingLevel];
                 // if the current level is past the placed entry, we have found a good empty space and can stop.
                 // if strictOrder, keep finding more lateral intersections.
-                if (!strictOrder && trackingCoord >= candidateCoord + newEntry.thickness) {
+                if (!strictOrder && trackingCoord >= candidateCoord + this.getEntryThickness(newEntry)) {
                     break;
                 }
                 let trackingEntries = entriesByLevel[trackingLevel];
@@ -4918,7 +4923,7 @@ var FullCalendar = (function (exports) {
                 (trackingEntry = trackingEntries[lateralIndex]) && // but not past the whole entry list
                     trackingEntry.span.start < newEntry.span.end // and not entirely past newEntry
                 ) {
-                    let trackingEntryBottom = trackingCoord + trackingEntry.thickness;
+                    let trackingEntryBottom = trackingCoord + this.getEntryThickness(trackingEntry);
                     // intersects into the top of the candidate?
                     if (trackingEntryBottom > candidateCoord) {
                         candidateCoord = trackingEntryBottom;
@@ -4966,7 +4971,7 @@ var FullCalendar = (function (exports) {
                 let entries = entriesByLevel[level];
                 let levelCoord = levelCoords[level];
                 for (let entry of entries) {
-                    rects.push(Object.assign(Object.assign({}, entry), { levelCoord }));
+                    rects.push(Object.assign(Object.assign({}, entry), { thickness: this.getEntryThickness(entry), levelCoord }));
                 }
             }
             return rects;
@@ -5133,10 +5138,14 @@ var FullCalendar = (function (exports) {
                 forPrint: false,
             };
             this.handleBeforePrint = () => {
-                this.setState({ forPrint: true });
+                flushSync(() => {
+                    this.setState({ forPrint: true });
+                });
             };
             this.handleAfterPrint = () => {
-                this.setState({ forPrint: false });
+                flushSync(() => {
+                    this.setState({ forPrint: false });
+                });
             };
         }
         render() {
@@ -5193,6 +5202,13 @@ var FullCalendar = (function (exports) {
             this.queuedDomNodes = [];
             this.currentDomNodes = [];
             this.handleEl = (el) => {
+                const { options } = this.context;
+                const { generatorName } = this.props;
+                if (!options.customRenderingReplaces || !hasCustomRenderingHandler(generatorName, options)) {
+                    this.updateElRef(el);
+                }
+            };
+            this.updateElRef = (el) => {
                 if (this.props.elRef) {
                     setRef(this.props.elRef, el);
                 }
@@ -5202,7 +5218,7 @@ var FullCalendar = (function (exports) {
             const { props, context } = this;
             const { options } = context;
             const { customGenerator, defaultGenerator, renderProps } = props;
-            const attrs = buildElAttrs(props);
+            const attrs = buildElAttrs(props, [], this.handleEl);
             let useDefault = false;
             let innerContent;
             let queuedDomNodes = [];
@@ -5222,8 +5238,11 @@ var FullCalendar = (function (exports) {
                     else if (isObject && ('domNodes' in customGeneratorRes)) {
                         queuedDomNodes = Array.prototype.slice.call(customGeneratorRes.domNodes);
                     }
-                    else if (!isObject && typeof customGeneratorRes !== 'function') {
-                        // primitive value (like string or number)
+                    else if (isObject
+                        ? i$1(customGeneratorRes) // vdom node
+                        : typeof customGeneratorRes !== 'function' // primitive value (like string or number)
+                    ) {
+                        // use in vdom
                         innerContent = customGeneratorRes;
                     }
                     else {
@@ -5260,7 +5279,7 @@ var FullCalendar = (function (exports) {
             if (handleCustomRendering) {
                 const generatorMeta = (_a = this.currentGeneratorMeta) !== null && _a !== void 0 ? _a : customRenderingMetaMap === null || customRenderingMetaMap === void 0 ? void 0 : customRenderingMetaMap[props.generatorName];
                 if (generatorMeta) {
-                    handleCustomRendering(Object.assign(Object.assign({ id: this.id, isActive, containerEl: this.base, reportNewContainerEl: this.handleEl, // for customRenderingReplacesEl
+                    handleCustomRendering(Object.assign(Object.assign({ id: this.id, isActive, containerEl: this.base, reportNewContainerEl: this.updateElRef, // front-end framework tells us about new container els
                         generatorMeta }, props), { elClasses: (props.elClasses || []).filter(isTruthy) }));
                 }
             }
@@ -5285,7 +5304,9 @@ var FullCalendar = (function (exports) {
     });
     // Util
     /*
-    Does UI-framework provide custom way of rendering?
+    Does UI-framework provide custom way of rendering that does not use Preact VDOM
+    AND does the calendar's options define custom rendering?
+    AKA. Should we NOT render the default content?
     */
     function hasCustomRenderingHandler(generatorName, options) {
         var _a;
@@ -5293,8 +5314,8 @@ var FullCalendar = (function (exports) {
             generatorName &&
             ((_a = options.customRenderingMetaMap) === null || _a === void 0 ? void 0 : _a[generatorName]));
     }
-    function buildElAttrs(props, extraClassNames) {
-        const attrs = Object.assign(Object.assign({}, props.elAttrs), { ref: props.elRef });
+    function buildElAttrs(props, extraClassNames, elRef) {
+        const attrs = Object.assign(Object.assign({}, props.elAttrs), { ref: elRef });
         if (props.elClasses || extraClassNames) {
             attrs.className = (props.elClasses || [])
                 .concat(extraClassNames || [])
@@ -5317,10 +5338,13 @@ var FullCalendar = (function (exports) {
         constructor() {
             super(...arguments);
             this.InnerContent = InnerContentInjector.bind(undefined, this);
-            this.handleRootEl = (el) => {
-                this.rootEl = el;
+            this.handleEl = (el) => {
+                this.el = el;
                 if (this.props.elRef) {
                     setRef(this.props.elRef, el);
+                    if (el && this.didMountMisfire) {
+                        this.componentDidMount();
+                    }
                 }
             };
         }
@@ -5328,7 +5352,7 @@ var FullCalendar = (function (exports) {
             const { props } = this;
             const generatedClassNames = generateClassNames(props.classNameGenerator, props.renderProps);
             if (props.children) {
-                const elAttrs = buildElAttrs(props, generatedClassNames);
+                const elAttrs = buildElAttrs(props, generatedClassNames, this.handleEl);
                 const children = props.children(this.InnerContent, props.renderProps, elAttrs);
                 if (props.elTag) {
                     return y(props.elTag, elAttrs, children);
@@ -5338,16 +5362,21 @@ var FullCalendar = (function (exports) {
                 }
             }
             else {
-                return y((ContentInjector), Object.assign(Object.assign({}, props), { elRef: this.handleRootEl, elTag: props.elTag || 'div', elClasses: (props.elClasses || []).concat(generatedClassNames), renderId: this.context }));
+                return y((ContentInjector), Object.assign(Object.assign({}, props), { elRef: this.handleEl, elTag: props.elTag || 'div', elClasses: (props.elClasses || []).concat(generatedClassNames), renderId: this.context }));
             }
         }
         componentDidMount() {
             var _a, _b;
-            (_b = (_a = this.props).didMount) === null || _b === void 0 ? void 0 : _b.call(_a, Object.assign(Object.assign({}, this.props.renderProps), { el: this.rootEl || this.base }));
+            if (this.el) {
+                (_b = (_a = this.props).didMount) === null || _b === void 0 ? void 0 : _b.call(_a, Object.assign(Object.assign({}, this.props.renderProps), { el: this.el }));
+            }
+            else {
+                this.didMountMisfire = true;
+            }
         }
         componentWillUnmount() {
             var _a, _b;
-            (_b = (_a = this.props).willUnmount) === null || _b === void 0 ? void 0 : _b.call(_a, Object.assign(Object.assign({}, this.props.renderProps), { el: this.rootEl || this.base }));
+            (_b = (_a = this.props).willUnmount) === null || _b === void 0 ? void 0 : _b.call(_a, Object.assign(Object.assign({}, this.props.renderProps), { el: this.el }));
         }
     }
     ContentContainer.contextType = RenderId;
@@ -9316,7 +9345,7 @@ var FullCalendar = (function (exports) {
                     if (isPressed) {
                         buttonClasses.push(theme.getClass('buttonActive'));
                     }
-                    children.push(y("button", { type: "button", title: typeof buttonHint === 'function' ? buttonHint(props.navUnit) : buttonHint, disabled: isDisabled, "aria-pressed": isPressed, className: buttonClasses.join(' '), onClick: buttonClick }, buttonText || (buttonIcon ? y("span", { className: buttonIcon }) : '')));
+                    children.push(y("button", { type: "button", title: typeof buttonHint === 'function' ? buttonHint(props.navUnit) : buttonHint, disabled: isDisabled, "aria-pressed": isPressed, className: buttonClasses.join(' '), onClick: buttonClick }, buttonText || (buttonIcon ? y("span", { className: buttonIcon, role: "img" }) : '')));
                 }
             }
             if (children.length > 1) {
@@ -9578,7 +9607,7 @@ var FullCalendar = (function (exports) {
             let viewContext = this.buildViewContext(props.viewSpec, props.viewApi, props.options, props.dateProfileGenerator, props.dateEnv, props.theme, props.pluginHooks, props.dispatch, props.getCurrentData, props.emitter, props.calendarApi, this.registerInteractiveComponent, this.unregisterInteractiveComponent);
             let viewLabelId = (toolbarConfig.header && toolbarConfig.header.hasTitle)
                 ? this.state.viewLabelId
-                : '';
+                : undefined;
             return (y(ViewContextType.Provider, { value: viewContext },
                 toolbarConfig.header && (y(Toolbar, Object.assign({ ref: this.headerRef, extraClassName: "fc-header-toolbar", model: toolbarConfig.header, titleId: viewLabelId }, toolbarProps))),
                 y(ViewHarness, { liquid: viewVGrow, height: viewHeight, aspectRatio: viewAspectRatio, labeledById: viewLabelId },
@@ -9806,7 +9835,7 @@ var FullCalendar = (function (exports) {
         return sliceEventStore(props.eventStore, props.eventUiBases, props.dateProfile.activeRange, allDay ? props.nextDayThreshold : null).fg;
     }
 
-    const version = '6.1.8';
+    const version = '6.1.11';
 
     exports.Calendar = Calendar;
     exports.Internal = internal;
