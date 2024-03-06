@@ -3535,21 +3535,17 @@ class Activity {
 			'schema'           => 'http://schema.org#',
 			'ostatus'          => 'http://ostatus.org#',
 			'diaspora'         => 'https://diasporafoundation.org/ns/',
+			'litepub'          => 'http://litepub.social/ns#',
 
 			'commentPolicy'    => 'zot:commentPolicy',
-			'locationAddress'  => 'zot:locationAddress',
-			'locationPrimary'  => 'zot:locationPrimary',
-			'locationDeleted'  => 'zot:locationDeleted',
-			'nomadicLocation'  => 'zot:nomadicLocation',
-			'nomadicHubs'      => 'zot:nomadicHubs',
-			'emojiReaction'    => 'zot:emojiReaction',
-			'expires'          => 'zot:expires',
-			'directMessage'    => 'zot:directMessage',
 			'Bookmark'         => 'zot:Bookmark',
 			'Category'         => 'zot:Category',
 
+			'directMessage'    => 'litepub:directMessage',
+
 			'PropertyValue'    => 'schema:PropertyValue',
 			'value'            => 'schema:value',
+			'uuid'             => 'schema:identifier',
 
 			'conversation'     => 'ostatus:conversation',
 

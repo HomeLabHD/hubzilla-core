@@ -21,9 +21,11 @@ class Thing extends \Zotlabs\Web\Controller {
 				dbesc(argv(1))
 			);
 
-			if($r) {
-				$sql_extra = permissions_sql($r[0]['obj_channel']);
+			if (!$r) {
+				http_status_exit(404, 'Not found');
 			}
+
+			$sql_extra = permissions_sql($r[0]['obj_channel']);
 
 			$r = q("select * from obj where obj_type = %d and obj_obj = '%s' $sql_extra limit 1",
 				intval(TERM_OBJ_THING),
@@ -36,6 +38,7 @@ class Thing extends \Zotlabs\Web\Controller {
 			}
 
 			http_status_exit(404, 'Not found');
+
 		}
 	}
 
@@ -269,8 +272,13 @@ class Thing extends \Zotlabs\Web\Controller {
 				intval(TERM_OBJ_THING),
 				dbesc(argv(1))
 			);
-			if($r)
-				$sql_extra = permissions_sql($r[0]['obj_channel']);
+
+			if (!$r) {
+				notice( t('item not found.') . EOL);
+				return;
+			}
+
+			$sql_extra = permissions_sql($r[0]['obj_channel']);
 
 			$r = q("select * from obj where obj_type = %d and obj_obj = '%s' $sql_extra limit 1",
 				intval(TERM_OBJ_THING),
@@ -301,6 +309,8 @@ class Thing extends \Zotlabs\Web\Controller {
 			notice( t('Permission denied.') . EOL);
 			return;
 		}
+
+		profile_load($channel['channel_address']);
 
 		$acl = new \Zotlabs\Access\AccessList($channel);
 		$channel_acl = $acl->get();
