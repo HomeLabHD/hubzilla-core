@@ -122,7 +122,7 @@ class Sse_bs extends Controller {
 		$str = '';
 		$slice = 0;
 
-		$mids_all = unserialise($_SESSION['sse_mids_all']) ?? [];
+		$mids_all = isset($_SESSION['sse_mids_all']) ? unserialise($_SESSION['sse_mids_all']) : [];
 
 		if (count($mids_all) > 3000) {
 			$slice = count($mids_all) - 3000;
