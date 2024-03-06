@@ -159,7 +159,7 @@ class Display extends Controller {
 		call_hooks('item_custom_display', $target_item);
 
 		$simple_update = '';
-		if($update && $_SESSION['loadtime'])
+		if($update && isset($_SESSION['loadtime']))
 			$simple_update = " AND (( item_unseen = 1 AND item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' )  OR item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' ) ";
 
 		if((! $update) && (! $load)) {
