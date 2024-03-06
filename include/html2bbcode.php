@@ -77,12 +77,13 @@ function node2bbcodesub(&$doc, $oldnode, $attributes, $startbb, $endbb)
 					// The exception is `<pre>` and `<code>` elements which
 					// should keep both newlines and whitespace intact.
 					if ($oldNode->nodeName != 'pre' && $oldNode->nodeName != 'code') {
+
 						$newNode->nodeValue = str_replace(
 							array("\n<", ">\n", "\r", "\n", "\xC3\x82\xC2\xA0"),
 							array("<", ">", "<br />", " ", ""),
-							$newNode->nodeValue);
+							htmlspecialchars($newNode->nodeValue, ENT_QUOTES, 'UTF-8', false));
 
-						$newNode->nodeValue = preg_replace('=[\s]{2,}=i', " ", $newNode->nodeValue);
+						$newNode->nodeValue = preg_replace('=[\s]{2,}=i', " ", htmlspecialchars($newNode->nodeValue, ENT_QUOTES, 'UTF-8', false));
 					}
 
 					$oldNode->parentNode->insertBefore($newNode, $oldNode);
