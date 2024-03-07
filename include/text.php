@@ -1541,15 +1541,16 @@ function theme_attachments(&$item) {
 					$url = z_root() . '/magic?f=&owa=1&hash=' . $item['author_xchan'] . '&bdest=' . bin2hex($r['href'] . '/' . $revision);
 			}
 
-			//$s .= '<a href="' . $url . '" title="' . $title . '" class="attachlink"  >' . $icon . '</a>';
-			if (isset($label) && isset($url) && isset($icon) && isset($title))
-				$attaches[] = array('label' => $label, 'url' => $url, 'icon' => $icon, 'title' => $title);
+			if (isset($label) && isset($url) && isset($icon) && isset($title)) {
+				array_unshift($attaches, ['label' => $label, 'url' => $url, 'icon' => $icon, 'title' => $title]);
+			}
 		}
 
-		if (count($attaches) > 0)
+		if ($attaches) {
 			$s = replace_macros(get_markup_template('item_attach.tpl'), [
 				'$attaches' => $attaches
 			]);
+		}
 	}
 
 	return $s;
