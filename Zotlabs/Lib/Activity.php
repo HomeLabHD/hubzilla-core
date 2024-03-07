@@ -608,8 +608,8 @@ class Activity {
 
 		call_hooks('encode_item', $hookinfo);
 
-
 		return $hookinfo['encoded'];
+
 
 	}
 
@@ -780,7 +780,7 @@ class Activity {
 					$entry['image'] = $att['image'];
 				}
 				if ($entry) {
-					$ret[] = $entry;
+					array_unshift($ret, $entry);
 				}
 			}
 		} elseif (isset($item['attachment']) && is_string($item['attachment'])) {
