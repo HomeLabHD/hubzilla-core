@@ -3282,17 +3282,18 @@ class Activity {
 		return $content;
 	}
 
-	static function get_textfield($act, $field) {
+	static function get_textfield($act, $field): null|string|array {
+		$content = null;
 
-		$content = false;
-
-		if (array_key_exists($field, $act) && $act[$field])
+		if (array_key_exists($field, $act) && $act[$field]) {
 			$content = purify_html($act[$field]);
+		}
 		elseif (array_key_exists($field . 'Map', $act) && $act[$field . 'Map']) {
 			foreach ($act[$field . 'Map'] as $k => $v) {
 				$content[escape_tags($k)] = purify_html($v);
 			}
 		}
+
 		return $content;
 	}
 
