@@ -5,7 +5,6 @@ error_reporting(E_ALL);
 
 use Zotlabs\Tests\Unit\UnitTestCase;
 use Zotlabs\Lib\Activity;
-use Zotlabs\Lib\ActivityStreams;
 
 class ActivityTest extends UnitTestCase {
 	/**
