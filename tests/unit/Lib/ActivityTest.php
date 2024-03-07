@@ -28,9 +28,7 @@ class ActivityTest extends UnitTestCase {
 			],
 			'get content from map' => [
 				['contentMap' => ['en' => 'Some content']],
-				[
-					'en' => 'Some content'
-				]
+				['en' => 'Some content']
 			],
 			'get not available content' => [
 				['some_field' => 'Some content'],
