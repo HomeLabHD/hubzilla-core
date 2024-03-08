@@ -1890,12 +1890,12 @@ class Libzot {
 
 				$maxlen = get_max_import_size();
 
-				if ($maxlen && mb_strlen($arr['body']) > $maxlen) {
+				if ($maxlen && isset($arr['body']) && mb_strlen($arr['body']) > $maxlen) {
 					$arr['body'] = mb_substr($arr['body'], 0, $maxlen, 'UTF-8');
 					logger('message length exceeds max_import_size: truncated');
 				}
 
-				if ($maxlen && mb_strlen($arr['summary']) > $maxlen) {
+				if ($maxlen && isset($arr['summary']) && mb_strlen($arr['summary']) > $maxlen) {
 					$arr['summary'] = mb_substr($arr['summary'], 0, $maxlen, 'UTF-8');
 					logger('message summary length exceeds max_import_size: truncated');
 				}
