@@ -2882,7 +2882,7 @@ class Activity {
 			}
 		}
 
-		if (!PConfig::Get($channel['channel_id'], 'system', 'no_smilies')) {
+		if (isset($item['term']) && !PConfig::Get($channel['channel_id'], 'system', 'no_smilies')) {
 			foreach ($item['term'] as $t) {
 				if ($t['ttype'] === TERM_EMOJI) {
 					$item['body'] = str_replace($t['term'], '[img class="smiley emoji custom-emoji" alt="' . $t['term'] . '" title="' . $t['term'] . '"]' . $t['url'] . '[/img]', $item['body']);
