@@ -869,17 +869,29 @@ function bb_imgoptions($match) {
 	// [img|zmg=wwwxhhh float=left|right alt=alt text]url[/img|zmg]
 
 	$local_match = null;
-	$width       = 0;
-	$float       = false;
-	$alt         = false;
-
-	$style = EMPTY_STR;
+	$width       = EMPTY_STR;
+	$height      = EMPTY_STR;
+	$float       = EMPTY_STR;
+	$alt         = EMPTY_STR;
+	$title       = EMPTY_STR;
+	$style       = EMPTY_STR;
+	$class       = EMPTY_STR;
 
 	$attributes = $match[3];
 
 	$x = preg_match("/alt='(.*?)'/ism", $attributes, $matches);
 	if ($x) {
 		$alt = $matches[1];
+	}
+
+	$x = preg_match("/title=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
+	if ($x) {
+		$title = $matches[1];
+	}
+
+	$x = preg_match("/title='(.*?)'/ism", $attributes, $matches);
+	if ($x) {
+		$title = $matches[1];
 	}
 
 	$x = preg_match("/alt=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
@@ -907,16 +919,27 @@ function bb_imgoptions($match) {
 		$height = $matches[1];
 	}
 
+	$x = preg_match("/class='(.*?)'/ism", $attributes, $matches);
+	if ($x) {
+		$class = $matches[1];
+	}
+
+	$x = preg_match("/class=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
+	if ($x) {
+		$class = $matches[1];
+	}
+
+/* should probably sanitize css somehow
 	$x = preg_match("/style='(.*?)'/ism", $attributes, $matches);
 	if ($x) {
-		$style = $matches[1];
+		$style = $matches[1] . ' ';
 	}
 
 	$x = preg_match("/style=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
 	if ($x) {
-		$style = $matches[1];
+		$style = $matches[1] . ' ';
 	}
-
+*/
 	// legacy img options
 
 	if ($match[2] === '=') {
@@ -932,6 +955,7 @@ function bb_imgoptions($match) {
 		$float = 'left';
 		$match[3] = substr($match[3],$n + 10);
 	}
+
 	if ($n = strpos($match[3],'float=right') !== false) {
 		$float = 'right';
 		$match[3] = substr($match[3],$n + 11);
@@ -947,18 +971,25 @@ function bb_imgoptions($match) {
 	$output = '<img ' . (($match[1] === 'z') ? 'class="zrl" loading="eager"' : '') . ' ';
 
 	if ($width) {
-		$style .= 'width: 100%; max-width: ' . $width . 'px; ';
+		$style .= 'width: ' . intval($width) . 'px; ';
 	}
-	else {
-		$style .= 'max-width: 100%; ';
+
+	if ($height) {
+		$style .= 'height: ' . intval($height) . 'px; ';
 	}
+
 	if ($float) {
 		$style .= 'float: ' . $float . '; ';
 	}
 
-	$output .= (($style) ? 'style="' . $style . '" ' : '') . 'alt="' . htmlentities(($alt) ? $alt : t('Image/photo'),ENT_COMPAT,'UTF-8') . '" ';
+	$style .= 'max-width: 100%;';
 
-	$output .= 'src="' . $match[4] . '" >';
+	$output .= 'style="' . $style . '" ';
+	$output .= 'alt="' . htmlentities(($alt ? $alt : t('Image/photo')), ENT_COMPAT, 'UTF-8') . '" ';
+	$output .= 'title="' . htmlentities($title, ENT_COMPAT, 'UTF-8') . '" ';
+	$output .= 'class="' . htmlentities($class, ENT_COMPAT, 'UTF-8') . '" ';
+
+	$output .= 'src="' . $match[4] . '" />';
 
 	return $output;
 

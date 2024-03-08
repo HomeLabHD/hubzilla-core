@@ -2183,18 +2183,6 @@ class Activity {
 				if (grapheme_strlen($t) === 1) {
 					$content['content'] = $t;
 				}
-
-				// Custom emojis
-				$e = self::decode_taxonomy($act->data);
-
-				if ($e) {
-					$s['term'] = $e;
-					foreach ($e as $ee) {
-						if ($ee['ttype'] === TERM_EMOJI) {
-							$content['content'] = '[img=32x32]' . $ee['url'] . '[/img]';
-						}
-					}
-				}
 			}
 		}
 
@@ -2894,8 +2882,17 @@ class Activity {
 			}
 		}
 
+		if (!PConfig::Get($channel['channel_id'], 'system', 'no_smilies')) {
+			foreach ($item['term'] as $t) {
+				if ($t['ttype'] === TERM_EMOJI) {
+					$item['body'] = str_replace($t['term'], '[img class="smiley emoji custom-emoji" alt="' . $t['term'] . '" title="' . $t['term'] . '"]' . $t['url'] . '[/img]', $item['body']);
+				}
+			}
+		}
+
 		// TODO: not implemented
 		// self::rewrite_mentions($item);
+
 		$r = q("select id, created, edited from item where mid = '%s' and uid = %d limit 1",
 			dbesc($item['mid']),
 			intval($item['uid'])

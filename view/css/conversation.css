@@ -299,10 +299,16 @@ code.inline-code {
 	text-decoration: overline;
 }
 
+img.smiley.emoji {
+	height: .9em;
+	vertical-align: baseline;
+	margin-bottom: -.1em;
+}
+
 img.smiley.emoji:hover {
 	transform: scale(2);
 	transition: transform .1s ease-out;
-	filter: drop-shadow(0px 0px 1px rgba(0,0,0,.5));
+	filter: drop-shadow(0px 0px 1px rgba(0, 0, 0, .5));
 }
 
 .checklist input {
