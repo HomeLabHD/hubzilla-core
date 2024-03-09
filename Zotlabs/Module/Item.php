@@ -938,6 +938,30 @@ class Item extends Controller {
 				}
 			}
 
+			if (preg_match_all('/(\:(\w|\+|\-)+\:)(?=|[\!\.\?]|$)/', $body, $match)) {
+				// emoji shortcodes
+				$emojis = get_emojis();
+				foreach ($match[0] as $mtch) {
+					$shortname = trim($mtch, ':');
+
+					if (!isset($emojis[$shortname])) {
+						continue;
+					}
+
+					$emoji = $emojis[$shortname];
+
+					$post_tags[] = [
+						'uid'   => $profile_uid,
+						'ttype' => TERM_EMOJI,
+						'otype' => TERM_OBJ_POST,
+						'term'  => trim($mtch),
+						'url'   => z_root() . '/emoji/' . $shortname,
+						'imgurl' => z_root() . '/' . $emoji['filepath']
+					];
+				}
+			}
+
+
 			// BBCODE end alert
 		}
 
@@ -957,6 +981,10 @@ class Item extends Controller {
 				];
 			}
 		}
+
+
+
+
 
 		if ($orig_post) {
 			// preserve original tags

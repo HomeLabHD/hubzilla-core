@@ -299,13 +299,17 @@ code.inline-code {
 	text-decoration: overline;
 }
 
-img.smiley.emoji {
-	height: .9em;
+img.emoji {
+	height: 1rem;
 	vertical-align: baseline;
-	margin-bottom: -.1em;
+	margin-bottom: -.1rem;
 }
 
-img.smiley.emoji:hover {
+img.emoji.single-emoji {
+	height: 2rem;
+}
+
+img.emoji:not(.single-emoji):hover {
 	transform: scale(2);
 	transition: transform .1s ease-out;
 	filter: drop-shadow(0px 0px 1px rgba(0, 0, 0, .5));

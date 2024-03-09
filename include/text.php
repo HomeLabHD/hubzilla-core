@@ -1270,6 +1270,33 @@ function sslify($s) {
 	return $s;
 }
 
+function get_emojis() {
+	$emojis = [
+		// Reactions (emojitwo emojis)
+		'astonished_face' => ['shortname' => ':astonished_face:', 'filepath' => 'images/emoji/astonished_face.png'],
+		'bottle_with_popping_cork' => ['shortname' => ':bottle_with_popping_cork:', 'filepath' => 'images/emoji/bottle_with_popping_cork.png'],
+		'clapping_hands' => ['shortname' => ':clapping_hands:', 'filepath' => 'images/emoji/clapping_hands.png'],
+		'disappointed_face' => ['shortname' => ':disappointed_face:', 'filepath' => 'images/emoji/disappointed_face.png'],
+		'grinning_face' => ['shortname' => ':grinning_face:', 'filepath' => 'images/emoji/grinning_face.png'],
+		'kiss_mark' => ['shortname' => ':kiss_mark:', 'filepath' => 'images/emoji/kiss_mark.png'],
+		'red_heart' => ['shortname' => ':red_heart:', 'filepath' => 'images/emoji/red_heart.png'],
+		'sleeping_face' => ['shortname' => ':sleeping_face:', 'filepath' => 'images/emoji/sleeping_face.png'],
+		'slightly_smiling_face' => ['shortname' => ':slightly_smiling_face:', 'filepath' => 'images/emoji/slightly_smiling_face.png'],
+		'smiling_face_with_halo' => ['shortname' => ':smiling_face_with_halo:', 'filepath' => 'images/emoji/smiling_face_with_halo.png'],
+		'smiling_face_with_horns' => ['shortname' => ':smiling_face_with_horns:', 'filepath' => 'images/emoji/smiling_face_with_horns.png'],
+		'winking_face_with_tongue' => ['shortname' => ':winking_face_with_tongue:', 'filepath' => 'images/emoji/winking_face_with_tongue.png'],
+
+		'facepalm' => ['shortname' => ':facepalm:', 'filepath' => 'images/emoticons/smiley-facepalm.gif']
+	];
+
+	call_hooks('get_emojis', $emojis);
+
+	return $emojis;
+}
+
+function is_solo_string(string $emoji, string $body) : bool {
+	return empty(trim(str_replace($emoji, '', $body, $count))) && $count === 1;
+}
 
 /**
  * @brief Function to list all smilies, both internal and from addons.
@@ -1386,10 +1413,34 @@ function smilies($s, $sample = false) {
 		|| (local_channel() && intval(get_pconfig(local_channel(), 'system', 'no_smilies'))))
 		return $s;
 
+
 	$s = preg_replace_callback('{<(pre|code)>.*?</\1>}ism', 'smile_shield', $s);
 	$s = preg_replace_callback('/<[a-z]+ .*?>/ism', 'smile_shield', $s);
 
+	if (preg_match_all('/(\:(\w|\+|\-)+\:)(?=|[\!\.\?]|$)/', $s, $match)) {
+		// emoji shortcodes
+		$emojis = get_emojis();
+		foreach ($match[0] as $mtch) {
+			$name = trim($mtch, ':');
 
+			if (!isset($emojis[$name])) {
+				continue;
+			}
+
+			$emoji = $emojis[$name];
+
+			$class = 'emoji';
+			if (is_solo_string($mtch, $s)) {
+				$class .= ' single-emoji';
+			}
+
+			$img = '<img class="' . $class . '" src="' . $emoji['filepath'] . '" alt="' . $emoji['shortname'] . '" title="' . $emoji['shortname'] . '" />';
+
+			string_replace($emoji['shortname'], $img, $s);
+		}
+	}
+
+/*
 	$params = list_smilies();
 	$params['string'] = $s;
 
@@ -1400,9 +1451,9 @@ function smilies($s, $sample = false) {
 		}
 	} else {
 		$params['string'] = preg_replace_callback('/&lt;(3+)/','preg_heart',$params['string']);
-		$s = str_replace($params['texts'],$params['icons'],$params['string']);
+		$s = str_replace($params['texts'], $params['icons'], $params['string']);
 	}
-
+*/
 
 	$s = preg_replace_callback('/<!--base64:(.*?)-->/ism', 'smile_unshield', $s);
 

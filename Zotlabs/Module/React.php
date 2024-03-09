@@ -24,7 +24,15 @@ class React extends Controller {
 			return;
 		}
 
-		$emoji = $_REQUEST['emoji'];
+		$shortname = $_REQUEST['emoji'];
+
+		$emojis = get_emojis();
+
+		if (!isset($emojis[$shortname])) {
+			return;
+		}
+
+		$emoji = $emojis[$shortname];
 
 		if (!$emoji) {
 			return;
@@ -62,10 +70,19 @@ class React extends Controller {
 		$n['uuid'] = $uuid;
 		$n['mid'] = z_root() . '/item/' . $uuid;
 		$n['verb'] = 'Create';
-		$n['body'] = '[zmg=32x32]' . z_root() . '/images/emoji/' . $emoji . '.png[/zmg]';
+		$n['body'] =  $emoji['shortname']; //'[img class="emoji single-emoji"]' . z_root() . '/' . $emoji['filepath'] . '[/img]';
 		$n['author_xchan'] = $channel['channel_hash'];
-		$n['obj'] = Activity::fetch_item(['id' => $item['mid']]);
-		$n['obj_type'] = ((array_path_exists('obj/type', $n)) ? $n['obj']['type'] : EMPTY_STR);
+	//	$n['obj'] = Activity::fetch_item(['id' => $i[0]['mid']]);
+	//	$n['obj_type'] = ((array_path_exists('obj/type', $n)) ? $n['obj']['type'] : EMPTY_STR);
+
+		$n['term'][] = [
+			'uid'   => $channel['channel_id'],
+			'ttype' => TERM_EMOJI,
+			'otype' => TERM_OBJ_POST,
+			'term'  => $emoji['shortname'],
+			'url'   => z_root() . '/emoji/' . $shortname,
+			'imgurl' => z_root() . '/' . $emoji['filepath']
+		];
 
 		$x = item_store($n);
 

@@ -642,7 +642,7 @@ class Activity {
 							break;
 
 						case 'Emoji':
-							$ret[] = ['ttype' => TERM_EMOJI, 'url' => $t['icon']['url'], 'term' => escape_tags($t['name'])];
+							$ret[] = ['ttype' => TERM_EMOJI, 'url' => $t['id'], 'term' => escape_tags($t['name']), 'imgurl' => $t['icon']['url']];
 							break;
 
 						default:
@@ -675,6 +675,10 @@ class Activity {
 
 					case TERM_BOOKMARK:
 						$ret[] = ['type' => 'Bookmark', 'href' => $t['url'], 'name' => $t['term']];
+						break;
+
+					case TERM_EMOJI:
+						$ret[] = ['type' => 'Emoji', 'id' => $t['url'], 'name' => $t['term'], 'icon' => ['type' => 'Image', 'url' => $t['imgurl']]];
 						break;
 
 					default:
@@ -976,10 +980,12 @@ class Activity {
 				return [];
 		}
 
+/* this should not be needed
 		$t = self::encode_taxonomy($i);
 		if ($t) {
 			$ret['tag'] = $t;
 		}
+*/
 
 		$a = self::encode_attachment($i, true);
 		if ($a) {
@@ -997,6 +1003,7 @@ class Activity {
 		];
 
 		call_hooks('encode_activity', $hookinfo);
+
 		return $hookinfo['encoded'];
 	}
 
@@ -2179,9 +2186,17 @@ class Activity {
 				// Pleroma reactions
 				$t = trim(self::get_textfield($act->data, 'content'));
 
+				$content['content'] = $t;
+
 				// Unicode emojis
 				if (grapheme_strlen($t) === 1) {
-					$content['content'] = $t;
+					$content['content'] = '<h1>' . $t . '</h1>';
+				}
+
+				$a = self::decode_taxonomy($act->data);
+
+				if ($a) {
+					$s['term'] = $a;
 				}
 			}
 		}
@@ -2885,7 +2900,13 @@ class Activity {
 		if (isset($item['term']) && !PConfig::Get($channel['channel_id'], 'system', 'no_smilies')) {
 			foreach ($item['term'] as $t) {
 				if ($t['ttype'] === TERM_EMOJI) {
-					$item['body'] = str_replace($t['term'], '[img class="smiley emoji custom-emoji" alt="' . $t['term'] . '" title="' . $t['term'] . '"]' . $t['url'] . '[/img]', $item['body']);
+					$class = 'emoji';
+					$shortname = ':' . trim($t['term'], ':') . ':';
+					if (is_solo_string($shortname, $item['body'])) {
+						$class .= ' single-emoji';
+					}
+
+					$item['body'] = str_replace($shortname, '[img class="' . $class . '" alt="' . $t['term'] . '" title="' . $t['term'] . '"]' . ($t['imgurl'] ?: $t['url']) . '[/img]', $item['body']);
 				}
 			}
 		}

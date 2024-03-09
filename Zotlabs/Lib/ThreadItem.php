@@ -19,7 +19,7 @@ class ThreadItem {
 	private $comment_box_template = 'comment_item.tpl';
 	private $commentable = false;
 	// list of supported reaction emojis - a site can over-ride this via config system.reactions
-	private $reactions = ['1f60a','1f44f','1f37e','1f48b','1f61e','2665','1f606','1f62e','1f634','1f61c','1f607','1f608'];
+	private $reactions = ['slightly_smiling_face','clapping_hands','bottle_with_popping_cork','kiss_mark','disappointed_face','red_heart','grinning_face','astonished_face','sleeping_face','winking_face_with_tongue','smiling_face_with_halo','smiling_face_with_horns'];
 	private $toplevel = false;
 	private $children = array();
 	private $parent = null;

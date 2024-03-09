@@ -1999,14 +1999,15 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 
 	if(($terms) && (is_array($terms))) {
 		foreach($terms as $t) {
-			q("insert into term (uid,oid,otype,ttype,term,url)
-				values(%d,%d,%d,%d,'%s','%s') ",
+			q("insert into term (uid,oid,otype,ttype,term,url,imgurl)
+				values(%d,%d,%d,%d,'%s','%s','%s') ",
 				intval($arr['uid']),
 				intval($current_post),
 				intval(TERM_OBJ_POST),
 				intval($t['ttype']),
 				dbesc($t['term']),
-				dbesc($t['url'])
+				dbesc($t['url']),
+				dbesc($t['imgurl'] ?? ''),
 			);
 		}
 
