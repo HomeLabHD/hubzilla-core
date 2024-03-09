@@ -25,9 +25,6 @@ class Emoji extends Controller {
 
 		$emoji = $emojis[$shortname];
 
-hz_syslog(print_r($emoji, true));
-
-
 		if (!file_exists($emoji['filepath'])) {
 			killme();
 		}
