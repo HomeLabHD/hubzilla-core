@@ -18,7 +18,7 @@ class Text {
 			return EMPTY_STR;
 		}
 
-		return (htmlspecialchars($string, ENT_COMPAT, 'UTF-8', false));
+		return htmlspecialchars($string, ENT_COMPAT, 'UTF-8', false);
 	}
 
 }
