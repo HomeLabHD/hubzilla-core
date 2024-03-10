@@ -81,9 +81,9 @@ function node2bbcodesub(&$doc, $oldnode, $attributes, $startbb, $endbb)
 						$newNode->nodeValue = str_replace(
 							array("\n<", ">\n", "\r", "\n", "\xC3\x82\xC2\xA0"),
 							array("<", ">", "<br />", " ", ""),
-							htmlspecialchars($newNode->nodeValue, ENT_QUOTES, 'UTF-8', false));
+							htmlspecialchars($newNode->nodeValue, ENT_COMPAT, 'UTF-8', false));
 
-						$newNode->nodeValue = preg_replace('=[\s]{2,}=i', " ", htmlspecialchars($newNode->nodeValue, ENT_QUOTES, 'UTF-8', false));
+						$newNode->nodeValue = preg_replace('=[\s]{2,}=i', " ", htmlspecialchars($newNode->nodeValue, ENT_COMPAT, 'UTF-8', false));
 					}
 
 					$oldNode->parentNode->insertBefore($newNode, $oldNode);
