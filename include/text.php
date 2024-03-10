@@ -13,6 +13,7 @@ use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\SvgSanitizer;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\AccessList;
+use Zotlabs\Lib\Text;
 
 require_once("include/bbcode.php");
 
@@ -108,10 +109,7 @@ function notags($string) {
  * @return string
  */
 function escape_tags($string) {
-	if (!$string) {
-		return EMPTY_STR;
-	}
-	return (htmlspecialchars($string, ENT_COMPAT, 'UTF-8', false));
+	return Text::escape_tags($string);
 }
 
 function unescape_tags($string) {
