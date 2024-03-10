@@ -50,7 +50,7 @@
 						</div>
 						{{if $feature_encrypt}}
 						<div class="btn-group me-2">
-							<button class="btn btn-outline-secondary btn-sm border-0" title="{{$encrypt}}" onclick="hz_encrypt('{{$cipher}}','#comment-edit-text-' + '{{$id}}'); return false;">
+							<button class="btn btn-outline-secondary btn-sm border-0" title="{{$encrypt}}" onclick="sodium_encrypt('#comment-edit-text-' + '{{$id}}'); return false;">
 								<i class="fa fa-key comment-icon"></i>
 							</button>
 						</div>

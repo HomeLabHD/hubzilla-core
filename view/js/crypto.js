@@ -15,6 +15,82 @@ function str_rot13 (str) {
 	});
 }
 
+async function sodium_encrypt(element) {
+	if (!window.sodium) {
+		window.sodium = await SodiumPlus.auto();
+	}
+
+	if (typeof tinyMCE !== typeof undefined) {
+		tinyMCE.triggerSave(false,true);
+	}
+
+	let message = $(element).val();
+	let password = prompt(aStr['passphrase']);
+
+	if (!password) {
+		return false;
+	}
+
+	let hint = bin2hex(prompt(aStr['passhint']));
+
+	let salt = await sodium.randombytes_buf(16);
+	let nonce = await sodium.randombytes_buf(24);
+	let key = await sodium.crypto_pwhash(
+		32,
+		password,
+		salt,
+		sodium.CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
+		sodium.CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
+	);
+
+	// Message can be a string, buffer, array, etc.
+	let ciphertext = await sodium.crypto_secretbox(message, nonce, key);
+	delete message, password, key;
+
+	let s = await sodium.sodium_bin2hex(salt);
+	let n = await sodium.sodium_bin2hex(nonce);
+	let c = await sodium.sodium_bin2hex(ciphertext);
+	let encrypted = window.btoa(s + '.' + n + '.' + c);
+	let val = "[crypt alg='XSalsa20' hint='" + hint + "']" + encrypted + '[/crypt]';
+
+	$(element).val(val);
+}
+
+async function sodium_decrypt(alg, hint, encrypted, element) {
+	if (alg !== 'XSalsa20') {
+		alert('Unsupported algorithm');
+		return false;
+	}
+
+	let arr = window.atob(encrypted).split('.');
+	let salt = await sodium.sodium_hex2bin(arr[0]);
+	let nonce = await sodium.sodium_hex2bin(arr[1]);
+	let ciphertext = await sodium.sodium_hex2bin(arr[2]);
+	let password = prompt((hint.length) ? hex2bin(hint) : aStr['passphrase']);
+
+	if (!password) {
+		return false;
+	}
+
+	let key = await sodium.crypto_pwhash(
+		32,
+		password,
+		salt,
+		sodium.CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
+		sodium.CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
+	);
+
+	let decrypted = await sodium.crypto_secretbox_open(ciphertext, nonce, key);
+	delete password, key;
+
+	if ($(element).css('display') === 'none' && typeof tinyMCE !== typeof undefined) {
+		tinyMCE.activeEditor.setContent(newdiv);
+	}
+	else {
+		$(element).html(decrypted.toString('utf-8'));
+	}
+}
+
 function hz_encrypt(alg, elem) {
 	var enc_text = '';
 	var newdiv = '';
@@ -33,7 +109,7 @@ function hz_encrypt(alg, elem) {
         var enc_key = bin2hex(passphrase);
 
 	// If you don't provide a key you get rot13, which doesn't need a key
-	// but consequently isn't secure.  
+	// but consequently isn't secure.
 
 	if(! enc_key)
 		alg = 'rot13';
@@ -44,7 +120,7 @@ function hz_encrypt(alg, elem) {
 	if(alg == 'AES-128-CCM') {
 
 			// This is the prompt we're going to use when the receiver tries to open it.
-			// Maybe "Grandma's maiden name" or "our secret place" or something. 
+			// Maybe "Grandma's maiden name" or "our secret place" or something.
 
 			var enc_hint = bin2hex(prompt(aStr['passhint']));
 
@@ -62,7 +138,7 @@ function hz_encrypt(alg, elem) {
 	// property of our source element - because a tinymce instance
 	// will have display "none". If a normal textarea such as in a comment
 	// box has display "none" you wouldn't be able to type in it.
-	
+
 	if($(elem).css('display') == 'none' && typeof tinyMCE !== "undefined") {
 		tinyMCE.activeEditor.setContent(newdiv);
 	}
@@ -98,8 +174,8 @@ function hz_decrypt(alg, hint, text, elem) {
 	enc_key = '';
 
 	// Not sure whether to drop this back in the conversation display.
-	// It probably needs a lightbox or popup window because any conversation 
-	// updates could 
+	// It probably needs a lightbox or popup window because any conversation
+	// updates could
 	// wipe out the text and make you re-enter the key if it was in the
 	// conversation. For now we do that so you can read it.
 

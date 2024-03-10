@@ -160,7 +160,7 @@
 					</button>
 				{{/if}}
 				{{if $feature_encrypt}}
-					<button type="button" id="profile-encrypt-wrapper" class="btn btn-outline-secondary btn-sm border-0" title="{{$encrypt}}" onclick="hz_encrypt('{{$cipher}}','#profile-jot-text');return false;">
+					<button type="button" id="profile-encrypt-wrapper" class="btn btn-outline-secondary btn-sm border-0" title="{{$encrypt}}" onclick="sodium_encrypt('#profile-jot-text'); return false;">
 						<i id="profile-encrypt" class="fa fa-key jot-icons"></i>
 					</button>
 				{{/if}}

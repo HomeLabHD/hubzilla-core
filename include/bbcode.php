@@ -247,41 +247,39 @@ function bb_parse_crypt($match) {
 
 	$matches = [];
 	$attributes = $match[1];
-
-	$algorithm = "";
+	$hint = '';
+	$algorithm = '';
 
 	preg_match("/alg='(.*?)'/ism", $attributes, $matches);
-	if ($matches[1] != "")
-		$algorithm = $matches[1];
+	$algorithm = $matches[1] ?? '';
 
-	preg_match("/alg=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
-	if ($matches[1] != "")
-		$algorithm = $matches[1];
-
-	$hint = "";
+	if (!$algorithm) {
+		preg_match("/alg=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
+		$algorithm = $matches[1] ?? '';
+	}
 
 	preg_match("/hint='(.*?)'/ism", $attributes, $matches);
-	if ($matches[1] != "")
-		$hint = $matches[1];
-	preg_match("/hint=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
-	if ($matches[1] != "")
-		$hint = $matches[1];
+	$hint = $matches[1] ?? '';
+
+	if (!$hint) {
+		preg_match("/hint=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
+		$hint = $matches[1] ?? '';
+	}
 
 	$x = random_string();
 
-	$f = 'hz_decrypt';
+	$f = 'sodium_decrypt';
 
-	//legacy cryptojs support
-	if(plugin_is_installed('cryptojs')) {
-		$f = ((in_array($algorithm, ['AES-128-CCM', 'rot13', 'triple-rot13'])) ? 'hz_decrypt' : 'red_decrypt');
+	if (in_array($algorithm, ['AES-128-CCM', 'rot13', 'triple-rot13'])) {
+		$f = 'hz_decrypt'; // deprecated
 	}
 
 	$onclick = 'onclick="' . $f . '(\'' . $algorithm . '\',\'' . $hint . '\',\'' . $match[2] . '\',\'#' . $x . '\');"';
 	$label = t('Encrypted content');
 
-	$Text = '<br /><div id="' . $x . '"><img class="cursor-pointer" src="' . z_root() . '/images/lock_icon.svg" ' . $onclick . ' alt="' . $label . '" title="' . $label . '" /></div><br />';
+	$text = '<br /><div id="' . $x . '"><img class="cursor-pointer" src="' . z_root() . '/images/lock_icon.svg" ' . $onclick . ' alt="' . $label . '" title="' . $label . '" /></div><br />';
 
-	return $Text;
+	return $text;
 }
 
 /**
