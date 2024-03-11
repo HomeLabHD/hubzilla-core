@@ -206,7 +206,7 @@
 						<a class="dropdown-item" href="#" onclick="jotGetPubDate();return false;"><i class="fa fa-clock-o"></i>&nbsp;{{$future_txt}}</a>
 						{{/if}}
 						{{if $feature_encrypt}}
-						<a class="dropdown-item" href="#" onclick="hz_encrypt('{{$cipher}}','#profile-jot-text');return false;"><i class="fa fa-key"></i>&nbsp;{{$encrypt}}</a>
+						<a class="dropdown-item" href="#" onclick="sodium_encrypt('#profile-jot-text'); return false;"><i class="fa fa-key"></i>&nbsp;{{$encrypt}}</a>
 						{{/if}}
 						<a class="dropdown-item" href="#" onclick="initPoll(); return false"><i id="profile-poll" class="fa fa-bar-chart jot-icons"></i>&nbsp;{{$poll}}</a>
 						{{if $feature_nocomment}}
