@@ -259,7 +259,7 @@
 								<div class="modal-dialog">
 									<div class="modal-content">
 										<div class="modal-header">
-											<h3 class="modal-title">{{$response.count}} {{$response.button}}</h3>
+											<h3 class="modal-title">{{$response.count}} {{$response.button.label}}</h3>
 											<button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
 										</div>
 										<div class="modal-body response-list">
