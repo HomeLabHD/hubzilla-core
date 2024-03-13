@@ -52,8 +52,8 @@ class ConfigTest extends Zotlabs\Tests\Unit\UnitTestCase {
 	}
 
 	/*
-	 * Test that we can retreive old style serialized arrays that were
-	 * serialized with th PHP `serialize()` function.
+	 * Test that we can retreive unserialized arrays which are usually
+	 * returned from the existing config cache.
 	 */
 	public function testGetPHPUnserializedArray(): void {
 		$this->assertEquals(
