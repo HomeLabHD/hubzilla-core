@@ -24,7 +24,6 @@
     },
     "require": {
         "php": ">=8.0.2",
-        "ext-zip": "*",
         "ext-curl": "*",
         "ext-iconv": "*",
         "ext-intl": "*",
@@ -55,8 +54,8 @@
         "spomky-labs/otphp": "^11.1",
         "patrickschur/language-detection": "^5.3",
         "stephenhill/base58": "^1.1",
-        "mmccook/php-json-canonicalization-scheme": "^1.0",
-        "scssphp/scssphp": "^1.12"
+        "scssphp/scssphp": "^1.12",
+        "streams/php-jcs": "^1.0"
     },
     "require-dev": {
 		"ext-yaml": "*",
@@ -86,7 +85,7 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/simplepie/simplepie"
+            "url": "https://codeberg.org/streams/php-jcs"
         }
     ]
 }

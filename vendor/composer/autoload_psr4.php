@@ -27,7 +27,7 @@ return array(
     'Psr\\Log\\' => array($vendorDir . '/psr/log/src'),
     'ParagonIE\\ConstantTime\\' => array($vendorDir . '/paragonie/constant_time_encoding/src'),
     'OTPHP\\' => array($vendorDir . '/spomky-labs/otphp/src'),
-    'Mmccook\\JsonCanonicalizator\\' => array($vendorDir . '/mmccook/php-json-canonicalization-scheme/src'),
+    'Mmccook\\JsonCanonicalizator\\' => array($vendorDir . '/streams/php-jcs/src'),
     'Michelf\\' => array($vendorDir . '/michelf/php-markdown/Michelf'),
     'League\\HTMLToMarkdown\\' => array($vendorDir . '/league/html-to-markdown/src'),
     'LanguageDetection\\' => array($vendorDir . '/patrickschur/language-detection/src/LanguageDetection'),
