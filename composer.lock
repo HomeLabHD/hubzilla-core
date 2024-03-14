@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a1e6e50cc266ffa9e8cd2a4a64c1dbb6",
+    "content-hash": "6f742c93e921d4e93b52c1fbfa177931",
     "packages": [
         {
             "name": "blueimp/jquery-file-upload",
@@ -740,64 +740,6 @@
                 "source": "https://github.com/michelf/php-markdown/tree/2.0.0"
             },
             "time": "2022-09-26T12:21:08+00:00"
-        },
-        {
-            "name": "mmccook/php-json-canonicalization-scheme",
-            "version": "1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/mmccook/php-json-canonicalization-scheme.git",
-                "reference": "cd6d3e7645a2c1e62574a9a2437d68e9e74e799f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/mmccook/php-json-canonicalization-scheme/zipball/cd6d3e7645a2c1e62574a9a2437d68e9e74e799f",
-                "reference": "cd6d3e7645a2c1e62574a9a2437d68e9e74e799f",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.1"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.13",
-                "pestphp/pest": "^1.20",
-                "phpstan/phpstan": "^1.10",
-                "spatie/ray": "^1.28"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Mmccook\\JsonCanonicalizator\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Mark M. McCook",
-                    "email": "mark.mccook@gmail.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "This is my package php-json-canonicalization-scheme",
-            "homepage": "https://github.com/mmccook/php-json-canonicalization-scheme",
-            "keywords": [
-                "mmccook",
-                "php-json-canonicalization-scheme"
-            ],
-            "support": {
-                "issues": "https://github.com/mmccook/php-json-canonicalization-scheme/issues",
-                "source": "https://github.com/mmccook/php-json-canonicalization-scheme/tree/1.0.0"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/mmccook",
-                    "type": "github"
-                }
-            ],
-            "time": "2023-08-07T18:12:27+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",
@@ -2091,6 +2033,62 @@
                 "source": "https://github.com/stephen-hill/base58php/tree/v1.1.5"
             },
             "time": "2019-08-22T16:51:59+00:00"
+        },
+        {
+            "name": "streams/php-jcs",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://codeberg.org/streams/php-jcs",
+                "reference": "a0953ad4f4d3586d5e008b8498cc79154fca8332"
+            },
+            "require": {
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.13",
+                "pestphp/pest": "^1.20",
+                "phpstan/phpstan": "^1.10",
+                "spatie/ray": "^1.28"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Mmccook\\JsonCanonicalizator\\": "src"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Mmccook\\JsonCanonicalizator\\Tests\\": "tests"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "vendor/bin/pest"
+                ],
+                "test-coverage": [
+                    "vendor/bin/pest --coverage"
+                ],
+                "format": [
+                    "vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --allow-risky=yes"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mark M. McCook",
+                    "email": "mark.mccook@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "This is my package php-json-canonicalization-scheme",
+            "homepage": "https://codeberg.org/streams/php-jcs",
+            "keywords": [
+                "php-json-canonicalization-scheme"
+            ],
+            "time": "2024-03-12T10:28:59+00:00"
         },
         {
             "name": "symfony/polyfill-php81",

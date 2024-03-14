@@ -54,7 +54,7 @@
         "spomky-labs/otphp": "^11.1",
         "patrickschur/language-detection": "^5.3",
         "stephenhill/base58": "^1.1",
-        "mmccook/php-json-canonicalization-scheme": "^1.0",
+        "streams/php-jcs": "^1.0.1",
         "scssphp/scssphp": "^1.12"
     },
     "require-dev": {
@@ -85,7 +85,7 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/simplepie/simplepie"
+            "url": "https://codeberg.org/streams/php-jcs"
         }
     ]
 }
