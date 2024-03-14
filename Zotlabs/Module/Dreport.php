@@ -30,7 +30,7 @@ class Dreport extends \Zotlabs\Web\Controller {
 				}
 			}
 			sleep(3);
-			goaway(z_root() . '/dreport/' . gen_link_id($mid));
+			goaway(z_root() . '/dreport?mid=' . $mid);
 		}
 
 		if(! $mid) {
