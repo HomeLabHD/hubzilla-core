@@ -37,12 +37,9 @@
         }
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.17",
-        "phpstan/phpstan": "^1.10",
-        "phpstan/phpstan-phpunit": "^1.3",
-        "phpstan/phpstan-strict-rules": "^1.5",
-        "phpstan/extension-installer": "^1.3",
-        "phpunit/phpunit" : "^9.6"
+        "friendsofphp/php-cs-fixer": "^3.9",
+        "phpstan/phpstan": "^1.8",
+        "phpunit/phpunit" : "^9.0"
     },
     "scripts": {
         "phpstan": [
@@ -59,10 +56,5 @@
             "composer cs-fixer",
             "composer phpunit"
         ]
-    },
-    "config": {
-        "allow-plugins": {
-            "phpstan/extension-installer": true
-        }
     }
 }

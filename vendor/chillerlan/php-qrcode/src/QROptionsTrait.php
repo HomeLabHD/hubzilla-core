@@ -140,12 +140,12 @@ trait QROptionsTrait{
 	/**
 	 * string substitute for dark
 	 */
-	protected string $textDark = '██';
+	protected string $textDark = '🔴';
 
 	/**
 	 * string substitute for light
 	 */
-	protected string $textLight = '░░';
+	protected string $textLight = '⭕';
 
 	/**
 	 * markup substitute for dark (CSS value)

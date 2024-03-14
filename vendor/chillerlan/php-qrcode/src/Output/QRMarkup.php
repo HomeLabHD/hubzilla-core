@@ -74,11 +74,9 @@ class QRMarkup extends QROutputAbstract{
 		$html .= '</div>'.$this->options->eol;
 
 		if($file !== null){
-			/** @noinspection HtmlRequiredLangAttribute */
-			return sprintf(
-				'<!DOCTYPE html><html><head><meta charset="UTF-8"><title>QR Code</title></head><body>%s</body></html>',
-				$this->options->eol.$html
-			);
+			return '<!DOCTYPE html>'.
+			       '<head><meta charset="UTF-8"><title>QR Code</title></head>'.
+			       '<body>'.$this->options->eol.$html.'</body>';
 		}
 
 		return $html;
