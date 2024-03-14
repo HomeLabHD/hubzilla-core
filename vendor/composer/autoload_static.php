@@ -13,7 +13,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'a1cce3d26cc15c00fcd0b3354bd72c88' => __DIR__ . '/..' . '/sabre/event/lib/Promise/functions.php',
         '3569eecfeed3bcf0bad3c998a494ecb8' => __DIR__ . '/..' . '/sabre/xml/lib/Deserializer/functions.php',
         '93aa591bc4ca510c520999e34229ee79' => __DIR__ . '/..' . '/sabre/xml/lib/Serializer/functions.php',
-        '23c18046f52bef3eea034657bafda50f' => __DIR__ . '/..' . '/symfony/polyfill-php81/bootstrap.php',
         'ebdb698ed4152ae445614b69b5e4bb6a' => __DIR__ . '/..' . '/sabre/http/lib/functions.php',
         '2cffec82183ee1cea088009cef9a6fc3' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
         'decc78cc4436b1292c6c0d151b19445c' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/bootstrap.php',
@@ -40,7 +39,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         ),
         'S' => 
         array (
-            'Symfony\\Polyfill\\Php81\\' => 23,
             'StephenHill\\Benchmarks\\' => 23,
             'StephenHill\\' => 12,
             'SimplePie\\' => 10,
@@ -116,10 +114,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         array (
             0 => __DIR__ . '/../..' . '/Zotlabs',
         ),
-        'Symfony\\Polyfill\\Php81\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/symfony/polyfill-php81',
-        ),
         'StephenHill\\Benchmarks\\' => 
         array (
             0 => __DIR__ . '/..' . '/stephenhill/base58/benchmarks',
@@ -182,7 +176,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         ),
         'Mmccook\\JsonCanonicalizator\\' => 
         array (
-            0 => __DIR__ . '/..' . '/mmccook/php-json-canonicalization-scheme/src',
+            0 => __DIR__ . '/..' . '/streams/php-jcs/src',
         ),
         'Michelf\\' => 
         array (
@@ -268,7 +262,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Brick\\Math\\Internal\\Calculator\\GmpCalculator' => __DIR__ . '/..' . '/brick/math/src/Internal/Calculator/GmpCalculator.php',
         'Brick\\Math\\Internal\\Calculator\\NativeCalculator' => __DIR__ . '/..' . '/brick/math/src/Internal/Calculator/NativeCalculator.php',
         'Brick\\Math\\RoundingMode' => __DIR__ . '/..' . '/brick/math/src/RoundingMode.php',
-        'CURLStringFile' => __DIR__ . '/..' . '/symfony/polyfill-php81/Resources/stubs/CURLStringFile.php',
         'CommerceGuys\\Intl\\Calculator' => __DIR__ . '/..' . '/commerceguys/intl/src/Calculator.php',
         'CommerceGuys\\Intl\\Currency\\Currency' => __DIR__ . '/..' . '/commerceguys/intl/src/Currency/Currency.php',
         'CommerceGuys\\Intl\\Currency\\CurrencyRepository' => __DIR__ . '/..' . '/commerceguys/intl/src/Currency/CurrencyRepository.php',
@@ -566,10 +559,10 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Michelf\\Markdown' => __DIR__ . '/..' . '/michelf/php-markdown/Michelf/Markdown.php',
         'Michelf\\MarkdownExtra' => __DIR__ . '/..' . '/michelf/php-markdown/Michelf/MarkdownExtra.php',
         'Michelf\\MarkdownInterface' => __DIR__ . '/..' . '/michelf/php-markdown/Michelf/MarkdownInterface.php',
-        'Mmccook\\JsonCanonicalizator\\JsonCanonicalizator' => __DIR__ . '/..' . '/mmccook/php-json-canonicalization-scheme/src/JsonCanonicalizator.php',
-        'Mmccook\\JsonCanonicalizator\\JsonCanonicalizatorFactory' => __DIR__ . '/..' . '/mmccook/php-json-canonicalization-scheme/src/JsonCanonicalizatorFactory.php',
-        'Mmccook\\JsonCanonicalizator\\JsonCanonicalizatorInterface' => __DIR__ . '/..' . '/mmccook/php-json-canonicalization-scheme/src/JsonCanonicalizatorInterface.php',
-        'Mmccook\\JsonCanonicalizator\\Utils' => __DIR__ . '/..' . '/mmccook/php-json-canonicalization-scheme/src/Utils.php',
+        'Mmccook\\JsonCanonicalizator\\JsonCanonicalizator' => __DIR__ . '/..' . '/streams/php-jcs/src/JsonCanonicalizator.php',
+        'Mmccook\\JsonCanonicalizator\\JsonCanonicalizatorFactory' => __DIR__ . '/..' . '/streams/php-jcs/src/JsonCanonicalizatorFactory.php',
+        'Mmccook\\JsonCanonicalizator\\JsonCanonicalizatorInterface' => __DIR__ . '/..' . '/streams/php-jcs/src/JsonCanonicalizatorInterface.php',
+        'Mmccook\\JsonCanonicalizator\\Utils' => __DIR__ . '/..' . '/streams/php-jcs/src/Utils.php',
         'OAuth2\\Autoloader' => __DIR__ . '/..' . '/bshaffer/oauth2-server-php/src/OAuth2/Autoloader.php',
         'OAuth2\\ClientAssertionType\\ClientAssertionTypeInterface' => __DIR__ . '/..' . '/bshaffer/oauth2-server-php/src/OAuth2/ClientAssertionType/ClientAssertionTypeInterface.php',
         'OAuth2\\ClientAssertionType\\HttpBasic' => __DIR__ . '/..' . '/bshaffer/oauth2-server-php/src/OAuth2/ClientAssertionType/HttpBasic.php',
@@ -675,13 +668,13 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Ramsey\\Collection\\CollectionInterface' => __DIR__ . '/..' . '/ramsey/collection/src/CollectionInterface.php',
         'Ramsey\\Collection\\DoubleEndedQueue' => __DIR__ . '/..' . '/ramsey/collection/src/DoubleEndedQueue.php',
         'Ramsey\\Collection\\DoubleEndedQueueInterface' => __DIR__ . '/..' . '/ramsey/collection/src/DoubleEndedQueueInterface.php',
+        'Ramsey\\Collection\\Exception\\CollectionException' => __DIR__ . '/..' . '/ramsey/collection/src/Exception/CollectionException.php',
         'Ramsey\\Collection\\Exception\\CollectionMismatchException' => __DIR__ . '/..' . '/ramsey/collection/src/Exception/CollectionMismatchException.php',
         'Ramsey\\Collection\\Exception\\InvalidArgumentException' => __DIR__ . '/..' . '/ramsey/collection/src/Exception/InvalidArgumentException.php',
-        'Ramsey\\Collection\\Exception\\InvalidSortOrderException' => __DIR__ . '/..' . '/ramsey/collection/src/Exception/InvalidSortOrderException.php',
+        'Ramsey\\Collection\\Exception\\InvalidPropertyOrMethod' => __DIR__ . '/..' . '/ramsey/collection/src/Exception/InvalidPropertyOrMethod.php',
         'Ramsey\\Collection\\Exception\\NoSuchElementException' => __DIR__ . '/..' . '/ramsey/collection/src/Exception/NoSuchElementException.php',
         'Ramsey\\Collection\\Exception\\OutOfBoundsException' => __DIR__ . '/..' . '/ramsey/collection/src/Exception/OutOfBoundsException.php',
         'Ramsey\\Collection\\Exception\\UnsupportedOperationException' => __DIR__ . '/..' . '/ramsey/collection/src/Exception/UnsupportedOperationException.php',
-        'Ramsey\\Collection\\Exception\\ValueExtractionException' => __DIR__ . '/..' . '/ramsey/collection/src/Exception/ValueExtractionException.php',
         'Ramsey\\Collection\\GenericArray' => __DIR__ . '/..' . '/ramsey/collection/src/GenericArray.php',
         'Ramsey\\Collection\\Map\\AbstractMap' => __DIR__ . '/..' . '/ramsey/collection/src/Map/AbstractMap.php',
         'Ramsey\\Collection\\Map\\AbstractTypedMap' => __DIR__ . '/..' . '/ramsey/collection/src/Map/AbstractTypedMap.php',
@@ -693,6 +686,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Ramsey\\Collection\\Queue' => __DIR__ . '/..' . '/ramsey/collection/src/Queue.php',
         'Ramsey\\Collection\\QueueInterface' => __DIR__ . '/..' . '/ramsey/collection/src/QueueInterface.php',
         'Ramsey\\Collection\\Set' => __DIR__ . '/..' . '/ramsey/collection/src/Set.php',
+        'Ramsey\\Collection\\Sort' => __DIR__ . '/..' . '/ramsey/collection/src/Sort.php',
         'Ramsey\\Collection\\Tool\\TypeTrait' => __DIR__ . '/..' . '/ramsey/collection/src/Tool/TypeTrait.php',
         'Ramsey\\Collection\\Tool\\ValueExtractorTrait' => __DIR__ . '/..' . '/ramsey/collection/src/Tool/ValueExtractorTrait.php',
         'Ramsey\\Collection\\Tool\\ValueToStringTrait' => __DIR__ . '/..' . '/ramsey/collection/src/Tool/ValueToStringTrait.php',
@@ -808,7 +802,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Ramsey\\Uuid\\UuidInterface' => __DIR__ . '/..' . '/ramsey/uuid/src/UuidInterface.php',
         'Ramsey\\Uuid\\Validator\\GenericValidator' => __DIR__ . '/..' . '/ramsey/uuid/src/Validator/GenericValidator.php',
         'Ramsey\\Uuid\\Validator\\ValidatorInterface' => __DIR__ . '/..' . '/ramsey/uuid/src/Validator/ValidatorInterface.php',
-        'ReturnTypeWillChange' => __DIR__ . '/..' . '/symfony/polyfill-php81/Resources/stubs/ReturnTypeWillChange.php',
         'Sabre\\CalDAV\\Backend\\AbstractBackend' => __DIR__ . '/..' . '/sabre/dav/lib/CalDAV/Backend/AbstractBackend.php',
         'Sabre\\CalDAV\\Backend\\BackendInterface' => __DIR__ . '/..' . '/sabre/dav/lib/CalDAV/Backend/BackendInterface.php',
         'Sabre\\CalDAV\\Backend\\NotificationSupport' => __DIR__ . '/..' . '/sabre/dav/lib/CalDAV/Backend/NotificationSupport.php',
@@ -1460,7 +1453,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'StephenHill\\Benchmarks\\Base64Event' => __DIR__ . '/..' . '/stephenhill/base58/benchmarks/Base64Event.php',
         'StephenHill\\GMPService' => __DIR__ . '/..' . '/stephenhill/base58/src/GMPService.php',
         'StephenHill\\ServiceInterface' => __DIR__ . '/..' . '/stephenhill/base58/src/ServiceInterface.php',
-        'Symfony\\Polyfill\\Php81\\Php81' => __DIR__ . '/..' . '/symfony/polyfill-php81/Php81.php',
         'TPC_yyStackEntry' => __DIR__ . '/..' . '/smarty/smarty/libs/sysplugins/smarty_internal_configfileparser.php',
         'TP_yyStackEntry' => __DIR__ . '/..' . '/smarty/smarty/libs/sysplugins/smarty_internal_templateparser.php',
         'Text_LanguageDetect' => __DIR__ . '/..' . '/pear/text_languagedetect/Text/LanguageDetect.php',
@@ -1555,6 +1547,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Lib\\SvgSanitizer' => __DIR__ . '/../..' . '/Zotlabs/Lib/SvgSanitizer.php',
         'Zotlabs\\Lib\\System' => __DIR__ . '/../..' . '/Zotlabs/Lib/System.php',
         'Zotlabs\\Lib\\Techlevels' => __DIR__ . '/../..' . '/Zotlabs/Lib/Techlevels.php',
+        'Zotlabs\\Lib\\Text' => __DIR__ . '/../..' . '/Zotlabs/Lib/Text.php',
         'Zotlabs\\Lib\\ThreadItem' => __DIR__ . '/../..' . '/Zotlabs/Lib/ThreadItem.php',
         'Zotlabs\\Lib\\ThreadListener' => __DIR__ . '/../..' . '/Zotlabs/Lib/ThreadListener.php',
         'Zotlabs\\Lib\\ThreadStream' => __DIR__ . '/../..' . '/Zotlabs/Lib/ThreadStream.php',
@@ -1628,6 +1621,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Module\\Email_validation' => __DIR__ . '/../..' . '/Zotlabs/Module/Email_validation.php',
         'Zotlabs\\Module\\Embed' => __DIR__ . '/../..' . '/Zotlabs/Module/Embed.php',
         'Zotlabs\\Module\\Embedphotos' => __DIR__ . '/../..' . '/Zotlabs/Module/Embedphotos.php',
+        'Zotlabs\\Module\\Emoji' => __DIR__ . '/../..' . '/Zotlabs/Module/Emoji.php',
         'Zotlabs\\Module\\Event' => __DIR__ . '/../..' . '/Zotlabs/Module/Event.php',
         'Zotlabs\\Module\\Fbrowser' => __DIR__ . '/../..' . '/Zotlabs/Module/Fbrowser.php',
         'Zotlabs\\Module\\Feed' => __DIR__ . '/../..' . '/Zotlabs/Module/Feed.php',
