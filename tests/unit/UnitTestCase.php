@@ -77,14 +77,14 @@ class UnitTestCase extends TestCase {
 	protected function connect_to_test_db() : void {
 		if ( !\DBA::$dba ) {
 			\DBA::dba_factory(
-				getenv('HZ_TEST_DB_HOST') ?: 'db',
+				getenv('HZ_TEST_DB_HOST') ?: 'localhost',
 
 				// Use default port for db type if none specified
 				getenv('HZ_TEST_DB_PORT'),
 				getenv('HZ_TEST_DB_USER') ?: 'test_user',
 				getenv('HZ_TEST_DB_PASS') ?: 'hubzilla',
 				getenv('HZ_TEST_DB_DATABASE') ?: 'hubzilla_test_db',
-				Self::dbtype(getenv('HZ_TEST_DB_TYPE')),
+				self::dbtype(getenv('HZ_TEST_DB_TYPE')),
 				getenv('HZ_TEST_DB_CHARSET') ?: 'UTF8',
 				false);
 
