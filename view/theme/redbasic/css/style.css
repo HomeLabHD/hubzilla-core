@@ -34,13 +34,10 @@ html {
 }
 
 body {
-	font-size: 0.9rem;
 	background-color: var(--hz-body-bg);
 	background-image: var(--hz-body-bg-image);
 	background-attachment: fixed;
 	background-size: cover;
-	color: var(--bs-body-color);
-	margin: 0;
 }
 
 aside#region_1 {
