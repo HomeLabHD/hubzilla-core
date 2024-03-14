@@ -1432,7 +1432,7 @@ function smilies($s, $sample = false) {
 				$class .= ' single-emoji';
 			}
 
-			$img = '<img class="' . $class . '" src="' . $emoji['filepath'] . '" alt="' . $emoji['shortname'] . '" title="' . $emoji['shortname'] . '" />';
+			$img = '<img class="' . $class . '" src="' . $emoji['filepath'] . '" alt="' . trim($emoji['shortname'], ':') . '" title="' . trim($emoji['shortname'], ':') . '" />';
 
 			string_replace($emoji['shortname'], $img, $s);
 		}
