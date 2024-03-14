@@ -3190,6 +3190,10 @@ class Activity {
 
 	public static function media_not_in_body($s, $body) {
 
+		if (empty($body)) {
+			return false;
+		}
+
 		$s_alt = htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
 
 		if (
