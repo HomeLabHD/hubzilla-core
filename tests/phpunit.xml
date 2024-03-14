@@ -7,10 +7,10 @@
   >
 
   <php>
-	<includePath>..</includePath>
-    <env name="HZ_TEST_DB_HOST" value="db"/>
+    <includePath>..</includePath>
+    <!-- env name="HZ_TEST_DB_HOST" value=""/-->
     <env name="HZ_TEST_DB_TYPE" value="postgres"/>
-    <env name="HZ_TEST_DB_PORT" value=""/>
+    <!-- env name="HZ_TEST_DB_PORT" value=""/-->
     <env name="HZ_TEST_DB_USER" value="test_user"/>
     <env name="HZ_TEST_DB_PASS" value="hubzilla"/>
     <env name="HZ_TEST_DB_DATABASE" value="hubzilla_test_db"/>
