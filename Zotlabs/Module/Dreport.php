@@ -113,7 +113,7 @@ class Dreport extends \Zotlabs\Web\Controller {
 			}
 		}
 
-		usort($r,'self::dreport_gravity_sort');
+		usort($r, [self::class, 'dreport_gravity_sort']);
 
 		$entries = array();
 		foreach($r as $rr) {
