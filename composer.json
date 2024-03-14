@@ -24,6 +24,7 @@
     },
     "require": {
         "php": ">=8.0.2",
+        "ext-zip": "*",
         "ext-curl": "*",
         "ext-iconv": "*",
         "ext-intl": "*",
