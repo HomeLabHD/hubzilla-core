@@ -297,19 +297,19 @@ function bb_parse_crypt($match) {
  */
 function bb_parse_b64_crypt($match) {
 
-	if(empty($match[2]))
+	if(empty($match[1])) {
 		return;
+	}
 
-	$r .= '<code>';
-	$r .= '----- ENCRYPTED CONTENT -----' . '<br>';
-	$r .= $match[2] . '<br>';
-	$r .= '----- END ENCRYPTED CONTENT -----';
-	$r .= '</code>';
+	$r = '-----BEGIN ENCRYPTED MESSAGE-----' . "\n";
+	$r .= $match[1] . "\n";
+	$r .= '-----END ENCRYPTED MESSAGE-----' . "\n";
+
+	$r = '<code>' . str_replace("\n", '<br>', wordwrap($r, 75, "\n", true)) . '</code>';
 
 	return $r;
 
 }
-
 
 function bb_parse_app($match) {
 
