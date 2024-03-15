@@ -246,38 +246,45 @@ function bb_replace_images($body, $images) {
 function bb_parse_crypt($match) {
 
 	$matches = [];
-	$attributes = $match[1];
 	$hint = '';
 	$algorithm = '';
+	$payload = $match[1];
 
-	preg_match("/alg='(.*?)'/ism", $attributes, $matches);
-	$algorithm = $matches[1] ?? '';
+	if (isset($match[2])) {
+		// backwards compatibility
 
-	if (!$algorithm) {
-		preg_match("/alg=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
+		$attributes = $match[1];
+		$payload = $match[2];
+
+		preg_match("/alg='(.*?)'/ism", $attributes, $matches);
 		$algorithm = $matches[1] ?? '';
-	}
 
-	preg_match("/hint='(.*?)'/ism", $attributes, $matches);
-	$hint = $matches[1] ?? '';
+		if (!$algorithm) {
+			preg_match("/alg=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
+			$algorithm = $matches[1] ?? '';
+		}
 
-	if (!$hint) {
-		preg_match("/hint=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
+		preg_match("/hint='(.*?)'/ism", $attributes, $matches);
 		$hint = $matches[1] ?? '';
+
+		if (!$hint) {
+			preg_match("/hint=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
+			$hint = $matches[1] ?? '';
+		}
 	}
 
-	$x = random_string();
+	$x = random_string(32);
 
-	$f = 'sodium_decrypt';
+	$onclick = 'onclick="sodium_decrypt(\'' . $payload . '\',\'#' . $x . '\');"';
 
 	if (in_array($algorithm, ['AES-128-CCM', 'rot13', 'triple-rot13'])) {
-		$f = 'hz_decrypt'; // deprecated
+		// backwards compatibility
+		$onclick = 'onclick="hz_decrypt(\'' . $algorithm . '\',\'' . $hint . '\',\'' . $payload . '\',\'#' . $x . '\');"';
 	}
 
-	$onclick = 'onclick="' . $f . '(\'' . $algorithm . '\',\'' . $hint . '\',\'' . $match[2] . '\',\'#' . $x . '\');"';
 	$label = t('Encrypted content');
 
-	$text = '<br /><div id="' . $x . '"><img class="cursor-pointer" src="' . z_root() . '/images/lock_icon.svg" ' . $onclick . ' alt="' . $label . '" title="' . $label . '" /></div><br />';
+	$text = '<div id="' . $x . '" class="encrypted-content"><img class="cursor-pointer" src="' . z_root() . '/images/lock_icon.svg" ' . $onclick . ' alt="' . $label . '" title="' . $label . '" /></div>';
 
 	return $text;
 }
@@ -1627,8 +1634,7 @@ function bbcode($text, $options = []) {
 
 	// crypt
 	if (strpos($text,'[/crypt]') !== false) {
-		$x = random_string();
-		$text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism",'<br /><div id="' . $x . '"><img class="cursor-pointer" src="' .z_root() . '/images/lock_icon.svg" onclick="red_decrypt(\'rot13\',\'\',\'$1\',\'#' . $x . '\');" alt="' . t('Encrypted content') . '" title="' . t('Encrypted content') . '" /><br /></div>', $text);
+		$text = preg_replace_callback("/\[crypt\](.*?)\[\/crypt\]/ism", 'bb_parse_crypt', $text);
 		$text = preg_replace_callback("/\[crypt (.*?)\](.*?)\[\/crypt\]/ism", 'bb_parse_crypt', $text);
 	}
 

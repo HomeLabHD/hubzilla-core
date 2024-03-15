@@ -25,6 +25,11 @@ async function sodium_encrypt(element) {
 	}
 
 	let message = $(element).val();
+
+	if (!message) {
+		return false;
+	}
+
 	let password = prompt(aStr['passphrase']);
 
 	if (!password) {
@@ -35,6 +40,7 @@ async function sodium_encrypt(element) {
 
 	let salt = await sodium.randombytes_buf(16);
 	let nonce = await sodium.randombytes_buf(24);
+
 	let key = await sodium.crypto_pwhash(
 		32,
 		password,
@@ -47,30 +53,36 @@ async function sodium_encrypt(element) {
 	let ciphertext = await sodium.crypto_secretbox(message, nonce, key);
 	delete message, password, key;
 
-	let s = await sodium.sodium_bin2hex(salt);
-	let n = await sodium.sodium_bin2hex(nonce);
-	let c = await sodium.sodium_bin2hex(ciphertext);
-	let encrypted = window.btoa(s + '.' + n + '.' + c);
-	let val = "[crypt alg='XSalsa20' hint='" + hint + "']" + encrypted + '[/crypt]';
+	let payload = {
+		hint: hint,
+		alg: 'XSalsa20',
+		salt: await sodium.sodium_bin2hex(salt),
+		nonce: await sodium.sodium_bin2hex(nonce),
+		ciphertext: await sodium.sodium_bin2hex(ciphertext)
+	};
+
+	let val = "[crypt]" + window.btoa(JSON.stringify(payload)) + '[/crypt]';
 
 	$(element).val(val);
 }
 
-async function sodium_decrypt(alg, hint, encrypted, element) {
-	if (alg !== 'XSalsa20') {
+async function sodium_decrypt(payload, element) {
+	let arr = JSON.parse(window.atob(payload));
+
+	if (arr.alg !== 'XSalsa20') {
 		alert('Unsupported algorithm');
 		return false;
 	}
 
-	let arr = window.atob(encrypted).split('.');
-	let salt = await sodium.sodium_hex2bin(arr[0]);
-	let nonce = await sodium.sodium_hex2bin(arr[1]);
-	let ciphertext = await sodium.sodium_hex2bin(arr[2]);
-	let password = prompt((hint.length) ? hex2bin(hint) : aStr['passphrase']);
+	let password = prompt((arr.hint.length) ? hex2bin(arr.hint) : aStr['passphrase']);
 
 	if (!password) {
 		return false;
 	}
+
+	let salt = await sodium.sodium_hex2bin(arr.salt);
+	let nonce = await sodium.sodium_hex2bin(arr.nonce);
+	let ciphertext = await sodium.sodium_hex2bin(arr.ciphertext);
 
 	let key = await sodium.crypto_pwhash(
 		32,
@@ -84,7 +96,7 @@ async function sodium_decrypt(alg, hint, encrypted, element) {
 	delete password, key;
 
 	if ($(element).css('display') === 'none' && typeof tinyMCE !== typeof undefined) {
-		tinyMCE.activeEditor.setContent(newdiv);
+		tinyMCE.activeEditor.setContent(decrypted.toString('utf-8'));
 	}
 	else {
 		$(element).html(decrypted.toString('utf-8'));
