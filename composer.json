@@ -81,11 +81,5 @@
     "config": {
         "notify-on-install": false,
         "optimize-autoloader": true
-    },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/simplepie/simplepie"
-        }
-    ]
+    }
 }
