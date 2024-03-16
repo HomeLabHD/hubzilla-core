@@ -52,7 +52,7 @@
 #profile-jot-text {
 	resize: none;
 	border-width: 0px;
-	height: 2.5rem;
+	height: 2.7rem;
 	line-height: 1.5rem;
 	padding: 0.5rem;
 	width: 100%;
@@ -135,6 +135,10 @@
 
 a.wall-item-name-link {
 	font-weight: bold !important;
+}
+
+.wall-item-ago i {
+	font-size: 0.875em
 }
 
 .wall-item-ago .fa-check {
@@ -300,9 +304,9 @@ code.inline-code {
 }
 
 img.emoji {
-	height: 1rem;
+	height: 1.2rem;
 	vertical-align: baseline;
-	margin-bottom: -.1rem;
+	margin-bottom: -.2rem;
 }
 
 img.emoji.single-emoji {
