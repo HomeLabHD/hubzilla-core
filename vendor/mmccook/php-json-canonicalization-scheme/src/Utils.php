@@ -38,12 +38,14 @@ class Utils
         }
 
         if ($number < 1e+21 && $number >= 1e-6) {
-            $formatted = number_format($number, 7, '.', '');
-            $formatted = rtrim($formatted, '.0');
+            $formatted = sprintf('%F', $number);
+            $formatted = rtrim($formatted, '0'); // first remove all zeros at the end
+            $formatted = rtrim($formatted, '.'); // If the string now ends with a decimal point, then remove it, too.
         } else {
             $formatted = sprintf('%e', $number);
             $parts = explode('e', $formatted);
-            $parts[0] = rtrim($parts[0], '.0');
+            $parts[0] = rtrim($parts[0], '0');
+            $parts[0] = rtrim($parts[0], '.');
             $formatted = implode('e', $parts);
         }
 
