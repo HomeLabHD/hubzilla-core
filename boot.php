@@ -64,7 +64,7 @@ require_once('include/selectors.php');
 require_once('include/activities.php');
 
 define('PLATFORM_NAME', 'hubzilla');
-define('STD_VERSION', '9.0RC1');
+define('STD_VERSION', '9.0RC2');
 define('ZOT_REVISION', '6.0');
 
 define('DB_UPDATE_VERSION', 1263);
