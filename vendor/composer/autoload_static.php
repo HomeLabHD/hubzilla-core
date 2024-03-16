@@ -182,7 +182,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         ),
         'Mmccook\\JsonCanonicalizator\\' => 
         array (
-            0 => __DIR__ . '/..' . '/streams/php-jcs/src',
+            0 => __DIR__ . '/..' . '/mmccook/php-json-canonicalization-scheme/src',
         ),
         'Michelf\\' => 
         array (
@@ -566,10 +566,10 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Michelf\\Markdown' => __DIR__ . '/..' . '/michelf/php-markdown/Michelf/Markdown.php',
         'Michelf\\MarkdownExtra' => __DIR__ . '/..' . '/michelf/php-markdown/Michelf/MarkdownExtra.php',
         'Michelf\\MarkdownInterface' => __DIR__ . '/..' . '/michelf/php-markdown/Michelf/MarkdownInterface.php',
-        'Mmccook\\JsonCanonicalizator\\JsonCanonicalizator' => __DIR__ . '/..' . '/streams/php-jcs/src/JsonCanonicalizator.php',
-        'Mmccook\\JsonCanonicalizator\\JsonCanonicalizatorFactory' => __DIR__ . '/..' . '/streams/php-jcs/src/JsonCanonicalizatorFactory.php',
-        'Mmccook\\JsonCanonicalizator\\JsonCanonicalizatorInterface' => __DIR__ . '/..' . '/streams/php-jcs/src/JsonCanonicalizatorInterface.php',
-        'Mmccook\\JsonCanonicalizator\\Utils' => __DIR__ . '/..' . '/streams/php-jcs/src/Utils.php',
+        'Mmccook\\JsonCanonicalizator\\JsonCanonicalizator' => __DIR__ . '/..' . '/mmccook/php-json-canonicalization-scheme/src/JsonCanonicalizator.php',
+        'Mmccook\\JsonCanonicalizator\\JsonCanonicalizatorFactory' => __DIR__ . '/..' . '/mmccook/php-json-canonicalization-scheme/src/JsonCanonicalizatorFactory.php',
+        'Mmccook\\JsonCanonicalizator\\JsonCanonicalizatorInterface' => __DIR__ . '/..' . '/mmccook/php-json-canonicalization-scheme/src/JsonCanonicalizatorInterface.php',
+        'Mmccook\\JsonCanonicalizator\\Utils' => __DIR__ . '/..' . '/mmccook/php-json-canonicalization-scheme/src/Utils.php',
         'OAuth2\\Autoloader' => __DIR__ . '/..' . '/bshaffer/oauth2-server-php/src/OAuth2/Autoloader.php',
         'OAuth2\\ClientAssertionType\\ClientAssertionTypeInterface' => __DIR__ . '/..' . '/bshaffer/oauth2-server-php/src/OAuth2/ClientAssertionType/ClientAssertionTypeInterface.php',
         'OAuth2\\ClientAssertionType\\HttpBasic' => __DIR__ . '/..' . '/bshaffer/oauth2-server-php/src/OAuth2/ClientAssertionType/HttpBasic.php',
