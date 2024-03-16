@@ -100,8 +100,8 @@ $background_image = $background_image ?: '';
 $background_image_dark = $background_image_dark ?: '';
 $font_size = $font_size ?: '0.875rem';
 $converse_width = $converse_width ?: '52'; //unit: rem
-$top_photo = $top_photo ?: '2.3rem';
-$reply_photo = $reply_photo ?: '2.3rem';
+$top_photo = $top_photo ?: '2.5rem';
+$reply_photo = $reply_photo ?: '2.5rem';
 
 // Apply the settings
 if(file_exists('view/theme/redbasic/css/style.css')) {
