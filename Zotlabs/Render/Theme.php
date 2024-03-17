@@ -97,14 +97,9 @@ class Theme {
 	 *
 	 * Provide a sane default if nothing is chosen or the specified theme does not exist.
 	 *
-	 * @param bool $installing (optional) default false, if true return the name of the first base theme
-	 *
 	 * @return string
 	 */
-	static public function url($installing = false) {
-
-		if($installing)
-			return self::$base_themes[0];
+	static public function url() {
 
 		$uid = App::$profile_uid ?: local_channel();
 

@@ -2331,8 +2331,6 @@ function construct_page() {
 
 	require_once(theme_include('theme_init.php'));
 
-	$installing = false;
-
 	$uid = ((App::$profile_uid) ? App::$profile_uid : local_channel());
 
 	$navbar = get_config('system', 'navbar', 'default');
@@ -2344,13 +2342,9 @@ function construct_page() {
 		$navbar = App::$layout['navbar'];
 	}
 
-	if (App::$module == 'setup') {
-		$installing = true;
-	}
-	else {
+	if (App::$module !== 'setup') {
 		nav($navbar);
 	}
-
 
 	$current_theme = Zotlabs\Render\Theme::current();
 	// logger('current_theme: ' . print_r($current_theme,true));
@@ -2372,7 +2366,7 @@ function construct_page() {
 	if (($p = theme_include('mod_' . App::$module . '.css')) != '')
 		head_add_css('mod_' . App::$module . '.css');
 
-	head_add_css(Zotlabs\Render\Theme::url($installing));
+	head_add_css(Zotlabs\Render\Theme::url());
 
 	if (($p = theme_include('mod_' . App::$module . '.js')) != '')
 		head_add_js('mod_' . App::$module . '.js');
