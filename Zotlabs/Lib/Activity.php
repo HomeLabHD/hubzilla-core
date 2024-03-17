@@ -3559,10 +3559,12 @@ class Activity {
 			'ostatus'          => 'http://ostatus.org#',
 			'diaspora'         => 'https://diasporafoundation.org/ns/',
 			'litepub'          => 'http://litepub.social/ns#',
+			'toot'             => 'http://joinmastodon.org/ns#',
 
 			'commentPolicy'    => 'zot:commentPolicy',
 			'Bookmark'         => 'zot:Bookmark',
 			'Category'         => 'zot:Category',
+			'Emoji'            => 'toot:Emoji',
 
 			'directMessage'    => 'litepub:directMessage',
 
