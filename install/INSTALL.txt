@@ -90,13 +90,13 @@ web server platforms.
     exec() and proc_open().
 
     - curl, gd (with at least jpeg and png support), mysqli, mbstring, xml,
-    xmlreader (FreeBSD), zip and openssl extensions. The imagick extension MAY be used
-    instead of gd, but is not required and MAY also be disabled via
+    xmlreader (FreeBSD), zip, openssl, iconv, intl, sodium, bcmath (or gmp) extensions.
+    The imagick extension MAY be used instead of gd, but is not required and MAY also be disabled via
     configuration option.
 
     - some form of email server or email gateway such that PHP mail() works.
 
-    - Mysql 5.5.3 or later or MariaDB or postgres database server.
+    - MySql version >= 8.0.22 or MariaDB version >= 10.6 or PostgreSql version >= 12 database server
 
     - ability to schedule jobs with cron.
 
