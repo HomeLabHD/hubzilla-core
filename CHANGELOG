@@ -34,7 +34,7 @@ Hubzilla 9.0 (2024-??-??)
 	- Added CI job for MariaDB 10.6
 	- Store the original announce actor (the one that pushed the item into our stream first) in source_xchan instead of owner_xchan to preserve the original owner
 	- Added optional circle person avatar
-	- Added min supported DB backends to administrator docs: MySql v >= 8.0.22, MariaDB v >= 10.4, PostgreSql v >= 12
+	- Added min supported DB backends to administrator docs: MySql v >= 8.0.22, MariaDB v >= 10.6, PostgreSql v >= 12
 	- Added CI job for MySql 8.0
 	- Improved validate_email()
 	- Implement fep-8b32 - object integrity proofs
