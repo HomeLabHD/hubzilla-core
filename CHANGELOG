@@ -49,8 +49,8 @@ Hubzilla 9.0 (2024-??-??)
 	- Display selected mid in an open state - issue #1425
 	- Add bookmark and category to AP schema
 
-
 	Bugfixes
+	- Fix cover photos not uploaded into folder due to missing source option
 	- Fix regression where config returned default value in some cases
 	- Fix attachments listed in reverse order
 	- Fix unterminated entity reference error when dealing with domxpath and add a test
