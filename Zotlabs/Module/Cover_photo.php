@@ -248,7 +248,7 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 
 		require_once('include/attach.php');
 
-		$res = attach_store(\App::get_channel(), get_observer_hash(), '', array('album' => t('Cover Photos'), 'hash' => $hash, 'nosync' => true));
+		$res = attach_store(\App::get_channel(), get_observer_hash(), '', ['album' => t('Cover Photos'), 'hash' => $hash, 'nosync' => true, 'source' => 'photos']);
 
 		logger('attach_store: ' . print_r($res,true));
 
