@@ -187,25 +187,24 @@ function html2bbcode($message)
 	node2bbcode($doc, 'u', array(), '[u]', '[/u]');
 	node2bbcode($doc, 's', array(), '[s]', '[/s]');
 	node2bbcode($doc, 'mark', array(), '[mark]', '[/mark]');
+	node2bbcode($doc, 'span', array(), "", "");
 
 	node2bbcode($doc, 'big', array(), "[size=large]", "[/size]");
 	node2bbcode($doc, 'small', array(), "[size=small]", "[/size]");
-
-	node2bbcode($doc, 'blockquote', array(), '[quote]', '[/quote]');
 
 	// Use a temporary tag to keep line breaks
 	node2bbcode($doc, 'br', array(), '[br]', '');
 
 	node2bbcode($doc, 'a', array('href'=>'/(.+)/'), '[url=$1]', '[/url]');
 
-	node2bbcode($doc, 'p', array('class'=>'MsoNormal'), "\n", "");
-	node2bbcode($doc, 'div', array('class'=>'MsoNormal'), "\r", "");
+	node2bbcode($doc, 'img', array('src'=>'/(.+)/', 'width'=>'/(\d+)/', 'height'=>'/(\d+)/'), '[img=$2x$3]$1', '[/img]');
+	node2bbcode($doc, 'img', array('src'=>'/(.+)/', 'alt'=>'/(.+)/'), '[img=$1]$2', '[/img]');
+	node2bbcode($doc, 'img', array('src'=>'/(.+)/'), '[img]$1', '[/img]');
 
-	node2bbcode($doc, 'span', array(), "", "");
+	node2bbcode($doc, 'video', array('src'=>'/(.+)/'), '[video]$1', '[/video]');
+	node2bbcode($doc, 'audio', array('src'=>'/(.+)/'), '[audio]$1', '[/audio]');
+//	node2bbcode($doc, 'iframe', array('src'=>'/(.+)/'), '[iframe]$1', '[/iframe]');
 
-	node2bbcode($doc, 'pre', array(), "", "");
-	node2bbcode($doc, 'div', array(), "\r", "\r");
-	node2bbcode($doc, 'p', array(), "\n", "\n");
 
 	node2bbcode($doc, 'ul', array(), "[list]", "[/list]");
 	node2bbcode($doc, 'ol', array(), "[list=1]", "[/list]");
@@ -229,17 +228,18 @@ function html2bbcode($message)
 	node2bbcode($doc, 'h5', array(), "[h5]", "[/h5]");
 	node2bbcode($doc, 'h6', array(), "[h6]", "[/h6]");
 
-	node2bbcode($doc, 'img', array('src'=>'/(.+)/', 'width'=>'/(\d+)/', 'height'=>'/(\d+)/'), '[img=$2x$3]$1', '[/img]');
-	node2bbcode($doc, 'img', array('src'=>'/(.+)/', 'alt'=>'/(.+)/'), '[img=$1]$2', '[/img]');
-	node2bbcode($doc, 'img', array('src'=>'/(.+)/'), '[img]$1', '[/img]');
 
-
-	node2bbcode($doc, 'video', array('src'=>'/(.+)/'), '[video]$1', '[/video]');
-	node2bbcode($doc, 'audio', array('src'=>'/(.+)/'), '[audio]$1', '[/audio]');
-//	node2bbcode($doc, 'iframe', array('src'=>'/(.+)/'), '[iframe]$1', '[/iframe]');
+	node2bbcode($doc, 'blockquote', array(), '[quote]', '[/quote]');
+	node2bbcode($doc, 'pre', array(), "", "");
 
 	node2bbcode($doc, 'code', array('class'=>'/(.+)/'), '[code=$1]', '[/code]');
 	node2bbcode($doc, 'code', array(), '[code]', '[/code]');
+
+	node2bbcode($doc, 'p', array('class'=>'MsoNormal'), "\n", "");
+	node2bbcode($doc, 'p', array(), "\n", "\n");
+
+	node2bbcode($doc, 'div', array('class'=>'MsoNormal'), "\r", "");
+	node2bbcode($doc, 'div', array(), "\r", "\r");
 
 	$message = $doc->saveHTML();
 

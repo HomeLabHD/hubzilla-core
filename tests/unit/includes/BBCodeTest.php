@@ -198,6 +198,10 @@ class BBCodeTest extends UnitTestCase {
 			'nested tags with ampersand and new line' => [
 				"<b>\n<i>foo & bar</i></b>",
 				'[b] [i]foo &amp; bar[/i][/b]'
+			],
+			'html reshares from streams' => [
+				'<div><div><a href="https://example.com"><img src="https://example.com/image.jpg" alt="image/photo"></a> shared something</div>something</div>',
+				'[url=https://example.com][img=https://example.com/image.jpg]image/photo[/img][/url] shared something' . "\n" . 'something'
 			]
 		];
 	}
