@@ -107,6 +107,18 @@ class BBCodeTest extends UnitTestCase {
 				"[code]\ntestvar = \"this is a test\"\necho \"the message is \$testvar\"\n[/code]",
 				'<pre><code>testvar = "this is a test"<br />echo "the message is $testvar"</code></pre>',
 			],
+			'list with linebreaks \n' => [
+				"some text\n[list]\n[*] item1\n[*] item2\n[/list]\nsome more text",
+				'some text<br /><ul class="listbullet"><li> item1<li> item2</ul><br />some more text'
+			],
+			'list with linebreaks \r' => [
+				"some text\r[list]\r[*] item1\r[*] item2\r[/list]\rsome more text",
+				'some text<br /><ul class="listbullet"><li> item1<li> item2</ul><br />some more text'
+			],
+			'list with linebreaks \r\n' => [
+				"some text\r\n[list]\r\n[*] item1\r\n[*] item2\r\n[/list]\r\nsome more text",
+				'some text<br /><ul class="listbullet"><li> item1<li> item2</ul><br />some more text'
+			]
 		];
 	}
 

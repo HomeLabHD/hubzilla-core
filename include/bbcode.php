@@ -1054,6 +1054,15 @@ function bb_fixtable_lf($match) {
 
 }
 
+function bb_fix_lf($match) {
+	// remove extraneous whitespace between element tags since newlines will all
+	// be converted to '<br />' and turn your neatly crafted tables into a whole lot of
+	// empty space.
+
+	$new_content =  str_replace(["\n\r", "\n", "\r"], '', $match[1]);
+	return  str_replace($match[1], $new_content, $match[0]);
+}
+
 function bbtopoll($s) {
 
 	$pl = [];
@@ -1207,8 +1216,6 @@ function bbcode($text, $options = []) {
 		}
 	}
 
-
-
 	$text = bb_format_attachdata($text);
 
 	// If we find any event code, turn it into an event.
@@ -1249,7 +1256,7 @@ function bbcode($text, $options = []) {
 
 	$text = str_replace("<", "&lt;", $text);
 	$text = str_replace(">", "&gt;", $text);
-	$text = preg_replace_callback("/\[table\](.*?)\[\/table\]/ism",'bb_fixtable_lf',$text);
+
 	$text = str_replace(array("\t", "  "), array("&nbsp;&nbsp;&nbsp;&nbsp;", "&nbsp;&nbsp;"), $text);
 
 	// Check for [code] text here, before the linefeeds are messed with.
@@ -1487,9 +1494,9 @@ function bbcode($text, $options = []) {
 
 	// Check for list text
 
-	$text = preg_replace("/<br \/>\[\*\]/ism",'[*]',$text);
-
+	$text = str_replace(["\r\n[*]", "\r[*]", "\n[*]"], "[*]", $text);
 	$text = str_replace("[*]", "<li>", $text);
+
 
  	// handle nested lists
 	$endlessloop = 0;
@@ -1499,16 +1506,35 @@ function bbcode($text, $options = []) {
 			((strpos($text, "[/ul]") !== false) && (strpos($text, "[ul]") !== false)) ||
 			((strpos($text, "[/dl]") !== false) && (strpos($text, "[dl")  !== false)) ||
 			((strpos($text, "[/li]") !== false) && (strpos($text, "[li]") !== false))) && (++$endlessloop < 20)) {
+
+		$text = preg_replace_callback("/\[list\](.*?)\[\/list\]/ism",'bb_fix_lf', $text);
 		$text = preg_replace("/\[list\](.*?)\[\/list\]/ism", '<ul class="listbullet">$1</ul>', $text);
+
+		$text = preg_replace_callback("/\[list=\](.*?)\[\/list\]/ism",'bb_fix_lf', $text);
 		$text = preg_replace("/\[list=\](.*?)\[\/list\]/ism", '<ul class="listnone" style="list-style-type: none;">$1</ul>', $text);
+
+		$text = preg_replace_callback("/\[list=1\](.*?)\[\/list\]/ism",'bb_fix_lf', $text);
 		$text = preg_replace("/\[list=1\](.*?)\[\/list\]/ism", '<ul class="listdecimal" style="list-style-type: decimal;">$1</ul>', $text);
+
+		$text = preg_replace_callback("/\[list=((?-i)i)\](.*?)\[\/list\]/ism",'bb_fix_lf', $text);
 		$text = preg_replace("/\[list=((?-i)i)\](.*?)\[\/list\]/ism",'<ul class="listlowerroman" style="list-style-type: lower-roman;">$2</ul>', $text);
+
+		$text = preg_replace_callback("/\[list=((?-i)I)\](.*?)\[\/list\]/ism",'bb_fix_lf', $text);
 		$text = preg_replace("/\[list=((?-i)I)\](.*?)\[\/list\]/ism", '<ul class="listupperroman" style="list-style-type: upper-roman;">$2</ul>', $text);
+
+		$text = preg_replace_callback("/\[list=((?-i)a)\](.*?)\[\/list\]/ism",'bb_fix_lf', $text);
 		$text = preg_replace("/\[list=((?-i)a)\](.*?)\[\/list\]/ism", '<ul class="listloweralpha" style="list-style-type: lower-alpha;">$2</ul>', $text);
+
+		$text = preg_replace_callback("/\[list=((?-i)A)\](.*?)\[\/list\]/ism",'bb_fix_lf', $text);
 		$text = preg_replace("/\[list=((?-i)A)\](.*?)\[\/list\]/ism", '<ul class="listupperalpha" style="list-style-type: upper-alpha;">$2</ul>', $text);
-		$text = preg_replace("/\[ul\](.*?)\[\/ul\]/ism", '<ul class="listbullet">$1</ul>', $text);
+
+		$text = preg_replace_callback("/\[ol\](.*?)\[\/ol\]/ism",'bb_fix_lf', $text);
 		$text = preg_replace("/\[ol\](.*?)\[\/ol\]/ism", '<ul class="listdecimal" style="list-style-type: decimal;">$1</ul>', $text);
-		$text = preg_replace("/\[\/li\]<br \/>\[li\]/ism",'[/li][li]',$text);
+
+		$text = preg_replace_callback("/\[ul\](.*?)\[\/ul\]/ism",'bb_fix_lf', $text);
+		$text = preg_replace("/\[ul\](.*?)\[\/ul\]/ism", '<ul class="listbullet">$1</ul>', $text);
+
+		$text = preg_replace("/\[\/li\]<br \/>\[li\]/ism",'[/li][li]', $text);
 		$text = preg_replace("/\[li\](.*?)\[\/li\]/ism", '<li>$1</li>', $text);
 
 		// [dl] tags have an optional [dl terms="bi"] form where bold/italic/underline/mono/large
@@ -1521,24 +1547,29 @@ function bbcode($text, $options = []) {
 	}
 
 	if (strpos($text,'[checklist]') !== false) {
+		$text = preg_replace_callback("/\[checklist\](.*?)\[\/checklist\]/ism",'bb_fix_lf', $text);
 		$text = preg_replace_callback("/\[checklist\](.*?)\[\/checklist\]/ism", 'bb_checklist', $text);
 	}
 
 	if (strpos($text,'[th]') !== false) {
 		$text = preg_replace("/\[th\](.*?)\[\/th\]/sm", '<th>$1</th>', $text);
 	}
+
 	if (strpos($text,'[td]') !== false) {
 		$text = preg_replace("/\[td\](.*?)\[\/td\]/sm", '<td>$1</td>', $text);
 	}
+
 	if (strpos($text,'[tr]') !== false) {
 		$text = preg_replace("/\[tr\](.*?)\[\/tr\]/sm", '<tr>$1</tr>', $text);
 	}
+
 	if (strpos($text,'[/table]') !== false) {
+		$text = preg_replace_callback("/\[table\](.*?)\[\/table\]/ism",'bb_fix_lf',$text);
 		$text = preg_replace("/\[table\](.*?)\[\/table\]/sm", '<table>$1</table>', $text);
 		$text = preg_replace("/\[table border=1\](.*?)\[\/table\]/sm", '<table class="table table-responsive table-bordered" >$1</table>', $text);
 		$text = preg_replace("/\[table border=0\](.*?)\[\/table\]/sm", '<table class="table table-responsive" >$1</table>', $text);
 	}
-	$text = str_replace('</tr><br /><tr>', "</tr>\n<tr>", $text);
+
 	$text = str_replace('[hr]', '<hr />', $text);
 
 	// This is actually executed in prepare_body()
