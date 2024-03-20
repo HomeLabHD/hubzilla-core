@@ -1729,10 +1729,12 @@ function bbcode($text, $options = []) {
 	}
 
 	// oembed tag
-	$text = oembed_bbcode2html($text);
+	if (strpos($text,'[/embed]') !== false) {
+		$text = oembed_bbcode2html($text);
 
-	// Avoid triple linefeeds through oembed
-	$text = str_replace("<br style='clear:left'></span><br /><br />", "<br style='clear:left'></span><br />", $text);
+		// Avoid triple linefeeds through oembed
+		$text = str_replace("<br style='clear:left'></span><br /><br />", "<br style='clear:left'></span>", $text);
+	}
 
 	// If we found an event earlier, strip out all the event code and replace with a reformatted version.
 	// Replace the event-start section with the entire formatted event. The other bbcode is stripped.
