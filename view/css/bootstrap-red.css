@@ -61,3 +61,7 @@ label {
 a {
 	text-decoration: none !important;
 }
+
+ol, ul, dl {
+	margin-bottom: 0;
+}
