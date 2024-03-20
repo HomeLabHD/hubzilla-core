@@ -2391,7 +2391,7 @@ class Activity {
 					if ($mps) {
 						usort($mps,[ '\Zotlabs\Lib\Activity', 'vid_sort' ]);
 						foreach ($mps as $m) {
-							if (intval($m['height']) < 500 && self::media_not_in_body($m['href'],$s['body'])) {
+							if (intval($m['height']) <= 720 && self::media_not_in_body($m['href'],$s['body'])) {
 								$s['body'] = $tag . $m['href'] . '[/video]' . "\r\n" . $s['body'];
 								break;
 							}
