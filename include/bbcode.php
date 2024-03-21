@@ -1440,32 +1440,32 @@ function bbcode($text, $options = []) {
 	// Check for h1
 	if (strpos($text,'[h1]') !== false) {
 		$text = preg_replace("(\[h1\](.*?)\[\/h1\])ism",'<h1>$1</h1>',$text);
-		$text = str_replace(["</h1>\n\n", "</h1>\n"], '</h1>', $text);
+		$text = str_replace(["</h1>\r", "</h1>\n"], '</h1>', $text);
 	}
 	// Check for h2
 	if (strpos($text,'[h2]') !== false) {
 		$text = preg_replace("(\[h2\](.*?)\[\/h2\])ism",'<h2>$1</h2>',$text);
-		$text = str_replace(["</h2>\n\n", "</h2>\n"], '</h2>', $text);
+		$text = str_replace(["</h2>\r", "</h2>\n"], '</h2>', $text);
 	}
 	// Check for h3
 	if (strpos($text,'[h3]') !== false) {
 		$text = preg_replace("(\[h3\](.*?)\[\/h3\])ism",'<h3>$1</h3>',$text);
-		$text = str_replace(["</h3>\n\n", "</h3>\n"], '</h3>', $text);
+		$text = str_replace(["</h3>\r", "</h3>\n"], '</h3>', $text);
 	}
 	// Check for h4
 	if (strpos($text,'[h4]') !== false) {
 		$text = preg_replace("(\[h4\](.*?)\[\/h4\])ism",'<h4>$1</h4>',$text);
-		$text = str_replace(["</h4>\n\n", "</h4>\n"], '</h4>', $text);
+		$text = str_replace(["</h4>\r", "</h4>\n"], '</h4>', $text);
 	}
 	// Check for h5
 	if (strpos($text,'[h5]') !== false) {
 		$text = preg_replace("(\[h5\](.*?)\[\/h5\])ism",'<h5>$1</h5>',$text);
-		$text = str_replace(["</h5>\n\n", "</h5>\n"], '</h5>', $text);
+		$text = str_replace(["</h5>\r", "</h5>\n"], '</h5>', $text);
 	}
 	// Check for h6
 	if (strpos($text,'[h6]') !== false) {
 		$text = preg_replace("(\[h6\](.*?)\[\/h6\])ism",'<h6>$1</h6>',$text);
-		$text = str_replace(["</h6>\n\n", "</h6>\n"], '</h6>', $text);
+		$text = str_replace(["</h6>\r", "</h6>\n"], '</h6>', $text);
 	}
 
 	// Check for table of content without params
@@ -1506,6 +1506,8 @@ function bbcode($text, $options = []) {
 			((strpos($text, "[/ul]") !== false) && (strpos($text, "[ul]") !== false)) ||
 			((strpos($text, "[/dl]") !== false) && (strpos($text, "[dl")  !== false)) ||
 			((strpos($text, "[/li]") !== false) && (strpos($text, "[li]") !== false))) && (++$endlessloop < 20)) {
+
+		$text = str_replace(["[/list]\r", "[/list]\n"], '[/list]', $text);
 
 		$text = preg_replace_callback("/\[list\](.*?)\[\/list\]/ism",'bb_fix_lf', $text);
 		$text = preg_replace("/\[list\](.*?)\[\/list\]/ism", '<ul class="listbullet">$1</ul>', $text);
