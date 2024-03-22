@@ -184,7 +184,7 @@ function construct_verb($item) {
 	if ($item['verb'])
 		return $item['verb'];
 
-	return ACTIVITY_POST;
+	return 'Create';
 }
 
 function construct_activity_object($item) {
@@ -305,7 +305,7 @@ function get_atom_author($feed, $item) {
 	}
 	$rawactor = $item->get_item_tags(NAMESPACE_ACTIVITY, 'actor');
 
-	if($rawactor && activity_match($rawactor[0]['child'][NAMESPACE_ACTIVITY]['obj_type'][0]['data'], ACTIVITY_OBJ_PERSON)) {
+	if($rawactor && activity_match($rawactor[0]['child'][NAMESPACE_ACTIVITY]['obj_type'][0]['data'], ['Person', ACTIVITY_OBJ_PERSON])) {
 		$base = $rawactor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link'];
 		if($base && count($base)) {
 			foreach($base as $link) {
@@ -350,7 +350,7 @@ function get_atom_author($feed, $item) {
 
 		$rawactor = $feed->get_feed_tags(NAMESPACE_ACTIVITY, 'subject');
 
-		if($rawactor && activity_match($rawactor[0]['child'][NAMESPACE_ACTIVITY]['obj_type'][0]['data'],ACTIVITY_OBJ_PERSON)) {
+		if($rawactor && activity_match($rawactor[0]['child'][NAMESPACE_ACTIVITY]['obj_type'][0]['data'], ['Person', ACTIVITY_OBJ_PERSON])) {
 			$base = $rawactor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link'];
 
 			if($base && count($base)) {
@@ -508,36 +508,17 @@ function get_atom_elements($feed, $item) {
 		}
 	}
 
-	$ostatus_protocol = ($ostatus_conversation || (x($res,'verb') && $res['verb']) ? true : false);
-
 	$mastodon = (($item->get_item_tags('http://mastodon.social/schema/1.0','scope')) ? true : false);
 	if($mastodon) {
-		$ostatus_protocol = true;
 		if(($mastodon[0]['data']) && ($mastodon[0]['data'] !== 'public'))
 			$res['item_private'] = 1;
 	}
-
-	logger('ostatus_protocol: ' . intval($ostatus_protocol), LOGGER_DEBUG);
 
 	$apps = $item->get_item_tags(NAMESPACE_STATUSNET, 'notice_info');
 	if($apps && $apps[0]['attribs']['']['source']) {
 		$res['app'] = strip_tags(unxmlify($apps[0]['attribs']['']['source']));
 	}
 
-	if($ostatus_protocol) {
-
-		// translate OStatus unfollow to activity streams if it happened to get selected
-
-		if((x($res,'verb')) && ($res['verb'] === 'http://ostatus.org/schema/1.0/unfollow')) {
-			$res['verb'] = ACTIVITY_UNFOLLOW;
-		}
-
-		// And OStatus 'favorite' is pretty much what we call 'like' on other networks
-
-		if((x($res,'verb')) && ($res['verb'] === ACTIVITY_FAVORITE)) {
-			$res['verb'] = ACTIVITY_LIKE;
-		}
-	}
 
 	/*
 	 * If there's a copy of the body content which is guaranteed to have survived mangling in transit, use it.
@@ -600,10 +581,7 @@ function get_atom_elements($feed, $item) {
 
 	$terms = [];
 
-	if($ostatus_protocol) {
-		$res['title'] = '';
-	}
-	elseif($res['plink'] && $res['title']) {
+	if($res['plink'] && $res['title']) {
 		$res['body'] = '#^[url=' . $res['plink'] . ']' . $res['title'] . '[/url]' . "\n\n" . $res['body'];
 		$terms[] = array(
 			'otype' => TERM_OBJ_POST,
@@ -814,7 +792,7 @@ function get_atom_elements($feed, $item) {
 
 
 	if(array_key_exists('verb',$res) && $res['verb'] === ACTIVITY_SHARE
-		&& array_key_exists('obj_type',$res) && in_array($res['obj_type'], [ ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_COMMENT, ACTIVITY_OBJ_ACTIVITY ] )) {
+		&& array_key_exists('obj_type',$res) && in_array($res['obj_type'], ['Note', ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_COMMENT])) {
 		feed_get_reshare($res,$item);
 	}
 
@@ -1197,7 +1175,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 				// Update content if 'updated' changes
 
 				if($r) {
-					if(activity_match($datarray['verb'],ACTIVITY_DELETE)
+					if(activity_match($datarray['verb'], ['Delete', ACTIVITY_DELETE])
 						&& $datarray['author_xchan'] === $r[0]['author_xchan']) {
 						if(! intval($r[0]['item_deleted'])) {
 							logger('deleting item ' . $r[0]['id'] . ' mid=' . $datarray['mid'], LOGGER_DEBUG);
@@ -1361,7 +1339,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 
 				// allow likes of comments
 
-				if($item_parent_mid && activity_match($datarray['verb'],ACTIVITY_LIKE)) {
+				if($item_parent_mid && activity_match($datarray['verb'], ['Like', ACTIVITY_LIKE])) {
 					$datarray['thr_parent'] = $item_parent_mid[0]['parent_mid'];
 				}
 
@@ -1465,7 +1443,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 				// Update content if 'updated' changes
 
 				if($r) {
-					if(isset($datarray['verb']) && activity_match($datarray['verb'], ACTIVITY_DELETE)
+					if(isset($datarray['verb']) && activity_match($datarray['verb'], ['Delete', ACTIVITY_DELETE])
 						&& isset($datarray['author_xchan']) && $datarray['author_xchan'] === $r[0]['author_xchan']) {
 						if(! intval($r[0]['item_deleted'])) {
 							logger('deleting item ' . $r[0]['id'] . ' mid=' . $datarray['mid'], LOGGER_DEBUG);
@@ -1955,7 +1933,7 @@ function atom_entry($item, $type, $author, $owner, $comment = false, $cid = 0, $
 		$o .= '<thr:in-reply-to ref="' . xmlify($parent_item) . '" type="text/html" href="' .  xmlify($item['plink']) . '" />' . "\r\n";
 	}
 
-	if(activity_match($item['obj_type'],ACTIVITY_OBJ_EVENT) && activity_match($item['verb'],ACTIVITY_POST)) {
+	if((activity_match($item['obj_type'], ACTIVITY_OBJ_EVENT) || activity_match($item['obj_type'], 'Event')) && activity_match($item['verb'],['Create', ACTIVITY_POST])) {
 		$obj = ((is_array($item['obj'])) ? $item['obj'] : json_decode($item['obj'],true));
 
 		$o .= '<title>' . xmlify($item['title']) . '</title>' . "\r\n";

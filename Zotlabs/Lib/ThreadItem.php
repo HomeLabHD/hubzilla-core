@@ -19,7 +19,7 @@ class ThreadItem {
 	private $comment_box_template = 'comment_item.tpl';
 	private $commentable = false;
 	// list of supported reaction emojis - a site can over-ride this via config system.reactions
-	private $reactions = ['1f60a','1f44f','1f37e','1f48b','1f61e','2665','1f606','1f62e','1f634','1f61c','1f607','1f608'];
+	private $reactions = ['slightly_smiling_face','clapping_hands','bottle_with_popping_cork','kiss_mark','disappointed_face','red_heart','grinning_face','astonished_face','sleeping_face','winking_face_with_tongue','smiling_face_with_halo','smiling_face_with_horns'];
 	private $toplevel = false;
 	private $children = array();
 	private $parent = null;
@@ -34,6 +34,7 @@ class ThreadItem {
 	private $channel = null;
 	private $display_mode = 'normal';
 	private $reload = '';
+	private $mid_uuid_map = [];
 
 
 	public function __construct($data) {
@@ -46,6 +47,7 @@ class ThreadItem {
 
 		// Prepare the children
 		if(isset($data['children'])) {
+
 			foreach($data['children'] as $item) {
 
 				/*
@@ -56,7 +58,6 @@ class ThreadItem {
 					continue;
 				}
 
-
 				$child = new ThreadItem($item);
 				$this->add_child($child);
 			}
@@ -64,6 +65,8 @@ class ThreadItem {
 			// performance: we have already added the children
 			unset($this->data['children']);
 		}
+
+
 
 		// allow a site to configure the order and content of the reaction emoji list
 		if($this->toplevel) {
@@ -82,7 +85,7 @@ class ThreadItem {
 	 *      _ false on failure
 	 */
 
-	public function get_template_data($conv_responses, $thread_level=1, $conv_flags = []) {
+	public function get_template_data($conv_responses, $mid_uuid_map, $thread_level=1, $conv_flags = []) {
 
 		$result = [];
 		$item = $this->get_data();
@@ -121,11 +124,13 @@ class ThreadItem {
 			$locktype = 0;
 		}
 
-		$shareable = ((($conv->get_profile_owner() == local_channel() && local_channel()) && ($item['item_private'] != 1)) ? true : false);
+		$shareable = ((($conv->get_profile_owner() == local_channel() && local_channel()) && (intval($item['item_private']) === 0)) ? true : false);
 
 		// allow an exemption for sharing stuff from your private feeds
 		if($item['author']['xchan_network'] === 'rss')
 			$shareable = true;
+
+		$repeatable = ((($conv->get_profile_owner() == local_channel() && local_channel()) && (intval($item['item_private']) === 0) && (in_array($item['author']['xchan_network'], ['zot6', 'activitypub']))) ? true : false);
 
 		// @fixme
 		// Have recently added code to properly handle polls in group reshares by redirecting all of the poll responses to the group.
@@ -194,9 +199,14 @@ class ThreadItem {
 		$attend = null;
 
 		// process action responses - e.g. like/dislike/attend/agree/whatever
-		$response_verbs = array('like');
-		if(feature_enabled($conv->get_profile_owner(),'dislike'))
+		$response_verbs[] = 'like';
+
+		if(feature_enabled($conv->get_profile_owner(),'dislike')) {
 			$response_verbs[] = 'dislike';
+		}
+
+		$response_verbs[] = 'announce';
+
 		if(in_array($item['obj_type'], ['Event', ACTIVITY_OBJ_EVENT])) {
 			$response_verbs[] = 'attendyes';
 			$response_verbs[] = 'attendno';
@@ -222,6 +232,8 @@ class ThreadItem {
 			$my_responses[$v] = ((isset($conv_responses[$v][$item['mid'] . '-m'])) ? 1 : 0);
 		}
 
+/*
+
 		$like_count = ((x($conv_responses['like'],$item['mid'])) ? $conv_responses['like'][$item['mid']] : '');
 		$like_list = ((x($conv_responses['like'],$item['mid'])) ? $conv_responses['like'][$item['mid'] . '-l'] : '');
 		if (($like_list) && (count($like_list) > MAX_LIKERS)) {
@@ -231,6 +243,16 @@ class ThreadItem {
 			$like_list_part = '';
 		}
 		$like_button_label = tt('Like','Likes',$like_count,'noun');
+
+		$repeat_count = ((x($conv_responses['announce'],$item['mid'])) ? $conv_responses['announce'][$item['mid']] : '');
+		$repeat_list = ((x($conv_responses['announce'],$item['mid'])) ? $conv_responses['announce'][$item['mid'] . '-l'] : '');
+		if (($repeat_list) && (count($repeat_list) > MAX_LIKERS)) {
+			$repeat_list_part = array_slice($repeat_list, 0, MAX_LIKERS);
+			array_push($repeat_list_part, '<a class="dropdown-item" href="#" data-toggle="modal" data-target="#repeatModal-' . $this->get_id() . '"><b>' . t('View all') . '</b></a>');
+		} else {
+			$repeat_list_part = '';
+		}
+		$repeat_button_label = tt('Repeat','Repeats',$repeat_count,'noun');
 
 		$showdislike = '';
 		if (feature_enabled($conv->get_profile_owner(),'dislike')) {
@@ -248,6 +270,7 @@ class ThreadItem {
 		}
 
 		$showlike    = ((x($conv_responses['like'],$item['mid'])) ? format_like($conv_responses['like'][$item['mid']],$conv_responses['like'][$item['mid'] . '-l'],'like',$item['mid']) : '');
+*/
 
 		/*
 		 * We should avoid doing this all the time, but it depends on the conversation mode
@@ -315,13 +338,11 @@ class ThreadItem {
 		$share = [];
 		$embed = [];
 		if ($shareable) {
-			// This actually turns out not to be possible in some protocol stacks without opening up hundreds of new issues.
-			// Will allow it only for uri resolvable sources.
-			if(strpos($item['mid'],'http') === 0) {
-				//Not yet ready for primetime
-				//$share = array( t('Repeat This'), t('repeat'));
-			}
-			$embed = [t('Share This'), t('share')];
+			$embed = [t('Share'), t('share')];
+		}
+
+		if ($repeatable) {
+			$share = [t('Repeat'), t('repeat')];
 		}
 
 		$dreport = '';
@@ -333,7 +354,7 @@ class ThreadItem {
 		$dreport_link = '';
 		if((intval($item['item_type']) == ITEM_TYPE_POST) && (! get_config('system','disable_dreport')) && strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC',"now - $keep_reports days")) > 0) {
 			$dreport = t('Delivery Report');
-			$dreport_link = gen_link_id($item['mid']);
+			$dreport_link = '?mid=' . $item['mid'];
 		}
 
 		$is_new = false;
@@ -352,8 +373,8 @@ class ThreadItem {
 		if($conv->get_mode() === 'channel')
 			$viewthread = z_root() . '/channel/' . $owner_address . '?f=&mid=' . urlencode(gen_link_id($item['mid']));
 
-		$comment_count_txt = sprintf(tt('%d Comment', '%d Comments', $total_children), $total_children);
-		$list_unseen_txt = (($unseen_comments) ? sprintf(t('%d unseen'), $unseen_comments) : '');
+		$comment_count_txt = ['label' => sprintf(tt('%d comment', '%d comments', $total_children), $total_children), 'count' => $total_children];
+		$list_unseen_txt = $unseen_comments ? ['label' => sprintf(t('%d unseen'), $unseen_comments), 'count' => $unseen_comments] : [];
 
 		$children = $this->get_children();
 
@@ -363,8 +384,8 @@ class ThreadItem {
                 call_hooks('dropdown_extras',$dropdown_extras_arr);
                 $dropdown_extras = $dropdown_extras_arr['dropdown_extras'];
 
-		$midb64 = gen_link_id($item['mid']);
-		$mids = [ $midb64 ];
+		$midb64 = $item['uuid'];
+		$mids = [ $item['uuid'] ];
 		$response_mids = [];
 		foreach($response_verbs as $v) {
 			if(isset($conv_responses[$v]['mids'][$item['mid']])) {
@@ -480,35 +501,44 @@ class ThreadItem {
 			'comment_count' => $total_children,
 			'comment_count_txt' => $comment_count_txt,
 			'list_unseen_txt' => $list_unseen_txt,
-			'markseen' => t('Mark all seen'),
+			'markseen' => t('Mark all comments seen'),
 			'responses' => $responses,
 			'my_responses' => $my_responses,
+			/*
 			'like_count' => $like_count,
 			'like_list' => $like_list,
 			'like_list_part' => $like_list_part,
 			'like_button_label' => $like_button_label,
 			'like_modal_title' => t('Likes','noun'),
+
+			'repeat_count' => $repeat_count,
+			'repeat_list' => $repeat_list,
+			'repeat_list_part' => $repeat_list_part,
+			'repeat_button_label' => $repeat_button_label,
+			'repeat_modal_title' => t('Repeats','noun'),
+
+
 			'dislike_modal_title' => t('Dislikes','noun'),
 			'dislike_count' => ((feature_enabled($conv->get_profile_owner(),'dislike')) ? $dislike_count : ''),
 			'dislike_list' => ((feature_enabled($conv->get_profile_owner(),'dislike')) ? $dislike_list : ''),
 			'dislike_list_part' => ((feature_enabled($conv->get_profile_owner(),'dislike')) ? $dislike_list_part : ''),
 			'dislike_button_label' => ((feature_enabled($conv->get_profile_owner(),'dislike')) ? $dislike_button_label : ''),
+*/
 			'modal_dismiss' => t('Close'),
-			'showlike' => $showlike,
-			'showdislike' => $showdislike,
+		//	'showlike' => $showlike,
+		//	'showdislike' => $showdislike,
 			'comment' => ($item['item_delayed'] ? '' : $this->get_comment_box()),
 			'previewing' => ($conv->is_preview() ? true : false ),
 			'preview_lbl' => t('This is an unsaved preview'),
 			'wait' => t('Please wait'),
 			'thread_level' => $thread_level,
 			'settings' => $settings,
-			'thr_parent' => (($item['parent_mid'] != $item['thr_parent']) ? gen_link_id($item['thr_parent']) : ''),
+			'thr_parent_uuid' => (($item['parent_mid'] != $item['thr_parent']) ? $mid_uuid_map[$item['thr_parent']] : ''),
 			'contact_id' => (($contact) ? $contact['abook_id'] : ''),
 			'moderate' => ($item['item_blocked'] == ITEM_MODERATED),
 			'moderate_approve' => t('Approve'),
 			'moderate_delete' => t('Delete'),
-			'rtl' => in_array($item['lang'], rtl_languages())
-
+			'rtl' => in_array($item['lang'], rtl_languages()),
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);
@@ -531,12 +561,12 @@ class ThreadItem {
 
 		if(($this->get_display_mode() === 'normal') && ($nb_children > 0)) {
 			foreach($children as $child) {
-				$result['children'][] = $child->get_template_data($conv_responses, $thread_level + 1,$conv_flags);
+				$result['children'][] = $child->get_template_data($conv_responses, $mid_uuid_map, $thread_level + 1,$conv_flags);
 			}
 			// Collapse
 			if(($nb_children > $visible_comments) || ($thread_level > 1)) {
 				$result['children'][0]['comment_firstcollapsed'] = true;
-				$result['children'][0]['num_comments'] = $comment_count_txt;
+				$result['children'][0]['num_comments'] = $comment_count_txt['label'];
 				$result['children'][0]['hide_text'] = sprintf( t('%s show all'), '<i class="fa fa-chevron-down"></i>');
 				if($thread_level > 1) {
 					$result['children'][$nb_children - 1]['comment_lastcollapsed'] = true;
@@ -613,7 +643,7 @@ class ThreadItem {
 		 * Only add what will be displayed
 		 */
 
-		if(activity_match($item->get_data_value('verb'),ACTIVITY_LIKE) || activity_match($item->get_data_value('verb'),ACTIVITY_DISLIKE)) {
+		if(activity_match($item->get_data_value('verb'), ['Like', 'Dislike', ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
 			return false;
 		}
 
@@ -876,6 +906,12 @@ class ThreadItem {
 			$this->owner_url = chanlink_hash($this->data['owner']['xchan_hash']);
 			$this->owner_photo = $this->data['owner']['xchan_photo_s'];
 			$this->owner_name = $this->data['owner']['xchan_name'];
+			$this->wall_to_wall = true;
+		}
+		elseif($this->is_toplevel() && $this->get_data_value('verb') === 'Announce' && isset($this->data['source'])) {
+			$this->owner_url = chanlink_hash($this->data['source']['xchan_hash']);
+			$this->owner_photo = $this->data['source']['xchan_photo_s'];
+			$this->owner_name = $this->data['source']['xchan_name'];
 			$this->wall_to_wall = true;
 		}
 	}

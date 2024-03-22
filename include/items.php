@@ -353,7 +353,7 @@ function can_comment_on_post($observer_xchan, $item) {
 		case 'specific':
 		case 'contacts':
 		case '':
-			if(local_channel() && get_abconfig(local_channel(), (($item['verb'] === ACTIVITY_SHARE) ? $item['author_xchan'] : $item['owner_xchan']), 'their_perms', 'post_comments')) {
+			if(local_channel() && get_abconfig(local_channel(), (($item['verb'] === ACTIVITY_SHARE) ? $item['source_xchan'] : $item['owner_xchan']), 'their_perms', 'post_comments')) {
 				return true;
 			}
 			if(intval($item['item_wall']) && perm_is_allowed($item['uid'],$observer_xchan,'post_comments')) {
@@ -459,7 +459,7 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 
 
 	if(! $arr['mid']) {
-		$arr['uuid']         = ((x($arr,'uuid')) ? $arr['uuid'] : item_message_id());
+		$arr['uuid']         = ((x($arr,'uuid')) ? $arr['uuid'] : new_uuid());
 	}
 	$arr['mid']          = ((x($arr,'mid')) ? $arr['mid'] : z_root() . '/item/' . $arr['uuid']);
 	$arr['parent_mid']   = ((x($arr,'parent_mid')) ? $arr['parent_mid'] : $arr['mid']);
@@ -468,10 +468,8 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 	$arr['owner_xchan']  = ((x($arr,'owner_xchan'))  ? $arr['owner_xchan']  : $channel['channel_hash']);
 	$arr['author_xchan'] = ((x($arr,'author_xchan')) ? $arr['author_xchan'] : $observer['xchan_hash']);
 
-	$arr['verb']         = ((x($arr,'verb')) ? $arr['verb'] : ACTIVITY_POST);
-	$arr['obj_type']     = ((x($arr,'obj_type')) ? $arr['obj_type'] : ACTIVITY_OBJ_NOTE);
-	if(($is_comment) && ($arr['obj_type'] === ACTIVITY_OBJ_NOTE))
-		$arr['obj_type'] = ACTIVITY_OBJ_COMMENT;
+	$arr['verb']         = ((x($arr,'verb')) ? $arr['verb'] : 'Create');
+	$arr['obj_type']     = ((x($arr,'obj_type')) ? $arr['obj_type'] : 'Note');
 
 	if(! ( array_key_exists('allow_cid',$arr) || array_key_exists('allow_gid',$arr)
 		|| array_key_exists('deny_cid',$arr) || array_key_exists('deny_gid',$arr))) {
@@ -522,7 +520,7 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 		return $ret;
 
 	if($post_id && $deliver) {
-		Master::Summon([ 'Notifier','activity',$post_id ]);
+		Master::Summon(['Notifier','activity', $post_id]);
 	}
 
 	$ret['success'] = true;
@@ -1751,8 +1749,8 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 	$arr['coord']         = ((x($arr,'coord'))         ? notags(trim($arr['coord']))         : '');
 	$arr['parent_mid']    = ((x($arr,'parent_mid'))    ? notags(trim($arr['parent_mid']))    : '');
 	$arr['thr_parent']    = ((x($arr,'thr_parent'))    ? notags(trim($arr['thr_parent']))    : $arr['parent_mid']);
-	$arr['verb']          = ((x($arr,'verb'))          ? notags(trim($arr['verb']))          : ACTIVITY_POST);
-	$arr['obj_type']      = ((x($arr,'obj_type'))      ? notags(trim($arr['obj_type']))      : ACTIVITY_OBJ_NOTE);
+	$arr['verb']          = ((x($arr,'verb'))          ? notags(trim($arr['verb']))          : 'Create');
+	$arr['obj_type']      = ((x($arr,'obj_type'))      ? notags(trim($arr['obj_type']))      : 'Note');
 	$arr['obj']           = ((x($arr,'obj'))           ? trim($arr['obj'])                   : '');
 	$arr['tgt_type']      = ((x($arr,'tgt_type'))      ? notags(trim($arr['tgt_type']))      : '');
 	$arr['target']        = ((x($arr,'target'))        ? trim($arr['target'])                : '');
@@ -1775,13 +1773,18 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 
 	$d1 = new DateTime('now +10 minutes', new DateTimeZone('UTC'));
 	$d2 = new DateTime($arr['created'] . '+00:00');
-	if($d2 > $d1)
+
+	if($d2 > $d1) {
 		$arr['item_delayed'] = 1;
+	}
 
-	$arr['llink'] = z_root() . '/display/' . gen_link_id($arr['mid']);
+	if(empty($arr['llink'])) {
+		$arr['llink'] = z_root() . '/display/' . $arr['uuid'];
+	}
 
-	if(! $arr['plink'])
+	if(empty($arr['plink'])) {
 		$arr['plink'] = $arr['llink'];
+	}
 
 	if($arr['parent_mid'] === $arr['mid']) {
 		$parent_id = 0;
@@ -1822,9 +1825,6 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 				return $ret;
 			}
 
-			if(($arr['obj_type'] == ACTIVITY_OBJ_NOTE) && (! $arr['obj']))
-				$arr['obj_type'] = ACTIVITY_OBJ_COMMENT;
-
 			// is the new message multi-level threaded?
 			// even though we don't support it now, preserve the info
 			// and re-attach to the conversation parent.
@@ -1837,7 +1837,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 					dbesc($r[0]['parent_mid']),
 					intval($arr['uid'])
 				);
-				if($z && count($z))
+				if($z)
 					$r = $z;
 			}
 
@@ -1999,14 +1999,15 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 
 	if(($terms) && (is_array($terms))) {
 		foreach($terms as $t) {
-			q("insert into term (uid,oid,otype,ttype,term,url)
-				values(%d,%d,%d,%d,'%s','%s') ",
+			q("insert into term (uid,oid,otype,ttype,term,url,imgurl)
+				values(%d,%d,%d,%d,'%s','%s','%s') ",
 				intval($arr['uid']),
 				intval($current_post),
 				intval(TERM_OBJ_POST),
 				intval($t['ttype']),
 				dbesc($t['term']),
-				dbesc($t['url'])
+				dbesc($t['url']),
+				dbesc($t['imgurl'] ?? ''),
 			);
 		}
 
@@ -2443,7 +2444,7 @@ function send_status_notifications($post_id,$item) {
 
 	$type =  ((intval($item['item_private']) === 2) ? NOTIFY_MAIL : NOTIFY_COMMENT);
 
-	if(array_key_exists('verb',$item) && (activity_match($item['verb'], ACTIVITY_LIKE) || activity_match($item['verb'], ACTIVITY_DISLIKE))) {
+	if(array_key_exists('verb',$item) && activity_match($item['verb'], ['Like', 'Dislike', ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
 
 		$type = NOTIFY_LIKE;
 
@@ -2487,8 +2488,8 @@ function send_status_notifications($post_id,$item) {
 				// check for an unfollow thread activity - we should probably decode the obj and check the id
 				// but it will be extremely rare for this to be wrong.
 
-				if(($xx['verb'] === ACTIVITY_UNFOLLOW)
-					&& ($xx['obj_type'] === ACTIVITY_OBJ_NOTE || $xx['obj_type'] === ACTIVITY_OBJ_PHOTO)
+				if((in_array($xx['verb'], ['Ignore', ACTIVITY_UNFOLLOW]))
+					&& (in_array($xx['obj_type'], ['Note', 'Image', ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_PHOTO]))
 					&& ($xx['parent'] != $xx['id']))
 					$unfollowed = true;
 			}
@@ -2501,7 +2502,7 @@ function send_status_notifications($post_id,$item) {
 	if($unfollowed)
 		return;
 
-	$link =  z_root() . '/display/' . gen_link_id($item['mid']);
+	$link =  z_root() . '/display/' . $item['uuid'];
 
 	$y = q("select id from notify where link = '%s' and uid = %d limit 1",
 		dbesc($link),
@@ -2513,7 +2514,6 @@ function send_status_notifications($post_id,$item) {
 
 	if(! $notify)
 		return;
-
 
 	Enotify::submit(array(
 		'type'         => $type,
@@ -2607,7 +2607,6 @@ function tag_deliver($uid, $item_id) {
 		return;
 	}
 
-
 	if ($is_group && intval($item['item_thread_top']) && intval($item['item_wall']) && $item['author_xchan'] !== $item['owner_xchan']) {
 
 		if($item['resource_type'] === 'group_item') {
@@ -2622,39 +2621,6 @@ function tag_deliver($uid, $item_id) {
 			intval($item_id)
 		);
 		return;
-	}
-
-	/*
-	 * Seems like a good place to plug in a poke notification.
-	 */
-
-	if (stristr($item['verb'],ACTIVITY_POKE)) {
-		$poke_notify = true;
-
-		if(($item['obj_type'] == "") || ($item['obj_type'] !== ACTIVITY_OBJ_PERSON) || (! $item['obj']))
-			$poke_notify = false;
-
-		$obj = json_decode($item['obj'],true);
-		if($obj) {
-			if($obj['id'] !== $u[0]['channel_hash'])
-				$poke_notify = false;
-		}
-		if(intval($item['item_deleted']))
-			$poke_notify = false;
-
-		$verb = urldecode(substr($item['verb'],strpos($item['verb'],'#')+1));
-		if($poke_notify) {
-			Enotify::submit(array(
-				'to_xchan'     => $u[0]['channel_hash'],
-				'from_xchan'   => $item['author_xchan'],
-				'type'         => NOTIFY_POKE,
-				'item'         => $item,
-				'link'         => $i[0]['llink'],
-				'verb'         => ACTIVITY_POKE,
-				'activity'     => $verb,
-				'otype'        => 'item'
-			));
-		}
 	}
 
 	/*
@@ -3174,7 +3140,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 				$item['mid'] = z_root() . '/item/' . $item['uuid'];
 				$item['parent_mid'] = $item['mid'];
 				$item['thr_parent'] = $item['mid'];
-				$item['llink'] = z_root() . '/display/' . gen_link_id($item['mid']);
+				$item['llink'] = z_root() . '/display/' . $item['uuid'];
 			}
 
 			$r = q("UPDATE item SET author_xchan = '%s', mid = '%s', parent_mid = '%s', thr_parent = '%s', llink = '%s' WHERE id = %d",
@@ -3297,7 +3263,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		$arr['owner_xchan']  = $channel['channel_hash'];
 
 		$arr['obj_type'] = $item['obj_type'];
-		$arr['verb'] = ACTIVITY_POST;
+		$arr['verb'] = 'Create';
 
 		$arr['allow_cid'] = $channel['channel_allow_cid'];
 		$arr['allow_gid'] = $channel['channel_allow_gid'];
@@ -4411,7 +4377,7 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 	$item_normal = item_normal();
 
 	if (! (isset($arr['include_follow']) && intval($arr['include_follow']))) {
-		$item_normal .= sprintf(" and not verb in ('%s', '%s') ",
+		$item_normal .= sprintf(" and not verb in ('Follow', 'Ignore', '%s', '%s') ",
 			dbesc(ACTIVITY_FOLLOW),
 			dbesc(ACTIVITY_UNFOLLOW)
 		);
@@ -4824,54 +4790,7 @@ function comment_local_origin($item) {
 	return false;
 }
 
-
-
-function send_profile_photo_activity($channel,$photo,$profile) {
-
-	// for now only create activities for the default profile
-
-	if(! intval($profile['is_default']))
-		return;
-
-	$arr = array();
-	$arr['item_thread_top'] = 1;
-	$arr['item_origin'] = 1;
-	$arr['item_wall'] = 1;
-
-	if(stripos($profile['gender'],t('female')) !== false)
-		$t = t('%1$s updated her %2$s');
-	elseif(stripos($profile['gender'],t('male')) !== false)
-		$t = t('%1$s updated his %2$s');
-	else
-		$t = t('%1$s updated their %2$s');
-
-	$ptext = '[zrl=' . z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo['resource_id'] . ']' . t('profile photo') . '[/zrl]';
-
-	$ltext = '[zrl=' . z_root() . '/profile/' . $channel['channel_address'] . ']' . '[zmg=150x150]' . z_root() . '/photo/' . $photo['resource_id'] . '-4[/zmg][/zrl]';
-
-	$arr['body'] = sprintf($t,$channel['channel_name'],$ptext) . "\n\n" . $ltext;
-
-	$acl = new Zotlabs\Access\AccessList($channel);
-	$x = $acl->get();
-
-	$arr['allow_cid'] = $x['allow_cid'];
-
-	$arr['allow_gid'] = $x['allow_gid'];
-	$arr['deny_cid'] = $x['deny_cid'];
-	$arr['deny_gid'] = $x['deny_gid'];
-
-	$arr['uid'] = $channel['channel_id'];
-	$arr['aid'] = $channel['channel_account_id'];
-
-	$arr['owner_xchan'] = $channel['channel_hash'];
-	$arr['author_xchan'] = $channel['channel_hash'];
-
-	post_activity_item($arr);
-}
-
-
 function sync_an_item($channel_id,$item_id) {
-
 	$r = q("select * from item where id = %d",
 		intval($item_id)
 	);
@@ -5151,82 +5070,12 @@ function fix_attached_permissions($uid, $body, $str_contact_allow, $str_group_al
 	}
 }
 
-function item_create_edit_activity($post) {
 
-	if((! $post) || (! $post['item']) || ($post['item']['item_type'] != ITEM_TYPE_POST))
-		return;
-
-	$update_item = $post['item'];
-
-	$new_item = $update_item;
-
-	$author = q("select * from xchan where xchan_hash = '%s' limit 1",
-		dbesc($new_item['author_xchan'])
-	);
-	if($author)
-		$item_author = $author[0];
-
-
-	$new_item['id'] = 0;
-	$new_item['parent'] = 0;
-	$new_item['uuid'] = item_message_id();
-	$new_item['mid'] = z_root() . '/item/' . $new_item['uuid'];
-
-	$new_item['body'] = sprintf( t('[Edited %s]'), (($update_item['item_thread_top']) ? t('Post','edit_activity') : t('Comment','edit_activity')));
-
-	$new_item['body'] .= "\n\n";
-	$new_item['body'] .= $update_item['body'];
-
-	$new_item['sig'] = '';
-
-	$new_item['verb'] = ACTIVITY_UPDATE;
-	$new_item['item_thread_top'] = 0;
-	$new_item['created'] = $new_item['edited'] = datetime_convert();
-	$new_item['obj_type'] = (($update_item['item_thread_top']) ? ACTIVITY_OBJ_NOTE : ACTIVITY_OBJ_COMMENT);
-	$new_item['obj'] = json_encode(array(
-		'type'    => $new_item['obj_type'],
-		'id'      => $update_item['mid'],
-		'parent'  => $update_item['parent_mid'],
-		'link'    => array(array('rel' => 'alternate','type' => 'text/html', 'href' => $update_item['plink'])),
-		'title'   => $update_item['title'],
-		'content' => $update_item['body'],
-		'created' => $update_item['created'],
-		'edited'  => $update_item['edited'],
-		'author'  => array(
-			'name'     => $item_author['xchan_name'],
-			'address'  => $item_author['xchan_addr'],
-			'guid'     => $item_author['xchan_guid'],
-			'guid_sig' => $item_author['xchan_guid_sig'],
-			'link'     => array(
-				array('rel' => 'alternate', 'type' => 'text/html', 'href' => $item_author['xchan_url']),
-				array('rel' => 'photo', 'type' => $item_author['xchan_photo_mimetype'], 'href' => $item_author['xchan_photo_m'])),
-			),
-	));
-
-
-	$x = post_activity_item($new_item);
-
-	$post_id = $x['id'];
-	if($post_id) {
-		$r = q("select * from item where id = %d",
-					intval($post_id)
-		);
-		if($r) {
-			xchan_query($r);
-			$sync_item = fetch_post_tags($r);
-			Libsync::build_sync_packet($new_item['uid'],array('item' => array(encode_item($sync_item[0],true))));
-		}
-	}
-
-	Master::Summon([ 'Notifier', 'edit_activity', $post_id ]);
-}
 
 /**
  * @brief copies an entire conversation from the pubstream to this channel's stream
  * which will allow you to interact with it.
  */
-
-
 
 function copy_of_pubitem($channel,$mid) {
 

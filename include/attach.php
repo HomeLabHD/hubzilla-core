@@ -1854,169 +1854,6 @@ function pipe_streams($in, $out, $bufsize = 16384) {
 	return $size;
 }
 
-/**
- * @brief Activity for files.
- *
- * @param int $channel_id
- * @param array $object
- * @param string $allow_cid
- * @param string $allow_gid
- * @param string $deny_cid
- * @param string $deny_gid
- * @param string $verb
- * @param boolean $notify
- */
-/*
-function file_activity($channel_id, $object, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $verb, $notify) {
-
-	require_once('include/items.php');
-
-	$poster = App::get_observer();
-
-	//if we got no object something went wrong
-	if(!$object)
-		return;
-
-	//turn strings into arrays
-	$arr_allow_cid = expand_acl($allow_cid);
-	$arr_allow_gid = expand_acl($allow_gid);
-	$arr_deny_cid = expand_acl($deny_cid);
-	$arr_deny_gid = expand_acl($deny_gid);
-
-	//filter out receivers which do not have permission to view filestorage
-	$arr_allow_cid = check_list_permissions($channel_id, $arr_allow_cid, 'view_storage');
-
-	$is_dir = (intval($object['is_dir']) ? true : false);
-
-	//do not send activity for folders for now
-	if($is_dir)
-		return;
-
-	//check for recursive perms if we are in a folder
-	if($object['folder']) {
-
-		$folder_hash = $object['folder'];
-
-		$r_perms = attach_recursive_perms($arr_allow_cid, $arr_allow_gid, $arr_deny_cid, $arr_deny_gid, $folder_hash);
-
-		if($r_perms === false) //nobody has recursive perms - nobody must be notified
-			return;
-
-		//split up returned perms
-		$arr_allow_cid = $r_perms['allow_cid'];
-		$arr_allow_gid = $r_perms['allow_gid'];
-		$arr_deny_cid = $r_perms['deny_cid'];
-		$arr_deny_gid = $r_perms['deny_gid'];
-
-		//filter out receivers which do not have permission to view filestorage
-		$arr_allow_cid = check_list_permissions($channel_id, $arr_allow_cid, 'view_storage');
-	}
-
-	$uuid = item_message_id();
-	$mid = z_root() . '/item/' . $uuid;
-
-	$objtype = 'ACTIVITY_OBJ_FILE';
-
-	$arr = array();
-	$arr['aid']           = get_account_id();
-	$arr['uid']           = $channel_id;
-	$arr['uuid']          = $uuid;
-	$arr['item_wall']     = 1;
-	$arr['item_origin']   = 1;
-	$arr['item_unseen']   = 1;
-	$arr['author_xchan']  = $poster['xchan_hash'];
-	$arr['owner_xchan']   = $poster['xchan_hash'];
-	$arr['title']         = '';
-	$arr['item_notshown'] = 1;
-	$arr['obj_type']      = $objtype;
-	$arr['resource_id']   = $object['hash'];
-	$arr['resource_type'] = 'attach';
-
-	$private = (($arr_allow_cid[0] || $arr_allow_gid[0] || $arr_deny_cid[0] || $arr_deny_gid[0]) ? 1 : 0);
-
-	$jsonobject = json_encode($object);
-
-	//check if item for this object exists
-	$y = q("SELECT mid FROM item WHERE verb = '%s' AND obj_type = '%s' AND resource_id = '%s' AND uid = %d LIMIT 1",
-		dbesc(ACTIVITY_POST),
-		dbesc($objtype),
-		dbesc($object['hash']),
-		intval(local_channel())
-	);
-
-	if($y) {
-		$update = true;
-		$object['d_mid'] = $y[0]['mid']; //attach mid of the old object
-		$u_jsonobject = json_encode($object);
-
-		//we have got the relevant info - delete the old item before we create the new one
-		q("DELETE FROM item WHERE obj_type = '%s' AND verb = '%s' AND mid = '%s'",
-			dbesc(ACTIVITY_OBJ_FILE),
-			dbesc(ACTIVITY_POST),
-			dbesc($y[0]['mid'])
-		);
-
-	}
-
-	//send update activity and create a new one
-	if($update && $verb == 'post' ) {
-		//updates should be sent to everybody with recursive perms and all eventual former allowed members ($object['allow_cid'] etc.).
-		$u_arr_allow_cid = array_unique(array_merge($arr_allow_cid, expand_acl($object['allow_cid'])));
-		$u_arr_allow_gid = array_unique(array_merge($arr_allow_gid, expand_acl($object['allow_gid'])));
-		$u_arr_deny_cid = array_unique(array_merge($arr_deny_cid, expand_acl($object['deny_cid'])));
-		$u_arr_deny_gid = array_unique(array_merge($arr_deny_gid, expand_acl($object['deny_gid'])));
-
-		$private = (($u_arr_allow_cid[0] || $u_arr_allow_gid[0] || $u_arr_deny_cid[0] || $u_arr_deny_gid[0]) ? 1 : 0);
-
-		$uuid = item_message_id();
-		$u_mid = z_root() . '/item/' . $uuid;
-
-		$arr['uuid']          = $uuid;
-		$arr['mid']           = $u_mid;
-		$arr['parent_mid']    = $u_mid;
-		$arr['allow_cid']     = perms2str($u_arr_allow_cid);
-		$arr['allow_gid']     = perms2str($u_arr_allow_gid);
-		$arr['deny_cid']      = perms2str($u_arr_deny_cid);
-		$arr['deny_gid']      = perms2str($u_arr_deny_gid);
-		$arr['item_private']  = $private;
-		$arr['verb']          = ACTIVITY_UPDATE;
-		$arr['obj']           = $u_jsonobject;
-		$arr['body']          = '';
-
-		post_activity_item($arr);
-
-		$update = false;
-	}
-
-	//don't create new activity if notify was not enabled
-	if(! $notify) {
-		return;
-	}
-
-	//don't create new activity if we have an update request but there is no item to update
-	//this can e.g. happen when deleting images
-	if(! $y && $verb == 'update') {
-		return;
-	}
-
-	$arr['mid']           = $mid;
-	$arr['parent_mid']    = $mid;
-	$arr['allow_cid']     = perms2str($arr_allow_cid);
-	$arr['allow_gid']     = perms2str($arr_allow_gid);
-	$arr['deny_cid']      = perms2str($arr_deny_cid);
-	$arr['deny_gid']      = perms2str($arr_deny_gid);
-	$arr['item_private']  = $private;
-	$arr['verb']          = (($update) ? ACTIVITY_UPDATE : ACTIVITY_POST);
-	$arr['obj']           = (($update) ? $u_jsonobject : $jsonobject);
-	$arr['body']          = '';
-
-	post_activity_item($arr);
-
-	return;
-}
-*/
-
-
 function attach_store_item($channel, $observer, $file) {
 
 
@@ -2127,7 +1964,7 @@ function attach_store_item($channel, $observer, $file) {
 	$arr['item_origin'] = 1;
 	$arr['item_thread_top'] = 1;
 	$arr['item_private'] = (($file['allow_cid'] || $file['allow_gid'] || $file['deny_cid'] || $file['deny_gid']) ? 1 : 0);
-	$arr['verb'] = ACTIVITY_CREATE;
+	$arr['verb'] = 'Create';
 	$arr['obj_type'] = $type;
 	$arr['title'] = $file['filename'];
 
@@ -2773,7 +2610,7 @@ function attach_move($channel_id, $resource_id, $new_folder_hash, $newname = '',
 			intval($channel_id)
 		);
 
-		q("update photo set content = CASE imgscale WHEN 0 THEN '%s' ELSE CONCAT('%s', '-', imgscale) END where resource_id = '%s' and uid = %d and os_storage = 1",
+		q("update photo set content = CASE imgscale WHEN 0 THEN %s ELSE CONCAT(%s, '-', imgscale) END where resource_id = '%s' and uid = %d and os_storage = 1",
 			dbescbin($newstorepath),
 			dbescbin($newstorepath),
 			dbesc($resource_id),

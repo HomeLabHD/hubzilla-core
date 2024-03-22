@@ -213,7 +213,7 @@ function reload_plugins() {
 							if(function_exists($pl . '_unload')) {
 								$func = $pl . '_unload';
 								try {
-										$func();
+									$func();
 								} catch (Exception $e) {
 									handleerrors_plugin($pl, '', 'UNLOAD FAILED (uninstalling) : ' . $e->getMessage(),true);
 									continue;
@@ -222,7 +222,7 @@ function reload_plugins() {
 							if(function_exists($pl . '_load')) {
 								$func = $pl . '_load';
 								try {
-										$func();
+									$func();
 								} catch (Exception $e) {
 									handleerrors_plugin($pl, '', 'LOAD FAILED (uninstalling): ' . $e->getMessage(),true);
 									continue;
@@ -556,7 +556,11 @@ function get_plugin_info($plugin){
 		$ll = explode("\n", $m[0]);
 		foreach( $ll as $l ) {
 			$l = trim($l, "\t\n\r */");
-			if ($l != ""){
+			if ($l != "") {
+				if (strpos($l, ':') === false) {
+					continue;
+				}
+
 				list($k, $v) = array_map("trim", explode(":", $l, 2));
 				$k = strtolower($k);
 				if ($k == 'author' || $k == 'maintainer'){
@@ -643,7 +647,11 @@ function get_widget_info($widget){
 		$ll = explode("\n", $m[0]);
 		foreach( $ll as $l ) {
 			$l = trim($l, "\t\n\r */");
-			if ($l != ""){
+			if ($l != "") {
+				if (strpos($l, ':') === false) {
+					continue;
+				}
+
 				list($k, $v) = array_map("trim", explode(":", $l, 2));
 				$k = strtolower($k);
 				if ($k == 'author' || $k == 'maintainer'){
@@ -778,7 +786,11 @@ function get_theme_info($theme){
 		$ll = explode("\n", $m[0]);
 		foreach( $ll as $l ) {
 			$l = trim($l, "\t\n\r */");
-			if ($l != ""){
+			if ($l != "") {
+				if (strpos($l, ':') === false) {
+					continue;
+				}
+
 				list($k, $v) = array_map("trim", explode(":", $l, 2));
 				$k = strtolower($k);
 				if ($k == 'author'){
@@ -860,7 +872,7 @@ function get_template_info($template){
 		$ll = explode("\n", $m[0]);
 		foreach( $ll as $l ) {
 			$l = trim($l, "\t\n\r */");
-			if ($l != ""){
+			if ($l != "") {
 				if (strpos($l, ':') === false) {
 					continue;
 				}
@@ -973,12 +985,12 @@ function format_css_if_exists($source) {
 		}
 	} else {
 		// It's a file from the theme
-		$path = '/' . theme_include($script);
+		$path = theme_include($script);
 	}
 
 	if($path) {
 		$qstring = ((parse_url($path, PHP_URL_QUERY)) ? '&' : '?') . 'v=' . STD_VERSION;
-		return '<link rel="stylesheet" href="' . $path_prefix . $path . $qstring . '" type="text/css" media="' . $source[1] . '">' . "\r\n";
+		return '<link rel="stylesheet" href="' . $path_prefix .  '/' . $path . $qstring . '" type="text/css" media="' . $source[1] . '">' . "\r\n";
 	}
 }
 
@@ -1045,11 +1057,11 @@ function format_js_if_exists($source) {
 	}
 	else {
 		// It's a file from the theme
-		$path = '/' . theme_include($source);
+		$path = theme_include($source);
 	}
 	if($path) {
 		$qstring = ((parse_url($path, PHP_URL_QUERY)) ? '&' : '?') . 'v=' . STD_VERSION;
-		return '<script src="' . $path_prefix . $path . $qstring . '" ></script>' . "\r\n" ;
+		return '<script src="' . $path_prefix . '/' . $path . $qstring . '" ></script>' . "\r\n" ;
 	}
 }
 

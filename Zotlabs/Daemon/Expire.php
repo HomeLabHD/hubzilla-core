@@ -43,8 +43,8 @@ class Expire {
 
 		logger('expire: start with pid ' . $pid, LOGGER_DEBUG);
 
-		$site_expire    = intval(get_config('system', 'default_expire_days'));
-		$commented_days = intval(get_config('system', 'active_expire_days'));
+		$site_expire    = intval(get_config('system', 'default_expire_days', 30));
+		$commented_days = intval(get_config('system', 'active_expire_days', 7));
 
 		logger('site_expire: ' . $site_expire);
 

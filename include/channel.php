@@ -16,6 +16,7 @@ use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Connect;
 use Zotlabs\Lib\Libsync;
 use Zotlabs\Lib\AccessList;
+use Zotlabs\Lib\Multibase;
 
 require_once('include/crypto.php');
 require_once('include/menu.php');
@@ -236,6 +237,10 @@ function create_identity($arr) {
 	$guid = Libzot::new_uid($nick);
 	$key = Crypto::new_keypair(4096);
 
+	$eckey = sodium_crypto_sign_keypair();
+	$ekey['pubkey'] = sodium_bin2base64(sodium_crypto_sign_publickey($eckey), SODIUM_BASE64_VARIANT_ORIGINAL_NO_PADDING);
+	$ekey['prvkey'] = sodium_bin2base64(sodium_crypto_sign_secretkey($eckey), SODIUM_BASE64_VARIANT_ORIGINAL_NO_PADDING);
+
 	// zot6
 	$sig = Libzot::sign($guid,$key['prvkey']);
 	$hash = Libzot::make_xchan_hash($guid,$key['pubkey']);
@@ -275,6 +280,8 @@ function create_identity($arr) {
 			'channel_portable_id' => '',
 			'channel_prvkey'      => $key['prvkey'],
 			'channel_pubkey'      => $key['pubkey'],
+			'channel_eprvkey'     => $ekey['prvkey'],
+			'channel_epubkey'     => $ekey['pubkey'],
 			'channel_pageflags'   => intval($pageflags),
 			'channel_system'      => intval($system),
 			'channel_expire_days' => intval($expire),
@@ -370,6 +377,7 @@ function create_identity($arr) {
 			'xchan_guid'        => $guid,
 			'xchan_guid_sig'    => $sig,
 			'xchan_pubkey'      => $key['pubkey'],
+			'xchan_epubkey'     => (new Multibase())->publicKey($ekey['pubkey']),
 			'xchan_photo_mimetype' => (($photo_type) ? $photo_type : 'image/png'),
 			'xchan_photo_l'     => z_root() . "/photo/profile/l/{$newuid}",
 			'xchan_photo_m'     => z_root() . "/photo/profile/m/{$newuid}",
@@ -1763,17 +1771,19 @@ function advanced_profile() {
 		if(App::$profile['gender']) $profile['gender'] = array( t('Gender:'),  App::$profile['gender'] );
 
 		$ob_hash = get_observer_hash();
+/* TODO: AS2 compatibility
 		if($ob_hash && perm_is_allowed(App::$profile['profile_uid'],$ob_hash,'post_like')) {
 			$profile['canlike'] = true;
 			$profile['likethis'] = t('Like this channel');
 			$profile['profile_guid'] = App::$profile['profile_guid'];
 		}
 
-		$likers = q("select liker, xchan.*  from likes left join xchan on liker = xchan_hash where channel_id = %d and target_type = '%s' and verb = '%s'",
+		$likers = q("select liker, xchan.*  from likes left join xchan on liker = xchan_hash where channel_id = %d and (target_type = 'Profile' OR target_type = '%s') and (verb = 'Like' OR verb = '%s')",
 			intval(App::$profile['profile_uid']),
 			dbesc(ACTIVITY_OBJ_PROFILE),
 			dbesc(ACTIVITY_LIKE)
 		);
+
 		$profile['likers'] = array();
 		$profile['like_count'] = count($likers);
 		$profile['like_button_label'] = tt('Like','Likes',$profile['like_count'],'noun');
@@ -1781,7 +1791,7 @@ function advanced_profile() {
 			foreach($likers as $l)
 				$profile['likers'][] = array('name' => $l['xchan_name'],'photo' => zid($l['xchan_photo_s']), 'url' => zid($l['xchan_url']));
 		}
-
+*/
 		if((App::$profile['dob']) && (App::$profile['dob'] != '0000-00-00')) {
 
 			$val = '';
@@ -2642,6 +2652,8 @@ function channel_store_lowlevel($arr) {
 		'channel_startpage'       => ((array_key_exists('channel_startpage',$arr))       ? $arr['channel_startpage']       : ''),
 		'channel_pubkey'          => ((array_key_exists('channel_pubkey',$arr))          ? $arr['channel_pubkey']          : ''),
 		'channel_prvkey'          => ((array_key_exists('channel_prvkey',$arr))          ? $arr['channel_prvkey']          : ''),
+		'channel_epubkey'         => ((array_key_exists('channel_epubkey',$arr))         ? $arr['channel_epubkey']         : ''),
+		'channel_eprvkey'         => ((array_key_exists('channel_eprvkey',$arr))         ? $arr['channel_eprvkey']         : ''),
 		'channel_notifyflags'     => ((array_key_exists('channel_notifyflags',$arr))     ? $arr['channel_notifyflags']     : '65535'),
 		'channel_pageflags'       => ((array_key_exists('channel_pageflags',$arr))       ? $arr['channel_pageflags']       : '0'),
 		'channel_dirdate'         => ((array_key_exists('channel_dirdate',$arr))         ? $arr['channel_dirdate']         : NULL_DATE),

@@ -216,26 +216,26 @@
 						</div>
 					</div>
 					<div id="like-rotator-{{$item.id}}" class="like-rotator"></div>
-					<div class="wall-item-tools-left btn-group"  id="wall-item-tools-left-{{$item.id}}">
+					<div class="wall-item-tools-left hstack gap-1"  id="wall-item-tools-left-{{$item.id}}">
 						{{if $item.star && $item.star.isstarred}}
-						<div class="btn-group" id="star-button-{{$item.id}}">
-							<button type="button" class="btn btn-outline-secondary btn-sm wall-item-like" onclick="dostar({{$item.id}});"><i class="fa fa-star"></i></button>
+						<div class="" id="star-button-{{$item.id}}">
+							<button type="button" class="btn btn-outline-secondary btn-sm border-0 wall-item-star" onclick="dostar({{$item.id}});"><i class="fa fa-star"></i></button>
 						</div>
 						{{/if}}
 						{{if $item.attachments}}
-						<div class="btn-group">
-							<button type="button" class="btn btn-outline-secondary btn-sm wall-item-like dropdown-toggle" data-bs-toggle="dropdown" id="attachment-menu-{{$item.id}}"><i class="fa fa-paperclip"></i></button>
+						<div class="">
+							<button type="button" class="btn btn-outline-secondary btn-sm border-0 wall-item-attach" data-bs-toggle="dropdown" id="attachment-menu-{{$item.id}}"><i class="fa fa-paperclip"></i></button>
 							<ul class="dropdown-menu" role="menu" aria-labelledby="attachment-menu-{{$item.id}}">{{$item.attachments}}</ul>
 						</div>
 						{{/if}}
 						<div class="wall-item-list-comments btn-group">
-							<a class="btn btn-outline-secondary btn-sm" href="{{$item.viewthread}}">
-								{{$item.comment_count_txt}}{{if $item.unseen_comments}}<span class="unseen-wall-indicator-{{$item.id}}">, {{$item.list_unseen_txt}}</span>{{/if}}
+							<a class="btn btn-outline-secondary btn-sm border-0 wall-item-comments" href="{{$item.viewthread}}" title="{{$item.comment_count_txt.label}}{{if $item.list_unseen_txt}}, {{$item.list_unseen_txt.label}}{{/if}}">
+								<i class="fa fa-comment-o"></i> {{$item.comment_count_txt.count}}{{if $item.unseen_comments}}<span class="unseen-wall-indicator-{{$item.id}}">, <i class="fa fa-eye-slash"></i> {{$item.list_unseen_txt.count}}</span>{{/if}}
 							</a>
 						</div>
 						{{if $item.unseen_comments}}
 						<div class="unseen-wall-indicator-{{$item.id}} btn-group">
-							<button class="btn btn-outline-secondary btn-sm" title="{{$item.markseen}}" onclick="markItemRead({{$item.id}}); return false;">
+							<button class="btn btn-outline-secondary btn-sm border-0" title="{{$item.markseen}}" onclick="markItemRead({{$item.id}}); return false;">
 								<i class="fa fa-check-square-o"></i>
 							</button>
 						</div>
@@ -243,14 +243,14 @@
 						{{if $item.responses }}
 						{{foreach $item.responses as $verb=>$response}}
 						{{if $response.count}}
-						<div class="btn-group">
-							<button type="button" class="btn btn-outline-secondary btn-sm wall-item-like dropdown-toggle"{{if $response.modal}} data-bs-toggle="modal" data-bs-target="#{{$verb}}Modal-{{$item.id}}"{{else}} data-bs-toggle="dropdown"{{/if}} id="wall-item-{{$verb}}-{{$item.id}}">{{$response.count}} {{$response.button}}</button>
+						<div class="">
+							<button type="button" class="btn btn-outline-secondary btn-sm border-0 wall-item-{{$response.button.class}}"{{if $response.modal}} data-bs-toggle="modal" data-bs-target="#{{$verb}}Modal-{{$item.id}}"{{else}} data-bs-toggle="dropdown"{{/if}} id="wall-item-{{$verb}}-{{$item.id}}"><i class="fa fa-{{$response.button.icon}}"></i> {{$response.count}}</button>
 							{{if $response.modal}}
 							<div class="modal" id="{{$verb}}Modal-{{$item.id}}">
 								<div class="modal-dialog">
 									<div class="modal-content">
 										<div class="modal-header">
-											<h4 class="modal-title">{{$response.count}} {{$response.button}}</h4>
+											<h4 class="modal-title">{{$response.count}} {{$response.button.label}}</h4>
 											<button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
 										</div>
 										<div class="modal-body response-list">

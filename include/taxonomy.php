@@ -58,7 +58,7 @@ function term_item_parent_query($uid,$table,$s,$type = TERM_UNKNOWN, $type2 = ''
 	$s = str_replace('*','%',$s);
 
 	if($type2) {
-		$r = q("select parent from item left join term on term.oid = item.id where term.ttype in (%d, %d) and term.term like '%s' and term.uid = %d and term.otype = 1 and item.verb != '%s'",
+		$r = q("select parent from item left join term on term.oid = item.id where term.ttype in (%d, %d) and term.term like '%s' and term.uid = %d and term.otype = 1 and item.verb NOT IN ('Update', '%s')",
 			intval($type),
 			intval($type2),
 			dbesc($s),
@@ -67,7 +67,7 @@ function term_item_parent_query($uid,$table,$s,$type = TERM_UNKNOWN, $type2 = ''
 		);
 	}
 	else {
-		$r = q("select parent from item left join term on term.oid = item.id where term.ttype = %d and term.term like '%s' and term.uid = %d and term.otype = 1 and item.verb != '%s'",
+		$r = q("select parent from item left join term on term.oid = item.id where term.ttype = %d and term.term like '%s' and term.uid = %d and term.otype = 1 and item.verb NOT IN ('Update', '%s')",
 			intval($type),
 			dbesc($s),
 			intval($uid),

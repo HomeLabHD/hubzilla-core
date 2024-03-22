@@ -3,10 +3,6 @@ namespace Zotlabs\Module;
 
 use Zotlabs\Lib\Libsync;
 
-require_once('include/channel.php');
-require_once('include/selectors.php');
-
-
 class Profiles extends \Zotlabs\Web\Controller {
 
 	function init() {
@@ -492,7 +488,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 
 				$publish = ((x($_POST, 'profile_in_directory') && (intval($_POST['profile_in_directory']) == 1)) ? 1 : 0);
 
-				profile_activity($changes,$value);
+				profile_activity($changes, $value);
 
 			}
 

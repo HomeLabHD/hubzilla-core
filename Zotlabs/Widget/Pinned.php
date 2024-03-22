@@ -46,7 +46,7 @@ class Pinned {
 
 		foreach($items as $item) {
 
-			$midb64 = gen_link_id($item['mid']);
+			$midb64 = $item['uuid'];
 
 			if(isset($observer['xchan_hash']) && in_array($observer['xchan_hash'], get_pconfig($item['uid'], 'pinned_hide', $midb64, [])))
 				continue;
@@ -74,17 +74,6 @@ class Pinned {
 				if($commentable && $observer) {
 					$attend = [ t('I will attend'), t('I will not attend'), t('I might attend') ];
 					$isevent = true;
-				}
-			}
-
-			$consensus = (intval($item['item_consensus']) ? true : false);
-			if($consensus) {
-				$conv_responses['agree'] = [ 'title' => t('Agree','title') ];
-				$conv_responses['disagree'] = [ 'title' => t('Disagree','title') ];
-				$conv_responses['abstain'] = [ 'title' => t('Abstain','title') ];
-				if($commentable && $observer) {
-					$conlabels = [ t('I agree'), t('I disagree'), t('I abstain') ];
-					$canvote = true;
 				}
 			}
 
@@ -203,7 +192,7 @@ class Pinned {
 		if(empty($mids_list))
 			return [];
 
-		$r = q("SELECT * FROM item WHERE mid IN ( '%s' ) AND uid = %d AND id = parent AND item_private = 0 ORDER BY created DESC",
+		$r = q("SELECT * FROM item WHERE uuid IN ( '%s' ) AND uid = %d AND id = parent AND item_private = 0 ORDER BY created DESC",
 			dbesc(implode(",", $mids_list)),
 			intval($this->uid)
 		);
@@ -225,39 +214,30 @@ class Pinned {
 	private function activity($item, &$conv_responses) {
 
 		foreach(array_keys($conv_responses) as $verb) {
+			$verb_sql = '';
 
 			switch($verb) {
 				case 'like':
-					$v = ACTIVITY_LIKE;
+					$verb_sql = " AND verb IN ('Like', '" . ACTIVITY_LIKE . "') ";
 					break;
 				case 'dislike':
-					$v = ACTIVITY_DISLIKE;
-					break;
-				case 'agree':
-					$v = ACTIVITY_AGREE;
-					break;
-				case 'disagree':
-					$v = ACTIVITY_DISAGREE;
-					break;
-				case 'abstain':
-					$v = ACTIVITY_ABSTAIN;
+					$verb_sql = " AND verb IN ('Dislike', '" . ACTIVITY_DISLIKE . "') ";
 					break;
 				case 'attendyes':
-					$v = ACTIVITY_ATTEND;
+					$verb_sql = " AND verb IN ('Accept', '" . ACTIVITY_ATTEND . "') ";
 					break;
 				case 'attendno':
-					$v = ACTIVITY_ATTENDNO;
+					$verb_sql = " AND verb IN ('Reject', '" . ACTIVITY_ATTENDNO . "') ";
 					break;
 				case 'attendmaybe':
-					$v = ACTIVITY_ATTENDMAYBE;
+					$verb_sql = " AND verb IN ('TentativeAccept', '" . ACTIVITY_ATTENDMAYBE . "') ";
 					break;
 				default:
 					break;
 			}
 
-			$r = q("SELECT * FROM item WHERE parent = %d AND id <> parent AND verb = '%s' AND item_deleted = 0",
-				intval($item['id']),
-				dbesc($v)
+			$r = q("SELECT * FROM item WHERE parent = %d AND id <> parent $verb_sql AND item_deleted = 0",
+				intval($item['id'])
 			);
 			if(! $r) {
 				unset($conv_responses[$verb]);

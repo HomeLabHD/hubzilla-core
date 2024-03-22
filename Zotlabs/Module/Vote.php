@@ -98,7 +98,7 @@ class Vote extends Controller {
 
 			// now reset the placeholders
 
-			$item['verb'] = ACTIVITY_POST;
+			$item['verb'] = 'Create';
 			$item['obj_type'] = 'Answer';
 			unset($item['author']);
 

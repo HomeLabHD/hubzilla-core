@@ -13,8 +13,6 @@
     {{include file="field_input.tpl" field=$reply_address}}
     {{include file="field_input.tpl" field=$from_email}}
     {{include file="field_input.tpl" field=$from_email_name}}
-
-	{{include file="field_select.tpl" field=$language}}
 	{{include file="field_select.tpl" field=$theme}}
     {{* include file="field_select.tpl" field=$theme_mobile *}}
     {{include file="field_input.tpl" field=$frontpage}}

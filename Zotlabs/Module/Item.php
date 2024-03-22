@@ -52,7 +52,7 @@ class Item extends Controller {
 
 			$portable_id = EMPTY_STR;
 
-			$item_normal_extra = sprintf(" and not verb in ('%s', '%s') ",
+			$item_normal_extra = sprintf(" and not verb in ('Follow', 'Ignore', '%s', '%s') ",
 				dbesc(ACTIVITY_FOLLOW),
 				dbesc(ACTIVITY_UNFOLLOW)
 			);
@@ -168,7 +168,7 @@ class Item extends Controller {
 
 			$portable_id = EMPTY_STR;
 
-			$item_normal_extra = sprintf(" and not verb in ('%s', '%s') ",
+			$item_normal_extra = sprintf(" and not verb in ('Follow', 'Ignore', '%s', '%s') ",
 				dbesc(ACTIVITY_FOLLOW),
 				dbesc(ACTIVITY_UNFOLLOW)
 			);
@@ -275,7 +275,7 @@ class Item extends Controller {
 
 
 		if (argc() > 1 && argv(1) !== 'drop') {
-			$x = q("select uid, item_wall, llink, mid from item where mid = '%s' or mid = '%s' or uuid = '%s'",
+			$x = q("select uid, item_wall, llink, mid, uuid from item where mid = '%s' or mid = '%s' or uuid = '%s'",
 				dbesc(z_root() . '/item/' . argv(1)),
 				dbesc(z_root() . '/activity/' . argv(1)),
 				dbesc(argv(1))
@@ -285,7 +285,7 @@ class Item extends Controller {
 					if (intval($xv['item_wall'])) {
 						$c = channelx_by_n($xv['uid']);
 						if ($c) {
-							goaway(z_root() . '/channel/' . $c['channel_address'] . '?mid=' . gen_link_id($xv['mid']));
+							goaway(z_root() . '/channel/' . $c['channel_address'] . '?mid=' . $xv['uuid']);
 						}
 					}
 				}
@@ -298,7 +298,6 @@ class Item extends Controller {
 
 
 	function post() {
-
 		// This will change. Figure out who the observer is and whether or not
 		// they have permission to post here. Else ignore the post.
 
@@ -405,7 +404,7 @@ class Item extends Controller {
 		$pagetitle     = ((x($_REQUEST, 'pagetitle')) ? escape_tags($_REQUEST['pagetitle']) : '');
 		$layout_mid    = ((x($_REQUEST, 'layout_mid')) ? escape_tags($_REQUEST['layout_mid']) : '');
 		$plink         = ((x($_REQUEST, 'permalink')) ? escape_tags($_REQUEST['permalink']) : '');
-		$obj_type      = ((x($_REQUEST, 'obj_type')) ? escape_tags($_REQUEST['obj_type']) : ACTIVITY_OBJ_NOTE);
+		$obj_type      = ((x($_REQUEST, 'obj_type')) ? escape_tags($_REQUEST['obj_type']) : 'Article');
 
 		// allow API to bulk load a bunch of imported items with sending out a bunch of posts.
 		$nopush = ((x($_REQUEST, 'nopush')) ? intval($_REQUEST['nopush']) : 0);
@@ -443,9 +442,6 @@ class Item extends Controller {
 
 			if (!x($_REQUEST, 'type'))
 				$_REQUEST['type'] = 'net-comment';
-
-			if ($obj_type == ACTIVITY_OBJ_NOTE)
-				$obj_type = ACTIVITY_OBJ_COMMENT;
 
 			if ($parent) {
 				$r = q("SELECT * FROM item WHERE id = %d LIMIT 1",
@@ -679,7 +675,7 @@ class Item extends Controller {
 			$verb                = $orig_post['verb'];
 			$app                 = $orig_post['app'];
 			$title               = escape_tags(trim($_REQUEST['title']));
-			$summary             = trim($_REQUEST['summary']);
+			$summary             = escape_tags(trim($_REQUEST['summary']));
 			$body                = trim($_REQUEST['body']);
 			$item_flags          = $orig_post['item_flags'];
 			$item_origin         = $orig_post['item_origin'];
@@ -740,7 +736,7 @@ class Item extends Controller {
 			$coord    = ((isset($_REQUEST['coord'])) ? notags(trim($_REQUEST['coord'])) : '');
 			$verb     = ((isset($_REQUEST['verb'])) ? notags(trim($_REQUEST['verb'])) : '');
 			$title    = ((isset($_REQUEST['title'])) ? escape_tags(trim($_REQUEST['title'])) : '');
-			$summary  = ((isset($_REQUEST['summary'])) ? trim($_REQUEST['summary']) : '');
+			$summary  = ((isset($_REQUEST['summary'])) ? escape_tags(trim($_REQUEST['summary'])) : '');
 			$body     = ((isset($_REQUEST['body'])) ? trim($_REQUEST['body']) : '');
 			$body     .= ((isset($_REQUEST['attachment'])) ? trim($_REQUEST['attachment']) : '');
 			$postopts = '';
@@ -793,7 +789,6 @@ class Item extends Controller {
 			&& ($channel['channel_pageflags'] & PAGE_ALLOWCODE)) ? true : false);
 
 		if ($preview) {
-			$summary = z_input_filter($summary, $mimetype, $execflag);
 			$body    = z_input_filter($body, $mimetype, $execflag);
 		}
 
@@ -943,6 +938,30 @@ class Item extends Controller {
 				}
 			}
 
+			if (preg_match_all('/(\:(\w|\+|\-)+\:)(?=|[\!\.\?]|$)/', $body, $match)) {
+				// emoji shortcodes
+				$emojis = get_emojis();
+				foreach ($match[0] as $mtch) {
+					$shortname = trim($mtch, ':');
+
+					if (!isset($emojis[$shortname])) {
+						continue;
+					}
+
+					$emoji = $emojis[$shortname];
+
+					$post_tags[] = [
+						'uid'   => $profile_uid,
+						'ttype' => TERM_EMOJI,
+						'otype' => TERM_OBJ_POST,
+						'term'  => trim($mtch),
+						'url'   => z_root() . '/emoji/' . $shortname,
+						'imgurl' => z_root() . '/' . $emoji['filepath']
+					];
+				}
+			}
+
+
 			// BBCODE end alert
 		}
 
@@ -962,6 +981,10 @@ class Item extends Controller {
 				];
 			}
 		}
+
+
+
+
 
 		if ($orig_post) {
 			// preserve original tags
@@ -1009,7 +1032,7 @@ class Item extends Controller {
 
 
 		if (!strlen($verb))
-			$verb = ACTIVITY_POST;
+			$verb = 'Create';
 
 		$notify_type = (($parent) ? 'comment-new' : 'wall-new');
 
@@ -1220,18 +1243,6 @@ class Item extends Controller {
 				$this->add_listeners($datarray);
 			}
 
-			// We only need edit activities for other federated protocols
-			// which do not support edits natively. While this does federate
-			// edits, it presents a number of issues locally - such as #757 and #758.
-			// The SQL check for an edit activity would not perform that well so to fix these issues
-			// requires an additional item flag (perhaps 'item_edit_activity') that we can add to the
-			// query for searches and notifications.
-
-			// For now we'll just forget about trying to make edits work on network protocols that
-			// don't support them.
-
-			// item_create_edit_activity($x);
-
 			if (!$parent) {
 				$r = q("select * from item where id = %d",
 					intval($post_id)
@@ -1285,8 +1296,8 @@ class Item extends Controller {
 						'from_xchan' => $datarray['author_xchan'],
 						'to_xchan'   => $datarray['owner_xchan'],
 						'item'       => $datarray,
-						'link'       => z_root() . '/display/' . gen_link_id($datarray['mid']),
-						'verb'       => ACTIVITY_POST,
+						'link'       => z_root() . '/display/' . $datarray['uuid'],
+						'verb'       => 'Create',
 						'otype'      => 'item',
 						'parent'     => $parent,
 						'parent_mid' => $parent_item['mid']
@@ -1303,8 +1314,8 @@ class Item extends Controller {
 						'from_xchan' => $datarray['author_xchan'],
 						'to_xchan'   => $datarray['owner_xchan'],
 						'item'       => $datarray,
-						'link'       => z_root() . '/display/' . gen_link_id($datarray['mid']),
-						'verb'       => ACTIVITY_POST,
+						'link'       => z_root() . '/display/' . $datarray['uuid'],
+						'verb'       => 'Create',
 						'otype'      => 'item'
 					]);
 				}
@@ -1349,7 +1360,7 @@ class Item extends Controller {
 		}
 
 		$datarray['id']    = $post_id;
-		$datarray['llink'] = z_root() . '/display/' . gen_link_id($datarray['mid']);
+		$datarray['llink'] = z_root() . '/display/' . $datarray['uuid'];
 
 		call_hooks('post_local_end', $datarray);
 
@@ -1373,7 +1384,7 @@ class Item extends Controller {
 
 		if ($return_path) {
 			if ($return_path === 'hq') {
-				goaway(z_root() . '/hq/' . gen_link_id($datarray['mid']));
+				goaway(z_root() . '/hq/' . $datarray['uuid']);
 			}
 
 			goaway(z_root() . "/" . $return_path);

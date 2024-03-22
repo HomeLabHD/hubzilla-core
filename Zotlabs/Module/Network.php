@@ -275,7 +275,7 @@ class Network extends \Zotlabs\Web\Controller {
 
 					$vnotify = get_pconfig(local_channel(), 'system', 'vnotify');
 					if(! ($vnotify & VNOTIFY_LIKE))
-						$likes_sql = " AND verb NOT IN ('" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+						$likes_sql = " AND verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 
 					// This is for nouveau view public forum cid queries (if a forum notification is clicked)
 					//$p = q("SELECT oid AS parent FROM term WHERE uid = %d AND ttype = %d AND term = '%s'",

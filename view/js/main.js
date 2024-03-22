@@ -825,12 +825,12 @@ function scrollToItem() {
 	if(justifiedGalleryActive)
 		return;
 
-	var submid = ((bParam_mid.length) ? bParam_mid : 'abcdefg');
-	var encoded = ((submid.substr(0,4) == 'b64.') ? true : false);
-	var submid_encoded = ((encoded) ? submid : window.btoa(submid));
+	let submid = ((bParam_mid.length) ? bParam_mid : 'abcdefg');
+	//var encoded = ((submid.substr(0,4) == 'b64.') ? true : false);
+	//var submid_encoded = ((encoded) ? submid : window.btoa(submid));
 
 	$('.thread-wrapper').filter(function() {
-		if($(this).data('b64mids').indexOf(submid_encoded) > -1 && !$(this).hasClass('toplevel_item')) {
+		if($(this).data('b64mids').indexOf(submid) > -1 && !$(this).hasClass('toplevel_item')) {
 			if($('.collapsed-comments').length) {
 				var scrolltoid = $('.collapsed-comments').attr('id').substring(19);
 				$('#collapsed-comments-' + scrolltoid + ' .autotime').timeago();
@@ -847,9 +847,21 @@ function scrollToItem() {
 
 function collapseHeight() {
 	$(".wall-item-content:not('.divmore_checked'), .directory-collapse:not('.divmore_checked')").each(function(i) {
-		var orgHeight = $(this).outerHeight(true);
-		var id = $(this).attr('id')
-		var open = ((expanded_items.indexOf($(this).attr('id')) === -1) ? false : true);
+		let orgHeight = $(this).outerHeight(true);
+		let id = (($(this).attr('id')) ? $(this).attr('id').split('wall-item-content-').pop() : 0);
+		let b64mid = ((typeof bParam_mid !== 'undefined') ? bParam_mid : '');
+
+		if (b64mid) {
+			// Display the selected mid in an open state
+			let b64mids = $('#thread-wrapper-' + id).data('b64mids');
+
+			if (b64mids.length && b64mids.indexOf(b64mid) !== -1) {;
+				expanded_items.push(id);
+			}
+		}
+
+		let open = ((expanded_items.indexOf(id) === -1) ? false : true);
+
 		if(orgHeight > divmore_height) {
 			if(! $(this).hasClass('divmore') && $(this).has('div.no-collapse').length == 0) {
 				$(this).readmore({
@@ -1346,7 +1358,7 @@ function dostar(ident) {
 			$('#starred-' + ident).removeClass('fa-star-o');
 			$('#star-' + ident).addClass('hidden');
 			$('#unstar-' + ident).removeClass('hidden');
-			var btn_tpl = '<div class="btn-group" id="star-button-' + ident + '"><button type="button" class="btn btn-outline-secondary btn-sm wall-item-like" onclick="dostar(' + ident + ');"><i class="fa fa-star"></i></button></div>'
+			var btn_tpl = '<div class="btn-group" id="star-button-' + ident + '"><button type="button" class="btn btn-outline-secondary border-0 btn-sm wall-item-star" onclick="dostar(' + ident + ');"><i class="fa fa-star"></i></button></div>'
 			$('#wall-item-tools-left-' + ident).prepend(btn_tpl);
 		}
 		else {

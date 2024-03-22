@@ -23,12 +23,14 @@
 namespace Zotlabs\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\TestResult;
 
 /*
  * Make sure global constants and the global App object is available to the
  * tests.
  */
 require_once __DIR__ . '/../../boot.php';
+require_once 'include/dba/dba_driver.php' ;
 
 /**
  * @brief Base class for our Unit Tests.
@@ -39,6 +41,94 @@ require_once __DIR__ . '/../../boot.php';
  *
  * @author Klaus Weidenbach
  */
-abstract class UnitTestCase extends TestCase {
-	// when needed we can define functionality here which is used in UnitTests.
+class UnitTestCase extends TestCase {
+	protected array $fixtures = array();
+
+	/**
+	 * Override the PHPUnit\Framework\TestCase::run method, so we can
+	 * wrap it in a database transaction.
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+	 */
+	public function run(TestResult $result = null): TestResult {
+		// $myclass = get_class($this);
+		// logger("[*] Running test: {$myclass}::{$this->getName(true)}", LOGGER_DEBUG);
+
+		if (! \DBA::$dba) {
+			//logger('[*] Connecting to test db...');
+			$this->connect_to_test_db();
+		}
+
+		// The $transactuion variable is needed to hold the transaction until the
+		// function returns.
+		$transaction = new \DbaTransaction(\DBA::$dba);
+
+		$this->loadFixtures();
+
+		// Make sure app config is reset and loaded from fixtures
+		\App::$config = array();
+		\Zotlabs\Lib\Config::Load('system');
+
+		$result = parent::run($result);
+
+		return $result;
+	}
+
+	protected function connect_to_test_db() : void {
+		if ( !\DBA::$dba ) {
+			\DBA::dba_factory(
+				getenv('HZ_TEST_DB_HOST') ?: 'localhost',
+
+				// Use default port for db type if none specified
+				getenv('HZ_TEST_DB_PORT'),
+				getenv('HZ_TEST_DB_USER') ?: 'test_user',
+				getenv('HZ_TEST_DB_PASS') ?: 'hubzilla',
+				getenv('HZ_TEST_DB_DATABASE') ?: 'hubzilla_test_db',
+				self::dbtype(getenv('HZ_TEST_DB_TYPE')),
+				getenv('HZ_TEST_DB_CHARSET') ?: 'UTF8',
+				false);
+
+			if ( !\DBA::$dba->connected ) {
+				$msg = "Unable to connect to db! ";
+				if(file_exists('dbfail.out')) {
+					$msg .= file_get_contents('dbfail.out');
+				}
+
+				throw new \Exception($msg);
+			}
+
+			\DBA::$dba->dbg(true);
+		}
+	}
+
+	private static function dbtype(string $type): int {
+		if (trim(strtolower($type)) === 'postgres') {
+			return DBTYPE_POSTGRES;
+		} else {
+			return DBTYPE_MYSQL;
+		}
+	}
+
+	private function loadFixtures() : void {
+		$files = glob(__DIR__ . '/includes/dba/_files/*.yml');
+		if ($files === false || empty($files)) {
+			error_log('[-] ' . __METHOD__ . ': No fixtures found! :(');
+		}
+		array_walk($files, fn($file) => $this->loadFixture($file));
+	}
+
+	private function loadFixture($file) : void {
+		$table_name = basename($file, '.yml');
+		$this->fixtures[$table_name] = yaml_parse_file($file)[$table_name];
+
+		foreach ($this->fixtures[$table_name] as $entry) {
+			$query = 'INSERT INTO ' . dbesc($table_name) . '('
+				. implode(',', array_keys($entry))
+				. ') VALUES('
+				. implode(',', array_map(fn($val) => "'{$val}'", array_values($entry)))
+				. ')';
+
+			q($query);
+		}
+	}
 }

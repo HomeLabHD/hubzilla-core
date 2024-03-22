@@ -3,7 +3,6 @@
 </button>
 <div class="dropdown-menu">
 	<a class="dropdown-item contact-tool" href="#" title="{{$tools.refresh.title}}" data-cmd="refresh">{{$tools.refresh.label}}</a>
-	<a class="dropdown-item contact-tool" href="#" title="{{$tools.rephoto.title}}" data-cmd="resetphoto">{{$tools.rephoto.label}}</a>
 	<div class="dropdown-divider"></div>
 	<a class="dropdown-item contact-tool" href="#" title="{{$tools.block.title}}"  data-cmd="block">{{$tools.block.label}}</a>
 	<a class="dropdown-item contact-tool" href="#" title="{{$tools.ignore.title}}" data-cmd="ignore">{{$tools.ignore.label}}</a>

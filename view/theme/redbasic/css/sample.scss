@@ -1,0 +1,14 @@
+// To compiled custom site bootstrap from sass,
+// run this script from the document root for an example:
+// php vendor/bin/pscss view/theme/redbasic/css/sample.scss view/theme/redbasic/css/bootstrap-custom.css
+
+// See https://getbootstrap.com/docs/5.3/customize/sass/ for more infos
+
+// required import
+@import "vendor/twbs/bootstrap/scss/_functions";
+
+$primary: #ff0000; // set the $primary variable
+
+
+// set changes
+@import "vendor/twbs/bootstrap/scss/bootstrap";

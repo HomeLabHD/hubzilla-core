@@ -24,9 +24,9 @@ class Subthread extends \Zotlabs\Web\Controller {
 		$item_id = ((argc() > 2) ? notags(trim(argv(2))) : 0);
 
 		if(argv(1) === 'sub')
-			$activity = ACTIVITY_FOLLOW;
+			$activity = 'Follow';
 		elseif(argv(1) === 'unsub')
-			$activity = ACTIVITY_UNFOLLOW;
+			$activity = 'Ignore';
 
 
 		$i = q("select * from item where id = %d and uid = %d",
@@ -106,16 +106,13 @@ class Subthread extends \Zotlabs\Web\Controller {
 		else
 			killme();
 
-
-
-
 		$uuid = item_message_id();
 		$mid = z_root() . '/item/' . $uuid;
 
 		$post_type = (($item['resource_type'] === 'photo') ? t('photo') : t('status'));
 
 		$links = array(array('rel' => 'alternate','type' => 'text/html', 'href' => $item['plink']));
-		$objtype = (($item['resource_type'] === 'photo') ? ACTIVITY_OBJ_PHOTO : ACTIVITY_OBJ_NOTE );
+		$objtype = (($item['resource_type'] === 'photo') ? 'Image' : 'Note');
 
 		$body = $item['body'];
 
@@ -124,9 +121,9 @@ class Subthread extends \Zotlabs\Web\Controller {
 		if(! intval($item['item_thread_top']))
 			$post_type = 'comment';
 
-		if($activity === ACTIVITY_FOLLOW)
+		if($activity === 'Follow')
 			$bodyverb = t('%1$s is following %2$s\'s %3$s');
-		if($activity === ACTIVITY_UNFOLLOW)
+		if($activity === 'Ignore')
 			$bodyverb = t('%1$s stopped following %2$s\'s %3$s');
 
 		$arr = array();
@@ -149,7 +146,7 @@ class Subthread extends \Zotlabs\Web\Controller {
 
 		$ulink = '[zrl=' . $item_author['xchan_url'] . ']' . $item_author['xchan_name'] . '[/zrl]';
 		$alink = '[zrl=' . $observer['xchan_url'] . ']' . $observer['xchan_name'] . '[/zrl]';
-		$plink = '[zrl=' . z_root() . '/display/' . gen_link_id($item['mid']) . ']' . $post_type . '[/zrl]';
+		$plink = '[zrl=' . z_root() . '/display/' . $item['uuid'] . ']' . $post_type . '[/zrl]';
 
 		$arr['body']          =  sprintf( $bodyverb, $alink, $ulink, $plink );
 

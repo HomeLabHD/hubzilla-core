@@ -45,7 +45,7 @@ function contact_format(item) {
 }
 
 function smiley_format(item) {
-	return "<div class='dropdown-item'>" + item.icon + ' ' + item.text + "</div>";
+	return "<div class='dropdown-item'><img class='emoji' src='" + item.filepath + "'> " + item.shortname.replaceAll(':', '') + "</div>";
 }
 
 function bbco_format(item) {
@@ -193,8 +193,8 @@ function string2bb(element) {
 			match: /(^|\s)(:[a-z0-9_:]{2,})$/,
 			index: 2,
 			cache: true,
-			search: function(term, callback) { $.getJSON('/smilies/json').done(function(data) { callback($.map(data, function(entry) { return entry.text.indexOf(term.substr(1)) !== -1 ? entry : null; })); }); },
-			replace: function(item) { return "$1" + item.text + ' '; },
+			search: function(term, callback) { $.getJSON('/smilies/json').done(function(data) { callback($.map(data, function(entry) { return entry.shortname.indexOf(term.substr(1)) !== -1 ? entry : null; })); }); },
+			replace: function(item) { return "$1" + item.shortname + ' '; },
 			context: function(text) { return text.toLowerCase(); },
 			template: smiley_format
 		};

@@ -58,7 +58,9 @@ function format_event_html($ev) {
 				$ev['dtend'] , $bd_format )))
 			. '</span></div>'  . "\r\n";
 
-	$o .= '<div class="event-description">' . zidify_links(smilies(bbcode($ev['description']))) .  '</div>' . "\r\n";
+	if (!empty($ev['description'])) {
+		$o .= '<div class="event-description">' . zidify_links(smilies(bbcode($ev['description']))) .  '</div>' . "\r\n";
+	}
 
 	if(isset($ev['location']) && $ev['location'])
 		$o .= '<div class="event-location"><span class="event-label"> ' . t('Location:') . '</span>&nbsp;<span class="location">'
@@ -117,6 +119,7 @@ function format_event_obj($jobject) {
 
 		$dtdiff = $dtstart->diff($dtend_obj);
 
+		$oneday = false;
 		if($allday && ($dtdiff->days < 2))
 			$oneday = true;
 
@@ -993,7 +996,7 @@ function event_import_ical($ical, $uid) {
 	$ev['timezone'] = 'UTC';
 
 	// Try to get an usable olson format timezone
-	if($ev['adjust']) {
+	if($ev['adjust'] && isset($ical->DTSTART['TZID'])) {
 		//TODO: we should pass the vcalendar to getTimeZone() to be more accurate
 		// we do not have it here since parse_ical_file() is passing the vevent only.
 		$timezone_obj = \Sabre\VObject\TimeZoneUtil::getTimeZone($ical->DTSTART['TZID']);
@@ -1308,7 +1311,7 @@ function event_store_item($arr, $event) {
 			dbesc($sig),
 			intval($r[0]['item_flags']),
 			intval($private),
-			dbesc(ACTIVITY_OBJ_EVENT),
+			dbesc('Event'),
 			intval($r[0]['id']),
 			intval($arr['uid'])
 		);
@@ -1405,7 +1408,7 @@ function event_store_item($arr, $event) {
 
 		$item_arr['resource_type']   = 'event';
 		$item_arr['resource_id']     = $event['event_hash'];
-		$item_arr['obj_type']        = ACTIVITY_OBJ_EVENT;
+		$item_arr['obj_type']        = 'Event';
 		$item_arr['body']            = $prefix . format_event_bbcode($arr);
 
 		// if it's local send the permalink to the channel page.
@@ -1414,7 +1417,7 @@ function event_store_item($arr, $event) {
 		if($wall)
 			$item_arr['plink'] = $item_arr['mid'];
 		else
-			$item_arr['plink'] = z_root() . '/display/' . gen_link_id($item_arr['mid']);
+			$item_arr['plink'] = z_root() . '/display/' . $item_arr['uuid'];
 
 		set_iconfig($item_arr, 'event','timezone',$arr['timezone'],true);
 

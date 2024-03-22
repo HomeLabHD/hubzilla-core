@@ -101,15 +101,22 @@ class Channel extends Controller {
 			App::$meta->set('robots', 'noindex, noarchive');
 		}
 
+		$identifier = 'uuid';
+		$mid = $_REQUEST['mid'] ?? '';
+
+		if (str_starts_with($mid, 'b64.')) {
+			$mid = unpack_link_id($mid);
+			$identifier = 'mid';
+		}
+
+		if ($mid === false) {
+			http_status_exit(404, 'Not found');
+		}
+
 		if (ActivityStreams::is_as_request($channel)) {
 
 			// Somebody may attempt an ActivityStreams fetch on one of our message permalinks
 			// Make it do the right thing.
-
-			$mid = ((x($_REQUEST, 'mid')) ? unpack_link_id($_REQUEST['mid']) : '');
-			if ($mid === false) {
-				http_status_exit(404, 'Not found');
-			}
 
 			if ($mid) {
 				$obj = null;
@@ -127,6 +134,7 @@ class Channel extends Controller {
 					$obj->init();
 				}
 			}
+
 			as_return_and_die(Activity::encode_person($channel, true), $channel);
 		}
 
@@ -155,15 +163,9 @@ class Channel extends Controller {
 		profile_load($which, $profile);
 
 		// Add Opengraph markup
-		$mid = ((x($_REQUEST, 'mid')) ? unpack_link_id($_REQUEST['mid']) : '');
-
-		if ($mid === false) {
-			notice(t('Malformed message id.') . EOL);
-			return;
-		}
 
 		if ($mid) {
-			$r = q("SELECT * FROM item WHERE mid = '%s' AND uid = %d AND item_private = 0 LIMIT 1",
+			$r = q("SELECT * FROM item WHERE $identifier = '%s' AND uid = %d AND item_private = 0 LIMIT 1",
 				dbesc($mid),
 				intval($channel['channel_id'])
 			);
@@ -178,7 +180,16 @@ class Channel extends Controller {
 
 		$category = $datequery = $datequery2 = '';
 
-		$mid = ((x($_REQUEST, 'mid')) ? unpack_link_id($_REQUEST['mid']) : '');
+		$mid = $_REQUEST['mid'] ?? '';
+		$identifier = 'uuid';
+		$encoded_mid = null;
+
+		if (str_starts_with($mid, 'b64.')) {
+			$encoded_mid = $mid;
+			$mid = unpack_link_id($mid);
+			$identifier = 'mid';
+		}
+
 		if ($mid === false) {
 			notice(t('Malformed message id.') . EOL);
 			return;
@@ -322,7 +333,7 @@ class Channel extends Controller {
 		if (($update) && (!$load)) {
 
 			if ($mid) {
-				$r = q("SELECT parent AS item_id from item where mid = '%s' and uid = %d $item_normal_update
+				$r = q("SELECT parent AS item_id, uuid from item where $identifier = '%s' and uid = %d $item_normal_update
 					AND item_wall = 1 $simple_update $sql_extra limit 1",
 					dbesc($mid),
 					intval(App::$profile['profile_uid'])
@@ -370,7 +381,7 @@ class Channel extends Controller {
 
 			if ($noscript_content || $load) {
 				if ($mid) {
-					$r = q("SELECT parent AS item_id from item where mid = '%s' and uid = %d $item_normal
+					$r = q("SELECT parent AS item_id, uuid from item where $identifier = '%s' and uid = %d $item_normal
 						AND item_wall = 1 $sql_extra limit 1",
 						dbesc($mid),
 						intval(App::$profile['profile_uid'])
@@ -396,7 +407,6 @@ class Channel extends Controller {
 			}
 		}
 		if ($r) {
-
 			$parents_str = ids_to_querystr($r, 'item_id');
 
 			$r = q("SELECT item.*, item.id AS item_id
@@ -427,12 +437,8 @@ class Channel extends Controller {
 
 		$mode = (($search) ? 'search' : 'channel');
 
+
 		if ((!$update) && (!$load)) {
-
-
-
-			//if we got a decoded hash we must encode it again before handing to javascript
-			$mid = gen_link_id($mid);
 
 			// This is ugly, but we can't pass the profile_uid through the session to the ajax updater,
 			// because browser prefetching might change it on us. We have to deliver it with the page.
@@ -470,7 +476,7 @@ class Channel extends Controller {
 				'$file'      => '',
 				'$cats'      => (($category) ? urlencode($category) : ''),
 				'$tags'      => (($hashtags) ? urlencode($hashtags) : ''),
-				'$mid'       => (($mid) ? urlencode($mid) : ''),
+				'$mid'       => $encoded_mid ?? $mid,
 				'$verb'      => '',
 				'$net'       => '',
 				'$dend'      => $datequery,

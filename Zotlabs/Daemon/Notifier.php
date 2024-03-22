@@ -5,7 +5,6 @@ namespace Zotlabs\Daemon;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\Queue;
-use Zotlabs\Lib\LDSignatures;
 
 require_once('include/html2plain.php');
 require_once('include/conversation.php');
@@ -271,14 +270,13 @@ class Notifier {
 			// Check for non published items, but allow an exclusion for transmitting hidden file activities
 
 			if (intval($target_item['item_unpublished']) || intval($target_item['item_delayed']) ||
-				intval($target_item['item_blocked']) ||
-				(intval($target_item['item_hidden']) && ($target_item['obj_type'] !== ACTIVITY_OBJ_FILE))) {
+				intval($target_item['item_blocked']) || intval($target_item['item_hidden'])) {
 				logger('notifier: target item not published, so not forwardable', LOGGER_DEBUG);
 				return;
 			}
 
 			// follow/unfollow is for internal use only
-			if (in_array($target_item['verb'], [ACTIVITY_FOLLOW, ACTIVITY_UNFOLLOW])) {
+			if (in_array($target_item['verb'], ['Follow', 'Ignore', ACTIVITY_FOLLOW, ACTIVITY_UNFOLLOW])) {
 				logger('not fowarding follow/unfollow note activity');
 				return;
 			}
@@ -342,14 +340,7 @@ class Notifier {
 				self::$encoded_item = json_decode($m, true);
 			}
 			else {
-
-				self::$encoded_item = array_merge(['@context' => [
-					ACTIVITYSTREAMS_JSONLD_REV,
-					'https://w3id.org/security/v1',
-					z_root() . ZOT_APSCHEMA_REV
-				]], Activity::encode_activity($target_item)
-				);
-				self::$encoded_item['signature'] = LDSignatures::sign(self::$encoded_item, self::$channel);
+				self::$encoded_item = Activity::build_packet(Activity::encode_activity($target_item), self::$channel, false);
 			}
 
 			logger('target_item: ' . print_r($target_item, true), LOGGER_DEBUG);
@@ -382,7 +373,8 @@ class Notifier {
 
 			if (($relay_to_owner || $uplink) && ($cmd !== 'relay')) {
 				logger('notifier: followup relay', LOGGER_DEBUG);
-				$sendto            = (($uplink) ? $parent_item['source_xchan'] : (($parent_item['verb'] === ACTIVITY_SHARE) ? $parent_item['author_xchan'] : $parent_item['owner_xchan']));
+				// If the Parent item is an Announce the real owner is the parent author
+				$sendto            = (($uplink) ? $parent_item['source_xchan'] : $parent_item['owner_xchan']);
 				self::$recipients  = [$sendto];
 				self::$private     = true;
 				$upstream          = true;

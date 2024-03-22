@@ -5805,6 +5805,12 @@ jsonld_register_rdf_parser(
  * A JSON-LD Exception.
  */
 class JsonLdException extends Exception {
+
+  protected $type;
+  protected $code;
+  protected $details;
+  protected $cause;
+
   public function __construct(
     $msg, $type, $code='error', $details=null, $previous=null) {
     $this->type = $type;
@@ -5839,6 +5845,12 @@ class UniqueNamer {
    *
    * @param prefix the prefix to use ('<prefix><counter>').
    */
+
+  public $prefix;
+  public $counter;
+  public $existing;
+  public $order;
+
   public function __construct($prefix) {
     $this->prefix = $prefix;
     $this->counter = 0;
@@ -5902,6 +5914,11 @@ class Permutator {
    *
    * @param array $list the array of elements to iterate over.
    */
+
+  public $list;
+  public $done;
+  public $left;
+
   public function __construct($list) {
     // original array
     $this->list = $list;
@@ -5984,6 +6001,11 @@ class ActiveContextCache {
    *
    * @param int size the maximum size of the cache, defaults to 100.
    */
+
+  private $order;
+  private $cache;
+  private $size;
+
   public function __construct($size=100) {
     $this->order = array();
     $this->cache = new stdClass();

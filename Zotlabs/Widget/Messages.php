@@ -61,8 +61,8 @@ class Messages {
 
 		$channel = App::get_channel();
 		$item_normal = item_normal();
-		$item_normal .= " and item.verb not in ('Add', 'Remove', '" . ACTIVITY_FOLLOW . "', '" . ACTIVITY_TAG . "') ";
-
+		// Filter internal follow activities and strerams add/remove activities
+		$item_normal .= " and item.verb not in ('Add', 'Remove', 'Follow', 'Ignore', '" . ACTIVITY_FOLLOW . "') ";
 		$item_normal_i = str_replace('item.', 'i.', $item_normal);
 		$item_normal_c = str_replace('item.', 'c.', $item_normal);
 		$entries = [];
@@ -76,16 +76,16 @@ class Messages {
 		$vnotify_sql_i = '';
 
 		if (!($vnotify & VNOTIFY_LIKE)) {
-			$vnotify_sql_c = " AND c.verb NOT IN ('" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
-			$vnotify_sql_i = " AND i.verb NOT IN ('" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			$vnotify_sql_c = " AND c.verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			$vnotify_sql_i = " AND i.verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 		}
 		elseif (!feature_enabled(local_channel(), 'dislike')) {
-			$vnotify_sql_c = " AND c.verb NOT IN ('" . dbesc(ACTIVITY_DISLIKE) . "') ";
-			$vnotify_sql_i = " AND i.verb NOT IN ('" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			$vnotify_sql_c = " AND c.verb NOT IN ('Dislike', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			$vnotify_sql_i = " AND i.verb NOT IN ('Dislike', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 		}
 
 		if($author) {
-			$author_sql = " AND i.owner_xchan = '" . protect_sprintf(dbesc($author)) . "' ";
+			$author_sql = " AND (i.owner_xchan = '" . protect_sprintf(dbesc($author)) . "') ";
 		}
 
 		switch($type) {
@@ -102,11 +102,8 @@ class Messages {
 				$type_sql = ' AND i.item_private IN (0, 1) ';
 		}
 
-		// FEP-5624 filter approvals for comments
-		$approvals_c = " AND c.verb NOT IN ('" . dbesc(ACTIVITY_ATTEND) . "', 'Accept', '" . dbesc(ACTIVITY_ATTENDNO) . "', 'Reject') ";
-
 		$items = q("SELECT *,
-			(SELECT count(*) FROM item c WHERE c.uid = %d AND c.parent = i.parent AND c.item_unseen = 1 AND c.item_thread_top = 0 $item_normal_c $approvals_c $vnotify_sql_c) AS unseen_count
+			(SELECT count(*) FROM item c WHERE c.uid = %d AND c.parent = i.parent AND c.item_unseen = 1 AND c.item_thread_top = 0 $item_normal_c $vnotify_sql_c) AS unseen_count
 			FROM item i WHERE i.uid = %d
 			AND i.created <= '%s'
 			$type_sql
@@ -148,6 +145,9 @@ class Messages {
 			if($item['owner_xchan'] !== $item['author_xchan']) {
 				$info .= t('via') . ' ' . $item['owner']['xchan_name'];
 			}
+			elseif($item['verb'] === 'Announce' && isset($item['source'])) {
+				$info .= t('via') . ' ' . $item['source']['xchan_name'];
+			}
 
 			$summary = $item['title'];
 			if (!$summary) {
@@ -185,8 +185,9 @@ class Messages {
 			$entries[$i]['info'] = $info;
 			$entries[$i]['created'] = datetime_convert('UTC', date_default_timezone_get(), $item['created']);
 			$entries[$i]['summary'] = $summary;
-			$entries[$i]['b64mid'] = gen_link_id($item['mid']);
-			$entries[$i]['href'] = z_root() . '/hq/' . gen_link_id($item['mid']);
+			//$entries[$i]['b64mid'] = gen_link_id($item['mid']);
+			$entries[$i]['b64mid'] = $item['uuid'];
+			$entries[$i]['href'] = z_root() . '/hq/' . $item['uuid'];
 			$entries[$i]['icon'] = $icon;
 			$entries[$i]['unseen_count'] = (($item['unseen_count']) ? $item['unseen_count'] : (($item['item_unseen']) ? '&#8192;' : ''));
 			$entries[$i]['unseen_class'] = (($item['item_unseen']) ? 'primary' : 'secondary');
@@ -290,8 +291,8 @@ class Messages {
 			$entries[$i]['info'] = '';
 			$entries[$i]['created'] = datetime_convert('UTC', date_default_timezone_get(), $notice['created']);
 			$entries[$i]['summary'] = $summary;
-			$entries[$i]['b64mid'] = (($notice['ntype'] & NOTIFY_INTRO) ? '' : basename($notice['link']));
-			$entries[$i]['href'] = (($notice['ntype'] & NOTIFY_INTRO) ? $notice['link'] : z_root() . '/hq/' . basename($notice['link']));
+			$entries[$i]['b64mid'] = (($notice['ntype'] & NOTIFY_INTRO) ? '' : ((str_contains($notice['hash'], '-')) ? $notice['hash'] : basename($notice['link'])));
+			$entries[$i]['href'] = (($notice['ntype'] & NOTIFY_INTRO) ? $notice['link'] : z_root() . '/hq/' . ((str_contains($notice['hash'], '-')) ? $notice['hash'] : basename($notice['link'])));
 			$entries[$i]['icon'] = (($notice['ntype'] & NOTIFY_INTRO) ? '<i class="fa fa-user-plus"></i>' : '');
 
 			$i++;

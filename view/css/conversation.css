@@ -52,7 +52,7 @@
 #profile-jot-text {
 	resize: none;
 	border-width: 0px;
-	height: 2.5rem;
+	height: 2.7rem;
 	line-height: 1.5rem;
 	padding: 0.5rem;
 	width: 100%;
@@ -97,7 +97,7 @@
 /* conv_item */
 
 .wall-item-head-new {
-	border-top: 0.2rem solid var(--bs-blue);
+	border-top: 0.2rem solid var(--bs-primary);
 }
 
 .wall-item-wrapper {
@@ -135,6 +135,10 @@
 
 a.wall-item-name-link {
 	font-weight: bold !important;
+}
+
+.wall-item-ago i {
+	font-size: 0.875em
 }
 
 .wall-item-ago .fa-check {
@@ -190,11 +194,11 @@ a.wall-item-name-link {
 }
 
 .ivoted {
-	color: #007bff;
+	color: var(--bs-primary);
 }
 
 .item-highlight {
-	border-left: 0.2rem solid #007bff;
+	border-left: 0.2rem solid var(--bs-primary);
 }
 
 /* comment_item */
@@ -280,7 +284,7 @@ a.wall-item-name-link {
 .section-content-wrapper h3,
 .section-content-wrapper h4 {
 	padding-top: 60px;
-	margin-top: -40px;
+	margin-top: -60px;
 }
 
 .toc {
@@ -299,10 +303,20 @@ code.inline-code {
 	text-decoration: overline;
 }
 
-img.smiley.emoji:hover {
-	transform: scale(2);
+img.emoji {
+	height: 1.3rem;
+	vertical-align: baseline;
+	margin-bottom: -.2rem;
+}
+
+img.emoji.single-emoji {
+	height: 2rem;
+}
+
+img.emoji:not(.single-emoji):hover {
+	transform: scale(1.8);
 	transition: transform .1s ease-out;
-	filter: drop-shadow(0px 0px 1px rgba(0,0,0,.5));
+	filter: drop-shadow(0px 0px 0.05rem rgba(0, 0, 0, .5));
 }
 
 .checklist input {

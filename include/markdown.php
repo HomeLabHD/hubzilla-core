@@ -221,6 +221,21 @@ function bb_to_markdown_transform_tags($match) {
 	return '#'. str_replace(' ', '_', $match[3]);
 }
 
+function bb_to_markdown_parse_b64_crypt($match) {
+
+	if(empty($match[1])) {
+		return;
+	}
+
+	$r = '```' . "\n";
+	$r .= '-----BEGIN ENCRYPTED MESSAGE-----' . "\n";
+	$r .= $match[1] . "\n";
+	$r .= '-----END ENCRYPTED MESSAGE-----' . "\n";
+	$r .= '```' . "\n";
+
+	return wordwrap($r, 75, "\n", true);
+
+}
 
 /**
  * @brief Convert bbcode to Markdown.
@@ -244,6 +259,10 @@ function bb_to_markdown($Text, $options = []) {
 
 	$Text = preg_replace_callback("/\[share(.*?)\](.*?)\[\/share\]/ism", 'bb_to_markdown_share', $Text);
 
+	if (str_contains($Text, '[/crypt]')) {
+		$Text = preg_replace_callback("/\[crypt\](.*?)\[\/crypt\]/ism", 'bb_to_markdown_parse_b64_crypt', $Text);
+	}
+
 	$x = [ 'bbcode' => $Text, 'options' => $options ];
 
 	/**
@@ -264,8 +283,8 @@ function bb_to_markdown($Text, $options = []) {
 	// Now convert HTML to Markdown
 	$Text = html2markdown($Text);
 
-	//html2markdown adds backslashes infront of hashes after a new line. remove them
-	$Text = str_replace("\n\#", "\n#", $Text);
+	//html2markdown adds backslashes infront of hashes and dashes after a new line. remove them
+	$Text = str_replace(["\n\#", "\n\-----"], ["\n#", "\n-----"], $Text);
 
 	// If the text going into bbcode() has a plain URL in it, i.e.
 	// with no [url] tags around it, it will come out of parseString()

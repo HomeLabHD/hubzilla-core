@@ -1,6 +1,6 @@
 <?php
 
-use Zotlabs\Lib\LDSignatures;
+use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\Zotfinger;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Queue;
@@ -423,25 +423,20 @@ function json_return_and_die($x, $content_type = 'application/json') {
 	killme();
 }
 
-function as_return_and_die($obj,$channel) {
+function as_return_and_die($obj, $channel = []) {
 
-	$x = array_merge(['@context' => [
-		ACTIVITYSTREAMS_JSONLD_REV,
-		'https://w3id.org/security/v1',
-		z_root() . ZOT_APSCHEMA_REV
-	]], $obj );
-
-	$headers = [];
-	$headers['Content-Type'] = 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"' ;
-	$x['signature'] = LDSignatures::sign($x,$channel);
-	$ret = json_encode($x, JSON_UNESCAPED_SLASHES);
+	$ret = Activity::build_packet($obj, $channel);
 	logger('data: ' . jindent($ret), LOGGER_DATA);
+
+	$headers['Content-Type'] = 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"' ;
 	$headers['Date'] = datetime_convert('UTC','UTC', 'now', 'D, d M Y H:i:s \\G\\M\\T');
 	$headers['Digest'] = HTTPSig::generate_digest_header($ret);
 	$headers['(request-target)'] = strtolower($_SERVER['REQUEST_METHOD']) . ' ' . $_SERVER['REQUEST_URI'];
 
-	$h = HTTPSig::create_sig($headers,$channel['channel_prvkey'],channel_url($channel));
-	HTTPSig::set_headers($h);
+	if ($channel) {
+		$h = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel));
+		HTTPSig::set_headers($h);
+	}
 
 	echo $ret;
 	killme();
@@ -598,23 +593,30 @@ function validate_url(&$url) {
 }
 
 /**
- * @brief Checks that email is an actual resolvable internet address.
+ * @brief Checks that email is valid, and that the domain resolves.
  *
- * @param string $addr
- * @return boolean
+ * Note: This does not try to check that the actual email address will resolve,
+ * only the domain!
+ *
+ * @param string $addr	The email address to validate.
+ * @return boolean		True if email is valid, false otherwise.
  */
-function validate_email($addr) {
+function validate_email(string $addr): bool {
 
 	if(get_config('system', 'disable_email_validation'))
 		return true;
 
-	if(! strpos($addr, '@'))
-		return false;
+	$matches = array();
+	$result = preg_match(
+		'/^[A-Z0-9._%-]+@([A-Z0-9.-]+\.[A-Z0-9-]{2,})$/i',
+	   	punify($addr),
+	   	$matches);
 
-	$h = substr($addr, strpos($addr, '@') + 1);
-
-	if(($h) && z_dns_check($h, true)) {
-		return true;
+	if($result) {
+		$domain = $matches[1];
+		if(($domain) && z_dns_check($domain, true)) {
+			return true;
+		}
 	}
 
 	return false;
@@ -2138,12 +2140,13 @@ function get_request_string($url) {
 }
 
 
-/*
+/**
+ * Builds a url from the result of `parse_url`.
  *
- * Takes the output of parse_url and builds a URL from it
+ * @param array $parsed_url		An associative array as produced by `parse_url`.
  *
+ * @return The reassembled URL as a string.
  */
-
 function unparse_url($parsed_url) {
 	$scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
 	$host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';

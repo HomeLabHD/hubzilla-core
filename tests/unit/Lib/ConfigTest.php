@@ -20,6 +20,7 @@ class ConfigTest extends Zotlabs\Tests\Unit\UnitTestCase {
 				'php-array' => 'a:3:{i:0;s:3:"one";i:1;s:3:"two";i:2;s:5:"three";}',
 				'json-array' => 'json:["one","two","three"]',
 				'object-injection' => 'a:1:{i:0;O:18:"Zotlabs\Lib\Config":0:{}}',
+				'unserialized-array' => ['one', 'two', 'three'],
 				'config_loaded' => true,
 			),
 		);
@@ -46,6 +47,17 @@ class ConfigTest extends Zotlabs\Tests\Unit\UnitTestCase {
 	public function testGetPHPSerializedArray(): void {
 		$this->assertEquals(
 			Zotlabs\Lib\Config::Get('test', 'php-array'),
+			array('one', 'two', 'three')
+		);
+	}
+
+	/*
+	 * Test that we can retreive unserialized arrays which are usually
+	 * returned from the existing config cache.
+	 */
+	public function testGetPHPUnserializedArray(): void {
+		$this->assertEquals(
+			Zotlabs\Lib\Config::Get('test', 'unserialized-array'),
 			array('one', 'two', 'three')
 		);
 	}

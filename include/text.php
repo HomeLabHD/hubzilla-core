@@ -13,6 +13,7 @@ use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\SvgSanitizer;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\AccessList;
+use Zotlabs\Lib\Text;
 
 require_once("include/bbcode.php");
 
@@ -108,10 +109,14 @@ function notags($string) {
  * @return string
  */
 function escape_tags($string) {
+	return Text::escape_tags($string);
+}
+
+function unescape_tags($string) {
 	if (!$string) {
 		return EMPTY_STR;
 	}
-	return (htmlspecialchars($string, ENT_COMPAT, 'UTF-8', false));
+	return (htmlspecialchars_decode($string, ENT_COMPAT));
 }
 
 /**
@@ -267,31 +272,41 @@ function purify_html($s, $allow_position = false) {
 
 
 	//data- attributes used by the bootstrap library
-	$def->info_global_attr['data-dismiss'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-target'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-toggle'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-backdrop'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-keyboard'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-show'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-spy'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-offset'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-animation'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-container'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-delay'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-placement'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-title'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-trigger'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-content'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-trigger'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-parent'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-ride'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-slide-to'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-slide'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-interval'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-pause'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-wrap'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-offset-top'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-offset-bottom'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-target'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-ride'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-slide'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-toggle'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-animation'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-title'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-delay'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-parent'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-offset'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-dismiss'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-backdrop'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-keyboard'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-content'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-container'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-trigger'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-spy'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-placement'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-slide-to'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-interval'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-pause'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-wrap'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-display'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-root-margin'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-smooth-scroll'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-dismiss'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-delay'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-autohide'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-scroll'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-reference'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-config'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-custom-class'] = new HTMLPurifier_AttrDef_Text;
+	//old
+	$def->info_global_attr['data-bs-show'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-offset-top'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-bs-offset-bottom'] = new HTMLPurifier_AttrDef_Text;
 
 	//some html5 elements
 	//Block
@@ -1253,76 +1268,32 @@ function sslify($s) {
 	return $s;
 }
 
-/**
- * @brief Get an array of poke verbs.
- *
- * @return array
- *  * \e index is present tense verb
- *  * \e value is array containing past tense verb, translation of present, translation of past
- */
-function get_poke_verbs() {
+function get_emojis() {
+	$emojis = [
+		// Reactions (emojitwo emojis)
+		'astonished_face' => ['shortname' => ':astonished_face:', 'filepath' => 'images/emoji/astonished_face.png'],
+		'bottle_with_popping_cork' => ['shortname' => ':bottle_with_popping_cork:', 'filepath' => 'images/emoji/bottle_with_popping_cork.png'],
+		'clapping_hands' => ['shortname' => ':clapping_hands:', 'filepath' => 'images/emoji/clapping_hands.png'],
+		'disappointed_face' => ['shortname' => ':disappointed_face:', 'filepath' => 'images/emoji/disappointed_face.png'],
+		'grinning_face' => ['shortname' => ':grinning_face:', 'filepath' => 'images/emoji/grinning_face.png'],
+		'kiss_mark' => ['shortname' => ':kiss_mark:', 'filepath' => 'images/emoji/kiss_mark.png'],
+		'red_heart' => ['shortname' => ':red_heart:', 'filepath' => 'images/emoji/red_heart.png'],
+		'sleeping_face' => ['shortname' => ':sleeping_face:', 'filepath' => 'images/emoji/sleeping_face.png'],
+		'slightly_smiling_face' => ['shortname' => ':slightly_smiling_face:', 'filepath' => 'images/emoji/slightly_smiling_face.png'],
+		'smiling_face_with_halo' => ['shortname' => ':smiling_face_with_halo:', 'filepath' => 'images/emoji/smiling_face_with_halo.png'],
+		'smiling_face_with_horns' => ['shortname' => ':smiling_face_with_horns:', 'filepath' => 'images/emoji/smiling_face_with_horns.png'],
+		'winking_face_with_tongue' => ['shortname' => ':winking_face_with_tongue:', 'filepath' => 'images/emoji/winking_face_with_tongue.png'],
 
-	$arr = [
-		'poke' => ['poked', t('poke'), t('poked')],
-		'ping' => ['pinged', t('ping'), t('pinged')],
-
-		// Those might be better suited for a nsfw poke addon
-
-		// 'prod' => ['prodded', t('prod'), t('prodded')],
-		// 'slap' => ['slapped', t('slap'), t('slapped')],
-		// 'finger' => ['fingered', t('finger'), t('fingered')],
-		// 'rebuff' => ['rebuffed', t('rebuff'), t('rebuffed')]
+		'facepalm' => ['shortname' => ':facepalm:', 'filepath' => 'images/emoticons/smiley-facepalm.gif']
 	];
 
-	/**
-	 * @hooks poke_verbs
-	 *   * \e array associative array with another array as value
-	 */
-	call_hooks('poke_verbs', $arr);
+	call_hooks('get_emojis', $emojis);
 
-	return $arr;
+	return $emojis;
 }
 
-/**
- * @brief Get an array of mood verbs.
- *
- * @return array
- *   * \e index is the verb
- *   * \e value is the translated verb
- */
-function get_mood_verbs() {
-
-	$arr = [
-		'happy'      => t('happy'),
-		'sad'        => t('sad'),
-		'mellow'     => t('mellow'),
-		'tired'      => t('tired'),
-		'perky'      => t('perky'),
-		'angry'      => t('angry'),
-		'stupefied'  => t('stupefied'),
-		'puzzled'    => t('puzzled'),
-		'interested' => t('interested'),
-		'bitter'     => t('bitter'),
-		'cheerful'   => t('cheerful'),
-		'alive'      => t('alive'),
-		'annoyed'    => t('annoyed'),
-		'anxious'    => t('anxious'),
-		'cranky'     => t('cranky'),
-		'disturbed'  => t('disturbed'),
-		'frustrated' => t('frustrated'),
-		'depressed'  => t('depressed'),
-		'motivated'  => t('motivated'),
-		'relaxed'    => t('relaxed'),
-		'surprised'  => t('surprised'),
-	];
-
-	/**
-	 * @hooks mood_verbs
-	 *   * \e array associative array with mood verbs
-	 */
-	call_hooks('mood_verbs', $arr);
-
-	return $arr;
+function is_solo_string(string $emoji, string $body) : bool {
+	return empty(trim(str_replace($emoji, '', $body, $count))) && $count === 1;
 }
 
 /**
@@ -1371,38 +1342,37 @@ function list_smilies($default_only = false) {
 	);
 
 	$icons = array(
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-heart.gif" alt="&lt;3" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-brokenheart.gif" alt="&lt;/3" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-smile.gif" alt=":-)" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-wink.gif" alt=";-)" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-frown.gif" alt=":-(" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-tongue-out.gif" alt=":-P" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-tongue-out.gif" alt=":-p" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-kiss.gif" alt=":-\"" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-kiss.gif" alt=":-\"" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-kiss.gif" alt=":-x" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-kiss.gif" alt=":-X" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-laughing.gif" alt=":-D" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-surprised.gif" alt="8-|" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-surprised.gif" alt="8-O" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-surprised.gif" alt=":-O" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-thumbsup.gif" alt="\\o/" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-Oo.gif" alt="o.O" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-Oo.gif" alt="O.o" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-Oo.gif" alt="o_O" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-Oo.gif" alt="O_o" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-cry.gif" alt=":\'(" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-foot-in-mouth.gif" alt=":-!" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-undecided.gif" alt=":-/" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-embarassed.gif" alt=":-[" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-cool.gif" alt="8-)" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/beer_mug.gif" alt=":beer" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/beer_mug.gif" alt=":homebrew" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/coffee.gif" alt=":coffee" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-facepalm.gif" alt=":facepalm" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/like.gif" alt=":like" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/dislike.gif" alt=":dislike" />'
-
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-heart.gif" alt="&lt;3" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-brokenheart.gif" alt="&lt;/3" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-smile.gif" alt=":-)" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-wink.gif" alt=";-)" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-frown.gif" alt=":-(" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-tongue-out.gif" alt=":-P" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-tongue-out.gif" alt=":-p" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-kiss.gif" alt=":-\"" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-kiss.gif" alt=":-\"" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-kiss.gif" alt=":-x" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-kiss.gif" alt=":-X" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-laughing.gif" alt=":-D" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-surprised.gif" alt="8-|" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-surprised.gif" alt="8-O" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-surprised.gif" alt=":-O" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-thumbsup.gif" alt="\\o/" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-Oo.gif" alt="o.O" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-Oo.gif" alt="O.o" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-Oo.gif" alt="o_O" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-Oo.gif" alt="O_o" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-cry.gif" alt=":\'(" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-foot-in-mouth.gif" alt=":-!" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-undecided.gif" alt=":-/" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-embarassed.gif" alt=":-[" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-cool.gif" alt="8-)" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/beer_mug.gif" alt=":beer" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/beer_mug.gif" alt=":homebrew" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/coffee.gif" alt=":coffee" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/smiley-facepalm.gif" alt=":facepalm" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/like.gif" alt=":like" />',
+		'<img class="smiley emoji" src="' . z_root() . '/images/emoticons/dislike.gif" alt=":dislike" />'
 	);
 
 	$params = array('texts' => $texts, 'icons' => $icons);
@@ -1441,10 +1411,34 @@ function smilies($s, $sample = false) {
 		|| (local_channel() && intval(get_pconfig(local_channel(), 'system', 'no_smilies'))))
 		return $s;
 
+
 	$s = preg_replace_callback('{<(pre|code)>.*?</\1>}ism', 'smile_shield', $s);
 	$s = preg_replace_callback('/<[a-z]+ .*?>/ism', 'smile_shield', $s);
 
+	if (preg_match_all('/(\:(\w|\+|\-)+\:)(?=|[\!\.\?]|$)/', $s, $match)) {
+		// emoji shortcodes
+		$emojis = get_emojis();
+		foreach ($match[0] as $mtch) {
+			$name = trim($mtch, ':');
 
+			if (!isset($emojis[$name])) {
+				continue;
+			}
+
+			$emoji = $emojis[$name];
+
+			$class = 'emoji';
+			if (is_solo_string($mtch, $s)) {
+				$class .= ' single-emoji';
+			}
+
+			$img = '<img class="' . $class . '" src="' . $emoji['filepath'] . '" alt="' . trim($emoji['shortname'], ':') . '" title="' . trim($emoji['shortname'], ':') . '" />';
+
+			string_replace($emoji['shortname'], $img, $s);
+		}
+	}
+
+/*
 	$params = list_smilies();
 	$params['string'] = $s;
 
@@ -1455,9 +1449,9 @@ function smilies($s, $sample = false) {
 		}
 	} else {
 		$params['string'] = preg_replace_callback('/&lt;(3+)/','preg_heart',$params['string']);
-		$s = str_replace($params['texts'],$params['icons'],$params['string']);
+		$s = str_replace($params['texts'], $params['icons'], $params['string']);
 	}
-
+*/
 
 	$s = preg_replace_callback('/<!--base64:(.*?)-->/ism', 'smile_unshield', $s);
 
@@ -1595,15 +1589,16 @@ function theme_attachments(&$item) {
 					$url = z_root() . '/magic?f=&owa=1&hash=' . $item['author_xchan'] . '&bdest=' . bin2hex($r['href'] . '/' . $revision);
 			}
 
-			//$s .= '<a href="' . $url . '" title="' . $title . '" class="attachlink"  >' . $icon . '</a>';
-			if (isset($label) && isset($url) && isset($icon) && isset($title))
-				$attaches[] = array('label' => $label, 'url' => $url, 'icon' => $icon, 'title' => $title);
+			if (isset($label) && isset($url) && isset($icon) && isset($title)) {
+				array_unshift($attaches, ['label' => $label, 'url' => $url, 'icon' => $icon, 'title' => $title]);
+			}
 		}
 
-		if (count($attaches) > 0)
+		if ($attaches) {
 			$s = replace_macros(get_markup_template('item_attach.tpl'), [
 				'$attaches' => $attaches
 			]);
+		}
 	}
 
 	return $s;
@@ -1759,7 +1754,7 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 
 	$s = '';
 	$photo = '';
-	$is_photo = ((($item['verb'] === ACTIVITY_POST) && ($item['obj_type'] === ACTIVITY_OBJ_PHOTO)) ? true : false);
+	$is_photo = (((in_array($item['verb'], ['Create', ACTIVITY_POST])) && (in_array($item['obj_type'], ['Image', ACTIVITY_OBJ_PHOTO]))) ? true : false);
 
 	if ($is_photo) {
 		$object = json_decode($item['obj'],true);
@@ -1804,7 +1799,7 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 	}
 
 
-	$poll = (($item['obj_type'] === 'Question' && in_array($item['verb'],[ ACTIVITY_POST, ACTIVITY_UPDATE, ACTIVITY_SHARE ])) ? format_poll($item, $s, $opts) : false);
+	$poll = (($item['obj_type'] === 'Question' && in_array($item['verb'],['Create', 'Update', ACTIVITY_POST, ACTIVITY_UPDATE, ACTIVITY_SHARE])) ? format_poll($item, $s, $opts) : false);
 	if ($poll) {
 		$s = $poll;
 	}
@@ -2103,7 +2098,7 @@ function prepare_text($text, $content_type = 'text/bbcode', $opts = false) {
 
 
 function create_export_photo_body(&$item) {
-	if(($item['verb'] === ACTIVITY_POST) && ($item['obj_type'] === ACTIVITY_OBJ_PHOTO)) {
+	if((in_array($item['verb'], ['Create', ACTIVITY_POST])) && (in_array($item['obj_type'], ['Image', ACTIVITY_OBJ_PHOTO]))) {
 		$j = json_decode($item['obj'],true);
 		if($j) {
 			$item['body'] .= "\n\n" . (($j['body']) ? $j['body'] : $j['bbcode']);
@@ -2616,7 +2611,7 @@ function trim_and_unpunify($s) {
  * @param number $effective_uid
  */
 function xchan_query(&$items, $abook = true, $effective_uid = 0) {
-	$arr = array();
+	$arr = [];
 	if($items && count($items)) {
 
 		if($effective_uid) {
@@ -2631,6 +2626,8 @@ function xchan_query(&$items, $abook = true, $effective_uid = 0) {
 				$arr[] = "'" . dbesc($item['owner_xchan']) . "'";
 			if($item['author_xchan'] && (! in_array("'" . dbesc($item['author_xchan']) . "'",$arr)))
 				$arr[] = "'" . dbesc($item['author_xchan']) . "'";
+			if($item['source_xchan'] && (! in_array("'" . dbesc($item['source_xchan']) . "'",$arr)))
+				$arr[] = "'" . dbesc($item['source_xchan']) . "'";
 		}
 	}
 	if(count($arr)) {
@@ -2654,6 +2651,7 @@ function xchan_query(&$items, $abook = true, $effective_uid = 0) {
 		for($x = 0; $x < count($items); $x ++) {
 			$items[$x]['owner'] = find_xchan_in_array($items[$x]['owner_xchan'],$chans);
 			$items[$x]['author'] = find_xchan_in_array($items[$x]['author_xchan'],$chans);
+			$items[$x]['source'] = find_xchan_in_array($items[$x]['source_xchan'],$chans);
 		}
 	}
 }
@@ -2888,6 +2886,7 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 	$replaced = false;
 	$r = null;
 	$match = array();
+	$newtag = '';
 
 	$termtype = ((strpos($tag,'#') === 0)   ? TERM_HASHTAG  : TERM_UNKNOWN);
 	$termtype = ((strpos($tag,'@') === 0)   ? TERM_MENTION  : $termtype);
@@ -2937,10 +2936,11 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 		}
 
 		// is the link already in str_tags?
-		if(! stristr($str_tags,$newtag)) {
+		if (!stristr($str_tags, $newtag)) {
 			// append or set str_tags
-			if(strlen($str_tags))
+			if (strlen($str_tags)) {
 				$str_tags .= ',';
+			}
 
 			$str_tags .= $newtag;
 		}

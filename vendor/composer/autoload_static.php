@@ -41,16 +41,16 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'S' => 
         array (
             'Symfony\\Polyfill\\Php81\\' => 23,
+            'StephenHill\\Benchmarks\\' => 23,
+            'StephenHill\\' => 12,
             'SimplePie\\' => 10,
+            'ScssPhp\\ScssPhp\\' => 16,
             'Sabre\\Xml\\' => 10,
             'Sabre\\VObject\\' => 14,
             'Sabre\\Uri\\' => 10,
             'Sabre\\HTTP\\' => 11,
             'Sabre\\Event\\' => 12,
-            'Sabre\\DAV\\' => 10,
-            'Sabre\\DAVACL\\' => 13,
-            'Sabre\\CardDAV\\' => 14,
-            'Sabre\\CalDAV\\' => 13,
+            'Sabre\\' => 6,
         ),
         'R' => 
         array (
@@ -68,6 +68,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         ),
         'M' => 
         array (
+            'Mmccook\\JsonCanonicalizator\\' => 28,
             'Michelf\\' => 8,
         ),
         'L' => 
@@ -119,9 +120,21 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-php81',
         ),
+        'StephenHill\\Benchmarks\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/stephenhill/base58/benchmarks',
+        ),
+        'StephenHill\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/stephenhill/base58/src',
+        ),
         'SimplePie\\' => 
         array (
             0 => __DIR__ . '/..' . '/simplepie/simplepie/src',
+        ),
+        'ScssPhp\\ScssPhp\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/scssphp/scssphp/src',
         ),
         'Sabre\\Xml\\' => 
         array (
@@ -143,21 +156,9 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         array (
             0 => __DIR__ . '/..' . '/sabre/event/lib',
         ),
-        'Sabre\\DAV\\' => 
+        'Sabre\\' => 
         array (
-            0 => __DIR__ . '/..' . '/sabre/dav/lib/DAV',
-        ),
-        'Sabre\\DAVACL\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/sabre/dav/lib/DAVACL',
-        ),
-        'Sabre\\CardDAV\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/sabre/dav/lib/CardDAV',
-        ),
-        'Sabre\\CalDAV\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/sabre/dav/lib/CalDAV',
+            0 => __DIR__ . '/..' . '/sabre/dav/lib',
         ),
         'Ramsey\\Uuid\\' => 
         array (
@@ -178,6 +179,10 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'OTPHP\\' => 
         array (
             0 => __DIR__ . '/..' . '/spomky-labs/otphp/src',
+        ),
+        'Mmccook\\JsonCanonicalizator\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/mmccook/php-json-canonicalization-scheme/src',
         ),
         'Michelf\\' => 
         array (
@@ -263,6 +268,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Brick\\Math\\Internal\\Calculator\\GmpCalculator' => __DIR__ . '/..' . '/brick/math/src/Internal/Calculator/GmpCalculator.php',
         'Brick\\Math\\Internal\\Calculator\\NativeCalculator' => __DIR__ . '/..' . '/brick/math/src/Internal/Calculator/NativeCalculator.php',
         'Brick\\Math\\RoundingMode' => __DIR__ . '/..' . '/brick/math/src/RoundingMode.php',
+        'CURLStringFile' => __DIR__ . '/..' . '/symfony/polyfill-php81/Resources/stubs/CURLStringFile.php',
         'CommerceGuys\\Intl\\Calculator' => __DIR__ . '/..' . '/commerceguys/intl/src/Calculator.php',
         'CommerceGuys\\Intl\\Currency\\Currency' => __DIR__ . '/..' . '/commerceguys/intl/src/Currency/Currency.php',
         'CommerceGuys\\Intl\\Currency\\CurrencyRepository' => __DIR__ . '/..' . '/commerceguys/intl/src/Currency/CurrencyRepository.php',
@@ -560,6 +566,10 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Michelf\\Markdown' => __DIR__ . '/..' . '/michelf/php-markdown/Michelf/Markdown.php',
         'Michelf\\MarkdownExtra' => __DIR__ . '/..' . '/michelf/php-markdown/Michelf/MarkdownExtra.php',
         'Michelf\\MarkdownInterface' => __DIR__ . '/..' . '/michelf/php-markdown/Michelf/MarkdownInterface.php',
+        'Mmccook\\JsonCanonicalizator\\JsonCanonicalizator' => __DIR__ . '/..' . '/mmccook/php-json-canonicalization-scheme/src/JsonCanonicalizator.php',
+        'Mmccook\\JsonCanonicalizator\\JsonCanonicalizatorFactory' => __DIR__ . '/..' . '/mmccook/php-json-canonicalization-scheme/src/JsonCanonicalizatorFactory.php',
+        'Mmccook\\JsonCanonicalizator\\JsonCanonicalizatorInterface' => __DIR__ . '/..' . '/mmccook/php-json-canonicalization-scheme/src/JsonCanonicalizatorInterface.php',
+        'Mmccook\\JsonCanonicalizator\\Utils' => __DIR__ . '/..' . '/mmccook/php-json-canonicalization-scheme/src/Utils.php',
         'OAuth2\\Autoloader' => __DIR__ . '/..' . '/bshaffer/oauth2-server-php/src/OAuth2/Autoloader.php',
         'OAuth2\\ClientAssertionType\\ClientAssertionTypeInterface' => __DIR__ . '/..' . '/bshaffer/oauth2-server-php/src/OAuth2/ClientAssertionType/ClientAssertionTypeInterface.php',
         'OAuth2\\ClientAssertionType\\HttpBasic' => __DIR__ . '/..' . '/bshaffer/oauth2-server-php/src/OAuth2/ClientAssertionType/HttpBasic.php',
@@ -970,6 +980,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Sabre\\DAV\\IMoveTarget' => __DIR__ . '/..' . '/sabre/dav/lib/DAV/IMoveTarget.php',
         'Sabre\\DAV\\IMultiGet' => __DIR__ . '/..' . '/sabre/dav/lib/DAV/IMultiGet.php',
         'Sabre\\DAV\\INode' => __DIR__ . '/..' . '/sabre/dav/lib/DAV/INode.php',
+        'Sabre\\DAV\\INodeByPath' => __DIR__ . '/..' . '/sabre/dav/lib/DAV/INodeByPath.php',
         'Sabre\\DAV\\IProperties' => __DIR__ . '/..' . '/sabre/dav/lib/DAV/IProperties.php',
         'Sabre\\DAV\\IQuota' => __DIR__ . '/..' . '/sabre/dav/lib/DAV/IQuota.php',
         'Sabre\\DAV\\Locks\\Backend\\AbstractBackend' => __DIR__ . '/..' . '/sabre/dav/lib/DAV/Locks/Backend/AbstractBackend.php',
@@ -1150,6 +1161,56 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Sabre\\Xml\\Writer' => __DIR__ . '/..' . '/sabre/xml/lib/Writer.php',
         'Sabre\\Xml\\XmlDeserializable' => __DIR__ . '/..' . '/sabre/xml/lib/XmlDeserializable.php',
         'Sabre\\Xml\\XmlSerializable' => __DIR__ . '/..' . '/sabre/xml/lib/XmlSerializable.php',
+        'ScssPhp\\ScssPhp\\Base\\Range' => __DIR__ . '/..' . '/scssphp/scssphp/src/Base/Range.php',
+        'ScssPhp\\ScssPhp\\Block' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block.php',
+        'ScssPhp\\ScssPhp\\Block\\AtRootBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block/AtRootBlock.php',
+        'ScssPhp\\ScssPhp\\Block\\CallableBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block/CallableBlock.php',
+        'ScssPhp\\ScssPhp\\Block\\ContentBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block/ContentBlock.php',
+        'ScssPhp\\ScssPhp\\Block\\DirectiveBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block/DirectiveBlock.php',
+        'ScssPhp\\ScssPhp\\Block\\EachBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block/EachBlock.php',
+        'ScssPhp\\ScssPhp\\Block\\ElseBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block/ElseBlock.php',
+        'ScssPhp\\ScssPhp\\Block\\ElseifBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block/ElseifBlock.php',
+        'ScssPhp\\ScssPhp\\Block\\ForBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block/ForBlock.php',
+        'ScssPhp\\ScssPhp\\Block\\IfBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block/IfBlock.php',
+        'ScssPhp\\ScssPhp\\Block\\MediaBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block/MediaBlock.php',
+        'ScssPhp\\ScssPhp\\Block\\NestedPropertyBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block/NestedPropertyBlock.php',
+        'ScssPhp\\ScssPhp\\Block\\WhileBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block/WhileBlock.php',
+        'ScssPhp\\ScssPhp\\Cache' => __DIR__ . '/..' . '/scssphp/scssphp/src/Cache.php',
+        'ScssPhp\\ScssPhp\\Colors' => __DIR__ . '/..' . '/scssphp/scssphp/src/Colors.php',
+        'ScssPhp\\ScssPhp\\CompilationResult' => __DIR__ . '/..' . '/scssphp/scssphp/src/CompilationResult.php',
+        'ScssPhp\\ScssPhp\\Compiler' => __DIR__ . '/..' . '/scssphp/scssphp/src/Compiler.php',
+        'ScssPhp\\ScssPhp\\Compiler\\CachedResult' => __DIR__ . '/..' . '/scssphp/scssphp/src/Compiler/CachedResult.php',
+        'ScssPhp\\ScssPhp\\Compiler\\Environment' => __DIR__ . '/..' . '/scssphp/scssphp/src/Compiler/Environment.php',
+        'ScssPhp\\ScssPhp\\Exception\\CompilerException' => __DIR__ . '/..' . '/scssphp/scssphp/src/Exception/CompilerException.php',
+        'ScssPhp\\ScssPhp\\Exception\\ParserException' => __DIR__ . '/..' . '/scssphp/scssphp/src/Exception/ParserException.php',
+        'ScssPhp\\ScssPhp\\Exception\\RangeException' => __DIR__ . '/..' . '/scssphp/scssphp/src/Exception/RangeException.php',
+        'ScssPhp\\ScssPhp\\Exception\\SassException' => __DIR__ . '/..' . '/scssphp/scssphp/src/Exception/SassException.php',
+        'ScssPhp\\ScssPhp\\Exception\\SassScriptException' => __DIR__ . '/..' . '/scssphp/scssphp/src/Exception/SassScriptException.php',
+        'ScssPhp\\ScssPhp\\Exception\\ServerException' => __DIR__ . '/..' . '/scssphp/scssphp/src/Exception/ServerException.php',
+        'ScssPhp\\ScssPhp\\Formatter' => __DIR__ . '/..' . '/scssphp/scssphp/src/Formatter.php',
+        'ScssPhp\\ScssPhp\\Formatter\\Compact' => __DIR__ . '/..' . '/scssphp/scssphp/src/Formatter/Compact.php',
+        'ScssPhp\\ScssPhp\\Formatter\\Compressed' => __DIR__ . '/..' . '/scssphp/scssphp/src/Formatter/Compressed.php',
+        'ScssPhp\\ScssPhp\\Formatter\\Crunched' => __DIR__ . '/..' . '/scssphp/scssphp/src/Formatter/Crunched.php',
+        'ScssPhp\\ScssPhp\\Formatter\\Debug' => __DIR__ . '/..' . '/scssphp/scssphp/src/Formatter/Debug.php',
+        'ScssPhp\\ScssPhp\\Formatter\\Expanded' => __DIR__ . '/..' . '/scssphp/scssphp/src/Formatter/Expanded.php',
+        'ScssPhp\\ScssPhp\\Formatter\\Nested' => __DIR__ . '/..' . '/scssphp/scssphp/src/Formatter/Nested.php',
+        'ScssPhp\\ScssPhp\\Formatter\\OutputBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Formatter/OutputBlock.php',
+        'ScssPhp\\ScssPhp\\Logger\\LoggerInterface' => __DIR__ . '/..' . '/scssphp/scssphp/src/Logger/LoggerInterface.php',
+        'ScssPhp\\ScssPhp\\Logger\\QuietLogger' => __DIR__ . '/..' . '/scssphp/scssphp/src/Logger/QuietLogger.php',
+        'ScssPhp\\ScssPhp\\Logger\\StreamLogger' => __DIR__ . '/..' . '/scssphp/scssphp/src/Logger/StreamLogger.php',
+        'ScssPhp\\ScssPhp\\Node' => __DIR__ . '/..' . '/scssphp/scssphp/src/Node.php',
+        'ScssPhp\\ScssPhp\\Node\\Number' => __DIR__ . '/..' . '/scssphp/scssphp/src/Node/Number.php',
+        'ScssPhp\\ScssPhp\\OutputStyle' => __DIR__ . '/..' . '/scssphp/scssphp/src/OutputStyle.php',
+        'ScssPhp\\ScssPhp\\Parser' => __DIR__ . '/..' . '/scssphp/scssphp/src/Parser.php',
+        'ScssPhp\\ScssPhp\\SourceMap\\Base64' => __DIR__ . '/..' . '/scssphp/scssphp/src/SourceMap/Base64.php',
+        'ScssPhp\\ScssPhp\\SourceMap\\Base64VLQ' => __DIR__ . '/..' . '/scssphp/scssphp/src/SourceMap/Base64VLQ.php',
+        'ScssPhp\\ScssPhp\\SourceMap\\SourceMapGenerator' => __DIR__ . '/..' . '/scssphp/scssphp/src/SourceMap/SourceMapGenerator.php',
+        'ScssPhp\\ScssPhp\\Type' => __DIR__ . '/..' . '/scssphp/scssphp/src/Type.php',
+        'ScssPhp\\ScssPhp\\Util' => __DIR__ . '/..' . '/scssphp/scssphp/src/Util.php',
+        'ScssPhp\\ScssPhp\\Util\\Path' => __DIR__ . '/..' . '/scssphp/scssphp/src/Util/Path.php',
+        'ScssPhp\\ScssPhp\\ValueConverter' => __DIR__ . '/..' . '/scssphp/scssphp/src/ValueConverter.php',
+        'ScssPhp\\ScssPhp\\Version' => __DIR__ . '/..' . '/scssphp/scssphp/src/Version.php',
+        'ScssPhp\\ScssPhp\\Warn' => __DIR__ . '/..' . '/scssphp/scssphp/src/Warn.php',
         'SimplePie' => __DIR__ . '/..' . '/simplepie/simplepie/library/SimplePie.php',
         'SimplePie\\Author' => __DIR__ . '/..' . '/simplepie/simplepie/src/Author.php',
         'SimplePie\\Cache' => __DIR__ . '/..' . '/simplepie/simplepie/src/Cache.php',
@@ -1391,6 +1452,14 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Smarty_Template_Source' => __DIR__ . '/..' . '/smarty/smarty/libs/sysplugins/smarty_template_source.php',
         'Smarty_Undefined_Variable' => __DIR__ . '/..' . '/smarty/smarty/libs/sysplugins/smarty_undefined_variable.php',
         'Smarty_Variable' => __DIR__ . '/..' . '/smarty/smarty/libs/sysplugins/smarty_variable.php',
+        'StephenHill\\BCMathService' => __DIR__ . '/..' . '/stephenhill/base58/src/BCMathService.php',
+        'StephenHill\\Base58' => __DIR__ . '/..' . '/stephenhill/base58/src/Base58.php',
+        'StephenHill\\Benchmarks\\Base16Event' => __DIR__ . '/..' . '/stephenhill/base58/benchmarks/Base16Event.php',
+        'StephenHill\\Benchmarks\\Base58BCMathEvent' => __DIR__ . '/..' . '/stephenhill/base58/benchmarks/Base58BCMathEvent.php',
+        'StephenHill\\Benchmarks\\Base58GMPEvent' => __DIR__ . '/..' . '/stephenhill/base58/benchmarks/Base58GMPEvent.php',
+        'StephenHill\\Benchmarks\\Base64Event' => __DIR__ . '/..' . '/stephenhill/base58/benchmarks/Base64Event.php',
+        'StephenHill\\GMPService' => __DIR__ . '/..' . '/stephenhill/base58/src/GMPService.php',
+        'StephenHill\\ServiceInterface' => __DIR__ . '/..' . '/stephenhill/base58/src/ServiceInterface.php',
         'Symfony\\Polyfill\\Php81\\Php81' => __DIR__ . '/..' . '/symfony/polyfill-php81/Php81.php',
         'TPC_yyStackEntry' => __DIR__ . '/..' . '/smarty/smarty/libs/sysplugins/smarty_internal_configfileparser.php',
         'TP_yyStackEntry' => __DIR__ . '/..' . '/smarty/smarty/libs/sysplugins/smarty_internal_templateparser.php',
@@ -1423,6 +1492,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Daemon\\Directory' => __DIR__ . '/../..' . '/Zotlabs/Daemon/Directory.php',
         'Zotlabs\\Daemon\\Expire' => __DIR__ . '/../..' . '/Zotlabs/Daemon/Expire.php',
         'Zotlabs\\Daemon\\Externals' => __DIR__ . '/../..' . '/Zotlabs/Daemon/Externals.php',
+        'Zotlabs\\Daemon\\Fetchparents' => __DIR__ . '/../..' . '/Zotlabs/Daemon/Fetchparents.php',
         'Zotlabs\\Daemon\\File_importer' => __DIR__ . '/../..' . '/Zotlabs/Daemon/File_importer.php',
         'Zotlabs\\Daemon\\Gprobe' => __DIR__ . '/../..' . '/Zotlabs/Daemon/Gprobe.php',
         'Zotlabs\\Daemon\\Importdoc' => __DIR__ . '/../..' . '/Zotlabs/Daemon/Importdoc.php',
@@ -1444,6 +1514,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Identity\\OAuth2Storage' => __DIR__ . '/../..' . '/Zotlabs/Identity/OAuth2Storage.php',
         'Zotlabs\\Identity\\ProfilePhoto' => __DIR__ . '/../..' . '/Zotlabs/Identity/ProfilePhoto.php',
         'Zotlabs\\Lib\\AConfig' => __DIR__ . '/../..' . '/Zotlabs/Lib/AConfig.php',
+        'Zotlabs\\Lib\\ASCache' => __DIR__ . '/../..' . '/Zotlabs/Lib/ASCache.php',
         'Zotlabs\\Lib\\ASCollection' => __DIR__ . '/../..' . '/Zotlabs/Lib/ASCollection.php',
         'Zotlabs\\Lib\\AbConfig' => __DIR__ . '/../..' . '/Zotlabs/Lib/AbConfig.php',
         'Zotlabs\\Lib\\AccessList' => __DIR__ . '/../..' . '/Zotlabs/Lib/AccessList.php',
@@ -1464,6 +1535,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Lib\\IConfig' => __DIR__ . '/../..' . '/Zotlabs/Lib/IConfig.php',
         'Zotlabs\\Lib\\Img_filesize' => __DIR__ . '/../..' . '/Zotlabs/Lib/Img_filesize.php',
         'Zotlabs\\Lib\\JSalmon' => __DIR__ . '/../..' . '/Zotlabs/Lib/JSalmon.php',
+        'Zotlabs\\Lib\\JcsEddsa2022' => __DIR__ . '/../..' . '/Zotlabs/Lib/JcsEddsa2022.php',
         'Zotlabs\\Lib\\Keyutils' => __DIR__ . '/../..' . '/Zotlabs/Lib/Keyutils.php',
         'Zotlabs\\Lib\\LDSignatures' => __DIR__ . '/../..' . '/Zotlabs/Lib/LDSignatures.php',
         'Zotlabs\\Lib\\Libsync' => __DIR__ . '/../..' . '/Zotlabs/Lib/Libsync.php',
@@ -1471,6 +1543,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Lib\\Libzotdir' => __DIR__ . '/../..' . '/Zotlabs/Lib/Libzotdir.php',
         'Zotlabs\\Lib\\MarkdownSoap' => __DIR__ . '/../..' . '/Zotlabs/Lib/MarkdownSoap.php',
         'Zotlabs\\Lib\\MessageFilter' => __DIR__ . '/../..' . '/Zotlabs/Lib/MessageFilter.php',
+        'Zotlabs\\Lib\\Multibase' => __DIR__ . '/../..' . '/Zotlabs/Lib/Multibase.php',
         'Zotlabs\\Lib\\PConfig' => __DIR__ . '/../..' . '/Zotlabs/Lib/PConfig.php',
         'Zotlabs\\Lib\\Permcat' => __DIR__ . '/../..' . '/Zotlabs/Lib/Permcat.php',
         'Zotlabs\\Lib\\PermissionDescription' => __DIR__ . '/../..' . '/Zotlabs/Lib/PermissionDescription.php',
@@ -1482,6 +1555,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Lib\\SvgSanitizer' => __DIR__ . '/../..' . '/Zotlabs/Lib/SvgSanitizer.php',
         'Zotlabs\\Lib\\System' => __DIR__ . '/../..' . '/Zotlabs/Lib/System.php',
         'Zotlabs\\Lib\\Techlevels' => __DIR__ . '/../..' . '/Zotlabs/Lib/Techlevels.php',
+        'Zotlabs\\Lib\\Text' => __DIR__ . '/../..' . '/Zotlabs/Lib/Text.php',
         'Zotlabs\\Lib\\ThreadItem' => __DIR__ . '/../..' . '/Zotlabs/Lib/ThreadItem.php',
         'Zotlabs\\Lib\\ThreadListener' => __DIR__ . '/../..' . '/Zotlabs/Lib/ThreadListener.php',
         'Zotlabs\\Lib\\ThreadStream' => __DIR__ . '/../..' . '/Zotlabs/Lib/ThreadStream.php',
@@ -1555,6 +1629,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Module\\Email_validation' => __DIR__ . '/../..' . '/Zotlabs/Module/Email_validation.php',
         'Zotlabs\\Module\\Embed' => __DIR__ . '/../..' . '/Zotlabs/Module/Embed.php',
         'Zotlabs\\Module\\Embedphotos' => __DIR__ . '/../..' . '/Zotlabs/Module/Embedphotos.php',
+        'Zotlabs\\Module\\Emoji' => __DIR__ . '/../..' . '/Zotlabs/Module/Emoji.php',
         'Zotlabs\\Module\\Event' => __DIR__ . '/../..' . '/Zotlabs/Module/Event.php',
         'Zotlabs\\Module\\Fbrowser' => __DIR__ . '/../..' . '/Zotlabs/Module/Fbrowser.php',
         'Zotlabs\\Module\\Feed' => __DIR__ . '/../..' . '/Zotlabs/Module/Feed.php',
@@ -1596,7 +1671,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Module\\Menu' => __DIR__ . '/../..' . '/Zotlabs/Module/Menu.php',
         'Zotlabs\\Module\\Mitem' => __DIR__ . '/../..' . '/Zotlabs/Module/Mitem.php',
         'Zotlabs\\Module\\Moderate' => __DIR__ . '/../..' . '/Zotlabs/Module/Moderate.php',
-        'Zotlabs\\Module\\Mood' => __DIR__ . '/../..' . '/Zotlabs/Module/Mood.php',
         'Zotlabs\\Module\\Network' => __DIR__ . '/../..' . '/Zotlabs/Module/Network.php',
         'Zotlabs\\Module\\New_channel' => __DIR__ . '/../..' . '/Zotlabs/Module/New_channel.php',
         'Zotlabs\\Module\\Notes' => __DIR__ . '/../..' . '/Zotlabs/Module/Notes.php',
@@ -1624,7 +1698,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Module\\Photos' => __DIR__ . '/../..' . '/Zotlabs/Module/Photos.php',
         'Zotlabs\\Module\\Pin' => __DIR__ . '/../..' . '/Zotlabs/Module/Pin.php',
         'Zotlabs\\Module\\Poco' => __DIR__ . '/../..' . '/Zotlabs/Module/Poco.php',
-        'Zotlabs\\Module\\Poke' => __DIR__ . '/../..' . '/Zotlabs/Module/Poke.php',
         'Zotlabs\\Module\\Poster' => __DIR__ . '/../..' . '/Zotlabs/Module/Poster.php',
         'Zotlabs\\Module\\Pretheme' => __DIR__ . '/../..' . '/Zotlabs/Module/Pretheme.php',
         'Zotlabs\\Module\\Profile' => __DIR__ . '/../..' . '/Zotlabs/Module/Profile.php',
@@ -1994,6 +2067,10 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Update\\_1257' => __DIR__ . '/../..' . '/Zotlabs/Update/_1257.php',
         'Zotlabs\\Update\\_1258' => __DIR__ . '/../..' . '/Zotlabs/Update/_1258.php',
         'Zotlabs\\Update\\_1259' => __DIR__ . '/../..' . '/Zotlabs/Update/_1259.php',
+        'Zotlabs\\Update\\_1260' => __DIR__ . '/../..' . '/Zotlabs/Update/_1260.php',
+        'Zotlabs\\Update\\_1261' => __DIR__ . '/../..' . '/Zotlabs/Update/_1261.php',
+        'Zotlabs\\Update\\_1262' => __DIR__ . '/../..' . '/Zotlabs/Update/_1262.php',
+        'Zotlabs\\Update\\_1263' => __DIR__ . '/../..' . '/Zotlabs/Update/_1263.php',
         'Zotlabs\\Web\\Controller' => __DIR__ . '/../..' . '/Zotlabs/Web/Controller.php',
         'Zotlabs\\Web\\HTTPHeaders' => __DIR__ . '/../..' . '/Zotlabs/Web/HTTPHeaders.php',
         'Zotlabs\\Web\\HTTPSig' => __DIR__ . '/../..' . '/Zotlabs/Web/HTTPSig.php',

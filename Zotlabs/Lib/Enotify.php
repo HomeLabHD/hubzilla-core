@@ -149,7 +149,7 @@ class Enotify {
 
 		if(array_key_exists('item',$params)) {
 
-			if(in_array($params['item']['verb'], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
+			if(in_array($params['item']['verb'], ['Like', 'Dislike', ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_SHARE])) {
 
 				if(! $always_show_in_notices || !($vnotify & VNOTIFY_LIKE)) {
 					logger('notification: not a visible activity. Ignoring.');
@@ -157,11 +157,14 @@ class Enotify {
 					return;
 				}
 
-				if(activity_match($params['verb'], ACTIVITY_LIKE))
+				if(activity_match($params['verb'], ['Like', ACTIVITY_LIKE]))
 					$action = (($moderated) ? t('requested to like') : t('liked'));
 
-				if(activity_match($params['verb'], ACTIVITY_DISLIKE))
+				if(activity_match($params['verb'], ['Dislike', ACTIVITY_DISLIKE]))
 					$action = (($moderated) ? t('requested to dislike') : t('disliked'));
+
+				if(activity_match($params['verb'], ACTIVITY_SHARE))
+					$action = t('repeated');
 
 			}
 
@@ -259,7 +262,7 @@ class Enotify {
 
 		$itemlink =  $params['link'];
 
-		if (array_key_exists('item',$params) && (activity_match($params['item']['verb'], ACTIVITY_LIKE) || activity_match($params['item']['verb'], ACTIVITY_DISLIKE))) {
+		if (array_key_exists('item',$params) && (activity_match($params['item']['verb'], ['Like', 'Dislike', ACTIVITY_LIKE, ACTIVITY_DISLIKE]))) {
 			if(! $always_show_in_notices  || !($vnotify & VNOTIFY_LIKE) || !feature_enabled($recip['channel_id'], 'dislike')) {
 				logger('notification: not a visible activity. Ignoring.');
 				pop_lang();
@@ -310,10 +313,10 @@ class Enotify {
 		//$verb = ((activity_match($params['item']['verb'], ACTIVITY_DISLIKE)) ? t('disliked') : t('liked'));
 		$moderated = (($params['item']['item_blocked'] == ITEM_MODERATED) ? true : false);
 
-		if(activity_match($params['item']['verb'], ACTIVITY_LIKE))
+		if(activity_match($params['item']['verb'], ['Like', ACTIVITY_LIKE]))
 			$verb = (($moderated) ? t('requested to like') : t('liked'));
 
-		if(activity_match($params['item']['verb'], ACTIVITY_DISLIKE))
+		if(activity_match($params['item']['verb'], ['Dislike', ACTIVITY_DISLIKE]))
 			$verb = (($moderated) ? t('requested to dislike') : t('disliked'));
 
 		// "your post"
@@ -483,6 +486,8 @@ class Enotify {
 
 	require_once('include/html2bbcode.php');
 
+/*
+
 	do {
 		$dups = false;
 		$hash = random_string();
@@ -491,10 +496,12 @@ class Enotify {
 		if ($r)
 			$dups = true;
 	} while ($dups === true);
+*/
+
 
 
 	$datarray = [];
-	$datarray['hash']   = $hash;
+	$datarray['hash']   = $params['item']['uuid'] ?? new_uuid();
 	$datarray['sender_hash'] = $sender['xchan_hash'];
 	$datarray['xname']   = $sender['xchan_name'];
 	$datarray['url']    = $sender['xchan_url'];
@@ -505,7 +512,7 @@ class Enotify {
 	$datarray['link']   = $itemlink;
 	$datarray['parent'] = $parent_mid;
 	$datarray['parent_item'] = $parent_item;
-	$datarray['ntype']   = $params['type'] ?? '';
+	$datarray['ntype']   = $params['type'] ?? 0;
 	$datarray['verb']   = $params['verb'] ?? '';
 	$datarray['otype']  = $params['otype'] ?? '';
  	$datarray['abort']  = false;
@@ -553,8 +560,9 @@ class Enotify {
 		dbesc($datarray['otype'])
 	);
 
-	$r = q("select id from notify where hash = '%s' and uid = %d limit 1",
-		dbesc($hash),
+	$r = q("select id from notify where hash = '%s' and ntype = %d and uid = %d limit 1",
+		dbesc($datarray['hash']),
+		intval($datarray['ntype']),
 		intval($recip['channel_id'])
 	);
 	if ($r) {
@@ -835,18 +843,6 @@ class Enotify {
 				: (($item['obj_type'] === 'Answer') ? sprintf( t('voted on %s\'s poll'), '[bdi]' . $item['owner']['xchan_name'] . '[/bdi]') : sprintf( t('commented on %s\'s post'), '[bdi]' . $item['owner']['xchan_name'] . '[/bdi]'))
 			);
 
-			if($item['verb'] === ACTIVITY_SHARE && empty($item['owner']['xchan_pubforum'])) {
-				$itemem_text = sprintf( t('repeated %s\'s post'), '[bdi]' . $item['author']['xchan_name'] . '[/bdi]');
-			}
-
-			if($item['verb'] === ACTIVITY_LIKE) {
-				$itemem_text = sprintf( t('liked %s\'s post'), '[bdi]' . $item['author']['xchan_name'] . '[/bdi]');
-			}
-
-			if($item['verb'] === ACTIVITY_DISLIKE) {
-				$itemem_text = sprintf( t('disliked %s\'s post'), '[bdi]' . $item['author']['xchan_name'] . '[/bdi]');
-			}
-
 			if(in_array($item['obj_type'], ['Document', 'Video', 'Audio', 'Image'])) {
 				$itemem_text = t('shared a file with you');
 			}
@@ -867,7 +863,6 @@ class Enotify {
 
 		// convert this logic into a json array just like the system notifications
 
-		$who = (($item['verb'] === ACTIVITY_SHARE && empty($item['owner']['xchan_pubforum'])) ? 'owner' : 'author');
 		$body = html2plain(bbcode($item['body'], ['drop_media' => true, 'tryoembed' => false]), 75, true);
 		if ($body) {
 			$body = htmlentities($body, ENT_QUOTES, 'UTF-8', false);
@@ -875,19 +870,20 @@ class Enotify {
 
 		$x = array(
 			'notify_link' => $item['llink'],
-			'name' => $item[$who]['xchan_name'],
-			'addr' => $item[$who]['xchan_addr'] ? $item[$who]['xchan_addr'] : $item[$who]['xchan_url'],
-			'url' => $item[$who]['xchan_url'],
-			'photo' => $item[$who]['xchan_photo_s'],
+			'name' => $item['author']['xchan_name'],
+			'addr' => $item['author']['xchan_addr'] ? $item['author']['xchan_addr'] : $item['author']['xchan_url'],
+			'url' => $item['author']['xchan_url'],
+			'photo' => $item['author']['xchan_photo_s'],
 			'when' => (($edit) ? datetime_convert('UTC', date_default_timezone_get(), $item['edited']) : datetime_convert('UTC', date_default_timezone_get(), $item['created'])),
 			'class' => (intval($item['item_unseen']) ? 'notify-unseen' : 'notify-seen'),
-			'b64mid' => (($item['mid']) ? gen_link_id($item['mid']) : ''),
+		//	'b64mid' => (($item['mid']) ? gen_link_id($item['mid']) : ''),
+			'b64mid' => (($item['uuid']) ? $item['uuid'] : ''),
 			//'b64mid' => ((in_array($item['verb'], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) ? gen_link_id($item['thr_parent']) : gen_link_id($item['mid'])),
 			'thread_top' => (($item['item_thread_top']) ? true : false),
 			'message' => bbcode(escape_tags($itemem_text)),
 			'body' => $body,
 			// these are for the superblock addon
-			'hash' => $item[$who]['xchan_hash'],
+			'hash' => $item['author']['xchan_hash'],
 			'uid' => $item['uid'],
 			'display' => true
 		);
@@ -907,9 +903,6 @@ class Enotify {
 		if(strpos($message, $tt['xname']) === 0)
 			$message = substr($message, strlen($tt['xname']) + 1);
 
-		$mid = basename($tt['link']);
-
-		$b64mid = gen_link_id($mid);
 		$x = [
 			'notify_link' => (($tt['ntype'] === NOTIFY_MAIL) ? $tt['link'] : z_root() . '/notify/view/' . $tt['id']),
 			'name' => $tt['xname'],
@@ -917,7 +910,7 @@ class Enotify {
 			'photo' => $tt['photo'],
 			'when' => datetime_convert('UTC', date_default_timezone_get(), $tt['created']),
 			'hclass' => (($tt['seen']) ? 'notify-seen' : 'notify-unseen'),
-			'b64mid' => (($tt['otype'] == 'item') ? $b64mid : ''),
+			'b64mid' => (($tt['otype'] == 'item') ? $tt['hash'] : ''),
 			'notify_id' => (($tt['otype'] == 'item') ? $tt['id'] : ''),
 			'message' => $message
 		];

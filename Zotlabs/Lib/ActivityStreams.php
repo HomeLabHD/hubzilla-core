@@ -24,10 +24,11 @@ class ActivityStreams {
 	public $origin = null;
 	public $owner = null;
 	public $signer = null;
-	public $ldsig = null;
+	public $sig = null;
 	public $sigok = false;
 	public $recips = null;
 	public $raw_recips = null;
+	public $saved_recips = null;
 
 	/**
 	 * @brief Constructor for ActivityStreams.
@@ -88,7 +89,16 @@ class ActivityStreams {
 
 		// Attempt to assemble an Activity from what we were given.
 		if ($this->is_valid()) {
-			$this->id     = $this->get_property_obj('id');
+			$this->id = $this->get_property_obj('id');
+
+			if  (!$this->id) {
+				logger('Data with mmissing id: ' . print_r($this->data, true));
+				return;
+			}
+
+			// cache for future use
+			ASCache::Set($this->id, 'json:' . $this->raw);
+
 			$this->type   = $this->get_primary_type();
 			$this->actor  = $this->get_actor('actor', '', '');
 			$this->obj    = $this->get_compound_property('object');
@@ -96,11 +106,19 @@ class ActivityStreams {
 			$this->origin = $this->get_compound_property('origin');
 			$this->recips = $this->collect_recips();
 
-			$this->ldsig = $this->get_compound_property('signature');
-			if ($this->ldsig) {
-				$this->signer = $this->get_actor('creator', $this->ldsig);
-				if ($this->signer && is_array($this->signer) && array_key_exists('publicKey', $this->signer) && is_array($this->signer['publicKey']) && $this->signer['publicKey']['publicKeyPem']) {
-					$this->sigok = LDSignatures::verify($this->data, $this->signer['publicKey']['publicKeyPem']);
+			$this->sig = $this->get_compound_property('proof');
+			if ($this->sig) {
+				$this->checkEddsaSignature(); // will set signer and sigok if everything works out
+			}
+
+			// Try LDSignatures if edsig failed
+			if (!$this->sigok) {
+				$this->sig = $this->get_compound_property('signature');
+				if ($this->sig) {
+					$this->signer = $this->get_actor('creator', $this->sig);
+					if ($this->signer && is_array($this->signer) && array_key_exists('publicKey', $this->signer) && is_array($this->signer['publicKey']) && $this->signer['publicKey']['publicKeyPem']) {
+						$this->sigok = LDSignatures::verify($this->data, $this->signer['publicKey']['publicKeyPem']);
+					}
 				}
 			}
 
@@ -112,24 +130,31 @@ class ActivityStreams {
 				}
 			}
 
-			// fetch recursive or embedded activities
+			// Fetch recursive or embedded activities
 
 			if ($this->obj && is_array($this->obj) && array_key_exists('object', $this->obj)) {
 				$this->obj['object'] = $this->get_compound_property('object', $this->obj);
 			}
 
-			if ($this->obj && is_array($this->obj) && isset($this->obj['actor']))
+			// Enumerate and store actors in referenced objects
+
+			if ($this->obj && is_array($this->obj) && isset($this->obj['actor'])) {
 				$this->obj['actor'] = $this->get_actor('actor', $this->obj);
-			if ($this->tgt && is_array($this->tgt) && isset($this->tgt['actor']))
+			}
+
+			if ($this->tgt && is_array($this->tgt) && isset($this->tgt['actor'])) {
 				$this->tgt['actor'] = $this->get_actor('actor', $this->tgt);
+			}
+
+			// Determine if this is a followup or response activity
 
 			$this->parent_id = $this->get_property_obj('inReplyTo');
 
-			if (!$this->parent_id && is_array($this->obj) && isset($this->obj['inReplyTo'])) {
-				$this->parent_id = $this->obj['inReplyTo'];
+			if (!$this->parent_id && isset($this->obj['inReplyTo'])) {
+				$this->parent_id = ((is_array($this->obj['inReplyTo'])) ? $this->obj['inReplyTo']['id'] : $this->obj['inReplyTo']);
 			}
 
-			if (!$this->parent_id && is_array($this->obj) && isset($this->obj['id'])) {
+			if (!$this->parent_id && isset($this->obj['id'])) {
 				$this->parent_id = $this->obj['id'];
 			}
 
@@ -318,9 +343,10 @@ class ActivityStreams {
 			if ($x === null && strpos($url, '/channel/')) {
 				// look for other nomadic channels which might be alive
 				$zf = Zotfinger::exec($url, $channel);
-
-				$url = $zf['signature']['signer'];
-				$x = Activity::fetch($url, $channel);
+				if ($zf) {
+					$url = $zf['signature']['signer'];
+					$x = Activity::fetch($url, $channel);
+				}
 			}
 		}
 
@@ -335,7 +361,7 @@ class ActivityStreams {
 		if (!$s) {
 			return false;
 		}
-		return (in_array($s, ['Like', 'Dislike', 'Flag', 'Block', 'Accept', 'Reject', 'TentativeAccept', 'TentativeReject', 'emojiReaction', 'EmojiReaction', 'EmojiReact']));
+		return (in_array($s, ['Announce', 'Like', 'Dislike', 'Flag', 'Block', 'Accept', 'Reject', 'TentativeAccept', 'TentativeReject', 'emojiReaction', 'EmojiReaction', 'EmojiReact']));
 	}
 
 	/**
@@ -384,11 +410,23 @@ class ActivityStreams {
 		$x = $this->get_property_obj($property, $base, $namespace);
 
 		if ($this->is_url($x)) {
-			$y = $this->fetch_property($x);
+			$cached = ASCache::Get($x);
+			if ($cached) {
+				// logger('AS cached: ' . $x);
+				$y = unserialise($cached);
+			}
+			else {
+				// logger('AS fetching: ' . $x);
+				$y = $this->fetch_property($x);
+				if ($y) {
+					ASCache::Set($x, serialise($y));
+				}
+			}
 			if (is_array($y)) {
 				$x = $y;
 			}
 		}
+
 
 		// verify and unpack JSalmon signature if present
 
@@ -487,6 +525,60 @@ class ActivityStreams {
 
 		return $ret;
 
+	}
+
+	public function checkEddsaSignature() {
+		$signer = $this->get_property_obj('verificationMethod', $this->sig);
+
+		$parseUrl = parse_url($signer);
+
+		if (isset($parseUrl['fragment'])) {
+			if (str_starts_with($parseUrl['fragment'], 'z6Mk')) {
+				$publicKey = $parseUrl['fragment'];
+			}
+			unset($parseUrl['fragment']);
+		}
+
+		if (isset($parseUrl['query'])) {
+			unset($parseUrl['query']);
+		}
+
+		$url = unparse_url($parseUrl);
+
+		$hublocs = Activity::get_actor_hublocs($url);
+
+		$hasStoredKey = false;
+		if ($hublocs) {
+			foreach ($hublocs as $hubloc) {
+				if ($publicKey && $hubloc['xchan_epubkey'] === $publicKey) {
+					$hasStoredKey = true;
+					break;
+				}
+			}
+		}
+
+		if (!$hasStoredKey) {
+			$this->signer = Activity::get_actor($url);
+
+			if (isset($this->signer['assertionMethod'])) {
+				if (!isset($this->signer['assertionMethod'][0])) {
+					$this->signer['assertionMethod'] = [$this->signer['assertionMethod']];
+				}
+
+				foreach($this->signer['assertionMethod'] as $am) {
+					if ($url === $am['controller'] &&
+						$am['type'] === 'Multikey' &&
+						str_starts_with($am['publicKeyMultibase'], 'z6Mk')
+					) {
+						$publicKey = $am['publicKeyMultibase'];
+					}
+				}
+			}
+		}
+
+		if ($publicKey) {
+			$this->sigok = (new JcsEddsa2022)->verify($this->data, $publicKey);
+		}
 	}
 
 }

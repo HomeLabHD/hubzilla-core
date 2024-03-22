@@ -455,7 +455,7 @@ function photo_upload($channel, $observer, $args) {
 
 				$item['body']     = $summary;
 				$item['mimetype'] = 'text/bbcode';
-				$item['obj_type'] = ACTIVITY_OBJ_PHOTO;
+				$item['obj_type'] = 'Image';
 
 				$object['id']            = $item['mid'];
 				$object['diaspora:guid'] = $item['uuid'];
@@ -511,8 +511,8 @@ function photo_upload($channel, $observer, $args) {
 			'allow_gid'       => $ac['allow_gid'],
 			'deny_cid'        => $ac['deny_cid'],
 			'deny_gid'        => $ac['deny_gid'],
-			'verb'            => ACTIVITY_POST,
-			'obj_type'        => ACTIVITY_OBJ_PHOTO,
+			'verb'            => 'Create',
+			'obj_type'        => 'Image',
 			'obj'             => json_encode($object),
 			'tgt_type'        => 'orderedCollection',
 			'target'          => json_encode($target),

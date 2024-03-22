@@ -65,10 +65,10 @@ class Cron_daily {
 			}
 		}
 
-		// Clean up emdedded content cache
+		// Clean up cache
 		q("DELETE FROM cache WHERE updated < %s - INTERVAL %s",
 			db_utcnow(),
-			db_quoteinterval(get_config('system', 'active_expire_days', '30') . ' DAY')
+			db_quoteinterval(get_config('system', 'cache_expire_days', 7) . ' DAY')
 		);
 
 		//update statistics in config

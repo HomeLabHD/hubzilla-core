@@ -171,7 +171,7 @@ class ThreadStream {
 		 */
 
 
-		if(($item->get_data_value('id') != $item->get_data_value('parent')) && (activity_match($item->get_data_value('verb'),ACTIVITY_LIKE) || activity_match($item->get_data_value('verb'),ACTIVITY_DISLIKE))) {
+		if($item->get_data_value('id') != $item->get_data_value('parent') && activity_match($item->get_data_value('verb'), ['Like', 'Dislike', ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
 			return false;
 		}
 
@@ -211,7 +211,7 @@ class ThreadStream {
 	 *      _ The data requested on success
 	 *      _ false on failure
 	 */
-	public function get_template_data($conv_responses) {
+	public function get_template_data($conv_responses, $mid_uuid_map) {
 		$result = array();
 
 		foreach($this->threads as $item) {
@@ -220,7 +220,7 @@ class ThreadStream {
 				$item_data = $this->prepared_item;
 			}
 			else {
-				$item_data = $item->get_template_data($conv_responses);
+				$item_data = $item->get_template_data($conv_responses, $mid_uuid_map);
 			}
 			if(!$item_data) {
 				logger('Failed to get item template data ('. $item->get_id() .').', LOGGER_DEBUG, LOG_ERR);

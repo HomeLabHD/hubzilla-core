@@ -17,8 +17,8 @@ class Cache {
      */
 
 	public static function get($key, $age = '') {
-
-		$hash = hash('whirlpool',$key);
+//		$hash = hash('whirlpool',$key);
+		$hash = uuid_from_url($key);
 
 		$r = q("SELECT v FROM cache WHERE k = '%s' AND updated > %s - INTERVAL %s LIMIT 1",
 			dbesc($hash),
@@ -32,23 +32,25 @@ class Cache {
 	}
 
 	public static function set($key,$value) {
+//		$hash = hash('whirlpool',$key);
+		$hash = uuid_from_url($key);
 
-		$hash = hash('whirlpool',$key);
-
-		$r = q("SELECT * FROM cache WHERE k = '%s' limit 1",
+		$r = q("SELECT * FROM cache WHERE k = '%s' LIMIT 1",
 			dbesc($hash)
 		);
 		if($r) {
 			q("UPDATE cache SET v = '%s', updated = '%s' WHERE k = '%s'",
 				dbesc($value),
 				dbesc(datetime_convert()),
-				dbesc($hash));
+				dbesc($hash)
+			);
 		}
 		else {
 			q("INSERT INTO cache (k, v, updated) VALUES ('%s', '%s', '%s')",
 				dbesc($hash),
 				dbesc($value),
-				dbesc(datetime_convert()));
+				dbesc(datetime_convert())
+			);
 		}
 	}
 }

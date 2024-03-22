@@ -7,7 +7,6 @@ use Zotlabs\Web\Controller;
 use Zotlabs\Daemon\Master;
 use Zotlabs\Lib\Activity as ZlibActivity;
 use Zotlabs\Lib\ActivityStreams;
-use Zotlabs\Lib\LDSignatures;
 use Zotlabs\Web\HTTPSig;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\ThreadListener;
@@ -26,7 +25,7 @@ class Activity extends Controller {
 
 			$portable_id = EMPTY_STR;
 
-			$item_normal_extra = sprintf(" and not verb in ('%s', '%s') ",
+			$item_normal_extra = sprintf(" and not verb in ('Follow', 'Ignore', '%s', '%s') ",
 				dbesc(ACTIVITY_FOLLOW),
 				dbesc(ACTIVITY_UNFOLLOW)
 			);
@@ -155,22 +154,7 @@ class Activity extends Controller {
 			if(! $i)
 				http_status_exit(404, 'Not found');
 
-			$x = array_merge(['@context' => [
-				ACTIVITYSTREAMS_JSONLD_REV,
-				'https://w3id.org/security/v1',
-				z_root() . ZOT_APSCHEMA_REV
-				]], $i);
-
-			$headers = [];
-			$headers['Content-Type'] = 'application/x-zot+json' ;
-			$x['signature'] = LDSignatures::sign($x,$chan);
-			$ret = json_encode($x, JSON_UNESCAPED_SLASHES);
-			$headers['Digest'] = HTTPSig::generate_digest_header($ret);
-			$headers['(request-target)'] = strtolower($_SERVER['REQUEST_METHOD']) . ' ' . $_SERVER['REQUEST_URI'];
-			$h = HTTPSig::create_sig($headers,$chan['channel_prvkey'],channel_url($chan));
-			HTTPSig::set_headers($h);
-			echo $ret;
-			killme();
+			as_return_and_die($i, $chan);
 
 		}
 
@@ -202,7 +186,7 @@ class Activity extends Controller {
 				}
 			}
 
-			$item_normal_extra = sprintf(" and not verb in ('%s', '%s') ",
+			$item_normal_extra = sprintf(" and not verb in ('Follow', 'Ignore', '%s', '%s') ",
 				dbesc(ACTIVITY_FOLLOW),
 				dbesc(ACTIVITY_UNFOLLOW)
 			);
@@ -260,25 +244,7 @@ class Activity extends Controller {
 
 			$channel = channelx_by_n($items[0]['uid']);
 
-			$x = array_merge( ['@context' => [
-				ACTIVITYSTREAMS_JSONLD_REV,
-				'https://w3id.org/security/v1',
-				z_root() . ZOT_APSCHEMA_REV
-				]], ZlibActivity::encode_activity($items[0],true));
-
-			$headers = [];
-			$headers['Content-Type'] = 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"' ;
-			$x['signature'] = LDSignatures::sign($x,$channel);
-			$ret = json_encode($x, JSON_UNESCAPED_SLASHES);
-			$headers['Date'] = datetime_convert('UTC','UTC', 'now', 'D, d M Y H:i:s \\G\\M\\T');
-			$headers['Digest'] = HTTPSig::generate_digest_header($ret);
-			$headers['(request-target)'] = strtolower($_SERVER['REQUEST_METHOD']) . ' ' . $_SERVER['REQUEST_URI'];
-
-			$h = HTTPSig::create_sig($headers,$channel['channel_prvkey'],channel_url($channel));
-			HTTPSig::set_headers($h);
-			echo $ret;
-			killme();
-
+			as_return_and_die(ZlibActivity::encode_activity($items[0]), $channel);
 		}
 
 		goaway(z_root() . '/item/' . argv(1));

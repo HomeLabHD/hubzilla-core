@@ -143,6 +143,9 @@ class Config {
 					return $value;
 				}
 			}
+			else {
+				return $value;
+			}
 		}
 
 		return $default;

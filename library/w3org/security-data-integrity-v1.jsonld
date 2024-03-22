@@ -4,7 +4,7 @@
     "type": "@type",
     "proof": {
       "@id": "https://w3id.org/security#proof",
-      "@type": "@id"
+      "@type": "@id",
     },
     "DataIntegrityProof": {
       "@id": "https://w3id.org/security#DataIntegrityProof"
@@ -36,22 +36,18 @@
     "assertionMethod": {
       "@id": "https://w3id.org/security#assertionMethod",
       "@type": "@id",
-      "@container": "@set"
     },
     "authentication": {
       "@id": "https://w3id.org/security#authenticationMethod",
       "@type": "@id",
-      "@container": "@set"
     },
     "capabilityInvocation": {
       "@id": "https://w3id.org/security#capabilityInvocationMethod",
       "@type": "@id",
-      "@container": "@set"
     },
     "capabilityDelegation": {
       "@id": "https://w3id.org/security#capabilityDelegationMethod",
       "@type": "@id",
-      "@container": "@set"
     },
     "keyAgreement": {
       "@id": "https://w3id.org/security#keyAgreementMethod",

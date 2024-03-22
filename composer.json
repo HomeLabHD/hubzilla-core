@@ -23,14 +23,17 @@
         "source": "https://framagit.org/hubzilla/core/"
     },
     "require": {
-        "php": ">=8.0.2",
+        "php": ">=8.1",
         "ext-curl": "*",
         "ext-iconv": "*",
+        "ext-intl": "*",
         "ext-mbstring": "*",
         "ext-xml": "*",
         "ext-openssl": "*",
         "ext-json": "*",
         "ext-posix": "*",
+        "ext-sodium": "*",
+        "ext-bcmath": "*",
         "sabre/dav": "^4.0",
         "michelf/php-markdown": "^2.0",
         "bshaffer/oauth2-server-php": "^1.9",
@@ -45,17 +48,18 @@
         "twbs/bootstrap": "^5.3",
         "blueimp/jquery-file-upload": "^10.3",
         "desandro/imagesloaded": "^4.1",
-        "phpseclib/phpseclib": "~2.0",
+        "phpseclib/phpseclib": "^2.0.47",
         "jbroadway/urlify": "^1.2",
         "chillerlan/php-qrcode": "^4.3",
         "spomky-labs/otphp": "^11.1",
-        "patrickschur/language-detection": "^5.3"
+        "patrickschur/language-detection": "^5.3",
+        "stephenhill/base58": "^1.1",
+        "mmccook/php-json-canonicalization-scheme": "^1.0",
+        "scssphp/scssphp": "^1.12"
     },
     "require-dev": {
+		"ext-yaml": "*",
         "phpunit/phpunit": "^9.4",
-        "behat/behat": "@stable",
-        "behat/mink-extension": "@stable",
-        "behat/mink-goutte-driver": "@stable",
         "php-mock/php-mock-phpunit": "^2.6",
         "phpmd/phpmd": "^2.6",
         "squizlabs/php_codesniffer": "*",
@@ -77,11 +81,5 @@
     "config": {
         "notify-on-install": false,
         "optimize-autoloader": true
-    },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/simplepie/simplepie"
-        }
-    ]
+    }
 }

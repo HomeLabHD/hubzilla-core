@@ -13,11 +13,10 @@ class Dreport extends \Zotlabs\Web\Controller {
 
 		$table = 'item';
 		$channel = \App::get_channel();
-		$mid = ((argc() > 1) ? unpack_link_id(argv(1)) : '');
+		$mid = $_REQUEST['mid'] ?? '';
 
-		if($mid === 'push') {
+		if(argv(1) === 'push') {
 			$table = 'push';
-			$mid = ((argc() > 2) ? unpack_link_id(argv(2)) : '');
 
 			if($mid) {
 				$i = q("select id from item where mid = '%s' and uid = %d and ( author_xchan = '%s' or ( owner_xchan = '%s' and item_wall = 1 )) ",
@@ -31,7 +30,7 @@ class Dreport extends \Zotlabs\Web\Controller {
 				}
 			}
 			sleep(3);
-			goaway(z_root() . '/dreport/' . gen_link_id($mid));
+			goaway(z_root() . '/dreport?mid=' . $mid);
 		}
 
 		if(! $mid) {
@@ -114,7 +113,7 @@ class Dreport extends \Zotlabs\Web\Controller {
 			}
 		}
 
-		usort($r,'self::dreport_gravity_sort');
+		usort($r, [self::class, 'dreport_gravity_sort']);
 
 		$entries = array();
 		foreach($r as $rr) {

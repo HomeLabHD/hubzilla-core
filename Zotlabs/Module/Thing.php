@@ -5,27 +5,50 @@
 
 namespace Zotlabs\Module;
 
+use App;
 use Zotlabs\Lib\Libsync;
-
-require_once('include/items.php');
-require_once('include/security.php');
-require_once('include/selectors.php');
-require_once('include/acl_selectors.php');
+use Zotlabs\Lib\Activity;
+use Zotlabs\Lib\ActivityStreams;
+use Zotlabs\Lib\Libzot;
 
 
 class Thing extends \Zotlabs\Web\Controller {
 
 	function init() {
+		if (argv(1) && ActivityStreams::is_as_request()) {
+			$r = q("select obj_channel from obj where obj_type = %d and obj_obj = '%s' limit 1",
+				intval(TERM_OBJ_THING),
+				dbesc(argv(1))
+			);
+
+			if (!$r) {
+				http_status_exit(404, 'Not found');
+			}
+
+			$sql_extra = permissions_sql($r[0]['obj_channel']);
+
+			$r = q("select * from obj where obj_type = %d and obj_obj = '%s' $sql_extra limit 1",
+				intval(TERM_OBJ_THING),
+				dbesc(argv(1))
+			);
+
+			if ($r) {
+				$channel = channelx_by_n($r[0]['obj_channel']);
+				as_return_and_die(Activity::fetch_thing(['id' => $r[0]['obj_obj']]), $channel);
+			}
+
+			http_status_exit(404, 'Not found');
+
+		}
+	}
+
+
+	function post() {
 
 		if(! local_channel())
 			return;
 
 		$channel    = \App::get_channel();
-
-		if($_SERVER['REQUEST_METHOD'] === 'GET' && argc() < 2) {
-			profile_load($channel['channel_address']);
-		}
-
 
 		$term_hash = (($_REQUEST['term_hash']) ? $_REQUEST['term_hash'] : '');
 
@@ -36,7 +59,7 @@ class Thing extends \Zotlabs\Web\Controller {
 		$url = $_REQUEST['url'];
 		$photo = $_REQUEST['img'];
 
-		$hash = random_string();
+		$hash = new_uuid();
 
 		$verbs = obj_verbs();
 
@@ -77,13 +100,7 @@ class Thing extends \Zotlabs\Web\Controller {
 			return;
 
 		$acl = new \Zotlabs\Access\AccessList($channel);
-
-		if(array_key_exists('contact_allow',$_REQUEST)
-			|| array_key_exists('group_allow',$_REQUEST)
-			|| array_key_exists('contact_deny',$_REQUEST)
-			|| array_key_exists('group_deny',$_REQUEST)) {
-			$acl->set_from_array($_REQUEST);
-		}
+		$acl->set_from_array($_REQUEST);
 
 		$x = $acl->get();
 
@@ -181,27 +198,19 @@ class Thing extends \Zotlabs\Web\Controller {
 			intval(local_channel()),
 			dbesc($hash)
 		);
+
 		if($r) {
 			Libsync::build_sync_packet(0, array('obj' => $r));
 		}
 
 		if($activity) {
-			$arr = array();
-			$links = array(array('rel' => 'alternate','type' => 'text/html', 'href' => $url));
-			if($local_photo)
-				$links[] = array('rel' => 'photo', 'type' => $local_photo_type, 'href' => $local_photo);
 
-			$objtype = ACTIVITY_OBJ_THING;
-
-			$obj = json_encode(array(
-				'type'    => $objtype,
-				'id'      => $url,
-				'link'    => $links,
-				'title'   => $name,
-				'content' => $name
-			));
+			$obj = Activity::fetch_thing(['id' => $r[0]['obj_obj']]);
 
 			$bodyverb = str_replace('OBJ: ', '',t('OBJ: %1$s %2$s %3$s'));
+
+			$arr['uuid'] = $r[0]['obj_obj'];
+			$arr['mid'] = z_root() . '/thing/' . $arr['uuid'];
 
 			$arr['owner_xchan']  = $channel['channel_hash'];
 			$arr['author_xchan'] = $channel['channel_hash'];
@@ -213,29 +222,38 @@ class Thing extends \Zotlabs\Web\Controller {
 			$ulink = '[zrl=' . $channel['xchan_url'] . ']' . $channel['channel_name'] . '[/zrl]';
 			$plink = '[zrl=' . $url . ']' . $name . '[/zrl]';
 
-			$arr['body'] =  sprintf( $bodyverb, $ulink, $translated_verb, $plink );
+			$arr['title'] = $channel['channel_name'] . ' ' . $translated_verb . ' ' . $name;
+			$arr['body'] = $url;
 
 			if($local_photo)
-				$arr['body'] .= "\n\n[zmg]" . $local_photo . "[/zmg]";
+				$arr['body'] = '[zrl=' . $url . '][zmg=' . $local_photo . ']' . $name . '[/zmg][/zrl]';
 
-			$arr['verb'] = $verb;
-			$arr['obj_type'] = $objtype;
+			$arr['verb'] = 'Create';
+			$arr['obj_type'] = 'Page';
 			$arr['obj'] = $obj;
 
-			if(! $profile['is_default']) {
+			$arr['allow_cid'] = $x['allow_cid'];
+			$arr['allow_gid'] = $x['allow_gid'];
+			$arr['deny_cid'] = $x['deny_cid'];
+			$arr['deny_gid'] = $x['deny_gid'];
+
+			if (!$profile['is_default']) {
 				$arr['item_private'] = true;
-				$str = '';
+
 				$r = q("select abook_xchan from abook where abook_channel = %d and abook_profile = '%s'",
 					intval(local_channel()),
 					dbesc($profile_guid)
 				);
+
 				if($r) {
 					$arr['allow_cid'] = '';
-					foreach($r as $rr)
+					foreach($r as $rr) {
 						$arr['allow_cid'] .= '<' . $rr['abook_xchan'] . '>';
+					}
 				}
-				else
+				else {
 					$arr['allow_cid'] = '<' . get_observer_hash() . '>';
+				}
 			}
 
 			$ret = post_activity_item($arr);
@@ -254,21 +272,30 @@ class Thing extends \Zotlabs\Web\Controller {
 				intval(TERM_OBJ_THING),
 				dbesc(argv(1))
 			);
-			if($r)
-				$sql_extra = permissions_sql($r[0]['obj_channel']);
+
+			if (!$r) {
+				notice( t('item not found.') . EOL);
+				return;
+			}
+
+			$sql_extra = permissions_sql($r[0]['obj_channel']);
 
 			$r = q("select * from obj where obj_type = %d and obj_obj = '%s' $sql_extra limit 1",
 				intval(TERM_OBJ_THING),
 				dbesc(argv(1))
 			);
 
-			if($r) {
+			if ($r) {
+				$channel = channelx_by_n($r[0]['obj_channel']);
+				profile_load($channel['channel_address']);
+
 				return replace_macros(get_markup_template('show_thing.tpl'), array(
-					'$header' => t('Show Thing'),
+					'$header' => $channel['xchan_name'] . ' ' . $r[0]['obj_verb'] . ' ' . $r[0]['obj_term'],
 					'$edit' => t('Edit'),
 					'$delete' => t('Delete'),
 					'$canedit' => ((local_channel() && local_channel() == $r[0]['obj_channel']) ? true : false),
-					'$thing' => $r[0] ));
+					'$thing' => $r[0]
+				));
 			}
 			else {
 				notice( t('item not found.') . EOL);
@@ -282,6 +309,8 @@ class Thing extends \Zotlabs\Web\Controller {
 			notice( t('Permission denied.') . EOL);
 			return;
 		}
+
+		profile_load($channel['channel_address']);
 
 		$acl = new \Zotlabs\Access\AccessList($channel);
 		$channel_acl = $acl->get();
@@ -319,7 +348,7 @@ class Thing extends \Zotlabs\Web\Controller {
 				'$img_lbl' => t('URL for photo of thing (optional)'),
 				'$imgurl' => $r[0]['obj_imgurl'],
 				'$permissions' => t('Permissions'),
-				'$aclselect' => populate_acl($channel_acl,false),
+				'$aclselect' => populate_acl($channel_acl, false, \Zotlabs\Lib\PermissionDescription::fromGlobalPermission('view_pages')),
 				'$allow_cid' => acl2json($channel_acl['allow_cid']),
 				'$allow_gid' => acl2json($channel_acl['allow_gid']),
 				'$deny_cid' => acl2json($channel_acl['deny_cid']),
@@ -343,7 +372,6 @@ class Thing extends \Zotlabs\Web\Controller {
 				notice( t('Permission denied.') . EOL);
 				return '';
 			}
-
 
 			delete_thing_photo($r[0]['obj_imgurl'],get_observer_hash());
 
@@ -372,7 +400,7 @@ class Thing extends \Zotlabs\Web\Controller {
 			'$url_lbl' => t('URL of thing (optional)'),
 			'$img_lbl' => t('URL for photo of thing (optional)'),
 			'$permissions' => t('Permissions'),
-			'$aclselect' => populate_acl($channel_acl,false),
+			'$aclselect' => populate_acl($channel_acl, false, \Zotlabs\Lib\PermissionDescription::fromGlobalPermission('view_pages')),
 			'$allow_cid' => acl2json($channel_acl['allow_cid']),
 			'$allow_gid' => acl2json($channel_acl['allow_gid']),
 			'$deny_cid' => acl2json($channel_acl['deny_cid']),

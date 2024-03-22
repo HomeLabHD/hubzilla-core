@@ -67,15 +67,15 @@ class Tagger extends \Zotlabs\Web\Controller {
 
 		switch($item['resource_type']) {
 			case 'photo':
-				$targettype = ACTIVITY_OBJ_PHOTO;
+				$targettype = 'Image';
 				$post_type = t('photo');
 				break;
 			case 'event':
-				$targettype = ACTIVITY_OBJ_EVENT;
+				$targettype = 'Event';
 				$post_type = t('event');
 				break;
 			default:
-				$targettype = ACTIVITY_OBJ_NOTE;
+				$targettype = 'Note';
 				$post_type = t('post');
 				if($item['mid'] != $item['parent_mid'])
 					$post_type = t('comment');
@@ -86,7 +86,7 @@ class Tagger extends \Zotlabs\Web\Controller {
 		$clean_term = trim($term,'"\' ');
 
 		$links = array(array('rel' => 'alternate','type' => 'text/html',
-			'href' => z_root() . '/display/' . gen_link_id($item['mid'])));
+			'href' => z_root() . '/display/' . $item['uuid']));
 
 		$target = json_encode(array(
 			'type'    => $targettype,

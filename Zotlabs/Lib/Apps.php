@@ -352,8 +352,6 @@ class Apps {
 			'Directory' => t('Directory'),
 			'Help' => t('Help'),
 			'Mail' => t('Mail'),
-			'Mood' => t('Mood'),
-			'Poke' => t('Poke'),
 			'Chat' => t('Chat'),
 			'Search' => t('Search'),
 			'Probe' => t('Probe'),

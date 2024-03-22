@@ -19,14 +19,12 @@ class Like extends Controller {
 	private function reaction_to_activity($reaction) {
 
 		$acts = [
-			'like'        => ACTIVITY_LIKE,
-			'dislike'     => ACTIVITY_DISLIKE,
-			'agree'       => ACTIVITY_AGREE,
-			'disagree'    => ACTIVITY_DISAGREE,
-			'abstain'     => ACTIVITY_ABSTAIN,
-			'attendyes'   => ACTIVITY_ATTEND,
-			'attendno'    => ACTIVITY_ATTENDNO,
-			'attendmaybe' => ACTIVITY_ATTENDMAYBE
+			'like'        => 'Like',
+			'dislike'     => 'Dislike',
+			'announce'    => ACTIVITY_SHARE,
+			'attendyes'   => 'Accept',
+			'attendno'    => 'Reject',
+			'attendmaybe' => 'TentativeAccept'
 		];
 
 		// unlike (etc.) reactions are an undo of positive reactions, rather than a negative action.
@@ -71,11 +69,12 @@ class Like extends Controller {
 			$activities = q("SELECT item.*, item.id AS item_id FROM item
 				WHERE uid = %d $item_normal
 				AND thr_parent = '%s'
-				AND verb IN ('%s', '%s', '%s', '%s', '%s')",
+				AND verb IN ('%s', '%s', '%s', '%s', '%s', '%s', 'Accept', 'Reject', 'TentativeAccept')",
 				intval($arr['item']['uid']),
 				dbesc($arr['item']['mid']),
-				dbesc(ACTIVITY_LIKE),
-				dbesc(ACTIVITY_DISLIKE),
+				dbesc('Like'),
+				dbesc('Dislike'),
+				dbesc(ACTIVITY_SHARE),
 				dbesc(ACTIVITY_ATTEND),
 				dbesc(ACTIVITY_ATTENDNO),
 				dbesc(ACTIVITY_ATTENDMAYBE)
@@ -133,7 +132,7 @@ class Like extends Controller {
 		}
 
 		$is_rsvp = false;
-		if (in_array($activity, [ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE])) {
+		if (in_array($activity, ['Accept', 'Reject', 'TentativeAccept', ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE])) {
 			$is_rsvp = true;
 		}
 
@@ -182,7 +181,7 @@ class Like extends Controller {
 					}
 				}
 				$post_type = t('channel');
-				$obj_type   = ACTIVITY_OBJ_PROFILE;
+				$obj_type   = 'Profile';
 
 				$profile = $r[0];
 			}
@@ -211,8 +210,8 @@ class Like extends Controller {
 					$public = false;
 
 				$post_type = t('thing');
-				$obj_type   = ACTIVITY_OBJ_PROFILE;
-				$tgttype   = ACTIVITY_OBJ_THING;
+				$obj_type   = 'Profile';
+				$tgttype   = 'Page';
 
 				$links   = array();
 				$links[] = array('rel'  => 'alternate', 'type' => 'text/html',
@@ -220,12 +219,7 @@ class Like extends Controller {
 				if ($r[0]['imgurl'])
 					$links[] = array('rel' => 'photo', 'href' => $r[0]['obj_imgurl']);
 
-				$target = json_encode(array(
-					'type'  => $tgttype,
-					'title' => $r[0]['obj_term'],
-					'id'    => z_root() . '/thing/' . $r[0]['obj_obj'],
-					'link'  => $links
-				));
+				$target = Activity::fetch_thing(['id' => $r[0]['obj_obj']]);
 
 				$plink = '[zrl=' . z_root() . '/thing/' . $r[0]['obj_obj'] . ']' . $r[0]['obj_term'] . '[/zrl]';
 
@@ -323,6 +317,8 @@ class Like extends Controller {
 			// parent, copy that as well.
 
 			if ($r) {
+				$obj_type = $r[0]['obj_type'];
+
 				if ($r[0]['uid'] === $sys_channel['channel_id'] && local_channel()) {
 					$r = [copy_of_pubitem(App::get_channel(), $r[0]['mid'])];
 				}
@@ -370,15 +366,11 @@ class Like extends Controller {
 
 			$multi_undo = false;
 
-			// event participation and consensus items are essentially radio toggles. If you make a subsequent choice,
+			// event participation items are essentially radio toggles. If you make a subsequent choice,
 			// we need to eradicate your first choice.
 
-			if ($activity === ACTIVITY_ATTEND || $activity === ACTIVITY_ATTENDNO || $activity === ACTIVITY_ATTENDMAYBE) {
-				$verbs      = " '" . dbesc(ACTIVITY_ATTEND) . "','" . dbesc(ACTIVITY_ATTENDNO) . "','" . dbesc(ACTIVITY_ATTENDMAYBE) . "' ";
-				$multi_undo = 1;
-			}
-			if ($activity === ACTIVITY_AGREE || $activity === ACTIVITY_DISAGREE || $activity === ACTIVITY_ABSTAIN) {
-				$verbs      = " '" . dbesc(ACTIVITY_AGREE) . "','" . dbesc(ACTIVITY_DISAGREE) . "','" . dbesc(ACTIVITY_ABSTAIN) . "' ";
+			if (in_array($activity, ['Accept', 'Reject', 'TentativeAccept', ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE])) {
+				$verbs      = "'Accept','Reject','TentativeAccept','" . dbesc(ACTIVITY_ATTEND) . "','" . dbesc(ACTIVITY_ATTENDNO) . "','" . dbesc(ACTIVITY_ATTENDMAYBE) . "' ";
 				$multi_undo = true;
 			}
 
@@ -437,7 +429,7 @@ class Like extends Controller {
 			}
 		}
 
-		$uuid = item_message_id();
+		$uuid = new_uuid();
 
 		$arr = array();
 
@@ -450,14 +442,20 @@ class Like extends Controller {
 			$arr['item_wall']       = 1;
 		}
 		else {
-			$post_type = (($item['resource_type'] === 'photo') ? t('photo') : t('status'));
-			if (in_array($item['obj_type'], ['Event', ACTIVITY_OBJ_EVENT]))
-				$post_type = t('event');
-
-			$obj_type = (($item['resource_type'] === 'photo') ? ACTIVITY_OBJ_PHOTO : ACTIVITY_OBJ_NOTE);
-
-			if ($obj_type === ACTIVITY_OBJ_NOTE && (!intval($item['item_thread_top'])))
-				$obj_type = ACTIVITY_OBJ_COMMENT;
+			switch ($item['object_type']) {
+				case 'Image':
+					$post_type = t('image');
+					break;
+				case 'Invite':
+					$post_type = t('event');
+					break;
+				case 'Profile':
+					$post_type = t('profile');
+					break;
+				default:
+					$post_type = t('status');
+					break;
+			}
 
 			$object = json_encode(Activity::fetch_item(['id' => $item['mid']]));
 
@@ -485,12 +483,6 @@ class Like extends Controller {
 			$bodyverb = t('%1$s likes %2$s\'s %3$s');
 		if ($verb === 'dislike')
 			$bodyverb = t('%1$s doesn\'t like %2$s\'s %3$s');
-		if ($verb === 'agree')
-			$bodyverb = t('%1$s agrees with %2$s\'s %3$s');
-		if ($verb === 'disagree')
-			$bodyverb = t('%1$s doesn\'t agree with %2$s\'s %3$s');
-		if ($verb === 'abstain')
-			$bodyverb = t('%1$s abstains from a decision on %2$s\'s %3$s');
 		if ($verb === 'attendyes')
 			$bodyverb = t('%1$s is attending %2$s\'s %3$s');
 		if ($verb === 'attendno')
@@ -511,7 +503,7 @@ class Like extends Controller {
 			$arr['thr_parent'] = $item['mid'];
 			$ulink             = '[zrl=' . $item_author['xchan_url'] . '][bdi]' . $item_author['xchan_name'] . '[/bdi][/zrl]';
 			$alink             = '[zrl=' . $observer['xchan_url'] . '][bdi]' . $observer['xchan_name'] . '[/bdi][/zrl]';
-			$plink             = '[zrl=' . z_root() . '/display/' . gen_link_id($item['mid']) . ']' . $post_type . '[/zrl]';
+			$plink             = '[zrl=' . z_root() . '/display/' . $item['uuid'] . ']' . $post_type . '[/zrl]';
 			$allow_cid         = $item['allow_cid'];
 			$allow_gid         = $item['allow_gid'];
 			$deny_cid          = $item['deny_cid'];
@@ -532,7 +524,7 @@ class Like extends Controller {
 		if ($obj_type === 'thing' && $r[0]['imgurl']) {
 			$arr['body'] .= "\n\n[zmg=80x80]" . $r[0]['imgurl'] . '[/zmg]';
 		}
-		if ($obj_type === 'profile') {
+		if ($obj_type === 'Profile') {
 			if ($public) {
 				$arr['body'] .= "\n\n" . '[embed]' . z_root() . '/profile/' . $ch[0]['channel_address'] . '[/embed]';
 			}
@@ -585,6 +577,7 @@ class Like extends Controller {
 			$sync_item = fetch_post_tags($r);
 			Libsync::build_sync_packet($profile_uid, ['item' => [encode_item($sync_item[0], true)]]);
 		}
+
 
 		if ($extended_like) {
 			$r = q("insert into likes (channel_id,liker,likee,iid,i_mid,verb,target_type,target_id,target) values (%d,'%s','%s',%d,'%s','%s','%s','%s','%s')",

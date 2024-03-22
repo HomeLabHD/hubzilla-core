@@ -40,7 +40,15 @@ class Pubstream extends \Zotlabs\Web\Controller {
 
 		$site_firehose = ((intval(get_config('system','site_firehose',0))) ? true : false);
 
-		$mid = ((isset($_REQUEST['mid'])) ? unpack_link_id($_REQUEST['mid']) : '');
+		$mid = $_REQUEST['mid'] ?? '';
+		$identifier = 'uuid';
+		$encoded_mid = null;
+
+		if (str_starts_with($mid, 'b64.')) {
+			$encoded_mid = $mid;
+			$mid = unpack_link_id($mid);
+			$identifier = 'mid';
+		}
 
 		if ($mid === false) {
 			notice(t('Malformed message id.') . EOL);
@@ -108,9 +116,6 @@ class Pubstream extends \Zotlabs\Web\Controller {
 				. "; var profile_page = " . \App::$pager['page']
 				. "; divmore_height = " . intval($maxheight) . "; </script>\r\n";
 
-			//if we got a decoded hash we must encode it again before handing to javascript
-			$mid = gen_link_id($mid);
-
 			\App::$page['htmlhead'] .= replace_macros(get_markup_template("build_query.tpl"),array(
 				'$baseurl' => z_root(),
 				'$pgtype'  => 'pubstream',
@@ -136,7 +141,7 @@ class Pubstream extends \Zotlabs\Web\Controller {
 				'$cats'    => '',
 				'$tags'    => (($hashtags) ? urlencode($hashtags) : ''),
 				'$dend'    => '',
-				'$mid'     => (($mid) ? urlencode($mid) : ''),
+				'$mid'       => $encoded_mid ?? $mid,
 				'$verb'    => '',
 				'$net'     => (($net) ? urlencode($net) : ''),
 				'$dbegin'  => ''
@@ -198,7 +203,7 @@ class Pubstream extends \Zotlabs\Web\Controller {
 					$r = q("SELECT parent AS item_id FROM item
 						left join abook on item.author_xchan = abook.abook_xchan
 						$net_query
-						WHERE item.mid = '%s' and item.item_private = 0
+						WHERE item.$identifier = '%s' and item.item_private = 0
 						$uids $site_firehose_sql
 						$item_normal
 						and (abook.abook_blocked = 0 or abook.abook_flags is null)
@@ -225,7 +230,7 @@ class Pubstream extends \Zotlabs\Web\Controller {
 					$r = q("SELECT parent AS item_id FROM item
 						left join abook on item.author_xchan = abook.abook_xchan
 						$net_query
-						WHERE item.mid = '%s' and item.item_private = 0
+						WHERE item.$identifier = '%s' and item.item_private = 0
 						$uids $site_firehose_sql $item_normal_update $simple_update
 						and (abook.abook_blocked = 0 or abook.abook_flags is null)
 						$sql_extra $net_query2",
