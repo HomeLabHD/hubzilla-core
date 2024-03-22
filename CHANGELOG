@@ -1,4 +1,4 @@
-Hubzilla 9.0 (2024-??-??)
+Hubzilla 9.0 (2024-03-22)
 	- Refactor browser to browser encryption based on sodium plus library
 	- Added developer docs for the refactored test system
 	- Move escape_tags() to Lib/Text::escape_tags() and add test
