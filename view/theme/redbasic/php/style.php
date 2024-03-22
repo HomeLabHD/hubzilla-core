@@ -13,17 +13,12 @@ if(!App::$install) {
 		$nav_bg = get_pconfig($uid, 'redbasic', 'nav_bg');
 		$nav_bg_dark = get_pconfig($uid, 'redbasic', 'nav_bg_dark');
 		$narrow_navbar = get_pconfig($uid,'redbasic','narrow_navbar');
-		$link_color = get_pconfig($uid, 'redbasic', 'link_color');
-		$link_color_dark = get_pconfig($uid, 'redbasic', 'link_color_dark');
-		$link_hover_color = get_pconfig($uid, 'redbasic', 'link_hover_color');
-		$link_hover_color_dark = get_pconfig($uid, 'redbasic', 'link_hover_color_dark');
 		$bgcolor = get_pconfig($uid, 'redbasic', 'background_color');
 		$bgcolor_dark = get_pconfig($uid, 'redbasic', 'background_color_dark');
 		$schema = get_pconfig($uid,'redbasic','schema');
 		$background_image = get_pconfig($uid, 'redbasic', 'background_image');
 		$background_image_dark = get_pconfig($uid, 'redbasic', 'background_image_dark');
 		$font_size = get_pconfig($uid, 'redbasic', 'font_size');
-		$radius = get_pconfig($uid, 'redbasic', 'radius');
 		$converse_width = get_pconfig($uid,'redbasic','converse_width');
 		$top_photo = get_pconfig($uid,'redbasic','top_photo');
 		$reply_photo = get_pconfig($uid,'redbasic','reply_photo');
