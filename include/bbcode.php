@@ -1516,22 +1516,22 @@ function bbcode($text, $options = []) {
 		$text = preg_replace("/\[list=\](.*?)\[\/list\]/ism", '<ul class="listnone" style="list-style-type: none;">$1</ul>', $text);
 
 		$text = preg_replace_callback("/\[list=1\](.*?)\[\/list\]/ism",'bb_fix_lf', $text);
-		$text = preg_replace("/\[list=1\](.*?)\[\/list\]/ism", '<ul class="listdecimal" style="list-style-type: decimal;">$1</ul>', $text);
+		$text = preg_replace("/\[list=1\](.*?)\[\/list\]/ism", '<ol class="listdecimal" style="list-style-type: decimal;">$1</ol>', $text);
 
 		$text = preg_replace_callback("/\[list=((?-i)i)\](.*?)\[\/list\]/ism",'bb_fix_lf', $text);
-		$text = preg_replace("/\[list=((?-i)i)\](.*?)\[\/list\]/ism",'<ul class="listlowerroman" style="list-style-type: lower-roman;">$2</ul>', $text);
+		$text = preg_replace("/\[list=((?-i)i)\](.*?)\[\/list\]/ism",'<ol class="listlowerroman" style="list-style-type: lower-roman;">$2</ol>', $text);
 
 		$text = preg_replace_callback("/\[list=((?-i)I)\](.*?)\[\/list\]/ism",'bb_fix_lf', $text);
-		$text = preg_replace("/\[list=((?-i)I)\](.*?)\[\/list\]/ism", '<ul class="listupperroman" style="list-style-type: upper-roman;">$2</ul>', $text);
+		$text = preg_replace("/\[list=((?-i)I)\](.*?)\[\/list\]/ism", '<ol class="listupperroman" style="list-style-type: upper-roman;">$2</ol>', $text);
 
 		$text = preg_replace_callback("/\[list=((?-i)a)\](.*?)\[\/list\]/ism",'bb_fix_lf', $text);
-		$text = preg_replace("/\[list=((?-i)a)\](.*?)\[\/list\]/ism", '<ul class="listloweralpha" style="list-style-type: lower-alpha;">$2</ul>', $text);
+		$text = preg_replace("/\[list=((?-i)a)\](.*?)\[\/list\]/ism", '<ol class="listloweralpha" style="list-style-type: lower-alpha;">$2</ol>', $text);
 
 		$text = preg_replace_callback("/\[list=((?-i)A)\](.*?)\[\/list\]/ism",'bb_fix_lf', $text);
-		$text = preg_replace("/\[list=((?-i)A)\](.*?)\[\/list\]/ism", '<ul class="listupperalpha" style="list-style-type: upper-alpha;">$2</ul>', $text);
+		$text = preg_replace("/\[list=((?-i)A)\](.*?)\[\/list\]/ism", '<ol class="listupperalpha" style="list-style-type: upper-alpha;">$2</ol>', $text);
 
 		$text = preg_replace_callback("/\[ol\](.*?)\[\/ol\]/ism",'bb_fix_lf', $text);
-		$text = preg_replace("/\[ol\](.*?)\[\/ol\]/ism", '<ul class="listdecimal" style="list-style-type: decimal;">$1</ul>', $text);
+		$text = preg_replace("/\[ol\](.*?)\[\/ol\]/ism", '<ol class="listdecimal" style="list-style-type: decimal;">$1</ol>', $text);
 
 		$text = preg_replace_callback("/\[ul\](.*?)\[\/ul\]/ism",'bb_fix_lf', $text);
 		$text = preg_replace("/\[ul\](.*?)\[\/ul\]/ism", '<ul class="listbullet">$1</ul>', $text);
