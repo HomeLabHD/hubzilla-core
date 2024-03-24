@@ -5,6 +5,8 @@
  * @brief Some security related functions.
  */
 
+use Zotlabs\Lib\Config;
+
 /**
  * @param int $user_record The account_id
  * @param array $channel
@@ -872,7 +874,7 @@ function stream_perms_xchans($perms = NULL) {
  */
 function zarIsDuty($wd=NULL, $hhmm=NULL, $op='isOpen') {
 
-	$isduty = get_config('system', 'register_duty_jso');
+	$isduty = Config::Get('system', 'register_duty_jso');
 
 	if (!$isduty)
 		return (bool)false;

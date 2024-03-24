@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Render;
 
+use Zotlabs\Lib\Config;
+
 require_once('include/security.php');
 require_once('include/menu.php');
 
@@ -157,7 +159,7 @@ class Comanche {
 	 * @brief Replace conditional variables with real values.
 	 *
 	 * Currently supported condition variables:
-	 *   * $config.xxx.yyy - get_config with cat = xxx and k = yyy
+	 *   * $config.xxx.yyy - Config::Get with cat = xxx and k = yyy
 	 *   * $request - request uri for this page
 	 *   * $observer.language - viewer's preferred language (closest match)
 	 *   * $observer.address - xchan_addr or false
@@ -172,7 +174,7 @@ class Comanche {
 		if($v) {
 			$x = explode('.', $v);
 			if($x[0] == 'config')
-				return get_config($x[1],$x[2]);
+				return Config::Get($x[1],$x[2]);
 			elseif($x[0] === 'request')
 				return $_SERVER['REQUEST_URI'];
 			elseif($x[0] === 'local_channel') {
@@ -208,18 +210,18 @@ class Comanche {
 	 *
 	 * This is extensible. The first version of variable testing supports tests of the forms:
 	 *
-	 * - [if $config.system.foo ~= baz] which will check if get_config('system','foo') contains the string 'baz';
-	 * - [if $config.system.foo == baz] which will check if get_config('system','foo') is the string 'baz';
-	 * - [if $config.system.foo != baz] which will check if get_config('system','foo') is not the string 'baz';
-	 * - [if $config.system.foo >= 3] which will check if get_config('system','foo') is greater than or equal to 3;
-	 * - [if $config.system.foo > 3] which will check if get_config('system','foo') is greater than 3;
-	 * - [if $config.system.foo <= 3] which will check if get_config('system','foo') is less than or equal to 3;
-	 * - [if $config.system.foo < 3] which will check if get_config('system','foo') is less than 3;
+	 * - [if $config.system.foo ~= baz] which will check if Config::Get('system','foo') contains the string 'baz';
+	 * - [if $config.system.foo == baz] which will check if Config::Get('system','foo') is the string 'baz';
+	 * - [if $config.system.foo != baz] which will check if Config::Get('system','foo') is not the string 'baz';
+	 * - [if $config.system.foo >= 3] which will check if Config::Get('system','foo') is greater than or equal to 3;
+	 * - [if $config.system.foo > 3] which will check if Config::Get('system','foo') is greater than 3;
+	 * - [if $config.system.foo <= 3] which will check if Config::Get('system','foo') is less than or equal to 3;
+	 * - [if $config.system.foo < 3] which will check if Config::Get('system','foo') is less than 3;
 	 *
-	 * - [if $config.system.foo {} baz] which will check if 'baz' is an array element in get_config('system','foo')
-	 * - [if $config.system.foo {*} baz] which will check if 'baz' is an array key in get_config('system','foo')
-	 * - [if $config.system.foo] which will check for a return of a true condition for get_config('system','foo');
-     * - [if !$config.system.foo] which will check for a return of a false condition for get_config('system','foo');
+	 * - [if $config.system.foo {} baz] which will check if 'baz' is an array element in Config::Get('system','foo')
+	 * - [if $config.system.foo {*} baz] which will check if 'baz' is an array key in Config::Get('system','foo')
+	 * - [if $config.system.foo] which will check for a return of a true condition for Config::Get('system','foo');
+     * - [if !$config.system.foo] which will check for a return of a false condition for Config::Get('system','foo');
      *
 	 * The values 0, '', an empty array, and an unset value will all evaluate to false.
 	 *

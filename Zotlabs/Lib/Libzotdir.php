@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Lib;
 
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Zotfinger;
 use Zotlabs\Lib\Webfinger;
@@ -20,7 +21,7 @@ class Libzotdir {
 
 	static function find_upstream_directory($dirmode) {
 
-		$preferred = get_config('system','directory_server');
+		$preferred = Config::Get('system','directory_server');
 
 		// Thwart attempts to use a private directory
 
@@ -47,17 +48,17 @@ class Libzotdir {
 
 			$directory_fallback_servers = get_directory_fallback_servers();
 
-			$dirmode = intval(get_config('system','directory_mode'));
+			$dirmode = intval(Config::Get('system','directory_mode'));
 			if ($dirmode == DIRECTORY_MODE_NORMAL) {
 				$toss = mt_rand(0,count($directory_fallback_servers));
 				$preferred = $directory_fallback_servers[$toss];
 				if(! $preferred) {
 					$preferred = DIRECTORY_FALLBACK_MASTER;
 				}
-				set_config('system','directory_server',$preferred);
+				Config::Set('system','directory_server',$preferred);
 			}
 			else {
-				set_config('system','directory_server',z_root());
+				Config::Set('system','directory_server',z_root());
 			}
 		}
 		if($preferred) {
@@ -77,7 +78,7 @@ class Libzotdir {
 
 	static function check_upstream_directory() {
 
-		$directory = get_config('system', 'directory_server');
+		$directory = Config::Get('system', 'directory_server');
 
 		// it's possible there is no directory server configured and the local hub is being used.
 		// If so, default to preserving the absence of a specific server setting.
@@ -94,7 +95,7 @@ class Libzotdir {
 		}
 
 		if (! $isadir)
-			set_config('system', 'directory_server', '');
+			Config::Set('system', 'directory_server', '');
 	}
 
 
@@ -106,7 +107,7 @@ class Libzotdir {
 			$ret = ((array_key_exists($setting,$_SESSION)) ? intval($_SESSION[$setting]) : false);
 
 		if($ret === false)
-			$ret = get_config('directory', $setting);
+			$ret = Config::Get('directory', $setting);
 
 
 		// 'safemode' is the default if there is no observer or no established preference.
@@ -114,7 +115,7 @@ class Libzotdir {
 		if($setting === 'safemode' && $ret === false)
 			$ret = 1;
 
-		if($setting === 'globaldir' && intval(get_config('system','localdir_hide')))
+		if($setting === 'globaldir' && intval(Config::Get('system','localdir_hide')))
 			$ret = 1;
 
 		return $ret;
@@ -133,7 +134,7 @@ class Libzotdir {
 		$globaldir = self::get_directory_setting($observer, 'globaldir');
 		$pubforums = self::get_directory_setting($observer, 'pubforums');
 
-		$hide_local = intval(get_config('system','localdir_hide'));
+		$hide_local = intval(Config::Get('system','localdir_hide'));
 		if($hide_local)
 			$globaldir = 1;
 
@@ -141,7 +142,7 @@ class Libzotdir {
 		// Build urls without order and pubforums so it's easy to tack on the changed value
 		// Probably there's an easier way to do this
 
-		$directory_sort_order = get_config('system','directory_sort_order');
+		$directory_sort_order = Config::Get('system','directory_sort_order');
 		if(! $directory_sort_order)
 			$directory_sort_order = 'date';
 
@@ -232,7 +233,7 @@ class Libzotdir {
 		if (! $r)
 			return;
 
-		$dir_trusted_hosts = array_merge(get_directory_fallback_servers(), get_config('system', 'trusted_directory_servers', []));
+		$dir_trusted_hosts = array_merge(get_directory_fallback_servers(), Config::Get('system', 'trusted_directory_servers', []));
 
 		foreach ($r as $rr) {
 			if (! $rr['site_directory'])
@@ -244,7 +245,7 @@ class Libzotdir {
 			// It will take about a month for a new directory to obtain the full current repertoire of channels.
 			/** @FIXME Go back and pick up earlier ratings if this is a new directory server. These do not get refreshed. */
 
-			$token = get_config('system','realm_token');
+			$token = Config::Get('system','realm_token');
 
 			$syncdate = (($rr['site_sync'] <= NULL_DATE) ? datetime_convert('UTC','UTC','now - 2 days') : $rr['site_sync']);
 			$x = z_fetch_url($rr['site_directory'] . '?f=&sync=' . urlencode($syncdate) . (($token) ? '&t=' . $token : ''));
@@ -696,7 +697,7 @@ class Libzotdir {
 
 	static function update($hash, $addr, $bump_date = true, $flag = null) {
 
-		$dirmode = intval(get_config('system', 'directory_mode'));
+		$dirmode = intval(Config::Get('system', 'directory_mode'));
 
 		if($dirmode == DIRECTORY_MODE_NORMAL) {
 			return;

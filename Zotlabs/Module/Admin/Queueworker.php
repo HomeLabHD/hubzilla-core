@@ -3,6 +3,7 @@
 namespace Zotlabs\Module\Admin;
 
 use App;
+use Zotlabs\Lib\Config;
 use Zotlabs\Web\Controller;
 
 class Queueworker extends Controller {
@@ -17,18 +18,18 @@ class Queueworker extends Controller {
 
 		$maxqueueworkers = intval($_POST['queueworker_maxworkers']);
 		$maxqueueworkers = ($maxqueueworkers > 3) ? $maxqueueworkers : 4;
-		set_config('queueworker', 'max_queueworkers', $maxqueueworkers);
+		Config::Set('queueworker', 'max_queueworkers', $maxqueueworkers);
 
 		$maxworkerage = intval($_POST['queueworker_max_age']);
 		$maxworkerage = ($maxworkerage >= 120) ? $maxworkerage : 300;
-		set_config('queueworker', 'queueworker_max_age', $maxworkerage);
+		Config::Set('queueworker', 'queueworker_max_age', $maxworkerage);
 
 		$queueworkersleep = intval($_POST['queue_worker_sleep']);
 		$queueworkersleep = ($queueworkersleep > 100) ? $queueworkersleep : 100;
-		set_config('queueworker', 'queue_worker_sleep', $queueworkersleep);
+		Config::Set('queueworker', 'queue_worker_sleep', $queueworkersleep);
 
 		$auto_queue_worker_sleep = intval($_POST['auto_queue_worker_sleep']);
-		set_config('queueworker', 'auto_queue_worker_sleep', $auto_queue_worker_sleep);
+		Config::Set('queueworker', 'auto_queue_worker_sleep', $auto_queue_worker_sleep);
 
 		goaway(z_root() . '/admin/queueworker');
 	}
@@ -54,7 +55,7 @@ class Queueworker extends Controller {
 			}
 		}
 
-		$maxqueueworkers = get_config('queueworker', 'max_queueworkers', 4);
+		$maxqueueworkers = Config::Get('queueworker', 'max_queueworkers', 4);
 		$maxqueueworkers = ($maxqueueworkers > 3) ? $maxqueueworkers : 4;
 
 		$sc = '';
@@ -68,7 +69,7 @@ class Queueworker extends Controller {
 			]
 		]);
 
-		$workermaxage = get_config('queueworker', 'queueworker_max_age');
+		$workermaxage = Config::Get('queueworker', 'queueworker_max_age');
 		$workermaxage = ($workermaxage >= 120) ? $workermaxage : 300;
 
 		$sc .= replace_macros(get_markup_template('field_input.tpl'), [
@@ -80,10 +81,10 @@ class Queueworker extends Controller {
 			]
 		]);
 
-		$queueworkersleep = get_config('queueworker', 'queue_worker_sleep');
+		$queueworkersleep = Config::Get('queueworker', 'queue_worker_sleep');
 		$queueworkersleep = ($queueworkersleep > 100) ? $queueworkersleep : 100;
 
-		$auto_queue_worker_sleep = get_config('queueworker', 'auto_queue_worker_sleep', 0);
+		$auto_queue_worker_sleep = Config::Get('queueworker', 'auto_queue_worker_sleep', 0);
 
 		$sc .= replace_macros(get_markup_template('field_input.tpl'), [
 			'$field' => [

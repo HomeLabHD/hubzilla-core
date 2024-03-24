@@ -6,6 +6,7 @@ use App;
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Access\Permissions;
 use Zotlabs\Daemon\Master;
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Group;
 use Zotlabs\Lib\Libsync;
 
@@ -81,7 +82,7 @@ class Privacy {
 
 		$help_txt      = t('Advise: set to "Anybody on the internet" and use privacy groups to restrict access');
 		$limits        = PermissionLimits::Get(local_channel());
-		$anon_comments = get_config('system', 'anonymous_comments', true);
+		$anon_comments = Config::Get('system', 'anonymous_comments', true);
 
 		foreach ($global_perms as $k => $perm) {
 			$options       = [];

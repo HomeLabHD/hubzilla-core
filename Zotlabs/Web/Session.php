@@ -10,6 +10,7 @@ namespace Zotlabs\Web;
  * session info.
  */
 
+use Zotlabs\Lib\Config;
 
 class Session {
 
@@ -24,7 +25,7 @@ class Session {
 		ini_set('session.use_only_cookies', 1);
 		ini_set('session.cookie_httponly', 1);
 
-		$this->custom_handler = boolval(get_config('system', 'session_custom', false));
+		$this->custom_handler = boolval(Config::Get('system', 'session_custom', false));
 
 		/*
 		 * Set our session storage functions.
@@ -33,8 +34,8 @@ class Session {
 		if($this->custom_handler) {
 			/* Custom handler (files, memached, redis..) */
 
-			$session_save_handler = strval(get_config('system', 'session_save_handler', Null));
-			$session_save_path = strval(get_config('system', 'session_save_path', Null));
+			$session_save_handler = strval(Config::Get('system', 'session_save_handler', Null));
+			$session_save_path = strval(Config::Get('system', 'session_save_path', Null));
 
 			if(is_null($session_save_handler) || is_null($session_save_path)) {
 				logger('Session save handler or path not set', LOGGER_NORMAL, LOG_ERR);
@@ -48,8 +49,8 @@ class Session {
 				else {
 					ini_set('session.save_handler', $session_save_handler);
 					ini_set('session.save_path', $session_save_path);
-					ini_set('session.gc_probability', intval(get_config('system', 'session_gc_probability', 1)));
-					ini_set('session.gc_divisor', intval(get_config('system', 'session_gc_divisor', 100)));
+					ini_set('session.gc_probability', intval(Config::Get('system', 'session_gc_probability', 1)));
+					ini_set('session.gc_divisor', intval(Config::Get('system', 'session_gc_divisor', 100)));
 				}
 			}
 		}
@@ -212,7 +213,7 @@ class Session {
 			$paranoia = intval(get_pconfig($_SESSION['uid'], 'system', 'paranoia'));
 
 			if(! $paranoia)
-				$paranoia = intval(get_config('system', 'paranoia'));
+				$paranoia = intval(Config::Get('system', 'paranoia'));
 
 			switch($paranoia) {
 				case 0:

@@ -4,6 +4,7 @@ namespace Zotlabs\Web;
 
 use App;
 use Zotlabs\Extend\Route;
+use Zotlabs\Lib\Config;
 use Exception;
 
 /**
@@ -154,7 +155,7 @@ class Router {
 				// make the file read-only so letsencrypt doesn't modify it
 
 				if(strpos($_SERVER['REQUEST_URI'],'/.well-known/') === 0) {
-					if(file_exists('.well-known/.htaccess') && get_config('system','fix_apache_acme',true)) {
+					if(file_exists('.well-known/.htaccess') && Config::Get('system','fix_apache_acme',true)) {
 						rename('.well-known/.htaccess','.well-known/.htaccess.old');
 					}
 				}
@@ -173,7 +174,7 @@ class Router {
 					killme();
 				}
 
-				if(get_config('system','log_404',true)) {
+				if(Config::Get('system','log_404',true)) {
 					logger("Module {$module} not found.", LOGGER_DEBUG, LOG_WARNING);
 					logger('index.php: page not found: ' . $_SERVER['REQUEST_URI']
 						. ' ADDRESS: ' . $_SERVER['REMOTE_ADDR'] . ' QUERY: '

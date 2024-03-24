@@ -5,6 +5,7 @@ namespace Zotlabs\Web;
 use DateTime;
 use DateTimeZone;
 use Zotlabs\Lib\Activity;
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\Keyutils;
 use Zotlabs\Lib\Webfinger;
@@ -528,7 +529,7 @@ class HTTPSig {
 
 		// TODO: should we default to hs2019? cavage-http-signatures-12 is not very wide spread yet
 
-		if (get_config('system', 'use_hs2019', false) && $algorithm === 'rsa-sha256') {
+		if (Config::Get('system', 'use_hs2019', false) && $algorithm === 'rsa-sha256') {
 			$algorithm = 'hs2019';
 		}
 
@@ -673,7 +674,7 @@ class HTTPSig {
 		$iv = $key = $alg = $data = null;
 
 		if (!$prvkey) {
-			$prvkey = get_config('system', 'prvkey');
+			$prvkey = Config::Get('system', 'prvkey');
 		}
 
 		$matches = [];

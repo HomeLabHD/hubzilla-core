@@ -1,5 +1,6 @@
 <?php
 
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Verify;
 
@@ -406,7 +407,7 @@ function owt_init($token) {
 	App::set_observer($hubloc);
 	require_once('include/security.php');
 	App::set_groups(init_groups_visitor($_SESSION['visitor_id']));
-	if(! get_config('system', 'hide_owa_greeting'))
+	if(! Config::Get('system', 'hide_owa_greeting'))
 		info(sprintf( t('OpenWebAuth: %1$s welcomes %2$s'),App::get_hostname(), $hubloc['xchan_name']));
 
 	logger('OpenWebAuth: auth success from ' . $hubloc['xchan_addr']);

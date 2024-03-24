@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Identity;
 
+use Zotlabs\Lib\Config;
+
 class OAuth2Server extends \OAuth2\Server {
 
 	public function __construct(OAuth2Storage $storage, $config = null) {
@@ -24,8 +26,8 @@ class OAuth2Server extends \OAuth2\Server {
 
 		$keyStorage = new \OAuth2\Storage\Memory( [
 			'keys' => [
-				'public_key'  => get_config('system', 'pubkey'),
-				'private_key' => get_config('system', 'prvkey')
+				'public_key'  => Config::Get('system', 'pubkey'),
+				'private_key' => Config::Get('system', 'prvkey')
 			]
 		]);
 

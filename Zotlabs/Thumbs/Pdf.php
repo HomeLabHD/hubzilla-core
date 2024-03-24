@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Thumbs;
 
+use Zotlabs\Lib\Config;
 
 class Pdf {
 
@@ -29,7 +30,7 @@ class Pdf {
 			fclose($ostream);
 		}
 
-		$imagick_path = get_config('system','imagick_convert_path');
+		$imagick_path = Config::Get('system','imagick_convert_path');
 		if($imagick_path && @file_exists($imagick_path)) {
 			$cmd = $imagick_path . ' ' . escapeshellarg(PROJECT_BASE . '/' . $tmpfile . '[0]') . ' -resize ' . $width . 'x' . $height . ' ' . escapeshellarg(PROJECT_BASE . '/' . $outfile);
 			//  logger('imagick thumbnail command: ' . $cmd);

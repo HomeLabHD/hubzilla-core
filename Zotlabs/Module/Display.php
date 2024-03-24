@@ -2,6 +2,7 @@
 namespace Zotlabs\Module;
 
 use App;
+use Zotlabs\Lib\Config;
 use Zotlabs\Web\Controller;
 
 class Display extends Controller {
@@ -12,7 +13,7 @@ class Display extends Controller {
 
 	function get($update = 0, $load = false) {
 
-		$noscript_content = (get_config('system', 'noscript_content', '1') && (! $update));
+		$noscript_content = (Config::Get('system', 'noscript_content', '1') && (! $update));
 
 		$module_format = 'html';
 

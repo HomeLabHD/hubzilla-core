@@ -2,6 +2,7 @@
 namespace Zotlabs\Module;
 
 use App;
+use Zotlabs\Lib\Config;
 use Zotlabs\Web\Controller;
 
 class Dirsearch extends Controller {
@@ -17,7 +18,7 @@ class Dirsearch extends Controller {
 
 		// logger('request: ' . print_r($_REQUEST,true));
 
-		$dirmode = intval(get_config('system','directory_mode'));
+		$dirmode = intval(Config::Get('system','directory_mode'));
 
 		if($dirmode == DIRECTORY_MODE_NORMAL) {
 			$ret['message'] = t('This site is not a directory server');
@@ -26,7 +27,7 @@ class Dirsearch extends Controller {
 
 		$access_token = $_REQUEST['t'] ?? '';
 
-		$token = get_config('system','realm_token');
+		$token = Config::Get('system','realm_token');
 		if($token && $access_token != $token) {
 			$ret['message'] = t('This directory server requires an access token');
 			json_return_and_die($ret);
@@ -79,7 +80,7 @@ class Dirsearch extends Controller {
 
 		$forums   = ((array_key_exists('pubforums',$_REQUEST)) ? intval($_REQUEST['pubforums']) : 0);
 
-		if(get_config('system','disable_directory_keywords'))
+		if(Config::Get('system','disable_directory_keywords'))
 			$kw = 0;
 
 

@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Daemon;
 
+use Zotlabs\Lib\Config;
+
 require_once('include/hubloc.php');
 
 class Checksites {
@@ -19,7 +21,7 @@ class Checksites {
 		if ($site_id)
 			$sql_options = " and site_url = '" . dbesc($argv[1]) . "' ";
 
-		$days = intval(get_config('system', 'sitecheckdays'));
+		$days = intval(Config::Get('system', 'sitecheckdays'));
 		if ($days < 1)
 			$days = 30;
 

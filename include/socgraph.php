@@ -1,6 +1,7 @@
 <?php /** @file */
 
 
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Libzotdir;
 use Zotlabs\Lib\Zotfinger;
@@ -288,7 +289,7 @@ function suggestion_query($uid, $myxchan, $start = 0, $limit = 80) {
 
 function update_suggestions() {
 
-	$dirmode = get_config('system', 'directory_mode', DIRECTORY_MODE_NORMAL);
+	$dirmode = Config::Get('system', 'directory_mode', DIRECTORY_MODE_NORMAL);
 
 	if($dirmode == DIRECTORY_MODE_STANDALONE) {
 		poco_load('', z_root() . '/poco');

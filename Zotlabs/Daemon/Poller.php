@@ -2,11 +2,13 @@
 
 namespace Zotlabs\Daemon;
 
+use Zotlabs\Lib\Config;
+
 class Poller {
 
 	static public function run($argc, $argv) {
 
-		$maxsysload = intval(get_config('system', 'maxloadavg'));
+		$maxsysload = intval(Config::Get('system', 'maxloadavg'));
 		if ($maxsysload < 1)
 			$maxsysload = 50;
 		if (function_exists('sys_getloadavg')) {
@@ -17,7 +19,7 @@ class Poller {
 			}
 		}
 
-		$interval = get_config('queueworker', 'queue_interval', 500000);
+		$interval = Config::Get('queueworker', 'queue_interval', 500000);
 
 		logger('poller: start');
 
@@ -43,13 +45,13 @@ class Poller {
 		reload_plugins();
 
 		// Only poll from those with suitable relationships
-		$abandon_days = intval(get_config('system', 'account_abandon_days', 0));
+		$abandon_days = intval(Config::Get('system', 'account_abandon_days', 0));
 		$abandon_sql = (($abandon_days)
 			? sprintf(" AND account_lastlog > %s - INTERVAL %s ", db_utcnow(), db_quoteinterval(intval($abandon_days) . ' DAY'))
 			: ''
 		);
 
-		$allow_feeds = get_config('system', 'feed_contacts');
+		$allow_feeds = Config::Get('system', 'feed_contacts');
 		if(!$allow_feeds) {
 			$sql_extra .= ' and abook_feed = 0 ';
 		}
@@ -81,7 +83,7 @@ class Poller {
 				if (intval($contact['abook_feed'])) {
 					$min = service_class_fetch($contact['abook_channel'], 'minimum_feedcheck_minutes');
 					if (!$min)
-						$min = intval(get_config('system', 'minimum_feedcheck_minutes'));
+						$min = intval(Config::Get('system', 'minimum_feedcheck_minutes'));
 					if (!$min)
 						$min = 60;
 
@@ -167,7 +169,7 @@ class Poller {
 			}
 		}
 
-		$dirmode = intval(get_config('system', 'directory_mode'));
+		$dirmode = intval(Config::Get('system', 'directory_mode'));
 
 		if ($dirmode == DIRECTORY_MODE_SECONDARY || $dirmode == DIRECTORY_MODE_PRIMARY) {
 			$r = q("SELECT * FROM updates WHERE ud_update = 1 AND (ud_last = '%s' OR ud_last > %s - INTERVAL %s)",
@@ -195,7 +197,7 @@ class Poller {
 			}
 		}
 
-		set_config('system', 'lastpoll', datetime_convert());
+		Config::Set('system', 'lastpoll', datetime_convert());
 
 		return;
 	}

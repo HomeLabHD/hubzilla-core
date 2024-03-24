@@ -3,6 +3,7 @@ namespace Zotlabs\Module;
 
 use App;
 use Zotlabs\Lib\Apps;
+use Zotlabs\Lib\Config;
 
 require_once('include/conversation.php');
 require_once('include/acl_selectors.php');
@@ -26,19 +27,19 @@ class Pubstream extends \Zotlabs\Web\Controller {
 			return login();
 		}
 
-		if(! intval(get_config('system','open_pubstream',1))) {
+		if(! intval(Config::Get('system','open_pubstream',1))) {
 			if(! get_observer_hash()) {
 				return login();
 			}
 		}
 
-		$net_firehose  = ((get_config('system','disable_discover_tab',1)) ? false : true);
+		$net_firehose  = ((Config::Get('system','disable_discover_tab',1)) ? false : true);
 
 		if(!$net_firehose) {
 			return '';
 		}
 
-		$site_firehose = ((intval(get_config('system','site_firehose',0))) ? true : false);
+		$site_firehose = ((intval(Config::Get('system','site_firehose',0))) ? true : false);
 
 		$mid = $_REQUEST['mid'] ?? '';
 		$identifier = 'uuid';
@@ -107,7 +108,7 @@ class Pubstream extends \Zotlabs\Web\Controller {
 
 			nav_set_selected(t('Public Stream'));
 
-			$maxheight = get_config('system','home_divmore_height');
+			$maxheight = Config::Get('system','home_divmore_height');
 			if(! $maxheight)
 				$maxheight = 400;
 
@@ -172,7 +173,7 @@ class Pubstream extends \Zotlabs\Web\Controller {
 			$site_firehose_sql = " and owner_xchan in (select channel_hash from channel where channel_system = 0 and channel_removed = 0) ";
 		}
 
-		if(get_config('system','public_list_mode'))
+		if(Config::Get('system','public_list_mode'))
 			$page_mode = 'list';
 		else
 			$page_mode = 'client';
@@ -196,7 +197,7 @@ class Pubstream extends \Zotlabs\Web\Controller {
 
 		if($update) {
 
-			$ordering = get_config('system', 'pubstream_ordering', 'commented');
+			$ordering = Config::Get('system', 'pubstream_ordering', 'commented');
 
 			if($load) {
 				if($mid) {

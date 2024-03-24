@@ -5,8 +5,7 @@ namespace Zotlabs\Lib;
 use App;
 use Zotlabs\Access\Permissions;
 use Zotlabs\Daemon\Master;
-
-
+use Zotlabs\Lib\Config;
 
 class Connect {
 
@@ -96,7 +95,7 @@ class Connect {
 			$wf = discover_by_webbie($url,$protocol);
 
 			if (! $wf) {
-				$feeds = get_config('system','feed_contacts');
+				$feeds = Config::Get('system','feed_contacts');
 
 				if (($feeds) && (in_array($protocol, [ '', 'feed', 'rss' ]))) {
 					$d = discover_by_url($url);

@@ -1249,7 +1249,7 @@ class App {
 					'$metas'           => self::$meta->get(),
 					'$plugins'         => $x['header'],
 					'$update_interval' => $interval,
-					'$sse_enabled'     => get_config('system', 'sse_enabled', 0),
+					'$sse_enabled'     => Config::Get('system', 'sse_enabled', 0),
 					'$head_css'        => head_get_css(),
 					'$head_js'         => head_get_js(),
 					'$linkrel'         => head_get_links(),
@@ -1495,9 +1495,9 @@ function is_ajax() {
  */
 function check_config() {
 
-	$saved = get_config('system', 'urlverify');
+	$saved = Config::Get('system', 'urlverify');
 	if (!$saved)
-		set_config('system', 'urlverify', bin2hex(z_root()));
+		Config::Set('system', 'urlverify', bin2hex(z_root()));
 
 	if (($saved) && ($saved != bin2hex(z_root()))) {
 		// our URL changed. Do something.
@@ -1513,7 +1513,7 @@ function check_config() {
 		// only change the url to an ip address if it was already an ip and not a dns name
 		if ((!$is_ip_addr) || ($is_ip_addr && $was_ip_addr)) {
 			fix_system_urls($oldurl, z_root());
-			set_config('system', 'urlverify', bin2hex(z_root()));
+			Config::Set('system', 'urlverify', bin2hex(z_root()));
 		}
 		else
 			logger('Attempt to change baseurl from a DNS name to an IP address was refused.');
@@ -1713,9 +1713,9 @@ function login($register = false, $form_id = 'main_login', $hiddens = false, $lo
 	// your site.
 
 
-	$register_policy = get_config('system', 'register_policy');
+	$register_policy = Config::Get('system', 'register_policy');
 
-	$reglink = get_config('system', 'register_link', z_root() . '/' . ((intval($register_policy) === REGISTER_CLOSED) ? 'pubsites' : 'register'));
+	$reglink = Config::Get('system', 'register_link', z_root() . '/' . ((intval($register_policy) === REGISTER_CLOSED) ? 'pubsites' : 'register'));
 
 	if ($reglink !== 'none') {
 		$reg = [
@@ -1736,7 +1736,7 @@ function login($register = false, $form_id = 'main_login', $hiddens = false, $lo
 			$_SESSION['login_return_url'] = App::$query_string;
 	}
 
-	$email_required = get_config('system', 'verify_email');
+	$email_required = Config::Get('system', 'verify_email');
 	$lname_label    = (($email_required) ? t('Email or nickname') : t('Nickname'));
 
 	$o .= replace_macros($tpl, [
@@ -1854,13 +1854,13 @@ function can_view_public_stream() {
 		return false;
 	}
 
-	if (!(intval(get_config('system', 'open_pubstream', 1)))) {
+	if (!(intval(Config::Get('system', 'open_pubstream', 1)))) {
 		if (!get_observer_hash()) {
 			return false;
 		}
 	}
 
-	$net_firehose  = ((get_config('system', 'disable_discover_tab', 1)) ? false : true);
+	$net_firehose  = ((Config::Get('system', 'disable_discover_tab', 1)) ? false : true);
 
 	if (!$net_firehose) {
 		return false;
@@ -2001,7 +2001,7 @@ function info($s) {
  * @return int
  */
 function get_max_import_size() {
-	return (intval(get_config('system', 'max_import_size')));
+	return (intval(Config::Get('system', 'max_import_size')));
 }
 
 
@@ -2055,7 +2055,7 @@ function proc_run() {
 		proc_close(proc_open($cmd, [], $foo));
 	}
 	else {
-		if (get_config('system', 'use_proc_open'))
+		if (Config::Get('system', 'use_proc_open'))
 			proc_close(proc_open($cmdline . " &", [], $foo));
 		else
 			exec($cmdline . ' > /dev/null &');
@@ -2333,7 +2333,7 @@ function construct_page() {
 
 	$uid = ((App::$profile_uid) ? App::$profile_uid : local_channel());
 
-	$navbar = get_config('system', 'navbar', 'default');
+	$navbar = Config::Get('system', 'navbar', 'default');
 	if ($uid) {
 		$navbar = get_pconfig($uid, 'system', 'navbar', $navbar);
 	}
@@ -2533,7 +2533,7 @@ function head_get_icon() {
  * @return string
  */
 function get_directory_realm() {
-	if ($x = get_config('system', 'directory_realm'))
+	if ($x = Config::Get('system', 'directory_realm'))
 		return $x;
 
 	return DIRECTORY_REALM;
@@ -2546,13 +2546,13 @@ function get_directory_realm() {
  */
 function get_directory_primary() {
 
-	$dirmode = intval(get_config('system', 'directory_mode'));
+	$dirmode = intval(Config::Get('system', 'directory_mode'));
 
 	if ($dirmode == DIRECTORY_MODE_STANDALONE || $dirmode == DIRECTORY_MODE_PRIMARY) {
 		return z_root();
 	}
 
-	if ($x = get_config('system', 'directory_primary'))
+	if ($x = Config::Get('system', 'directory_primary'))
 		return $x;
 
 	return DIRECTORY_FALLBACK_MASTER;
@@ -2565,13 +2565,13 @@ function get_directory_primary() {
  * @return string relative date of last completed poller execution
  */
 function get_poller_runtime() {
-	$t = get_config('system', 'lastpoll');
+	$t = Config::Get('system', 'lastpoll');
 
 	return relative_date($t);
 }
 
 function z_get_upload_dir() {
-	$upload_dir = get_config('system', 'uploaddir');
+	$upload_dir = Config::Get('system', 'uploaddir');
 	if (!$upload_dir)
 		$upload_dir = ini_get('upload_tmp_dir');
 	if (!$upload_dir)
@@ -2581,7 +2581,7 @@ function z_get_upload_dir() {
 }
 
 function z_get_temp_dir() {
-	$temp_dir = get_config('system', 'tempdir');
+	$temp_dir = Config::Get('system', 'tempdir');
 	if (!$temp_dir)
 		$temp_dir = sys_get_temp_dir();
 
@@ -2637,12 +2637,12 @@ function check_for_new_perms() {
 	if (Permissions::version() != PermissionRoles::version())
 		return;
 
-	$pregistered = get_config('system', 'perms');
+	$pregistered = Config::Get('system', 'perms');
 
 	$pcurrent = array_keys(Permissions::Perms());
 
 	if (!$pregistered) {
-		set_config('system', 'perms', $pcurrent);
+		Config::Set('system', 'perms', $pcurrent);
 		return;
 	}
 
@@ -2699,7 +2699,7 @@ function check_for_new_perms() {
 
 	// We should probably call perms_refresh here, but this should get pushed in 24 hours and there is no urgency
 	if ($found_new_perm)
-		set_config('system', 'perms', $pcurrent);
+		Config::Set('system', 'perms', $pcurrent);
 }
 
 
@@ -2708,17 +2708,17 @@ function check_for_new_perms() {
  */
 function check_cron_broken() {
 
-	$d = get_config('system', 'lastcron');
+	$d = Config::Get('system', 'lastcron');
 
 	if ((!$d) || ($d < datetime_convert('UTC', 'UTC', 'now - 4 hours'))) {
 		Zotlabs\Daemon\Master::Summon(['Cron']);
-		set_config('system', 'lastcron', datetime_convert());
+		Config::Set('system', 'lastcron', datetime_convert());
 	}
 
-	$t = get_config('system', 'lastcroncheck');
+	$t = Config::Get('system', 'lastcroncheck');
 	if (!$t) {
 		// never checked before. Start the timer.
-		set_config('system', 'lastcroncheck', datetime_convert());
+		Config::Set('system', 'lastcroncheck', datetime_convert());
 		return;
 	}
 
@@ -2727,7 +2727,7 @@ function check_cron_broken() {
 		return;
 	}
 
-	set_config('system', 'lastcroncheck', datetime_convert());
+	Config::Set('system', 'lastcroncheck', datetime_convert());
 
 	if (($d) && ($d > datetime_convert('UTC', 'UTC', 'now - 3 days'))) {
 		// Scheduled tasks have run successfully in the last 3 days.
@@ -2759,7 +2759,7 @@ function check_cron_broken() {
  */
 function observer_prohibited($allow_account = false) {
 	if ($allow_account) {
-		return (((get_config('system', 'block_public')) && (!get_account_id()) && (!remote_channel())) ? true : false);
+		return (((Config::Get('system', 'block_public')) && (!get_account_id()) && (!remote_channel())) ? true : false);
 	}
-	return (((get_config('system', 'block_public')) && (!local_channel()) && (!remote_channel())) ? true : false);
+	return (((Config::Get('system', 'block_public')) && (!local_channel()) && (!remote_channel())) ? true : false);
 }

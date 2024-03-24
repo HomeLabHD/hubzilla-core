@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Extend;
 
+use Zotlabs\Lib\Config;
 
 class Route {
 
@@ -38,11 +39,11 @@ class Route {
 	}
 
 	static function get() {
-		return get_config('system','routes',[]);
+		return Config::Get('system','routes',[]);
 	}
 
 	static function set($r) {
-		return set_config('system','routes',$r);
+		return Config::Set('system','routes',$r);
 	}
 }
 

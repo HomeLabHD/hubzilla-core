@@ -2,6 +2,7 @@
 
 use \Zotlabs\Lib\Apps;
 use \Zotlabs\Lib\Chatroom;
+use \Zotlabs\Lib\Config;
 
 require_once('include/security.php');
 require_once('include/menu.php');
@@ -57,10 +58,10 @@ function nav($template = 'default') {
 	 *
 	 */
 
-	$banner = get_config('system', 'banner');
+	$banner = Config::Get('system', 'banner');
 
 	if ($banner === false)
-		$banner = get_config('system', 'sitename');
+		$banner = Config::Get('system', 'sitename');
 
 	call_hooks('get_banner', $banner);
 
@@ -175,15 +176,15 @@ function nav($template = 'default') {
 		];
 	}
 
-	if ((get_config('system', 'register_policy') == REGISTER_OPEN || get_config('system', 'register_policy') == REGISTER_APPROVE) && empty($_SESSION['authenticated'])) {
+	if ((Config::Get('system', 'register_policy') == REGISTER_OPEN || Config::Get('system', 'register_policy') == REGISTER_APPROVE) && empty($_SESSION['authenticated'])) {
 		$nav['register'] = ['register', t('Register'), "", t('Create an account'), 'register_nav_btn'];
 	}
 
 	// TODO: update help content for various modules
-	if (false /* !get_config('system', 'hide_help') */) {
+	if (false /* !Config::Get('system', 'hide_help') */) {
 		$help_url            = z_root() . '/help?f=&cmd=' . App::$cmd;
 		$context_help        = '';
-		$enable_context_help = ((intval(get_config('system', 'enable_context_help')) === 1 || get_config('system', 'enable_context_help') === false) ? true : false);
+		$enable_context_help = ((intval(Config::Get('system', 'enable_context_help')) === 1 || Config::Get('system', 'enable_context_help') === false) ? true : false);
 		if ($enable_context_help === true) {
 			require_once('include/help.php');
 			$context_help = load_context_help();
@@ -350,7 +351,7 @@ function nav($template = 'default') {
 		'$pleasewait'         => t('Please wait...'),
 		'$nav_apps'           => $nav_apps,
 		'$navbar_apps'        => $navbar_apps,
-		'$channel_menu'       => get_pconfig(App::$profile_uid, 'system', 'channel_menu', get_config('system', 'channel_menu')),
+		'$channel_menu'       => get_pconfig(App::$profile_uid, 'system', 'channel_menu', Config::Get('system', 'channel_menu')),
 		'$channel_thumb'      => ((App::$profile) ? App::$profile['thumb'] : ''),
 		'$channel_apps'       => $channel_apps,
 		'$addapps'            => t('Apps'),

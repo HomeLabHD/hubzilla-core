@@ -1,4 +1,6 @@
 <?php
+use Zotlabs\Lib\Config;
+
 require_once('view/php/theme_init.php');
 
 head_add_css('/library/fork-awesome/css/fork-awesome.min.css');
@@ -24,8 +26,8 @@ if (App::$profile_uid) {
 }
 
 if (!$redbasic_mode) {
-	$redbasic_mode = ((get_config('redbasic', 'dark_mode')) ? 'dark' : 'light');
-	$redbasic_navbar_mode = ((get_config('redbasic', 'navbar_dark_mode')) ? 'dark' : 'light');
+	$redbasic_mode = ((Config::Get('redbasic', 'dark_mode')) ? 'dark' : 'light');
+	$redbasic_navbar_mode = ((Config::Get('redbasic', 'navbar_dark_mode')) ? 'dark' : 'light');
 }
 
 App::$page['color_mode'] = 'data-bs-theme="' . $redbasic_mode . '"';

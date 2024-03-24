@@ -1,7 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
-
+use Zotlabs\Lib\Config;
 
 class Lostpass extends \Zotlabs\Web\Controller {
 
@@ -34,19 +34,19 @@ class Lostpass extends \Zotlabs\Web\Controller {
 
 		$email_tpl = get_intltext_template("lostpass_eml.tpl");
 		$message = replace_macros($email_tpl, array(
-				'$sitename' => get_config('system','sitename'),
+				'$sitename' => Config::Get('system','sitename'),
 				'$siteurl' =>  z_root(),
 				'$username' => sprintf( t('Site Member (%s)'), $email),
 				'$email' => $email,
 				'$reset_link' => z_root() . '/lostpass?verify=' . $hash
 		));
 
-		$subject = email_header_encode(sprintf( t('Password reset requested at %s'),get_config('system','sitename')), 'UTF-8');
+		$subject = email_header_encode(sprintf( t('Password reset requested at %s'),Config::Get('system','sitename')), 'UTF-8');
 
 		$res = z_mail(
 			[
 			'toEmail' => $email,
-			'messageSubject' => sprintf( t('Password reset requested at %s'), get_config('system','sitename')),
+			'messageSubject' => sprintf( t('Password reset requested at %s'), Config::Get('system','sitename')),
 			'textVersion' => $message,
 			]
 		);
@@ -114,7 +114,7 @@ class Lostpass extends \Zotlabs\Web\Controller {
 				$res = z_mail(
 					[
 					'toEmail'        => $email,
-					'messageSubject' => sprintf( t('Your password has changed at %s'), get_config('system','sitename')),
+					'messageSubject' => sprintf( t('Your password has changed at %s'), Config::Get('system','sitename')),
 					'textVersion'    => $message,
 					]
 				);

@@ -9,6 +9,7 @@ require_once('include/perm_upgrade.php');
 use App;
 use URLify;
 use Zotlabs\Daemon\Master;
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Web\Controller;
 
@@ -168,7 +169,7 @@ class Import extends Controller {
 			if ($newname) {
 				$x = false;
 
-				if (get_config('system', 'unicode_usernames')) {
+				if (Config::Get('system', 'unicode_usernames')) {
 					$x = punify(mb_strtolower($newname));
 				}
 
@@ -227,10 +228,10 @@ class Import extends Controller {
 					'hubloc_url_sig'  => Libzot::sign(z_root(), $channel['channel_prvkey']),
 					'hubloc_host'     => App::get_hostname(),
 					'hubloc_callback' => z_root() . '/zot',
-					'hubloc_sitekey'  => get_config('system', 'pubkey'),
+					'hubloc_sitekey'  => Config::Get('system', 'pubkey'),
 					'hubloc_updated'  => datetime_convert(),
 					'hubloc_id_url'   => channel_url($channel),
-					'hubloc_site_id'  => Libzot::make_xchan_hash(z_root(), get_config('system', 'pubkey'))
+					'hubloc_site_id'  => Libzot::make_xchan_hash(z_root(), Config::Get('system', 'pubkey'))
 				]
 			);
 
@@ -536,7 +537,7 @@ class Import extends Controller {
 				$since = datetime_convert(date_default_timezone_get(), date_default_timezone_get(), '0001-01-01 00:00');
 				$until = datetime_convert(date_default_timezone_get(), date_default_timezone_get(), 'now + 1 day');
 
-				//$poll_interval = get_config('system', 'poll_interval', 3);
+				//$poll_interval = Config::Get('system', 'poll_interval', 3);
 				$page          = 0;
 
 				Master::Summon(['Content_importer', sprintf('%d', $page), $since, $until, $channel['channel_address'], urlencode($hz_server)]);

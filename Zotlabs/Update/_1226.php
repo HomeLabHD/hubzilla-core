@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Update;
 
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libzot;
 
 class _1226 {
@@ -17,7 +18,7 @@ class _1226 {
 			$r = ($r1 && $r2);
 		}
 		else {
-			$r = q("ALTER TABLE `channel` ADD `channel_portable_id` char(191) NOT NULL DEFAULT '' , 
+			$r = q("ALTER TABLE `channel` ADD `channel_portable_id` char(191) NOT NULL DEFAULT '' ,
 				ADD INDEX `channel_portable_id` (`channel_portable_id`)");
 		}
 
@@ -52,7 +53,7 @@ class _1226 {
 					$rec['xchan_hash'] = $zhash;
 					$rec['xchan_guid_sig'] = 'sha256.' . $rec['xchan_guid_sig'];
 					$rec['xchan_network'] = 'zot6';
-	
+
 					xchan_store_lowlevel($rec);
 				}
 				$x = q("select * from hubloc where hubloc_hash = '%s' and hubloc_url = '%s' limit 1",
@@ -67,7 +68,7 @@ class _1226 {
 					$rec['hubloc_url_sig'] = 'sha256.' . $rec['hubloc_url_sig'];
 					$rec['hubloc_callback'] = z_root() . '/zot';
 					$rec['hubloc_id_url'] = channel_url($rv);
-					$rec['hubloc_site_id'] = Libzot::make_xchan_hash(z_root(),get_config('system','pubkey'));
+					$rec['hubloc_site_id'] = Libzot::make_xchan_hash(z_root(),Config::Get('system','pubkey'));
 					hubloc_store_lowlevel($rec);
 				}
 			}

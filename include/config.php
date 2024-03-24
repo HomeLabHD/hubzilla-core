@@ -31,18 +31,83 @@
 
 use Zotlabs\Lib as Zlib;
 
+/**
+ * Loads the hub's configuration from database to a cached storage.
+ *
+ * Retrieve a category ($family) of config variables from database to a cached
+ * storage in the global App::$config[$family].
+ *
+ * @param string $family		The category of the configuration value
+ *
+ * @return Nothing
+ *
+ * @deprecated
+ *		This function is deprecated, use Zotlabs\Lib\Config::Load
+ *		instead.
+ */
 function load_config($family) {
 	Zlib\Config::Load($family);
 }
 
+/**
+ * Get a particular config variable given the category name ($family)
+ * and a key.
+ *
+ * Get a particular config variable from the given category ($family) and the
+ * $key from a cached storage in App::$config[$family]. If a key is found in the
+ * DB but does not exist in local config cache, pull it into the cache so we
+ * do not have to hit the DB again for this item.
+ *
+ * Returns false if not set.
+ *
+ * @param string $family		The category of the configuration value
+ * @param string $key			The configuration key to query
+ * @param string $default		(optional) default false
+ *
+ * @return mixed|false Return value or false on error or if not set
+ *
+ * @deprecated
+ *		This function is deprecated, use Zotlabs\Lib\Config::Get
+ *		instead.
+ */
 function get_config($family, $key, $default = false) {
 	return Zlib\Config::Get($family,$key,$default);
 }
 
+/**
+ * Sets a configuration value for the hub.
+ *
+ * Stores a config value ($value) in the category ($family) under the key ($key).
+ *
+ * @param string $family		The category of the configuration value
+ * @param string $key			The configuration key to set
+ * @param mixed $value			The value to store in the configuration
+ *
+ * @return mixed|false Return the set value, or false if the database update failed
+ *
+ * @deprecated
+ *		This function is deprecated, use Zotlabs\Lib\Config::Set
+ *		instead.
+ */
 function set_config($family, $key, $value) {
 	return Zlib\Config::Set($family,$key,$value);
 }
 
+/**
+ * Deletes the given key from the hub's configuration database.
+ *
+ * Removes the configured value from the stored cache in App::$config[$family]
+ * and removes it from the database.
+ *
+ * @param string $family		The category of the configuration value
+ * @param string $key			The configuration key to delete
+ *
+ * @return mixed
+ *
+ * @deprecated
+ *		This function is deprecated, use Zotlabs\Lib\Config::Delete
+ *		instead.
+ */
 function del_config($family, $key) {
 	return Zlib\Config::Delete($family,$key);
 }

@@ -8,12 +8,14 @@
 
 namespace Zotlabs\Widget;
 
+use Zotlabs\Lib\Config;
+
 class Rating {
 
 	function widget($arr) {
 
 
-		$rating_enabled = get_config('system','rating_enabled');
+		$rating_enabled = Config::Get('system','rating_enabled');
 		if(! $rating_enabled) {
 			return;
 		}

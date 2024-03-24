@@ -9,8 +9,9 @@
  * Also provides a function for OpenID identiy matching.
  */
 
-use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\AConfig;
+use Zotlabs\Lib\Config;
+use Zotlabs\Lib\Libzot;
 use Zotlabs\Module\Totp_check;
 
 require_once('include/api_auth.php');
@@ -43,8 +44,8 @@ function account_verify_password($login, $pass) {
 	$ret = [ 'account' => null, 'channel' => null, 'xchan' => null ];
 	$login = punify($login);
 
-	$email_verify = get_config('system', 'verify_email');
-	$register_policy = get_config('system', 'register_policy');
+	$email_verify = Config::Get('system', 'verify_email');
+	$register_policy = Config::Get('system', 'register_policy');
 
 	if(!$login || !$pass)
 		return null;
@@ -170,7 +171,7 @@ function account_verify_password($login, $pass) {
  *  Error message to display for failed login.
  */
 function log_failed_login($errormsg) {
-	$authlog = get_config('system', 'authlog');
+	$authlog = Config::Get('system', 'authlog');
 	if ($authlog)
 		@file_put_contents($authlog, datetime_convert() . ':' . session_id() . ' ' . $errormsg . PHP_EOL, FILE_APPEND);
 }
@@ -208,10 +209,10 @@ if((isset($_SESSION)) && (x($_SESSION, 'authenticated')) &&
 
 	if(x($_SESSION, 'visitor_id') && (! x($_SESSION, 'uid'))) {
 		// if our authenticated guest is allowed to take control of the admin channel, make it so.
-		$admins = get_config('system', 'remote_admin');
+		$admins = Config::Get('system', 'remote_admin');
 		if($admins && is_array($admins) && in_array($_SESSION['visitor_id'], $admins)) {
 			$x = q("select * from account where account_email = '%s' and account_email != '' and ( account_flags & %d )>0 limit 1",
-				dbesc(get_config('system', 'admin_email')),
+				dbesc(Config::Get('system', 'admin_email')),
 				intval(ACCOUNT_ROLE_ADMIN)
 			);
 			if($x) {
@@ -328,7 +329,7 @@ else {
 			$error = 'authenticate: failed login attempt: ' . notags(trim($username)) . ' from IP ' . $_SERVER['REMOTE_ADDR'];
 			logger($error);
 			// Also log failed logins to a separate auth log to reduce overhead for server side intrusion prevention
-			$authlog = get_config('system', 'authlog');
+			$authlog = Config::Get('system', 'authlog');
 			if ($authlog)
 				@file_put_contents($authlog, datetime_convert() . ':' . session_id() . ' ' . $error . "\n", FILE_APPEND);
 			notice( t('Login failed.') . EOL );

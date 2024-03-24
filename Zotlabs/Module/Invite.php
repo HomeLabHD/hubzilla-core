@@ -3,6 +3,7 @@ namespace Zotlabs\Module;
 
 use App;
 use Zotlabs\Lib\Apps;
+use Zotlabs\Lib\Config;
 use Zotlabs\Web\Controller;
 
 /**
@@ -76,7 +77,7 @@ class Invite extends Controller {
 		$feedbk = '';
 		$isajax = is_ajax();
 		$eol 	= $isajax ? "\n" : EOL;
-		$policy  = intval(get_config('system','register_policy'));
+		$policy  = intval(Config::Get('system','register_policy'));
 		if ($policy == REGISTER_CLOSED) {
 			notice( 'ZAI0212E,' . t('Register is closed') . ')' . EOL);
 			return;
@@ -85,13 +86,13 @@ class Invite extends Controller {
 			$flags = 0;
 		elseif ($policy == REGISTER_APPROVE)
 			$flags = ACCOUNT_PENDING;
-		$flags  = ($flags | intval(get_config('system','verify_email')));
+		$flags  = ($flags | intval(Config::Get('system','verify_email')));
 
 		// how many max recipients in one mail submit
-		$maxto = get_config('system','invitation_max_recipients', 'na');
+		$maxto = Config::Get('system','invitation_max_recipients', 'na');
 		If (is_site_admin()) {
 			// set, if admin is operator, default to 12
-			if ($maxto === 'na') set_config('system','invitation_max_recipients', 12);
+			if ($maxto === 'na') Config::Set('system','invitation_max_recipients', 12);
 		}
 		$maxto = ($maxto === 'na') ? 12 : $maxto;
 
@@ -323,7 +324,7 @@ class Invite extends Controller {
 			return Apps::app_render($papp, 'module');
 		}
 
-		if (! (get_config('system','invitation_also') || get_config('system','invitation_only')) ) {
+		if (! (Config::Get('system','invitation_also') || Config::Get('system','invitation_only')) ) {
 			$o = 'ZAI0103E,' . t('Invites not proposed by configuration') . '. ';
 			$o .= t('Contact the site admin');
 			return $o;
@@ -331,7 +332,7 @@ class Invite extends Controller {
 
 		// invitation_by_user may still not configured, the default 'na' will tell this
 		// if configured, 0 disables invitations by users, other numbers are how many invites a user may propagate
-		$invuser = get_config('system','invitation_by_user', 'na');
+		$invuser = Config::Get('system','invitation_by_user', 'na');
 
 		// if the mortal user drives the invitation
 		If (! is_site_admin()) {
@@ -352,7 +353,7 @@ class Invite extends Controller {
 
 		} else {
 			// general deity admin invite limit infinite (theoretical)
-			if ($invuser === 'na') set_config('system','invitation_by_user', 4);
+			if ($invuser === 'na') Config::Set('system','invitation_by_user', 4);
 			// for display only
 			$invuser = '∞';
 		}
@@ -385,11 +386,11 @@ class Invite extends Controller {
 		$wehave = ($r ? $r[0]['ct'] : 0);
 
 		// invites max for all users except admins
-		$invmaxau = intval(get_config('system','invitations_max_users'));
+		$invmaxau = intval(Config::Get('system','invitations_max_users'));
 		if(! $invmaxau) {
 			$invmaxau = 50;
 			if (is_site_admin()) {
-				set_config('system','invitations_max_users',intval($invmaxau));
+				Config::Set('system','invitations_max_users',intval($invmaxau));
 			}
 		}
 
@@ -519,7 +520,7 @@ class Invite extends Controller {
 					$ts = replace_macros(get_intltext_template('invite.'.$t1.'.subject.tpl'),
 					array(
 						'$projectname'		=> t('$Projectname'),
-						'$invite_loc'		=> get_config('system','sitename')
+						'$invite_loc'		=> Config::Get('system','sitename')
 					)
 				);
 
@@ -569,7 +570,7 @@ class Invite extends Controller {
 	function calcdue($duri=false) {
 		// expirations, duration interval
 		if ($duri===false)
-			$duri = get_config('system','register_expire', '2d');
+			$duri = Config::Get('system','register_expire', '2d');
 		if ( preg_match( '/^[0-9]{1,2}[ihdwmy]{1}$/', $duri ) ) {
 			$durq = substr($duri, -1);
 			$durn = substr($duri, 0, -1);

@@ -2,15 +2,16 @@
 
 namespace Zotlabs\Update;
 
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libzot;
 
 class _1236 {
 
 	function run() {
-	
-		$r = q("SELECT channel.channel_address, channel.channel_hash, xchan.xchan_guid, channel.channel_pubkey, channel.channel_portable_id FROM channel 
-			LEFT JOIN xchan ON channel_hash = xchan_hash 
-			WHERE xchan.xchan_network = 'zot' 
+
+		$r = q("SELECT channel.channel_address, channel.channel_hash, xchan.xchan_guid, channel.channel_pubkey, channel.channel_portable_id FROM channel
+			LEFT JOIN xchan ON channel_hash = xchan_hash
+			WHERE xchan.xchan_network = 'zot'
 			AND channel.channel_removed = 0"
 		);
 
@@ -102,7 +103,7 @@ class _1236 {
 					$rec['hubloc_url_sig'] = 'sha256.' . $rec['hubloc_url_sig'];
 					$rec['hubloc_callback'] = z_root() . '/zot';
 					$rec['hubloc_id_url'] = channel_url($rr);
-					$rec['hubloc_site_id'] = Libzot::make_xchan_hash(z_root(),get_config('system','pubkey'));
+					$rec['hubloc_site_id'] = Libzot::make_xchan_hash(z_root(),Config::Get('system','pubkey'));
 
 					$hubloc = hubloc_store_lowlevel($rec);
 				}

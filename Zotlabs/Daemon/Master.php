@@ -37,7 +37,7 @@ class Master {
 			return;
 		}
 
-		$phpbin = get_config('system', 'phpbin', 'php');
+		$phpbin = Config::Get('system', 'phpbin', 'php');
 		proc_run($phpbin, 'Zotlabs/Daemon/Master.php', $arr);
 */
 	}

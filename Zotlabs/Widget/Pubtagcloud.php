@@ -7,6 +7,8 @@
 
 namespace Zotlabs\Widget;
 
+use Zotlabs\Lib\Config;
+
 class Pubtagcloud {
 
 	function widget($arr) {
@@ -16,19 +18,19 @@ class Pubtagcloud {
             return EMPTY_STR;
         }
 
-        if(! intval(get_config('system','open_pubstream',1))) {
+        if(! intval(Config::Get('system','open_pubstream',1))) {
             if(! get_observer_hash()) {
                 return EMPTY_STR;
             }
         }
 
-		$net_firehose  = ((get_config('system','disable_discover_tab',1)) ? false : true);
+		$net_firehose  = ((Config::Get('system','disable_discover_tab',1)) ? false : true);
 
 		if(!$net_firehose) {
 			return '';
 		}
 
-		$site_firehose = ((intval(get_config('system','site_firehose',0))) ? true : false);
+		$site_firehose = ((intval(Config::Get('system','site_firehose',0))) ? true : false);
 
 		$safemode = get_xconfig(get_observer_hash(),'directory','safemode',1);
 

@@ -2,8 +2,9 @@
 
 namespace Zotlabs\Module;
 
-use Zotlabs\Lib\Libzotdir;
 use Zotlabs\Lib\AccessList;
+use Zotlabs\Lib\Config;
+use Zotlabs\Lib\Libzotdir;
 
 require_once 'include/acl_selectors.php';
 
@@ -414,7 +415,7 @@ class Acl extends \Zotlabs\Web\Controller {
 			return;
 		}
 
-		$dirmode = intval(get_config('system','directory_mode'));
+		$dirmode = intval(Config::Get('system','directory_mode'));
 		$search = ((x($_REQUEST,'search')) ? htmlentities($_REQUEST['search'],ENT_COMPAT,'UTF-8',false) : '');
 		if(! $search || mb_strlen($search) < 2)
 			return array();
@@ -443,7 +444,7 @@ class Acl extends \Zotlabs\Web\Controller {
 			$url = $directory['url'] . '/dirsearch';
 		}
 
-		$token = get_config('system','realm_token');
+		$token = Config::Get('system','realm_token');
 
 		$count = (x($_REQUEST,'count') ?  $_REQUEST['count'] : 100);
 		if($url) {

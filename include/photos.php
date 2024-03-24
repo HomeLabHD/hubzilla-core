@@ -6,6 +6,7 @@
 
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Lib\Activity;
+use Zotlabs\Lib\Config;
 
 require_once('include/permissions.php');
 require_once('include/items.php');
@@ -74,11 +75,11 @@ function photo_upload($channel, $observer, $args) {
 
 	$os_storage = 0;
 
-	$max_thumb = get_config('system', 'max_thumbnail', 1600);
+	$max_thumb = Config::Get('system', 'max_thumbnail', 1600);
 
 	if ($args['os_syspath'] && $args['getimagesize']) {
 		if ($args['getimagesize'][0] > $max_thumb || $args['getimagesize'][1] > $max_thumb) {
-			$imagick_path = get_config('system', 'imagick_convert_path');
+			$imagick_path = Config::Get('system', 'imagick_convert_path');
 			if ($imagick_path && @file_exists($imagick_path)) {
 				$tmp_name = $args['os_syspath'] . '-001';
 				$newsize  = photo_calculate_scale(array_merge($args['getimagesize'], ['max' => $max_thumb]));
@@ -146,7 +147,7 @@ function photo_upload($channel, $observer, $args) {
 
 		logger('Received file: ' . $filename . ' as ' . $src . ' (' . $type . ') ' . $filesize . ' bytes', LOGGER_DEBUG);
 
-		$maximagesize = get_config('system', 'maximagesize');
+		$maximagesize = Config::Get('system', 'maximagesize');
 
 		if (($maximagesize) && ($filesize > $maximagesize)) {
 			$ret['message'] = sprintf(t('Image exceeds website size limit of %lu bytes'), $maximagesize);
@@ -219,7 +220,7 @@ function photo_upload($channel, $observer, $args) {
 
 	@unlink($src);
 
-	$max_length = get_config('system', 'max_image_length');
+	$max_length = Config::Get('system', 'max_image_length');
 	if (!$max_length)
 		$max_length = MAX_IMAGE_LENGTH;
 	if ($max_length > 0)

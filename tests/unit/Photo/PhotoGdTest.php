@@ -130,21 +130,8 @@ class PhotoGdTest extends UnitTestCase {
 	 * Tests PhotoGd->imageString()
 	 */
 	public function testImagestringReturnsABinaryString() {
-		// Create a stub for global function get_config()
-		// get_config('system', 'png_quality')
-		// get_config('system', 'jpeg_quality');
-		$gc = $this->getFunctionMock('Zotlabs\Photo', 'get_config');
-		$gc->expects($this->once())->willReturnCallback(
-				function() {
-					switch($this->photoGd->getType()){
-						case 'image/png':
-							return 7;
-						case 'image/jpeg':
-						default:
-							return 70;
-					}
-				}
-		);
+		// Init config with a known value for the test
+		\Zotlabs\Lib\Config::Set('system', 'png_quality', 7);
 
 		$this->assertIsString($this->photoGd->imageString());
 	}

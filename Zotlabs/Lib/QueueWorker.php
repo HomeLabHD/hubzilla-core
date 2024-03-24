@@ -4,6 +4,7 @@ namespace Zotlabs\Lib;
 
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\Exception\UnableToBuildUuidException;
+use Zotlabs\Lib\Config;
 
 class QueueWorker {
 
@@ -84,7 +85,7 @@ class QueueWorker {
 		$workers = self::GetWorkerCount();
 		if ($workers < self::$maxworkers) {
 			logger($workers . '/' . self::$maxworkers . ' workers active', LOGGER_DEBUG);
-			$phpbin = get_config('system', 'phpbin', 'php');
+			$phpbin = Config::Get('system', 'phpbin', 'php');
 			proc_run($phpbin, 'Zotlabs/Daemon/Master.php', ['Queueworker']);
 		}
 	}
@@ -132,18 +133,18 @@ class QueueWorker {
 
 	public static function GetWorkerCount() {
 		if (self::$maxworkers == 0) {
-			self::$maxworkers = get_config('queueworker', 'max_queueworkers', 4);
+			self::$maxworkers = Config::Get('queueworker', 'max_queueworkers', 4);
 			self::$maxworkers = self::$maxworkers > 3 ? self::$maxworkers : 4;
 		}
 		if (self::$workermaxage == 0) {
-			self::$workermaxage = get_config('queueworker', 'max_queueworker_age');
+			self::$workermaxage = Config::Get('queueworker', 'max_queueworker_age');
 			self::$workermaxage = self::$workermaxage > 120 ? self::$workermaxage : 300;
 		}
 
 		self::qstart();
 
 		// skip locked is preferred but is not supported by mariadb < 10.6 which is still used a lot - hence make it optional
-		$sql_quirks = ((get_config('system', 'db_skip_locked_supported')) ? 'SKIP LOCKED' : 'NOWAIT');
+		$sql_quirks = ((Config::Get('system', 'db_skip_locked_supported')) ? 'SKIP LOCKED' : 'NOWAIT');
 
 		$r = q("SELECT workerq_id FROM workerq WHERE workerq_reservationid IS NOT NULL AND workerq_processtimeout < %s FOR UPDATE $sql_quirks",
 			db_utcnow()
@@ -199,7 +200,7 @@ class QueueWorker {
 		self::qstart();
 
 		// skip locked is preferred but is not supported by mariadb < 10.6 which is still used a lot - hence make it optional
-		$sql_quirks = ((get_config('system', 'db_skip_locked_supported')) ? 'SKIP LOCKED' : 'NOWAIT');
+		$sql_quirks = ((Config::Get('system', 'db_skip_locked_supported')) ? 'SKIP LOCKED' : 'NOWAIT');
 
 		$work = dbq("SELECT workerq_id, workerq_cmd FROM workerq WHERE workerq_reservationid IS NULL ORDER BY workerq_priority DESC, workerq_id ASC LIMIT 1 FOR UPDATE $sql_quirks");
 
@@ -236,12 +237,12 @@ class QueueWorker {
 	}
 
 	public static function Process() {
-		$sleep = intval(get_config('queueworker', 'queue_worker_sleep', 100));
-		$auto_queue_worker_sleep = get_config('queueworker', 'auto_queue_worker_sleep', 0);
+		$sleep = intval(Config::Get('queueworker', 'queue_worker_sleep', 100));
+		$auto_queue_worker_sleep = Config::Get('queueworker', 'auto_queue_worker_sleep', 0);
 
 		if (!self::GetWorkerID()) {
 			if ($auto_queue_worker_sleep) {
-				set_config('queueworker', 'queue_worker_sleep', $sleep + 100);
+				Config::Set('queueworker', 'queue_worker_sleep', $sleep + 100);
 			}
 
 			logger('Unable to get worker ID. Exiting.', LOGGER_DEBUG);
@@ -250,7 +251,7 @@ class QueueWorker {
 
 		if ($auto_queue_worker_sleep && $sleep > 100) {
 			$next_sleep = $sleep - 100;
-			set_config('queueworker', 'queue_worker_sleep', (($next_sleep < 100) ? 100 : $next_sleep));
+			Config::Set('queueworker', 'queue_worker_sleep', (($next_sleep < 100) ? 100 : $next_sleep));
 		}
 
 		$jobs               = 0;
@@ -259,7 +260,7 @@ class QueueWorker {
 		self::$workersleep  = $sleep;
 		self::$workersleep  = ((intval(self::$workersleep) > 100) ? intval(self::$workersleep) : 100);
 
-		if (function_exists('sys_getloadavg') && get_config('queueworker', 'load_average_sleep')) {
+		if (function_exists('sys_getloadavg') && Config::Get('queueworker', 'load_average_sleep')) {
 			// very experimental!
 			$load_average_sleep = true;
 		}
@@ -287,7 +288,7 @@ class QueueWorker {
 
 				if ($workers < self::$maxworkers) {
 					logger($workers . '/' . self::$maxworkers . ' workers active', LOGGER_DEBUG);
-					$phpbin = get_config('system', 'phpbin', 'php');
+					$phpbin = Config::Get('system', 'phpbin', 'php');
 					proc_run($phpbin, 'Zotlabs/Daemon/Master.php', ['Queueworker']);
 				}
 

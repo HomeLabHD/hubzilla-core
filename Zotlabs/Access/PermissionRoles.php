@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Access;
 
+use Zotlabs\Lib\Config;
+
 /**
  * @brief PermissionRoles class.
  *
@@ -247,7 +249,7 @@ class PermissionRoles {
 				break;
 		}
 
-		$x = get_config('system','role_perms');
+		$x = Config::Get('system','role_perms');
 
 		// let system settings over-ride any or all
 		if($x && is_array($x) && array_key_exists($role,$x))

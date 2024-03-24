@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Daemon;
 
+use Zotlabs\Lib\Config;
+
 require_once('include/items.php');
 
 class Expire {
@@ -10,14 +12,14 @@ class Expire {
 
 		cli_startup();
 
-		$pid = get_config('procid', 'expire', false);
+		$pid = Config::Get('procid', 'expire', false);
 		if ($pid && (function_exists('posix_kill') ? posix_kill($pid, 0) : true)) {
 			logger('procedure already run with pid ' . $pid, LOGGER_DEBUG);
 			return;
 		}
 
 		$pid = getmypid();
-		set_config('procid', 'expire', $pid);
+		Config::Set('procid', 'expire', $pid);
 
 		// perform final cleanup on previously delete items
 
@@ -38,13 +40,13 @@ class Expire {
 			db_quoteinterval('36 DAY')
 		);
 
-		if (intval(get_config('system', 'optimize_items')))
+		if (intval(Config::Get('system', 'optimize_items')))
 			q("optimize table item");
 
 		logger('expire: start with pid ' . $pid, LOGGER_DEBUG);
 
-		$site_expire    = intval(get_config('system', 'default_expire_days', 30));
-		$commented_days = intval(get_config('system', 'active_expire_days', 7));
+		$site_expire    = intval(Config::Get('system', 'default_expire_days', 30));
+		$commented_days = intval(Config::Get('system', 'active_expire_days', 7));
 
 		logger('site_expire: ' . $site_expire);
 
@@ -84,7 +86,7 @@ class Expire {
 
 			// this should probably just fetch the channel_expire_days from the sys channel,
 			// but there's no convenient way to set it.
-			$expire_days = get_config('system', 'sys_expire_days');
+			$expire_days = Config::Get('system', 'sys_expire_days');
 			if ($expire_days === false)
 				$expire_days = 30;
 
@@ -101,7 +103,7 @@ class Expire {
 			logger('Expire: sys: done', LOGGER_DEBUG);
 		}
 
-		del_config('procid', 'expire');
+		Config::Delete('procid', 'expire');
 
 		return;
 	}

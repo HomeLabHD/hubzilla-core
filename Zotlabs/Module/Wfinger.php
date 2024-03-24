@@ -1,6 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Keyutils;
 use Zotlabs\Lib\Libzot;
 
@@ -88,7 +89,7 @@ class Wfinger extends \Zotlabs\Web\Controller {
 		if($root_resource) {
 			$result['subject'] = $resource;
 			$result['properties'] = [
-					'https://w3id.org/security/v1#publicKeyPem' => get_config('system','pubkey')
+					'https://w3id.org/security/v1#publicKeyPem' => Config::Get('system','pubkey')
 			];
 			$result['links'] = [
 				[

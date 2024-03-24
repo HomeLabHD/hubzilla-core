@@ -1,6 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Config;
 
 class Siteinfo extends \Zotlabs\Web\Controller {
 
@@ -22,9 +23,9 @@ class Siteinfo extends \Zotlabs\Web\Controller {
 				'$sitenametxt' => t('Site Name'),
 				'$sitename' => \Zotlabs\Lib\System::get_site_name(),
 				'$headline' => t('Site Information'),
-				'$site_about' => bbcode(get_config('system','siteinfo')),
+				'$site_about' => bbcode(Config::Get('system','siteinfo')),
 				'$admin_headline' => t('Administrator'),
-				'$admin_about' => bbcode(get_config('system','admininfo')),
+				'$admin_about' => bbcode(Config::Get('system','admininfo')),
 				'$terms' => t('Terms of Service'),
 				'$prj_header' => t('Software and Project information'),
 				'$prj_name' => t('This site is powered by $Projectname'),
@@ -33,7 +34,7 @@ class Siteinfo extends \Zotlabs\Web\Controller {
 
 				'$additional_text' => t('Additional federated transport protocols:'),
 				'$additional_fed' => implode(', ', $federated),
-				'$prj_version' => ((get_config('system','hidden_version_siteinfo')) ? '' : sprintf( t('Version %s'), \Zotlabs\Lib\System::get_project_version())),
+				'$prj_version' => ((Config::Get('system','hidden_version_siteinfo')) ? '' : sprintf( t('Version %s'), \Zotlabs\Lib\System::get_project_version())),
 				'$prj_linktxt' => t('Project homepage'),
 				'$prj_srctxt' => t('Developer homepage'),
 				'$prj_link' => \Zotlabs\Lib\System::get_project_link(),

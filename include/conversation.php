@@ -1,7 +1,8 @@
 <?php /** @file */
 
-use Zotlabs\Lib\Apps;
 use Zotlabs\Lib\Activity;
+use Zotlabs\Lib\Apps;
+use Zotlabs\Lib\Config;
 
 require_once('include/items.php');
 
@@ -1336,7 +1337,7 @@ function get_item_children($arr, $parent) {
 	$children = array();
 	foreach($arr as $item) {
 		if($item['id'] != $item['parent']) {
-			if(get_config('system','thread_allow')) {
+			if(Config::Get('system','thread_allow')) {
 				// Fallback to parent_mid if thr_parent is not set
 				$thr_parent = $item['thr_parent'];
 				if($thr_parent == '')

@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Photo;
 
+use Zotlabs\Lib\Config;
+
 /**
  * @brief ImageMagick photo driver.
  */
@@ -57,7 +59,7 @@ class PhotoImagick extends PhotoDriver {
 			switch($this->getType()) {
 
 				case 'image/png':
-					$quality = get_config('system', 'png_quality');
+					$quality = Config::Get('system', 'png_quality');
 					if((! $quality) || ($quality > 9))
 						$quality = PNG_QUALITY;
 					/*
@@ -73,14 +75,14 @@ class PhotoImagick extends PhotoDriver {
 					break;
 
 				case 'image/jpeg':
-					$quality = get_config('system', 'jpeg_quality');
+					$quality = Config::Get('system', 'jpeg_quality');
 					if((! $quality) || ($quality > 100))
 						$quality = JPEG_QUALITY;
 					$this->image->setCompressionQuality($quality);
 					break;
 
 				case 'image/webp':
-				    $quality = get_config('system', 'webp_quality');
+				    $quality = Config::Get('system', 'webp_quality');
 				    if((! $quality) || ($quality > 100))
 				        $quality = WEBP_QUALITY;
 				    $this->image->setCompressionQuality($quality);

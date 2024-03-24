@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Module;
 
+use Zorlabs\Lib\Config;
 
 class Go extends \Zotlabs\Web\Controller {
 
@@ -44,9 +45,9 @@ class Go extends \Zotlabs\Web\Controller {
 			'network'       => t('View your personal stream (this may be empty until you add some connections)'),
 
 		];
- 
-		$site_firehose = ((intval(get_config('system','site_firehose',0))) ? true : false);
- 		$net_firehose  = ((get_config('system','disable_discover_tab',1)) ? false : true);
+
+		$site_firehose = ((intval(Config::Get('system','site_firehose',0))) ? true : false);
+ 		$net_firehose  = ((Config::Get('system','disable_discover_tab',1)) ? false : true);
 
 		if($site_firehose || $net_firehose) {
 			$options['pubstream'] = t('View the public stream. Warning: this content is not moderated');

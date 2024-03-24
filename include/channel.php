@@ -9,6 +9,7 @@ use Zotlabs\Access\PermissionRoles;
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Access\Permissions;
 use Zotlabs\Daemon\Master;
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\System;
 use Zotlabs\Render\Comanche;
@@ -108,11 +109,11 @@ function create_sys_channel() {
 
 	// Ensure that there is a host keypair.
 
-	if ((! get_config('system', 'pubkey')) && (! get_config('system', 'prvkey'))) {
+	if ((! Config::Get('system', 'pubkey')) && (! Config::Get('system', 'prvkey'))) {
 		require_once('include/crypto.php');
 		$hostkey = Crypto::new_keypair(4096);
-		set_config('system', 'pubkey', $hostkey['pubkey']);
-		set_config('system', 'prvkey', $hostkey['prvkey']);
+		Config::Set('system', 'pubkey', $hostkey['pubkey']);
+		Config::Set('system', 'prvkey', $hostkey['prvkey']);
 	}
 
 	create_identity([
@@ -357,10 +358,10 @@ function create_identity($arr) {
 			'hubloc_primary'  => intval($primary),
 			'hubloc_url'      => z_root(),
 			'hubloc_url_sig'  => Libzot::sign(z_root(),$ret['channel']['channel_prvkey']),
-			'hubloc_site_id'  => Libzot::make_xchan_hash(z_root(),get_config('system','pubkey')),
+			'hubloc_site_id'  => Libzot::make_xchan_hash(z_root(),Config::Get('system','pubkey')),
 			'hubloc_host'     => App::get_hostname(),
 			'hubloc_callback' => z_root() . '/zot',
-			'hubloc_sitekey'  => get_config('system','pubkey'),
+			'hubloc_sitekey'  => Config::Get('system','pubkey'),
 			'hubloc_network'  => 'zot6',
 			'hubloc_updated'  => datetime_convert()
 		]
@@ -493,7 +494,7 @@ function create_identity($arr) {
 		// otherwise it could get annoying. Don't make this list too big
 		// or it will impact registration time.
 
-		$accts = get_config('system','auto_follow');
+		$accts = Config::Get('system','auto_follow');
 		if(($accts) && (! $total_identities)) {
 			if(! is_array($accts))
 				$accts = array($accts);
@@ -1591,7 +1592,7 @@ function profile_sidebar($profile, $block = 0, $show_connect = true, $details = 
 	$reddress = true;
 	$connect_url = '';
 	$connect = '';
-	$default_cover = get_config('system', 'default_cover_photo', 'hubzilla');
+	$default_cover = Config::Get('system', 'default_cover_photo', 'hubzilla');
 	$default_cover_url = z_root() . '/images/default_cover_photos/' . $default_cover . '/425.png';
 
 
@@ -2040,7 +2041,7 @@ function get_theme_uid() {
 * @return string with path to profile photo
 */
 function get_default_profile_photo($size = 300) {
-	$scheme = get_config('system','default_profile_photo');
+	$scheme = Config::Get('system','default_profile_photo');
 	if(! $scheme)
 		$scheme = 'rainbow_man';
 
@@ -2171,7 +2172,7 @@ function is_public_profile() {
 	if(! local_channel())
 		return false;
 
-	if(intval(get_config('system','block_public')))
+	if(intval(Config::Get('system','block_public')))
 		return false;
 
 	$channel = App::get_channel();
@@ -2186,7 +2187,7 @@ function is_public_profile() {
 
 function get_profile_fields_basic($filter = 0) {
 
-	$profile_fields_basic = (($filter == 0) ? get_config('system','profile_fields_basic') : null);
+	$profile_fields_basic = (($filter == 0) ? Config::Get('system','profile_fields_basic') : null);
 
 	if(! $profile_fields_basic)
 		$profile_fields_basic = array('fullname','pdesc','chandesc','comms','gender','dob','dob_tz','region','country_name','marital','sexual','homepage','hometown','keywords','about','contact');
@@ -2202,7 +2203,7 @@ function get_profile_fields_basic($filter = 0) {
 
 function get_profile_fields_advanced($filter = 0) {
 	$basic = get_profile_fields_basic($filter);
-	$profile_fields_advanced = (($filter == 0) ? get_config('system','profile_fields_advanced') : null);
+	$profile_fields_advanced = (($filter == 0) ? Config::Get('system','profile_fields_advanced') : null);
 	if(! $profile_fields_advanced)
 		$profile_fields_advanced = array('address','locality','postal_code','partner','howlong','politic','religion','likes','dislikes','interest','channels','music','book','film','tv','romance','employment','education');
 
@@ -2423,7 +2424,7 @@ function get_zcard($channel, $observer_hash = '', $args = array()) {
 		$cover = $r[0];
 		$cover['href'] = z_root() . '/photo/' . $r[0]['resource_id'] . '-' . $r[0]['imgscale'];
 	} else {
-		$default_cover = get_config('system', 'default_cover_photo', 'hubzilla');
+		$default_cover = Config::Get('system', 'default_cover_photo', 'hubzilla');
 		$cover = [ 'href' => z_root() . '/images/default_cover_photos/' . $default_cover . '/' . $cover_width . '.png' ];
 	}
 
@@ -2500,7 +2501,7 @@ function get_zcard_embed($channel, $observer_hash = '', $args = array()) {
 		$cover['href'] = z_root() . '/photo/' . $r[0]['resource_id'] . '-' . $r[0]['imgscale'];
 	}
 	else {
-		$default_cover = get_config('system', 'default_cover_photo', 'hubzilla');
+		$default_cover = Config::Get('system', 'default_cover_photo', 'hubzilla');
 		$cover = [ 'href' => z_root() . '/images/default_cover_photos/' . $default_cover . '/' . $cover_width . '.png' ];
 	}
 

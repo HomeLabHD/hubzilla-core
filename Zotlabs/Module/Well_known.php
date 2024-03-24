@@ -1,6 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Config;
 
 class Well_known extends \Zotlabs\Web\Controller {
 
@@ -21,7 +22,7 @@ class Well_known extends \Zotlabs\Web\Controller {
 			//     Note: Your web server must be configured to create this variable. For example in Apache
 			// you'll need HostnameLookups On inside httpd.conf for it to exist. See also gethostbyaddr().
 
-			if(get_config('system','siteallowed_remote_host') && (! check_siteallowed($_SERVER['REMOTE_HOST']))) {
+			if(Config::Get('system','siteallowed_remote_host') && (! check_siteallowed($_SERVER['REMOTE_HOST']))) {
 				logger('well_known: site not allowed. ' . $_SERVER['REMOTE_HOST']);
 				killme();
 			}

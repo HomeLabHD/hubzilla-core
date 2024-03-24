@@ -4,6 +4,7 @@
  * @brief Somme account related functions.
  */
 
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Crypto;
 
 require_once('include/config.php');
@@ -83,8 +84,8 @@ function check_account_invite($invite_code) {
 	$result = array('error' => false, 'message' => '');
 
 	// [hilmar ->
-	$using_invites = (get_config('system','invitation_only')
-				   || get_config('system','invitation_also'));
+	$using_invites = (Config::Get('system','invitation_only')
+				   || Config::Get('system','invitation_also'));
 
 	if($using_invites) {
 
@@ -118,7 +119,7 @@ function check_account_invite($invite_code) {
 function check_account_admin($arr) {
 	if(is_site_admin())
 		return true;
-	$admin_email = trim(get_config('system','admin_email'));
+	$admin_email = trim(Config::Get('system','admin_email'));
 	if(strlen($admin_email) && $admin_email === trim($arr['email']))
 		return true;
 	return false;
@@ -182,7 +183,7 @@ function create_account_IS_OBSOLETE($arr) {
 	$roles       = ((x($arr,'account_roles')) ? intval($arr['account_roles'])      : 0 );
 	$expires     = ((x($arr,'expires'))       ? intval($arr['expires'])            : NULL_DATE);
 
-	$default_service_class = get_config('system','default_service_class');
+	$default_service_class = Config::Get('system','default_service_class');
 
 	if($default_service_class === false)
 		$default_service_class = '';
@@ -209,10 +210,10 @@ function create_account_IS_OBSOLETE($arr) {
 
 	// Ensure that there is a host keypair.
 
-	if ((! get_config('system', 'pubkey')) && (! get_config('system', 'prvkey'))) {
+	if ((! Config::Get('system', 'pubkey')) && (! Config::Get('system', 'prvkey'))) {
 		$hostkey = Crypto::new_keypair(4096);
-		set_config('system', 'pubkey', $hostkey['pubkey']);
-		set_config('system', 'prvkey', $hostkey['prvkey']);
+		Config::Set('system', 'pubkey', $hostkey['pubkey']);
+		Config::Set('system', 'prvkey', $hostkey['prvkey']);
 	}
 
 	$invite_result = check_account_invite($invite_code);
@@ -319,7 +320,7 @@ function create_account_from_register($arr) {
 	// account
 	$expires = NULL_DATE;
 
-	$default_service_class = get_config('system','default_service_class');
+	$default_service_class = Config::Get('system','default_service_class');
 	if($default_service_class === false)
 		$default_service_class = '';
 
@@ -420,7 +421,7 @@ function verify_email_address($arr) {
 
 	$email_msg = replace_macros(get_intltext_template('register_verify_member.tpl'),
 		[
-			'$sitename' => get_config('system','sitename'),
+			'$sitename' => Config::Get('system','sitename'),
 			'$siteurl'  => z_root(),
 			'$email'    => $arr['email'],
 			'$uid'      => 1,
@@ -432,7 +433,7 @@ function verify_email_address($arr) {
 	$res = z_mail(
 		[
 		'toEmail' => $arr['email'],
-		'messageSubject' => sprintf( t('Registration confirmation for %s'), get_config('system','sitename')),
+		'messageSubject' => sprintf( t('Registration confirmation for %s'), Config::Get('system','sitename')),
 		'textVersion' => $email_msg,
 		]
 	);
@@ -488,7 +489,7 @@ function verify_email_addressNOP($arr) {
 
 	$email_msg = replace_macros(get_intltext_template('register_verify_member.tpl'),
 		[
-			'$sitename' => get_config('system','sitename'),
+			'$sitename' => Config::Get('system','sitename'),
 			'$siteurl'  => z_root(),
 			'$email'    => $arr['email'],
 			'$uid'      => $account['account_id'],
@@ -500,7 +501,7 @@ function verify_email_addressNOP($arr) {
 	$res = z_mail(
 		[
 		'toEmail' => $arr['email'],
-		'messageSubject' => sprintf( t('Registration confirmation for %s'), get_config('system','sitename')),
+		'messageSubject' => sprintf( t('Registration confirmation for %s'), Config::Get('system','sitename')),
 		'textVersion' => $email_msg,
 		]
 	);
@@ -564,7 +565,7 @@ function send_reg_approval_email($arr) {
 			push_lang('en');
 
 		$email_msg = replace_macros(get_intltext_template('register_verify_eml.tpl'), array(
-			'$sitename' => get_config('system','sitename'),
+			'$sitename' => Config::Get('system','sitename'),
 			'$siteurl'  =>  z_root(),
 			'$email'    => $arr['email'],
 			'$uid'      => $arr['account']['account_id'],
@@ -575,7 +576,7 @@ function send_reg_approval_email($arr) {
 		$res = z_mail(
 			[
 			'toEmail' => $admin['email'],
-			'messageSubject' => sprintf( t('Registration request at %s'), get_config('system','sitename')),
+			'messageSubject' => sprintf( t('Registration request at %s'), Config::Get('system','sitename')),
 			'textVersion' => $email_msg,
 			]
 		);
@@ -594,7 +595,7 @@ function send_reg_approval_email($arr) {
 function send_register_success_email($email,$password) {
 
 	$email_msg = replace_macros(get_intltext_template('register_open_eml.tpl'), array(
-		'$sitename' => get_config('system','sitename'),
+		'$sitename' => Config::Get('system','sitename'),
 		'$siteurl' =>  z_root(),
 		'$email'    => $email,
 		'$password' => t('your registration password'),
@@ -603,7 +604,7 @@ function send_register_success_email($email,$password) {
 	$res = z_mail(
 		[
 			'toEmail' => $email,
-			'messageSubject' => sprintf( t('Registration details for %s'), get_config('system','sitename')),
+			'messageSubject' => sprintf( t('Registration details for %s'), Config::Get('system','sitename')),
 			'textVersion' => $email_msg,
 		]
 	);
@@ -681,7 +682,7 @@ function account_allow($hash) {
 
 		$email_tpl = get_intltext_template("register_open_eml.tpl");
 		$email_msg = replace_macros($email_tpl, array(
-				'$sitename' => get_config('system','sitename'),
+				'$sitename' => Config::Get('system','sitename'),
 				'$siteurl' =>  z_root(),
 				'$username' => $account[0]['account_email'],
 				'$email' => $account[0]['account_email'],
@@ -692,14 +693,14 @@ function account_allow($hash) {
 		$res = z_mail(
 			[
 			'toEmail' => $account[0]['account_email'],
-			'messageSubject' => sprintf( t('Registration details for %s'), get_config('system','sitename')),
+			'messageSubject' => sprintf( t('Registration details for %s'), Config::Get('system','sitename')),
 			'textVersion' => $email_msg,
 			]
 		);
 
 		pop_lang();
 
-		if(get_config('system', 'auto_channel_create', 1))
+		if(Config::Get('system', 'auto_channel_create', 1))
 			auto_channel_create($register[0]['uid']);
 
 		if ($res) {
@@ -844,7 +845,7 @@ function account_approve($hash) {
 	if(! $account)
 		return $ret;
 
-	if(get_config('system','auto_channel_create'))
+	if(Config::Get('system','auto_channel_create'))
 		auto_channel_create($register[0]['reg_uid']);
 	else {
 		$_SESSION['login_return_url'] = 'new_channel';
@@ -992,7 +993,7 @@ function downgrade_accounts() {
 	if(! $r)
 		return;
 
-	$basic = get_config('system','default_service_class');
+	$basic = Config::Get('system','default_service_class');
 
 	foreach($r as $rr) {
 		if(($basic) && ($rr['account_service_class']) && ($rr['account_service_class'] != $basic)) {
@@ -1135,7 +1136,7 @@ function service_class_fetch($uid, $property) {
 	if(! x($service_class))
 		return false; // everything is allowed
 
-	$arr = get_config('service_class', $service_class);
+	$arr = Config::Get('service_class', $service_class);
 
 	if(! is_array($arr) || (! count($arr)))
 		return false;
@@ -1169,7 +1170,7 @@ function account_service_class_fetch($aid, $property) {
 	if(! isset($service_class))
 		return false; // everything is allowed
 
-	$arr = get_config('service_class', $service_class);
+	$arr = Config::Get('service_class', $service_class);
 
 	if(! is_array($arr) || (! count($arr)))
 		return false;
@@ -1179,7 +1180,7 @@ function account_service_class_fetch($aid, $property) {
 
 
 function upgrade_link($bbcode = false) {
-	$l = get_config('service_class', 'upgrade_link');
+	$l = Config::Get('service_class', 'upgrade_link');
 	if(! $l)
 		return '';
 	if($bbcode)
@@ -1208,7 +1209,7 @@ function get_account_techlevel($account_id = 0) {
 
 function zar_log($msg='') {
 
-	if(get_config('system', 'register_logfile', 0)) {
+	if(Config::Get('system', 'register_logfile', 0)) {
 		file_put_contents('./zar.log',
 			date('Y-m-d_H:i:s') . ' ' . $msg . ', ip: § ' . $_SERVER['REMOTE_ADDR'] . ' §' . "\n", FILE_APPEND);
 	}

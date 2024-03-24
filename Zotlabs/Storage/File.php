@@ -3,6 +3,7 @@
 namespace Zotlabs\Storage;
 
 use Sabre\DAV;
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libsync;
 
 /**
@@ -240,7 +241,7 @@ class File extends DAV\Node implements DAV\IFile {
 		// There is an Exception "InsufficientStorage" or "PaymentRequired" for
 		// our service class from SabreDAV we could use.
 
-		$maxfilesize = get_config('system', 'maxfilesize');
+		$maxfilesize = Config::Get('system', 'maxfilesize');
 		if (($maxfilesize) && ($size > $maxfilesize)) {
 			attach_delete($c[0]['channel_id'], $this->data['hash']);
 			return;

@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Connect;
 use Zotlabs\Daemon\Master;
 
@@ -58,7 +59,7 @@ class Regate extends \Zotlabs\Web\Controller {
 					// normally, that should never happen here
 					// log suitable for fail2ban also
 					$logmsg = 'ZAR1230S Unexpected registration verification request for '
-							. get_config('system','sitename') . ' arrived from § ' . $ip . ' §';
+							. Config::Get('system','sitename') . ' arrived from § ' . $ip . ' §';
 					zar_log($logmsg);
 					goaway(z_root());
 			}
@@ -118,7 +119,7 @@ class Regate extends \Zotlabs\Web\Controller {
 								$isa = ($isa && ($isa['account_roles'] && ACCOUNT_ROLE_ADMIN));
 
 								// approve contra invite by admin
-								if ($isa && get_config('system','register_policy') == REGISTER_APPROVE) {
+								if ($isa && Config::Get('system','register_policy') == REGISTER_APPROVE) {
 									$flags &= $flags ^ ACCOUNT_PENDING;
 								}
 
@@ -159,7 +160,7 @@ class Regate extends \Zotlabs\Web\Controller {
 
 										$nextpage = 'new_channel';
 
-										$auto_create  = get_config('system', 'auto_channel_create', 1);
+										$auto_create  = Config::Get('system', 'auto_channel_create', 1);
 
 										if($auto_create) {
 
@@ -179,7 +180,7 @@ class Regate extends \Zotlabs\Web\Controller {
 												if($reonar['chan.did1'])
 													set_aconfig($cra['account']['account_id'], 'register', 'channel_address', $reonar['chan.did1']);
 
-												$permissions_role  = get_config('system','default_permissions_role');
+												$permissions_role  = Config::Get('system','default_permissions_role');
 												if($permissions_role)
 													set_aconfig($cra['account']['account_id'], 'register', 'permissions_role', $permissions_role);
 

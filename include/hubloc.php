@@ -5,6 +5,7 @@
  */
 
 use Zotlabs\Daemon\Master;
+use Zotlabs\Lib\Config;
 
 /**
  * @brief Create an array for hubloc table and insert record.
@@ -129,7 +130,7 @@ function remove_obsolete_hublocs() {
 
 	$r = q("select hubloc_id from hubloc where hubloc_url = '%s' and hubloc_sitekey = '%s'",
 		dbesc(z_root()),
-		dbesc(get_config('system', 'pubkey'))
+		dbesc(Config::Get('system', 'pubkey'))
 	);
 	if((! $r) || (! count($r)))
 		return;
@@ -139,11 +140,11 @@ function remove_obsolete_hublocs() {
 	// Do we have any invalid ones?
 
 	$r = q("select hubloc_id, hubloc_hash from hubloc where hubloc_sitekey = '%s' and hubloc_url != '%s'",
-		dbesc(get_config('system', 'pubkey')),
+		dbesc(Config::Get('system', 'pubkey')),
 		dbesc(z_root())
 	);
 	$p = q("select hubloc_id, hubloc_hash from hubloc where hubloc_sitekey != '%s' and hubloc_url = '%s'",
-		dbesc(get_config('system', 'pubkey')),
+		dbesc(Config::Get('system', 'pubkey')),
 		dbesc(z_root())
 	);
 	if(is_array($r) && is_array($p))
@@ -156,7 +157,7 @@ function remove_obsolete_hublocs() {
 
 	logger('remove_obsolete_hublocs: removing ' . count($r) . ' hublocs.');
 
-	$interval = get_config('queueworker', 'queue_interval', 500000);
+	$interval = Config::Get('queueworker', 'queue_interval', 500000);
 
 	foreach($r as $rr) {
 		q("update hubloc set hubloc_deleted = 1 where hubloc_id = %d",

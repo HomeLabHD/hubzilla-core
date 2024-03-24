@@ -3,6 +3,7 @@
 namespace Zotlabs\Module;
 
 use App;
+use Zotlabs\Lib\Config;
 use Zotlabs\Web\Controller;
 
 require_once('include/security.php');
@@ -63,7 +64,7 @@ class Register extends Controller {
 		$act          = q("SELECT COUNT(*) AS act FROM account")[0]['act'];
 		$is247        = false;
 		$ip           = $_SERVER['REMOTE_ADDR'];
-		$sameip       = intval(get_config('system','register_sameip', 3));
+		$sameip       = intval(Config::Get('system','register_sameip', 3));
 		$arr          = $_POST;
 		$invite_code  = ((x($arr,'invite_code'))   ? notags(trim($arr['invite_code']))   : '');
 		$name         = '';
@@ -73,10 +74,10 @@ class Register extends Controller {
 		$password2    = ((x($arr,'password2'))      ? trim($arr['password2'])            : '');
 		$register_msg = ((x($arr,'register_msg'))   ? notags(trim($arr['register_msg']))   : '');
 		$reonar       = [];
-		$auto_create  = get_config('system','auto_channel_create', 1);
+		$auto_create  = Config::Get('system','auto_channel_create', 1);
 		$duty         = zar_register_dutystate();
 
-		if (!get_config('system', 'register_duty_jso')) {
+		if (!Config::Get('system', 'register_duty_jso')) {
 			// if not yet configured default to true
 			$duty = array( 'isduty' => true, 'atfrm' => '', 'nowfmt' => '');
 		}
@@ -107,7 +108,7 @@ class Register extends Controller {
 			}
 		}
 
-		$email_verify = get_config('system', 'verify_email');
+		$email_verify = Config::Get('system', 'verify_email');
 		if ($email_verify && !$email) {
 			notice(t('Email address required') . EOL);
 			return;
@@ -180,9 +181,9 @@ class Register extends Controller {
 			return;
 		}
 
-		$policy  = get_config('system','register_policy');
-		$invonly = get_config('system','invitation_only');
-		$invalso = get_config('system','invitation_also');
+		$policy  = Config::Get('system','register_policy');
+		$invonly = Config::Get('system','invitation_only');
+		$invalso = Config::Get('system','invitation_also');
 
 		switch($policy) {
 
@@ -306,11 +307,11 @@ class Register extends Controller {
 
 			if($policy == REGISTER_OPEN || $policy == REGISTER_APPROVE ) {
 
-				$cfgdelay = get_config('system', 'register_delay', '0i');
+				$cfgdelay = Config::Get('system', 'register_delay', '0i');
 				$reg_delayed = calculate_adue( $cfgdelay );
 				$regdelay = (($reg_delayed) ? datetime_convert(date_default_timezone_get(), 'UTC', $reg_delayed['due']) : $now);
 
-				$cfgexpire = get_config('system', 'register_expire', '3d');
+				$cfgexpire = Config::Get('system', 'register_expire', '3d');
 				$reg_expires = calculate_adue( $cfgexpire );
 				$regexpire = (($reg_expires) ? datetime_convert(date_default_timezone_get(), 'UTC', $reg_expires['due']) : datetime_convert('UTC', 'UTC', 'now + 99 years'));
 
@@ -323,12 +324,12 @@ class Register extends Controller {
 					$didx  = 'e';
 
 					push_lang(($reg['lang']) ? $reg['lang'] : App::$language);
-					$reonar['from'] = get_config('system', 'from_email');
+					$reonar['from'] = Config::Get('system', 'from_email');
 					$reonar['to'] = $email;
-					$reonar['subject'] = sprintf( t('Registration confirmation for %s'), get_config('system','sitename'));
+					$reonar['subject'] = sprintf( t('Registration confirmation for %s'), Config::Get('system','sitename'));
 					$reonar['txttemplate']= replace_macros(get_intltext_template('register_verify_member.tpl'),
 						[
-						'$sitename'  => get_config('system','sitename'),
+						'$sitename'  => Config::Get('system','sitename'),
 						'$siteurl'   => z_root(),
 						'$email'     => $email,
 						'$timeframe' => [$regdelay, $regexpire],
@@ -430,8 +431,8 @@ class Register extends Controller {
 		$registration_is = '';
 		$other_sites = '';
 
-		if(intval(get_config('system','register_policy')) === REGISTER_CLOSED) {
-			if(intval(get_config('system','directory_mode')) === DIRECTORY_MODE_STANDALONE) {
+		if(intval(Config::Get('system','register_policy')) === REGISTER_CLOSED) {
+			if(intval(Config::Get('system','directory_mode')) === DIRECTORY_MODE_STANDALONE) {
 				notice(t('Registration on this hub is disabled.')  . EOL);
 				return;
 			}
@@ -440,24 +441,24 @@ class Register extends Controller {
 			return $mod->get();
 		}
 
-		if(intval(get_config('system','register_policy')) == REGISTER_APPROVE) {
+		if(intval(Config::Get('system','register_policy')) == REGISTER_APPROVE) {
 			$registration_is = t('Registration on this hub is by approval only.');
 			$other_sites = '<a href="pubsites">' . t('Register at another affiliated hub in case when prefered') . '</a>';
 		}
 
 		$duty = zar_register_dutystate();
 
-		if (!get_config('system', 'register_duty_jso')) {
+		if (!Config::Get('system', 'register_duty_jso')) {
 			// if not yet configured default to true
 			$duty = array( 'isduty' => true, 'atfrm' => '', 'nowfmt' => '');
 		}
 
 		$invitations = false;
-		if(intval(get_config('system','invitation_only'))) {
+		if(intval(Config::Get('system','invitation_only'))) {
 			$invitations = true;
 			$registration_is = t('Registration on this hub is by invitation only.');
 			$other_sites = '<a href="pubsites">' . t('Register at another affiliated hub') . '</a>';
-		} elseif (intval(get_config('system','invitation_also'))) {
+		} elseif (intval(Config::Get('system','invitation_also'))) {
 			$invitations = true;
 		}
 
@@ -466,7 +467,7 @@ class Register extends Controller {
 			 $duty['atform'] = 'disabled';
 
 		// Configurable terms of service link
-		$tosurl = get_config('system','tos_url');
+		$tosurl = Config::Get('system','tos_url');
 		if(! $tosurl)
 			$tosurl = z_root() . '/help/TermsOfService';
 
@@ -475,21 +476,21 @@ class Register extends Controller {
 		// Configurable whether to restrict age or not - default is based on international legal requirements
 		// This can be relaxed if you are on a restricted server that does not share with public servers
 
-		if(get_config('system','no_age_restriction')) {
+		if(Config::Get('system','no_age_restriction')) {
 			$label_tos = sprintf( t('I accept the %s for this website'), $toslink);
 		}
 		else {
-			$age = get_config('system','minimum_age');
+			$age = Config::Get('system','minimum_age');
 			if(!$age) {
 				$age = 13;
 			}
 			$label_tos = sprintf( t('I am over %s years of age and accept the %s for this website'), $age, $toslink);
 		}
 
-		$enable_tos = 1 - intval(get_config('system','no_termsofservice'));
+		$enable_tos = 1 - intval(Config::Get('system','no_termsofservice'));
 
-		$auto_create  = get_config('system', 'auto_channel_create', 1);
-		$email_verify = get_config('system','verify_email');
+		$auto_create  = Config::Get('system', 'auto_channel_create', 1);
+		$email_verify = Config::Get('system','verify_email');
 
 		$emailval = ((x($_REQUEST,'email')) ? strip_tags(trim($_REQUEST['email'])) : "");
 		$email = ['email',
@@ -506,7 +507,7 @@ class Register extends Controller {
 		$invite_code  = array('invite_code', t('Please enter your invitation code'), ((x($_REQUEST,'invite_code')) ? strip_tags(trim($_REQUEST['invite_code'])) : ""));
 
 		$name = array('name', t('Your name'), ((x($_REQUEST,'name')) ? $_REQUEST['name'] : ''), t('Real name is preferred'), '', '', $duty['atform']);
-		$nickhub = '@' . str_replace(array('http://','https://','/'), '', get_config('system','baseurl'));
+		$nickhub = '@' . str_replace(array('http://','https://','/'), '', Config::Get('system','baseurl'));
 		$nickname = array('nickname', t('Choose a short nickname'),	((x($_REQUEST,'nickname')) ? $_REQUEST['nickname'] : ''), t('Your nickname will be used to create an easy to remember channel address'), '', '', $duty['atform']);
 
 		$tos = array('tos', $label_tos, ((x($_REQUEST,'tos')) ? $_REQUEST['tos'] : ''), '', [t('No'),t('Yes')], $duty['atform']);
@@ -520,7 +521,7 @@ class Register extends Controller {
 			'$title'        => t('Registration'),
 			'$reg_is'       => $registration_is,
 			'$register_msg' => $register_msg,
-			'$registertext' => bbcode(get_config('system','register_text')),
+			'$registertext' => bbcode(Config::Get('system','register_text')),
 			'$other_sites'  => $other_sites,
 			'$msg'          => $opal['msg'],
 			'$invitations'  => $invitations,
@@ -551,7 +552,7 @@ class Register extends Controller {
 		// check against register, account
 		$rear = array( 'is' => false, 'rn' => 0, 'an' => 0, 'msg' => '' );
 
-		$max_dailies = intval(get_config('system', 'max_daily_registrations', 50));
+		$max_dailies = intval(Config::Get('system', 'max_daily_registrations', 50));
 
 		if ($max_dailies) {
 

@@ -1,6 +1,7 @@
 <?php /** @file */
 
 use Zotlabs\Daemon\Master;
+use Zotlabs\Lib\Config;
 
 function abook_store_lowlevel($arr) {
 
@@ -238,7 +239,7 @@ function abook_toggle_flag($abook,$flag) {
 
 function mark_orphan_hubsxchans() {
 
-	$dirmode = intval(get_config('system','directory_mode'));
+	$dirmode = intval(Config::Get('system','directory_mode'));
 	if($dirmode == DIRECTORY_MODE_NORMAL)
 		return;
 
@@ -511,8 +512,8 @@ function remove_abook_items($channel_id, $xchan_hash) {
 function random_profile() {
 	$randfunc = db_getfunc('rand');
 
-	$checkrandom = get_config('randprofile','check'); // False by default
-	$retryrandom = intval(get_config('randprofile','retry'));
+	$checkrandom = Config::Get('randprofile','check'); // False by default
+	$retryrandom = intval(Config::Get('randprofile','retry'));
 	if($retryrandom == 0) $retryrandom = 5;
 
 	for($i = 0; $i < $retryrandom; $i++) {

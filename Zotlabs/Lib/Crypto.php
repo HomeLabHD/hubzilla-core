@@ -3,6 +3,7 @@
 namespace Zotlabs\Lib;
 
 use Exception;
+use Zotlabs\Lib\Config;
 
 class Crypto {
 
@@ -44,7 +45,7 @@ class Crypto {
 			'encrypt_key'      => false
 		];
 
-		$conf = get_config('system', 'openssl_conf_file');
+		$conf = Config::Get('system', 'openssl_conf_file');
 
 		if ($conf) {
 			$openssl_options['config'] = $conf;

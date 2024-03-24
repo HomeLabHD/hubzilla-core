@@ -3,6 +3,7 @@
 namespace Zotlabs\Module;
 
 use App;
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Web\Controller;
 use Zotlabs\Web\HTTPSig;
@@ -20,7 +21,7 @@ class Home extends Controller {
 		call_hooks('home_init', $ret);
 
 		if (Libzot::is_zot_request()) {
-			$key = get_config('system', 'prvkey');
+			$key = Config::Get('system', 'prvkey');
 			$ret = json_encode(Libzot::site_info());
 
 			$headers                     = ['Content-Type' => 'application/x-zot+json', 'Digest' => HTTPSig::generate_digest_header($ret)];
@@ -38,7 +39,7 @@ class Home extends Controller {
 		if (local_channel() && $channel && $channel['xchan_url'] && !$splash) {
 			$dest = $ret['startpage'] ?? '';
 			if (!$dest)
-				$dest = get_config('system', 'startpage');
+				$dest = Config::Get('system', 'startpage');
 			if (!$dest)
 				$dest = z_root() . '/hq';
 
@@ -78,7 +79,7 @@ class Home extends Controller {
 		if ($o)
 			return $o;
 
-		$frontpage = get_config('system', 'frontpage');
+		$frontpage = Config::Get('system', 'frontpage');
 		if ($frontpage) {
 			if (strpos($frontpage, 'include:') !== false) {
 				$file = trim(str_replace('include:', '', $frontpage));
@@ -91,7 +92,7 @@ class Home extends Controller {
 			}
 			if (strpos($frontpage, 'http') !== 0)
 				$frontpage = z_root() . '/' . $frontpage;
-			if (intval(get_config('system', 'mirror_frontpage'))) {
+			if (intval(Config::Get('system', 'mirror_frontpage'))) {
 				$o = '<html><head><title>' . t('$Projectname') . '</title></head><body style="margin: 0; padding: 0; border: none;" ><iframe src="' . $frontpage . '" width="100%" height="100%" style="margin: 0; padding: 0; border: none;" ></iframe></body></html>';
 				echo $o;
 				killme();
@@ -99,11 +100,11 @@ class Home extends Controller {
 			goaway($frontpage);
 		}
 
-		$sitename = get_config('system', 'sitename');
+		$sitename = Config::Get('system', 'sitename');
 		if ($sitename)
 			$o .= '<h1 class="home-welcome">' . sprintf(t('Welcome to %s'), $sitename) . '</h1>';
 
-		$loginbox = get_config('system', 'login_on_homepage');
+		$loginbox = Config::Get('system', 'login_on_homepage');
 		if (intval($loginbox) || $loginbox === false)
 			$o .= login(true);
 

@@ -3,8 +3,9 @@
 namespace Zotlabs\Lib;
 
 use App;
-use Zotlabs\Lib\Apps;
 use Zotlabs\Access\AccessList;
+use Zotlabs\Lib\Apps;
+use Zotlabs\Lib\Config;
 
 require_once('include/text.php');
 
@@ -41,7 +42,7 @@ class ThreadItem {
 
 		$this->data = $data;
 		$this->toplevel = ($this->get_id() == $this->get_data_value('parent'));
-		$this->threaded = get_config('system','thread_allow');
+		$this->threaded = Config::Get('system','thread_allow');
 
 		$observer = \App::get_observer();
 
@@ -70,7 +71,7 @@ class ThreadItem {
 
 		// allow a site to configure the order and content of the reaction emoji list
 		if($this->toplevel) {
-			$x = get_config('system','reactions');
+			$x = Config::Get('system','reactions');
 			if($x && is_array($x) && count($x)) {
 				$this->reactions = $x;
 			}
@@ -347,12 +348,12 @@ class ThreadItem {
 
 		$dreport = '';
 
-		$keep_reports = intval(get_config('system','expire_delivery_reports'));
+		$keep_reports = intval(Config::Get('system','expire_delivery_reports'));
 		if($keep_reports === 0)
 			$keep_reports = 10;
 
 		$dreport_link = '';
-		if((intval($item['item_type']) == ITEM_TYPE_POST) && (! get_config('system','disable_dreport')) && strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC',"now - $keep_reports days")) > 0) {
+		if((intval($item['item_type']) == ITEM_TYPE_POST) && (! Config::Get('system','disable_dreport')) && strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC',"now - $keep_reports days")) > 0) {
 			$dreport = t('Delivery Report');
 			$dreport_link = '?mid=' . $item['mid'];
 		}
@@ -397,7 +398,7 @@ class ThreadItem {
 		$json_mids = json_encode($mids);
 
 		// Pinned item processing
-		$allowed_type = (in_array($item['item_type'], get_config('system', 'pin_types', [ ITEM_TYPE_POST ])) ? true : false);
+		$allowed_type = (in_array($item['item_type'], Config::Get('system', 'pin_types', [ ITEM_TYPE_POST ])) ? true : false);
 		$pinned_items = ($allowed_type ? get_pconfig($item['uid'], 'pinned', $item['item_type'], []) : []);
 		$pinned = ((!empty($pinned_items) && in_array($midb64, $pinned_items)) ? true : false);
 
@@ -549,7 +550,7 @@ class ThreadItem {
 		$result['children'] = array();
 		$nb_children = count($children);
 
-		$visible_comments = get_config('system','expanded_comments');
+		$visible_comments = Config::Get('system','expanded_comments');
 		if($visible_comments === false)
 			$visible_comments = 3;
 
@@ -826,7 +827,7 @@ class ThreadItem {
 	 */
 	private function get_comment_box() {
 
-		if(!$this->is_toplevel() && !get_config('system','thread_allow')) {
+		if(!$this->is_toplevel() && !Config::Get('system','thread_allow')) {
 			return '';
 		}
 

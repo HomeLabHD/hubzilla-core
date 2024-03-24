@@ -19,7 +19,9 @@ require_once('include/cli_startup.php');
 
 cli_startup();
 
-	$plugs = get_config('system', 'addon');
+use Zotlabs\Lib\Config;
+
+	$plugs = Config::Get('system', 'addon');
 	$plugins_arr = array();
 
 	if($plugs)
@@ -42,7 +44,7 @@ cli_startup();
 					if ($idz !== false) {
 						unset(App::$plugins[$idz]);
 						uninstall_plugin($id);
-						set_config("system","addon", implode(", ",App::$plugins));
+						Config::Set("system","addon", implode(", ",App::$plugins));
 					}
 				}
 				$info['disabled'] = 1-intval($x);
@@ -65,7 +67,7 @@ if($argc == 2 && $argv[1] === 'list') {
 				echo $p[0] . "\n";
 			}
 		}
-	} 
+	}
 	killme();
 }
 
@@ -89,7 +91,7 @@ if($argc == 3 && $argv[1] === 'list' && $argv[2] === 'all') {
 		foreach($plugins as $p) {
 			echo $p[0] . (($p[1]) ? $p[1] : (($p[2]['disabled']) ? '!' : '')) . "\n";
 		}
-	} 
+	}
 
 	killme();
 }
@@ -107,12 +109,12 @@ if($argc == 3 && $argv[1] === 'install') {
 				else {
 					App::$plugins[] = $p[0];
 					install_plugin($p[0]);
-					set_config("system","addon", implode(", ",App::$plugins));
+					Config::Set("system","addon", implode(", ",App::$plugins));
 					echo $p[0] . ' installed.' . "\n";
 				}
 			}
 		}
-	} 
+	}
 
 	killme();
 }
@@ -136,12 +138,12 @@ if($argc == 3 && $argv[1] === 'uninstall') {
 					if ($idx !== false)
 						unset(App::$plugins[$idx]);
 					uninstall_plugin($p[0]);
-					set_config("system","addon", implode(", ",App::$plugins));
+					Config::Set("system","addon", implode(", ",App::$plugins));
 					echo $p[0] . ' uninstalled.' . "\n";
 				}
 			}
 		}
-	} 
+	}
 
 	// force uninstall of addon which no longer exists
 
@@ -150,7 +152,7 @@ if($argc == 3 && $argv[1] === 'uninstall') {
 		if ($idx !== false)
 			unset(App::$plugins[$idx]);
 		uninstall_plugin($argv[2]);
-		set_config("system","addon", implode(", ",App::$plugins));
+		Config::Set("system","addon", implode(", ",App::$plugins));
 		echo $argv[2] . ' uninstalled.' . "\n";
 	}
 

@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Daemon;
 
+use Zotlabs\Lib\Config;
 
 class Thumbnail {
 
@@ -19,9 +20,9 @@ class Thumbnail {
 
 		$attach = $c[0];
 
-		$preview_style  = intval(get_config('system', 'thumbnail_security', 0));
-		$preview_width  = intval(get_config('system', 'thumbnail_width', 300));
-		$preview_height = intval(get_config('system', 'thumbnail_height', 300));
+		$preview_style  = intval(Config::Get('system', 'thumbnail_security', 0));
+		$preview_width  = intval(Config::Get('system', 'thumbnail_width', 300));
+		$preview_height = intval(Config::Get('system', 'thumbnail_height', 300));
 
 		$p = [
 			'attach'         => $attach,
