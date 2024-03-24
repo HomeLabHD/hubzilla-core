@@ -1060,8 +1060,8 @@ function bb_fix_lf($match) {
 	// be converted to '<br />' and turn your neatly crafted tables into a whole lot of
 	// empty space.
 
-	$new_content =  str_replace(["\n\r", "\n", "\r"], '', $match[1]);
-	return  str_replace($match[1], $new_content, $match[0]);
+	$new_content = preg_replace("/\]\s+\[/",'][', $match[1]);
+	return  str_replace($match[1], trim($new_content, "\r\n"), $match[0]);
 }
 
 function bbtopoll($s) {
@@ -1554,6 +1554,20 @@ function bbcode($text, $options = []) {
 		$text = preg_replace_callback("/\[checklist\](.*?)\[\/checklist\]/ism", 'bb_checklist', $text);
 	}
 
+
+	if (strpos($text,'[/table]') !== false) {
+		$text = str_replace(["[/table]\r", "[/table]\n"], '[/table]', $text);
+
+		$text = preg_replace_callback("/\[table\](.*?)\[\/table\]/ism",'bb_fix_lf',$text);
+		$text = preg_replace("/\[table\](.*?)\[\/table\]/sm", '<table>$1</table>', $text);
+
+		$text = preg_replace_callback("/\[table border=1\](.*?)\[\/table\]/ism",'bb_fix_lf',$text);
+		$text = preg_replace("/\[table border=1\](.*?)\[\/table\]/sm", '<table class="table table-responsive table-bordered" >$1</table>', $text);
+
+		$text = preg_replace_callback("/\[table border=0\](.*?)\[\/table\]/ism",'bb_fix_lf',$text);
+		$text = preg_replace("/\[table border=0\](.*?)\[\/table\]/sm", '<table class="table table-responsive" >$1</table>', $text);
+	}
+
 	if (strpos($text,'[th]') !== false) {
 		$text = preg_replace("/\[th\](.*?)\[\/th\]/sm", '<th>$1</th>', $text);
 	}
@@ -1564,13 +1578,6 @@ function bbcode($text, $options = []) {
 
 	if (strpos($text,'[tr]') !== false) {
 		$text = preg_replace("/\[tr\](.*?)\[\/tr\]/sm", '<tr>$1</tr>', $text);
-	}
-
-	if (strpos($text,'[/table]') !== false) {
-		$text = preg_replace_callback("/\[table\](.*?)\[\/table\]/ism",'bb_fix_lf',$text);
-		$text = preg_replace("/\[table\](.*?)\[\/table\]/sm", '<table>$1</table>', $text);
-		$text = preg_replace("/\[table border=1\](.*?)\[\/table\]/sm", '<table class="table table-responsive table-bordered" >$1</table>', $text);
-		$text = preg_replace("/\[table border=0\](.*?)\[\/table\]/sm", '<table class="table table-responsive" >$1</table>', $text);
 	}
 
 	$text = str_replace('[hr]', '<hr />', $text);

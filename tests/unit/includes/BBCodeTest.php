@@ -111,13 +111,25 @@ class BBCodeTest extends UnitTestCase {
 				"some text\n[list]\n[*] item1\n[*] item2\n[/list]\nsome more text",
 				'some text<br /><ul class="listbullet"><li> item1<li> item2</ul>some more text'
 			],
+			'list with linebreaks \n in text' => [
+				"some text\n[list]\n[*] item1\nsome text[*] item2\nsome text[/list]\nsome more text",
+				'some text<br /><ul class="listbullet"><li> item1<br />some text<li> item2<br />some text</ul>some more text'
+			],
 			'list with linebreaks \r' => [
 				"some text\r[list]\r[*] item1\r[*] item2\r[/list]\rsome more text",
 				'some text<br /><ul class="listbullet"><li> item1<li> item2</ul>some more text'
 			],
+			'list with linebreaks \r in text' => [
+				"some text\r[list]\r[*] item1\rsome text\r[*] item2\rsome text\r[/list]\rsome more text",
+				'some text<br /><ul class="listbullet"><li> item1<br />some text<li> item2<br />some text</ul>some more text'
+			],
 			'list with linebreaks \r\n' => [
 				"some text\r\n[list]\r\n[*] item1\r\n[*] item2\r\n[/list]\r\nsome more text",
 				'some text<br /><ul class="listbullet"><li> item1<li> item2</ul>some more text'
+			],
+			'list with linebreaks \r\n in text' => [
+				"some text\r\n[list]\r\n[*] item1\r\nsome text[*] item2\r\nsome text[/list]\r\nsome more text",
+				'some text<br /><ul class="listbullet"><li> item1<br />some text<li> item2<br />some text</ul>some more text'
 			]
 		];
 	}
