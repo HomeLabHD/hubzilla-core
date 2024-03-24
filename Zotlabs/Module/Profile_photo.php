@@ -4,6 +4,7 @@ namespace Zotlabs\Module;
 
 use App;
 use Zotlabs\Daemon\Master;
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libsync;
 use Zotlabs\Web\Controller;
 
@@ -599,7 +600,7 @@ class Profile_photo extends Controller {
 
 	function profile_photo_crop_ui_head($ph, $hash, $smallest) {
 
-		$max_length = get_config('system', 'max_image_length');
+		$max_length = Config::Get('system', 'max_image_length');
 
 		if (!$max_length) {
 			$max_length = MAX_IMAGE_LENGTH;

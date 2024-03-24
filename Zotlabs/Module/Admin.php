@@ -8,6 +8,8 @@
 
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Config;
+
 require_once('include/account.php');
 
 /**
@@ -149,7 +151,7 @@ class Admin extends \Zotlabs\Web\Controller {
 			'$vmaster'  => array( t('Repository version (master)'), $vmaster),
 			'$vdev'     => array( t('Repository version (dev)'), $vdev),
 			'$upgrade'  => $upgrade,
-			'$build'    => get_config('system', 'db_version')
+			'$build'    => Config::Get('system', 'db_version')
 		));
 	}
 

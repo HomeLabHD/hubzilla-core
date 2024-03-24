@@ -11,11 +11,12 @@
  * @todo Also an 'append' option to the storage function might be a useful addition.
  */
 
-use Zotlabs\Lib\Libsync;
-use Zotlabs\Lib\Activity;
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Daemon\Master;
 use Zotlabs\Lib\AccessList;
+use Zotlabs\Lib\Activity;
+use Zotlabs\Lib\Config;
+use Zotlabs\Lib\Libsync;
 
 require_once('include/permissions.php');
 require_once('include/security.php');
@@ -801,7 +802,7 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 
 	// Check storage limits
 	if($options !== 'update') {
-		$maxfilesize = get_config('system','maxfilesize');
+		$maxfilesize = Config::Get('system','maxfilesize');
 
 		if(($maxfilesize) && ($filesize > $maxfilesize)) {
 			logger('quota_exceeded');

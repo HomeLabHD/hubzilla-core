@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Config;
 
 class Email_validation extends \Zotlabs\Web\Controller {
 
@@ -12,8 +13,8 @@ class Email_validation extends \Zotlabs\Web\Controller {
 			// This will redirect internally on success unless the channel is auto_created
 			if(account_approve(trim(basename($_POST['token'])))) {
 				$success = true;
-				if(get_config('system','auto_channel_create')) {
-					$next_page = get_config('system', 'workflow_channel_next', 'profiles');		
+				if(Config::Get('system','auto_channel_create')) {
+					$next_page = Config::Get('system', 'workflow_channel_next', 'profiles');
 				}
 				if($next_page) {
 					goaway(z_root() . '/' . $next_page);
@@ -40,7 +41,7 @@ class Email_validation extends \Zotlabs\Web\Controller {
 			'$submit' => t('Submit'),
 			'$token' => [ 'token', t('Validation token'),'','' ],
 		]);
-		
+
 		return $o;
 
 	}

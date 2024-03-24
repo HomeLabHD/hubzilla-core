@@ -4,6 +4,7 @@ namespace Zotlabs\Module;
 
 use App;
 use Zotlabs\Lib\Apps;
+use Zotlabs\Lib\Config;
 use Zotlabs\Web\Controller;
 use Zotlabs\Lib\Enotify;
 use Zotlabs\Lib\XConfig;
@@ -424,7 +425,7 @@ class Sse_bs extends Controller {
 			return $result;
 		}
 
-		if(! intval(get_config('system','open_pubstream',1))) {
+		if(! intval(Config::Get('system','open_pubstream',1))) {
 			if(! get_observer_hash()) {
 				$result['pubs']['offset'] = -1;
 				return $result;
@@ -459,7 +460,7 @@ class Sse_bs extends Controller {
 
 		$uids = " AND uid IN ( " . $sys['channel_id'] . " ) ";
 
-		$site_firehose = get_config('system', 'site_firehose', 0);
+		$site_firehose = Config::Get('system', 'site_firehose', 0);
 		if($site_firehose) {
 			$uids = " AND uid IN ( " . stream_perms_api_uids(PERMS_PUBLIC) . " ) AND item_private = 0 AND item_wall = 1 ";
 		}
@@ -732,7 +733,7 @@ class Sse_bs extends Controller {
 		if(! self::$uid && ! is_site_admin())
 			return $result;
 
-		$policy  = intval(get_config('system','register_policy'));
+		$policy  = intval(Config::Get('system','register_policy'));
 		if(($policy & REGISTER_APPROVE) != REGISTER_APPROVE)
 			return $result;
 

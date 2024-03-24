@@ -1,20 +1,20 @@
 <?php
 namespace Zotlabs\Module; /** @file */
 
-
+use Zotlabs\Lib\Config;
 
 class Service_limits extends \Zotlabs\Web\Controller {
 
 	function get() {
-	
+
 		if(! local_channel()) {
 			notice( t('Permission denied.') . EOL);
 			return;
 		}
-	
+
 		$account = \App::get_account();
 		if($account['account_service_class']) {
-			$x =  get_config('service_class',$account['account_service_class']);
+			$x =  Config::Get('service_class',$account['account_service_class']);
 			if($x) {
 				$o = print_r($x,true);
 				return $o;
@@ -22,7 +22,7 @@ class Service_limits extends \Zotlabs\Web\Controller {
 		}
 		return t('No service class restrictions found.');
 	}
-			
-	
-			
+
+
+
 }

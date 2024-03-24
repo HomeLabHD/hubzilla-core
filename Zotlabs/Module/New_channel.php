@@ -2,6 +2,7 @@
 namespace Zotlabs\Module;
 
 use URLify;
+use Zotlabs\Lib\Config;
 
 require_once('include/channel.php');
 require_once('include/permissions.php');
@@ -20,7 +21,7 @@ class New_channel extends \Zotlabs\Web\Controller {
 
 			$x = false;
 
-			if(get_config('system','unicode_usernames')) {
+			if(Config::Get('system','unicode_usernames')) {
 				$x = punify(mb_strtolower($n));
 			}
 
@@ -55,7 +56,7 @@ class New_channel extends \Zotlabs\Web\Controller {
 
 			$x = false;
 
-			if(get_config('system','unicode_usernames')) {
+			if(Config::Get('system','unicode_usernames')) {
 				$x = punify(mb_strtolower($n));
 			}
 
@@ -117,7 +118,7 @@ class New_channel extends \Zotlabs\Web\Controller {
 
 		change_channel($result['channel']['channel_id']);
 
-		$next_page = get_config('system', 'workflow_channel_next', 'profiles');
+		$next_page = Config::Get('system', 'workflow_channel_next', 'profiles');
 		goaway(z_root() . '/' . $next_page);
 
 	}
@@ -138,7 +139,7 @@ class New_channel extends \Zotlabs\Web\Controller {
 				intval($aid)
 			);
 			if($r && (! intval($r[0]['total']))) {
-				$default_role = get_config('system','default_permissions_role','personal');
+				$default_role = Config::Get('system','default_permissions_role','personal');
 			}
 
 			$limit = account_service_class_fetch(get_account_id(),'total_identities');
@@ -163,7 +164,7 @@ class New_channel extends \Zotlabs\Web\Controller {
 
 		$nick_help = '<span id="nick_help_loading" style="display:none">' . t('Loading') . '</span><span id="nick_help_text">';
 		$nick_help .= t('This will be used to create a unique network address (like an email address).');
-		if(! get_config('system','unicode_usernames')) {
+		if(! Config::Get('system','unicode_usernames')) {
 			$nick_help .= ' ' . t('Allowed characters are a-z 0-9, - and _');
 		}
 		$nick_help .= '<span>';

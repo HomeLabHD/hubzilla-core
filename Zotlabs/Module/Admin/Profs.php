@@ -2,11 +2,12 @@
 
 namespace Zotlabs\Module\Admin;
 
+use Zotlabs\Lib\Config;
 
 class Profs {
 
 	function post() {
-	
+
 		if(array_key_exists('basic',$_REQUEST)) {
 			$arr = explode(',',$_REQUEST['basic']);
 			array_walk($arr,'array_trim');
@@ -19,9 +20,9 @@ class Profs {
 				}
 			}
 			if(! $narr)
-				del_config('system','profile_fields_basic');
+				Config::Delete('system','profile_fields_basic');
 			else
-				set_config('system','profile_fields_basic',$narr);
+				Config::Set('system','profile_fields_basic',$narr);
 
 
 			if(array_key_exists('advanced',$_REQUEST)) {
@@ -36,15 +37,15 @@ class Profs {
 					}
 				}
 				if(! $narr)
-					del_config('system','profile_fields_advanced');
+					Config::Delete('system','profile_fields_advanced');
 				else
-					set_config('system','profile_fields_advanced',$narr);
+					Config::Set('system','profile_fields_advanced',$narr);
 
 			}
 			goaway(z_root() . '/admin/profs');
 		}
-	
-	
+
+
 		if(array_key_exists('field_name',$_REQUEST)) {
 			if($_REQUEST['id']) {
 				$r = q("update profdef set field_name = '%s', field_type = '%s', field_desc = '%s' field_help = '%s', field_inputs = '%s' where id = %d",
@@ -66,24 +67,24 @@ class Profs {
 				);
 			}
 		}
-	
-	
+
+
 		// add to chosen array basic or advanced
-	
+
 		goaway(z_root() . '/admin/profs');
 	}
-	
+
 	function get() {
-	
+
 		if((argc() > 3) && argv(2) == 'drop' && intval(argv(3))) {
 			$r = q("delete from profdef where id = %d",
 				intval(argv(3))
 			);
 			// remove from allowed fields
-	
-			goaway(z_root() . '/admin/profs');	
+
+			goaway(z_root() . '/admin/profs');
 		}
-	
+
 		if((argc() > 2) && argv(2) === 'new') {
 			return replace_macros(get_markup_template('profdef_edit.tpl'),array(
 				'$header' => t('New Profile Field'),
@@ -94,7 +95,7 @@ class Profs {
 				'$submit' => t('Save')
 			));
 		}
-	
+
 		if((argc() > 2) && intval(argv(2))) {
 			$r = q("select * from profdef where id = %d limit 1",
 				intval(argv(2))
@@ -103,7 +104,7 @@ class Profs {
 				notice( t('Field definition not found') . EOL);
 				goaway(z_root() . '/admin/profs');
 			}
-	
+
 			return replace_macros(get_markup_template('profdef_edit.tpl'),array(
 				'$id' => intval($r[0]['id']),
 				'$header' => t('Edit Profile Field'),
@@ -114,7 +115,7 @@ class Profs {
 				'$submit' => t('Save')
 			));
 		}
-	
+
 		$basic = '';
 		$barr = array();
 		$fields = get_profile_fields_basic();
@@ -129,7 +130,7 @@ class Profs {
 				$barr[] = trim($k);
 			}
 		}
-	
+
 		$advanced = '';
 		$fields = get_profile_fields_advanced();
 		if(! $fields)
@@ -143,7 +144,7 @@ class Profs {
 				$advanced .= trim($k);
 			}
 		}
-	
+
 		$all = '';
 		$fields = get_profile_fields_advanced(1);
 		if($fields) {
@@ -153,7 +154,7 @@ class Profs {
 				$all .= trim($k);
 			}
 		}
-	
+
 		$r = q("select * from profdef where true");
 		if($r) {
 			foreach($r as $rr) {
@@ -162,8 +163,8 @@ class Profs {
 				$all .= $rr['field_name'];
 			}
 		}
-	
-		
+
+
 		$o = replace_macros(get_markup_template('admin_profiles.tpl'),array(
 			'$title' => t('Profile Fields'),
 			'$basic' => array('basic',t('Basic Profile Fields'),$basic,''),
@@ -174,13 +175,13 @@ class Profs {
 			'$cust_fields' => $r,
 			'$edit' => t('Edit'),
 			'$drop' => t('Delete'),
-			'$new' => t('Create Custom Field'),		
+			'$new' => t('Create Custom Field'),
 			'$submit' => t('Submit')
 		));
-	
+
 		return $o;
-	
-	
+
+
 	}
 
 

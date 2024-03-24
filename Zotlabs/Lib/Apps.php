@@ -3,6 +3,7 @@
 namespace Zotlabs\Lib;
 
 use App;
+use Zotlabs\Lib\Config;
 
 require_once('include/plugin.php');
 require_once('include/channel.php');
@@ -65,7 +66,7 @@ class Apps {
 	}
 
 	static public function get_base_apps() {
-		$x = get_config('system','base_apps',[
+		$x = Config::Get('system','base_apps',[
 			'Connections',
 			'Contact Roles',
 			'Network',
@@ -301,7 +302,7 @@ class Apps {
 						break;
 					default:
 						if($config)
-							$unset = ((get_config('system', $require[0]) == $require[1]) ? false : true);
+							$unset = ((Config::Get('system', $require[0]) == $require[1]) ? false : true);
 						else
 							$unset = ((local_channel() && feature_enabled(local_channel(),$require)) ? false : true);
 						if($unset)
@@ -523,7 +524,7 @@ class Apps {
 							break;
 						default:
 							if($config)
-								$unset = ((get_config('system', $require[0]) === $require[1]) ? false : true);
+								$unset = ((Config::Get('system', $require[0]) === $require[1]) ? false : true);
 							else
 								$unset = ((local_channel() && feature_enabled(local_channel(),$require)) ? false : true);
 							if($unset)
@@ -960,7 +961,7 @@ class Apps {
 
 		$conf = (($menu === 'nav_featured_app') ? 'app_order' : 'app_pin_order');
 
-		$x = (($uid) ? get_pconfig($uid,'system',$conf) : get_config('system',$conf));
+		$x = (($uid) ? get_pconfig($uid,'system',$conf) : Config::Get('system',$conf));
 		if(($x) && (! is_array($x))) {
 			$y = explode(',',$x);
 			$y = array_map('trim',$y);

@@ -20,9 +20,13 @@ returns an xchan structure representing the current viewer if authenticated (loc
 
 Returns the config setting for $family and $key or false if unset.
 
+Deprecated: Use Zotlabs\Lib\Config::Get instead.
+
 [b]    set_config($family,$key,$value), set_pconfig($uid,$family,$key,$value)[/b]
 
 Sets the value of config setting for $family and $key to $value. Returns $value. The config versions operate on system-wide settings. The pconfig versions get/set the values for a specific integer uid (channel_id).  The xconfig version get/sets the value for a specific xchan hash - generally used for remote users.
+
+Deprecated: Use Zotlabs\Lib\Config::Set instead.
 
 [b]dbesc()[/b]
 

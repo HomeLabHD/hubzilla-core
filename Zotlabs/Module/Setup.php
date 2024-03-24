@@ -8,6 +8,7 @@ namespace Zotlabs\Module;
  * @todo This setup module could need some love and improvements.
  */
 
+use Zotlabs\Lib\Config;
 
 /**
  * @brief Initialisation for the setup module.
@@ -760,11 +761,11 @@ class Setup extends \Zotlabs\Web\Controller {
 	 */
 	function what_next() {
 		// install the standard theme
-		set_config('system', 'allowed_themes', 'redbasic');
+		Config::Set('system', 'allowed_themes', 'redbasic');
 
 		// if imagick converter is installed, use it
 		if(@is_executable('/usr/bin/convert')) {
-			set_config('system','imagick_convert_path','/usr/bin/convert');
+			Config::Set('system','imagick_convert_path','/usr/bin/convert');
 		}
 
 
@@ -783,7 +784,7 @@ class Setup extends \Zotlabs\Web\Controller {
 
 		$x = curl_version();
 		if(stristr($x['ssl_version'],'openssl'))
-			set_config('system','curl_ssl_ciphers','ALL:!eNULL');
+			Config::Set('system','curl_ssl_ciphers','ALL:!eNULL');
 
 		// Create a system channel
 		require_once ('include/channel.php');

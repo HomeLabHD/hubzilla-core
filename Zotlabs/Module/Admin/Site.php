@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Module\Admin;
 
+use Zotlabs\Lib\Config;
 
 class Site {
 
@@ -125,8 +126,8 @@ class Site {
 				//logger( print_r( $this->msgbg, true) );
 				//logger( print_r( $this->joo, true) );
 				if ($this->error === 0) {
-					set_config('system', 'register_duty', $this->register_duty);
-					set_config('system', 'register_duty_jso', $this->joo);
+					Config::Set('system', 'register_duty', $this->register_duty);
+					Config::Set('system', 'register_duty_jso', $this->joo);
 				} else {
 					notice('ZAR0130E,' . t('Errors') . ': ' . $this->error . EOL . $this->msgfg . EOL);
 				}
@@ -134,87 +135,87 @@ class Site {
 		}
 		// <-hilmar]
 
-		set_config('system', 'feed_contacts', $feed_contacts);
-		set_config('system', 'delivery_interval', $delivery_interval);
-		set_config('system', 'delivery_batch_count', $delivery_batch_count);
-		set_config('system', 'poll_interval', $poll_interval);
-		set_config('system', 'maxloadavg', $maxloadavg);
-		set_config('system', 'frontpage', $frontpage);
-		set_config('system', 'sellpage', $site_sellpage);
-		set_config('system', 'workflow_channel_next', $first_page);
-		set_config('system', 'site_location', $site_location);
-		set_config('system', 'mirror_frontpage', $mirror_frontpage);
-		set_config('system', 'sitename', $sitename);
-		set_config('system', 'login_on_homepage', $login_on_homepage);
-		set_config('system', 'enable_context_help', $enable_context_help);
-		set_config('system', 'verify_email', $verify_email);
-		set_config('system', 'max_daily_registrations', $register_perday);
-		set_config('system', 'register_sameip', $register_sameip);
-		set_config('system', 'register_delay', $reg_delay);
-		set_config('system', 'register_expire', $reg_expire);
-		set_config('system', 'default_expire_days', $default_expire_days);
-		set_config('system', 'active_expire_days', $active_expire_days);
-		set_config('system', 'reply_address', $reply_address);
-		set_config('system', 'from_email', $from_email);
-		set_config('system', 'from_email_name' , $from_email_name);
-		set_config('system', 'imagick_convert_path' , $imagick_path);
-		set_config('system', 'default_permissions_role', $permissions_role);
-		set_config('system', 'pubstream_incl',$pub_incl);
-		set_config('system', 'pubstream_excl',$pub_excl);
+		Config::Set('system', 'feed_contacts', $feed_contacts);
+		Config::Set('system', 'delivery_interval', $delivery_interval);
+		Config::Set('system', 'delivery_batch_count', $delivery_batch_count);
+		Config::Set('system', 'poll_interval', $poll_interval);
+		Config::Set('system', 'maxloadavg', $maxloadavg);
+		Config::Set('system', 'frontpage', $frontpage);
+		Config::Set('system', 'sellpage', $site_sellpage);
+		Config::Set('system', 'workflow_channel_next', $first_page);
+		Config::Set('system', 'site_location', $site_location);
+		Config::Set('system', 'mirror_frontpage', $mirror_frontpage);
+		Config::Set('system', 'sitename', $sitename);
+		Config::Set('system', 'login_on_homepage', $login_on_homepage);
+		Config::Set('system', 'enable_context_help', $enable_context_help);
+		Config::Set('system', 'verify_email', $verify_email);
+		Config::Set('system', 'max_daily_registrations', $register_perday);
+		Config::Set('system', 'register_sameip', $register_sameip);
+		Config::Set('system', 'register_delay', $reg_delay);
+		Config::Set('system', 'register_expire', $reg_expire);
+		Config::Set('system', 'default_expire_days', $default_expire_days);
+		Config::Set('system', 'active_expire_days', $active_expire_days);
+		Config::Set('system', 'reply_address', $reply_address);
+		Config::Set('system', 'from_email', $from_email);
+		Config::Set('system', 'from_email_name' , $from_email_name);
+		Config::Set('system', 'imagick_convert_path' , $imagick_path);
+		Config::Set('system', 'default_permissions_role', $permissions_role);
+		Config::Set('system', 'pubstream_incl',$pub_incl);
+		Config::Set('system', 'pubstream_excl',$pub_excl);
 
 
 		if($directory_server)
-			set_config('system','directory_server',$directory_server);
+			Config::Set('system','directory_server',$directory_server);
 
 		if ($banner == '') {
-			del_config('system', 'banner');
+			Config::Delete('system', 'banner');
 		} else {
-			set_config('system', 'banner', $banner);
+			Config::Set('system', 'banner', $banner);
 		}
 
 		if ($admininfo == ''){
-			del_config('system', 'admininfo');
+			Config::Delete('system', 'admininfo');
 		} else {
 			require_once('include/text.php');
 			linkify_tags($admininfo, local_channel());
-			set_config('system', 'admininfo', $admininfo);
+			Config::Set('system', 'admininfo', $admininfo);
 		}
-		set_config('system','siteinfo',$siteinfo);
-		//set_config('system', 'language', $language);
-		set_config('system', 'theme', $theme);
+		Config::Set('system','siteinfo',$siteinfo);
+		//Config::Set('system', 'language', $language);
+		Config::Set('system', 'theme', $theme);
 		//		if ( $theme_mobile === '---' ) {
-		//			del_config('system', 'mobile_theme');
+		//			Config::Delete('system', 'mobile_theme');
 		//		} else {
-		//			set_config('system', 'mobile_theme', $theme_mobile);
+		//			Config::Set('system', 'mobile_theme', $theme_mobile);
 		//		}
-		//	set_config('system','site_channel', $site_channel);
-		set_config('system','maximagesize', $maximagesize);
+		//	Config::Set('system','site_channel', $site_channel);
+		Config::Set('system','maximagesize', $maximagesize);
 
-		set_config('system','register_policy', $register_policy);
-		set_config('system','register_wo_email', $register_wo_email);
-		set_config('system','minimum_age', $minimum_age);
-		set_config('system','auto_channel_create', $reg_autochannel);
-		set_config('system', 'invitation_only', $invitation_only);
-		set_config('system', 'invitation_also', $invitation_also);
-		set_config('system','access_policy', $access_policy);
-		set_config('system','account_abandon_days', $abandon_days);
-		set_config('system','register_text', $register_text);
-		set_config('system','allowed_sites', $allowed_sites);
-		set_config('system','publish_all', $force_publish);
-		set_config('system','disable_discover_tab', $disable_discover_tab);
-		set_config('system','site_firehose', $site_firehose);
-		set_config('system','open_pubstream', $open_pubstream);
-		//set_config('system','force_queue_threshold', $force_queue);
+		Config::Set('system','register_policy', $register_policy);
+		Config::Set('system','register_wo_email', $register_wo_email);
+		Config::Set('system','minimum_age', $minimum_age);
+		Config::Set('system','auto_channel_create', $reg_autochannel);
+		Config::Set('system', 'invitation_only', $invitation_only);
+		Config::Set('system', 'invitation_also', $invitation_also);
+		Config::Set('system','access_policy', $access_policy);
+		Config::Set('system','account_abandon_days', $abandon_days);
+		Config::Set('system','register_text', $register_text);
+		Config::Set('system','allowed_sites', $allowed_sites);
+		Config::Set('system','publish_all', $force_publish);
+		Config::Set('system','disable_discover_tab', $disable_discover_tab);
+		Config::Set('system','site_firehose', $site_firehose);
+		Config::Set('system','open_pubstream', $open_pubstream);
+		//Config::Set('system','force_queue_threshold', $force_queue);
 
-		set_config('system','no_community_page', $no_community_page);
-		set_config('system','no_utf', $no_utf);
+		Config::Set('system','no_community_page', $no_community_page);
+		Config::Set('system','no_utf', $no_utf);
 
-		set_config('system','sse_enabled', $sse_enabled);
+		Config::Set('system','sse_enabled', $sse_enabled);
 
-		set_config('system','verifyssl', $verifyssl);
-		set_config('system','proxyuser', $proxyuser);
-		set_config('system','proxy', $proxy);
-		set_config('system','curl_timeout', $timeout);
+		Config::Set('system','verifyssl', $verifyssl);
+		Config::Set('system','proxyuser', $proxyuser);
+		Config::Set('system','proxy', $proxy);
+		Config::Set('system','curl_timeout', $timeout);
 
 		info( t('Site settings updated.') . EOL);
 		goaway(z_root() . '/admin/site' );
@@ -263,7 +264,7 @@ class Site {
 		}
 
 		$dir_choices = null;
-		$dirmode = get_config('system', 'directory_mode', DIRECTORY_MODE_NORMAL);
+		$dirmode = Config::Get('system', 'directory_mode', DIRECTORY_MODE_NORMAL);
 		$realm = get_directory_realm();
 
 		// directory server should not be set or settable unless we are a directory client
@@ -291,14 +292,14 @@ class Site {
 
 		/* Banner */
 
-		$banner = get_config('system', 'banner');
+		$banner = Config::Get('system', 'banner');
 		if($banner === false)
-			$banner = get_config('system','sitename');
+			$banner = Config::Get('system','sitename');
 
 		$banner = htmlspecialchars($banner);
 
 		/* Admin Info */
-		$admininfo = get_config('system', 'admininfo');
+		$admininfo = Config::Get('system', 'admininfo');
 
 		/* Register policy */
 		$register_choices = Array(
@@ -306,8 +307,8 @@ class Site {
 			REGISTER_APPROVE => t("Yes - with approval"),
 			REGISTER_OPEN    => t("Yes")
 		);
-		$this->register_duty = get_config('system', 'register_duty', '-:-');
-		$register_perday = get_config('system','max_daily_registrations', 50);
+		$this->register_duty = Config::Get('system', 'register_duty', '-:-');
+		$register_perday = Config::Get('system','max_daily_registrations', 50);
 
 		/* Acess policy */
 		$access_choices = Array(
@@ -317,7 +318,7 @@ class Site {
 			ACCESS_TIERED => t("My site offers free accounts with optional paid upgrades")
 		);
 
-		$discover_tab = get_config('system','disable_discover_tab');
+		$discover_tab = Config::Get('system','disable_discover_tab');
 
 		// $disable public streams by default
 		if($discover_tab === false)
@@ -326,7 +327,7 @@ class Site {
 		$discover_tab = (1 - $discover_tab);
 
 		$perm_roles = \Zotlabs\Access\PermissionRoles::channel_roles();
-		$default_role = get_config('system', 'default_permissions_role', 'personal');
+		$default_role = Config::Get('system', 'default_permissions_role', 'personal');
 
 		if (!in_array($default_role, array_keys($perm_roles))) {
 			$default_role = 'personal';
@@ -334,8 +335,8 @@ class Site {
 
 		$role = array('permissions_role' , t('Default permission role for new accounts'), $default_role, t('This role will be used for the first channel created after registration.'),$perm_roles);
 
-		$homelogin = get_config('system','login_on_homepage');
-		$enable_context_help = get_config('system','enable_context_help');
+		$homelogin = Config::Get('system','login_on_homepage');
+		$enable_context_help = Config::Get('system','enable_context_help');
 
 		// for reuse reg_delay and reg_expire
 		$reg_rabots = array(
@@ -347,7 +348,7 @@ class Site {
  					'y' => t('Year(s)')
 		);
 		$regdelay_n = $regdelay_u = false;
-		$regdelay = get_config('system','register_delay');
+		$regdelay = Config::Get('system','register_delay');
 		if ($regdelay)
 			list($regdelay_n, $regdelay_u) = array(substr($regdelay,0,-1),substr($regdelay,-1));
 		$reg_delay = replace_macros(get_markup_template('field_duration.qmc.tpl'),
@@ -369,7 +370,7 @@ class Site {
  			)
 		);
 		$regexpire_n = $regexpire_u = false;
-		$regexpire = get_config('system','register_expire');
+		$regexpire = Config::Get('system','register_expire');
 		if ($regexpire)
 			list($regexpire_n, $regexpire_u) = array(substr($regexpire,0,-1),substr($regexpire,-1));
 		$reg_expire = replace_macros(get_markup_template('field_duration.qmc.tpl'),
@@ -406,38 +407,38 @@ class Site {
 
 			'$baseurl' => z_root(),
 			// name, label, value, help string, extra data...
-			'$sitename' 		=> array('sitename', t("Site name"), htmlspecialchars(get_config('system','sitename'), ENT_QUOTES, 'UTF-8'),''),
+			'$sitename' 		=> array('sitename', t("Site name"), htmlspecialchars(Config::Get('system','sitename'), ENT_QUOTES, 'UTF-8'),''),
 
 			'$banner'			=> array('banner', t("Banner/Logo"), $banner, t('Unfiltered HTML/CSS/JS is allowed')),
 			'$admininfo'		=> array('admininfo', t("Administrator Information"), $admininfo, t("Contact information for site administrators.  Displayed on siteinfo page.  BBCode can be used here")),
-			'$siteinfo'		=> array('siteinfo', t('Site Information'), get_config('system','siteinfo'), t("Publicly visible description of this site.  Displayed on siteinfo page.  BBCode can be used here")),
-			'$theme' 			=> array('theme', t("System theme"), get_config('system','theme'), t("Default system theme - may be over-ridden by user profiles - <a href='#' id='cnftheme'>change theme settings</a>"), $theme_choices),
-		//			'$theme_mobile' 	=> array('theme_mobile', t("Mobile system theme"), get_config('system','mobile_theme'), t("Theme for mobile devices"), $theme_choices_mobile),
-		//			'$site_channel' 	=> array('site_channel', t("Channel to use for this website's static pages"), get_config('system','site_channel'), t("Site Channel")),
-			'$feed_contacts'    => array('feed_contacts', t('Allow Feeds as Connections'),get_config('system','feed_contacts'),t('(Heavy system resource usage)')),
-			'$maximagesize'		=> array('maximagesize', t("Maximum image size"), intval(get_config('system','maximagesize')), t("Maximum size in bytes of uploaded images. Default is 0, which means no limits.")),
-			'$minimum_age'		=> array('minimum_age', t("Minimum age"), (x(get_config('system','minimum_age'))?get_config('system','minimum_age'):13), t("Minimum age (in years) for who may register on this site.")),
-			'$access_policy'	=> array('access_policy', t("Which best describes the types of account offered by this hub?"), get_config('system','access_policy'), t("This is displayed on the public server site list."), $access_choices),
+			'$siteinfo'		=> array('siteinfo', t('Site Information'), Config::Get('system','siteinfo'), t("Publicly visible description of this site.  Displayed on siteinfo page.  BBCode can be used here")),
+			'$theme' 			=> array('theme', t("System theme"), Config::Get('system','theme'), t("Default system theme - may be over-ridden by user profiles - <a href='#' id='cnftheme'>change theme settings</a>"), $theme_choices),
+		//			'$theme_mobile' 	=> array('theme_mobile', t("Mobile system theme"), Config::Get('system','mobile_theme'), t("Theme for mobile devices"), $theme_choices_mobile),
+		//			'$site_channel' 	=> array('site_channel', t("Channel to use for this website's static pages"), Config::Get('system','site_channel'), t("Site Channel")),
+			'$feed_contacts'    => array('feed_contacts', t('Allow Feeds as Connections'),Config::Get('system','feed_contacts'),t('(Heavy system resource usage)')),
+			'$maximagesize'		=> array('maximagesize', t("Maximum image size"), intval(Config::Get('system','maximagesize')), t("Maximum size in bytes of uploaded images. Default is 0, which means no limits.")),
+			'$minimum_age'		=> array('minimum_age', t("Minimum age"), (x(Config::Get('system','minimum_age'))?Config::Get('system','minimum_age'):13), t("Minimum age (in years) for who may register on this site.")),
+			'$access_policy'	=> array('access_policy', t("Which best describes the types of account offered by this hub?"), Config::Get('system','access_policy'), t("This is displayed on the public server site list."), $access_choices),
 
 			// Register
 			// [hilmar->
 			'$register_text'	=> [
 				'register_text',
 				t("Register text"),
-				htmlspecialchars(get_config('system','register_text'), ENT_QUOTES, 'UTF-8'),
+				htmlspecialchars(Config::Get('system','register_text'), ENT_QUOTES, 'UTF-8'),
 				t("This text will be displayed prominently at the registration page")
 			],
 			'$register_policy'	=> [
 				'register_policy',
 				t("Does this site allow new member registration?"),
-				get_config('system','register_policy'),
+				Config::Get('system','register_policy'),
 				"",
 				$register_choices,
 			],
 			'$register_duty' => [
 				'register_duty',
 				t('Configure the registration open days/hours'),
-				get_config('system', 'register_duty', '-:-'),
+				Config::Get('system', 'register_duty', '-:-'),
 				t('Empty or \'-:-\' value will keep registration open 24/7 (default)') . EOL .
 				t('Weekdays and hours must be separated by colon \':\', From-To ranges with a dash `-` example: 1:800-1200') . EOL .
 				t('Weekday:Hour pairs must be separated by space \' \' example: 1:900-1700 2:900-1700') . EOL .
@@ -448,13 +449,13 @@ class Site {
 			'$register_perday' => [
 				'register_perday',
 				t('Max account registrations per day'),
-				get_config('system', 'max_daily_registrations', 50),
+				Config::Get('system', 'max_daily_registrations', 50),
 				t('Unlimited if zero or no value - default 50')
 			],
 			'$register_sameip' => [
 				'register_sameip',
 				t('Max account registrations from same IP'),
-				get_config('system', 'register_sameip', 3),
+				Config::Get('system', 'register_sameip', 3),
 				t('Unlimited if zero or no value - default 3')
 			],
 			'$reg_delay' => $reg_delay,
@@ -462,70 +463,70 @@ class Site {
 			'$reg_autochannel'		=> [
 				'auto_channel_create',
 				t("Auto channel create"),
-				get_config('system','auto_channel_create', 1),
+				Config::Get('system','auto_channel_create', 1),
 				t("If disabled the channel will be created in a separate step during the registration process")
 			],
 			'$invitation_only' => [
 				'invitation_only',
 				t("Require invite code"),
-				get_config('system', 'invitation_only', 0)
+				Config::Get('system', 'invitation_only', 0)
 			],
 			'$invitation_also' => [
 				'invitation_also',
 				t("Allow invite code"),
-				get_config('system', 'invitation_also', 0)
+				Config::Get('system', 'invitation_also', 0)
 			],
 			'$verify_email'		=> [
 				'verify_email',
 				t("Require email address"),
-				get_config('system','verify_email'),
+				Config::Get('system','verify_email'),
 				t("The provided email address will be verified (recommended)")
 			],
 			'$abandon_days' => [
 				'abandon_days',
 				t('Abandon account after x days'),
-				get_config('system','account_abandon_days'),
+				Config::Get('system','account_abandon_days'),
 				t('Will not waste system resources polling external sites for abandonded accounts. Enter 0 for no time limit.')
 			],
 			// <-hilmar]
 
 			'$role'         => $role,
-			'$frontpage'	=> array('frontpage', t("Site homepage to show visitors (default: login box)"), get_config('system','frontpage'), t("example: 'pubstream' to show public stream, 'page/sys/home' to show a system webpage called 'home' or 'include:home.html' to include a file.")),
-			'$mirror_frontpage'	=> array('mirror_frontpage', t("Preserve site homepage URL"), get_config('system','mirror_frontpage'), t('Present the site homepage in a frame at the original location instead of redirecting')),
-			'$allowed_sites'	=> array('allowed_sites', t("Allowed friend domains"), get_config('system','allowed_sites'), t("Comma separated list of domains which are allowed to establish friendships with this site. Wildcards are accepted. Empty to allow any domains")),
-			'$force_publish'	=> array('publish_all', t("Force publish"), get_config('system','publish_all'), t("Check to force all profiles on this site to be listed in the site directory")),
+			'$frontpage'	=> array('frontpage', t("Site homepage to show visitors (default: login box)"), Config::Get('system','frontpage'), t("example: 'pubstream' to show public stream, 'page/sys/home' to show a system webpage called 'home' or 'include:home.html' to include a file.")),
+			'$mirror_frontpage'	=> array('mirror_frontpage', t("Preserve site homepage URL"), Config::Get('system','mirror_frontpage'), t('Present the site homepage in a frame at the original location instead of redirecting')),
+			'$allowed_sites'	=> array('allowed_sites', t("Allowed friend domains"), Config::Get('system','allowed_sites'), t("Comma separated list of domains which are allowed to establish friendships with this site. Wildcards are accepted. Empty to allow any domains")),
+			'$force_publish'	=> array('publish_all', t("Force publish"), Config::Get('system','publish_all'), t("Check to force all profiles on this site to be listed in the site directory")),
 			'$disable_discover_tab'	=> array('disable_discover_tab', t('Enable public stream'), $discover_tab, t('Enable the public stream. Warning: this content is unmoderated')),
-			'$site_firehose'	=> array('site_firehose', t('Site only public stream'), get_config('system','site_firehose'), t('Restrict the public stream to content originating at this site')),
-			'$open_pubstream'	=> array('open_pubstream', t('Allow anybody on the internet to access the public streams'), get_config('system','open_pubstream',1), t('Disable to require authentication before viewing')),
-			'$incl'           => array('pub_incl',t('Only import Public stream posts with this text'), get_config('system','pubstream_incl'),t('words one per line or #tags or /patterns/ or lang=xx, leave blank to import all posts')),
-			'$excl'           => array('pub_excl',t('Do not import Public stream posts with this text'), get_config('system','pubstream_excl'),t('words one per line or #tags or /patterns/ or lang=xx, leave blank to import all posts')),
+			'$site_firehose'	=> array('site_firehose', t('Site only public stream'), Config::Get('system','site_firehose'), t('Restrict the public stream to content originating at this site')),
+			'$open_pubstream'	=> array('open_pubstream', t('Allow anybody on the internet to access the public streams'), Config::Get('system','open_pubstream',1), t('Disable to require authentication before viewing')),
+			'$incl'           => array('pub_incl',t('Only import Public stream posts with this text'), Config::Get('system','pubstream_incl'),t('words one per line or #tags or /patterns/ or lang=xx, leave blank to import all posts')),
+			'$excl'           => array('pub_excl',t('Do not import Public stream posts with this text'), Config::Get('system','pubstream_excl'),t('words one per line or #tags or /patterns/ or lang=xx, leave blank to import all posts')),
 
 
 			'$login_on_homepage'	=> array('login_on_homepage', t("Login on Homepage"),((intval($homelogin) || $homelogin === false) ? 1 : '') , t("Present a login box to visitors on the home page if no other content has been configured.")),
 			'$enable_context_help'	=> array('enable_context_help', t("Enable context help"),((intval($enable_context_help) === 1 || $enable_context_help === false) ? 1 : 0) , t("Display contextual help for the current page when the help button is pressed.")),
 
-			'$reply_address' => [ 'reply_address', t('Reply-to email address for system generated email.'), get_config('system','reply_address','noreply@' . \App::get_hostname()),'' ],
-			'$from_email' => [ 'from_email', t('Sender (From) email address for system generated email.'), get_config('system','from_email','Administrator@' . \App::get_hostname()),'' ],
-			'$from_email_name' => [ 'from_email_name', t('Name of email sender for system generated email.'), get_config('system','from_email_name',\Zotlabs\Lib\System::get_site_name()),'' ],
+			'$reply_address' => [ 'reply_address', t('Reply-to email address for system generated email.'), Config::Get('system','reply_address','noreply@' . \App::get_hostname()),'' ],
+			'$from_email' => [ 'from_email', t('Sender (From) email address for system generated email.'), Config::Get('system','from_email','Administrator@' . \App::get_hostname()),'' ],
+			'$from_email_name' => [ 'from_email_name', t('Name of email sender for system generated email.'), Config::Get('system','from_email_name',\Zotlabs\Lib\System::get_site_name()),'' ],
 
-			'$directory_server' => (($dir_choices) ? array('directory_server', t("Directory Server URL"), get_config('system','directory_server'), t("Default directory server"), $dir_choices) : null),
+			'$directory_server' => (($dir_choices) ? array('directory_server', t("Directory Server URL"), Config::Get('system','directory_server'), t("Default directory server"), $dir_choices) : null),
 
-			'$sse_enabled'		=> array('sse_enabled', t('Enable SSE Notifications'), get_config('system', 'sse_enabled', 0), t('If disabled, traditional polling will be used. Warning: this setting might not be suited for shared hosting')),
+			'$sse_enabled'		=> array('sse_enabled', t('Enable SSE Notifications'), Config::Get('system', 'sse_enabled', 0), t('If disabled, traditional polling will be used. Warning: this setting might not be suited for shared hosting')),
 
-			'$proxyuser'		=> array('proxyuser', t("Proxy user"), get_config('system','proxyuser'), ""),
-			'$proxy'			=> array('proxy', t("Proxy URL"), get_config('system','proxy'), ""),
-			'$timeout'			=> array('timeout', t("Network timeout"), (x(get_config('system','curl_timeout'))?get_config('system','curl_timeout'):60), t("Value is in seconds. Set to 0 for unlimited (not recommended).")),
-			'$delivery_interval'			=> array('delivery_interval', t("Delivery interval"), (x(get_config('system','delivery_interval'))?get_config('system','delivery_interval'):2), t("Delay background delivery processes by this many seconds to reduce system load. Recommend: 4-5 for shared hosts, 2-3 for virtual private servers. 0-1 for large dedicated servers.")),
-			'$delivery_batch_count' => array('delivery_batch_count', t('Deliveries per process'),(x(get_config('system','delivery_batch_count'))?get_config('system','delivery_batch_count'):1), t("Number of deliveries to attempt in a single operating system process. Adjust if necessary to tune system performance. Recommend: 1-5.")),
-			//'$force_queue'			=> array('force_queue', t("Queue Threshold"), get_config('system','force_queue_threshold',3000), t("Always defer immediate delivery if queue contains more than this number of entries.")),
-			'$poll_interval'			=> array('poll_interval', t("Poll interval"), (x(get_config('system','poll_interval'))?get_config('system','poll_interval'):2), t("Delay background polling processes by this many seconds to reduce system load. If 0, use delivery interval.")),
-			'$imagick_path'			=> array('imagick_path', t("Path to ImageMagick convert program"), get_config('system','imagick_convert_path'), t("If set, use this program to generate photo thumbnails for huge images ( > 4000 pixels in either dimension), otherwise memory exhaustion may occur. Example: /usr/bin/convert")),
-			'$maxloadavg'			=> array('maxloadavg', t("Maximum Load Average"), ((intval(get_config('system','maxloadavg')) > 0)?get_config('system','maxloadavg'):50), t("Maximum system load before delivery and poll processes are deferred - default 50.")),
-			'$default_expire_days' => array('default_expire_days', t('Expiration period in days for imported (grid/network) content'), intval(get_config('system','default_expire_days', 30)), t('0 for no expiration of imported content')),
-			'$active_expire_days' => array('active_expire_days', t('Do not expire any posts which have comments less than this many days ago'), intval(get_config('system','active_expire_days',7)), ''),
-			'$sellpage' => array('site_sellpage', t('Public servers: Optional landing (marketing) webpage for new registrants'), get_config('system','sellpage',''), sprintf( t('Create this page first. Default is %s/register'),z_root())),
-			'$first_page' => array('first_page', t('Page to display after creating a new channel'), get_config('system','workflow_channel_next','profiles'), t('Default: profiles')),
-			'$location' => array('site_location', t('Optional: site location'), get_config('system','site_location',''), t('Region or country')),
+			'$proxyuser'		=> array('proxyuser', t("Proxy user"), Config::Get('system','proxyuser'), ""),
+			'$proxy'			=> array('proxy', t("Proxy URL"), Config::Get('system','proxy'), ""),
+			'$timeout'			=> array('timeout', t("Network timeout"), (x(Config::Get('system','curl_timeout'))?Config::Get('system','curl_timeout'):60), t("Value is in seconds. Set to 0 for unlimited (not recommended).")),
+			'$delivery_interval'			=> array('delivery_interval', t("Delivery interval"), (x(Config::Get('system','delivery_interval'))?Config::Get('system','delivery_interval'):2), t("Delay background delivery processes by this many seconds to reduce system load. Recommend: 4-5 for shared hosts, 2-3 for virtual private servers. 0-1 for large dedicated servers.")),
+			'$delivery_batch_count' => array('delivery_batch_count', t('Deliveries per process'),(x(Config::Get('system','delivery_batch_count'))?Config::Get('system','delivery_batch_count'):1), t("Number of deliveries to attempt in a single operating system process. Adjust if necessary to tune system performance. Recommend: 1-5.")),
+			//'$force_queue'			=> array('force_queue', t("Queue Threshold"), Config::Get('system','force_queue_threshold',3000), t("Always defer immediate delivery if queue contains more than this number of entries.")),
+			'$poll_interval'			=> array('poll_interval', t("Poll interval"), (x(Config::Get('system','poll_interval'))?Config::Get('system','poll_interval'):2), t("Delay background polling processes by this many seconds to reduce system load. If 0, use delivery interval.")),
+			'$imagick_path'			=> array('imagick_path', t("Path to ImageMagick convert program"), Config::Get('system','imagick_convert_path'), t("If set, use this program to generate photo thumbnails for huge images ( > 4000 pixels in either dimension), otherwise memory exhaustion may occur. Example: /usr/bin/convert")),
+			'$maxloadavg'			=> array('maxloadavg', t("Maximum Load Average"), ((intval(Config::Get('system','maxloadavg')) > 0)?Config::Get('system','maxloadavg'):50), t("Maximum system load before delivery and poll processes are deferred - default 50.")),
+			'$default_expire_days' => array('default_expire_days', t('Expiration period in days for imported (grid/network) content'), intval(Config::Get('system','default_expire_days', 30)), t('0 for no expiration of imported content')),
+			'$active_expire_days' => array('active_expire_days', t('Do not expire any posts which have comments less than this many days ago'), intval(Config::Get('system','active_expire_days',7)), ''),
+			'$sellpage' => array('site_sellpage', t('Public servers: Optional landing (marketing) webpage for new registrants'), Config::Get('system','sellpage',''), sprintf( t('Create this page first. Default is %s/register'),z_root())),
+			'$first_page' => array('first_page', t('Page to display after creating a new channel'), Config::Get('system','workflow_channel_next','profiles'), t('Default: profiles')),
+			'$location' => array('site_location', t('Optional: site location'), Config::Get('system','site_location',''), t('Region or country')),
 			'$form_security_token' => get_form_security_token("admin_site"),
 		));
 	}

@@ -3,6 +3,7 @@
 namespace Zotlabs\Module\Admin;
 
 use App;
+use \Zotlabs\Lib\Config;
 use \Zotlabs\Storage\GitRepo;
 use \Michelf\MarkdownExtra;
 
@@ -276,7 +277,7 @@ class Addons {
 				if ($idz !== false) {
 					unset(App::$plugins[$idz]);
 					uninstall_plugin($plugin);
-					set_config("system","addon", implode(", ",App::$plugins));
+					Config::Set("system","addon", implode(", ",App::$plugins));
 				}
 			}
 			$info['disabled'] = 1-intval($x);
@@ -297,7 +298,7 @@ class Addons {
 					$pinstalled = true;
 					info( sprintf( t("Plugin %s enabled."), $plugin ) );
 				}
-				set_config("system","addon", implode(", ",App::$plugins));
+				Config::Set("system","addon", implode(", ",App::$plugins));
 
 				if($pinstalled) {
 					@require_once("addon/$plugin/$plugin.php");
@@ -395,7 +396,7 @@ class Addons {
 						if ($idz !== false) {
 							unset(App::$plugins[$idz]);
 							uninstall_plugin($id);
-							set_config("system","addon", implode(", ",App::$plugins));
+							Config::Set("system","addon", implode(", ",App::$plugins));
 						}
 					}
 					$info['disabled'] = 1-intval($x);

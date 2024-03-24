@@ -4,17 +4,15 @@
  * Features management
  */
 
-
-
-
+use Zotlabs\Lib\Config;
 
 function feature_enabled($uid,$feature) {
 
-	$x = get_config('feature_lock',$feature);
+	$x = Config::Get('feature_lock',$feature);
 	if($x === false) {
 		$x = get_pconfig($uid,'feature',$feature);
 		if($x === false) {
-			$x = get_config('feature',$feature);
+			$x = Config::Get('feature',$feature);
 			if($x === false)
 				$x = get_feature_default($feature);
 		}
@@ -38,7 +36,7 @@ function get_feature_default($feature) {
 
 
 function feature_level($feature,$def) {
-	$x = get_config('feature_level',$feature);
+	$x = Config::Get('feature_level',$feature);
 	if($x !== false)
 		return intval($x);
 	return $def;
@@ -86,7 +84,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Start calendar week on Monday'),
 				t('Default is Sunday'),
 				false,
-				get_config('feature_lock','cal_first_day')
+				Config::Get('feature_lock','cal_first_day')
 			],
 
 			[
@@ -94,7 +92,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Event Timezone Selection'),
 				t('Allow event creation in timezones other than your own.'),
 				false,
-				get_config('feature_lock','event_tz_select'),
+				Config::Get('feature_lock','event_tz_select'),
 			]
 
 		],
@@ -108,7 +106,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Search by Date'),
 				t('Ability to select posts by date ranges'),
 				false,
-				get_config('feature_lock','archives')
+				Config::Get('feature_lock','archives')
 			],
 
 			[
@@ -116,7 +114,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Tag Cloud'),
 				t('Provide a personal tag cloud on your channel page'),
 				false,
-				get_config('feature_lock','tagadelic'),
+				Config::Get('feature_lock','tagadelic'),
 			],
 
 			[
@@ -124,7 +122,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Use blog/list mode'),
 				t('Comments will be displayed separately'),
 				false,
-				get_config('feature_lock','channel_list_mode'),
+				Config::Get('feature_lock','channel_list_mode'),
 			]
 		],
 
@@ -137,7 +135,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Connection Filtering'),
 				t('Filter incoming posts from connections based on keywords/content'),
 				false,
-				get_config('feature_lock','connfilter')
+				Config::Get('feature_lock','connfilter')
 			]
 		],
 
@@ -150,7 +148,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Community Tagging'),
 				t('Ability to tag existing posts'),
 				false,
-				get_config('feature_lock','commtag'),
+				Config::Get('feature_lock','commtag'),
 			],
 			*/
 			[
@@ -158,7 +156,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Emoji Reactions'),
 				t('Add emoji reaction ability to posts'),
 				true,
-				get_config('feature_lock','emojis'),
+				Config::Get('feature_lock','emojis'),
 			],
 
 			[
@@ -166,7 +164,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Dislike Posts'),
 				t('Ability to dislike posts/comments'),
 				false,
-				get_config('feature_lock','dislike'),
+				Config::Get('feature_lock','dislike'),
 			],
 
 			[
@@ -174,7 +172,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Star Posts'),
 				t('Ability to mark special posts with a star indicator'),
 				false,
-				get_config('feature_lock','star_posts'),
+				Config::Get('feature_lock','star_posts'),
 			],
 
 			[
@@ -182,7 +180,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Reply on comment'),
 				t('Ability to reply on selected comment'),
 				false,
-				get_config('feature_lock','reply_to'),
+				Config::Get('feature_lock','reply_to'),
 			]
 
 		],
@@ -196,7 +194,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Advanced Directory Search'),
 				t('Allows creation of complex directory search queries'),
 				false,
-				get_config('feature_lock','advanced_dirsearch'),
+				Config::Get('feature_lock','advanced_dirsearch'),
 			]
 
 		],
@@ -210,7 +208,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Post Categories'),
 				t('Add categories to your posts'),
 				false,
-				get_config('feature_lock','categories'),
+				Config::Get('feature_lock','categories'),
 			],
 
 			[
@@ -218,7 +216,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Large Photos'),
 				t('Include large (1024px) photo thumbnails in posts. If not enabled, use small (640px) photo thumbnails'),
 				false,
-				get_config('feature_lock','large_photos'),
+				Config::Get('feature_lock','large_photos'),
 			],
 
 			[
@@ -226,7 +224,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Even More Encryption'),
 				t('Allow optional encryption of content end-to-end with a shared secret key'),
 				false,
-				get_config('feature_lock','content_encrypt'),
+				Config::Get('feature_lock','content_encrypt'),
 			],
 
 			[
@@ -234,7 +232,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Disable Comments'),
 				t('Provide the option to disable comments for a post'),
 				false,
-				get_config('feature_lock','disable_comments'),
+				Config::Get('feature_lock','disable_comments'),
 			],
 
 			[
@@ -242,7 +240,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Delayed Posting'),
 				t('Allow posts to be published at a later date'),
 				false,
-				get_config('feature_lock','delayed_posting'),
+				Config::Get('feature_lock','delayed_posting'),
 			],
 
 			[
@@ -250,7 +248,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Content Expiration'),
 				t('Remove posts/comments and/or private messages at a future time'),
 				false,
-				get_config('feature_lock','content_expire'),
+				Config::Get('feature_lock','content_expire'),
 			],
 
 			[
@@ -258,7 +256,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Suppress Duplicate Posts/Comments'),
 				t('Prevent posts with identical content to be published with less than two minutes in between submissions.'),
 				true,
-				get_config('feature_lock','suppress_duplicates'),
+				Config::Get('feature_lock','suppress_duplicates'),
 			],
 
 			[
@@ -266,7 +264,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Auto-save drafts of posts and comments'),
 				t('Automatically saves post and comment drafts in local browser storage to help prevent accidental loss of compositions'),
 				true,
-				get_config('feature_lock','auto_save_draft'),
+				Config::Get('feature_lock','auto_save_draft'),
 			]
 
 		],
@@ -280,7 +278,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Navigation Channel Select'),
 				t('Change channels directly from within the navigation dropdown menu'),
 				false,
-				get_config('feature_lock','nav_channel_select'),
+				Config::Get('feature_lock','nav_channel_select'),
 			]
 
 		],
@@ -294,7 +292,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Events Filter'),
 				t('Ability to display only events'),
 				false,
-				get_config('feature_lock','events_tab')
+				Config::Get('feature_lock','events_tab')
 			],
 
 			[
@@ -302,7 +300,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Polls Filter'),
 				t('Ability to display only polls'),
 				false,
-				get_config('feature_lock','polls_tab')
+				Config::Get('feature_lock','polls_tab')
 			],
 
 			[
@@ -310,7 +308,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Saved Searches'),
 				t('Save search terms for re-use'),
 				false,
-				get_config('feature_lock','savedsearch')
+				Config::Get('feature_lock','savedsearch')
 			],
 
 			[
@@ -318,7 +316,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Saved Folders'),
 				t('Ability to file posts under folders'),
 				false,
-				get_config('feature_lock','filing'),
+				Config::Get('feature_lock','filing'),
 			],
 
 			[
@@ -326,7 +324,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Alternate Stream Order'),
 				t('Ability to order the stream by last post date, last comment date or unthreaded activities'),
 				false,
-				get_config('feature_lock','order_tab')
+				Config::Get('feature_lock','order_tab')
 			],
 
 			[
@@ -334,7 +332,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Contact Filter'),
 				t('Ability to display only posts of a selected contact'),
 				false,
-				get_config('feature_lock','name_tab')
+				Config::Get('feature_lock','name_tab')
 			],
 
 			[
@@ -342,7 +340,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Forum Filter'),
 				t('Ability to display only posts of a specific forum'),
 				false,
-				get_config('feature_lock','forums_tab')
+				Config::Get('feature_lock','forums_tab')
 			],
 
 			[
@@ -350,7 +348,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Personal Posts Filter'),
 				t('Ability to display only posts that you\'ve interacted on'),
 				false,
-				get_config('feature_lock','personal_tab')
+				Config::Get('feature_lock','personal_tab')
 			],
 
 			[
@@ -358,7 +356,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Use blog/list mode'),
 				t('Comments will be displayed separately'),
 				false,
-				get_config('feature_lock','network_list_mode'),
+				Config::Get('feature_lock','network_list_mode'),
 			]
 
 		],
@@ -372,7 +370,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Photo Location'),
 				t('If location data is available on uploaded photos, link this to a map.'),
 				false,
-				get_config('feature_lock','photo_location'),
+				Config::Get('feature_lock','photo_location'),
 			],
 
 			[
@@ -380,7 +378,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Flag Adult Photos'),
 				t('Provide photo edit option to hide inappropriate photos from default album view'),
 				false,
-				get_config('feature_lock','adult_photo_flagging'),
+				Config::Get('feature_lock','adult_photo_flagging'),
 			]
 
 		],
@@ -394,7 +392,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Advanced Profiles'),
 				t('Additional profile sections and selections'),
 				false,
-				get_config('feature_lock','advanced_profiles')
+				Config::Get('feature_lock','advanced_profiles')
 			],
 
 			[
@@ -402,7 +400,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Profile Import/Export'),
 				t('Save and load profile details across sites/channels'),
 				false,
-				get_config('feature_lock','profile_export')
+				Config::Get('feature_lock','profile_export')
 			],
 
 			[
@@ -410,7 +408,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Multiple Profiles'),
 				t('Ability to create multiple profiles'),
 				false,
-				get_config('feature_lock','multi_profiles')
+				Config::Get('feature_lock','multi_profiles')
 			]
 
 		]

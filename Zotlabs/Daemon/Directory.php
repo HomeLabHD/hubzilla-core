@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Daemon;
 
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Libzotdir;
 use Zotlabs\Lib\Queue;
@@ -25,7 +26,7 @@ class Directory {
 
 		logger('directory update', LOGGER_DEBUG);
 
-		$dirmode = get_config('system', 'directory_mode');
+		$dirmode = Config::Get('system', 'directory_mode');
 		if ($dirmode === false)
 			$dirmode = DIRECTORY_MODE_NORMAL;
 

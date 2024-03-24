@@ -1,12 +1,13 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libzotdir;
 
 class Pubsites extends \Zotlabs\Web\Controller {
 
 	function get() {
-		$dirmode = intval(get_config('system','directory_mode'));
+		$dirmode = intval(Config::Get('system','directory_mode'));
 
 		$url = '';
 
@@ -19,7 +20,7 @@ class Pubsites extends \Zotlabs\Web\Controller {
 		}
 		$url .= '/sites';
 
-		$rating_enabled = get_config('system','rating_enabled');
+		$rating_enabled = Config::Get('system','rating_enabled');
 
 		$o = '<div class="generic-content-wrapper">';
 

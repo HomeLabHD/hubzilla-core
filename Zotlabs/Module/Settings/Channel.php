@@ -7,6 +7,7 @@ use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Access\PermissionRoles;
 use Zotlabs\Daemon\Master;
 use Zotlabs\Lib\Apps;
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libsync;
 
 require_once('include/selectors.php');
@@ -183,11 +184,11 @@ class Channel {
 		$subdir               = ((strlen(App::get_path())) ? '<br />' . t('or') . ' ' . z_root() . '/channel/' . $nickname : '');
 		$webbie               = $nickname . '@' . App::get_hostname();
 		$intl_nickname        = unpunify($nickname) . '@' . unpunify(App::get_hostname());
-		$disable_discover_tab = intval(get_config('system', 'disable_discover_tab', 1)) == 1;
-		$site_firehose        = intval(get_config('system', 'site_firehose', 0)) == 1;
+		$disable_discover_tab = intval(Config::Get('system', 'disable_discover_tab', 1)) == 1;
+		$site_firehose        = intval(Config::Get('system', 'site_firehose', 0)) == 1;
 
 		$expire        = $channel['channel_expire_days'];
-		$sys_expire    = get_config('system', 'default_expire_days');
+		$sys_expire    = Config::Get('system', 'default_expire_days');
 
 		$tpl_addr  = get_markup_template("settings_nick_set.tpl");
 		$prof_addr = replace_macros($tpl_addr, [

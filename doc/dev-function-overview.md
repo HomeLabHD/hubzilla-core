@@ -21,11 +21,15 @@ returns an xchan structure representing the current viewer if authenticated (loc
 
 * get_config($family,$key), get_pconfig($uid,$family,$key)
 
-Returns the config setting for $family and $key or false if unset. 
+Returns the config setting for $family and $key or false if unset.
+
+Deprecated: Use Zotlabs\Lib\Config::Get instead.
 
 * set_config($family,$key,$value), set_pconfig($uid,$family,$key,$value)
 
-Sets the value of config setting for $family and $key to $value. Returns $value. The config versions operate on system-wide settings. The pconfig versions get/set the values for a specific integer uid (channel_id).  
+Sets the value of config setting for $family and $key to $value. Returns $value. The config versions operate on system-wide settings. The pconfig versions get/set the values for a specific integer uid (channel_id).
+
+Deprecated: Use Zotlabs\Lib\Config::Set instead.
 
 * dbesc()
 
@@ -33,7 +37,7 @@ Always escape strings being used in DB queries. This function returns the escape
 
 * q($sql,$var1...)
 
-Perform a DB query with the SQL statement $sql. printf style arguments %s and %d are replaced with variable arguments, which should each be appropriately dbesc() or intval(). SELECT queries return an array of results or false if SQL or DB error. Other queries return true if the command was successful or false if it wasn't. 
+Perform a DB query with the SQL statement $sql. printf style arguments %s and %d are replaced with variable arguments, which should each be appropriately dbesc() or intval(). SELECT queries return an array of results or false if SQL or DB error. Other queries return true if the command was successful or false if it wasn't.
 
 * t($string)
 

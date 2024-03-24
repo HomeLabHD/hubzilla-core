@@ -4,8 +4,9 @@
  * @brief BBCode related functions for parsing, etc.
  */
 
-use Zotlabs\Lib\SvgSanitizer;
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libzot;
+use Zotlabs\Lib\SvgSanitizer;
 
 require_once('include/oembed.php');
 require_once('include/event.php');
@@ -111,7 +112,7 @@ function tryzrlvideo($match) {
 	if($zrl)
 		$link = zid($link);
 
-	$static_link = get_config('system','video_default_poster','images/video_poster.jpg');
+	$static_link = Config::Get('system','video_default_poster','images/video_poster.jpg');
 	if($static_link)
 		$poster = 'poster="' . escape_tags($static_link) . '" ' ;
 
@@ -1133,7 +1134,7 @@ function parseIdentityAwareHTML($Text) {
 		$Text = str_replace('[observer.photo]','', $Text);
 	}
 
-	$Text = str_replace(array('[baseurl]','[sitename]'),array(z_root(),get_config('system','sitename')),$Text);
+	$Text = str_replace(array('[baseurl]','[sitename]'),array(z_root(),Config::Get('system','sitename')),$Text);
 
 
 	// Unhide all [noparse] contained bbtags unspacefying them
@@ -1242,7 +1243,7 @@ function bbcode($text, $options = []) {
 	$text = $x['body'];
 	$saved_images = $x['images'];
 
-	$text = str_replace(array('[baseurl]','[sitename]'),array(z_root(),get_config('system','sitename')),$text);
+	$text = str_replace(array('[baseurl]','[sitename]'),array(z_root(),Config::Get('system','sitename')),$text);
 
 	// Replace any html brackets with HTML Entities to prevent executing HTML or script
 	// Don't use strip_tags here because it breaks [url] search by replacing & with amp

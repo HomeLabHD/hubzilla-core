@@ -10,6 +10,7 @@
 
 use CommerceGuys\Intl\Language\LanguageRepository;
 use LanguageDetection\Language;
+use Zotlabs\Lib\Config;
 
 /**
  * @brief Get the browser's submitted preferred languages.
@@ -17,7 +18,7 @@ use LanguageDetection\Language;
  * This functions parses the HTTP_ACCEPT_LANGUAGE header sent by the browser and
  * extracts the preferred languages and their priority.
  *
- * Get the language setting directly from system variables, bypassing get_config()
+ * Get the language setting directly from system variables, bypassing Config::Get()
  * as database may not yet be configured.
  *
  * If possible, we use the value from the browser.
@@ -313,8 +314,8 @@ function detect_language($s) {
 		return EMPTY_STR;
 	}
 
-	$min_length = get_config('system', 'language_detect_min_length', LANGUAGE_DETECT_MIN_LENGTH);
-	$min_confidence = get_config('system', 'language_detect_min_confidence', LANGUAGE_DETECT_MIN_CONFIDENCE);
+	$min_length = Config::Get('system', 'language_detect_min_length', LANGUAGE_DETECT_MIN_LENGTH);
+	$min_confidence = Config::Get('system', 'language_detect_min_confidence', LANGUAGE_DETECT_MIN_CONFIDENCE);
 
 	// embedded apps have long base64 strings which will trip up the detector.
 	$naked_body = preg_replace('/\[app\](.*?)\[\/app\]/', '', $s);

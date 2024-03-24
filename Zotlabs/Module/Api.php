@@ -1,6 +1,8 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Config;
+
 require_once('include/api.php');
 
 class Api extends \Zotlabs\Web\Controller {
@@ -57,7 +59,7 @@ class Api extends \Zotlabs\Web\Controller {
 				$consumer = new \OAuth1Consumer($app['client_id'], $app['pw'], $app['redirect_uri']);
 
 				$verifier = md5($app['secret'] . local_channel());
-				set_config('oauth', $verifier, local_channel());
+				Config::Set('oauth', $verifier, local_channel());
 
 
 				if($consumer->callback_url != null) {

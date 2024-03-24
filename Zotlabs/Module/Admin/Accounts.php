@@ -2,7 +2,7 @@
 
 namespace Zotlabs\Module\Admin;
 
-
+use Zotlabs\Lib\Config;
 
 class Accounts {
 
@@ -76,7 +76,7 @@ class Accounts {
 						if ( $ac['success'] ) {
 							$rc .= '✔';
 
-							$auto_create  = get_config('system','auto_channel_create',1);
+							$auto_create  = Config::Get('system','auto_channel_create',1);
 
 							if($auto_create) {
 								$reonar = json_decode($rs[0]['reg_stuff'], true);
@@ -87,7 +87,7 @@ class Accounts {
 								if($reonar['chan.did1'])
 									set_aconfig($ac['account']['account_id'], 'register', 'channel_address', $reonar['chan.did1']);
 
-								$permissions_role  = get_config('system','default_permissions_role');
+								$permissions_role  = Config::Get('system','default_permissions_role');
 								if($permissions_role)
 									set_aconfig($ac['account']['account_id'], 'register', 'permissions_role', $permissions_role);
 

@@ -2,7 +2,7 @@
 
 namespace Zotlabs\Module\Admin;
 
-
+use Zotlabs\Lib\Config;
 
 class Dbsync {
 
@@ -12,10 +12,10 @@ class Dbsync {
 
 		if(argc() > 3 && intval(argv(3)) && argv(2) === 'mark') {
 			// remove the old style config if it exists
-			del_config('database', 'update_r' . intval(argv(3)));
-			set_config('database', '_' . intval(argv(3)), 'success');
-			if(intval(get_config('system','db_version')) < intval(argv(3)))
-				set_config('system','db_version',intval(argv(3)));
+			Config::Delete('database', 'update_r' . intval(argv(3)));
+			Config::Set('database', '_' . intval(argv(3)), 'success');
+			if(intval(Config::Get('system','db_version')) < intval(argv(3)))
+				Config::Set('system','db_version',intval(argv(3)));
 			info( t('Update has been marked successful') . EOL);
 			goaway(z_root() . '/admin/dbsync');
 		}
@@ -33,7 +33,7 @@ class Dbsync {
 					}
 					elseif($retval === UPDATE_SUCCESS) {
 						$o .= sprintf( t('Update %s was successfully applied.'), $s);
-						set_config('database',$s, 'success');
+						Config::Set('database',$s, 'success');
 					}
 					else
 						$o .= sprintf( t('Verifying update %s did not return a status. Unknown if it succeeded.'), $s);
@@ -60,7 +60,7 @@ class Dbsync {
 				}
 				elseif($retval === UPDATE_SUCCESS) {
 					$o .= sprintf( t('Update %s was successfully applied.'), $s);
-					set_config('database',$s, 'success');
+					Config::Set('database',$s, 'success');
 				}
 				else
 					$o .= sprintf( t('Update %s did not return a status. It cannot be determined if it was successful.'), $s);

@@ -7,6 +7,8 @@
 
 namespace Zotlabs\Widget;
 
+use Zotlabs\Lib\Config;
+
 class Newmember {
 
 	function widget($arr) {
@@ -66,8 +68,8 @@ class Newmember {
 			]
 		];
 
-		$site_firehose = ((intval(get_config('system','site_firehose',0))) ? true : false);
-		$net_firehose  = ((get_config('system','disable_discover_tab',1)) ? false : true);
+		$site_firehose = ((intval(Config::Get('system','site_firehose',0))) ? true : false);
+		$net_firehose  = ((Config::Get('system','disable_discover_tab',1)) ? false : true);
 
 
 		// hack to put this in the correct spot of the array

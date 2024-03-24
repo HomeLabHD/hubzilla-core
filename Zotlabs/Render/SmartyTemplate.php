@@ -11,7 +11,7 @@ class SmartyTemplate implements TemplateEngine {
 
 	public function __construct() {
 
-		// Cannot use get_config() here because it is called during installation when there is no DB.
+		// Cannot use Config::Get() here because it is called during installation when there is no DB.
 		// FIXME: this may leak private information such as system pathnames.
 
         $basecompiledir = ((array_key_exists('smarty3_folder', App::$config['system']))

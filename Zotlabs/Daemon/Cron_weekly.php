@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Daemon;
 
+use Zotlabs\Lib\Config;
+
 class Cron_weekly {
 
 	static public function run($argc, $argv) {
@@ -44,7 +46,7 @@ class Cron_weekly {
 			db_utcnow(), db_quoteinterval('14 DAY')
 		);
 
-		$dirmode = intval(get_config('system', 'directory_mode'));
+		$dirmode = intval(Config::Get('system', 'directory_mode'));
 		if ($dirmode === DIRECTORY_MODE_SECONDARY || $dirmode === DIRECTORY_MODE_PRIMARY) {
 			logger('regdir: ' . print_r(z_fetch_url(get_directory_primary() . '/regdir?f=&url=' . urlencode(z_root()) . '&realm=' . urlencode(get_directory_realm())), true));
 		}

@@ -8,6 +8,7 @@
 use Sabre\VObject;
 
 use Zotlabs\Lib\Activity;
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libsync;
 use Zotlabs\Access\AccessList;
 
@@ -237,7 +238,7 @@ function ical_wrapper($ev) {
 	$o .= "BEGIN:VCALENDAR";
 	$o .= "\r\nVERSION:2.0";
 	$o .= "\r\nMETHOD:PUBLISH";
-	$o .= "\r\nPRODID:-//" . get_config('system','sitename') . "//" . Zotlabs\Lib\System::get_platform_name() . "//" . strtoupper(App::$language). "\r\n";
+	$o .= "\r\nPRODID:-//" . Config::Get('system','sitename') . "//" . Zotlabs\Lib\System::get_platform_name() . "//" . strtoupper(App::$language). "\r\n";
 	if(array_key_exists('dtstart', $ev))
 		$o .= format_event_ical($ev);
 	else {

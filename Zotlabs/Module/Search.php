@@ -3,11 +3,12 @@
 namespace Zotlabs\Module;
 
 use App;
-use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\ActivityStreams;
-use Zotlabs\Web\Controller;
+use Zotlabs\Lib\Config;
+use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Zotfinger;
+use Zotlabs\Web\Controller;
 
 class Search extends Controller {
 
@@ -18,7 +19,7 @@ class Search extends Controller {
 
 	function get($update = 0, $load = false) {
 
-		if ((get_config('system', 'block_public')) || (get_config('system', 'block_public_search'))) {
+		if ((Config::Get('system', 'block_public')) || (Config::Get('system', 'block_public_search'))) {
 			if ((!local_channel()) && (!remote_channel())) {
 				notice(t('Public access denied.') . EOL);
 				return;

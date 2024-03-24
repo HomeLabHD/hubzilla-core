@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Update;
 
+use Zotlabs\Lib\Config;
+
 class _1242 {
 
 	function run() {
@@ -10,7 +12,7 @@ class _1242 {
 			if ($pp['v'][0] === '{') {
 				$a = json_decode($pp['v'], true);
 				if (isset($a['encrypted'])) {
-					$v = crypto_unencapsulate($a, get_config('system', 'prvkey'));
+					$v = crypto_unencapsulate($a, Config::Get('system', 'prvkey'));
 					set_pconfig($pp['uid'], $pp['cat'], $pp['k'], obscurify($v));
 				}
 			}

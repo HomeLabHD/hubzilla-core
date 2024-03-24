@@ -5,6 +5,7 @@
  * @brief Some functions to handle addons and themes.
  */
 
+use Zotlabs\Lib\Config;
 
 /**
  * @brief Handle errors in plugin calls.
@@ -25,7 +26,7 @@ function handleerrors_plugin($plugin, $notice, $log, $uninstall = false){
 		$idx = array_search($plugin, \App::$plugins);
 		unset(\App::$plugins[$idx]);
 		uninstall_plugin($plugin);
-		set_config("system", "addon", implode(", ", \App::$plugins));
+		Config::Set("system", "addon", implode(", ", \App::$plugins));
 	}
 }
 
@@ -187,7 +188,7 @@ function plugin_is_installed($name) {
  * @brief Reload all updated plugins.
  */
 function reload_plugins() {
-	$plugins = get_config('system', 'addon');
+	$plugins = Config::Get('system', 'addon');
 	if(strlen($plugins)) {
 		$r = dbq("SELECT * FROM addon WHERE installed = 1");
 		if($r)
@@ -266,7 +267,7 @@ function plugins_sync() {
 
 	$installed = plugins_installed_list();
 
-	$plugins = get_config('system', 'addon', '');
+	$plugins = Config::Get('system', 'addon', '');
 
 	$plugins_arr = explode(',', $plugins);
 
@@ -719,7 +720,7 @@ function check_plugin_versions($info) {
 					continue;
 				if(strpos($test,'.')) {
 					$conf = explode('.',$test);
-					if(get_config(trim($conf[0]),trim($conf[1])))
+					if(Config::Get(trim($conf[0]),trim($conf[1])))
 						return true;
 					else
 						return false;

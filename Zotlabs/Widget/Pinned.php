@@ -1,6 +1,8 @@
 <?php
 namespace Zotlabs\Widget;
 
+use Zotlabs\Lib\Config;
+
 /**
  *   * Name: Pinned items
  *   * Description: Display pinned items
@@ -31,7 +33,7 @@ class Pinned {
 		if(! $this->uid)
 			return $ret;
 
-		$this->allowed_types = get_config('system', 'pin_types', [ ITEM_TYPE_POST ]);
+		$this->allowed_types = Config::Get('system', 'pin_types', [ ITEM_TYPE_POST ]);
 
 		$items = $this->list($types);
 

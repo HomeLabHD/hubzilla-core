@@ -1,5 +1,7 @@
 <?php /** @file */
 
+use Zotlabs\Lib\Config;
+
 require_once('library/ASNValue.class.php');
 require_once('library/asn1.php');
 
@@ -282,7 +284,7 @@ function new_keypair($bits) {
 		'encrypt_key'      => false
 	);
 
-	$conf = get_config('system','openssl_conf_file');
+	$conf = Config::Get('system','openssl_conf_file');
 	if($conf)
 		$openssl_options['config'] = $conf;
 
@@ -460,12 +462,12 @@ function convert_salmon_key($key) {
 
 
 function z_obscure($s) {
-	return json_encode(crypto_encapsulate($s,get_config('system','pubkey')));
+	return json_encode(crypto_encapsulate($s,Config::Get('system','pubkey')));
 }
 
 function z_unobscure($s) {
 	if(strpos($s,"{\"") !== 0)
 		return $s;
-	return crypto_unencapsulate(json_decode($s,true),get_config('system','prvkey'));
+	return crypto_unencapsulate(json_decode($s,true),Config::Get('system','prvkey'));
 }
 

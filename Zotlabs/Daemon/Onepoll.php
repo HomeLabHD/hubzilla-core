@@ -5,6 +5,7 @@ namespace Zotlabs\Daemon;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\ActivityStreams;
 use Zotlabs\Lib\ASCollection;
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libzot;
 
 require_once('include/socgraph.php');
@@ -25,7 +26,7 @@ class Onepoll {
 		}
 
 		$sql_extra = '';
-		$allow_feeds = get_config('system', 'feed_contacts');
+		$allow_feeds = Config::Get('system', 'feed_contacts');
 		if(!$allow_feeds) {
 			$sql_extra = ' and abook_feed = 0 ';
 		}
@@ -125,7 +126,7 @@ class Onepoll {
 
 		if ($fetch_feed) {
 
-			$max = intval(get_config('system', 'max_imported_posts', 30));
+			$max = intval(Config::Get('system', 'max_imported_posts', 30));
 
 			if (intval($max)) {
 				$cl = Activity::get_actor_collections($contact['abook_xchan']);

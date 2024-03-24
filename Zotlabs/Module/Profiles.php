@@ -1,6 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libsync;
 
 class Profiles extends \Zotlabs\Web\Controller {
@@ -673,7 +674,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 
 
 				$opt_tpl = get_markup_template("field_checkbox.tpl");
-				if (get_config('system', 'publish_all')) {
+				if (Config::Get('system', 'publish_all')) {
 					$profile_in_dir = '<input type="hidden" name="profile_in_directory" value="1" />';
 				}
 				else {
@@ -716,7 +717,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 			//$vctmp = (($vc) ? \Sabre\VObject\Reader::read($vc) : null);
 			//$vcard = (($vctmp) ? get_vcard_array($vctmp,$r[0]['id']) : [] );
 
-			$f = get_config('system','birthday_input_format');
+			$f = Config::Get('system','birthday_input_format');
 			if(! $f)
 				$f = 'ymd';
 

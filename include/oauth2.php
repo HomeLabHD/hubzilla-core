@@ -12,10 +12,10 @@
 	$oauth2_server->addGrantType(new OAuth2\GrantType\ClientCredentials($storage));
 	$oauth2_server->addGrantType(new OAuth2\GrantType\AuthorizationCode($storage));
 
-	$keyStorage = new OAuth2\Storage\Memory( [ 
-		'keys' => [ 
-			'public_key' => get_config('system','pubkey'),
-			'private_key' => get_config('system','prvkey')
+	$keyStorage = new OAuth2\Storage\Memory( [
+		'keys' => [
+			'public_key' => Config::Get('system','pubkey'),
+			'private_key' => Config::Get('system','prvkey')
 		]
 	]);
 

@@ -1,6 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libsync;
 
 /*
@@ -112,10 +113,10 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 
 			if($r) {
 
-				$max_thumb = intval(get_config('system','max_thumbnail',1600));
+				$max_thumb = intval(Config::Get('system','max_thumbnail',1600));
 				$iscaled = false;
 				if(intval($r[0]['height']) > $max_thumb || intval($r[0]['width']) > $max_thumb) {
-					$imagick_path = get_config('system','imagick_convert_path');
+					$imagick_path = Config::Get('system','imagick_convert_path');
 					if($imagick_path && @file_exists($imagick_path) && intval($r[0]['os_storage'])) {
 
 						$fname = dbunescbin($r[0]['content']);
@@ -428,7 +429,7 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 
 	function cover_photo_crop_ui_head(&$a, $ph, $hash, $smallest){
 
-		$max_length = get_config('system','max_image_length');
+		$max_length = Config::Get('system','max_image_length');
 		if(! $max_length)
 			$max_length = MAX_IMAGE_LENGTH;
 		if($max_length > 0)

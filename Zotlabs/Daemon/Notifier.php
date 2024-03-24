@@ -2,8 +2,9 @@
 
 namespace Zotlabs\Daemon;
 
-use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Activity;
+use Zotlabs\Lib\Config;
+use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Queue;
 
 require_once('include/html2plain.php');
@@ -668,7 +669,7 @@ class Notifier {
 			);
 
 			// only create delivery reports for normal undeleted items
-			if (is_array($target_item) && (!$target_item['item_deleted']) && (!get_config('system', 'disable_dreport'))) {
+			if (is_array($target_item) && (!$target_item['item_deleted']) && (!Config::Get('system', 'disable_dreport'))) {
 				q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_name, dreport_result, dreport_time, dreport_xchan, dreport_queue )
 					values ( '%s', '%s','%s','%s','%s','%s','%s','%s' ) ",
 					dbesc($target_item['mid']),
@@ -698,7 +699,7 @@ class Notifier {
 			do_delivery(self::$deliveries);
 		}
 
-		if ($dead_hosts && is_array($target_item) && (!$target_item['item_deleted']) && (!get_config('system', 'disable_dreport'))) {
+		if ($dead_hosts && is_array($target_item) && (!$target_item['item_deleted']) && (!Config::Get('system', 'disable_dreport'))) {
 			foreach ($dead_hosts as $deceased_host) {
 				$r = q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_name, dreport_result, dreport_time, dreport_xchan, dreport_queue )
 					values ( '%s', '%s','%s','%s','%s','%s','%s','%s' ) ",
