@@ -3,7 +3,7 @@
 namespace Zotlabs\Storage;
 
 use Sabre\DAV;
-use Zotlabz\Lib\Config;
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libsync;
 
 /**

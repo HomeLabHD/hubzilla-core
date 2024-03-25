@@ -996,6 +996,10 @@ img.mail-conv-sender-photo {
 	margin-top: 2em;
 }
 
+.wall-item-pinned i {
+	transform: rotate(45deg);
+}
+
 .wall-item-content-wrapper {
 	background-color: var(--bs-tertiary-bg);
 }

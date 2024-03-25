@@ -5,7 +5,7 @@ if [ ! -d .git ]; then
 fi
 git pull
 
-if [ -d extend ] ; then
+if [ -d extend ]; then
 	for a in  theme addon widget ; do
 		if [ -d extend/$a ]; then
 			for b in  `ls extend/$a` ; do
@@ -14,4 +14,9 @@ if [ -d extend ] ; then
 			done
 		fi
 	done
+fi
+
+# Allow to run additional site specific commands
+if [ -f util/udall_extra ]; then
+	source util/udall_extra
 fi
