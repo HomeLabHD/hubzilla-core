@@ -1286,6 +1286,11 @@ function bbcode($text, $options = []) {
 	if (strpos($text,'[pre]') !== false) {
 		$text = preg_replace_callback("/\[pre\](.*?)\[\/pre\]/ism", 'bb_spacefy',$text);
 	}
+
+	if (strpos($text,'</pre>') !== false) {
+		$text = str_replace(["</pre>\r", "</pre>\n"], '</pre>', $text);
+	}
+
 	if (strpos($text,'[summary]') !== false) {
 		$text = preg_replace_callback("/\[summary\](.*?)\[\/summary\]/ism", 'bb_spacefy',$text);
 	}
