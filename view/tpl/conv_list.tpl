@@ -209,7 +209,7 @@
 									{{/if}}
 									{{if $item.settings}}
 									<div class="dropdown-divider"></div>
-									<a class="dropdown-item conversation-settings-link" href="" data-toggle="modal" data-target="#conversation_settings">{{$item.settings}}</a>
+									<a class="dropdown-item conversation-settings-link" href="" data-bs-toggle="modal" data-bs-target="#conversation_settings">{{$item.settings}}</a>
 									{{/if}}
 								</div>
 							</div>
