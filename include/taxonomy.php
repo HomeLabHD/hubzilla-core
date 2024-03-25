@@ -6,7 +6,7 @@
 // To do this we need to escape these characters if they appear in our tag.
 
 use Zotlabs\Lib\Cache;
-
+use Zotlabs\Daemon\Master;
 
 function file_tag_encode($s) {
 	return str_replace(array('<','>','[',']'),array('%3c','%3e','%5b','%5d'),$s);
@@ -357,7 +357,7 @@ function pub_tagadelic($net, $site, $limit, $recent, $safemode, $type) {
 		}
 	}
 
-	$key = __FUNCTION__ . "-" . md5($site . $recent . $safemode . $limit . $type);
+	$key = __FUNCTION__ . '_' . md5($site . $recent . $safemode . $limit . $type);
 
 	$content = Cache::get($key, '5 MINUTE');
 	if(! $content) {
@@ -377,7 +377,7 @@ function pub_tagadelic($net, $site, $limit, $recent, $safemode, $type) {
 			(intval($count) ? "LIMIT $count" : '')
 		];
 
-		\Zotlabs\Daemon\Master::Summon([ 'Cache_query', $key, base64_encode(json_encode($arr)) ]);
+		Master::Summon([ 'Cache_query', $key, base64_encode(json_encode($arr)) ]);
 	}
 
 	$r = unserialize($content);
