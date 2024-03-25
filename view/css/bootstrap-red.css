@@ -62,6 +62,6 @@ a {
 	text-decoration: none !important;
 }
 
-ol, ul, dl {
+ol, ul, dl, pre {
 	margin-bottom: 0;
 }
