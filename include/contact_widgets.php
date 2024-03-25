@@ -67,11 +67,10 @@ function categories_widget($baseurl,$selected = '') {
 
 	require_once('include/security.php');
 
-	$sql_extra = item_permissions_sql(App::$profile['profile_uid']);
+	$observer = get_observer_hash();
+	$sql_extra = item_permissions_sql(App::$profile['profile_uid'], $observer);
 
 	$item_normal = item_normal();
-
-	$observer = get_observer_hash();
 
 	$key = __FUNCTION__ . '_' . md5(App::$profile['profile_uid'] . $observer);
 
