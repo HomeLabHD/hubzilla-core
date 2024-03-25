@@ -7,6 +7,7 @@
 
 use Zotlabs\Lib\Cache;
 use Zotlabs\Lib\Config;
+use Zotlabs\Daemon\Master;
 
 
 function file_tag_encode($s) {
@@ -358,7 +359,7 @@ function pub_tagadelic($net, $site, $limit, $recent, $safemode, $type) {
 		}
 	}
 
-	$key = __FUNCTION__ . "-" . md5($site . $recent . $safemode . $limit . $type);
+	$key = __FUNCTION__ . '_' . md5($site . $recent . $safemode . $limit . $type);
 
 	$content = Cache::get($key, '5 MINUTE');
 	if(! $content) {
@@ -378,7 +379,7 @@ function pub_tagadelic($net, $site, $limit, $recent, $safemode, $type) {
 			(intval($count) ? "LIMIT $count" : '')
 		];
 
-		\Zotlabs\Daemon\Master::Summon([ 'Cache_query', $key, base64_encode(json_encode($arr)) ]);
+		Master::Summon([ 'Cache_query', $key, base64_encode(json_encode($arr)) ]);
 	}
 
 	$r = unserialize($content);

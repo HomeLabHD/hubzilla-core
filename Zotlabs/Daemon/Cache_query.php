@@ -12,6 +12,7 @@ class Cache_query {
 		if(! $argc == 3)
 			return;
 
+		$r = null;
 		$key = $argv[1];
 
 		$pid = Config::Get('procid', $key, false);
@@ -29,8 +30,10 @@ class Cache_query {
 		$arr = json_decode(base64_decode($argv[0]), true);
 
 		$r = call_user_func_array('q', $arr);
-		if($r)
+
+		if(is_array($r)) {
 			Cache::set($key, serialize($r));
+		}
 
 		Config::Delete('procid', $key);
 

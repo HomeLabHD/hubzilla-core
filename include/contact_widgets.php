@@ -2,6 +2,7 @@
 
 use Zotlabs\Lib\Cache;
 use Zotlabs\Lib\Config;
+use Zotlabs\Daemon\Master;
 
 function findpeople_widget() {
 
@@ -71,7 +72,9 @@ function categories_widget($baseurl,$selected = '') {
 
 	$item_normal = item_normal();
 
-	$key = __FUNCTION__ . "-" . App::$profile['profile_uid'];
+	$observer = get_observer_hash();
+
+	$key = __FUNCTION__ . '_' . md5(App::$profile['profile_uid'] . $observer);
 
 	$content = Cache::get($key, '5 MINUTE');
 	if (! $content) {
@@ -97,7 +100,7 @@ function categories_widget($baseurl,$selected = '') {
 			dbesc(ACTIVITY_UPDATE)
 		];
 
-		\Zotlabs\Daemon\Master::Summon([ 'Cache_query', $key, base64_encode(json_encode($arr)) ]);
+		Master::Summon([ 'Cache_query', $key, base64_encode(json_encode($arr)) ]);
 	}
 
 	if (!$content) {
