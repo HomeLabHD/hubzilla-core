@@ -1046,6 +1046,8 @@ function liveUpdate(notify_id) {
 				in_progress = false;
 				$('#image_counter').html('');
 
+				// remove modal backdrop in case the update was triggered from a modal
+				$('.modal-backdrop').remove();
 			})
 			.done( function( instance ) {
 				//console.log('all images successfully loaded');
