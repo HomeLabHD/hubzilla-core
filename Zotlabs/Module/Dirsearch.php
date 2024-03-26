@@ -154,9 +154,13 @@ class Dirsearch extends Controller {
 		}
 
 
-	    $perpage      = $_REQUEST['n'] ?? 60;
-	    $page         = ((isset($_REQUEST['p']) && $_REQUEST['p']) ? intval($_REQUEST['p'] - 1) : 0);
-	    $startrec     = (($page+1) * $perpage) - $perpage;
+		$perpage = $_REQUEST['n'] ?? 30;
+		if ($perpage > 30) {
+			$perpage = 30;
+		}
+
+		$page         = ((isset($_REQUEST['p']) && $_REQUEST['p']) ? intval($_REQUEST['p'] - 1) : 0);
+		$startrec     = (($page+1) * $perpage) - $perpage;
 		$limit        = $_REQUEST['limit'] ?? 0;
 		$return_total = $_REQUEST['return_total'] ?? 0;
 

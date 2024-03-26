@@ -118,7 +118,7 @@ class Directory extends Controller {
 			$safe_mode = 1;
 			$type = 0;
 
-			$r = suggestion_query(local_channel(),get_observer_hash(),0,60);
+			$r = suggestion_query(local_channel(), get_observer_hash(), 0, 30);
 
 			if(! $r) {
 				notice( t('No default suggestions were found.') . EOL);
