@@ -1,3 +1,15 @@
+Hubzilla 9.0.1 (2024-03-26)
+	- Fix an issue where after an update initiated from a modal the modal backdrop would remain
+	- Fix bootstrap namespace in conv list templates
+	- Fix link to delivery report in conv list templates
+	- Slightly improved handling of linefeeds in some bbcode block elements and added tests
+	- Fix categories_widget() cache not being observer aware
+	- Allow to run additional site specific commands at the end of util/udall in util/udall_extra
+	- Fix linefeeds in table and list content removed
+	- Pubcrawl: do not attrmpt to sign wall to wall messages - they will appear misattributed in mastodons
+	- Pubcrawl: default to Note activity type for now
+
+
 Hubzilla 9.0 (2024-03-22)
 	- Refactor browser to browser encryption based on sodium plus library
 	- Added developer docs for the refactored test system
