@@ -1,6 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
+use App;
 use Zotlabs\Lib\PConfig;
 use Zotlabs\Daemon\Master;
 
@@ -20,6 +21,9 @@ class Import_progress extends \Zotlabs\Web\Controller {
 		}
 
 		nav_set_selected('Channel Import');
+
+		$channel = App::get_channel();
+		$import_host = PConfig::Get(local_channel(), 'import', 'host');
 
 		// items
 		$c = PConfig::Get(local_channel(), 'import', 'content_progress');
@@ -41,6 +45,24 @@ class Import_progress extends \Zotlabs\Web\Controller {
 			}
 		}
 		else {
+			if(argv(1) === 'resume_itemsync' && $import_host) {
+				$alive = probe_api_path($import_host);
+				if ($alive) {
+					$parsed = parse_url($alive);
+					unset($parsed['path']);
+
+					$hz_server = unparse_url($parsed);
+					$since = datetime_convert(date_default_timezone_get(), date_default_timezone_get(), '0001-01-01 00:00');
+					$until = datetime_convert(date_default_timezone_get(), date_default_timezone_get(), 'now + 1 day');
+					$page = 0;
+					Master::Summon(['Content_importer', sprintf('%d', $page), $since, $until, $channel['channel_address'], urlencode($hz_server)]);
+					goaway('/import_progress');
+				}
+				else {
+					notice(t('Import host does not seem to be online or compatible') . EOL);
+				}
+			}
+
 			$cprogress = 'waiting to start...';
 
 			if (PConfig::Get(local_channel(), 'import', 'content_completed')) {
@@ -73,6 +95,23 @@ class Import_progress extends \Zotlabs\Web\Controller {
 			}
 		}
 		else {
+			if(argv(1) === 'resume_filesync' && $import_host) {
+				$alive = probe_api_path($import_host);
+				if ($alive) {
+					$parsed = parse_url($alive);
+					unset($parsed['path']);
+
+					$hz_server = unparse_url($parsed);
+					$page = 0;
+
+					Master::Summon(['File_importer', sprintf('%d', $page), $channel['channel_address'], urlencode($hz_server)]);
+					goaway('/import_progress');
+				}
+				else {
+					notice(t('Import host does not seem to be online or compatible') . EOL);
+				}
+			}
+
 			$fprogress = 'waiting to start...';
 
 			if (PConfig::Get(local_channel(), 'import', 'files_completed')) {
