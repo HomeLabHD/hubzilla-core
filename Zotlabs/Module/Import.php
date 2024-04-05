@@ -525,14 +525,21 @@ class Import extends Controller {
 		// This will indirectly perform a refresh_all *and* update the directory
 		Master::Summon(['Directory', $channel['channel_id']]);
 
-		$cf_api_compat = true;
+		if ($api_path) {
+			$parsed = parse_url($api_path);
+			unset($parsed['path']);
 
-		if ($api_path && $import_posts) {  // we are importing from a server and not a file
+			// store the import host so we can manually kick off item/file sync later in case anything did not work out
+			set_pconfig($channel['channel_id'], 'import', 'host', $parsed['host']);
+
+			$hz_server = unparse_url($parsed);
+		}
+
+		$cf_api_compat = false;
+
+		if ($api_path && $hz_server && $import_posts) {  // we are importing from a server and not a file
 			if (version_compare($data['compatibility']['version'], '6.3.4', '>=')) {
-
-				$m = parse_url($api_path);
-
-				$hz_server = $m['scheme'] . '://' . $m['host'];
+				$cf_api_compat = true;
 
 				$since = datetime_convert(date_default_timezone_get(), date_default_timezone_get(), '0001-01-01 00:00');
 				$until = datetime_convert(date_default_timezone_get(), date_default_timezone_get(), 'now + 1 day');
@@ -542,9 +549,6 @@ class Import extends Controller {
 
 				Master::Summon(['Content_importer', sprintf('%d', $page), $since, $until, $channel['channel_address'], urlencode($hz_server)]);
 				Master::Summon(['File_importer', sprintf('%d', $page), $channel['channel_address'], urlencode($hz_server)]);
-			}
-			else {
-				$cf_api_compat = false;
 			}
 		}
 
