@@ -29,8 +29,8 @@ class Siteinfo extends \Zotlabs\Web\Controller {
 				'$terms' => t('Terms of Service'),
 				'$prj_header' => t('Software and Project information'),
 				'$prj_name' => t('This site is powered by $Projectname'),
-				'$prj_transport' => t('Federated and decentralised networking and identity services provided by Zot'),
-				'$transport_link' => '<a href="https://zotlabs.org">https://zotlabs.org</a>',
+				'$prj_transport' => t('Federated and decentralised networking and identity services provided by'),
+				'$transport_link' => '<a href="https://hubzilla.org">https://hubzilla.org</a>',
 
 				'$additional_text' => t('Additional federated transport protocols:'),
 				'$additional_fed' => implode(', ', $federated),
