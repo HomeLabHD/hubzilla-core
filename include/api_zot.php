@@ -546,6 +546,7 @@
 			return false;
 		}
 
+
 		logger('api_red_item_store: REQUEST ' . print_r($_REQUEST,true));
 		logger('api_red_item_store: FILES ' . print_r($_FILES,true));
 
@@ -561,7 +562,7 @@
 			$mod = new Zotlabs\Module\Wall_attach();
 			$media = $mod->post();
 			if($media)
-				$_REQUEST['body'] = $media . "\n\n" . $_REQUEST['body'];
+				$_REQUEST['body'] = $media . "\n" . $_REQUEST['body'];
 		}
 
 		$mod = new Zotlabs\Module\Item();

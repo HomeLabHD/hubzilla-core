@@ -2982,11 +2982,17 @@ function save_chunk($channel,$start,$end,$len) {
 
 	$result = [];
 
-	$tmp_path = $_FILES['files']['tmp_name'];
+	$file = $_FILES['files'] ?? $_FILES['userfile'] ?? [];
+
+	if (!$file) {
+		return $result;
+	}
+
+	$tmp_path = $file['tmp_name'];
 	$new_base = 'store/[data]/' . $channel['channel_address'] . '/tmp';
 	os_mkdir($new_base,STORAGE_DEFAULT_PERMISSIONS,true);
 
-	$new_path = $new_base . '/' . $_FILES['files']['name'];
+	$new_path = $new_base . '/' . $file['name'];
 
 	if(file_exists($new_path) && intval($start) === 0) {
 		$result['partial'] = true;
@@ -3008,8 +3014,8 @@ function save_chunk($channel,$start,$end,$len) {
 	}
 	if(($len - 1) == $end) {
 		unlink($tmp_path);
-		$result['name']     = $_FILES['files']['name'];
-		$result['type']     = $_FILES['files']['type'];
+		$result['name']     = $file['name'];
+		$result['type']     = $file['type'];
 		$result['tmp_name'] = $new_path;
 		$result['error']    = 0;
 		$result['size']     = $len;

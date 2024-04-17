@@ -104,32 +104,32 @@ class Wall_attach extends \Zotlabs\Web\Controller {
 		}
 
 		if(intval($r['data']['is_photo'])) {
-			$s = "\n\n" . $r['body'] . "\n\n";
+			$s = $r['body'];
 		}
 		else {
-			if(strpos($r['data']['filetype'],'video') === 0) {
+			if(strpos($r['data']['filetype'], 'video') === 0) {
 				// give a wee bit of time for the background thumbnail processor to do its thing
 				// or else we'll never see a video poster
 				sleep(3);
 				$url = z_root() . '/cloud/' . $channel['channel_address'] . '/' . $r['data']['display_path'];
 				$thumb = Linkinfo::get_video_poster($url);
 				if($thumb) {
-					$s = "\n\n" . '[zvideo poster=\'' . $thumb . '\']' . $url . '[/zvideo]' . "\n\n";
+					$s = '[zvideo poster=\'' . $thumb . '\']' . $url . '[/zvideo]';
 				}
 				else {
-					$s = "\n\n" . '[zvideo]' . $url . '[/zvideo]' . "\n\n";
+					$s = '[zvideo]' . $url . '[/zvideo]';
 				}
 			}
 			if(strpos($r['data']['filetype'],'audio') === 0) {
 				$url = z_root() . '/cloud/' . $channel['channel_address'] . '/' . $r['data']['display_path'];
-				$s = "\n\n" . '[zaudio]' . $url . '[/zaudio]' . "\n\n";
+				$s = '[zaudio]' . $url . '[/zaudio]';
 			}
 			if ($r['data']['filetype'] === 'image/svg+xml') {
 				$x = @file_get_contents('store/' . $channel['channel_address'] . '/' . $r['data']['os_path']);
 				if ($x) {
 					$bb = svg2bb($x);
 					if ($bb) {
-						$s .= "\n\n" . $bb;
+						$s .= $bb;
 					}
 					else {
 						logger('empty return from svgbb');
@@ -140,7 +140,7 @@ class Wall_attach extends \Zotlabs\Web\Controller {
 				}
 			}
 
-			$s .=  "\n\n" . '[attachment]' . $r['data']['hash'] . ',' . $r['data']['revision'] . '[/attachment]' . "\n";
+			$s .=  '[attachment]' . $r['data']['hash'] . ',' . $r['data']['revision'] . '[/attachment]';
 		}
 
 		$sync = attach_export_data($channel,$r['data']['hash']);
