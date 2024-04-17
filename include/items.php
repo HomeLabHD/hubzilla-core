@@ -36,10 +36,10 @@ require_once('include/permissions.php');
  * @param boolean $include_groups
  * @return array containing the recipients
  */
-function collect_recipients($item, &$private_envelope,$include_groups = true) {
+function collect_recipients($item, &$private_envelope, $include_groups = true) {
 
 	$private_envelope = ((intval($item['item_private'])) ? true : false);
-	$recipients = array();
+	$recipients = [];
 
 	if($item['allow_cid'] || $item['allow_gid'] || $item['deny_cid'] || $item['deny_gid']) {
 
@@ -54,8 +54,15 @@ function collect_recipients($item, &$private_envelope,$include_groups = true) {
 			$allow_groups = [];
 		}
 
-		$raw_recipients = array_unique(array_merge($allow_people, $allow_groups));
-		$recipients = deliverable_abook_xchans($item['uid'], $raw_recipients);
+		$recipients = array_unique(array_merge($allow_people, $allow_groups));
+
+		if ($recipients) {
+			// deliverable_abook_xchans() will return all deliverable xchans
+			// if passed an empty array as 2nd argument (no filtering).
+			// Hence only call it if we do actually have any recipients.
+			$recipients = deliverable_abook_xchans($item['uid'], $recipients);
+		}
+
 
 		// if you specifically deny somebody but haven't allowed anybody, we'll allow everybody in your
 		// address book minus the denied connections. The post is still private and can't be seen publicly
@@ -200,6 +207,8 @@ function collect_recipients($item, &$private_envelope,$include_groups = true) {
 	if($item['owner_xchan'] !== $item['author_xchan'] && !in_array($item['owner_xchan'], $recipients)) {
 		$recipients[] = $item['owner_xchan'];
 	}
+
+hz_syslog(print_r($recipients, true));
 
 	return $recipients;
 }
