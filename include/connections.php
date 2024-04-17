@@ -68,6 +68,14 @@ function rconnect_url($channel_id,$xchan) {
 
 }
 
+/**
+ * @brief returns deliverable xchans for a channel.
+ *
+ * @param intval $channel_id
+ * @param array $filter (optional)
+ * @param boolean $flatten (optional)
+ */
+
 function deliverable_abook_xchans($channel_id, $filter = [], $flatten = true) {
 	$filter_sql = '';
 
