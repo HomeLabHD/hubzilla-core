@@ -1,5 +1,4 @@
 <?php
-namespace Zotlabs\Module;
 /**
  * @file Zotlabs/Module/Setup.php
  *
@@ -8,11 +7,12 @@ namespace Zotlabs\Module;
  * @todo This setup module could need some love and improvements.
  */
 
+namespace Zotlabs\Module;
+
 use Zotlabs\Lib\Config;
 
 /**
- * @brief Initialisation for the setup module.
- *
+ * Controller for the initial setup/installation.
  */
 class Setup extends \Zotlabs\Web\Controller {
 

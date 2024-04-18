@@ -602,8 +602,19 @@ define('DBTYPE_MYSQL', 0);
 define('DBTYPE_POSTGRES', 1);
 
 
-function sys_boot() {
-
+/**
+ * Boot the app.
+ *
+ * Detects if the system is installed, and if it is, reads the basic configuration
+ * in `.htconfig`, conects to the database, and loads the system configuration stored
+ * in the db.
+ *
+ * As a side effect it also sets the App::$install flag to true if the system is _not_
+ * installed yet.
+ *
+ * @return True if the system is installed, false otherwise.
+ */
+function sys_boot(): bool {
 
 	// our central App object
 
@@ -686,6 +697,8 @@ function sys_boot() {
 		 */
 		call_hooks('init_1');
 	}
+
+	return !App::$install;
 }
 
 
@@ -766,7 +779,6 @@ class App {
 	public static $langsave;
 	public static $rtl = false;
 	public static $plugins_admin;
-	public static $module_loaded = false;
 	public static $query_string;
 	public static $page;
 	public static $profile;
