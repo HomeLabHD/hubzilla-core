@@ -208,8 +208,6 @@ function collect_recipients($item, &$private_envelope, $include_groups = true) {
 		$recipients[] = $item['owner_xchan'];
 	}
 
-hz_syslog(print_r($recipients, true));
-
 	return $recipients;
 }
 
