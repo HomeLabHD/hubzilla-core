@@ -635,7 +635,7 @@ msgstr "Visible para conexiones específicas."
 #: ../../Zotlabs/Module/Share.php:118
 #, php-format
 msgid "&#x1f501; Repeated %1$s's %2$s"
-msgstr "&#x1f501; Repetidos %2$sde %1$s"
+msgstr "&#x1f501; Repitió %2$sde %1$s"
 
 #: ../../include/items.php:3843 ../../addon/flashcards/Mod_Flashcards.php:291
 #: ../../addon/flashcards/Mod_Flashcards.php:292
@@ -2275,12 +2275,12 @@ msgstr "no gusta de %2$s de %1$s"
 #: ../../include/conversation.php:203
 #, php-format
 msgid "%1$s repeated %2$s's %3$s"
-msgstr "%1$scompartió %3$sde %2$s"
+msgstr "%1$s repitió %3$sde %2$s"
 
 #: ../../include/conversation.php:204
 #, php-format
 msgid "repeated %1$s's %2$s"
-msgstr "compartió %2$s de %1$s"
+msgstr "repitió %2$s de %1$s"
 
 #: ../../include/conversation.php:332 ../../Zotlabs/Lib/ThreadItem.php:532
 msgid "This is an unsaved preview"
@@ -2317,7 +2317,7 @@ msgstr "Quizá participe"
 #: ../../include/conversation.php:470
 msgctxt "title"
 msgid "Repeats"
-msgstr "Se repite"
+msgstr "Repite"
 
 #: ../../include/conversation.php:539
 msgid "Select"
@@ -2757,7 +2757,7 @@ msgid "Repeat"
 msgid_plural "Repeats"
 msgstr[0] "Se repite"
 msgstr[1] "Se repite"
-msgstr[2] "Se repite"
+msgstr[2] "Repite"
 
 #: ../../include/conversation.php:1556 ../../Zotlabs/Module/Photos.php:1134
 msgctxt "noun"
@@ -6853,7 +6853,7 @@ msgstr "no ha gustado de "
 
 #: ../../Zotlabs/Lib/Enotify.php:167
 msgid "repeated"
-msgstr "repetido / compartido"
+msgstr "repitió"
 
 #: ../../Zotlabs/Lib/Enotify.php:172
 msgid "voted on"
@@ -7391,11 +7391,11 @@ msgstr "compartir"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:345
 msgid "Repeat"
-msgstr "Se repite"
+msgstr "Repetir"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:345
 msgid "repeat"
-msgstr "Se repite"
+msgstr "repetir"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:356
 msgid "Delivery Report"

@@ -2,8 +2,7 @@
 
 if(! function_exists("string_plural_select_es_es")) {
 function string_plural_select_es_es($n){
-                                        return ($n != 1 ? 1 : 0);
-}}
+        return ($n != 1 ? 1 : 0)}}
 App::$rtl = 0;
 App::$strings["plural_function_code"] = "(n != 1 ? 1 : 0)";
 App::$strings["Source channel not found."] = "No se ha encontrado el canal de origen.";
@@ -87,7 +86,7 @@ App::$strings["Visible to anybody on %s."] = "Visible para cualquiera en %s.";
 App::$strings["Visible to all connections."] = "Visible para todas las conexiones.";
 App::$strings["Visible to approved connections."] = "Visible para las conexiones permitidas.";
 App::$strings["Visible to specific connections."] = "Visible para conexiones específicas.";
-App::$strings["&#x1f501; Repeated %1\$s's %2\$s"] = "&#x1f501; Repetidos %2\$sde %1\$s";
+App::$strings["&#x1f501; Repeated %1\$s's %2\$s"] = "&#x1f501; Repitió %2\$sde %1\$s";
 App::$strings["Item not found."] = "Elemento no encontrado.";
 App::$strings["Permission denied."] = "Acceso denegado.";
 App::$strings["Privacy group not found."] = "Grupo de canales no encontrado.";
@@ -468,15 +467,15 @@ App::$strings["%1\$s likes %2\$s's %3\$s"] = "A %1\$s le gusta %3\$s de %2\$s";
 App::$strings["likes %1\$s's %2\$s"] = "gusta de %2\$s de %1\$s";
 App::$strings["%1\$s doesn't like %2\$s's %3\$s"] = "A %1\$s no le gusta %3\$s de %2\$s";
 App::$strings["doesn't like %1\$s's %2\$s"] = "no gusta de %2\$s de %1\$s";
-App::$strings["%1\$s repeated %2\$s's %3\$s"] = "%1\$scompartió %3\$sde %2\$s";
-App::$strings["repeated %1\$s's %2\$s"] = "compartió %2\$s de %1\$s";
+App::$strings["%1\$s repeated %2\$s's %3\$s"] = "%1\$s repitió %3\$sde %2\$s";
+App::$strings["repeated %1\$s's %2\$s"] = "repitió %2\$s de %1\$s";
 App::$strings["This is an unsaved preview"] = "Esta es una previsualización sin guardar";
 App::$strings["__ctx:title__ Likes"] = "Me gusta";
 App::$strings["__ctx:title__ Dislikes"] = "No me gusta";
 App::$strings["__ctx:title__ Attending"] = "Participaré";
 App::$strings["__ctx:title__ Not attending"] = "No participaré";
 App::$strings["__ctx:title__ Might attend"] = "Quizá participe";
-App::$strings["__ctx:title__ Repeats"] = "Se repite";
+App::$strings["__ctx:title__ Repeats"] = "Repite";
 App::$strings["Select"] = "Seleccionar";
 App::$strings["Delete"] = "Eliminar";
 App::$strings["Toggle Star Status"] = "Activar o desactivar el estado de entrada preferida";
@@ -574,7 +573,7 @@ App::$strings["Encrypt text"] = "Cifrar texto";
 App::$strings["__ctx:noun__ Repeat"] = array(
 	0 => "Se repite",
 	1 => "Se repite",
-	2 => "Se repite",
+	2 => "Repite",
 );
 App::$strings["__ctx:noun__ Dislike"] = array(
 	0 => "No me gusta",
@@ -1529,7 +1528,7 @@ App::$strings["requested to like"] = "solicita que se permita mostrar agrado ";
 App::$strings["liked"] = "ha gustado de ";
 App::$strings["requested to dislike"] = "solicita que se permita mostrar desagrado ";
 App::$strings["disliked"] = "no ha gustado de ";
-App::$strings["repeated"] = "repetido / compartido";
+App::$strings["repeated"] = "repitió";
 App::$strings["voted on"] = "votado en ";
 App::$strings["%1\$s %2\$s [zrl=%3\$s]a %4\$s[/zrl]"] = "%1\$s%2\$s [zrl=%3\$s ]un %4\$s[/zrl]";
 App::$strings["%1\$s %2\$s [zrl=%3\$s]%4\$s's %5\$s[/zrl]"] = "%1\$s %2\$s[zrl=%3\$s]%5\$s de %4\$s[/zrl]";
@@ -1651,8 +1650,8 @@ App::$strings["Reply on this comment"] = "Responder a este comentario";
 App::$strings["reply"] = "responder";
 App::$strings["Reply to"] = "Responder a ";
 App::$strings["share"] = "compartir";
-App::$strings["Repeat"] = "Se repite";
-App::$strings["repeat"] = "Se repite";
+App::$strings["Repeat"] = "Repetir";
+App::$strings["repeat"] = "repetir";
 App::$strings["Delivery Report"] = "Informe de transmisión";
 App::$strings["%d comment"] = array(
 	0 => "%d comentario",
