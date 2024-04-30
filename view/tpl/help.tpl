@@ -13,19 +13,19 @@
 				</div>
 			</div>
 		</div>
-		<h2>{{$title}}: {{$heading}}</h2>
+		<h2>{{$module->get_page_title()}}</h2>
 	</div>
 	<div class="section-content-wrapper" id="doco-content">
 		<h3 id="doco-top-toc-heading">
 			<span class="fakelink" onclick="docoTocToggle(); return false;">
 				<i class="fa fa-fw fa-caret-right fakelink" id="doco-toc-toggle"></i>
-				{{$tocHeading}}
+				{{$module->get_toc_heading()}}
 			</span>
 		</h3>
 		<ul id="doco-top-toc" style="margin-bottom: 1.5em; display: none;"></ul>
-		{{$content}}
+		{{$module->render_content()}}
 	</div>
 </div>
 <script>
-	var help_language = '{{$language}}'
+	var help_language = '{{$module->lang["language"]}}'
 </script>
