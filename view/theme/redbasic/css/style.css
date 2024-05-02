@@ -713,27 +713,6 @@ nav .acpopup {
 	color:#cc0000;
 }
 
-/* popup notifications */
-div.jGrowl div.notice {
-  background: #511919 url("../../../../images/icons/48/notice.png") no-repeat 5px center;
-  color: #ffffff;
-  padding-left: 58px;
-}
-div.jGrowl div.info {
-  background: #364e59 url("../../../../images/icons/48/info.png") no-repeat 5px center;
-  color: #ffffff;
-  padding-left: 58px;
-}
-
-#jGrowl.top-right {
-	top: 4.5rem;
-	right: .25rem;
-}
-
-div.jGrowl div.jGrowl-notification {
-    min-height: 60px;
-}
-
 .jslider .jslider-scale ins {
 	color: #333;
 	font-size: 1rem;

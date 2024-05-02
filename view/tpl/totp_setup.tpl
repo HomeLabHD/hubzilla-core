@@ -50,12 +50,12 @@
 			{totp_code: document.getElementById('totp_test').value},
 			function(data) {
 				if (data['status']) {
-					$.jGrowl('{{$test_pass}}', { sticky: false, theme: 'info', life: 10000 });
+					toast('{{$test_pass}}', 'info');
 					let e = document.getElementById('mfa-submit-wrapper');
 					e.classList.remove('d-none');
 					return;
 				}
-				$.jGrowl('{{$test_fail}}', { sticky: false, theme: 'notice', life: 10000 });
+				toast('{{$test_fail}}', 'danger');
 			}
 		);
 	}

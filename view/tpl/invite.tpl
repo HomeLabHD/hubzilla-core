@@ -76,7 +76,6 @@
   '  .zai_n  { width: 5em; text-align: center; }'+
   '  #id_zaiexpire_fs  { display: inline-block; }'+
   '  .invites { text-transform: capitalize; }'+
-  '  .jGrowl-message { font-family: monospace; }'+
   '</style>');
   $('#zai-txt').attr('placeholder','{{$personal_pointer}}');
   zaitx();

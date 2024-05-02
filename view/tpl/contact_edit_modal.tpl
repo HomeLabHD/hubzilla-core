@@ -54,11 +54,11 @@
 
 		$.post('contactedit/' + poi, form_data, function(data) {
 			if (!data.success) {
-				$.jGrowl(data.message, {sticky: false, theme: 'notice', life: 10000});
+				toast(data.message, 'danger');
 				return;
 			}
 			activate(data);
-			$.jGrowl(data.message, {sticky: false, theme: ((data.success) ? 'info' : 'notice'), life: ((data.success) ? 3000 : 10000)});
+			toast(data.message, ((data.success) ? 'info' : 'danger'));
 			// $('#edit-modal').modal('hide');
 		});
 
@@ -70,7 +70,7 @@
 
 		$.get('contactedit/' + poi + '/' + cmd, function(data) {
 			$('#edit-modal-tools').html(data.tools);
-			$.jGrowl(data.message, {sticky: false, theme: ((data.success) ? 'info' : 'notice'), life: ((data.success) ? 3000 : 10000)});
+			toast(data.message, ((data.success) ? 'info' : 'danger'));
 			if (cmd === 'drop') {
 				if ($('#contact-entry-wrapper-' + poi).length) {
 					$('#contact-entry-wrapper-' + poi).fadeOut();
@@ -110,7 +110,7 @@
 		$('.contact-edit-icon-' + poi).hide();
 		$.get('contactedit/' + poi, function(data) {
 			if (!data.success) {
-				$.jGrowl(data.message, {sticky: false, theme: 'notice', life: 10000});
+				toast(data.message, 'danger');
 				return;
 			}
 			$('#edit-modal').modal('show');

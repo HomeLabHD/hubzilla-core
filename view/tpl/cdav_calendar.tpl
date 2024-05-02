@@ -480,7 +480,7 @@ function on_submit() {
 				eventSource.refetch();
 			}
 			else {
-				$.jGrowl('{{$disabled_warning}}', { sticky: false, theme: 'notice', life: 10000 });
+				toast('{{$disabled_warning}}', 'danger');
 			}
 			reset_form();
 		});
@@ -506,7 +506,7 @@ function on_submit() {
 				eventSource.refetch();
 			}
 			else {
-				$.jGrowl('{{$disabled_warning}}', { sticky: false, theme: 'notice', life: 10000 });
+				toast('{{$disabled_warning}}', 'danger');
 			}
 			reset_form();
 		});
