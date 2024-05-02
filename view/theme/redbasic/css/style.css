@@ -169,7 +169,7 @@ input[type=text], textarea {
 }
 
 #toast-container {
-	z-index: 1030;
+	z-index: 1060;
 	width: 300px;
 }
 
