@@ -30,7 +30,7 @@ class Helpindex {
 	}
 
 	public function title(): string {
-		return t('Help Contents');
+		return '';
 	}
 
 	public function contents(): string {
