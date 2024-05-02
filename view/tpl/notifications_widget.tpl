@@ -337,17 +337,19 @@
 		sse_setNotificationsStatus();
 
 		// notice and info
-		$.jGrowl.defaults.closerTemplate = '<div>[ ' + aStr.closeAll + ']</div>';
+		//$.jGrowl.defaults.closerTemplate = '<div>[ ' + aStr.closeAll + ']</div>';
 
 		if(obj.notice) {
 			$(obj.notice.notifications).each(function() {
-				$.jGrowl(this, { sticky: true, theme: 'notice' });
+				toast(this, 'danger');
+				//$.jGrowl(this, { sticky: true, theme: 'notice' });
 			});
 		}
 
 		if(obj.info) {
 			$(obj.info.notifications).each(function(){
-				$.jGrowl(this, { sticky: false, theme: 'info', life: 10000 });
+				toast(this, 'info');
+				//$.jGrowl(this, { sticky: false, theme: 'info', life: 10000 });
 			});
 		}
 

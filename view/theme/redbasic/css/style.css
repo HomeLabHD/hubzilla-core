@@ -168,6 +168,11 @@ input[type=text], textarea {
 	color: #FF0000;
 }
 
+#toast-container {
+	z-index: 1030;
+	width: 300px;
+}
+
 #powered-by {
 	font-size: 0.5rem;
 	position: absolute;
@@ -719,6 +724,7 @@ div.jGrowl div.info {
   color: #ffffff;
   padding-left: 58px;
 }
+
 #jGrowl.top-right {
 	top: 4.5rem;
 	right: .25rem;
