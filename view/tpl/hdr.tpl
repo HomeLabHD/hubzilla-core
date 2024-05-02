@@ -1,1 +1,1 @@
-<div id="toast-container" class="position-fixed top-0 end-0 me-4"></div>
+<div id="toast-container" class="d-flex position-fixed top-0 end-0"></div>
