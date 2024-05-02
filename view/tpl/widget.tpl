@@ -5,6 +5,8 @@
   * on the widget class.
   *}}
 <div class="widget">
+	{{if $widget->title()}}
 	<h3>{{$widget->title()}}</h3>
+	{{/if}}
 	{{$widget->contents()}}
 </div>
