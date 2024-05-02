@@ -1820,11 +1820,16 @@ function toggleAside() {
 
 function toast(string, severity) {
 	let container = document.getElementById('toast-container');
-	let toast = document.createElement('div');
 
-	toast.innerHTML = '<div class="d-flex"><div class="toast-body">' + string + '</div><button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>';
-	toast.classList.add('toast', 'p-2', 'bg-' + severity + '-subtle', 'text-' + severity + '-emphasis', 'border-' + severity);
-	container.prepend(toast);
+	let toast = document.getElementById(btoa(string));
+
+	if (!toast) {
+		toast = document.createElement('div');
+		toast.setAttribute('id', btoa(string));
+		toast.innerHTML = '<div class="d-flex"><div class="toast-body">' + string + '</div><button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>';
+		toast.classList.add('toast', 'p-2', 'bg-' + severity + '-subtle', 'text-' + severity + '-emphasis', 'border-' + severity);
+		container.prepend(toast);
+	}
 
 	let toastInstance = bootstrap.Toast.getOrCreateInstance(toast);
 
