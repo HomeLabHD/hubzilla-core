@@ -128,9 +128,9 @@ function html2bbcode($message)
 
 	$message = preg_replace('/\<ul(.*?)\>/', '[list]', $message);
 	$message = preg_replace('/\<ol(.*?)\>/', '[list=1]', $message);
+	$message = preg_replace('/\<li(.*?)\>/', '[*]', $message);
 	$message = str_replace(['</ul>', '</ol>'], '[/list]', $message);
-	$message = str_replace(['<li><p>', '<li>'], '[*]', $message);
-	$message = str_replace(['</p></li>', '</li>'], '', $message);
+	$message = str_replace('</li>', '', $message);
 
 	if(!$message)
 		return;
