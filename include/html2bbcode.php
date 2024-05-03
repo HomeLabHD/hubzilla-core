@@ -205,10 +205,9 @@ function html2bbcode($message)
 	node2bbcode($doc, 'audio', array('src'=>'/(.+)/'), '[audio]$1', '[/audio]');
 //	node2bbcode($doc, 'iframe', array('src'=>'/(.+)/'), '[iframe]$1', '[/iframe]');
 
-
+	node2bbcode($doc, 'li', array(), "[*]", "");
 	node2bbcode($doc, 'ul', array(), "[list]", "[/list]");
 	node2bbcode($doc, 'ol', array(), "[list=1]", "[/list]");
-	node2bbcode($doc, 'li', array(), "[*]", "");
 
 	node2bbcode($doc, 'hr', array(), "[hr]", "");
 

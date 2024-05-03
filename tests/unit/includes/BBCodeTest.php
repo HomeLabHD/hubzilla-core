@@ -230,6 +230,14 @@ class BBCodeTest extends UnitTestCase {
 			'html reshares from streams' => [
 				'<div><div><a href="https://example.com"><img src="https://example.com/image.jpg" alt="image/photo"></a> shared something</div>something</div>',
 				'[url=https://example.com][img=https://example.com/image.jpg]image/photo[/img][/url] shared something' . "\n" . 'something'
+			],
+			'list' => [
+				'<ul><li>list 1</li><li>list 2</li><li>list 3</li></ul>',
+				'[list][*]list 1[*]list 2[*]list 3[/list]'
+			],
+			'nested list' => [
+				'<ul><li>list 1</li><li>list 2</li><li>list 3</li><ul><li>list 1</li><li>list 2</li><li>list 3</li></ul></ul>',
+				'[list][*]list 1[*]list 2[*]list 3[list][*]list 1[*]list 2[*]list 3[/list][/list]'
 			]
 		];
 	}
