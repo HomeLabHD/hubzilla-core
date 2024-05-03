@@ -126,6 +126,9 @@ function html2bbcode($message)
 	//$message = mb_convert_encoding($message, 'HTML-ENTITIES', "UTF-8");
 	$message = mb_encode_numericentity($message, [0x80, 0x10FFFF, 0, ~0], 'UTF-8');
 
+	$message = preg_replace('/\<ul(.*?)\>/', '[list]', $message);
+	$message = preg_replace('/\<ol(.*?)\>/', '[list=1]', $message);
+	$message = str_replace(['</ul>', '</ol>'], '[/list]', $message);
 	$message = str_replace(['<li><p>', '<li>'], '[*]', $message);
 	$message = str_replace(['</p></li>', '</li>'], '', $message);
 
@@ -146,9 +149,6 @@ function html2bbcode($message)
 
 	node2bbcode($doc, 'html', array(), "", "");
 	node2bbcode($doc, 'body', array(), "", "");
-
-	node2bbcode($doc, 'li', array(), "[*]", "");
-
 
 	// Outlook-Quote - Variant 1
 	node2bbcode($doc, 'p', array('class'=>'MsoNormal', 'style'=>'margin-left:35.4pt'), '[quote]', '[/quote]');
@@ -205,9 +205,6 @@ function html2bbcode($message)
 	node2bbcode($doc, 'video', array('src'=>'/(.+)/'), '[video]$1', '[/video]');
 	node2bbcode($doc, 'audio', array('src'=>'/(.+)/'), '[audio]$1', '[/audio]');
 //	node2bbcode($doc, 'iframe', array('src'=>'/(.+)/'), '[iframe]$1', '[/iframe]');
-
-	node2bbcode($doc, 'ul', array(), "[list]", "[/list]");
-	node2bbcode($doc, 'ol', array(), "[list=1]", "[/list]");
 
 	node2bbcode($doc, 'hr', array(), "[hr]", "");
 
