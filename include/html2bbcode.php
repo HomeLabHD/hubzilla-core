@@ -26,7 +26,11 @@ function node2bbcodesub(&$doc, $oldnode, $attributes, $startbb, $endbb)
 	$xpath = new DomXPath($doc);
 
 	$list = $xpath->query("//".$oldnode);
+
 	foreach ($list as $oldNode) {
+
+		if ($oldnode == 'li')
+			hz_syslog(print_r($oldNode,true));
 
 		$attr = array();
 		if ($oldNode->attributes->length)
@@ -113,13 +117,6 @@ function html2bbcode($message)
 
 	$message = str_replace("\r", "", $message);
 
-	$message = str_replace(array(
-					"<li><p>",
-					"</p></li>"),
-				array(
-					"<li>",
-					"</li>"),
-				$message);
 
 	// remove namespaces
 	$message = preg_replace('=<(\w+):(.+?)>=', '<removeme>', $message);
@@ -129,7 +126,8 @@ function html2bbcode($message)
 	//$message = mb_convert_encoding($message, 'HTML-ENTITIES', "UTF-8");
 	$message = mb_encode_numericentity($message, [0x80, 0x10FFFF, 0, ~0], 'UTF-8');
 
-
+	$message = str_replace(['<li><p>', '<li>'], '[*]', $message);
+	$message = str_replace(['</p></li>', '</li>'], '', $message);
 
 	if(!$message)
 		return;
@@ -148,6 +146,9 @@ function html2bbcode($message)
 
 	node2bbcode($doc, 'html', array(), "", "");
 	node2bbcode($doc, 'body', array(), "", "");
+
+	node2bbcode($doc, 'li', array(), "[*]", "");
+
 
 	// Outlook-Quote - Variant 1
 	node2bbcode($doc, 'p', array('class'=>'MsoNormal', 'style'=>'margin-left:35.4pt'), '[quote]', '[/quote]');
@@ -205,7 +206,6 @@ function html2bbcode($message)
 	node2bbcode($doc, 'audio', array('src'=>'/(.+)/'), '[audio]$1', '[/audio]');
 //	node2bbcode($doc, 'iframe', array('src'=>'/(.+)/'), '[iframe]$1', '[/iframe]');
 
-	node2bbcode($doc, 'li', array(), "[*]", "");
 	node2bbcode($doc, 'ul', array(), "[list]", "[/list]");
 	node2bbcode($doc, 'ol', array(), "[list=1]", "[/list]");
 

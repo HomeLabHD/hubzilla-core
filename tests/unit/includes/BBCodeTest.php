@@ -238,6 +238,14 @@ class BBCodeTest extends UnitTestCase {
 			'nested list' => [
 				'<ul><li>list 1</li><li>list 2</li><li>list 3</li><ul><li>list 1</li><li>list 2</li><li>list 3</li></ul></ul>',
 				'[list][*]list 1[*]list 2[*]list 3[list][*]list 1[*]list 2[*]list 3[/list][/list]'
+			],
+			'list without closing li' => [
+				'<ul><li>list 1<li>list 2<li>list 3</ul>',
+				'[list][*]list 1[*]list 2[*]list 3[/list]'
+			],
+			'nested list without closing li' => [
+				'<ul><li>list 1<li>list 2<li>list 3<ul><li>list 1<li>list 2<li>list 3</ul></ul>',
+				'[list][*]list 1[*]list 2[*]list 3[list][*]list 1[*]list 2[*]list 3[/list][/list]'
 			]
 		];
 	}
