@@ -186,7 +186,11 @@ function html2bbcode($message)
 	node2bbcode($doc, 'b', array(), '[b]', '[/b]');
 	node2bbcode($doc, 'i', array(), '[i]', '[/i]');
 	node2bbcode($doc, 'u', array(), '[u]', '[/u]');
+	// The s tag is deprecated in HTML5
 	node2bbcode($doc, 's', array(), '[s]', '[/s]');
+	node2bbcode($doc, 'del', [], '[s]', '[/s]');
+
+
 	node2bbcode($doc, 'mark', array(), '[mark]', '[/mark]');
 	node2bbcode($doc, 'span', array(), "", "");
 

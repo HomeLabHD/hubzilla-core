@@ -1408,7 +1408,7 @@ function bbcode($text, $options = []) {
 	}
 	// Check for strike-through text
 	if (strpos($text,'[s]') !== false) {
-		$text = preg_replace("(\[s\](.*?)\[\/s\])ism", '<span style="text-decoration: line-through;">$1</span>', $text);
+		$text = preg_replace("(\[s\](.*?)\[\/s\])ism", '<del>$1</del>', $text);
 	}
 	// Check for over-line text
 	if (strpos($text,'[o]') !== false) {
