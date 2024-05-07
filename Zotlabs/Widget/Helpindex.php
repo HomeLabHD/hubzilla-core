@@ -12,7 +12,7 @@ namespace Zotlabs\Widget;
 
 class Helpindex {
 
-	use \Zotlabs\Lib\Traits\HelpHelper;
+	use \Zotlabs\Lib\Traits\HelpHelperTrait;
 
 	private string $contents = '';
 

@@ -14,7 +14,7 @@ use Michelf\MarkdownExtra;
  */
 class Help extends \Zotlabs\Web\Controller {
 
-	use \Zotlabs\Lib\Traits\HelpHelper;
+	use \Zotlabs\Lib\Traits\HelpHelperTrait;
 
 	private string $heading_slug = '';
 

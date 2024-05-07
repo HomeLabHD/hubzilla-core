@@ -4,7 +4,7 @@ namespace Zotlabs\Lib\Traits;
 
 use CommerceGuys\Intl\Language\LanguageRepository;
 
-trait HelpHelper {
+trait HelpHelperTrait {
 
 	// PHP versions before 8.2 does not support trait constants,
 	// Leave this commented out until we drop support for PHP 8.1.
