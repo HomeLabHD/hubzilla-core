@@ -134,6 +134,10 @@ class BBCodeTest extends UnitTestCase {
 			'list with linebreaks \r\n in text' => [
 				"some text\r\n[list]\r\n[*] item1\r\nsome text[*] item2\r\nsome text[/list]\r\nsome more text",
 				'some text<br /><ul class="listbullet"><li> item1<br />some text<li> item2<br />some text</ul>some more text'
+			],
+			'del tag' => [
+				'some [s]strike through[/s] text',
+				'some <del>strike through</del> text'
 			]
 		];
 	}
@@ -254,6 +258,10 @@ class BBCodeTest extends UnitTestCase {
 			'double nested list without closing li' => [
 				'<ul><li>list 1<li>list 2<li>list 3<ul><li>list 1<li>list 2<li>list 3<ul><li>list 1<li>list 2<li>list 3</ul></ul></ul>',
 				'[list][*]list 1[*]list 2[*]list 3[list][*]list 1[*]list 2[*]list 3[list][*]list 1[*]list 2[*]list 3[/list][/list][/list]'
+			],
+			'del tag' => [
+				'some <del>strike through</del> text',
+				'some [s]strike through[/s] text'
 			]
 		];
 	}
