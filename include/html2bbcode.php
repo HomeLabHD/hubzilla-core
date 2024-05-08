@@ -126,8 +126,13 @@ function html2bbcode($message)
 	//$message = mb_convert_encoding($message, 'HTML-ENTITIES', "UTF-8");
 	$message = mb_encode_numericentity($message, [0x80, 0x10FFFF, 0, ~0], 'UTF-8');
 
+	// TODO: It would be better to do the list parsing with node2bbcode() but it has serious issues when
+	// parsing nested lists. Especially if the li tag has no closing tag (which is valid).
+
 	$message = preg_replace('/\<ul(.*?)\>/', '[list]', $message);
 	$message = preg_replace('/\<ol(.*?)\>/', '[list=1]', $message);
+
+	$message = str_replace(['<li><p>', '</p></li>'], ['<li>', '</li>'], $message);
 	$message = preg_replace('/\<li(.*?)\>/', '[*]', $message);
 	$message = str_replace(['</ul>', '</ol>'], '[/list]', $message);
 	$message = str_replace('</li>', '', $message);

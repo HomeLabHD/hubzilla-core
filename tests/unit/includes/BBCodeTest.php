@@ -239,6 +239,10 @@ class BBCodeTest extends UnitTestCase {
 				'<ul><li>list 1</li><li>list 2</li><li>list 3</li></ul>',
 				'[list][*]list 1[*]list 2[*]list 3[/list]'
 			],
+			'list with paragraph' => [
+				'<ul><li><p>list 1</p></li><li><p>list 2</p></li><li><p>list 3</p></li></ul>',
+				'[list][*]list 1[*]list 2[*]list 3[/list]'
+			],
 			'nested list' => [
 				'<ul><li>list 1</li><li>list 2</li><li>list 3</li><ul><li>list 1</li><li>list 2</li><li>list 3</li></ul></ul>',
 				'[list][*]list 1[*]list 2[*]list 3[list][*]list 1[*]list 2[*]list 3[/list][/list]'
