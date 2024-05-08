@@ -47,7 +47,7 @@
 			{{include file="field_input.tpl" field=$email}}
 			{{include file="field_password.tpl" field=$pass1}}
 			{{include file="field_password.tpl" field=$pass2}}
-			{{if $reg_is}}
+			{{if $register_msg}}
 			{{include file="field_textarea.tpl" field=$register_msg}}
 			{{/if}}
 			{{if $enable_tos}}

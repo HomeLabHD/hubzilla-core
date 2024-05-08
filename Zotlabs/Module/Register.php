@@ -429,6 +429,7 @@ class Register extends Controller {
 	function get() {
 
 		$registration_is = '';
+		$register_msg = '';
 		$other_sites = '';
 
 		if(intval(Config::Get('system','register_policy')) === REGISTER_CLOSED) {
@@ -442,6 +443,7 @@ class Register extends Controller {
 		}
 
 		if(intval(Config::Get('system','register_policy')) == REGISTER_APPROVE) {
+			$register_msg = ['register_msg', t('Why do you want to join this hub?'), ((x($_REQUEST,'register_msg')) ? $_REQUEST['register_msg'] : ''), t('This will help to review your registration')];
 			$registration_is = t('Registration on this hub is by approval only.');
 			$other_sites = '<a href="pubsites">' . t('Register at another affiliated hub in case when prefered') . '</a>';
 		}
@@ -511,8 +513,6 @@ class Register extends Controller {
 		$nickname = array('nickname', t('Choose a short nickname'),	((x($_REQUEST,'nickname')) ? $_REQUEST['nickname'] : ''), t('Your nickname will be used to create an easy to remember channel address'), '', '', $duty['atform']);
 
 		$tos = array('tos', $label_tos, ((x($_REQUEST,'tos')) ? $_REQUEST['tos'] : ''), '', [t('No'),t('Yes')], $duty['atform']);
-
-		$register_msg = ['register_msg', t('Why do you want to join this hub?'), ((x($_REQUEST,'register_msg')) ? $_REQUEST['register_msg'] : ''), t('This will help to review your registration')];
 
 		require_once('include/bbcode.php');
 

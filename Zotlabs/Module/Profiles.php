@@ -620,14 +620,16 @@ class Profiles extends \Zotlabs\Web\Controller {
 		$profile_fields_advanced = get_profile_fields_advanced();
 
 		if(((argc() > 1) && (intval(argv(1)))) || !feature_enabled(local_channel(),'multi_profiles')) {
-			if(feature_enabled(local_channel(),'multi_profiles'))
+			if (feature_enabled(local_channel(), 'multi_profiles')) {
 				$id = \App::$argv[1];
+			}
 			else {
 				$x = q("select id from profile where uid = %d and is_default = 1",
 					intval(local_channel())
 				);
-				if($x)
+				if ($x) {
 					$id = $x[0]['id'];
+				}
 			}
 
 			$r = q("SELECT * FROM profile WHERE id = %d AND uid = %d LIMIT 1",
@@ -635,7 +637,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 				intval(local_channel())
 			);
 
-			if(! $r) {
+			if (!$r) {
 				notice( t('Profile not found.') . EOL);
 				return;
 			}
@@ -827,7 +829,8 @@ class Profiles extends \Zotlabs\Web\Controller {
 		else {
 
 			$r = q("SELECT * FROM profile WHERE uid = %d",
-				local_channel());
+				intval(local_channel())
+			);
 			if($r) {
 
 				$tpl = get_markup_template('profile_entry.tpl');

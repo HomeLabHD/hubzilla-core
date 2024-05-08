@@ -207,7 +207,7 @@ class Regate extends \Zotlabs\Web\Controller {
 													}
 
 													change_channel($channel_id);
-													$nextpage = 'profiles/' . $channel_id;
+													$nextpage = Config::Get('system', 'workflow_channel_next', 'profiles');
 													$msg_code = 'ZAR1239I';
 													$msg = t('Channel successfull created') . ' ' . $did2;
 												}
