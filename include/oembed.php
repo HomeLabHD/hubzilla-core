@@ -328,7 +328,7 @@ function oembed_format_object($j){
 
 	$jhtml = oembed_iframe($j['embedurl'],(isset($j['width']) ? $j['width'] : null), (isset($j['height']) ? $j['height'] : null));
 
-	$ret="<span class='oembed " . $j['type'] . "'>";
+	$ret="<span class='clearfix d-block oembed " . $j['type'] . "'>";
 	switch ($j['type']) {
 		case "video": {
 			if (isset($j['thumbnail_url'])) {
@@ -351,7 +351,6 @@ function oembed_format_object($j){
 			} else {
 				$ret=$jhtml;
 			}
-			$ret.="<br>";
 		}; break;
 		case "photo": {
 			$ret.= "<img width='".$j['width']."' src='".$j['url']."'>";
@@ -386,15 +385,15 @@ function oembed_format_object($j){
 	// add link to source if not present in "rich" type
 	if (  $j['type'] != 'rich' || !strpos($j['html'],$embedurl) ){
 		$embedlink = (isset($j['title']))?$j['title'] : $embedurl;
-		$ret .= '<br />' . "<a href='$embedurl' rel='oembed'>$embedlink</a>";
+		$ret .= "<a href='$embedurl' rel='oembed'>$embedlink</a>";
 		$ret .= "<br />";
 		if (isset($j['author_name'])) $ret .= t(' by ') . $j['author_name'];
 		if (isset($j['provider_name'])) $ret .= t(' on ') . $j['provider_name'];
 	} else {
 		// add <a> for html2bbcode conversion
-		$ret .= "<br /><a href='$embedurl' rel='oembed'>$embedurl</a>";
+		$ret .= "<a href='$embedurl' rel='oembed'>$embedurl</a>";
 	}
-	$ret.="<br style='clear:left'></span>";
+	$ret.="</span>";
 
 	// mb_convert_encoding() is deprecated
 	// return  mb_convert_encoding($ret, 'HTML-ENTITIES', mb_detect_encoding($ret));
@@ -414,8 +413,8 @@ function oembed_iframe($src,$width,$height) {
 	}
 
 	// try and leave some room for the description line.
-	$height = intval($height) + 80;
-	$width  = intval($width) + 40;
+	$height = intval($height);
+	$width  = intval($width);
 
 	$s = z_root() . '/oembed/' . base64url_encode($src);
 
