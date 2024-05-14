@@ -1727,9 +1727,12 @@ class Activity {
 			foreach ($links as $link) {
 				if (is_array($link) && array_key_exists('mediaType', $link) && $link['mediaType'] === 'text/html') {
 					$profile = $link['href'];
+				} elseif (is_string($link)) {
+					$profile = $link;
+					break;
 				}
 			}
-			if (!$profile) {
+			if (!$profile && isset($links[0]['href'])) {
 				$profile = $links[0]['href'];
 			}
 		}
