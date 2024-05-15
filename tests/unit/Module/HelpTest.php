@@ -176,13 +176,4 @@ class HelpTest extends \Zotlabs\Tests\Unit\Module\TestCase {
 
 		$this->assertPageContains('<h3>This is the included file.</h3>');
 	}
-
-	/**
-	 * Helper to simplify asserting contents in the rendered page.
-	 *
-	 * @param string $needle	The expected string to find.
-	 */
-	private function assertPageContains(string $needle): void {
-		$this->assertStringContainsString($needle, \App::$page['content']);
-	}
 }
