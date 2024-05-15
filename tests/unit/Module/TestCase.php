@@ -12,16 +12,34 @@ class TestCase extends \Zotlabs\Tests\Unit\UnitTestCase {
 	 *
 	 * @param string $uri	The URI to request. Typically this will be the module
 	 *						name, followed by any req args separated by slashes.
+	 *
+	 * @param array $query	Assciative array of query args, with the parameters
+	 *						as keys.
 	 */
-	protected function get(string $uri): void {
+	protected function get(string $uri, array $query = []): void {
 		$_GET['q'] = $uri;
+
+		if (!empty($query)) {
+			$_GET = array_merge($_GET, $query);
+		}
+
 		$_SERVER['REQUEST_METHOD'] = 'GET';
+		$_REQUEST = $_GET;
 
 		\App::init();
 		\App::$page['content'] = '';
 
 		$router = new \Zotlabs\Web\Router();
 		$router->Dispatch();
+	}
+
+	/**
+	 * Helper to simplify asserting contents in the rendered page.
+	 *
+	 * @param string $needle	The expected string to find.
+	 */
+	protected function assertPageContains(string $needle): void {
+		$this->assertStringContainsString($needle, \App::$page['content']);
 	}
 
 	/**
