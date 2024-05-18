@@ -33,36 +33,12 @@ class Rpost extends \Zotlabs\Web\Controller {
 	function get() {
 
 		if(! local_channel()) {
-			if(remote_channel()) {
-				// redirect to your own site.
-				// We can only do this with a GET request so you'll need to keep the text short or risk getting truncated
-				// by the wretched beast called 'suhosin'. All the browsers now allow long GET requests, but suhosin
-				// blocks them.
-
-				$url = Libzot::get_rpost_path(App::get_observer());
-				// make sure we're not looping to our own hub
-				if(($url) && (! stristr($url, App::get_hostname()))) {
-					foreach($_GET as $key => $arg) {
-						if($key === 'q')
-							continue;
-						$url .= '&' . $key . '=' . $arg;
-					}
-					goaway($url);
-				}
-			}
-
-			// The login procedure is going to bugger our $_REQUEST variables
-			// so save them in the session.
-
-			if(array_key_exists('body',$_REQUEST)) {
-				$_SESSION['rpost'] = $_REQUEST;
-			}
-			return login();
+			return $this->redirect_or_login();
 		}
 
 		nav_set_selected('Post');
 
-		if (local_channel() && array_key_exists('userfile',$_FILES)) {
+		if (array_key_exists('userfile',$_FILES)) {
 
 			$channel = App::get_channel();
 			$observer = App::get_observer();
@@ -211,6 +187,41 @@ class Rpost extends \Zotlabs\Web\Controller {
 		));
 	}
 
+	/**
+	 * Redirect to the observer's instance if not local, or return login form.
+	 *
+	 * The request is saved in the session if there's a `body` request
+	 * param present. (Otherwise not.)
+	 *
+	 * @return string A login form if not redirected. If the session was
+	 *		determned to belong to a remote channel, the function does not
+	 *		return.
+	 */
+	private function redirect_or_login(): string {
+		if(remote_channel()) {
+			// redirect to your own site.
+			// We can only do this with a GET request so you'll need to keep the text short or risk getting truncated
+			// by the wretched beast called 'suhosin'. All the browsers now allow long GET requests, but suhosin
+			// blocks them.
 
+			$url = Libzot::get_rpost_path(App::get_observer());
+			// make sure we're not looping to our own hub
+			if(($url) && (! stristr($url, App::get_hostname()))) {
+				foreach($_GET as $key => $arg) {
+					if($key === 'q')
+						continue;
+					$url .= '&' . $key . '=' . $arg;
+				}
+				goaway($url);
+			}
+		}
 
+		// The login procedure is going to bugger our $_REQUEST variables
+		// so save them in the session.
+
+		if(array_key_exists('body',$_REQUEST)) {
+			$_SESSION['rpost'] = $_REQUEST;
+		}
+		return login();
+	}
 }
