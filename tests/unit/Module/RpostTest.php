@@ -9,6 +9,10 @@
  */
 
 class RpostTest extends \Zotlabs\Tests\Unit\Module\TestCase {
+
+	/**
+	 * Basic test of a get request with no args as an authenticated user.
+	 */
 	public function test_get_with_no_args(): void {
 		// Mock `local_chanel()` to emulate a valid logged in channel
 		$lc_mock = $this->getFunctionMock('Zotlabs\Module', 'local_channel')
