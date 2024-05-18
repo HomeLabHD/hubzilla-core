@@ -28,15 +28,9 @@ require_once('include/conversation.php');
  * type= choices are 'html' or 'bbcode', default is 'bbcode'
  *
  */
-
-
-
-
 class Rpost extends \Zotlabs\Web\Controller {
 
 	function get() {
-
-		$o = '';
 
 		if(! local_channel()) {
 			if(remote_channel()) {
@@ -210,14 +204,11 @@ class Rpost extends \Zotlabs\Web\Controller {
 
 		$editor = status_editor($x, false, 'Rpost');
 
-		$o .= replace_macros(get_markup_template('edpost_head.tpl'), array(
+		return replace_macros(get_markup_template('edpost_head.tpl'), array(
 			'$title' => t('Edit post'),
 			'$cancel' => '',
 			'$editor' => $editor
 		));
-
-		return $o;
-
 	}
 
 
