@@ -140,7 +140,7 @@ class Rpost extends \Zotlabs\Web\Controller {
 
 		// If we have saved rpost session variables, but nothing in the current $_REQUEST, recover the saved variables
 
-		if((! array_key_exists('body',$_REQUEST)) && (array_key_exists('rpost',$_SESSION))) {
+		if((! array_key_exists('body',$_REQUEST)) && isset($_SESSION['rpost'])) {
 			$_REQUEST = $_SESSION['rpost'];
 			unset($_SESSION['rpost']);
 		}
