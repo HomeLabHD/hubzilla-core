@@ -152,7 +152,7 @@ class Rpost extends \Zotlabs\Web\Controller {
 			);
 			if($r) {
 				require_once('include/security.php');
-				$change = change_channel($r[0]['channel_id']);
+				change_channel($r[0]['channel_id']);
 			}
 		}
 
@@ -164,8 +164,6 @@ class Rpost extends \Zotlabs\Web\Controller {
 				goaway($_SESSION['remote_return']);
 			goaway(z_root() . '/network');
 		}
-
-		$plaintext = true;
 
 		if(isset($_REQUEST['type']) && $_REQUEST['type'] === 'html') {
 			require_once('include/html2bbcode.php');
@@ -210,7 +208,6 @@ class Rpost extends \Zotlabs\Web\Controller {
 			'reset'               => t('Reset form')
 		);
 
-		$a = '';
 		$editor = status_editor($x, false, 'Rpost');
 
 		$o .= replace_macros(get_markup_template('edpost_head.tpl'), array(
