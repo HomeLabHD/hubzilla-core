@@ -32,7 +32,9 @@ class Rpost extends \Zotlabs\Web\Controller {
 
 	function get() {
 
-		if(! local_channel()) {
+		$channel_id = local_channel();
+
+		if(! $channel_id) {
 			return $this->redirect_or_login();
 		}
 
@@ -165,7 +167,7 @@ class Rpost extends \Zotlabs\Web\Controller {
 			'permissions'         => $channel_acl,
 			'bang'                => '',
 			'visitor'             => true,
-			'profile_uid'         => local_channel(),
+			'profile_uid'         => $channel_id,
 			'title'               => $_REQUEST['title'] ?? '',
 			'body'                => $_REQUEST['body'] ?? '',
 			'attachment'          => $_REQUEST['attachment'] ?? '',
