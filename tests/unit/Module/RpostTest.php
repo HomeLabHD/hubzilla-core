@@ -32,4 +32,17 @@ class RpostTest extends \Zotlabs\Tests\Unit\Module\TestCase {
 		$this->assertPageContains('<form id="profile-jot-form"');
 		$this->assertPageContains('<input type="hidden" name="profile_uid" value="42"');
 	}
+
+	/**
+	 * Display login form if session is not authenticated.
+	 */
+	public function test_display_login_form_if_not_logged_in(): void {
+		$lc_mock = $this->getFunctionMock('Zotlabs\Module', 'local_channel')
+			->expects($this->any())
+			->willReturn(false);
+
+		$this->get('rpost');
+
+		$this->assertPageContains('<form action="https://hubzilla.test/rpost" id="main_login"');
+	}
 }
