@@ -30,7 +30,7 @@ require_once('include/conversation.php');
  */
 class Rpost extends \Zotlabs\Web\Controller {
 
-	function get() {
+	public function get(): string {
 
 		$channel_id = local_channel();
 
