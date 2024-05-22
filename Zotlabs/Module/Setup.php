@@ -215,9 +215,11 @@ class Setup extends \Zotlabs\Web\Controller {
 				$tpl = get_markup_template('install.tpl');
 				return replace_macros($tpl, array(
 					'$title' => $install_title,
+					'$icon' => null,
 					'$pass' => '',
 					'$status' => t('Permission denied.'),
 					'$text' => '',
+					'$what_next' => null,
 				));
 			}
 		}
