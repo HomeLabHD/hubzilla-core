@@ -73,6 +73,7 @@ class Rbmark extends \Zotlabs\Web\Controller {
 			false,
 			'',
 			$this->get_bookmark_folders(intval($channel_id)),
+			null,
 		];
 
 		return replace_macros(get_markup_template('rbmark.tpl'), array(
