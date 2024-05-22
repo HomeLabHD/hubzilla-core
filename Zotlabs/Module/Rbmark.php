@@ -78,12 +78,12 @@ class Rbmark extends \Zotlabs\Web\Controller {
 
 		return replace_macros(get_markup_template('rbmark.tpl'), array(
 			'$header' => t('Save Bookmark'),
-			'$url' => array('url',t('URL of bookmark'),$_REQUEST['url']),
-			'$title' => array('title',t('Description'),$_REQUEST['title']),
+			'$url' => array('url',t('URL of bookmark'),$_REQUEST['url'], null, null, null),
+			'$title' => array('title',t('Description'),$_REQUEST['title'], null, null, null),
 			'$ischat' => ((x($_REQUEST,'ischat')) ? intval($_REQUEST['ischat']) : 0),
 			'$private' => ((x($_REQUEST,'private')) ? intval($_REQUEST['private']) : 0),
 			'$submit' => t('Save'),
-			'$menu_name' => array('menu_name',t('Or enter new bookmark folder name'),'',''),
+			'$menu_name' => array('menu_name',t('Or enter new bookmark folder name'),'','', null, null),
 			'$menus' => $menu_select
 		));
 	}
