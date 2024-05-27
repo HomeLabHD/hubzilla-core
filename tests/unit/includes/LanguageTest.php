@@ -46,7 +46,7 @@ class LanguageTest extends UnitTestCase {
 		}
 	}
 
-	public function getLanguageNameProvider() {
+	public static function getLanguageNameProvider() {
 		return [
 				'empty language code' => [
 						'',

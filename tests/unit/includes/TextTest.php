@@ -85,7 +85,7 @@ empty line above';
 	public function testNotags($string, $expected) {
 		$this->assertEquals($expected, notags($string));
 	}
-	public function notagsProvider() {
+	public static function notagsProvider() {
 		return [
 				'empty string' => ['', ''],
 				'simple tag' => ['<value>', '[value]'],
@@ -102,7 +102,7 @@ empty line above';
 		sanitise_acl($string);
 		$this->assertEquals($expected, $string);
 	}
-	public function sanitise_aclProvider() {
+	public static function sanitise_aclProvider() {
 		return [
 				'text' => ['value', '<value>'],
 				'text with angle bracket' => ['<value>', '<[value]>'],

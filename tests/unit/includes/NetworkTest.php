@@ -20,7 +20,7 @@ class NetworkTest extends Zotlabs\Tests\Unit\UnitTestCase {
 		$this->assertEquals($expected, is_local_url($url));
 	}
 
-	public function localUrlTestProvider() : array {
+	public static function localUrlTestProvider() : array {
 		return [
 			[ '/some/path', true ],
 			[ 'https://mytest.org/some/path', true ],
@@ -47,7 +47,7 @@ class NetworkTest extends Zotlabs\Tests\Unit\UnitTestCase {
 		$this->assertTrue(validate_email($email));
 	}
 
-	function validate_email_provider() : array {
+	public static function validate_email_provider() : array {
 		return [
 			// First some invalid email addresses
 			['', false],

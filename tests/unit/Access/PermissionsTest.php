@@ -135,7 +135,7 @@ class PermissionsTest extends UnitTestCase {
 	 *   * \e array Indexed array which is passed as parameter to FilledPerms()
 	 *   * \e array Expected associative result array with filled perms
 	 */
-	public function FilledPermsProvider() {
+	public static function FilledPermsProvider() {
 		return [
 				'Empty param array' => [
 						[],
@@ -253,7 +253,7 @@ class PermissionsTest extends UnitTestCase {
 	 *   * \e array Array with perms to test
 	 *   * \e array Expected result array
 	 */
-	public function OPermsProvider() {
+	public static function OPermsProvider() {
 		return [
 				'empty' => [
 						[],
@@ -286,7 +286,7 @@ class PermissionsTest extends UnitTestCase {
 	 *   * \e array 2nd array with perms
 	 *   * \e boolean expected result for the perms comparison
 	 */
-	public function permsCompareProvider() {
+	public static function permsCompareProvider() {
 		return [
 				'equal' => [
 						['perm1' => 1, 'perm2' => 0],

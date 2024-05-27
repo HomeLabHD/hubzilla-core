@@ -23,8 +23,8 @@ class HelpindexTest extends \Zotlabs\Tests\Unit\Module\TestCase {
 	 * @beforeClass
 	 */
 	public static function define_stubs(): void {
-		\phpmock\phpunit\PHPMock::defineFunctionMock('Zotlabs\Lib\Traits', 'file_exists');
-		\phpmock\phpunit\PHPMock::defineFunctionMock('Zotlabs\Widget', 'file_get_contents');
+		self::defineFunctionMock('Zotlabs\Lib\Traits', 'file_exists');
+		self::defineFunctionMock('Zotlabs\Widget', 'file_get_contents');
 	}
 
 	public function test_loading_toc(): void {

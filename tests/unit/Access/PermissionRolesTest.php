@@ -23,6 +23,7 @@
 
 namespace Zotlabs\Tests\Unit\Access;
 
+use PHPUnit\Framwork\Attributes\IgnoreDeprecations;
 use Zotlabs\Tests\Unit\UnitTestCase;
 use Zotlabs\Access\PermissionRoles;
 use phpmock\phpunit\PHPMock;
@@ -35,6 +36,7 @@ use DMS\PHPUnitExtensions\ArraySubset\Assert;
  *
  * @covers Zotlabs\Access\PermissionRoles
  */
+#[IgnoreDeprecations]
 class PermissionRolesTest extends UnitTestCase {
 
 	use PHPMock;
