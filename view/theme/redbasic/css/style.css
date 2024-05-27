@@ -1083,7 +1083,7 @@ img.mail-conv-sender-photo {
 }
 
 .abook-self {
-	background-color: #ffdddd;
+	background-color: var(--bs-light-bg-subtle);
 }
 
 .abook-pending-contact, .abook-permschange {
