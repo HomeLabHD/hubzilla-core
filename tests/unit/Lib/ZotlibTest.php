@@ -1,5 +1,9 @@
 <?php
-class LibzotTest extends \Zotlabs\Tests\Unit\UnitTestCase {
+namespace Zotlabs\Tests\Unit\Lib;
+
+use Zotlabs\Tests\Unit\UnitTestCase;
+
+class ZotlibTest extends UnitTestCase {
 	/**
 	 * Test the `get_rpost_path` function.
 	 *
@@ -11,7 +15,7 @@ class LibzotTest extends \Zotlabs\Tests\Unit\UnitTestCase {
 		$this->assertEquals($expected, \Zotlabs\Lib\Libzot::get_rpost_path($observer));
 	}
 
-	private function get_rpost_path_provider() : array {
+	public static function get_rpost_path_provider() : array {
 		return [
 			'xchan_url without port' => [
 				'https://example.com/rpost?f=',

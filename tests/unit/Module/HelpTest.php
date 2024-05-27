@@ -52,7 +52,7 @@ class HelpTest extends \Zotlabs\Tests\Unit\Module\TestCase {
 		$fgc_stub = $this->getFunctionMock('Zotlabs\Module', 'file_get_contents');
 		$fgc_stub
 			->expects($this->once())
-			->willReturn($this->returnValueMap($file_content_map));
+			->willReturnMap($file_content_map);
 
 
 		$this->get("help/about/help_topic");

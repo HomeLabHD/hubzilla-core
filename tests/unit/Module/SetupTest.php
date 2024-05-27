@@ -6,6 +6,8 @@
  * SPDX-License-Identifier: MIT
  */
 
+namespace Zotlabs\Tests\Unit\Module;
+
 /**
  * SetupModuleTest
  *
@@ -16,7 +18,7 @@
  * This is a complex module, so expect the tests to grow as more of it will be
  * covered.
  */
-class SetupModuleTest extends \Zotlabs\Tests\Unit\Module\TestCase {
+class SetupTest extends TestCase {
 
 	public function test_that_setup_is_available_if_no_accounts_in_db(): void {
 		$this->with_no_accounts_in_db();

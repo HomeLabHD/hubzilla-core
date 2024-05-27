@@ -101,7 +101,7 @@ class BBCodeTest extends UnitTestCase {
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
 	 */
-	private function bbcode_to_html_provider(): array {
+	public static function bbcode_to_html_provider(): array {
 		return [
 			'code block' => [
 				"[code]\ntestvar = \"this is a test\"\necho \"the message is \$testvar\"\n[/code]",
@@ -153,7 +153,7 @@ class BBCodeTest extends UnitTestCase {
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
 	 */
-	private function bbcode_observer_provider(): array {
+	public static function bbcode_observer_provider(): array {
 		return [
 			'authenticated observer' => [
 				'[observer=1]This should be visible[/observer][observer=0]but not this[/observer]',
@@ -205,7 +205,7 @@ class BBCodeTest extends UnitTestCase {
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
 	 */
-	private function html2bbcode_provider(): array {
+	public static function html2bbcode_provider(): array {
 		return [
 			'paragraph over multiple lines' => [
 				"<p>A paragraph over\nmultiple lines\nshould be unwrapped</p>",

@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  bootstrap="../boot.php"
-  colors="true"
-  xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
-  >
-
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" bootstrap="../boot.php" colors="true" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd" cacheDirectory=".phpunit.cache">
   <php>
     <includePath>..</includePath>
     <!-- env name="HZ_TEST_DB_HOST" value=""/-->
@@ -24,10 +18,7 @@
       <directory suffix="Test.php" prefix="API">./unit/</directory>
     </testsuite>
   </testsuites>
-  <coverage
-      processUncoveredFiles="false"
-      cacheDirectory=".cache/phpunit"
-      >
+  <source>
     <include>
       <directory suffix=".php">../Zotlabs/</directory>
       <directory suffix=".php">../include/</directory>
@@ -35,5 +26,5 @@
     <exclude>
       <directory suffix=".php">../Zotlabs/Update/</directory>
     </exclude>
-  </coverage>
+  </source>
 </phpunit>

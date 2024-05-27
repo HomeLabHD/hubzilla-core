@@ -22,8 +22,8 @@
 
 namespace Zotlabs\Tests\Unit;
 
+use PHPUnit\Framework\Attributes\{Before, After};
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\TestResult;
 
 /*
  * Make sure global constants and the global App object is available to the
@@ -46,33 +46,44 @@ require_once 'include/dba/dba_driver.php' ;
  */
 class UnitTestCase extends TestCase {
 	protected array $fixtures = array();
+	protected ?\DbaTransaction $db_transacton = null;
 
 	/**
-	 * Override the run method, so we can wrap it in a database transaction.
+	 * Connect to the test db, load fixtures and global config.
 	 *
-	 * The transaction is automatically rolled back when the test completes, to
-	 * leave the test database in a known pristine state.
+	 * This function is executed before every test.
 	 *
-	 * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+	 * The transaction is rolled back in the `cleanup_test_db()` function
+	 * that's executed after every test.
 	 */
-	public function run(TestResult $result = null): TestResult {
+	#[Before]
+	protected function setup_test_db(): void {
 		if (! \DBA::$dba) {
 			$this->connect_to_test_db();
 		}
 
 		// The $transactuion variable is needed to hold the transaction until the
 		// function returns.
-		$transaction = new \DbaTransaction(\DBA::$dba);
+		$this->db_transaction = new \DbaTransaction(\DBA::$dba);
 
 		$this->loadFixtures();
 
 		// Make sure app config is reset and loaded from fixtures
 		\App::$config = array();
 		\Zotlabs\Lib\Config::Load('system');
+	}
 
-		$result = parent::run($result);
-
-		return $result;
+	/**
+	 * Roll back test database to it's original state, cleaning up
+	 * any changes from the test.
+	 *
+	 * This function is executes after evert tests.
+	 */
+	#[After]
+	protected function cleanup_test_db(): void {
+		// Setting the transaction to `null`, runs the destructor
+		// which rolls backk the transacton.
+		$this->db_transaction = null;
 	}
 
 	/**

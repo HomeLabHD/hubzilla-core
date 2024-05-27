@@ -39,7 +39,7 @@ class MarkdownTest extends UnitTestCase {
 		$this->assertEquals($expected, markdown_to_bb($src));
 	}
 
-	private function markdown_to_bbcode_provider(): array {
+	public static function markdown_to_bbcode_provider(): array {
 		return [
 			'empty text' => [
 				'',
@@ -104,7 +104,7 @@ class MarkdownTest extends UnitTestCase {
 		$this->assertEquals($markdown, html2markdown($html));
 	}
 
-	public function html2markdownProvider(): array {
+	public static function html2markdownProvider(): array {
 		return [
 				'empty text' => [
 						'',

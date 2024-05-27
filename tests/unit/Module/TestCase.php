@@ -24,6 +24,7 @@ class TestCase extends \Zotlabs\Tests\Unit\UnitTestCase {
 		}
 
 		$_SERVER['REQUEST_METHOD'] = 'GET';
+		$_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
 		$_REQUEST = $_GET;
 
 		\App::init();

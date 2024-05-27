@@ -393,7 +393,7 @@ class Setup extends \Zotlabs\Web\Controller {
 			$this->check_add($checks, t('PHP version'), false, true, $help);
 		}
 
-		if(strlen($phpath)) {
+		if(!empty($phpath)) {
 			$passed = file_exists($phpath);
 		}
 		elseif(function_exists('shell_exec')) {

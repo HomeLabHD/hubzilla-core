@@ -19,7 +19,7 @@ class ActivityTest extends UnitTestCase {
 	/**
 	 * Dataprovider for test_get_textfield.
 	 */
-	private function get_textfield_provider(): array {
+	public static function get_textfield_provider(): array {
 		return [
 			'get content field' => [
 				['content' => 'Some content'],

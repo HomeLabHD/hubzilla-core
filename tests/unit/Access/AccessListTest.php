@@ -185,7 +185,7 @@ class AccessListTest extends UnitTestCase {
 		$this->assertTrue($accessListPrivate->is_private());
 	}
 
-	public function isprivateProvider() {
+	public static function isprivateProvider() {
 		return [
 				'all set' => [[
 						'channel_allow_cid' => '<acid>',

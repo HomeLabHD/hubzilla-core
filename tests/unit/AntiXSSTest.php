@@ -31,7 +31,7 @@ class AntiXSSTest extends TestCase {
 		$this->assertEquals($expected, escape_url($url));
 	}
 
-	public function urlTestProvider() : array {
+	public static function urlTestProvider() : array {
 		return [
 			[
 				"https://example.com/settings/calendar/?f=&rpath=https://example.com/cdav/calendar'><script>alert('boom')</script>",

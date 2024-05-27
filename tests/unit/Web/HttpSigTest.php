@@ -46,7 +46,7 @@ class HttpSigTest extends UnitTestCase {
 				HTTPSig::generate_digest_header($text)
 		);
 	}
-	public function generate_digestProvider() {
+	public static function generate_digestProvider() {
 		return [
 				'empty body text' => [
 						'',

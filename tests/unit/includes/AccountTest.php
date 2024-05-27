@@ -19,7 +19,7 @@ class AccountTest extends Zotlabs\Tests\Unit\UnitTestCase {
 		$this->assertEquals($expected, check_account_email($email));
 	}
 
-	function check_account_email_provider() : array {
+	public static function check_account_email_provider() : array {
 		return [
 			// Empty and valid emails return the same result
 			['', ['error' => false, 'message' => '']],
