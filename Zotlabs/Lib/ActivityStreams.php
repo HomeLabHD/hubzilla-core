@@ -148,7 +148,7 @@ class ActivityStreams {
 
 			// Determine if this is a followup or response activity
 
-			$this->parent_id = $this->get_property_obj('inReplyTo');
+			$this->parent_id = ((is_array($this->get_property_obj('inReplyTo'))) ? $this->get_property_obj('inReplyTo')['id'] : $this->get_property_obj('inReplyTo'));
 
 			if (!$this->parent_id && isset($this->obj['inReplyTo'])) {
 				$this->parent_id = ((is_array($this->obj['inReplyTo'])) ? $this->obj['inReplyTo']['id'] : $this->obj['inReplyTo']);
