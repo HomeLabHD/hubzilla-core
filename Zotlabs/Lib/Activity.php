@@ -762,7 +762,12 @@ class Activity {
 				$ptr = [$ptr];
 			}
 			foreach ($ptr as $att) {
+				if (!is_array($att)) {
+					continue;
+				}
+
 				$entry = [];
+
 				if (array_key_exists('href', $att) && $att['href']) {
 					$entry['href'] = $att['href'];
 				} elseif (array_key_exists('url', $att) && $att['url']) {
@@ -1085,11 +1090,15 @@ class Activity {
 
 	static function encode_person($p, $extended = true) {
 
+		$ret = (($extended) ? [] : '');
+
+		if (!is_array($p)) {
+			return $ret;
+		}
+
 		$c = ((array_key_exists('channel_id', $p)) ? $p : channelx_by_hash($p['xchan_hash']));
 
 		$id = (($c) ? channel_url($c) : ((filter_var($p['xchan_hash'], FILTER_VALIDATE_URL)) ? $p['xchan_hash'] : $p['xchan_url']));
-
-		$ret = (($extended) ? [] : '');
 
 		if (!$id) {
 			return $ret;
