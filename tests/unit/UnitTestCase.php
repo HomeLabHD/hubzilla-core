@@ -31,6 +31,7 @@ use PHPUnit\Framework\TestCase;
  */
 require_once __DIR__ . '/../../boot.php';
 require_once 'include/dba/dba_driver.php' ;
+require_once 'include/dba/dba_transaction.php';
 
 /**
  * Base class for our Unit Tests.
