@@ -176,6 +176,40 @@ function log_failed_login($errormsg) {
 		@file_put_contents($authlog, datetime_convert() . ':' . session_id() . ' ' . $errormsg . PHP_EOL, FILE_APPEND);
 }
 
+
+/**
+ * Determines if checking for multifactor authentication needs to be checked.
+ *
+ * Checks that multi factor authentication is enabled for the given account_id,
+ * and whether it's already authenticated or not.
+ *
+ * Some modules needs to be excluded from the mfa checks for various reasons:
+ *
+ *   - `totp_check` is used by the mfa module itself.
+ *   - `dav` provides WebDAV access, and has no way of providing a mfa code.
+ *   - `cdav` is accessed both via CardDAV which has the same limitations as
+ *     the `dav` module, but may also be accessed via a web browser over http.
+ *     We only exclude it if it's not being accessed via a web browser.
+ *
+ * @param int $account_id	The id of the account we're verifying.
+ * @param string $module	The requested module.
+ * @param string $arg		The first arg passed to the module (or empty if none.)
+ *
+ * @return bool		`true` if mfa status needs to be checked, `false` otherwise.
+ */
+function requires_mfa_check(int $account_id, string $module, string $arg): bool {
+	if (in_array($module, ['totp_check', 'dav'], true)) {
+		return false;
+	}
+
+	if ($module === 'cdav' && !in_array($arg, ['addressbook', 'calendar'], true)) {
+		return false;
+	}
+
+	$multiFactor = AConfig::Get($account_id, 'system', 'mfa_enabled');
+	return $multiFactor && empty($_SESSION['2FA_VERIFIED']);
+}
+
 /**
  * Inline - not a function
  * look for auth parameters or re-validate an existing session
@@ -267,8 +301,7 @@ if((isset($_SESSION)) && (x($_SESSION, 'authenticated')) &&
 				$login_refresh = true;
 			}
 
-			$multiFactor = AConfig::Get(App::$account['account_id'], 'system', 'mfa_enabled');
-			if ($multiFactor && empty($_SESSION['2FA_VERIFIED']) && App::$module !== 'totp_check') {
+			if (requires_mfa_check(App::$account['account_id'], App::$module, argv(1))) {
 				$o = new Totp_check;
 				echo $o->get();
 				killme();
