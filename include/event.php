@@ -272,9 +272,9 @@ function format_event_ical($ev) {
 
 	if($ev['adjust']) {
 		if($ev['dtstart'])
-			$o .= "\r\nDTSTART$tzid:" . datetime_convert($tz,'UTC', $ev['dtstart'],'Ymd\\THis\\Z');
+			$o .= "\r\nDTSTART$tzid:" . datetime_convert('UTC', $tz, $ev['dtstart'],'Ymd\\THis');
 		if($ev['dtend'] && ! $ev['nofinish'])
-			$o .= "\r\nDTEND$tzid:" . datetime_convert($tz,'UTC', $ev['dtend'],'Ymd\\THis\\Z');
+			$o .= "\r\nDTEND$tzid:" . datetime_convert('UTC', $tz, $ev['dtend'],'Ymd\\THis');
 	}
 	else {
 		if($ev['dtstart'])
