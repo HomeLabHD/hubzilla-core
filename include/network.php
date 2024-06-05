@@ -116,7 +116,7 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 	}
 	else {
 		$curl_time = intval(@Config::Get('system','curl_timeout'));
-		@curl_setopt($ch, CURLOPT_TIMEOUT, (($curl_time !== false) ? $curl_time : 60));
+		@curl_setopt($ch, CURLOPT_TIMEOUT, (($curl_time !== 0) ? $curl_time : 60));
 	}
 
 	if(x($opts,'connecttimeout') && intval($opts['connecttimeout'])) {
@@ -124,7 +124,7 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 	}
 	else {
 		$curl_contime = intval(@Config::Get('system','curl_connecttimeout'));
-		@curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, (($curl_contime !== false) ? $curl_contime : 30));
+		@curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, (($curl_contime !== 0) ? $curl_contime : 30));
 	}
 
 	if(x($opts,'http_auth')) {
@@ -298,7 +298,7 @@ function z_post_url($url, $params, $redirects = 0, $opts = array()) {
 	}
 	else {
 		$curl_time = intval(@Config::Get('system','curl_timeout'));
-		@curl_setopt($ch, CURLOPT_TIMEOUT, (($curl_time !== false) ? $curl_time : 60));
+		@curl_setopt($ch, CURLOPT_TIMEOUT, (($curl_time !== 0) ? $curl_time : 60));
 	}
 
 	if(x($opts,'http_auth')) {
