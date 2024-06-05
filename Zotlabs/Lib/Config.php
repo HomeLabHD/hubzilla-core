@@ -115,7 +115,7 @@ class Config {
 	 *  The category of the configuration value
 	 * @param string $key
 	 *  The configuration key to query
-	 * @param string $default (optional) default false
+	 * @param mixed $default (optional) default false
 	 * @return mixed Return value or false on error or if not set
 	 */
 	public static function Get($family, $key, $default = false) {
