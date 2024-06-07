@@ -5,6 +5,8 @@ Hubzilla 9.0.2 (2024-06-07)
 	- Fix possible queueworker crash
 	- Fix missing pdl file for mod home
 	- Reduced default directory result set
+	- Fix fatal error in likebanner addon
+	- Fix fatal error in hilite addon
 
 
 Hubzilla 9.0.1 (2024-03-26)
