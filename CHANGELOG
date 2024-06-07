@@ -1,3 +1,12 @@
+Hubzilla 9.0.2 (2024-06-07)
+	- Fix buttons in event viewer
+	- Fix some PHP warnings and errors
+	- Fix issue when inReplyTo field is an array
+	- Fix possible queueworker crash
+	- Fix missing pdl file for mod home
+	- Reduced default directory result set
+
+
 Hubzilla 9.0.1 (2024-03-26)
 	- Fix an issue where after an update initiated from a modal the modal backdrop would remain
 	- Fix bootstrap namespace in conv list templates
