@@ -70,7 +70,7 @@ class Activity {
 		}
 
 		if ($items) {
-			return self::encode_item(array_shift($items), true);
+			return self::encode_item(array_shift($items));
 		}
 
 		return null;
@@ -2902,7 +2902,7 @@ class Activity {
 
 			if (intval($parent[0]['item_private'])) {
 				if (!intval($item['item_private'])) {
-					$item['item_private'] = intval($parent_item['item_private']);
+					$item['item_private'] = intval($parent[0]['item_private']);
 					$item['allow_cid'] = '<' . $channel['channel_hash'] . '>';
 					$item['allow_gid'] = $item['deny_cid'] = $item['deny_gid'] = '';
 				}

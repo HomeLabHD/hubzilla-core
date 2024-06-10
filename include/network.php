@@ -2146,9 +2146,9 @@ function get_request_string($url) {
  *
  * @param array $parsed_url		An associative array as produced by `parse_url`.
  *
- * @return The reassembled URL as a string.
+ * @return string The reassembled URL as a string.
  */
-function unparse_url($parsed_url) {
+function unparse_url(array $parsed_url): string {
 	$scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
 	$host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
 	$port     = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
@@ -2158,5 +2158,5 @@ function unparse_url($parsed_url) {
 	$path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
 	$query    = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
 	$fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
-  	return "$scheme$user$pass$host$port$path$query$fragment";
+	return $scheme . $user . $pass . $host . $port . $path . $query . $fragment;
 }
