@@ -797,7 +797,7 @@ function parse_event_object($event_object_json) {
 	$tz = $object['timezone'] ?? 'UTC';
 
 	$ev['summary'] = $object['summary'] ?? $object['name'] ?? '';
-	$ev['description'] = html2bbcode($content['content']) ?? '';
+	$ev['description'] = html2bbcode($object['content']) ?? '';
 	$ev['dtstart'] = $object['startTime'] ? datetime_convert('UTC', 'UTC', $object['startTime']) : '';
 	$ev['dtend'] = $object['endTime'] ? datetime_convert('UTC', 'UTC', $object['endTime']) : $ev['dtstart'];
 	$ev['location'] = $object['location']['name'] ?? '';
