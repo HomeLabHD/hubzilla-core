@@ -44,8 +44,6 @@ class ThreadItem {
 		$this->toplevel = ($this->get_id() == $this->get_data_value('parent'));
 		$this->threaded = Config::Get('system','thread_allow');
 
-		$observer = \App::get_observer();
-
 		// Prepare the children
 		if(isset($data['children'])) {
 
@@ -875,7 +873,7 @@ class ThreadItem {
 			'$feature_encrypt' => ((feature_enabled($conv->get_profile_owner(),'content_encrypt')) ? true : false),
 			'$encrypt' => t('Encrypt text'),
 			'$cipher' => $conv->get_cipher(),
-			'$sourceapp' => \App::$sourcename,
+			'$sourceapp' => App::$sourcename,
 			'$observer' => get_observer_hash(),
 			'$anoncomments' => ((in_array($conv->get_mode(), ['channel', 'display', 'cards', 'articles']) && perm_is_allowed($conv->get_profile_owner(),'','post_comments')) ? true : false),
 			'$anonname' => [ 'anonname', t('Your full name (required)') ],
