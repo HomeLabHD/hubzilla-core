@@ -267,7 +267,7 @@ class Libsync {
 						}
 
 						if ($cat !== 'hz_delpconfig') {
-							set_pconfig($channel['channel_id'],$cat,$k,$v,$pconfig_updated[$k]);
+							set_pconfig($channel['channel_id'], $cat, $k, $v, $pconfig_updated[$k]);
 						}
 					}
 				}

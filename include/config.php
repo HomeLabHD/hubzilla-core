@@ -120,8 +120,8 @@ function get_pconfig($uid, $family, $key, $default = false) {
 	return Zlib\PConfig::Get($uid,$family,$key,$default);
 }
 
-function set_pconfig($uid, $family, $key, $value) {
-	return Zlib\PConfig::Set($uid,$family,$key,$value);
+function set_pconfig($uid, $family, $key, $value, $updated = NULL) {
+	return Zlib\PConfig::Set($uid, $family, $key, $value, $updated);
 }
 
 function del_pconfig($uid, $family, $key, $updated = NULL) {
