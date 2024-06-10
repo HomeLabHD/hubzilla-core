@@ -2467,8 +2467,8 @@ function copy_folder_to_cloudfiles($channel, $observer_hash, $srcpath, $cloudpat
  * @param int $channel_id
  * @param int $resource_id
  * @param string $new_folder_hash
- * @param (optional) string $newname
- * @param (optional) boolean $recurse
+ * @param string (optional) $newname
+ * @param  boolean (optional) $recurse
  * @return array Associative array with:
  *  * \e boolean \b success
  *  * \e string \b resource_id
