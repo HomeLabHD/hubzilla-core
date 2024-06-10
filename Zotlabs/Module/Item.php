@@ -1654,7 +1654,7 @@ class Item extends Controller {
 					$listener = Libzot::zot_record_preferred($listener);
 
 					$c = q("select abook_id from abook where abook_channel = %d and abook_xchan = '%s'",
-						intval($profile_uid),
+						intval($item['uid']),
 						dbesc($listener['hubloc_hash'])
 					);
 
