@@ -98,7 +98,6 @@ class Hq extends \Zotlabs\Web\Controller {
 				'permissions'         => $channel_acl,
 				'bang'                => '',
 				'visitor'             => true,
-				'profile_uid'         => local_channel(),
 				'return_path'         => 'hq',
 				'expanded'            => true,
 				'editor_autocomplete' => true,
