@@ -113,7 +113,6 @@ function z_mime_content_type($filename) {
 	'odf' => 'application/vnd.oasis.opendocument.formula',
 	'odi' => 'application/vnd.oasis.opendocument.image',
 	'odm' => 'application/vnd.oasis.opendocument.text-master',
-	'odb' => 'application/vnd.oasis.opendocument.base',
 	'odb' => 'application/vnd.oasis.opendocument.database',
 	'ott' => 'application/vnd.oasis.opendocument.text-template',
 	'ots' => 'application/vnd.oasis.opendocument.spreadsheet-template',
