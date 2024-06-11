@@ -116,17 +116,6 @@ class Hq extends \Zotlabs\Web\Controller {
 
 			nav_set_selected('HQ');
 
-			if($target_item) {
-				// if the target item is not a post (eg a like) we want to address its thread parent
-				//$mid = ((($target_item['verb'] == ACTIVITY_LIKE) || ($target_item['verb'] == ACTIVITY_DISLIKE)) ? $target_item['thr_parent'] : $target_item['mid']);
-
-				// if we got a decoded hash we must encode it again before handing to javascript
-				// $mid = gen_link_id($target_item['mid']);
-			}
-			else {
-				$mid = '';
-			}
-
 			$o .= '<div id="live-hq"></div>' . "\r\n";
 			$o .= "<script> var profile_uid = " . local_channel()
 				. "; var netargs = '?f='; var profile_page = " . App::$pager['page'] . ";</script>\r\n";
