@@ -62,6 +62,8 @@ require_once('include/conversation.php');
 require_once('include/acl_selectors.php');
 require_once('include/selectors.php');
 require_once('include/activities.php');
+require_once('include/security.php');
+
 
 define('PLATFORM_NAME', 'hubzilla');
 define('STD_VERSION', '9.1.4');
