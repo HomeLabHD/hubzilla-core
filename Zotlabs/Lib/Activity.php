@@ -1875,7 +1875,7 @@ class Activity {
 		}
 
 		if ($icon) {
-			Master::Summon(['Xchan_photo', bin2hex($icon), bin2hex($url)]);
+			Master::Summon(['Xchan_photo', bin2hex($icon), bin2hex($url), $force]);
 		}
 	}
 

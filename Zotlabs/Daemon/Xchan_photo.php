@@ -8,14 +8,15 @@ class Xchan_photo {
 
 	static public function run($argc, $argv) {
 
-		if ($argc != 3) {
+		if ($argc < 3) {
 			return;
 		}
 
 		$url   = hex2bin($argv[1]);
 		$xchan = hex2bin($argv[2]);
+		$force = $argv[3];
 
-		$photos = import_xchan_photo($url, $xchan);
+		$photos = import_xchan_photo($url, $xchan, false, $force);
 		if ($photos) {
 			$result = q("update xchan set xchan_photo_date = '%s', xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s', xchan_photo_mimetype = '%s' where xchan_hash = '%s'",
 				dbescdate(datetime_convert()),
@@ -27,8 +28,10 @@ class Xchan_photo {
 			);
 
 			if (! $result) {
-				logger("xchan update failed for $url");
+				logger("xchan photo update failed for $url");
 			}
 		}
+
+		return;
 	}
 }
