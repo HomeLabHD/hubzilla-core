@@ -1648,7 +1648,7 @@ function fix_system_urls($oldurl, $newurl) {
 				}
 			}
 
-			Zotlabs\Daemon\Master::Summon(['Notifier', 'refresh_all', $c[0]['channel_id']]);
+			Master::Summon(['Notifier', 'refresh_all', $c[0]['channel_id']]);
 		}
 	}
 
@@ -2725,7 +2725,7 @@ function check_cron_broken() {
 	$d = Config::Get('system', 'lastcron');
 
 	if ((!$d) || ($d < datetime_convert('UTC', 'UTC', 'now - 4 hours'))) {
-		Zotlabs\Daemon\Master::Summon(['Cron']);
+		Master::Summon(['Cron']);
 		Config::Set('system', 'lastcron', datetime_convert());
 	}
 
