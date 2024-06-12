@@ -30,6 +30,12 @@ require_once('include/conversation.php');
  */
 class Rpost extends \Zotlabs\Web\Controller {
 
+	/**
+	 * Handle requests.
+	 *
+	 * Despite it's name, this method handles both POST and GET requests
+	 * to the module.
+	 */
 	public function get(): string {
 
 		$channel_id = local_channel();
