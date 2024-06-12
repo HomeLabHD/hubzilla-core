@@ -67,10 +67,13 @@ class RpostTest extends \Zotlabs\Tests\Unit\Module\TestCase {
 
 		// Set basic access controls to keep AccessList happy.
 		\App::$channel = [
-			'channel_allow_cid' => null,
-			'channel_allow_gid' => null,
-			'channel_deny_cid' => null,
-			'channel_deny_gid' => null,
+			'channel_id' => 42,
+			'channel_location' => null,
+			'channel_address' => '',
+			'channel_allow_cid' => '',
+			'channel_allow_gid' => '',
+			'channel_deny_cid' => '',
+			'channel_deny_gid' => '',
 		];
 
 		$this->get('rpost', $query);

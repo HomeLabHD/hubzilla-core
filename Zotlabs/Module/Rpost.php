@@ -119,7 +119,8 @@ class Rpost extends \Zotlabs\Web\Controller {
 		return replace_macros(get_markup_template('edpost_head.tpl'), array(
 			'$title' => t('Edit post'),
 			'$cancel' => '',
-			'$editor' => $editor
+			'$editor' => $editor,
+			'$delete' => null,
 		));
 	}
 
