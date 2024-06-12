@@ -62,15 +62,6 @@ class Rpost extends \Zotlabs\Web\Controller {
 			}
 		}
 
-		if(isset($_REQUEST['remote_return']) && $_REQUEST['remote_return']) {
-			$_SESSION['remote_return'] = $_REQUEST['remote_return'];
-		}
-		if(argc() > 1 && argv(1) === 'return') {
-			if($_SESSION['remote_return'])
-				goaway($_SESSION['remote_return']);
-			goaway(z_root() . '/network');
-		}
-
 		if(isset($_REQUEST['type']) && $_REQUEST['type'] === 'html') {
 			require_once('include/html2bbcode.php');
 			$_REQUEST['body'] = html2bbcode($_REQUEST['body']);
@@ -106,7 +97,7 @@ class Rpost extends \Zotlabs\Web\Controller {
 			'body'                => $_REQUEST['body'] ?? '',
 			'attachment'          => $_REQUEST['attachment'] ?? '',
 			'source'              => ((x($_REQUEST,'source')) ? strip_tags($_REQUEST['source']) : ''),
-			'return_path'         => 'rpost/return',
+			'return_path'         => 'hq',
 			'bbco_autocomplete'   => 'bbcode',
 			'editor_autocomplete' => true,
 			'bbcode'              => true,
