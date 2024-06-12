@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<ruleset
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    name="PHP_CodeSniffer"
+    xsi:noNamespaceSchemaLocation="phpcs.xsd"
+    >
+
+	<description>PHP CodeSniffer config for Hubzilla</description>
+
+    <file>app</file>
+    <file>boot.php</file>
+	<file>include</file>
+	<file>index.php</file>
+	<file>install</file>
+	<file>library</file>
+	<file>tests</file>
+	<file>util</file>
+	<file>view</file>
+	<file>Zotlabs</file>
+
+    <rule ref="Generic">
+        <exclude name="Generic.Arrays.ArrayIndent"/>
+        <exclude name="Generic.Arrays.DisallowLongArraySyntax"/>
+        <exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+        <exclude name="Generic.Files.EndFileNoNewline"/>
+        <exclude name="Generic.Files.LowercasedFilename"/>
+        <exclude name="Generic.Formatting.MultipleStatementAlignment"/>
+        <exclude name="Generic.Formatting.SpaceAfterNot"/>
+        <exclude name="Generic.Functions.FunctionCallArgumentSpacing"/>
+        <exclude name="Generic.Functions.OpeningFunctionBraceBsdAllman"/>
+        <exclude name="Generic.NamingConventions.CamelCapsFunctionName"/>
+        <exclude name="Generic.PHP.ClosingPHPTag"/>
+        <exclude name="Generic.PHP.RequireStrictTypes"/>
+        <exclude name="Generic.PHP.UpperCaseConstant"/>
+        <exclude name="Generic.WhiteSpace.DisallowTabIndent"/>
+        <exclude name="Generic.WhiteSpace.ScopeIndent"/>
+        <exclude name="Generic.Commenting.DocComment.ContentAfterOpen"/>
+        <exclude name="Generic.Commenting.DocComment.ContentBeforeClose"/>
+        <exclude name="Generic.Commenting.DocComment.LongNotCapital"/>
+        <exclude name="Generic.Commenting.DocComment.MissingShort"/>
+        <exclude name="Generic.Commenting.DocComment.NonParamGroup"/>
+        <exclude name="Generic.Commenting.DocComment.ParamNotFirst"/>
+        <exclude name="Generic.Commenting.DocComment.ShortNotCapital"/>
+        <exclude name="Generic.Commenting.DocComment.SpacingAfter"/>
+        <exclude name="Generic.Commenting.DocComment.SpacingBeforeShort"/>
+        <exclude name="Generic.Commenting.DocComment.TagValueIndent"/>
+        <exclude name="Generic.ControlStructures.InlineControlStructure.NotAllowed"/>
+        <exclude name="Generic.Files.OneClassPerFile.MultipleFound"/>
+        <exclude name="Generic.Files.OneObjectStructurePerFile.MultipleFound"/>
+        <exclude name="Generic.Formatting.SpaceAfterCast.NoSpace"/>
+    </rule>
+
+	<!--
+		Warn about lines longer than 100 columns, lines longer than 150
+		columns will flag an error.
+	-->
+	<rule ref="Generic.Files.LineLength">
+		<properties>
+			<property name="lineLimit" value="100" />
+			<property name="absoluteLineLimit" value="150" />
+		</properties>
+	</rule>
+
+    <!--
+        Mark deprecated functions.
+    -->
+    <rule ref="Generic.PHP.DeprecatedFunctions">
+        <properties>
+            <property name="forbiddenFunctions" type="array" extend="true">
+                <element key="load_config" value="Zotlabs\Lib\Config::Load" />
+                <element key="get_config" value="Zotlabs\Lib\Config::Get" />
+                <element key="set_config" value="Zotlabs\Lib\Config::Set" />
+                <element key="del_config" value="Zotlabs\Lib\Config::Delete" />
+            </property>
+        </properties>
+    </rule>
+
+</ruleset>
