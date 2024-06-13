@@ -46,9 +46,9 @@ class Setup extends \Zotlabs\Web\Controller {
 		}
 
 		if(x($_POST, 'pass')) {
-			$this->install_wizard_pass = intval($_POST['pass']);
+			self::$install_wizard_pass = intval($_POST['pass']);
 		} else {
-			$this->install_wizard_pass = 1;
+			self::$install_wizard_pass = 1;
 		}
 	}
 
@@ -215,9 +215,11 @@ class Setup extends \Zotlabs\Web\Controller {
 				$tpl = get_markup_template('install.tpl');
 				return replace_macros($tpl, array(
 					'$title' => $install_title,
+					'$icon' => null,
 					'$pass' => '',
 					'$status' => t('Permission denied.'),
 					'$text' => '',
+					'$what_next' => null,
 				));
 			}
 		}
@@ -237,7 +239,7 @@ class Setup extends \Zotlabs\Web\Controller {
 			));
 		}
 
-		switch ($this->install_wizard_pass){
+		switch (self::$install_wizard_pass){
 			case 1: { // System check
 
 				$checks = array();

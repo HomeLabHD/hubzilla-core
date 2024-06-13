@@ -210,7 +210,8 @@ class Help extends \Zotlabs\Web\Controller {
 		$content = preg_replace_callback(
 			"/#include (.*?)\;/ism",
 			function ($matches) {
-				$sub_file_type = array_pop(explode('.', $matches[1]));
+				$parts = explode('.', $matches[1]);
+				$sub_file_type = array_pop($parts);
 				$included_content = $this->render_help_file($matches[1], $sub_file_type);
 				return str_replace($matches[0], $included_content, $matches[0]);
 			},

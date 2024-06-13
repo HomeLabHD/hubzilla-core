@@ -166,7 +166,8 @@ function menu_create($arr) {
 	if($r)
 		return false;
 
-	$t = datetime_convert();
+	$time_created = datetime_convert('UTC', 'UTC', empty($arr['menu_created']) ? 'now' : $arr['menu_created']);
+	$time_edited = empty($arr['menu_edited']) ? $time_created : datetime_convert('UTC', 'UTC', $arr['menu_edited']);
 
 	$r = q("insert into menu ( menu_name, menu_desc, menu_flags, menu_channel_id, menu_created, menu_edited )
 		values( '%s', '%s', %d, %d, '%s', '%s' )",
@@ -174,8 +175,8 @@ function menu_create($arr) {
 		dbesc($menu_desc),
 		intval($menu_flags),
 		intval($menu_channel_id),
-		dbesc(datetime_convert('UTC','UTC',(($arr['menu_created']) ? $arr['menu_created'] : $t))),
-		dbesc(datetime_convert('UTC','UTC',(($arr['menu_edited']) ? $arr['menu_edited'] : $t)))
+		dbesc($time_created),
+		dbesc($time_edited)
 	);
 	if(! $r)
 		return false;
