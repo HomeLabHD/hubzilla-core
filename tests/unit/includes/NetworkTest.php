@@ -7,12 +7,6 @@
 
 class NetworkTest extends Zotlabs\Tests\Unit\UnitTestCase {
 
-	public function setUp() : void {
-		parent::setUp();
-
-		\App::set_baseurl("https://mytest.org");
-	}
-
 	/**
 	 * @dataProvider localUrlTestProvider
 	 */
@@ -23,7 +17,7 @@ class NetworkTest extends Zotlabs\Tests\Unit\UnitTestCase {
 	public static function localUrlTestProvider() : array {
 		return [
 			[ '/some/path', true ],
-			[ 'https://mytest.org/some/path', true ],
+			[ 'https://hubzilla.test/some/path', true ],
 			[ 'https://other.site/some/path', false ],
 		];
 	}
