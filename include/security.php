@@ -8,7 +8,7 @@
 use Zotlabs\Lib\Config;
 
 /**
- * @param int $user_record The account_id
+ * @param array $user_record The account record
  * @param array $channel
  * @param bool $login_initial default false
  * @param bool $interactive default false
@@ -908,7 +908,6 @@ function zarIsDuty($wd=NULL, $hhmm=NULL, $op='isOpen') {
 				}
 			}
 			return $dutyis;
-			break;
 
 		case 'nextOpen':
 			/**
@@ -953,7 +952,6 @@ function zarIsDuty($wd=NULL, $hhmm=NULL, $op='isOpen') {
 				}
 			}
 			return $is1; // false or array
-			break;
 
 		default:
 			//
