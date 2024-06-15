@@ -6,6 +6,8 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\Exception\UnableToBuildUuidException;
 use Zotlabs\Lib\Config;
 
+require_once 'include/dba/dba_transaction.php';
+
 class QueueWorker {
 
 	public static $queueworker = null;
