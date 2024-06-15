@@ -74,6 +74,12 @@ class TestCase extends \Zotlabs\Tests\Unit\UnitTestCase {
 				}
 			);
 	}
+
+	protected function expectRedirectTo(string $destination): void {
+		$this->stub_goaway();
+		$this->expectException(RedirectException::class);
+		$this->expectExceptionMessage($destination);
+	}
 }
 
 /**
