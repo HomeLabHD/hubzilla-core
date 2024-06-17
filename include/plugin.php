@@ -488,17 +488,18 @@ function call_hooks($name, &$data = null) {
 				@include_once($hook[0]);
 			}
 
-			if(preg_match('|^a:[0-9]+:{.*}$|s', $hook[1])) {
-				$hook[1] = unserialize($hook[1]);
+			if(is_string($hook[1])) {
+				if (preg_match('|^a:[0-9]+:{.*}$|s', $hook[1])) {
+					$hook[1] = unserialize($hook[1]);
+				}
+				elseif(strpos($hook[1],'::')) {
+					// We shouldn't need to do this, but it appears that PHP
+					// isn't able to directly execute a string variable with a class
+					// method in the manner we are attempting it, so we'll
+					// turn it into an array.
+					$hook[1] = explode('::',$hook[1]);
+				}
 			}
-			elseif(strpos($hook[1],'::')) {
-				// We shouldn't need to do this, but it appears that PHP
-				// isn't able to directly execute a string variable with a class
-				// method in the manner we are attempting it, so we'll
-				// turn it into an array.
-				$hook[1] = explode('::',$hook[1]);
-			}
-
 
 			if(is_callable($hook[1])) {
 				$func = $hook[1];

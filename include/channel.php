@@ -199,8 +199,8 @@ function create_identity($arr) {
 
 	$ret = array('success' => false);
 
-	if(! $arr['account_id']) {
-	$ret['message'] = t('No account identifier');
+	if(empty($arr['account_id'])) {
+		$ret['message'] = t('No account identifier');
 		return $ret;
 	}
 	$ret = identity_check_service_class($arr['account_id']);
