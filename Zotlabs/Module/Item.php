@@ -1262,6 +1262,11 @@ class Item extends Controller {
 
 			if ((x($_REQUEST, 'return')) && strlen($return_path)) {
 				logger('return: ' . $return_path);
+
+				if ($return_path === 'hq') {
+					goaway(z_root() . '/hq/' . $datarray['uuid']);
+				}
+
 				goaway(z_root() . "/" . $return_path);
 			}
 			killme();
