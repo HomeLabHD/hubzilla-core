@@ -362,7 +362,8 @@ class ThreadItem {
 
 		localize_item($item);
 
-		$body = prepare_body($item,true);
+		$opts = (($item['resource_type'] === 'event') ? ['is_event_item' => true] : []);
+		$body = prepare_body($item, true, $opts);
 
 		// $viewthread (below) is only valid in list mode. If this is a channel page, build the thread viewing link
 		// since we can't depend on llink or plink pointing to the right local location.

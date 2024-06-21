@@ -2082,10 +2082,15 @@ function prepare_text($text, $content_type = 'text/bbcode', $opts = false) {
 		default:
 			require_once('include/bbcode.php');
 
-			if(stristr($text, '[nosmile]'))
-				$s = bbcode($text, ((is_array($opts)) ? $opts : [] ));
-			else
-				$s = smilies(bbcode($text, ((is_array($opts)) ? $opts : [] )));
+			// events are handled in format_event_obj()
+			if (empty($opts['is_event_item'])) {
+				if(stristr($text, '[nosmile]')) {
+					$s = bbcode($text, ((is_array($opts)) ? $opts : [] ));
+				}
+				else {
+					$s = smilies(bbcode($text, ((is_array($opts)) ? $opts : [] )));
+				}
+			}
 
 			$s = zidify_links($s);
 

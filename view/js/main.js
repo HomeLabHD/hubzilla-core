@@ -1008,7 +1008,7 @@ function liveUpdate(notify_id) {
 			in_progress = false;
 			liveRecurse ++;
 			if(liveRecurse < 10) {
-				liveUpdate();
+				liveUpdate(notify_id);
 			}
 			else {
 				console.log('Incomplete data. Too many attempts. Giving up.');
