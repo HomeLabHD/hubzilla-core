@@ -14,7 +14,7 @@ class Channels {
 	 */
 	function post() {
 
-		$channels = ( x($_POST, 'channel') ? $_POST['channel'] : Array() );
+		$channels = (x($_POST, 'channel') ? $_POST['channel'] : []);
 
 		check_form_security_token_redirectOnErr('/admin/channels', 'admin_channels');
 
@@ -22,11 +22,28 @@ class Channels {
 
 		if(x($_POST, 'page_channels_block')) {
 			foreach($channels as $uid) {
-				q("UPDATE channel SET channel_pageflags = ( channel_pageflags $xor %d ) where channel_id = %d",
-					intval(PAGE_CENSORED),
-					intval( $uid )
+				$channel = channelx_by_n($uid);
+
+				if (!$channel) {
+					notice( t('Channel not found') . EOL);
+					continue;
+				}
+
+				$pflags = $channel['channel_pageflags'] ^ PAGE_CENSORED;
+
+				q("UPDATE channel SET channel_pageflags = %d where channel_id = %d",
+					intval($pflags),
+					intval($uid)
 				);
+
 				\Zotlabs\Daemon\Master::Summon(array('Directory', $uid, 'nopush'));
+
+				$censored = (($pflags & PAGE_CENSORED) ? 1 : 0);
+
+				q("UPDATE xchan SET xchan_censored = %d WHERE xchan_hash = '%s'",
+					intval($censored),
+					dbesc($channel['channel_hash'])
+				);
 			}
 			notice( sprintf( tt("%s channel censored/uncensored", "%s channels censored/uncensored", count($channels)), count($channels)) );
 		}
@@ -57,11 +74,9 @@ class Channels {
 	function get() {
 		if(argc() > 2) {
 			$uid = argv(3);
-			$channel = q("SELECT * FROM channel WHERE channel_id = %d",
-				intval($uid)
-			);
+			$channel = channelx_by_n($uid);
 
-			if(! $channel) {
+			if(!$channel) {
 				notice( t('Channel not found') . EOL);
 				goaway(z_root() . '/admin/channels' );
 			}
@@ -72,30 +87,37 @@ class Channels {
 					// delete channel
 					channel_remove($uid,true);
 
-					notice( sprintf(t("Channel '%s' deleted"), $channel[0]['channel_name']) . EOL);
+					notice( sprintf(t("Channel '%s' deleted"), $channel['channel_name']) . EOL);
 				}; break;
 
 				case "block":{
 					check_form_security_token_redirectOnErr('/admin/channels', 'admin_channels', 't');
-					$pflags = $channel[0]['channel_pageflags'] ^ PAGE_CENSORED;
+					$pflags = $channel['channel_pageflags'] ^ PAGE_CENSORED;
 					q("UPDATE channel SET channel_pageflags = %d where channel_id = %d",
 						intval($pflags),
-						intval( $uid )
+						intval($uid)
 					);
 					\Zotlabs\Daemon\Master::Summon(array('Directory',$uid,'nopush'));
 
-					notice( sprintf( (($pflags & PAGE_CENSORED) ? t("Channel '%s' censored"): t("Channel '%s' uncensored")) , $channel[0]['channel_name'] . ' (' . $channel[0]['channel_address'] . ')' ) . EOL);
+					$censored = (($pflags & PAGE_CENSORED) ? 1 : 0);
+
+					q("UPDATE xchan SET xchan_censored = %d WHERE xchan_hash = '%s'",
+						intval($censored),
+						dbesc($channel['channel_hash'])
+					);
+
+					notice( sprintf( (($censored) ? t("Channel '%s' censored"): t("Channel '%s' uncensored")) , $channel['channel_name'] . ' (' . $channel['channel_address'] . ')' ) . EOL);
 				}; break;
 
 				case "code":{
 					check_form_security_token_redirectOnErr('/admin/channels', 'admin_channels', 't');
-					$pflags = $channel[0]['channel_pageflags'] ^ PAGE_ALLOWCODE;
+					$pflags = $channel['channel_pageflags'] ^ PAGE_ALLOWCODE;
 					q("UPDATE channel SET channel_pageflags = %d where channel_id = %d",
 						intval($pflags),
-						intval( $uid )
+						intval($uid)
 					);
 
-					notice( sprintf( (($pflags & PAGE_ALLOWCODE) ? t("Channel '%s' code allowed"): t("Channel '%s' code disallowed")) , $channel[0]['channel_name'] . ' (' . $channel[0]['channel_address'] . ')' ) . EOL);
+					notice( sprintf( (($pflags & PAGE_ALLOWCODE) ? t("Channel '%s' code allowed"): t("Channel '%s' code disallowed")) , $channel['channel_name'] . ' (' . $channel['channel_address'] . ')' ) . EOL);
 				}; break;
 
 				default:

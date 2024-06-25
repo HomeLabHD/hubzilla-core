@@ -185,7 +185,6 @@ class Pubstream extends \Zotlabs\Web\Controller {
 			$thread_top = '';
 		}
 
-		$net_query = (($net) ? " left join xchan on xchan_hash = author_xchan " : '');
 		$net_query2 = (($net) ? " and xchan_network = '" . protect_sprintf(dbesc($net)) . "' " : '');
 
 		if($update && $_SESSION['loadtime'])
@@ -203,10 +202,11 @@ class Pubstream extends \Zotlabs\Web\Controller {
 				if($mid) {
 					$r = q("SELECT parent AS item_id FROM item
 						left join abook on item.author_xchan = abook.abook_xchan
-						$net_query
+						left join xchan on item.author_xchan = xchan.xchan_hash
 						WHERE item.$identifier = '%s' and item.item_private = 0
 						$uids $site_firehose_sql
 						$item_normal
+						and xchan.xchan_censored = 0
 						and (abook.abook_blocked = 0 or abook.abook_flags is null)
 						$sql_extra $net_query2",
 						dbesc($mid)
@@ -216,10 +216,11 @@ class Pubstream extends \Zotlabs\Web\Controller {
 					// Fetch a page full of parent items for this page
 					$r = dbq("SELECT parent AS item_id FROM item
 						left join abook on ( item.author_xchan = abook.abook_xchan $abook_uids )
-						$net_query
+						left join xchan on item.author_xchan = xchan.xchan_hash
 						WHERE item.item_private = 0 $thread_top
 						$uids $site_firehose_sql
 						$item_normal
+						and xchan.xchan_censored = 0
 						and (abook.abook_blocked = 0 or abook.abook_flags is null)
 						$sql_extra $net_query2
 						ORDER BY $ordering DESC $pager_sql "
@@ -230,9 +231,10 @@ class Pubstream extends \Zotlabs\Web\Controller {
 				if($mid) {
 					$r = q("SELECT parent AS item_id FROM item
 						left join abook on item.author_xchan = abook.abook_xchan
-						$net_query
+						left join xchan on item.author_xchan = xchan.xchan_hash
 						WHERE item.$identifier = '%s' and item.item_private = 0
 						$uids $site_firehose_sql $item_normal_update $simple_update
+						and xchan.xchan_censored = 0
 						and (abook.abook_blocked = 0 or abook.abook_flags is null)
 						$sql_extra $net_query2",
 						dbesc($mid)
@@ -241,10 +243,11 @@ class Pubstream extends \Zotlabs\Web\Controller {
 				else {
 					$r = dbq("SELECT parent AS item_id FROM item
 						left join abook on item.author_xchan = abook.abook_xchan
-						$net_query
+						left join xchan on item.author_xchan = xchan.xchan_hash
 						WHERE item.item_private = 0 $thread_top
 						$uids $site_firehose_sql $item_normal_update
 						$simple_update
+						and xchan.xchan_censored = 0
 						and (abook.abook_blocked = 0 or abook.abook_flags is null)
 						$sql_extra $net_query2"
 					);
