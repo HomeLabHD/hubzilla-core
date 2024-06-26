@@ -3,6 +3,7 @@ namespace Zotlabs\Module; /** @file */
 
 use App;
 use Zotlabs\Lib\Apps;
+use Zotlabs\Lib\Text;
 use Zotlabs\Web\Controller;
 
 class Sources extends Controller {
@@ -15,13 +16,12 @@ class Sources extends Controller {
 			return;
 
 		$source = intval($_REQUEST['source']);
-		$xchan = escape_tags($_REQUEST['xchan']);
+		$xchan = ((isset($_REQUEST['xchan'])) ? Text::escape_tags($_REQUEST['xchan']) : '');
 		$abook = intval($_REQUEST['abook']);
-		$words = escape_tags($_REQUEST['words']);
+		$words = ((isset($_REQUEST['words'])) ? Text::escape_tags($_REQUEST['words']) : '');
 		$resend = intval($_REQUEST['resend']);
-		$frequency = $_REQUEST['frequency'];
-		$name = escape_tags($_REQUEST['name']);
-		$tags = escape_tags($_REQUEST['tags']);
+		$name = ((isset($_REQUEST['name'])) ? Text::escape_tags($_REQUEST['name']) : '');
+		$tags = ((isset($_REQUEST['tags'])) ? Text::escape_tags($_REQUEST['tags']) : '');
 
 		$channel = \App::get_channel();
 
