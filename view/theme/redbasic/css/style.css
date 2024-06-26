@@ -895,25 +895,6 @@ a .drop-icons:hover {
 	list-style-type: none;
 }
 
-table {
-	border-spacing: 2px;
-	max-width: 100%;
-}
-
-th,td {
-	padding: 3px;
-}
-
-#channels > tbody > tr > td, #users > tbody > tr > td {
-	max-width: 19.4em;
-	overflow: hidden;
-}
-
-/* mail */
-
-img.mail-conv-sender-photo {
-	border-radius: var(--bs-border-radius);
-}
 
 /* jot */
 
