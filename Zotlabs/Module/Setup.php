@@ -58,7 +58,7 @@ class Setup extends \Zotlabs\Web\Controller {
 	 */
 	function post() {
 
-		switch($this->install_wizard_pass) {
+		switch(self::$install_wizard_pass) {
 			case 1:
 			case 2:
 				return;
@@ -180,18 +180,18 @@ class Setup extends \Zotlabs\Web\Controller {
 		$install_title = t('$Projectname Server - Setup');
 
 		if(x(\App::$data, 'db_conn_failed')) {
-			$this->install_wizard_pass = 2;
+			self::$install_wizard_pass = 2;
 			$wizard_status =  t('Could not connect to database.');
 		}
 		if(x(\App::$data, 'url_fail')) {
-			$this->install_wizard_pass = 3;
+			self::$install_wizard_pass = 3;
 			$wizard_status =  t('Could not connect to specified site URL. Possible SSL certificate or DNS issue.');
 			if(\App::$data['url_error'])
 				$wizard_status .= ' ' . \App::$data['url_error'];
 		}
 
 		if(x(\App::$data, 'db_create_failed')) {
-			$this->install_wizard_pass = 2;
+			self::$install_wizard_pass = 2;
 			$wizard_status =  t('Could not create table.');
 		}
 		$db_return_text = '';
