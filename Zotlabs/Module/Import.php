@@ -192,6 +192,12 @@ class Import extends Controller {
 			return;
 		}
 
+		if ($channel['channel_removed']) {
+			logger('Channel exists but has been marked removed on this hub. ', print_r($channel,true));
+			notice( t('Channel exists but has been marked removed on this hub. Import failed.') . EOL);
+			return;
+		}
+
 		if (is_array($data['config'])) {
 			import_config($channel, $data['config']);
 		}
@@ -558,7 +564,7 @@ class Import extends Controller {
 			goaway(z_root() . '/import_progress');
 		}
 
-		if (!$cf_api_compat) {
+		if ($import_posts && !$cf_api_compat) {
 			notice(t('Automatic content and files import was not possible due to API version incompatiblity. Please import content and files manually!') . EOL);
 		}
 
