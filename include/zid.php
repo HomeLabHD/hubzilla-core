@@ -38,7 +38,7 @@ function is_matrix_url($url) {
  * @return string
  */
 function zid($s, $address = '') {
-	if ($s || strpos($s,'zid=')) {
+	if (!$s || strpos($s,'zid=')) {
 		return $s;
 	}
 
