@@ -38,10 +38,16 @@ function is_matrix_url($url) {
  * @return string
  */
 function zid($s, $address = '') {
-	if (!$s || strpos($s,'zid='))
+	if (!strlen($s) || strpos($s,'zid=')) {
 		return $s;
+	}
 
 	$m = parse_url($s);
+
+	if (!is_array($m)) {
+		return $s;
+	}
+
 	$fragment = ((array_key_exists('fragment',$m) && $m['fragment']) ? $m['fragment'] : false);
 	if($fragment !== false)
 		$s = str_replace('#' . $fragment,'',$s);
