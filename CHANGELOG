@@ -1,4 +1,4 @@
-Hubzilla 9.2 (2024-??-??)
+Hubzilla 9.2 (2024-07-06)
 	- Fail to import more gracefully if a channel has already been imported at some point but was deleted again
 	- Use the doubleleft template by default for admin pages to work around some display issues
 	- Reflect the censored state in the local xchan
