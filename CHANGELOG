@@ -1,3 +1,64 @@
+Hubzilla 9.2 (2024-??-??)
+	- Fail to import more gracefully if a channel has already been imported at some point but was deleted again
+	- Use the doubleleft template by default for admin pages to work around some display issues
+	- Reflect the censored state in the local xchan
+	- Exclude toplevel posts by censored channels in the public stream
+	- Update API docs for Module test case base class
+	- Add helper expectRedirectTo to module test class
+	- Refactor is_local_url() and add api doc
+	- Use empty() to check if array entry exist in create_identity()
+	- Add basic test for create_identity function
+	- Allow passing callable as array to hooks
+	- Use DbaTransaction class for db transactions in queueworker
+	- Remove obsolete stubs from Permissions tests
+	- Refactor mod rpost to fix open redirect issue and add tests
+	- Configure system.baseurl for tests
+	- Add basic test and fix session access for mod rpost
+	- Add config file and rules for PHP Code Sniffer
+	- Refactor mod setup
+	- Pass the force argument to the xchan_photo daemon
+	- Declare arg and return types for unparse_url()
+	- Skip checking MFA status for WebDAV and CardDAV requests
+	- Upgrade test framework to PHPUnit 10.5
+	- Minor style update for the .abook-self CSS class
+	- Update docs on tags and mentions.
+	- Refactor and cleanup Rbmark module and add tests
+	- Remove unused Toggle_(safesearch|mobile) modules
+	- Make mod regate return to system.workflow_channel_next
+	- Show register message field only if registration is set to register_approve
+	- Add bbcode support for the HTML5 del tag
+	- Rename HelpHelper to HelpHelperTrait
+	- Remove jgrowl in favour of bootstrap toast
+	- Refactor mod help
+	- Reduce some global state and add some docs
+	- Make save_chunk() deal with userfile and file array keys
+	- Update siteinfo to remove traces of zotlabs.org
+	- Minor refactor for in mod import and store import host for possible later use
+	- Allow to kick off import sync process in case it did not start at all
+	- Updated spanish translations
+
+	Bugfixes
+	- Fix possible PHP error in zid()
+	- Fix display issue for doubleleft template
+	- Fix issue where event items were parsed multiple times on display
+	- Fix return to blank page after editing post under some circumstances
+	- Fix missing include in QueueWorker
+	- Fix warnings exposed by tests
+	- Fix timestamp handling in menu_create()
+	- Fix updated arg not supported in pconfig wrapper function
+	- Fix default timeouts for z_(fetch|post)_url
+	- Fix hcard addon markup not available if profile entries were missing
+	- Fix nested lists parsing
+	- Fix help menu CSS
+	- Fix get_rpost_path() broken for URL's with no port
+	- Fix passing an empty filter to deliverable_abook_xchans() will return all deliverable abook xchans
+
+	Addons
+	- Wiki: fix revert if editor is not ace
+	- Wiki: do not slate deleted wiki pages for download
+	- Pubcrawl: do not use mentions for addressing if post is restricted
+
+
 Hubzilla 9.0.2 (2024-06-07)
 	- Fix buttons in event viewer
 	- Fix some PHP warnings and errors
