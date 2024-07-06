@@ -101,7 +101,7 @@ class BBCodeTest extends UnitTestCase {
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
 	 */
-	private function bbcode_to_html_provider(): array {
+	public static function bbcode_to_html_provider(): array {
 		return [
 			'code block' => [
 				"[code]\ntestvar = \"this is a test\"\necho \"the message is \$testvar\"\n[/code]",
@@ -134,6 +134,10 @@ class BBCodeTest extends UnitTestCase {
 			'list with linebreaks \r\n in text' => [
 				"some text\r\n[list]\r\n[*] item1\r\nsome text[*] item2\r\nsome text[/list]\r\nsome more text",
 				'some text<br /><ul class="listbullet"><li> item1<br />some text<li> item2<br />some text</ul>some more text'
+			],
+			'del tag' => [
+				'some [s]strike through[/s] text',
+				'some <del>strike through</del> text'
 			]
 		];
 	}
@@ -149,7 +153,7 @@ class BBCodeTest extends UnitTestCase {
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
 	 */
-	private function bbcode_observer_provider(): array {
+	public static function bbcode_observer_provider(): array {
 		return [
 			'authenticated observer' => [
 				'[observer=1]This should be visible[/observer][observer=0]but not this[/observer]',
@@ -201,7 +205,7 @@ class BBCodeTest extends UnitTestCase {
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
 	 */
-	private function html2bbcode_provider(): array {
+	public static function html2bbcode_provider(): array {
 		return [
 			'paragraph over multiple lines' => [
 				"<p>A paragraph over\nmultiple lines\nshould be unwrapped</p>",
@@ -230,6 +234,38 @@ class BBCodeTest extends UnitTestCase {
 			'html reshares from streams' => [
 				'<div><div><a href="https://example.com"><img src="https://example.com/image.jpg" alt="image/photo"></a> shared something</div>something</div>',
 				'[url=https://example.com][img=https://example.com/image.jpg]image/photo[/img][/url] shared something' . "\n" . 'something'
+			],
+			'list' => [
+				'<ul><li>list 1</li><li>list 2</li><li>list 3</li></ul>',
+				'[list][*]list 1[*]list 2[*]list 3[/list]'
+			],
+			'list with paragraph' => [
+				'<ul><li><p>list 1</p></li><li><p>list 2</p></li><li><p>list 3</p></li></ul>',
+				'[list][*]list 1[*]list 2[*]list 3[/list]'
+			],
+			'nested list' => [
+				'<ul><li>list 1</li><li>list 2</li><li>list 3</li><ul><li>list 1</li><li>list 2</li><li>list 3</li></ul></ul>',
+				'[list][*]list 1[*]list 2[*]list 3[list][*]list 1[*]list 2[*]list 3[/list][/list]'
+			],
+			'double nested list' => [
+				'<ul><li>list 1</li><li>list 2</li><li>list 3</li><ul><li>list 1</li><li>list 2</li><li>list 3</li><ul><li>list 1</li><li>list 2</li><li>list 3</li></ul></ul></ul>',
+				'[list][*]list 1[*]list 2[*]list 3[list][*]list 1[*]list 2[*]list 3[list][*]list 1[*]list 2[*]list 3[/list][/list][/list]'
+			],
+			'list without closing li' => [
+				'<ul><li>list 1<li>list 2<li>list 3</ul>',
+				'[list][*]list 1[*]list 2[*]list 3[/list]'
+			],
+			'nested list without closing li' => [
+				'<ul><li>list 1<li>list 2<li>list 3<ul><li>list 1<li>list 2<li>list 3</ul></ul>',
+				'[list][*]list 1[*]list 2[*]list 3[list][*]list 1[*]list 2[*]list 3[/list][/list]'
+			],
+			'double nested list without closing li' => [
+				'<ul><li>list 1<li>list 2<li>list 3<ul><li>list 1<li>list 2<li>list 3<ul><li>list 1<li>list 2<li>list 3</ul></ul></ul>',
+				'[list][*]list 1[*]list 2[*]list 3[list][*]list 1[*]list 2[*]list 3[list][*]list 1[*]list 2[*]list 3[/list][/list][/list]'
+			],
+			'del tag' => [
+				'some <del>strike through</del> text',
+				'some [s]strike through[/s] text'
 			]
 		];
 	}

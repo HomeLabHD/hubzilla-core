@@ -6,6 +6,7 @@ namespace Zotlabs\Lib;
  * @brief File with functions and a class for generating system and email notifications.
  */
 
+use Zotlabs\Lib\Config;
 
 class Enotify {
 
@@ -61,7 +62,7 @@ class Enotify {
 		$product    = t('$projectname'); // PLATFORM_NAME;
 		$siteurl    = z_root();
 		$thanks     = t('Thank You,');
-		$sitename   = get_config('system','sitename');
+		$sitename   = Config::Get('system','sitename');
 		$site_admin = sprintf( t('%s Administrator'), $sitename);
 		$opt_out1   = sprintf( t('This email was sent by %1$s at %2$s.'), t('$Projectname'), \App::get_hostname());
 		$opt_out2   = sprintf( t('To stop receiving these messages, please adjust your Notification Settings at %s'), z_root() . '/settings');
@@ -73,15 +74,15 @@ class Enotify {
 
 		// Do not translate 'noreply' as it must be a legal 7-bit email address
 
-		$reply_email = get_config('system', 'reply_address');
+		$reply_email = Config::Get('system', 'reply_address');
 		if(! $reply_email)
 			$reply_email = 'noreply' . '@' . $hostname;
 
-		$sender_email = get_config('system', 'from_email');
+		$sender_email = Config::Get('system', 'from_email');
 		if(! $sender_email)
 			$sender_email = 'Administrator' . '@' . $hostname;
 
-		$sender_name = get_config('system', 'from_email_name');
+		$sender_name = Config::Get('system', 'from_email_name');
 		if(! $sender_name)
 			$sender_name = \Zotlabs\Lib\System::get_site_name();
 

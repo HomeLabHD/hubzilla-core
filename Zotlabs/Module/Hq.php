@@ -4,14 +4,6 @@ namespace Zotlabs\Module;
 use App;
 use Zotlabs\Widget\Messages;
 
-
-require_once("include/bbcode.php");
-require_once('include/security.php');
-require_once('include/conversation.php');
-require_once('include/acl_selectors.php');
-require_once('include/items.php');
-
-
 class Hq extends \Zotlabs\Web\Controller {
 
 	function init() {
@@ -98,7 +90,6 @@ class Hq extends \Zotlabs\Web\Controller {
 				'permissions'         => $channel_acl,
 				'bang'                => '',
 				'visitor'             => true,
-				'profile_uid'         => local_channel(),
 				'return_path'         => 'hq',
 				'expanded'            => true,
 				'editor_autocomplete' => true,
@@ -116,17 +107,6 @@ class Hq extends \Zotlabs\Web\Controller {
 		if(! $update && ! $load) {
 
 			nav_set_selected('HQ');
-
-			if($target_item) {
-				// if the target item is not a post (eg a like) we want to address its thread parent
-				//$mid = ((($target_item['verb'] == ACTIVITY_LIKE) || ($target_item['verb'] == ACTIVITY_DISLIKE)) ? $target_item['thr_parent'] : $target_item['mid']);
-
-				// if we got a decoded hash we must encode it again before handing to javascript
-				// $mid = gen_link_id($target_item['mid']);
-			}
-			else {
-				$mid = '';
-			}
 
 			$o .= '<div id="live-hq"></div>' . "\r\n";
 			$o .= "<script> var profile_uid = " . local_channel()

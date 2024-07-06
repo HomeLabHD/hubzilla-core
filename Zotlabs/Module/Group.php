@@ -2,10 +2,11 @@
 namespace Zotlabs\Module;
 
 use App;
-use Zotlabs\Web\Controller;
-use Zotlabs\Lib\Apps;
-use Zotlabs\Lib\Libsync;
 use Zotlabs\Lib\AccessList;
+use Zotlabs\Lib\Apps;
+use Zotlabs\Lib\Config;
+use Zotlabs\Lib\Libsync;
+use Zotlabs\Web\Controller;
 
 class Group extends Controller {
 
@@ -123,7 +124,7 @@ class Group extends Controller {
 		// Switch to text mode interface if we have more than 'n' contacts or group members
 		$switchtotext = get_pconfig(local_channel(),'system','groupedit_image_limit');
 		if($switchtotext === false)
-			$switchtotext = get_config('system','groupedit_image_limit');
+			$switchtotext = Config::Get('system','groupedit_image_limit');
 		if($switchtotext === false)
 			$switchtotext = 400;
 

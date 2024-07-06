@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Daemon;
 
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libzotdir;
 
 class Cron_daily {
@@ -68,7 +69,7 @@ class Cron_daily {
 		// Clean up cache
 		q("DELETE FROM cache WHERE updated < %s - INTERVAL %s",
 			db_utcnow(),
-			db_quoteinterval(get_config('system', 'cache_expire_days', 7) . ' DAY')
+			db_quoteinterval(Config::Get('system', 'cache_expire_days', 7) . ' DAY')
 		);
 
 		//update statistics in config
@@ -82,7 +83,7 @@ class Cron_daily {
 
 		// expire old delivery reports
 
-		$keep_reports = intval(get_config('system', 'expire_delivery_reports'));
+		$keep_reports = intval(Config::Get('system', 'expire_delivery_reports'));
 		if ($keep_reports === 0)
 			$keep_reports = 10;
 
@@ -103,7 +104,7 @@ class Cron_daily {
 		$date = datetime_convert();
 		call_hooks('cron_daily', $date);
 
-		set_config('system', 'last_expire_day', intval(datetime_convert('UTC', 'UTC', 'now', 'd')));
+		Config::Set('system', 'last_expire_day', intval(datetime_convert('UTC', 'UTC', 'now', 'd')));
 
 		/**
 		 * End Cron Daily

@@ -1,6 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Config;
 
 class Linkinfo extends \Zotlabs\Web\Controller {
 
@@ -168,7 +169,7 @@ class Linkinfo extends \Zotlabs\Web\Controller {
 			/* Execute below code only if image is present in siteinfo */
 
 			$total_images = 0;
-			$max_images = get_config('system','max_bookmark_images');
+			$max_images = Config::Get('system','max_bookmark_images');
 			if($max_images === false)
 				$max_images = 2;
 			else

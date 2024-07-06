@@ -47,7 +47,7 @@ class FeedutilsTest extends UnitTestCase {
 	public function test_atom_author() {
 		$this->assertEquals('', atom_author('', 'nick', 'name', 'uri', 72, 72, 'png', 'photourl'));
 
-		$a = '<tag>
+		$expected = '<tag>
   <id>uri</id>
   <name>nick</name>
   <uri>uri</uri>
@@ -57,7 +57,10 @@ class FeedutilsTest extends UnitTestCase {
   <poco:displayName>name</poco:displayName>
 </tag>';
 
-		$this->assertXmlStringEqualsXmlString($a, atom_author('tag', 'nick', 'name', 'uri', 72, 72, 'png', 'http://photourl'));
+		$this->assertAtomAuthorMatches(
+			$expected,
+			atom_author('tag', 'nick', 'name', 'uri', 72, 72, 'png', 'http://photourl')
+		);
 	}
 
 	/**
@@ -86,6 +89,63 @@ class FeedutilsTest extends UnitTestCase {
   <poco:displayName>Chan</poco:displayName>
 </tag>';
 
-		$this->assertXmlStringEqualsXmlString($a, atom_render_author('tag', $xchan));
+		$this->assertAtomAuthorMatches($a, atom_render_author('tag', $xchan));
+	}
+
+	/**
+	 * Helper method to assert that the generated author tag matches
+	 * what we expect.
+	 *
+	 * Calling `assertXmlStringEqualsXmlString` directly on the fragments
+	 * does not work anymore in PHPUnit >= 10.x, as t will throw an XMLException
+	 * because of undefined namespaces.
+	 *
+	 * To overcome that we wrap the generated tags in the proper template,
+	 * and compare the fully generated XML from the template instead.
+	 *
+	 * @param string $expected	The expected author XML fragment.
+	 * @param string $actual	The actually generated authr XML fragment.
+	 */
+	private function assertAtomAuthorMatches(string $expected, string $actual): void {
+
+		// Make sure the template engine is initialized before we try to render
+		// the template.
+		//
+		// This may be problematic, as it will compile the template into the same
+		// directory as the site. Assuming that nobody is crazy enough to run the
+		// test suite in a production server, it should probably be fine for now.
+		$smarty = new \Zotlabs\Render\SmartyTemplate();
+		\App::register_template_engine(get_class($smarty));
+
+		$feed_template = get_markup_template('atom_feed.tpl');
+		$expected_xml = replace_macros($feed_template, [
+			'$version'       => 42,
+			'$generator'     => 'Hubzilla test',
+			'$generator_uri' => 'https://hubzilla.test',
+			'$feed_id'       => 'test_channel',
+			'$feed_title'    => 'Test channel',
+			'$feed_updated'  => 'Sometime',
+			'$author'        => $expected,
+			'$owner'         => $expected,
+			'$profile_page'  => xmlify('https://hubzilla.test/channel/test'),
+		]);
+
+		$expected_xml .= '</feed>';
+
+		$actual_xml = replace_macros($feed_template, [
+			'$version'       => 42,
+			'$generator'     => 'Hubzilla test',
+			'$generator_uri' => 'https://hubzilla.test',
+			'$feed_id'       => 'test_channel',
+			'$feed_title'    => 'Test channel',
+			'$feed_updated'  => 'Sometime',
+			'$author'        => $actual,
+			'$owner'         => $actual,
+			'$profile_page'  => xmlify('https://hubzilla.test/channel/test'),
+		]);
+
+		$actual_xml .= '</feed>';
+
+		$this->assertXmlStringEqualsXmlString($expected_xml, $actual_xml);
 	}
 }

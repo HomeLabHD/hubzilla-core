@@ -4,6 +4,8 @@
  * @brief Some functions to work with XML feeds.
  */
 
+use Zotlabs\Lib\Config;
+
 /**
  * @brief Return an Atom feed for channel.
  *
@@ -1037,7 +1039,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 
 
 
-	$sys_expire = intval(get_config('system', 'default_expire_days'));
+	$sys_expire = intval(Config::Get('system', 'default_expire_days'));
 	$chn_expire = intval($importer['channel_expire_days']);
 
 	$expire_days = $sys_expire;
@@ -1325,7 +1327,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 					// but save the thread_parent in case we need to refer to it later.
 
 					if($importer['channel_system']) {
-						if( ! \Zotlabs\Lib\MessageFilter::evaluate($datarray,get_config('system','pubstream_incl'),get_config('system','pubstream_excl'))) {
+						if( ! \Zotlabs\Lib\MessageFilter::evaluate($datarray,Config::Get('system','pubstream_incl'),Config::Get('system','pubstream_excl'))) {
 							continue;
 						}
 					}
@@ -1481,7 +1483,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 				}
 
 				if($importer['channel_system']) {
-					if( ! \Zotlabs\Lib\MessageFilter::evaluate($datarray,get_config('system','pubstream_incl'),get_config('system','pubstream_excl'))) {
+					if( ! \Zotlabs\Lib\MessageFilter::evaluate($datarray,Config::Get('system','pubstream_incl'),Config::Get('system','pubstream_excl'))) {
 						continue;
 					}
 				}

@@ -9,8 +9,9 @@
  * Also provides a function for OpenID identiy matching.
  */
 
-use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\AConfig;
+use Zotlabs\Lib\Config;
+use Zotlabs\Lib\Libzot;
 use Zotlabs\Module\Totp_check;
 
 require_once('include/api_auth.php');
@@ -43,8 +44,8 @@ function account_verify_password($login, $pass) {
 	$ret = [ 'account' => null, 'channel' => null, 'xchan' => null ];
 	$login = punify($login);
 
-	$email_verify = get_config('system', 'verify_email');
-	$register_policy = get_config('system', 'register_policy');
+	$email_verify = Config::Get('system', 'verify_email');
+	$register_policy = Config::Get('system', 'register_policy');
 
 	if(!$login || !$pass)
 		return null;
@@ -170,9 +171,43 @@ function account_verify_password($login, $pass) {
  *  Error message to display for failed login.
  */
 function log_failed_login($errormsg) {
-	$authlog = get_config('system', 'authlog');
+	$authlog = Config::Get('system', 'authlog');
 	if ($authlog)
 		@file_put_contents($authlog, datetime_convert() . ':' . session_id() . ' ' . $errormsg . PHP_EOL, FILE_APPEND);
+}
+
+
+/**
+ * Determines if checking for multifactor authentication needs to be checked.
+ *
+ * Checks that multi factor authentication is enabled for the given account_id,
+ * and whether it's already authenticated or not.
+ *
+ * Some modules needs to be excluded from the mfa checks for various reasons:
+ *
+ *   - `totp_check` is used by the mfa module itself.
+ *   - `dav` provides WebDAV access, and has no way of providing a mfa code.
+ *   - `cdav` is accessed both via CardDAV which has the same limitations as
+ *     the `dav` module, but may also be accessed via a web browser over http.
+ *     We only exclude it if it's not being accessed via a web browser.
+ *
+ * @param int $account_id	The id of the account we're verifying.
+ * @param string $module	The requested module.
+ * @param string $arg		The first arg passed to the module (or empty if none.)
+ *
+ * @return bool		`true` if mfa status needs to be checked, `false` otherwise.
+ */
+function requires_mfa_check(int $account_id, string $module, string $arg): bool {
+	if (in_array($module, ['totp_check', 'dav'], true)) {
+		return false;
+	}
+
+	if ($module === 'cdav' && !in_array($arg, ['addressbook', 'calendar'], true)) {
+		return false;
+	}
+
+	$multiFactor = AConfig::Get($account_id, 'system', 'mfa_enabled');
+	return $multiFactor && empty($_SESSION['2FA_VERIFIED']);
 }
 
 /**
@@ -208,10 +243,10 @@ if((isset($_SESSION)) && (x($_SESSION, 'authenticated')) &&
 
 	if(x($_SESSION, 'visitor_id') && (! x($_SESSION, 'uid'))) {
 		// if our authenticated guest is allowed to take control of the admin channel, make it so.
-		$admins = get_config('system', 'remote_admin');
+		$admins = Config::Get('system', 'remote_admin');
 		if($admins && is_array($admins) && in_array($_SESSION['visitor_id'], $admins)) {
 			$x = q("select * from account where account_email = '%s' and account_email != '' and ( account_flags & %d )>0 limit 1",
-				dbesc(get_config('system', 'admin_email')),
+				dbesc(Config::Get('system', 'admin_email')),
 				intval(ACCOUNT_ROLE_ADMIN)
 			);
 			if($x) {
@@ -266,8 +301,7 @@ if((isset($_SESSION)) && (x($_SESSION, 'authenticated')) &&
 				$login_refresh = true;
 			}
 
-			$multiFactor = AConfig::Get(App::$account['account_id'], 'system', 'mfa_enabled');
-			if ($multiFactor && empty($_SESSION['2FA_VERIFIED']) && App::$module !== 'totp_check') {
+			if (requires_mfa_check(App::$account['account_id'], App::$module, argv(1))) {
 				$o = new Totp_check;
 				echo $o->get();
 				killme();
@@ -328,7 +362,7 @@ else {
 			$error = 'authenticate: failed login attempt: ' . notags(trim($username)) . ' from IP ' . $_SERVER['REMOTE_ADDR'];
 			logger($error);
 			// Also log failed logins to a separate auth log to reduce overhead for server side intrusion prevention
-			$authlog = get_config('system', 'authlog');
+			$authlog = Config::Get('system', 'authlog');
 			if ($authlog)
 				@file_put_contents($authlog, datetime_convert() . ':' . session_id() . ' ' . $error . "\n", FILE_APPEND);
 			notice( t('Login failed.') . EOL );

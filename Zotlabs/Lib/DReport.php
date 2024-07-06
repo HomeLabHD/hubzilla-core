@@ -1,6 +1,8 @@
 <?php
 namespace Zotlabs\Lib;
 
+use Zotlabs\Lib\Config;
+
 class DReport {
 
 	private $location;
@@ -70,7 +72,7 @@ class DReport {
 
 	static function is_storable($dr) {
 
-		if(get_config('system', 'disable_dreport'))
+		if(Config::Get('system', 'disable_dreport'))
 			return false;
 
 		/**

@@ -1,6 +1,9 @@
 <?php
-
 /**
+ * Widget to show the help index.
+ *
+ * By default used by the left sidebar by the help module.
+ *
  *   * Name: Help index
  *   * Description: Help pages index
  */
@@ -9,54 +12,28 @@ namespace Zotlabs\Widget;
 
 class Helpindex {
 
-	function widget($arr) {
+	use \Zotlabs\Lib\Traits\HelpHelperTrait;
 
-		require_once('include/help.php');
+	private string $contents = '';
 
-		$o = '<div class="widget">';
+	function widget() {
 
-		$level_0 = get_help_content('sitetoc');
-		if(! $level_0) {
-			$path = 'toc';
-			$x = determine_help_language();
-			$lang = $x['language'];
-			if($lang !== 'en') {
-				$path = $lang . '/toc';
-			}
-			$level_0 = get_help_content($path);
+		$this->determine_help_language();
+		$this->find_help_file('toc', $this->lang['language']);
+
+		if (! empty($this->file_name)) {
+			$this->contents = file_get_contents($this->file_name);
 		}
 
-		$level_0 = preg_replace('/\<ul(.*?)\>/','<ul class="nav nav-pills flex-column">',$level_0);
+		$tpl = get_markup_template('widget.tpl');
+		return replace_macros($tpl, [ '$widget' => $this ]);
+	}
 
-		$levels = array();
+	public function title(): string {
+		return '';
+	}
 
-
-		// TODO: Implement support for translations in hierarchical table of content files
-		/*
-		if(argc() > 2) {
-			$path = '';
-			for($x = 1; $x < argc(); $x ++) {
-				$path .= argv($x) . '/';
-				$y = get_help_content($path . 'sitetoc');
-				if(! $y)
-					$y = get_help_content($path . 'toc');
-				if($y)
-					$levels[] = preg_replace('/\<ul(.*?)\>/','<ul class="nav nav-pills flex-column">',$y);
-			}
-		}
-		*/
-
-		if($level_0)
-			$o .= $level_0;
-		if($levels) {
-			foreach($levels as $l) {
-				$o .= '<br /><br />';
-				$o .= $l;
-			}
-		}
-
-		$o .= '</div>';
-
-		return $o;
+	public function contents(): string {
+		return $this->contents;
 	}
 }

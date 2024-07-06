@@ -3,6 +3,7 @@
 namespace Zotlabs\Storage;
 
 use Sabre\DAV;
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libsync;
 
 /**
@@ -89,7 +90,7 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 		logger('children for ' . $this->ext_path, LOGGER_DATA);
 		$this->log();
 
-		if (get_config('system', 'block_public') && (! $this->auth->channel_id) && (! $this->auth->observer)) {
+		if (Config::Get('system', 'block_public') && (! $this->auth->channel_id) && (! $this->auth->observer)) {
 			throw new DAV\Exception\Forbidden('Permission denied.');
 		}
 
@@ -111,7 +112,7 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 	public function getChild($name) {
 		logger($name, LOGGER_DATA);
 
-		if (get_config('system', 'block_public') && (! $this->auth->channel_id) && (! $this->auth->observer)) {
+		if (Config::Get('system', 'block_public') && (! $this->auth->channel_id) && (! $this->auth->observer)) {
 			throw new DAV\Exception\Forbidden('Permission denied.');
 		}
 
@@ -360,7 +361,7 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 			intval($c[0]['channel_id'])
 		);
 
-		$maxfilesize = get_config('system', 'maxfilesize');
+		$maxfilesize = Config::Get('system', 'maxfilesize');
 		if (($maxfilesize) && ($size > $maxfilesize)) {
 			attach_delete($c[0]['channel_id'], $hash);
 			return;
@@ -776,7 +777,7 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 	function ChannelList(&$auth) {
 		$ret = [];
 
-		if (intval(get_config('system','cloud_disable_siteroot'))) {
+		if (intval(Config::Get('system','cloud_disable_siteroot'))) {
 			return $ret;
 		}
 

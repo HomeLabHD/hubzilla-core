@@ -3,9 +3,9 @@
 namespace Zotlabs\Module;
 
 use App;
-use Zotlabs\Web\Controller;
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libzotdir;
-
+use Zotlabs\Web\Controller;
 
 require_once('include/socgraph.php');
 require_once('include/bbcode.php');
@@ -73,7 +73,7 @@ class Directory extends Controller {
 			return;
 		}
 
-		if(get_config('system','block_public_directory',false) && (! get_observer_hash())) {
+		if(Config::Get('system','block_public_directory',false) && (! get_observer_hash())) {
 			notice( t('Public access denied.') . EOL);
 			return;
 		}
@@ -145,7 +145,7 @@ class Directory extends Controller {
 
 		$tpl = get_markup_template('directory_header.tpl');
 
-		$dirmode = intval(get_config('system','directory_mode'));
+		$dirmode = intval(Config::Get('system','directory_mode'));
 
 		$directory_admin = false;
 
@@ -165,7 +165,7 @@ class Directory extends Controller {
 			$url = $directory['url'] . '/dirsearch';
 		}
 
-		$token = get_config('system','realm_token');
+		$token = Config::Get('system','realm_token');
 
 
 		logger('mod_directory: URL = ' . $url, LOGGER_DEBUG);
@@ -184,11 +184,11 @@ class Directory extends Controller {
 
 		if($url) {
 
-			$numtags = get_config('system','directorytags');
+			$numtags = Config::Get('system','directorytags');
 
 			$kw = ((intval($numtags) > 0) ? intval($numtags) : 50);
 
-			if(get_config('system','disable_directory_keywords'))
+			if(Config::Get('system','disable_directory_keywords'))
 				$kw = 0;
 
 			if (intval($safe_mode) === 0 && $directory_admin)
@@ -213,7 +213,7 @@ class Directory extends Controller {
 			if(! is_null($pubforums))
 				$query .= '&pubforums=' . intval($pubforums);
 
-			$directory_sort_order = get_config('system','directory_sort_order');
+			$directory_sort_order = Config::Get('system','directory_sort_order');
 			if(! $directory_sort_order)
 				$directory_sort_order = 'date';
 

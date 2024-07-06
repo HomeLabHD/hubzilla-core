@@ -1,7 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
-
+use \Zotlabs\Lib\Config;
 use \Zotlabs\Lib as Zlib;
 
 class Apps extends \Zotlabs\Web\Controller {
@@ -46,7 +46,7 @@ class Apps extends \Zotlabs\Web\Controller {
 		}
 
 		return replace_macros(get_markup_template('myapps.tpl'), array(
-			'$sitename' => get_config('system','sitename'),
+			'$sitename' => Config::Get('system','sitename'),
 			'$cat' => $cat,
 			'$title' => (($available) ? t('Available Apps') : t('Installed Apps')),
 			'$apps' => $apps,

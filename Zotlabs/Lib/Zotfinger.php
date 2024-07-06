@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Lib;
 
+use Zotlabs\Lib\Config;
 use Zotlabs\Web\HTTPSig;
 
 class Zotfinger {
@@ -75,7 +76,7 @@ class Zotfinger {
 			$result['data'] = json_decode($x['body'],true);
 
 			if($result['data'] && is_array($result['data']) && array_key_exists('encrypted',$result['data']) && $result['data']['encrypted']) {
-				$result['data'] = json_decode(Crypto::unencapsulate($result['data'],get_config('system','prvkey')),true);
+				$result['data'] = json_decode(Crypto::unencapsulate($result['data'],Config::Get('system','prvkey')),true);
 			}
 
 			logger('decrypted: ' . print_r($result,true), LOGGER_DATA);

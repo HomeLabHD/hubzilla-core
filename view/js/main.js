@@ -1008,7 +1008,7 @@ function liveUpdate(notify_id) {
 			in_progress = false;
 			liveRecurse ++;
 			if(liveRecurse < 10) {
-				liveUpdate();
+				liveUpdate(notify_id);
 			}
 			else {
 				console.log('Incomplete data. Too many attempts. Giving up.');
@@ -1305,7 +1305,8 @@ function dropItem(url, object, b64mid) {
 			$(object + ', #pinned-wrapper-' + id).remove();
 			$('body').css('cursor', 'auto');
 
-			$.jGrowl(aStr.itemdel, { sticky: false, theme: 'info', life: 3000 });
+			toast(aStr.itemdel, 'info')
+			//$.jGrowl(aStr.itemdel, { sticky: false, theme: 'info', life: 3000 });
 
 			if (typeof b64mid !== typeof undefined) {
 				$('[data-b64mid=\'' + b64mid + '\']').fadeOut(function() {
@@ -1408,7 +1409,8 @@ function submitPoll(id) {
 	$.post('vote/' + id,
 		$('#question-form-' + id).serialize(),
 		function(data) {
-			$.jGrowl(data.message, { sticky: false, theme: ((data.success) ? 'info' : 'notice'), life: 10000 });
+			toast(data.message, ((data.success) ? 'info' : 'danger'));
+			//$.jGrowl(data.message, { sticky: false, theme: ((data.success) ? 'info' : 'notice'), life: 10000 });
 			if(timer) clearTimeout(timer);
 			timer = setTimeout(updateInit, 500);
 		}
@@ -1814,4 +1816,27 @@ function toggleAside() {
 		$('#region_2').css({ 'min-width': window.outerWidth });
 		$('<div id="overlay"></div>').appendTo('body').one('click', function() { toggleAside(); });
 	}
+}
+
+function toast(string, severity) {
+	let id = btoa(string);
+	let container = document.getElementById('toast-container');
+	let toast = document.getElementById(id);
+
+	if (!toast) {
+		toast = document.createElement('div');
+		toast.setAttribute('id', id);
+		toast.innerHTML = '<div class="d-flex"><div class="toast-body">' + string + '</div><button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>';
+		toast.classList.add('toast', 'p-2', 'bg-' + severity + '-subtle', 'text-' + severity + '-emphasis', 'border-' + severity);
+	}
+
+	container.prepend(toast);
+
+	let toastInstance = bootstrap.Toast.getOrCreateInstance(toast);
+
+	if (severity === 'danger') {
+		toastInstance._config.autohide = false;
+	}
+
+	toastInstance.show();
 }

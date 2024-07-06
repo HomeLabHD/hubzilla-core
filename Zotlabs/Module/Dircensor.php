@@ -3,9 +3,9 @@
 namespace Zotlabs\Module;
 
 use App;
-use Zotlabs\Web\Controller;
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libzotdir;
-
+use Zotlabs\Web\Controller;
 
 class Dircensor extends Controller {
 
@@ -14,7 +14,7 @@ class Dircensor extends Controller {
 			return;
 		}
 
-		$dirmode = intval(get_config('system','directory_mode'));
+		$dirmode = intval(Config::Get('system','directory_mode'));
 
 		if(!in_array($dirmode, [DIRECTORY_MODE_PRIMARY, DIRECTORY_MODE_SECONDARY, DIRECTORY_MODE_STANDALONE])) {
 			return;

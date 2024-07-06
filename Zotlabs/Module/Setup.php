@@ -1,5 +1,4 @@
 <?php
-namespace Zotlabs\Module;
 /**
  * @file Zotlabs/Module/Setup.php
  *
@@ -8,10 +7,12 @@ namespace Zotlabs\Module;
  * @todo This setup module could need some love and improvements.
  */
 
+namespace Zotlabs\Module;
+
+use Zotlabs\Lib\Config;
 
 /**
- * @brief Initialisation for the setup module.
- *
+ * Controller for the initial setup/installation.
  */
 class Setup extends \Zotlabs\Web\Controller {
 
@@ -45,9 +46,9 @@ class Setup extends \Zotlabs\Web\Controller {
 		}
 
 		if(x($_POST, 'pass')) {
-			$this->install_wizard_pass = intval($_POST['pass']);
+			self::$install_wizard_pass = intval($_POST['pass']);
 		} else {
-			$this->install_wizard_pass = 1;
+			self::$install_wizard_pass = 1;
 		}
 	}
 
@@ -57,7 +58,7 @@ class Setup extends \Zotlabs\Web\Controller {
 	 */
 	function post() {
 
-		switch($this->install_wizard_pass) {
+		switch(self::$install_wizard_pass) {
 			case 1:
 			case 2:
 				return;
@@ -179,18 +180,18 @@ class Setup extends \Zotlabs\Web\Controller {
 		$install_title = t('$Projectname Server - Setup');
 
 		if(x(\App::$data, 'db_conn_failed')) {
-			$this->install_wizard_pass = 2;
+			self::$install_wizard_pass = 2;
 			$wizard_status =  t('Could not connect to database.');
 		}
 		if(x(\App::$data, 'url_fail')) {
-			$this->install_wizard_pass = 3;
+			self::$install_wizard_pass = 3;
 			$wizard_status =  t('Could not connect to specified site URL. Possible SSL certificate or DNS issue.');
 			if(\App::$data['url_error'])
 				$wizard_status .= ' ' . \App::$data['url_error'];
 		}
 
 		if(x(\App::$data, 'db_create_failed')) {
-			$this->install_wizard_pass = 2;
+			self::$install_wizard_pass = 2;
 			$wizard_status =  t('Could not create table.');
 		}
 		$db_return_text = '';
@@ -214,9 +215,11 @@ class Setup extends \Zotlabs\Web\Controller {
 				$tpl = get_markup_template('install.tpl');
 				return replace_macros($tpl, array(
 					'$title' => $install_title,
+					'$icon' => null,
 					'$pass' => '',
 					'$status' => t('Permission denied.'),
 					'$text' => '',
+					'$what_next' => null,
 				));
 			}
 		}
@@ -236,7 +239,7 @@ class Setup extends \Zotlabs\Web\Controller {
 			));
 		}
 
-		switch ($this->install_wizard_pass){
+		switch (self::$install_wizard_pass){
 			case 1: { // System check
 
 				$checks = array();
@@ -392,7 +395,7 @@ class Setup extends \Zotlabs\Web\Controller {
 			$this->check_add($checks, t('PHP version'), false, true, $help);
 		}
 
-		if(strlen($phpath)) {
+		if(!empty($phpath)) {
 			$passed = file_exists($phpath);
 		}
 		elseif(function_exists('shell_exec')) {
@@ -760,11 +763,11 @@ class Setup extends \Zotlabs\Web\Controller {
 	 */
 	function what_next() {
 		// install the standard theme
-		set_config('system', 'allowed_themes', 'redbasic');
+		Config::Set('system', 'allowed_themes', 'redbasic');
 
 		// if imagick converter is installed, use it
 		if(@is_executable('/usr/bin/convert')) {
-			set_config('system','imagick_convert_path','/usr/bin/convert');
+			Config::Set('system','imagick_convert_path','/usr/bin/convert');
 		}
 
 
@@ -783,7 +786,7 @@ class Setup extends \Zotlabs\Web\Controller {
 
 		$x = curl_version();
 		if(stristr($x['ssl_version'],'openssl'))
-			set_config('system','curl_ssl_ciphers','ALL:!eNULL');
+			Config::Set('system','curl_ssl_ciphers','ALL:!eNULL');
 
 		// Create a system channel
 		require_once ('include/channel.php');

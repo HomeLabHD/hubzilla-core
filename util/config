@@ -12,13 +12,14 @@ require_once('include/cli_startup.php');
 
 cli_startup();
 
+use Zotlabs\Lib\Config;
 
 $helpArgs = getopt('h', array('help'));
 if (count($helpArgs) === 1) {
 	echo <<<'EndOfOutput'
 Gets, sets, or lists site-wide configuration settings.
 
-Usage: util/config 
+Usage: util/config
        util/config <family>
        util/config <family> <key>
        util/config <family> <key> <value>
@@ -36,8 +37,8 @@ Usage: util/config
 	Set config entry for specified family and key to value and display result
 
 Notes:
-  Setting config entries which are manually set in .htconfig.php may result 
-  in conflict between database settings and the manual startup settings. 
+  Setting config entries which are manually set in .htconfig.php may result
+  in conflict between database settings and the manual startup settings.
 
   For channel-specific configuration settings, use util/pconfig
 
@@ -55,16 +56,16 @@ if($argc > 1 && strpos($argv[1],'.')) {
 }
 
 if($argc > 3) {
-	set_config($argv[1],$argv[2],$argv[3]);
-	echo "config[{$argv[1]}][{$argv[2]}] = " . printable_config(get_config($argv[1],$argv[2])) . "\n";
+	Config::Set($argv[1],$argv[2],$argv[3]);
+	echo "config[{$argv[1]}][{$argv[2]}] = " . printable_config(Config::Get($argv[1],$argv[2])) . "\n";
 }
 
 if($argc == 3) {
-	echo "config[{$argv[1]}][{$argv[2]}] = " . printable_config(get_config($argv[1],$argv[2])) . "\n";
+	echo "config[{$argv[1]}][{$argv[2]}] = " . printable_config(Config::Get($argv[1],$argv[2])) . "\n";
 }
 
 if($argc == 2) {
-	load_config($argv[1]);
+	Config::Load($argv[1]);
 	foreach(App::$config[$argv[1]] as $k => $x) {
 		echo "config[{$argv[1]}][{$k}] = " . $x . "\n";
 	}

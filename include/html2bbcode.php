@@ -26,7 +26,11 @@ function node2bbcodesub(&$doc, $oldnode, $attributes, $startbb, $endbb)
 	$xpath = new DomXPath($doc);
 
 	$list = $xpath->query("//".$oldnode);
+
 	foreach ($list as $oldNode) {
+
+		if ($oldnode == 'li')
+			hz_syslog(print_r($oldNode,true));
 
 		$attr = array();
 		if ($oldNode->attributes->length)
@@ -113,13 +117,6 @@ function html2bbcode($message)
 
 	$message = str_replace("\r", "", $message);
 
-	$message = str_replace(array(
-					"<li><p>",
-					"</p></li>"),
-				array(
-					"<li>",
-					"</li>"),
-				$message);
 
 	// remove namespaces
 	$message = preg_replace('=<(\w+):(.+?)>=', '<removeme>', $message);
@@ -129,7 +126,16 @@ function html2bbcode($message)
 	//$message = mb_convert_encoding($message, 'HTML-ENTITIES', "UTF-8");
 	$message = mb_encode_numericentity($message, [0x80, 0x10FFFF, 0, ~0], 'UTF-8');
 
+	// TODO: It would be better to do the list parsing with node2bbcode() but it has serious issues when
+	// parsing nested lists. Especially if the li tag has no closing tag (which is valid).
 
+	$message = preg_replace('/\<ul(.*?)\>/', '[list]', $message);
+	$message = preg_replace('/\<ol(.*?)\>/', '[list=1]', $message);
+
+	$message = str_replace(['<li><p>', '</p></li>'], ['<li>', '</li>'], $message);
+	$message = preg_replace('/\<li(.*?)\>/', '[*]', $message);
+	$message = str_replace(['</ul>', '</ol>'], '[/list]', $message);
+	$message = str_replace('</li>', '', $message);
 
 	if(!$message)
 		return;
@@ -185,7 +191,11 @@ function html2bbcode($message)
 	node2bbcode($doc, 'b', array(), '[b]', '[/b]');
 	node2bbcode($doc, 'i', array(), '[i]', '[/i]');
 	node2bbcode($doc, 'u', array(), '[u]', '[/u]');
+	// The s tag is deprecated in HTML5
 	node2bbcode($doc, 's', array(), '[s]', '[/s]');
+	node2bbcode($doc, 'del', [], '[s]', '[/s]');
+
+
 	node2bbcode($doc, 'mark', array(), '[mark]', '[/mark]');
 	node2bbcode($doc, 'span', array(), "", "");
 
@@ -204,11 +214,6 @@ function html2bbcode($message)
 	node2bbcode($doc, 'video', array('src'=>'/(.+)/'), '[video]$1', '[/video]');
 	node2bbcode($doc, 'audio', array('src'=>'/(.+)/'), '[audio]$1', '[/audio]');
 //	node2bbcode($doc, 'iframe', array('src'=>'/(.+)/'), '[iframe]$1', '[/iframe]');
-
-
-	node2bbcode($doc, 'ul', array(), "[list]", "[/list]");
-	node2bbcode($doc, 'ol', array(), "[list=1]", "[/list]");
-	node2bbcode($doc, 'li', array(), "[*]", "");
 
 	node2bbcode($doc, 'hr', array(), "[hr]", "");
 

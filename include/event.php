@@ -8,6 +8,7 @@
 use Sabre\VObject;
 
 use Zotlabs\Lib\Activity;
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libsync;
 use Zotlabs\Access\AccessList;
 
@@ -237,7 +238,7 @@ function ical_wrapper($ev) {
 	$o .= "BEGIN:VCALENDAR";
 	$o .= "\r\nVERSION:2.0";
 	$o .= "\r\nMETHOD:PUBLISH";
-	$o .= "\r\nPRODID:-//" . get_config('system','sitename') . "//" . Zotlabs\Lib\System::get_platform_name() . "//" . strtoupper(App::$language). "\r\n";
+	$o .= "\r\nPRODID:-//" . Config::Get('system','sitename') . "//" . Zotlabs\Lib\System::get_platform_name() . "//" . strtoupper(App::$language). "\r\n";
 	if(array_key_exists('dtstart', $ev))
 		$o .= format_event_ical($ev);
 	else {
@@ -271,9 +272,9 @@ function format_event_ical($ev) {
 
 	if($ev['adjust']) {
 		if($ev['dtstart'])
-			$o .= "\r\nDTSTART$tzid:" . datetime_convert($tz,'UTC', $ev['dtstart'],'Ymd\\THis\\Z');
+			$o .= "\r\nDTSTART$tzid:" . datetime_convert('UTC', $tz, $ev['dtstart'],'Ymd\\THis');
 		if($ev['dtend'] && ! $ev['nofinish'])
-			$o .= "\r\nDTEND$tzid:" . datetime_convert($tz,'UTC', $ev['dtend'],'Ymd\\THis\\Z');
+			$o .= "\r\nDTEND$tzid:" . datetime_convert('UTC', $tz, $ev['dtend'],'Ymd\\THis');
 	}
 	else {
 		if($ev['dtstart'])
@@ -796,7 +797,7 @@ function parse_event_object($event_object_json) {
 	$tz = $object['timezone'] ?? 'UTC';
 
 	$ev['summary'] = $object['summary'] ?? $object['name'] ?? '';
-	$ev['description'] = html2bbcode($content['content']) ?? '';
+	$ev['description'] = html2bbcode($object['content']) ?? '';
 	$ev['dtstart'] = $object['startTime'] ? datetime_convert('UTC', 'UTC', $object['startTime']) : '';
 	$ev['dtend'] = $object['endTime'] ? datetime_convert('UTC', 'UTC', $object['endTime']) : $ev['dtstart'];
 	$ev['location'] = $object['location']['name'] ?? '';

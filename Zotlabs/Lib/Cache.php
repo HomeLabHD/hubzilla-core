@@ -2,10 +2,11 @@
 
 namespace Zotlabs\Lib;
 
-	/**
-	 *  cache api
-	 */
+use Zotlabs\Lib\Config;
 
+/**
+ *  cache api
+ */
 class Cache {
 
     /**
@@ -23,7 +24,7 @@ class Cache {
 		$r = q("SELECT v FROM cache WHERE k = '%s' AND updated > %s - INTERVAL %s LIMIT 1",
 			dbesc($hash),
 			db_utcnow(),
-			db_quoteinterval(($age ? $age : get_config('system','object_cache_days', '30') . ' DAY'))
+			db_quoteinterval(($age ? $age : Config::Get('system','object_cache_days', '30') . ' DAY'))
 		);
 
 		if ($r)

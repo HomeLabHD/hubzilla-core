@@ -46,7 +46,7 @@ class HttpSigTest extends UnitTestCase {
 				HTTPSig::generate_digest_header($text)
 		);
 	}
-	public function generate_digestProvider() {
+	public static function generate_digestProvider() {
 		return [
 				'empty body text' => [
 						'',
@@ -84,9 +84,8 @@ class HttpSigTest extends UnitTestCase {
 	}
 
 	function testDecrypt_sigheaderUseSitePrivateKey() {
-		// Create a stub for global function get_config() with expectation
-		$t = $this->getFunctionMock('Zotlabs\Web', 'get_config');
-		$t->expects($this->once())->willReturn('system.prvkey');
+		// Initialize config with a known value for test
+		\Zotlabs\Lib\Config::Set('system', 'prvkey', 'system.prvkey');
 
 		$header = 'Header: iv="value_iv" key="value_key" alg="value_alg" data="value_data"';
 		$result = [

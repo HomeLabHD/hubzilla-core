@@ -129,6 +129,8 @@ function html2plain($html, $wraplength = 75, $compact = false)
 	if(!$message)
 		return;
 
+	$message = preg_replace('/\<li(.*?)\>/', "\n*", $message);
+	$message = str_replace('</li>', '', $message);
 
 	$doc = new DOMDocument();
 	$doc->preserveWhiteSpace = false;
@@ -178,7 +180,7 @@ function html2plain($html, $wraplength = 75, $compact = false)
 
 	//node2bbcode($doc, 'ul', array(), "\n[list]", "[/list]\n");
 	//node2bbcode($doc, 'ol', array(), "\n[list=1]", "[/list]\n");
-	node2bbcode($doc, 'li', array(), "\n* ", "\n");
+	//node2bbcode($doc, 'li', array(), "\n* ", "\n");
 
 	node2bbcode($doc, 'hr', array(), "\n".str_repeat("-", 70)."\n", "");
 
@@ -194,7 +196,7 @@ function html2plain($html, $wraplength = 75, $compact = false)
 
 	// Problem: there is no reliable way to detect if it is a link to a tag or profile
 	//node2bbcode($doc, 'a', array('href'=>'/(.+)/'), ' $1 ', '', true);
-	node2bbcode($doc, 'a', array('href'=>'/(.+)/', 'rel'=>'oembed'), ' $1 ', '', true);
+	node2bbcode($doc, 'a', array('href'=>'/(.+)/', 'rel'=>'oembed'), ' $1 ', '');
 	//node2bbcode($doc, 'img', array('alt'=>'/(.+)/'), '$1', '');
 	//node2bbcode($doc, 'img', array('title'=>'/(.+)/'), '$1', '');
 	//node2bbcode($doc, 'img', array(), '', '');
@@ -203,7 +205,7 @@ function html2plain($html, $wraplength = 75, $compact = false)
 	else
 		node2bbcode($doc, 'img', array('src'=>'/(.+)/'), '', '');
 
-	node2bbcode($doc, 'iframe', array('src'=>'/(.+)/'), ' $1 ', '', true);
+	node2bbcode($doc, 'iframe', array('src'=>'/(.+)/'), ' $1 ', '');
 
 	$message = $doc->saveHTML();
 

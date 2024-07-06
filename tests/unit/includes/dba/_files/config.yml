@@ -2,6 +2,10 @@
 config:
   -
     cat: system
+    k: baseurl
+    v: https://hubzilla.test
+  -
+    cat: system
     k: do_not_check_dns
     v: true
   -

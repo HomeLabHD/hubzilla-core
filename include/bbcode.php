@@ -4,8 +4,9 @@
  * @brief BBCode related functions for parsing, etc.
  */
 
-use Zotlabs\Lib\SvgSanitizer;
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libzot;
+use Zotlabs\Lib\SvgSanitizer;
 
 require_once('include/oembed.php');
 require_once('include/event.php');
@@ -111,7 +112,7 @@ function tryzrlvideo($match) {
 	if($zrl)
 		$link = zid($link);
 
-	$static_link = get_config('system','video_default_poster','images/video_poster.jpg');
+	$static_link = Config::Get('system','video_default_poster','images/video_poster.jpg');
 	if($static_link)
 		$poster = 'poster="' . escape_tags($static_link) . '" ' ;
 
@@ -1142,7 +1143,7 @@ function parseIdentityAwareHTML($Text) {
 		$Text = str_replace('[observer.photo]','', $Text);
 	}
 
-	$Text = str_replace(array('[baseurl]','[sitename]'),array(z_root(),get_config('system','sitename')),$Text);
+	$Text = str_replace(array('[baseurl]','[sitename]'),array(z_root(),Config::Get('system','sitename')),$Text);
 
 
 	// Unhide all [noparse] contained bbtags unspacefying them
@@ -1249,7 +1250,7 @@ function bbcode($text, $options = []) {
 	$text = $x['body'];
 	$saved_images = $x['images'];
 
-	$text = str_replace(array('[baseurl]','[sitename]'),array(z_root(),get_config('system','sitename')),$text);
+	$text = str_replace(array('[baseurl]','[sitename]'),array(z_root(),Config::Get('system','sitename')),$text);
 
 	// Replace any html brackets with HTML Entities to prevent executing HTML or script
 	// Don't use strip_tags here because it breaks [url] search by replacing & with amp
@@ -1407,7 +1408,7 @@ function bbcode($text, $options = []) {
 	}
 	// Check for strike-through text
 	if (strpos($text,'[s]') !== false) {
-		$text = preg_replace("(\[s\](.*?)\[\/s\])ism", '<span style="text-decoration: line-through;">$1</span>', $text);
+		$text = preg_replace("(\[s\](.*?)\[\/s\])ism", '<del>$1</del>', $text);
 	}
 	// Check for over-line text
 	if (strpos($text,'[o]') !== false) {
@@ -1744,10 +1745,8 @@ function bbcode($text, $options = []) {
 
 	// oembed tag
 	if (strpos($text,'[/embed]') !== false) {
+		$text = str_replace(["[/embed]\r", "[/embed]\n"], '[/embed]', $text);
 		$text = oembed_bbcode2html($text);
-
-		// Avoid triple linefeeds through oembed
-		$text = str_replace("<br style='clear:left'></span><br /><br />", "<br style='clear:left'></span>", $text);
 	}
 
 	// If we found an event earlier, strip out all the event code and replace with a reformatted version.

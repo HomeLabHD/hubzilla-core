@@ -84,7 +84,7 @@ class Editpost extends \Zotlabs\Web\Controller {
 			'item' => $itm[0],
 			'editor_autocomplete'=> true,
 			'bbco_autocomplete'=> 'bbcode',
-			'return_path' => $_SESSION['return_url'],
+			'return_path' => 'hq',
 			'button' => t('Submit'),
 			'hide_voting' => true,
 			'hide_future' => true,

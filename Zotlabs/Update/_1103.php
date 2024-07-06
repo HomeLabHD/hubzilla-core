@@ -2,11 +2,13 @@
 
 namespace Zotlabs\Update;
 
+use Zotlabs\Lib\Config;
+
 class _1103 {
 function run() {
 	$x = curl_version();
 	if(stristr($x['ssl_version'],'openssl'))
-		set_config('system','curl_ssl_ciphers','ALL:!eNULL');
+		Config::Set('system','curl_ssl_ciphers','ALL:!eNULL');
 	return UPDATE_SUCCESS;
 }
 

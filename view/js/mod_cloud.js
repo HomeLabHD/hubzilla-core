@@ -73,7 +73,7 @@ $(document).ready(function () {
 		close_and_deactivate_all_panels();
 
 		$('body').css('cursor', 'wait');
-		$.jGrowl(aStr.download_info, { sticky: false, theme: 'info', life: 10000 });
+		toast(aStr.download_info, 'info');
 
 		let data = [
 			{name: 'attach_path', value: window.location.pathname},
@@ -301,7 +301,7 @@ $(document).ready(function () {
 		close_and_deactivate_all_panels();
 
 		$('body').css('cursor', 'wait');
-		$.jGrowl(aStr.download_info, { sticky: false, theme: 'info', life: 10000 });
+		toast(aStr.download_info, 'info');
 
 		post_data.push(
 			{name: 'attach_path', value: window.location.pathname},

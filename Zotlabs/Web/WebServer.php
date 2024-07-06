@@ -13,11 +13,11 @@ class WebServer {
 
 		require_once('boot.php');
 
-		sys_boot();
+		$installed = sys_boot();
 
 
 		\App::$language = get_best_language();
-		load_translation_table(\App::$language,\App::$install);
+		load_translation_table(\App::$language, !$installed);
 
 
 		/**
@@ -56,7 +56,7 @@ class WebServer {
 			load_translation_table(\App::$language);
 		}
 
-		if((x($_GET,'zid')) && (! \App::$install)) {
+		if (x($_GET,'zid') && $installed) {
 			\App::$query_string = strip_zids(\App::$query_string);
 			if(! local_channel()) {
 				if (!isset($_SESSION['my_address']) || $_SESSION['my_address'] != $_GET['zid']) {
@@ -69,14 +69,14 @@ class WebServer {
 			}
 		}
 
-		if((x($_GET,'zat')) && (! \App::$install)) {
+		if (x($_GET,'zat') && $installed) {
 			\App::$query_string = strip_zats(\App::$query_string);
 			if(! local_channel()) {
 				zat_init();
 			}
 		}
 
-		if((x($_REQUEST,'owt')) && (! \App::$install)) {
+		if (x($_REQUEST,'owt') && $installed) {
 			$token = $_REQUEST['owt'];
 			\App::$query_string = strip_query_param(\App::$query_string,'owt');
 			owt_init($token);
@@ -85,7 +85,7 @@ class WebServer {
 		if((x($_SESSION, 'authenticated')) || (x($_POST, 'auth-params')) || (\App::$module === 'login'))
 			require('include/auth.php');
 
-		if(\App::$install) {
+		if (!$installed) {
 			/* Allow an exception for the view module so that pcss will be interpreted during installation */
 			if(\App::$module != 'view')
 				\App::$module = 'setup';

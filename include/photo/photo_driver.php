@@ -1,5 +1,6 @@
 <?php
 
+use Zotlabs\Lib\Config;
 use Zotlabs\Photo\PhotoDriver;
 use Zotlabs\Photo\PhotoGd;
 use Zotlabs\Photo\PhotoImagick;
@@ -32,13 +33,13 @@ function photo_factory($data, $type = null) {
 		return null;
 	}
 
-	$ignore_imagick = get_config('system', 'ignore_imagick');
+	$ignore_imagick = Config::Get('system', 'ignore_imagick');
 
 	if(class_exists('Imagick') && !$ignore_imagick) {
 		$v = Imagick::getVersion();
 		preg_match('/ImageMagick ([0-9]+\.[0-9]+\.[0-9]+)/', $v['versionString'], $m);
 		if(version_compare($m[1], '6.6.7') >= 0) {
-			$limits = get_config('system', 'imagick_limits', false);
+			$limits = Config::Get('system', 'imagick_limits', false);
 			if ($limits)
 				foreach ($limits as $k => $v)
 					IMagick::setResourceLimit($k, $v);
@@ -99,7 +100,7 @@ function guess_image_type($filename, $data = '') {
 	}
 
 	if(is_null($type)){
-		$ignore_imagick = get_config('system', 'ignore_imagick');
+		$ignore_imagick = Config::Get('system', 'ignore_imagick');
 		// Guessing from extension? Isn't that... dangerous?
 		if(class_exists('Imagick') && ! $ignore_imagick) {
 			$v = Imagick::getVersion();

@@ -5,8 +5,10 @@
  * @brief Some security related functions.
  */
 
+use Zotlabs\Lib\Config;
+
 /**
- * @param int $user_record The account_id
+ * @param array $user_record The account record
  * @param array $channel
  * @param bool $login_initial default false
  * @param bool $interactive default false
@@ -872,7 +874,7 @@ function stream_perms_xchans($perms = NULL) {
  */
 function zarIsDuty($wd=NULL, $hhmm=NULL, $op='isOpen') {
 
-	$isduty = get_config('system', 'register_duty_jso');
+	$isduty = Config::Get('system', 'register_duty_jso');
 
 	if (!$isduty)
 		return (bool)false;
@@ -906,7 +908,6 @@ function zarIsDuty($wd=NULL, $hhmm=NULL, $op='isOpen') {
 				}
 			}
 			return $dutyis;
-			break;
 
 		case 'nextOpen':
 			/**
@@ -951,7 +952,6 @@ function zarIsDuty($wd=NULL, $hhmm=NULL, $op='isOpen') {
 				}
 			}
 			return $is1; // false or array
-			break;
 
 		default:
 			//

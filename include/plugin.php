@@ -5,6 +5,7 @@
  * @brief Some functions to handle addons and themes.
  */
 
+use Zotlabs\Lib\Config;
 
 /**
  * @brief Handle errors in plugin calls.
@@ -25,7 +26,7 @@ function handleerrors_plugin($plugin, $notice, $log, $uninstall = false){
 		$idx = array_search($plugin, \App::$plugins);
 		unset(\App::$plugins[$idx]);
 		uninstall_plugin($plugin);
-		set_config("system", "addon", implode(", ", \App::$plugins));
+		Config::Set("system", "addon", implode(", ", \App::$plugins));
 	}
 }
 
@@ -187,7 +188,7 @@ function plugin_is_installed($name) {
  * @brief Reload all updated plugins.
  */
 function reload_plugins() {
-	$plugins = get_config('system', 'addon');
+	$plugins = Config::Get('system', 'addon');
 	if(strlen($plugins)) {
 		$r = dbq("SELECT * FROM addon WHERE installed = 1");
 		if($r)
@@ -266,7 +267,7 @@ function plugins_sync() {
 
 	$installed = plugins_installed_list();
 
-	$plugins = get_config('system', 'addon', '');
+	$plugins = Config::Get('system', 'addon', '');
 
 	$plugins_arr = explode(',', $plugins);
 
@@ -487,17 +488,18 @@ function call_hooks($name, &$data = null) {
 				@include_once($hook[0]);
 			}
 
-			if(preg_match('|^a:[0-9]+:{.*}$|s', $hook[1])) {
-				$hook[1] = unserialize($hook[1]);
+			if(is_string($hook[1])) {
+				if (preg_match('|^a:[0-9]+:{.*}$|s', $hook[1])) {
+					$hook[1] = unserialize($hook[1]);
+				}
+				elseif(strpos($hook[1],'::')) {
+					// We shouldn't need to do this, but it appears that PHP
+					// isn't able to directly execute a string variable with a class
+					// method in the manner we are attempting it, so we'll
+					// turn it into an array.
+					$hook[1] = explode('::',$hook[1]);
+				}
 			}
-			elseif(strpos($hook[1],'::')) {
-				// We shouldn't need to do this, but it appears that PHP
-				// isn't able to directly execute a string variable with a class
-				// method in the manner we are attempting it, so we'll
-				// turn it into an array.
-				$hook[1] = explode('::',$hook[1]);
-			}
-
 
 			if(is_callable($hook[1])) {
 				$func = $hook[1];
@@ -719,7 +721,7 @@ function check_plugin_versions($info) {
 					continue;
 				if(strpos($test,'.')) {
 					$conf = explode('.',$test);
-					if(get_config(trim($conf[0]),trim($conf[1])))
+					if(Config::Get(trim($conf[0]),trim($conf[1])))
 						return true;
 					else
 						return false;

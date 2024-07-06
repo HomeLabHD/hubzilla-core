@@ -4,6 +4,7 @@
  * @brief Items related functions.
  */
 
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\Enotify;
 use Zotlabs\Lib\MarkdownSoap;
@@ -35,10 +36,10 @@ require_once('include/permissions.php');
  * @param boolean $include_groups
  * @return array containing the recipients
  */
-function collect_recipients($item, &$private_envelope,$include_groups = true) {
+function collect_recipients($item, &$private_envelope, $include_groups = true) {
 
 	$private_envelope = ((intval($item['item_private'])) ? true : false);
-	$recipients = array();
+	$recipients = [];
 
 	if($item['allow_cid'] || $item['allow_gid'] || $item['deny_cid'] || $item['deny_gid']) {
 
@@ -53,8 +54,15 @@ function collect_recipients($item, &$private_envelope,$include_groups = true) {
 			$allow_groups = [];
 		}
 
-		$raw_recipients = array_unique(array_merge($allow_people, $allow_groups));
-		$recipients = deliverable_abook_xchans($item['uid'], $raw_recipients);
+		$recipients = array_unique(array_merge($allow_people, $allow_groups));
+
+		if ($recipients) {
+			// deliverable_abook_xchans() will return all deliverable xchans
+			// if passed an empty array as 2nd argument (no filtering).
+			// Hence only call it if we do actually have any recipients.
+			$recipients = deliverable_abook_xchans($item['uid'], $recipients);
+		}
+
 
 		// if you specifically deny somebody but haven't allowed anybody, we'll allow everybody in your
 		// address book minus the denied connections. The post is still private and can't be seen publicly
@@ -1078,7 +1086,7 @@ function encode_item($item,$mirror = false,$zap_compat = false) {
 	$x['type'] = 'activity';
 	$x['encoding'] = 'zot';
 
-	$key = get_config('system','prvkey');
+	$key = Config::Get('system','prvkey');
 
 	// If we're trying to backup an item so that it's recoverable or for export/imprt,
 	// add all the attributes we need to recover it
@@ -2696,7 +2704,7 @@ function tag_deliver($uid, $item_id) {
 		logger('Post mentions: ' . print_r($terms,true), LOGGER_DATA);
 	}
 
-	$max_forums = get_config('system','max_tagged_forums',2);
+	$max_forums = Config::Get('system','max_tagged_forums',2);
 	$matched_forums = 0;
 
 
@@ -2968,7 +2976,7 @@ function tgroup_check($uid, $item) {
 	if(! $u)
 		return false;
 
-	$max_forums = get_config('system','max_tagged_forums',2);
+	$max_forums = Config::Get('system','max_tagged_forums',2);
 	$matched_forums = 0;
 
 	$link = normalise_link($u[0]['xchan_url']);
@@ -3073,7 +3081,7 @@ function i_am_mentioned($channel, $item, $check_groups = false) {
 			}
 		}
 	}
-	$unless = intval(get_pconfig($channel['channel_id'], 'system', 'unless_mention_count', get_config('system', 'unless_mention_count', 20)));
+	$unless = intval(get_pconfig($channel['channel_id'], 'system', 'unless_mention_count', Config::Get('system', 'unless_mention_count', 20)));
 	if ($unless && $terms && count($terms) > $unless) {
 		$tagged = false;
 	}
@@ -3762,7 +3770,7 @@ function item_expire($uid,$days,$comment_days = 7) {
 
 	$sql_extra = ((intval($expire_network_only)) ? " AND item_wall = 0 " : "");
 
-	$expire_limit = get_config('system','expire_limit', 1000);
+	$expire_limit = Config::Get('system','expire_limit', 1000);
 
 	$item_normal = item_normal();
 

@@ -28,119 +28,31 @@ require_once('include/conversation.php');
  * type= choices are 'html' or 'bbcode', default is 'bbcode'
  *
  */
-
-
-
-
 class Rpost extends \Zotlabs\Web\Controller {
 
-	function get() {
+	/**
+	 * Handle requests.
+	 *
+	 * Despite it's name, this method handles both POST and GET requests
+	 * to the module.
+	 */
+	public function get(): string {
 
-		$o = '';
+		$channel_id = local_channel();
 
-		if(! local_channel()) {
-			if(remote_channel()) {
-				// redirect to your own site.
-				// We can only do this with a GET request so you'll need to keep the text short or risk getting truncated
-				// by the wretched beast called 'suhosin'. All the browsers now allow long GET requests, but suhosin
-				// blocks them.
-
-				$url = Libzot::get_rpost_path(App::get_observer());
-				// make sure we're not looping to our own hub
-				if(($url) && (! stristr($url, App::get_hostname()))) {
-					foreach($_GET as $key => $arg) {
-						if($key === 'q')
-							continue;
-						$url .= '&' . $key . '=' . $arg;
-					}
-					goaway($url);
-				}
-			}
-
-			// The login procedure is going to bugger our $_REQUEST variables
-			// so save them in the session.
-
-			if(array_key_exists('body',$_REQUEST)) {
-				$_SESSION['rpost'] = $_REQUEST;
-			}
-			return login();
+		if(! $channel_id) {
+			return $this->redirect_or_login();
 		}
 
 		nav_set_selected('Post');
 
-		if (local_channel() && array_key_exists('userfile',$_FILES)) {
-
-			$channel = App::get_channel();
-			$observer = App::get_observer();
-
-			$def_album  = get_pconfig($channel['channel_id'],'system','photo_path');
-			$def_attach = get_pconfig($channel['channel_id'],'system','attach_path');
-
-			$r = attach_store($channel, (($observer) ? $observer['xchan_hash'] : ''), '', [
-				'source'    => 'editor',
-				'visible'   => 0,
-				'album'     => $def_album,
-				'directory' => $def_attach,
-				'flags'     => 1, // indicates temporary permissions are created
-				'allow_cid' => '<' . $channel['channel_hash'] . '>',
-				'allow_gid' => '',
-				'deny_cid' => '',
-				'deny_gid' => ''
-			]);
-
-			if (! $r['success']) {
-				notice( $r['message'] . EOL);
-			}
-
-			$s = EMPTY_STR;
-
-			if (intval($r['data']['is_photo'])) {
-				$s .= "\n\n" . $r['body'] . "\n\n";
-			}
-
-			$url = z_root() . '/cloud/' . $channel['channel_address'] . '/' . $r['data']['display_path'];
-
-			if (strpos($r['data']['filetype'],'video') === 0) {
-				$s .= "\n\n" . '[zvideo]' . $url . '[/zvideo]' . "\n\n";
-			}
-
-			if (strpos($r['data']['filetype'],'audio') === 0) {
-				$s .= "\n\n" . '[zaudio]' . $url . '[/zaudio]' . "\n\n";
-			}
-
-			if ($r['data']['filetype'] === 'image/svg+xml') {
-				$x = @file_get_contents('store/' . $channel['channel_address'] . '/' . $r['data']['os_path']);
-				if ($x) {
-					$bb = svg2bb($x);
-					if ($bb) {
-						$s .= "\n\n" . $bb;
-					}
-					else {
-						logger('empty return from svgbb');
-					}
-				}
-				else {
-					logger('unable to read svg data file: ' . 'store/' . $channel['channel_address'] . '/' . $r['data']['os_path']);
-				}
-			}
-
-			if ($r['data']['filetype'] === 'text/calendar') {
-				$content = @file_get_contents('store/' . $channel['channel_address'] . '/' . $r['data']['os_path']);
-				if ($content) {
-					$ev = ical_to_ev($content);
-					if ($ev) {
-						$s .= "\n\n" . format_event_bbcode($ev[0]) . "\n\n";
-					}
-				}
-			}
-
-			$s .=  "\n\n" . '[attachment]' . $r['data']['hash'] . ',' . $r['data']['revision'] . '[/attachment]' . "\n";
-			$_REQUEST['body'] = ((array_key_exists('body',$_REQUEST)) ? $_REQUEST['body'] . $s : $s);
+		if (! empty($_FILES['userfile'])) {
+			$this->handle_attachments();
 		}
 
 		// If we have saved rpost session variables, but nothing in the current $_REQUEST, recover the saved variables
 
-		if((! array_key_exists('body',$_REQUEST)) && (array_key_exists('rpost',$_SESSION))) {
+		if((! array_key_exists('body',$_REQUEST)) && isset($_SESSION['rpost'])) {
 			$_REQUEST = $_SESSION['rpost'];
 			unset($_SESSION['rpost']);
 		}
@@ -152,20 +64,9 @@ class Rpost extends \Zotlabs\Web\Controller {
 			);
 			if($r) {
 				require_once('include/security.php');
-				$change = change_channel($r[0]['channel_id']);
+				change_channel($r[0]['channel_id']);
 			}
 		}
-
-		if(isset($_REQUEST['remote_return']) && $_REQUEST['remote_return']) {
-			$_SESSION['remote_return'] = $_REQUEST['remote_return'];
-		}
-		if(argc() > 1 && argv(1) === 'return') {
-			if($_SESSION['remote_return'])
-				goaway($_SESSION['remote_return']);
-			goaway(z_root() . '/network');
-		}
-
-		$plaintext = true;
 
 		if(isset($_REQUEST['type']) && $_REQUEST['type'] === 'html') {
 			require_once('include/html2bbcode.php');
@@ -197,12 +98,12 @@ class Rpost extends \Zotlabs\Web\Controller {
 			'permissions'         => $channel_acl,
 			'bang'                => '',
 			'visitor'             => true,
-			'profile_uid'         => local_channel(),
+			'profile_uid'         => $channel_id,
 			'title'               => $_REQUEST['title'] ?? '',
 			'body'                => $_REQUEST['body'] ?? '',
 			'attachment'          => $_REQUEST['attachment'] ?? '',
 			'source'              => ((x($_REQUEST,'source')) ? strip_tags($_REQUEST['source']) : ''),
-			'return_path'         => 'rpost/return',
+			'return_path'         => 'hq',
 			'bbco_autocomplete'   => 'bbcode',
 			'editor_autocomplete' => true,
 			'bbcode'              => true,
@@ -210,19 +111,128 @@ class Rpost extends \Zotlabs\Web\Controller {
 			'reset'               => t('Reset form')
 		);
 
-		$a = '';
 		$editor = status_editor($x, false, 'Rpost');
 
-		$o .= replace_macros(get_markup_template('edpost_head.tpl'), array(
+		return replace_macros(get_markup_template('edpost_head.tpl'), array(
 			'$title' => t('Edit post'),
 			'$cancel' => '',
-			'$editor' => $editor
+			'$editor' => $editor,
+			'$delete' => null,
 		));
-
-		return $o;
-
 	}
 
+	/**
+	 * Redirect to the observer's instance if not local, or return login form.
+	 *
+	 * The request is saved in the session if there's a `body` request
+	 * param present. (Otherwise not.)
+	 *
+	 * @return string A login form if not redirected. If the session was
+	 *		determned to belong to a remote channel, the function does not
+	 *		return.
+	 */
+	private function redirect_or_login(): string {
+		if(remote_channel()) {
+			// redirect to your own site.
+			// We can only do this with a GET request so you'll need to keep the text short or risk getting truncated
+			// by the wretched beast called 'suhosin'. All the browsers now allow long GET requests, but suhosin
+			// blocks them.
 
+			$url = Libzot::get_rpost_path(App::get_observer());
+			// make sure we're not looping to our own hub
+			if(($url) && (! stristr($url, App::get_hostname()))) {
+				foreach($_GET as $key => $arg) {
+					if($key === 'q')
+						continue;
+					$url .= '&' . $key . '=' . $arg;
+				}
+				goaway($url);
+			}
+		}
 
+		// The login procedure is going to bugger our $_REQUEST variables
+		// so save them in the session.
+
+		if(array_key_exists('body',$_REQUEST)) {
+			$_SESSION['rpost'] = $_REQUEST;
+		}
+		return login();
+	}
+
+	/**
+	 * Handle uplads of attachments in the rpost call.
+	 *
+	 * This is only relevant for POST requests.
+	 *
+	 * The function will modify the `$_REQUEST['body']` superglobal
+	 * (or add it if it does not exist).
+	 */
+	private function handle_attachments(): void {
+		$channel = App::get_channel();
+		$observer = App::get_observer();
+
+		$def_album  = get_pconfig($channel['channel_id'],'system','photo_path');
+		$def_attach = get_pconfig($channel['channel_id'],'system','attach_path');
+
+		$r = attach_store($channel, (($observer) ? $observer['xchan_hash'] : ''), '', [
+			'source'    => 'editor',
+			'visible'   => 0,
+			'album'     => $def_album,
+			'directory' => $def_attach,
+			'flags'     => 1, // indicates temporary permissions are created
+			'allow_cid' => '<' . $channel['channel_hash'] . '>',
+			'allow_gid' => '',
+			'deny_cid' => '',
+			'deny_gid' => ''
+		]);
+
+		if (! $r['success']) {
+			notice( $r['message'] . EOL);
+		}
+
+		$s = EMPTY_STR;
+
+		if (intval($r['data']['is_photo'])) {
+			$s .= "\n\n" . $r['body'] . "\n\n";
+		}
+
+		$url = z_root() . '/cloud/' . $channel['channel_address'] . '/' . $r['data']['display_path'];
+
+		if (strpos($r['data']['filetype'],'video') === 0) {
+			$s .= "\n\n" . '[zvideo]' . $url . '[/zvideo]' . "\n\n";
+		}
+
+		if (strpos($r['data']['filetype'],'audio') === 0) {
+			$s .= "\n\n" . '[zaudio]' . $url . '[/zaudio]' . "\n\n";
+		}
+
+		if ($r['data']['filetype'] === 'image/svg+xml') {
+			$x = @file_get_contents('store/' . $channel['channel_address'] . '/' . $r['data']['os_path']);
+			if ($x) {
+				$bb = svg2bb($x);
+				if ($bb) {
+					$s .= "\n\n" . $bb;
+				}
+				else {
+					logger('empty return from svgbb');
+				}
+			}
+			else {
+				logger('unable to read svg data file: ' . 'store/' . $channel['channel_address'] . '/' . $r['data']['os_path']);
+			}
+		}
+
+		if ($r['data']['filetype'] === 'text/calendar') {
+			$content = @file_get_contents('store/' . $channel['channel_address'] . '/' . $r['data']['os_path']);
+			if ($content) {
+				$ev = ical_to_ev($content);
+				if ($ev) {
+					$s .= "\n\n" . format_event_bbcode($ev[0]) . "\n\n";
+				}
+			}
+		}
+
+		$s .=  "\n\n" . '[attachment]' . $r['data']['hash'] . ',' . $r['data']['revision'] . '[/attachment]' . "\n";
+		$_REQUEST['body'] = ((array_key_exists('body',$_REQUEST)) ? $_REQUEST['body'] . $s : $s);
+	}
 }

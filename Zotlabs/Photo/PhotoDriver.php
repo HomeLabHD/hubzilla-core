@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Photo;
 
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Hashpath;
 
 /**
@@ -443,7 +444,7 @@ abstract class PhotoDriver {
 		$p['display_path'] = $arr['display_path'] ?? '';
 		$p['width'] = $arr['width'] ?? $this->getWidth();
 		$p['height'] = $arr['height'] ?? $this->getHeight();
-		$p['expires'] = $arr['expires'] ?? gmdate('Y-m-d H:i:s', time() + get_config('system', 'photo_cache_time', 86400));
+		$p['expires'] = $arr['expires'] ?? gmdate('Y-m-d H:i:s', time() + Config::Get('system', 'photo_cache_time', 86400));
 		$p['profile'] = $arr['profile'] ?? 0;
 
 		if(! intval($p['imgscale']))
@@ -508,7 +509,7 @@ abstract class PhotoDriver {
 
 		$arr['imgscale'] = $scale;
 
-		if(boolval(get_config('system','photo_storage_type', 1))) {
+		if(boolval(Config::Get('system','photo_storage_type', 1))) {
 
 			$arr['os_storage'] = 1;
 

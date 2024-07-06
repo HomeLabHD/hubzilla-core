@@ -4,6 +4,7 @@ namespace Zotlabs\Module;
 
 use App;
 use Zotlabs\Lib\Apps;
+use Zotlabs\Lib\Config;
 use Zotlabs\Web\Controller;
 use Zotlabs\Lib\Enotify;
 use Zotlabs\Lib\XConfig;
@@ -424,7 +425,7 @@ class Sse_bs extends Controller {
 			return $result;
 		}
 
-		if(! intval(get_config('system','open_pubstream',1))) {
+		if(! intval(Config::Get('system','open_pubstream',1))) {
 			if(! get_observer_hash()) {
 				$result['pubs']['offset'] = -1;
 				return $result;
@@ -459,7 +460,7 @@ class Sse_bs extends Controller {
 
 		$uids = " AND uid IN ( " . $sys['channel_id'] . " ) ";
 
-		$site_firehose = get_config('system', 'site_firehose', 0);
+		$site_firehose = Config::Get('system', 'site_firehose', 0);
 		if($site_firehose) {
 			$uids = " AND uid IN ( " . stream_perms_api_uids(PERMS_PUBLIC) . " ) AND item_private = 0 AND item_wall = 1 ";
 		}
@@ -589,6 +590,7 @@ class Sse_bs extends Controller {
 
 		if($forums) {
 			$item_normal = item_normal();
+			$p_sql = '';
 
 			$sql_extra = '';
 			if(! (self::$vnotify & VNOTIFY_LIKE))
@@ -598,6 +600,7 @@ class Sse_bs extends Controller {
 			$i = 0;
 
 			for($x = 0; $x < $fcount; $x ++) {
+				/*
 				$p = q("SELECT oid AS parent FROM term WHERE uid = %d AND ttype = %d AND term = '%s'",
 					intval(self::$uid),
 					intval(TERM_FORUM),
@@ -606,13 +609,15 @@ class Sse_bs extends Controller {
 
 				$p_str = ids_to_querystr($p, 'parent');
 				$p_sql = (($p_str) ? "OR parent IN ( $p_str )" : '');
+				*/
 
 				$r = q("select count(*) as total from item
-					where uid = %d and ( owner_xchan = '%s' OR author_xchan = '%s' $p_sql ) and item_unseen = 1 $sql_extra $item_normal",
+					where uid = %d and ( owner_xchan = '%s' OR author_xchan = '%s' $p_sql ) and verb != 'Announce' and item_unseen = 1 $sql_extra $item_normal",
 					intval(self::$uid),
 					dbesc($forums[$x]['xchan_hash']),
 					dbesc($forums[$x]['xchan_hash'])
 				);
+
 
 				if($r[0]['total']) {
 
@@ -732,7 +737,7 @@ class Sse_bs extends Controller {
 		if(! self::$uid && ! is_site_admin())
 			return $result;
 
-		$policy  = intval(get_config('system','register_policy'));
+		$policy  = intval(Config::Get('system','register_policy'));
 		if(($policy & REGISTER_APPROVE) != REGISTER_APPROVE)
 			return $result;
 

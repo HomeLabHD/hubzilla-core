@@ -4,6 +4,7 @@ namespace Zotlabs\Storage;
 
 use Sabre\DAV;
 use App;
+use Zotlabs\Lib\Config;
 
 /**
  * @brief Provides a DAV frontend for the webbrowser.
@@ -101,7 +102,7 @@ class Browser extends DAV\Browser\Plugin {
 
 		$folder_list = attach_folder_select_list($channel_id);
 
-		$siteroot_disabled = get_config('system', 'cloud_disable_siteroot');
+		$siteroot_disabled = Config::Get('system', 'cloud_disable_siteroot');
 		$is_root_folder = (($path === 'cloud/' . $nick) ? true : false);
 
 		$parent_path = '';
@@ -210,7 +211,7 @@ class Browser extends DAV\Browser\Plugin {
 			// types
 
 			$photo_icon = '';
-			$preview_style = intval(get_config('system','thumbnail_security',0));
+			$preview_style = intval(Config::Get('system','thumbnail_security',0));
 
 			$is_creator = (($data['creator'] === get_observer_hash()) ? true : false);
 
@@ -474,7 +475,7 @@ class Browser extends DAV\Browser\Plugin {
 			$limit = engr_units_to_bytes(service_class_fetch($this->auth->owner_id, 'attach_upload_limit'));
 		}
 
-		if((! $limit) && get_config('system','cloud_report_disksize')) {
+		if((! $limit) && Config::Get('system','cloud_report_disksize')) {
 			$limit = engr_units_to_bytes(disk_free_space('store'));
 		}
 

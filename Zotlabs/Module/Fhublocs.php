@@ -1,6 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libzot;
 
 require_once('include/crypto.php');
@@ -18,7 +19,7 @@ class Fhublocs extends \Zotlabs\Web\Controller {
 		$o = '';
 
 		$r = q("select * from channel where channel_removed = 0");
-		$sitekey = get_config('system','pubkey');
+		$sitekey = Config::Get('system','pubkey');
 
 		if($r) {
 			foreach($r as $rr) {

@@ -7,12 +7,6 @@
 
 class NetworkTest extends Zotlabs\Tests\Unit\UnitTestCase {
 
-	public function setUp() : void {
-		parent::setUp();
-
-		\App::set_baseurl("https://mytest.org");
-	}
-
 	/**
 	 * @dataProvider localUrlTestProvider
 	 */
@@ -20,10 +14,10 @@ class NetworkTest extends Zotlabs\Tests\Unit\UnitTestCase {
 		$this->assertEquals($expected, is_local_url($url));
 	}
 
-	public function localUrlTestProvider() : array {
+	public static function localUrlTestProvider() : array {
 		return [
 			[ '/some/path', true ],
-			[ 'https://mytest.org/some/path', true ],
+			[ 'https://hubzilla.test/some/path', true ],
 			[ 'https://other.site/some/path', false ],
 		];
 	}
@@ -47,7 +41,7 @@ class NetworkTest extends Zotlabs\Tests\Unit\UnitTestCase {
 		$this->assertTrue(validate_email($email));
 	}
 
-	function validate_email_provider() : array {
+	public static function validate_email_provider() : array {
 		return [
 			// First some invalid email addresses
 			['', false],

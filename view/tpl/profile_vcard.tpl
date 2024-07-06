@@ -99,8 +99,11 @@
 		</dl>
 		{{/if}}
 	</div>
+	{{/if}}
+	{{if $details}}
 	<div class="hcard-addon"></div>
 	{{/if}}
+
 </div>
 {{if $details}}
 {{$chanmenu}}

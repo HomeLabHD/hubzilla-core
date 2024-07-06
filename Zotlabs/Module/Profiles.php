@@ -1,6 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libsync;
 
 class Profiles extends \Zotlabs\Web\Controller {
@@ -619,14 +620,16 @@ class Profiles extends \Zotlabs\Web\Controller {
 		$profile_fields_advanced = get_profile_fields_advanced();
 
 		if(((argc() > 1) && (intval(argv(1)))) || !feature_enabled(local_channel(),'multi_profiles')) {
-			if(feature_enabled(local_channel(),'multi_profiles'))
+			if (feature_enabled(local_channel(), 'multi_profiles')) {
 				$id = \App::$argv[1];
+			}
 			else {
 				$x = q("select id from profile where uid = %d and is_default = 1",
 					intval(local_channel())
 				);
-				if($x)
+				if ($x) {
 					$id = $x[0]['id'];
+				}
 			}
 
 			$r = q("SELECT * FROM profile WHERE id = %d AND uid = %d LIMIT 1",
@@ -634,7 +637,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 				intval(local_channel())
 			);
 
-			if(! $r) {
+			if (!$r) {
 				notice( t('Profile not found.') . EOL);
 				return;
 			}
@@ -673,7 +676,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 
 
 				$opt_tpl = get_markup_template("field_checkbox.tpl");
-				if (get_config('system', 'publish_all')) {
+				if (Config::Get('system', 'publish_all')) {
 					$profile_in_dir = '<input type="hidden" name="profile_in_directory" value="1" />';
 				}
 				else {
@@ -716,7 +719,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 			//$vctmp = (($vc) ? \Sabre\VObject\Reader::read($vc) : null);
 			//$vcard = (($vctmp) ? get_vcard_array($vctmp,$r[0]['id']) : [] );
 
-			$f = get_config('system','birthday_input_format');
+			$f = Config::Get('system','birthday_input_format');
 			if(! $f)
 				$f = 'ymd';
 
@@ -826,7 +829,8 @@ class Profiles extends \Zotlabs\Web\Controller {
 		else {
 
 			$r = q("SELECT * FROM profile WHERE uid = %d",
-				local_channel());
+				intval(local_channel())
+			);
 			if($r) {
 
 				$tpl = get_markup_template('profile_entry.tpl');

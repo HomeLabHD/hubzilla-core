@@ -1,11 +1,11 @@
 .doco-list-group-item > a {
 	font-weight: bold;
-} 
+}
 
 .sub-menu {
 	margin: 3px 0px 10px 10px;
 }
-    
+
 #doco-content h3 {
 	border-bottom: #ccc 3px solid;
 	padding-bottom: 0.3em;
@@ -24,6 +24,3 @@
 	padding-left: 20px;
 }
 
-#doco-side-toc {
-	padding-top: 10px;
-}

@@ -1,7 +1,7 @@
 <?php /** @file */
 
 use Zotlabs\Lib\Cache;
-
+use Zotlabs\Lib\Config;
 
 function oembed_replacecb($matches){
 
@@ -28,7 +28,7 @@ function oembed_action($embedurl) {
 	logger('oembed_action: ' . $embedurl, LOGGER_DEBUG, LOG_INFO);
 
 	if(strpos($embedurl,'http://') === 0) {
-		if(intval(get_config('system','embed_sslonly'))) {
+		if(intval(Config::Get('system','embed_sslonly'))) {
 			$action = 'block';
 		}
 	}
@@ -39,7 +39,7 @@ function oembed_action($embedurl) {
 
 	// site white/black list
 
-	if(($x = get_config('system','embed_deny'))) {
+	if(($x = Config::Get('system','embed_deny'))) {
 		if(($x) && (! is_array($x)))
 			$x = explode("\n",$x);
 		if($x) {
@@ -55,7 +55,7 @@ function oembed_action($embedurl) {
 
 	$found = false;
 
-	if(($x = get_config('system','embed_allow'))) {
+	if(($x = Config::Get('system','embed_allow'))) {
 		if(($x) && (! is_array($x)))
 			$x = explode("\n",$x);
 		if($x) {
@@ -139,16 +139,16 @@ function oembed_fetch_url($embedurl){
 	// we should try to cache this and avoid a lookup on each render
 	$is_matrix = is_matrix_url($embedurl);
 
-	$zrl = ((get_config('system','oembed_zrl')) ? $is_matrix : false);
+	$zrl = ((Config::Get('system','oembed_zrl')) ? $is_matrix : false);
 
 	$furl = ((local_channel() && $zrl) ? zid($embedurl) : $embedurl);
 
-	if($action !== 'block' && (! get_config('system','oembed_cache_disable'))) {
+	if($action !== 'block' && (! Config::Get('system','oembed_cache_disable'))) {
 		$txt = Cache::get('[' . App::$videowidth . '] ' . $furl);
 	}
 
 
-	if(strpos(strtolower($embedurl),'.pdf') !== false && get_config('system','inline_pdf')) {
+	if(strpos(strtolower($embedurl),'.pdf') !== false && Config::Get('system','inline_pdf')) {
 		$action = 'allow';
 		$j = [
 			'html' => '<object data="' . $embedurl . '" type="application/pdf" style="width: 100%; height: 300px;"></object>',
@@ -164,7 +164,7 @@ function oembed_fetch_url($embedurl){
 		$txt = EMPTY_STR;
 
 		if ($action !== 'block') {
-			$max_oembed_size = get_config('system', 'oembed_max_size', 1 * 1024 * 1024 /* 1MB */);
+			$max_oembed_size = Config::Get('system', 'oembed_max_size', 1 * 1024 * 1024 /* 1MB */);
 
 			stream_context_set_default(
 				[
@@ -259,7 +259,7 @@ function oembed_fetch_url($embedurl){
 
 		// save in cache
 
-		if(! get_config('system','oembed_cache_disable'))
+		if(! Config::Get('system','oembed_cache_disable'))
 			Cache::set('[' . App::$videowidth . '] ' . $furl, $txt);
 
 	}
@@ -328,7 +328,7 @@ function oembed_format_object($j){
 
 	$jhtml = oembed_iframe($j['embedurl'],(isset($j['width']) ? $j['width'] : null), (isset($j['height']) ? $j['height'] : null));
 
-	$ret="<span class='oembed " . $j['type'] . "'>";
+	$ret="<span class='clearfix d-block oembed " . $j['type'] . "'>";
 	switch ($j['type']) {
 		case "video": {
 			if (isset($j['thumbnail_url'])) {
@@ -351,7 +351,6 @@ function oembed_format_object($j){
 			} else {
 				$ret=$jhtml;
 			}
-			$ret.="<br>";
 		}; break;
 		case "photo": {
 			$ret.= "<img width='".$j['width']."' src='".$j['url']."'>";
@@ -386,15 +385,15 @@ function oembed_format_object($j){
 	// add link to source if not present in "rich" type
 	if (  $j['type'] != 'rich' || !strpos($j['html'],$embedurl) ){
 		$embedlink = (isset($j['title']))?$j['title'] : $embedurl;
-		$ret .= '<br />' . "<a href='$embedurl' rel='oembed'>$embedlink</a>";
+		$ret .= "<a href='$embedurl' rel='oembed'>$embedlink</a>";
 		$ret .= "<br />";
 		if (isset($j['author_name'])) $ret .= t(' by ') . $j['author_name'];
 		if (isset($j['provider_name'])) $ret .= t(' on ') . $j['provider_name'];
 	} else {
 		// add <a> for html2bbcode conversion
-		$ret .= "<br /><a href='$embedurl' rel='oembed'>$embedurl</a>";
+		$ret .= "<a href='$embedurl' rel='oembed'>$embedurl</a>";
 	}
-	$ret.="<br style='clear:left'></span>";
+	$ret.="</span>";
 
 	// mb_convert_encoding() is deprecated
 	// return  mb_convert_encoding($ret, 'HTML-ENTITIES', mb_detect_encoding($ret));
@@ -414,8 +413,8 @@ function oembed_iframe($src,$width,$height) {
 	}
 
 	// try and leave some room for the description line.
-	$height = intval($height) + 80;
-	$width  = intval($width) + 40;
+	$height = intval($height);
+	$width  = intval($width);
 
 	$s = z_root() . '/oembed/' . base64url_encode($src);
 
@@ -429,7 +428,7 @@ function oembed_iframe($src,$width,$height) {
 
 
 function oembed_bbcode2html($text){
-	$stopoembed = get_config("system","no_oembed");
+	$stopoembed = Config::Get("system","no_oembed");
 	if ($stopoembed == true){
 		return preg_replace("/\[embed\](.+?)\[\/embed\]/is", "<!-- oembed $1 --><i>". t('Embedding disabled') ." : $1</i><!-- /oembed $1 -->" ,$text);
 	}

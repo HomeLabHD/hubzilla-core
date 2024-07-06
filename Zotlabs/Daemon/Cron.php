@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Daemon;
 
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libsync;
 use Zotlabs\Lib\Libzotdir;
 
@@ -9,7 +10,7 @@ class Cron {
 
 	static public function run($argc, $argv) {
 
-		$maxsysload = intval(get_config('system', 'maxloadavg'));
+		$maxsysload = intval(Config::Get('system', 'maxloadavg'));
 		if ($maxsysload < 1)
 			$maxsysload = 50;
 		if (function_exists('sys_getloadavg')) {
@@ -24,7 +25,7 @@ class Cron {
 		// Check for a lockfile.  If it exists, but is over an hour old, it's stale.  Ignore it.
 		$lockfile = 'store/[data]/cron';
 		if ((file_exists($lockfile)) && (filemtime($lockfile) > (time() - 3600))
-			&& (!get_config('system', 'override_cron_lockfile'))) {
+			&& (!Config::Get('system', 'override_cron_lockfile'))) {
 			logger("cron: Already running");
 			return;
 		}
@@ -41,7 +42,7 @@ class Cron {
 		// Pull remote changes and push local changes.
 		// potential issue: how do we keep from creating an endless update loop?
 
-		$dirmode = get_config('system', 'directory_mode');
+		$dirmode = Config::Get('system', 'directory_mode');
 
 		if ($dirmode == DIRECTORY_MODE_SECONDARY || $dirmode == DIRECTORY_MODE_PRIMARY) {
 			Libzotdir::sync_directories($dirmode);
@@ -64,7 +65,7 @@ class Cron {
 		require_once('include/account.php');
 		remove_expired_registrations();
 
-		$interval = get_config('queueworker', 'queue_interval', 500000);
+		$interval = Config::Get('queueworker', 'queue_interval', 500000);
 
 		// expire any expired items
 
@@ -124,13 +125,13 @@ class Cron {
 		$r = q("SELECT DISTINCT xchan, content FROM photo WHERE photo_usage = %d AND expires < %s - INTERVAL %s",
 			intval(PHOTO_CACHE),
 			db_utcnow(),
-			db_quoteinterval(get_config('system', 'cache_expire_days', 7) . ' DAY')
+			db_quoteinterval(Config::Get('system', 'cache_expire_days', 7) . ' DAY')
 		);
 		if ($r) {
 			q("DELETE FROM photo WHERE photo_usage = %d AND expires < %s - INTERVAL %s",
 				intval(PHOTO_CACHE),
 				db_utcnow(),
-				db_quoteinterval(get_config('system', 'cache_expire_days', 7) . ' DAY')
+				db_quoteinterval(Config::Get('system', 'cache_expire_days', 7) . ' DAY')
 			);
 			foreach ($r as $rr) {
 				$file = dbunescbin($rr['content']);
@@ -185,13 +186,13 @@ class Cron {
 		// FIXME: add birthday updates, both locally and for xprof for use
 		// by directory servers
 
-		$d1 = intval(get_config('system', 'last_expire_day'));
+		$d1 = intval(Config::Get('system', 'last_expire_day'));
 		$d2 = intval(datetime_convert('UTC', 'UTC', 'now', 'd'));
 
 		// Allow somebody to staggger daily activities if they have more than one site on their server,
 		// or if it happens at an inconvenient (busy) hour.
 
-		$h1 = intval(get_config('system', 'cron_hour'));
+		$h1 = intval(Config::Get('system', 'cron_hour'));
 		$h2 = intval(datetime_convert('UTC', 'UTC', 'now', 'G'));
 
 
@@ -225,7 +226,7 @@ class Cron {
 
 		// pull in some public posts if allowed
 
-		$disable_externals = get_config('system', 'disable_discover_tab') || get_config('system', 'disable_discover_tab') === false || get_config('system', 'site_firehose');
+		$disable_externals = Config::Get('system', 'disable_discover_tab') || Config::Get('system', 'disable_discover_tab') === false || Config::Get('system', 'site_firehose');
 		if (!$disable_externals)
 			Master::Summon(['Externals']);
 
@@ -245,7 +246,7 @@ class Cron {
 		if (!$restart)
 			Master::Summon(array('Cronhooks'));
 
-		set_config('system', 'lastcron', datetime_convert());
+		Config::Set('system', 'lastcron', datetime_convert());
 
 		//All done - clear the lockfile
 		//@unlink($lockfile);

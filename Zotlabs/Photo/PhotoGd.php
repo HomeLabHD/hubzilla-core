@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Photo;
 
+use Zotlabs\Lib\Config;
+
 /**
  * @brief GD photo driver.
  *
@@ -157,14 +159,14 @@ class PhotoGd extends PhotoDriver {
 		switch($this->getType()){
 
 			case 'image/png':
-				$quality = get_config('system', 'png_quality');
+				$quality = Config::Get('system', 'png_quality');
 				if((! $quality) || ($quality > 9))
 					$quality = PNG_QUALITY;
 				\imagepng($this->image, NULL, $quality);
 				break;
 
 			case 'image/webp':
-			    $quality = get_config('system', 'webp_quality');
+			    $quality = Config::Get('system', 'webp_quality');
 			    if((! $quality) || ($quality > 100))
 			        $quality = WEBP_QUALITY;
 			    \imagewebp($this->image, NULL, $quality);
@@ -174,7 +176,7 @@ class PhotoGd extends PhotoDriver {
 			// gd can lack imagejpeg(), but we verify during installation it is available
 
 			default:
-				$quality = get_config('system', 'jpeg_quality');
+				$quality = Config::Get('system', 'jpeg_quality');
 				if((! $quality) || ($quality > 100))
 					$quality = JPEG_QUALITY;
 				\imagejpeg($this->image, NULL, $quality);

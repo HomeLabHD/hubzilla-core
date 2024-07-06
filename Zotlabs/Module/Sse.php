@@ -4,6 +4,7 @@ namespace Zotlabs\Module;
 
 use App;
 use Zotlabs\Lib\Apps;
+use Zotlabs\Lib\Config;
 use Zotlabs\Web\Controller;
 use Zotlabs\Lib\Enotify;
 use Zotlabs\Lib\XConfig;
@@ -22,7 +23,7 @@ class Sse extends Controller {
 			killme();
 		}
 
-		if(! intval(get_config('system','open_pubstream',1))) {
+		if(! intval(Config::Get('system','open_pubstream',1))) {
 			if(! get_observer_hash()) {
 				killme();
 			}
@@ -52,7 +53,7 @@ class Sse extends Controller {
 
 		$sleep = 1000000; // microseconds
 
-		self::$sse_enabled = get_config('system', 'sse_enabled', 0);
+		self::$sse_enabled = Config::Get('system', 'sse_enabled', 0);
 
 		if(self::$sse_enabled) {
 

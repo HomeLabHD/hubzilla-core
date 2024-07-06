@@ -3,6 +3,7 @@ namespace Zotlabs\Module;
 
 use App;
 use Zotlabs\Lib\Apps;
+use Zotlabs\Lib\Config;
 
 require_once('include/conversation.php');
 require_once('include/acl_selectors.php');
@@ -26,19 +27,19 @@ class Pubstream extends \Zotlabs\Web\Controller {
 			return login();
 		}
 
-		if(! intval(get_config('system','open_pubstream',1))) {
+		if(! intval(Config::Get('system','open_pubstream',1))) {
 			if(! get_observer_hash()) {
 				return login();
 			}
 		}
 
-		$net_firehose  = ((get_config('system','disable_discover_tab',1)) ? false : true);
+		$net_firehose  = ((Config::Get('system','disable_discover_tab',1)) ? false : true);
 
 		if(!$net_firehose) {
 			return '';
 		}
 
-		$site_firehose = ((intval(get_config('system','site_firehose',0))) ? true : false);
+		$site_firehose = ((intval(Config::Get('system','site_firehose',0))) ? true : false);
 
 		$mid = $_REQUEST['mid'] ?? '';
 		$identifier = 'uuid';
@@ -107,7 +108,7 @@ class Pubstream extends \Zotlabs\Web\Controller {
 
 			nav_set_selected(t('Public Stream'));
 
-			$maxheight = get_config('system','home_divmore_height');
+			$maxheight = Config::Get('system','home_divmore_height');
 			if(! $maxheight)
 				$maxheight = 400;
 
@@ -172,7 +173,7 @@ class Pubstream extends \Zotlabs\Web\Controller {
 			$site_firehose_sql = " and owner_xchan in (select channel_hash from channel where channel_system = 0 and channel_removed = 0) ";
 		}
 
-		if(get_config('system','public_list_mode'))
+		if(Config::Get('system','public_list_mode'))
 			$page_mode = 'list';
 		else
 			$page_mode = 'client';
@@ -184,7 +185,6 @@ class Pubstream extends \Zotlabs\Web\Controller {
 			$thread_top = '';
 		}
 
-		$net_query = (($net) ? " left join xchan on xchan_hash = author_xchan " : '');
 		$net_query2 = (($net) ? " and xchan_network = '" . protect_sprintf(dbesc($net)) . "' " : '');
 
 		if($update && $_SESSION['loadtime'])
@@ -196,16 +196,17 @@ class Pubstream extends \Zotlabs\Web\Controller {
 
 		if($update) {
 
-			$ordering = get_config('system', 'pubstream_ordering', 'commented');
+			$ordering = Config::Get('system', 'pubstream_ordering', 'commented');
 
 			if($load) {
 				if($mid) {
 					$r = q("SELECT parent AS item_id FROM item
 						left join abook on item.author_xchan = abook.abook_xchan
-						$net_query
+						left join xchan on item.author_xchan = xchan.xchan_hash
 						WHERE item.$identifier = '%s' and item.item_private = 0
 						$uids $site_firehose_sql
 						$item_normal
+						and xchan.xchan_censored = 0
 						and (abook.abook_blocked = 0 or abook.abook_flags is null)
 						$sql_extra $net_query2",
 						dbesc($mid)
@@ -215,10 +216,11 @@ class Pubstream extends \Zotlabs\Web\Controller {
 					// Fetch a page full of parent items for this page
 					$r = dbq("SELECT parent AS item_id FROM item
 						left join abook on ( item.author_xchan = abook.abook_xchan $abook_uids )
-						$net_query
+						left join xchan on item.author_xchan = xchan.xchan_hash
 						WHERE item.item_private = 0 $thread_top
 						$uids $site_firehose_sql
 						$item_normal
+						and xchan.xchan_censored = 0
 						and (abook.abook_blocked = 0 or abook.abook_flags is null)
 						$sql_extra $net_query2
 						ORDER BY $ordering DESC $pager_sql "
@@ -229,9 +231,10 @@ class Pubstream extends \Zotlabs\Web\Controller {
 				if($mid) {
 					$r = q("SELECT parent AS item_id FROM item
 						left join abook on item.author_xchan = abook.abook_xchan
-						$net_query
+						left join xchan on item.author_xchan = xchan.xchan_hash
 						WHERE item.$identifier = '%s' and item.item_private = 0
 						$uids $site_firehose_sql $item_normal_update $simple_update
+						and xchan.xchan_censored = 0
 						and (abook.abook_blocked = 0 or abook.abook_flags is null)
 						$sql_extra $net_query2",
 						dbesc($mid)
@@ -240,10 +243,11 @@ class Pubstream extends \Zotlabs\Web\Controller {
 				else {
 					$r = dbq("SELECT parent AS item_id FROM item
 						left join abook on item.author_xchan = abook.abook_xchan
-						$net_query
+						left join xchan on item.author_xchan = xchan.xchan_hash
 						WHERE item.item_private = 0 $thread_top
 						$uids $site_firehose_sql $item_normal_update
 						$simple_update
+						and xchan.xchan_censored = 0
 						and (abook.abook_blocked = 0 or abook.abook_flags is null)
 						$sql_extra $net_query2"
 					);

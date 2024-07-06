@@ -24,7 +24,7 @@ class Theme {
 	 *
 	 * @return array
 	 */
-	static public function current(){
+	static public function current() {
 
 		self::$system_theme = ((isset(App::$config['system']['theme']))
 			? App::$config['system']['theme'] : '');
@@ -37,7 +37,7 @@ class Theme {
 
 		if(App::$profile_uid) {
 			$r = q("select channel_theme from channel where channel_id = %d limit 1",
-				intval(\App::$profile_uid)
+				intval(App::$profile_uid)
 			);
 			if($r) {
 				$page_theme = $r[0]['channel_theme'];
@@ -46,7 +46,7 @@ class Theme {
 
 		// Themes from Comanche layouts over-ride the channel theme
 
-		if(array_key_exists('theme', \App::$layout) && \App::$layout['theme']) {
+		if(array_key_exists('theme', App::$layout) && App::$layout['theme']) {
 			$page_theme = App::$layout['theme'];
 		}
 

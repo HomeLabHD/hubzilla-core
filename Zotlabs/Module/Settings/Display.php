@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Module\Settings;
 
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libsync;
 
 class Display {
@@ -85,7 +86,7 @@ class Display {
 
 		$yes_no = array(t('No'),t('Yes'));
 
-		$default_theme = get_config('system','theme');
+		$default_theme = Config::Get('system','theme');
 		if(! $default_theme)
 			$default_theme = 'redbasic';
 
@@ -95,7 +96,7 @@ class Display {
 
 		$theme = (($existing_theme) ? $existing_theme : $default_theme);
 
-		$allowed_themes_str = get_config('system','allowed_themes');
+		$allowed_themes_str = Config::Get('system','allowed_themes');
 		$allowed_themes_raw = explode(',',$allowed_themes_str);
 		$allowed_themes = array();
 		if(count($allowed_themes_raw))
@@ -121,7 +122,7 @@ class Display {
 				$unsupported = file_exists('view/theme/' . $th . '/unsupported');
 				$is_library = file_exists('view/theme/'. $th . '/library');
 
-				if (!$is_experimental or ($is_experimental && (get_config('experimentals','exp_themes')==1 or get_config('experimentals','exp_themes')===false))){
+				if (!$is_experimental or ($is_experimental && (Config::Get('experimentals','exp_themes')==1 or Config::Get('experimentals','exp_themes')===false))){
 					$theme_name = (($is_experimental) ?  sprintf(t('%s - (Experimental)'), $f) : $f);
 					if (! $is_library) {
 						$themes[$f] = $theme_name;

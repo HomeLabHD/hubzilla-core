@@ -3,7 +3,6 @@
 require_once('include/plugin.php');
 
 head_add_css('/library/tiptip/tipTip.css');
-head_add_css('/library/jgrowl/jquery.jgrowl.css');
 head_add_css('/library/jRange/jquery.range.css');
 
 head_add_css('/view/css/conversation.css');
@@ -23,7 +22,6 @@ head_add_js('autocomplete.js');
 
 head_add_js('/library/jquery.timeago.js');
 head_add_js('/library/readmore.js/readmore.js');
-head_add_js('/library/jgrowl/jquery.jgrowl.min.js');
 
 head_add_js('/library/sjcl/sjcl.js');
 head_add_js('/library/sodium-plus/dist/sodium-plus.min.js');

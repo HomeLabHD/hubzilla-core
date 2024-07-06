@@ -9,6 +9,7 @@ use Michelf\MarkdownExtra;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\Exception\UnableToBuildUuidException;
 
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\SvgSanitizer;
 use Zotlabs\Lib\Libzot;
@@ -741,9 +742,9 @@ function logger($msg, $level = LOGGER_NORMAL, $priority = LOG_INFO) {
 		$loglevel = LOGGER_ALL;
 	}
 	else {
-		$debugging = get_config('system', 'debugging');
-		$loglevel  = intval(get_config('system', 'loglevel'));
-		$logfile   = get_config('system', 'logfile');
+		$debugging = Config::Get('system', 'debugging');
+		$loglevel  = intval(Config::Get('system', 'loglevel'));
+		$logfile   = Config::Get('system', 'logfile');
 	}
 
 	if((! $debugging) || (! $logfile) || ($level > $loglevel))
@@ -846,9 +847,9 @@ function dlogger($msg, $level = 0) {
 	if(App::$module == 'setup')
 		return;
 
-	$debugging = get_config('system','debugging');
-	$loglevel  = intval(get_config('system','loglevel'));
-	$logfile   = get_config('system','dlogfile');
+	$debugging = Config::Get('system','debugging');
+	$loglevel  = intval(Config::Get('system','loglevel'));
+	$logfile   = Config::Get('system','dlogfile');
 
 	if((! $debugging) || (! $logfile) || ($level > $loglevel))
 		return;
@@ -1253,7 +1254,7 @@ function sslify($s) {
 	// The downside is that http: media files will likely be blocked by your browser
 	// Complain to your browser maker
 
-	$allow = get_config('system','sslify_everything');
+	$allow = Config::Get('system','sslify_everything');
 	$pattern = (($allow) ? "/\<(.*?)src=[\"|'](http\:.*?)[\"|'](.*?)\>/" : "/\<img(.*?)src=[\"|'](http\:.*?)[\"|'](.*?)\>/" );
 
 	$matches = null;
@@ -1407,7 +1408,7 @@ function list_smilies($default_only = false) {
  */
 function smilies($s, $sample = false) {
 
-	if(intval(get_config('system', 'no_smilies'))
+	if(intval(Config::Get('system', 'no_smilies'))
 		|| (local_channel() && intval(get_pconfig(local_channel(), 'system', 'no_smilies'))))
 		return $s;
 
@@ -2081,10 +2082,15 @@ function prepare_text($text, $content_type = 'text/bbcode', $opts = false) {
 		default:
 			require_once('include/bbcode.php');
 
-			if(stristr($text, '[nosmile]'))
-				$s = bbcode($text, ((is_array($opts)) ? $opts : [] ));
-			else
-				$s = smilies(bbcode($text, ((is_array($opts)) ? $opts : [] )));
+			// events are handled in format_event_obj()
+			if (empty($opts['is_event_item'])) {
+				if(stristr($text, '[nosmile]')) {
+					$s = bbcode($text, ((is_array($opts)) ? $opts : [] ));
+				}
+				else {
+					$s = smilies(bbcode($text, ((is_array($opts)) ? $opts : [] )));
+				}
+			}
 
 			$s = zidify_links($s);
 
@@ -2113,7 +2119,7 @@ function create_export_photo_body(&$item) {
  * @return string
  */
 function feed_hublinks() {
-	$hub = get_config('system', 'huburl');
+	$hub = Config::Get('system', 'huburl');
 
 	$hubxml = '';
 	if(strlen($hub)) {
@@ -2496,7 +2502,7 @@ function check_webbie($arr) {
 	// These names conflict with the CalDAV server
 	$taken = [ 'principals', 'addressbooks', 'calendars' ];
 
-	$reservechan = get_config('system','reserved_channels');
+	$reservechan = Config::Get('system','reserved_channels');
 	if(strlen($reservechan)) {
 		$taken = array_merge($taken,explode(',', $reservechan));
 	}

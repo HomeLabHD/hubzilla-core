@@ -2,15 +2,17 @@
 
 namespace Zotlabs\Update;
 
+use Zotlabs\Lib\Config;
+
 class _1243 {
 
 	function run() {
-		
-		$x = get_config('system','filesystem_storage_thumbnails');
-		del_config('system','filesystem_storage_thumbnails');
+
+		$x = Config::Get('system','filesystem_storage_thumbnails');
+		Config::Delete('system','filesystem_storage_thumbnails');
 		if ($x !== false)
-			set_config('system','photo_storage_type', intval($x));
-			
+			Config::Set('system','photo_storage_type', intval($x));
+
 		return UPDATE_SUCCESS;
 	}
 

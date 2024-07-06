@@ -3,6 +3,7 @@
 namespace Zotlabs\Module\Admin;
 
 use \Michelf\MarkdownExtra;
+use Zotlabs\Lib\Config;
 
 /**
  * @brief Admin area theme settings.
@@ -37,7 +38,7 @@ class Themes {
 	 * @return string with parsed HTML
 	 */
 	function get(){
-		$allowed_themes_str = get_config('system', 'allowed_themes');
+		$allowed_themes_str = Config::Get('system', 'allowed_themes');
 		$allowed_themes_raw = explode(',', $allowed_themes_str);
 		$allowed_themes = array();
 		if(count($allowed_themes_raw))
@@ -100,7 +101,7 @@ class Themes {
 					info(sprintf('Theme %s disabled.', $theme));
 				}
 
-				set_config('system', 'allowed_themes', $s);
+				Config::Set('system', 'allowed_themes', $s);
 				goaway(z_root() . '/admin/themes' );
 			}
 

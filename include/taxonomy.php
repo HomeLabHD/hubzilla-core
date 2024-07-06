@@ -6,7 +6,9 @@
 // To do this we need to escape these characters if they appear in our tag.
 
 use Zotlabs\Lib\Cache;
+use Zotlabs\Lib\Config;
 use Zotlabs\Daemon\Master;
+
 
 function file_tag_encode($s) {
 	return str_replace(array('<','>','[',']'),array('%3c','%3e','%5b','%5d'),$s);
@@ -351,7 +353,7 @@ function pub_tagadelic($net, $site, $limit, $recent, $safemode, $type) {
 	}
 
 	if($safemode) {
-		$unsafetags = get_config('system','unsafepubtags', [ 'boobs', 'bot', 'rss', 'girl','girls', 'nsfw', 'sexy', 'nude' ]);
+		$unsafetags = Config::Get('system','unsafepubtags', [ 'boobs', 'bot', 'rss', 'girl','girls', 'nsfw', 'sexy', 'nude' ]);
 		if($unsafetags) {
 			$sql_extra .= " and not term.term in ( " . stringify_array($unsafetags,true) . ") ";
 		}

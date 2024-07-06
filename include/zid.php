@@ -1,5 +1,6 @@
 <?php
 
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Verify;
 
@@ -37,10 +38,16 @@ function is_matrix_url($url) {
  * @return string
  */
 function zid($s, $address = '') {
-	if (!$s || strpos($s,'zid='))
+	if (!$s || strpos($s,'zid=')) {
 		return $s;
+	}
 
 	$m = parse_url($s);
+
+	if (!is_array($m)) {
+		return $s;
+	}
+
 	$fragment = ((array_key_exists('fragment',$m) && $m['fragment']) ? $m['fragment'] : false);
 	if($fragment !== false)
 		$s = str_replace('#' . $fragment,'',$s);
@@ -406,7 +413,7 @@ function owt_init($token) {
 	App::set_observer($hubloc);
 	require_once('include/security.php');
 	App::set_groups(init_groups_visitor($_SESSION['visitor_id']));
-	if(! get_config('system', 'hide_owa_greeting'))
+	if(! Config::Get('system', 'hide_owa_greeting'))
 		info(sprintf( t('OpenWebAuth: %1$s welcomes %2$s'),App::get_hostname(), $hubloc['xchan_name']));
 
 	logger('OpenWebAuth: auth success from ' . $hubloc['xchan_addr']);

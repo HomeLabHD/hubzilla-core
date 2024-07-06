@@ -1,7 +1,8 @@
 <?php /** @file */
 
-use Zotlabs\Lib\Apps;
 use Zotlabs\Lib\Activity;
+use Zotlabs\Lib\Apps;
+use Zotlabs\Lib\Config;
 
 require_once('include/items.php');
 
@@ -1182,6 +1183,7 @@ function hz_status_editor($x, $popup = false) {
 		'$modalerroralbum' => t('Error getting album'),
 		'$nocomment_enabled' => t('Comments enabled'),
 		'$nocomment_disabled' => t('Comments disabled'),
+		'$confirmdelete' => t('Confirm delete'),
 		'$auto_save_draft' => $feature_auto_save_draft,
 		'$reset' => $reset,
 		'$popup' => $popup
@@ -1262,7 +1264,7 @@ function hz_status_editor($x, $popup = false) {
 		'$poll_option_label' => t('Option'),
 		'$poll_add_option_label' => t('Add option'),
 		'$poll_expire_unit_label' => [t('Minutes'), t('Hours'), t('Days')],
-		'$multiple_answers' => ['poll_multiple_answers', t("Allow multiple answers"), '', '', [t('No'), t('Yes')]],
+		'$multiple_answers' => ['poll_multiple_answers', t("Allow multiple answers"), '', '', [t('No'), t('Yes')],null,null],
 		'$consensus' => ((array_key_exists('item',$x)) ? $x['item']['item_consensus'] : 0),
 		'$nocommenttitle' => t('Disable comments'),
 		'$nocommenttitlesub' => t('Toggle comments'),
@@ -1336,7 +1338,7 @@ function get_item_children($arr, $parent) {
 	$children = array();
 	foreach($arr as $item) {
 		if($item['id'] != $item['parent']) {
-			if(get_config('system','thread_allow')) {
+			if(Config::Get('system','thread_allow')) {
 				// Fallback to parent_mid if thr_parent is not set
 				$thr_parent = $item['thr_parent'];
 				if($thr_parent == '')

@@ -24,8 +24,8 @@
 require_once 'tests/fakes/fake_dba.php';
 require_once 'include/dba/dba_transaction.php';
 
-use \PHPUnit\Framework\TestCase;
-use \Zotlabs\Tests\Fakes\FakeDba;
+use PHPUnit\Framework\TestCase;
+use Zotlabs\Tests\Fakes\FakeDba;
 
 /**
  * Test database transactions.
@@ -39,7 +39,7 @@ class DbaTransactionTest extends TestCase {
 	private $pdo_stub;
 
 	public function setUp(): void {
-		$this->pdo_stub = $this->createStub(PDO::class);
+		$this->pdo_stub = $this->createMock(PDO::class);
 	}
 
 

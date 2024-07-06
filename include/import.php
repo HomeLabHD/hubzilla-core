@@ -1,6 +1,7 @@
 <?php
 
 use Zotlabs\Lib\Apps;
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\IConfig;
 use Zotlabs\Lib\Libzot;
 
@@ -1479,7 +1480,7 @@ function sync_files($channel, $files) {
 						fclose($fp);
 
 						// Override remote hub thumbnails storage settings
-						if(! boolval(get_config('system','photo_storage_type', 1))) {
+						if(! boolval(Config::Get('system','photo_storage_type', 1))) {
 							$p['os_storage'] = 0;
 							$p['content'] = file_get_contents($stored_image);
 							@unlink($stored_image);

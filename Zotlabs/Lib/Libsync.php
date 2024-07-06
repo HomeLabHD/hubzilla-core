@@ -5,6 +5,7 @@ namespace Zotlabs\Lib;
 
 use App;
 use Zotlabs\Daemon\Master;
+use Zotlabs\Lib\Config;
 
 class Libsync {
 
@@ -135,7 +136,7 @@ class Libsync {
 				$info['collection_members'] = $r;
 		}
 
-		$interval = get_config('queueworker', 'queue_interval', 500000);
+		$interval = Config::Get('queueworker', 'queue_interval', 500000);
 
 		logger('Packet: ' . print_r($info, true), LOGGER_DATA, LOG_DEBUG);
 
@@ -157,7 +158,7 @@ class Libsync {
 			/*
 			$x = q("select count(outq_hash) as total from outq where outq_delivered = 0");
 
-			if (intval($x[0]['total']) > intval(get_config('system', 'force_queue_threshold', 3000))) {
+			if (intval($x[0]['total']) > intval(Config::Get('system', 'force_queue_threshold', 3000))) {
 				logger('immediate delivery deferred.', LOGGER_DEBUG, LOG_INFO);
 				Queue::update($hash);
 				continue;
@@ -266,7 +267,7 @@ class Libsync {
 						}
 
 						if ($cat !== 'hz_delpconfig') {
-							set_pconfig($channel['channel_id'],$cat,$k,$v,$pconfig_updated[$k]);
+							set_pconfig($channel['channel_id'], $cat, $k, $v, $pconfig_updated[$k]);
 						}
 					}
 				}

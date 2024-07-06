@@ -1,6 +1,7 @@
 <?php
 
 use Zotlabs\Lib\Activity;
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Zotfinger;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Queue;
@@ -67,7 +68,7 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 	@curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; zot)');
 	@curl_setopt($ch, CURLOPT_ENCODING, '');
 
-	$ciphers = @get_config('system','curl_ssl_ciphers');
+	$ciphers = @Config::Get('system','curl_ssl_ciphers');
 	if($ciphers)
 		@curl_setopt($ch, CURLOPT_SSL_CIPHER_LIST, $ciphers);
 
@@ -114,16 +115,16 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 		@curl_setopt($ch, CURLOPT_TIMEOUT, intval($opts['timeout']));
 	}
 	else {
-		$curl_time = intval(@get_config('system','curl_timeout'));
-		@curl_setopt($ch, CURLOPT_TIMEOUT, (($curl_time !== false) ? $curl_time : 60));
+		$curl_time = intval(@Config::Get('system','curl_timeout'));
+		@curl_setopt($ch, CURLOPT_TIMEOUT, (($curl_time !== 0) ? $curl_time : 60));
 	}
 
 	if(x($opts,'connecttimeout') && intval($opts['connecttimeout'])) {
 		@curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, intval($opts['connecttimeout']));
 	}
 	else {
-		$curl_contime = intval(@get_config('system','curl_connecttimeout'));
-		@curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, (($curl_contime !== false) ? $curl_contime : 30));
+		$curl_contime = intval(@Config::Get('system','curl_connecttimeout'));
+		@curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, (($curl_contime !== 0) ? $curl_contime : 30));
 	}
 
 	if(x($opts,'http_auth')) {
@@ -145,11 +146,11 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 	@curl_setopt($ch, CURLOPT_SSL_VERIFYPEER,
 		((x($opts,'novalidate') && intval($opts['novalidate'])) ? false : true));
 
-	$prx = @get_config('system','proxy');
+	$prx = @Config::Get('system','proxy');
 	if(strlen($prx)) {
 		@curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, 1);
 		@curl_setopt($ch, CURLOPT_PROXY, $prx);
-		$prxusr = @get_config('system','proxyuser');
+		$prxusr = @Config::Get('system','proxyuser');
 		if(strlen($prxusr))
 			@curl_setopt($ch, CURLOPT_PROXYUSERPWD, $prxusr);
 	}
@@ -263,7 +264,7 @@ function z_post_url($url, $params, $redirects = 0, $opts = array()) {
 	@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; zot)");
 	@curl_setopt($ch, CURLOPT_ENCODING, '');
 
-	$ciphers = @get_config('system','curl_ssl_ciphers');
+	$ciphers = @Config::Get('system','curl_ssl_ciphers');
 	if($ciphers)
 		@curl_setopt($ch, CURLOPT_SSL_CIPHER_LIST, $ciphers);
 
@@ -296,8 +297,8 @@ function z_post_url($url, $params, $redirects = 0, $opts = array()) {
 		@curl_setopt($ch, CURLOPT_TIMEOUT, $opts['timeout']);
 	}
 	else {
-		$curl_time = intval(@get_config('system','curl_timeout'));
-		@curl_setopt($ch, CURLOPT_TIMEOUT, (($curl_time !== false) ? $curl_time : 60));
+		$curl_time = intval(@Config::Get('system','curl_timeout'));
+		@curl_setopt($ch, CURLOPT_TIMEOUT, (($curl_time !== 0) ? $curl_time : 60));
 	}
 
 	if(x($opts,'http_auth')) {
@@ -318,11 +319,11 @@ function z_post_url($url, $params, $redirects = 0, $opts = array()) {
 	@curl_setopt($ch, CURLOPT_SSL_VERIFYPEER,
 		((x($opts,'novalidate') && intval($opts['novalidate'])) ? false : true));
 
-	$prx = get_config('system','proxy');
+	$prx = Config::Get('system','proxy');
 	if(strlen($prx)) {
 		@curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, 1);
 		@curl_setopt($ch, CURLOPT_PROXY, $prx);
-		$prxusr = get_config('system','proxyuser');
+		$prxusr = Config::Get('system','proxyuser');
 		if(strlen($prxusr))
 			@curl_setopt($ch, CURLOPT_PROXYUSERPWD, $prxusr);
 	}
@@ -555,12 +556,15 @@ function z_dns_check($h,$check_mx = 0) {
 	return((@dns_get_record($h,$opts) || filter_var($h, FILTER_VALIDATE_IP)) ? true : false);
 }
 
-function is_local_url($url) {
-  if (str_starts_with($url, z_root()) || str_starts_with($url, '/')) {
-    return true;
-  }
-
-  return false;
+/**
+ * Returns whether an URL is local to the site, or not.
+ *
+ * @param string $url		The URL to check
+ *
+ * @return bool		True if the URL is local, false otherwise.
+ */
+function is_local_url(string $url): bool {
+	return str_starts_with($url, z_root()) || str_starts_with($url, '/');
 }
 
 /**
@@ -603,7 +607,7 @@ function validate_url(&$url) {
  */
 function validate_email(string $addr): bool {
 
-	if(get_config('system', 'disable_email_validation'))
+	if(Config::Get('system', 'disable_email_validation'))
 		return true;
 
 	$matches = array();
@@ -638,7 +642,7 @@ function allowed_url($url) {
 		return false;
 	}
 
-	$str_allowed = get_config('system', 'allowed_sites');
+	$str_allowed = Config::Get('system', 'allowed_sites');
 	if(! $str_allowed)
 		return true;
 
@@ -682,8 +686,8 @@ function allowed_email($email) {
 	if(! $domain)
 		return false;
 
-	$str_allowed = get_config('system', 'allowed_email');
-	$str_not_allowed = get_config('system', 'not_allowed_email');
+	$str_allowed = Config::Get('system', 'allowed_email');
+	$str_not_allowed = Config::Get('system', 'not_allowed_email');
 
 	if(! $str_allowed && ! $str_not_allowed)
 		return true;
@@ -1472,7 +1476,7 @@ function do_delivery($deliveries, $force = false) {
 
 	/*
 	$x = q("select count(outq_hash) as total from outq where outq_delivered = 0");
-	if(intval($x[0]['total']) > intval(get_config('system','force_queue_threshold',3000)) && (! $force)) {
+	if(intval($x[0]['total']) > intval(Config::Get('system','force_queue_threshold',3000)) && (! $force)) {
 		logger('immediate delivery deferred.', LOGGER_DEBUG, LOG_INFO);
 		foreach($deliveries as $d) {
 			Queue::update($d);
@@ -1482,9 +1486,9 @@ function do_delivery($deliveries, $force = false) {
 	*/
 
 
-	$interval = get_config('queueworker', 'queue_interval', 500000);
+	$interval = Config::Get('queueworker', 'queue_interval', 500000);
 
-	$deliveries_per_process = intval(get_config('system','delivery_batch_count'));
+	$deliveries_per_process = intval(Config::Get('system','delivery_batch_count'));
 
 	if($deliveries_per_process <= 0)
 		$deliveries_per_process = 1;
@@ -1542,9 +1546,9 @@ function get_site_info() {
 		$admin = false;
 	}
 
-	$def_service_class = get_config('system','default_service_class');
+	$def_service_class = Config::Get('system','default_service_class');
 	if($def_service_class)
-		$service_class = get_config('service_class',$def_service_class);
+		$service_class = Config::Get('service_class',$def_service_class);
 	else
 		$service_class = false;
 
@@ -1555,9 +1559,9 @@ function get_site_info() {
 	if(! isset($commit) || strlen($commit) > 16)
 		$commit = '';
 
-	$site_info = get_config('system','info');
-	$site_name = get_config('system','sitename');
-	if(! get_config('system','hidden_version_siteinfo')) {
+	$site_info = Config::Get('system','info');
+	$site_name = Config::Get('system','sitename');
+	if(! Config::Get('system','hidden_version_siteinfo')) {
 		$version = Zotlabs\Lib\System::get_project_version();
 		$tag = Zotlabs\Lib\System::get_std_version();
 
@@ -1573,15 +1577,15 @@ function get_site_info() {
 	}
 
 	//Statistics
-	$channels_total_stat = intval(get_config('system','channels_total_stat'));
-	$channels_active_halfyear_stat = intval(get_config('system','channels_active_halfyear_stat'));
-	$channels_active_monthly_stat = intval(get_config('system','channels_active_monthly_stat'));
-	$local_posts_stat = intval(get_config('system','local_posts_stat'));
-	$local_comments_stat = intval(get_config('system','local_comments_stat'));
-	$hide_in_statistics = intval(get_config('system','hide_in_statistics'));
-	$site_expire = intval(get_config('system', 'default_expire_days'));
+	$channels_total_stat = intval(Config::Get('system','channels_total_stat'));
+	$channels_active_halfyear_stat = intval(Config::Get('system','channels_active_halfyear_stat'));
+	$channels_active_monthly_stat = intval(Config::Get('system','channels_active_monthly_stat'));
+	$local_posts_stat = intval(Config::Get('system','local_posts_stat'));
+	$local_comments_stat = intval(Config::Get('system','local_comments_stat'));
+	$hide_in_statistics = intval(Config::Get('system','hide_in_statistics'));
+	$site_expire = intval(Config::Get('system', 'default_expire_days'));
 
-	load_config('feature_lock');
+	Config::Load('feature_lock');
 	$locked_features = array();
 	if(is_array(App::$config['feature_lock']) && count(App::$config['feature_lock'])) {
 		foreach(App::$config['feature_lock'] as $k => $v) {
@@ -1602,18 +1606,18 @@ function get_site_info() {
 		'server_role'                  => Zotlabs\Lib\System::get_server_role(),
 		'commit'                       => $commit,
 		'plugins'                      => $visible_plugins,
-		'register_policy'              =>  $register_policy[get_config('system','register_policy')],
-		'invitation_only'              => (bool) intval(get_config('system','invitation_only')),
-		'directory_mode'               =>  $directory_mode[get_config('system','directory_mode')],
-		'directory_server'             => get_config('system','directory_server'),
-		'language'                     => get_config('system','language'),
-		'rss_connections'              => (bool) intval(get_config('system','feed_contacts')),
+		'register_policy'              =>  $register_policy[Config::Get('system','register_policy')],
+		'invitation_only'              => (bool) intval(Config::Get('system','invitation_only')),
+		'directory_mode'               =>  $directory_mode[Config::Get('system','directory_mode')],
+		'directory_server'             => Config::Get('system','directory_server'),
+		'language'                     => Config::Get('system','language'),
+		'rss_connections'              => (bool) intval(Config::Get('system','feed_contacts')),
 		'expiration'                   => $site_expire,
 		'default_service_restrictions' => $service_class,
 		'locked_features'              => $locked_features,
 		'admin'                        => $admin,
 		'dbdriver'                     => DBA::$dba->getdriver() . ' ' . ((ACTIVE_DBTYPE == DBTYPE_POSTGRES) ? 'postgres' : 'mysql'),
-		'lastpoll'                     => get_config('system','lastpoll'),
+		'lastpoll'                     => Config::Get('system','lastpoll'),
 		'info'                         => (($site_info) ? $site_info : ''),
 		'channels_total'               => $channels_total_stat,
 		'hide_in_statistics'           => $hide_in_statistics
@@ -1651,7 +1655,7 @@ function check_siteallowed($url) {
 	if(array_key_exists('allowed',$arr))
 		return $arr['allowed'];
 
-	$bl1 = get_config('system','whitelisted_sites');
+	$bl1 = Config::Get('system','whitelisted_sites');
 	if(is_array($bl1) && $bl1) {
 		foreach($bl1 as $bl) {
 			if($bl1 === '*')
@@ -1660,7 +1664,7 @@ function check_siteallowed($url) {
 				return true;
 		}
 	}
-	$bl1 = get_config('system','blacklisted_sites');
+	$bl1 = Config::Get('system','blacklisted_sites');
 	if(is_array($bl1) && $bl1) {
 		foreach($bl1 as $bl) {
 			if($bl1 === '*')
@@ -1696,7 +1700,7 @@ function check_channelallowed($hash) {
 	if(array_key_exists('allowed',$arr))
 		return $arr['allowed'];
 
-	$bl1 = get_config('system','whitelisted_channels');
+	$bl1 = Config::Get('system','whitelisted_channels');
 	if(is_array($bl1) && $bl1) {
 		foreach($bl1 as $bl) {
 			if($bl1 === '*')
@@ -1705,7 +1709,7 @@ function check_channelallowed($hash) {
 				return true;
 		}
 	}
-	$bl1 = get_config('system','blacklisted_channels');
+	$bl1 = Config::Get('system','blacklisted_channels');
 	if(is_array($bl1) && $bl1) {
 		foreach($bl1 as $bl) {
 			if($bl1 === '*')
@@ -1810,17 +1814,17 @@ function network_to_name($s) {
 function z_mail($params) {
 
 	if(! $params['fromEmail']) {
-		$params['fromEmail'] = get_config('system','from_email');
+		$params['fromEmail'] = Config::Get('system','from_email');
 		if(! $params['fromEmail'])
 			$params['fromEmail'] = 'Administrator' . '@' . App::get_hostname();
 	}
 	if(! $params['fromName']) {
-		$params['fromName'] = get_config('system','from_email_name');
+		$params['fromName'] = Config::Get('system','from_email_name');
 		if(! $params['fromName'])
 			$params['fromName'] = Zotlabs\Lib\System::get_site_name();
 	}
 	if(! $params['replyTo']) {
-		$params['replyTo'] = get_config('system','reply_address');
+		$params['replyTo'] = Config::Get('system','reply_address');
 		if(! $params['replyTo'])
 			$params['replyTo'] = 'noreply' . '@' . App::get_hostname();
 	}
@@ -2145,9 +2149,9 @@ function get_request_string($url) {
  *
  * @param array $parsed_url		An associative array as produced by `parse_url`.
  *
- * @return The reassembled URL as a string.
+ * @return string The reassembled URL as a string.
  */
-function unparse_url($parsed_url) {
+function unparse_url(array $parsed_url): string {
 	$scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
 	$host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
 	$port     = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
@@ -2157,5 +2161,5 @@ function unparse_url($parsed_url) {
 	$path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
 	$query    = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
 	$fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
-  	return "$scheme$user$pass$host$port$path$query$fragment";
+	return $scheme . $user . $pass . $host . $port . $path . $query . $fragment;
 }

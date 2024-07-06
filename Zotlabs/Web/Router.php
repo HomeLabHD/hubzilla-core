@@ -4,6 +4,7 @@ namespace Zotlabs\Web;
 
 use App;
 use Zotlabs\Extend\Route;
+use Zotlabs\Lib\Config;
 use Exception;
 
 /**
@@ -36,6 +37,7 @@ class Router {
 
 	private $modname = '';
 	private $controller = null;
+	private bool $module_loaded = false;
 
 	/**
 	 * @brief Router constructor.
@@ -61,7 +63,7 @@ class Router {
 						include_once($route[0]);
 						if(class_exists($modname)) {
 							$this->controller = new $modname;
-							App::$module_loaded = true;
+							$this->module_loaded = true;
 						}
 					}
 				}
@@ -69,15 +71,15 @@ class Router {
 
 			// legacy plugins - this can be removed when they have all been converted
 
-			if(! (App::$module_loaded)) {
+			if(! ($this->module_loaded)) {
 				if(is_array(App::$plugins) && in_array($module, App::$plugins) && file_exists("addon/{$module}/{$module}.php")) {
 					include_once("addon/{$module}/{$module}.php");
 					if(class_exists($modname)) {
 						$this->controller = new $modname;
-						App::$module_loaded = true;
+						$this->module_loaded = true;
 					}
 					elseif(function_exists($module . '_module')) {
-						App::$module_loaded = true;
+						$this->module_loaded = true;
 					}
 				}
 			}
@@ -87,40 +89,40 @@ class Router {
 			 * Otherwise, look for the standard program module
 			 */
 
-			if(! (App::$module_loaded)) {
+			if(! ($this->module_loaded)) {
 				try {
 					$filename = 'Zotlabs/SiteModule/'. ucfirst($module). '.php';
 					if(file_exists($filename)) {
 						// This won't be picked up by the autoloader, so load it explicitly
 						require_once($filename);
 						$this->controller = new $modname;
-						App::$module_loaded = true;
+						$this->module_loaded = true;
 					}
 					else {
 						$filename = 'Zotlabs/Module/'. ucfirst($module). '.php';
 						if(file_exists($filename)) {
 							$this->controller = new $modname;
-							App::$module_loaded = true;
+							$this->module_loaded = true;
 						}
 					}
-					if(! App::$module_loaded)
+					if(! $this->module_loaded)
 						throw new Exception('Module not found');
 				}
 				catch(Exception $e) {
 					if(file_exists("mod/site/{$module}.php")) {
 						include_once("mod/site/{$module}.php");
-						App::$module_loaded = true;
+						$this->module_loaded = true;
 					}
 					elseif(file_exists("mod/{$module}.php")) {
 						include_once("mod/{$module}.php");
-						App::$module_loaded = true;
+						$this->module_loaded = true;
 					}
 				}
 			}
 
 			$x = [
 					'module' => $module,
-					'installed' => App::$module_loaded,
+					'installed' => $this->module_loaded,
 					'controller' => $this->controller
 			];
 			/**
@@ -137,7 +139,7 @@ class Router {
 			 */
 			call_hooks('module_loaded', $x);
 			if($x['installed']) {
-				App::$module_loaded = true;
+				$this->module_loaded = true;
 				$this->controller = $x['controller'];
 			}
 
@@ -145,7 +147,7 @@ class Router {
 			 * The URL provided does not resolve to a valid module.
 	 		 */
 
-			if(! (App::$module_loaded)) {
+			if(! ($this->module_loaded)) {
 
 				// undo the setting of a letsencrypt acme-challenge rewrite rule
 				// which blocks access to our .well-known routes.
@@ -154,14 +156,14 @@ class Router {
 				// make the file read-only so letsencrypt doesn't modify it
 
 				if(strpos($_SERVER['REQUEST_URI'],'/.well-known/') === 0) {
-					if(file_exists('.well-known/.htaccess') && get_config('system','fix_apache_acme',true)) {
+					if(file_exists('.well-known/.htaccess') && Config::Get('system','fix_apache_acme',true)) {
 						rename('.well-known/.htaccess','.well-known/.htaccess.old');
 					}
 				}
 
 				$x = [
 					'module' => $module,
-					'installed' => App::$module_loaded,
+					'installed' => $this->module_loaded,
 					'controller' => $this->controller
 				];
 				call_hooks('page_not_found',$x);
@@ -173,7 +175,7 @@ class Router {
 					killme();
 				}
 
-				if(get_config('system','log_404',true)) {
+				if(Config::Get('system','log_404',true)) {
 					logger("Module {$module} not found.", LOGGER_DEBUG, LOG_WARNING);
 					logger('index.php: page not found: ' . $_SERVER['REQUEST_URI']
 						. ' ADDRESS: ' . $_SERVER['REMOTE_ADDR'] . ' QUERY: '
@@ -188,7 +190,7 @@ class Router {
 
 				// pretend this is a module so it will initialise the theme
 				App::$module = '404';
-				App::$module_loaded = true;
+				$this->module_loaded = true;
 				App::$error = true;
 			}
 		}
@@ -204,7 +206,7 @@ class Router {
 		 * Call module functions
 		 */
 
-		if(App::$module_loaded) {
+		if($this->module_loaded) {
 
 			App::$page['page_title'] = App::$module;
 			$placeholder = '';

@@ -11,11 +11,12 @@
  * @todo Also an 'append' option to the storage function might be a useful addition.
  */
 
-use Zotlabs\Lib\Libsync;
-use Zotlabs\Lib\Activity;
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Daemon\Master;
 use Zotlabs\Lib\AccessList;
+use Zotlabs\Lib\Activity;
+use Zotlabs\Lib\Config;
+use Zotlabs\Lib\Libsync;
 
 require_once('include/permissions.php');
 require_once('include/security.php');
@@ -112,7 +113,6 @@ function z_mime_content_type($filename) {
 	'odf' => 'application/vnd.oasis.opendocument.formula',
 	'odi' => 'application/vnd.oasis.opendocument.image',
 	'odm' => 'application/vnd.oasis.opendocument.text-master',
-	'odb' => 'application/vnd.oasis.opendocument.base',
 	'odb' => 'application/vnd.oasis.opendocument.database',
 	'ott' => 'application/vnd.oasis.opendocument.text-template',
 	'ots' => 'application/vnd.oasis.opendocument.spreadsheet-template',
@@ -801,7 +801,7 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 
 	// Check storage limits
 	if($options !== 'update') {
-		$maxfilesize = get_config('system','maxfilesize');
+		$maxfilesize = Config::Get('system','maxfilesize');
 
 		if(($maxfilesize) && ($filesize > $maxfilesize)) {
 			logger('quota_exceeded');
@@ -2466,8 +2466,8 @@ function copy_folder_to_cloudfiles($channel, $observer_hash, $srcpath, $cloudpat
  * @param int $channel_id
  * @param int $resource_id
  * @param string $new_folder_hash
- * @param (optional) string $newname
- * @param (optional) boolean $recurse
+ * @param string (optional) $newname
+ * @param  boolean (optional) $recurse
  * @return array Associative array with:
  *  * \e boolean \b success
  *  * \e string \b resource_id
@@ -2667,8 +2667,8 @@ function attach_move($channel_id, $resource_id, $new_folder_hash, $newname = '',
  * @param int $channel_id
  * @param int $resource_id
  * @param string $new_folder_hash
- * @param (optional) string $newname
- * @param (optional) boolean $recurse
+ * @param string (optional) $newname
+ * @param boolean (optional) $recurse
  * @return array Associative array with:
  *  * \e boolean \b success
  *  * \e string \b resource_id of the new resource
@@ -2981,11 +2981,17 @@ function save_chunk($channel,$start,$end,$len) {
 
 	$result = [];
 
-	$tmp_path = $_FILES['files']['tmp_name'];
+	$file = $_FILES['files'] ?? $_FILES['userfile'] ?? [];
+
+	if (!$file) {
+		return $result;
+	}
+
+	$tmp_path = $file['tmp_name'];
 	$new_base = 'store/[data]/' . $channel['channel_address'] . '/tmp';
 	os_mkdir($new_base,STORAGE_DEFAULT_PERMISSIONS,true);
 
-	$new_path = $new_base . '/' . $_FILES['files']['name'];
+	$new_path = $new_base . '/' . $file['name'];
 
 	if(file_exists($new_path) && intval($start) === 0) {
 		$result['partial'] = true;
@@ -3007,8 +3013,8 @@ function save_chunk($channel,$start,$end,$len) {
 	}
 	if(($len - 1) == $end) {
 		unlink($tmp_path);
-		$result['name']     = $_FILES['files']['name'];
-		$result['type']     = $_FILES['files']['type'];
+		$result['name']     = $file['name'];
+		$result['type']     = $file['type'];
 		$result['tmp_name'] = $new_path;
 		$result['error']    = 0;
 		$result['size']     = $len;

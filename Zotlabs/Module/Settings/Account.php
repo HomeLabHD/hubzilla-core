@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Module\Settings;
 
+use Zotlabs\Lib\Config;
+
 class Account {
 
 	function post() {
@@ -19,7 +21,7 @@ class Account {
 			if (strpos($email, '@') > 0) {
 				if(! validate_email($email))
 					$errs[] = t('Not valid email.');
-				$adm = trim(get_config('system','admin_email'));
+				$adm = trim(Config::Get('system','admin_email'));
 				if(($adm) && (strcasecmp($email,$adm) == 0)) {
 					$errs[] = t('Protected email address. Cannot change to that email.');
 					$email = \App::$account['account_email'];

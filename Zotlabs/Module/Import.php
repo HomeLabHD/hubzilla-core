@@ -9,6 +9,7 @@ require_once('include/perm_upgrade.php');
 use App;
 use URLify;
 use Zotlabs\Daemon\Master;
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Web\Controller;
 
@@ -168,7 +169,7 @@ class Import extends Controller {
 			if ($newname) {
 				$x = false;
 
-				if (get_config('system', 'unicode_usernames')) {
+				if (Config::Get('system', 'unicode_usernames')) {
 					$x = punify(mb_strtolower($newname));
 				}
 
@@ -188,6 +189,12 @@ class Import extends Controller {
 		if (!$channel) {
 			logger('Channel not found. ', print_r($channel, true));
 			notice(t('No channel. Import failed.') . EOL);
+			return;
+		}
+
+		if ($channel['channel_removed']) {
+			logger('Channel exists but has been marked removed on this hub. ', print_r($channel,true));
+			notice( t('Channel exists but has been marked removed on this hub. Import failed.') . EOL);
 			return;
 		}
 
@@ -227,10 +234,10 @@ class Import extends Controller {
 					'hubloc_url_sig'  => Libzot::sign(z_root(), $channel['channel_prvkey']),
 					'hubloc_host'     => App::get_hostname(),
 					'hubloc_callback' => z_root() . '/zot',
-					'hubloc_sitekey'  => get_config('system', 'pubkey'),
+					'hubloc_sitekey'  => Config::Get('system', 'pubkey'),
 					'hubloc_updated'  => datetime_convert(),
 					'hubloc_id_url'   => channel_url($channel),
-					'hubloc_site_id'  => Libzot::make_xchan_hash(z_root(), get_config('system', 'pubkey'))
+					'hubloc_site_id'  => Libzot::make_xchan_hash(z_root(), Config::Get('system', 'pubkey'))
 				]
 			);
 
@@ -524,26 +531,30 @@ class Import extends Controller {
 		// This will indirectly perform a refresh_all *and* update the directory
 		Master::Summon(['Directory', $channel['channel_id']]);
 
-		$cf_api_compat = true;
+		if ($api_path) {
+			$parsed = parse_url($api_path);
+			unset($parsed['path']);
 
-		if ($api_path && $import_posts) {  // we are importing from a server and not a file
+			// store the import host so we can manually kick off item/file sync later in case anything did not work out
+			set_pconfig($channel['channel_id'], 'import', 'host', $parsed['host']);
+
+			$hz_server = unparse_url($parsed);
+		}
+
+		$cf_api_compat = false;
+
+		if ($api_path && $hz_server && $import_posts) {  // we are importing from a server and not a file
 			if (version_compare($data['compatibility']['version'], '6.3.4', '>=')) {
-
-				$m = parse_url($api_path);
-
-				$hz_server = $m['scheme'] . '://' . $m['host'];
+				$cf_api_compat = true;
 
 				$since = datetime_convert(date_default_timezone_get(), date_default_timezone_get(), '0001-01-01 00:00');
 				$until = datetime_convert(date_default_timezone_get(), date_default_timezone_get(), 'now + 1 day');
 
-				//$poll_interval = get_config('system', 'poll_interval', 3);
+				//$poll_interval = Config::Get('system', 'poll_interval', 3);
 				$page          = 0;
 
 				Master::Summon(['Content_importer', sprintf('%d', $page), $since, $until, $channel['channel_address'], urlencode($hz_server)]);
 				Master::Summon(['File_importer', sprintf('%d', $page), $channel['channel_address'], urlencode($hz_server)]);
-			}
-			else {
-				$cf_api_compat = false;
 			}
 		}
 
@@ -553,7 +564,7 @@ class Import extends Controller {
 			goaway(z_root() . '/import_progress');
 		}
 
-		if (!$cf_api_compat) {
+		if ($import_posts && !$cf_api_compat) {
 			notice(t('Automatic content and files import was not possible due to API version incompatiblity. Please import content and files manually!') . EOL);
 		}
 

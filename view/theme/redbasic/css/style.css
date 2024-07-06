@@ -168,6 +168,11 @@ input[type=text], textarea {
 	color: #FF0000;
 }
 
+#toast-container {
+	z-index: 1060;
+	width: 300px;
+}
+
 #powered-by {
 	font-size: 0.5rem;
 	position: absolute;
@@ -708,26 +713,6 @@ nav .acpopup {
 	color:#cc0000;
 }
 
-/* popup notifications */
-div.jGrowl div.notice {
-  background: #511919 url("../../../../images/icons/48/notice.png") no-repeat 5px center;
-  color: #ffffff;
-  padding-left: 58px;
-}
-div.jGrowl div.info {
-  background: #364e59 url("../../../../images/icons/48/info.png") no-repeat 5px center;
-  color: #ffffff;
-  padding-left: 58px;
-}
-#jGrowl.top-right {
-	top: 4.5rem;
-	right: .25rem;
-}
-
-div.jGrowl div.jGrowl-notification {
-    min-height: 60px;
-}
-
 .jslider .jslider-scale ins {
 	color: #333;
 	font-size: 1rem;
@@ -796,7 +781,7 @@ div.jGrowl div.jGrowl-notification {
 
 .shared_header img {
 	border-radius: var(--bs-border-radius);
-	margin-right: .75rem;
+	margin-right: .5rem;
 }
 
 .tag1 {
@@ -910,25 +895,6 @@ a .drop-icons:hover {
 	list-style-type: none;
 }
 
-table {
-	border-spacing: 2px;
-	max-width: 100%;
-}
-
-th,td {
-	padding: 3px;
-}
-
-#channels > tbody > tr > td, #users > tbody > tr > td {
-	max-width: 19.4em;
-	overflow: hidden;
-}
-
-/* mail */
-
-img.mail-conv-sender-photo {
-	border-radius: var(--bs-border-radius);
-}
 
 /* jot */
 
@@ -1098,7 +1064,7 @@ img.mail-conv-sender-photo {
 }
 
 .abook-self {
-	background-color: #ffdddd;
+	background-color: var(--bs-light-bg-subtle);
 }
 
 .abook-pending-contact, .abook-permschange {

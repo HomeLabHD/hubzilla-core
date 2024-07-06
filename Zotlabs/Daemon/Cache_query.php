@@ -3,6 +3,7 @@
 namespace Zotlabs\Daemon;
 
 use Zotlabs\Lib\Cache;
+use Zotlabs\Lib\Config;
 
 class Cache_query {
 
@@ -14,14 +15,14 @@ class Cache_query {
 		$r = null;
 		$key = $argv[1];
 
-		$pid = get_config('procid', $key, false);
+		$pid = Config::Get('procid', $key, false);
 		if ($pid && (function_exists('posix_kill') ? posix_kill($pid, 0) : true)) {
 			logger($key . ': procedure already run with pid ' . $pid, LOGGER_DEBUG);
 			return;
 		}
 
 		$pid = getmypid();
-		set_config('procid', $key, $pid);
+		Config::Set('procid', $key, $pid);
 
 		array_shift($argv);
 		array_shift($argv);
@@ -34,7 +35,7 @@ class Cache_query {
 			Cache::set($key, serialize($r));
 		}
 
-		del_config('procid', $key);
+		Config::Delete('procid', $key);
 
 		return;
 	}

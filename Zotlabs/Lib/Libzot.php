@@ -3,10 +3,11 @@
 namespace Zotlabs\Lib;
 
 use App;
-use Zotlabs\Web\HTTPSig;
-use Zotlabs\Access\Permissions;
 use Zotlabs\Access\PermissionLimits;
+use Zotlabs\Access\Permissions;
 use Zotlabs\Daemon\Master;
+use Zotlabs\Lib\Config;
+use Zotlabs\Web\HTTPSig;
 
 require_once('include/crypto.php');
 
@@ -101,12 +102,12 @@ class Libzot {
 	 */
 	static function build_packet($channel, $type = 'activity', $recipients = null, $msg = [], $encoding = 'activitystreams', $remote_key = null, $methods = '') {
 
-		$sig_method = get_config('system', 'signature_algorithm', 'sha256');
+		$sig_method = Config::Get('system', 'signature_algorithm', 'sha256');
 		$data = [
 			'type'     => $type,
 			'encoding' => $encoding,
 			'sender'   => $channel['channel_hash'],
-			'site_id'  => self::make_xchan_hash(z_root(), get_config('system', 'pubkey')),
+			'site_id'  => self::make_xchan_hash(z_root(), Config::Get('system', 'pubkey')),
 			'version'  => System::get_zot_revision(),
 		];
 
@@ -661,7 +662,7 @@ class Libzot {
 		 */
 		call_hooks('import_xchan', $arr);
 
-		$dirmode = intval(get_config('system', 'directory_mode', DIRECTORY_MODE_NORMAL));
+		$dirmode = intval(Config::Get('system', 'directory_mode', DIRECTORY_MODE_NORMAL));
 
 		$changed = false;
 		$what    = '';
@@ -710,7 +711,7 @@ class Libzot {
 			// if we import an entry from a site that's not ours and either or both of us is off the grid - hide the entry.
 			/** @TODO: check if we're the same directory realm, which would mean we are allowed to see it */
 
-			$dirmode = get_config('system', 'directory_mode');
+			$dirmode = Config::Get('system', 'directory_mode');
 
 			if (((isset($arr['site']['directory_mode']) && $arr['site']['directory_mode'] === 'standalone') || ($dirmode & DIRECTORY_MODE_STANDALONE)) && ($arr['site']['url'] != z_root()))
 				$arr['searchable'] = false;
@@ -1008,7 +1009,7 @@ class Libzot {
 			logger('Headers: ' . print_r($arr['header'], true), LOGGER_DATA, LOG_DEBUG);
 		}
 
-		$x = Crypto::unencapsulate($x, get_config('system', 'prvkey'));
+		$x = Crypto::unencapsulate($x, Config::Get('system', 'prvkey'));
 
 		if ($x && !is_array($x)) {
 			$x = json_decode($x, true);
@@ -1416,7 +1417,7 @@ class Libzot {
 		$include_sys    = false;
 
 		if ($msg['type'] === 'activity') {
-			$disable_discover_tab = get_config('system', 'disable_discover_tab') || get_config('system', 'disable_discover_tab') === false;
+			$disable_discover_tab = Config::Get('system', 'disable_discover_tab') || Config::Get('system', 'disable_discover_tab') === false;
 			if (!$disable_discover_tab)
 				$include_sys = true;
 
@@ -1632,8 +1633,8 @@ class Libzot {
 					continue;
 				}
 
-				$incl = get_config('system','pubstream_incl');
-				$excl = get_config('system','pubstream_excl');
+				$incl = Config::Get('system','pubstream_incl');
+				$excl = Config::Get('system','pubstream_excl');
 
 				if(($incl || $excl) && !MessageFilter::evaluate($arr, $incl, $excl)) {
 					$local_public = false;
@@ -2568,9 +2569,14 @@ class Libzot {
 		if (!$observer)
 			return '';
 
-		$parsed = parse_url($observer['xchan_url']);
+		$url = $observer['xchan_url'];
+		if (preg_match('|^https?://|', $url) === 0) {
+			$url = "https://{$url}";
+		}
 
-		return $parsed['scheme'] . '://' . $parsed['host'] . (($parsed['port']) ? ':' . $parsed['port'] : '') . '/rpost?f=';
+		$parsed = parse_url($url);
+
+		return $parsed['scheme'] . '://' . $parsed['host'] . (isset($parsed['port']) ? ':' . $parsed['port'] : '') . '/rpost?f=';
 	}
 
 	/**
@@ -2924,8 +2930,8 @@ class Libzot {
 	 */
 	static function site_info() {
 
-		$signing_key = get_config('system', 'prvkey');
-		$sig_method  = get_config('system', 'signature_algorithm', 'sha256');
+		$signing_key = Config::Get('system', 'prvkey');
+		$sig_method  = Config::Get('system', 'signature_algorithm', 'sha256');
 
 		$ret                           = [];
 		$ret['site']                   = [];
@@ -2934,10 +2940,10 @@ class Libzot {
 		$ret['site']['post']           = z_root() . '/zot';
 		$ret['site']['openWebAuth']    = z_root() . '/owa';
 		$ret['site']['authRedirect']   = z_root() . '/magic';
-		$ret['site']['sitekey']        = get_config('system', 'pubkey');
+		$ret['site']['sitekey']        = Config::Get('system', 'pubkey');
 		$ret['site']['directory_mode'] = 'normal';
 
-		$dirmode = get_config('system', 'directory_mode');
+		$dirmode = Config::Get('system', 'directory_mode');
 
 		if ($dirmode == DIRECTORY_MODE_PRIMARY)
 			$ret['site']['directory_mode'] = 'primary';
@@ -2956,7 +2962,7 @@ class Libzot {
 
 		if ($dirmode != DIRECTORY_MODE_STANDALONE) {
 
-			$register_policy = intval(get_config('system', 'register_policy'));
+			$register_policy = intval(Config::Get('system', 'register_policy'));
 
 			if ($register_policy == REGISTER_CLOSED)
 				$ret['site']['register_policy'] = 'closed';
@@ -2966,7 +2972,7 @@ class Libzot {
 				$ret['site']['register_policy'] = 'open';
 
 
-			$access_policy = intval(get_config('system', 'access_policy'));
+			$access_policy = intval(Config::Get('system', 'access_policy'));
 
 			if ($access_policy == ACCESS_PRIVATE)
 				$ret['site']['access_policy'] = 'private';
@@ -2982,7 +2988,7 @@ class Libzot {
 			require_once('include/channel.php');
 			$ret['site']['channels'] = channel_total();
 
-			$ret['site']['admin'] = get_config('system', 'admin_email');
+			$ret['site']['admin'] = Config::Get('system', 'admin_email');
 
 			$visible_plugins = [];
 			if (is_array(App::$plugins) && count(App::$plugins)) {
@@ -2993,10 +2999,10 @@ class Libzot {
 			}
 
 			$ret['site']['plugins']  = $visible_plugins;
-			$ret['site']['sitehash'] = get_config('system', 'location_hash');
-			$ret['site']['sitename'] = get_config('system', 'sitename');
-			$ret['site']['sellpage'] = get_config('system', 'sellpage');
-			$ret['site']['location'] = get_config('system', 'site_location');
+			$ret['site']['sitehash'] = Config::Get('system', 'location_hash');
+			$ret['site']['sitename'] = Config::Get('system', 'sitename');
+			$ret['site']['sellpage'] = Config::Get('system', 'sellpage');
+			$ret['site']['location'] = Config::Get('system', 'site_location');
 			$ret['site']['realm']    = get_directory_realm();
 			$ret['site']['project']  = System::get_platform_name();
 			$ret['site']['version']  = System::get_project_version();

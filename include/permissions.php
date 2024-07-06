@@ -1,5 +1,7 @@
 <?php
 
+use Zotlabs\Lib\Config;
+
 require_once('include/security.php');
 
 /**
@@ -105,7 +107,7 @@ function get_all_perms($uid, $observer_xchan, $check_siteblock = true, $default_
 
 		// system is blocked to anybody who is not authenticated
 
-		if(($check_siteblock) && (! $observer_xchan) && intval(get_config('system', 'block_public'))) {
+		if(($check_siteblock) && (! $observer_xchan) && intval(Config::Get('system', 'block_public'))) {
 			$ret[$perm_name] = 0;
 			continue;
 		}
@@ -291,7 +293,7 @@ function perm_is_allowed($uid, $observer_xchan, $permission, $check_siteblock = 
 
 	// system is blocked to anybody who is not authenticated
 
-	if(($check_siteblock) && (! $observer_xchan) && intval(get_config('system', 'block_public')))
+	if(($check_siteblock) && (! $observer_xchan) && intval(Config::Get('system', 'block_public')))
 		return false;
 
 	// Check if this $uid is actually the $observer_xchan
@@ -496,7 +498,7 @@ function site_default_perms() {
 	$global_perms = \Zotlabs\Access\Permissions::Perms();
 
 	foreach($global_perms as $perm => $v) {
-		$x = get_config('default_perms', $perm, $typical[$perm]);
+		$x = Config::Get('default_perms', $perm, $typical[$perm]);
 		$ret[$perm] = $x;
 	}
 

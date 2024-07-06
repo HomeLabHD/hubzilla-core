@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Extend;
 
+use Zotlabs\Lib\Config;
 
 class Widget {
 
@@ -38,10 +39,10 @@ class Widget {
 	}
 
 	static function get() {
-		return get_config('system','widgets',[]);
+		return Config::Get('system','widgets',[]);
 	}
 
 	static function set($r) {
-		return set_config('system','widgets',$r);
+		return Config::Set('system','widgets',$r);
 	}
 }

@@ -6,6 +6,7 @@ namespace Zotlabs\Module;
 use App;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\ActivityStreams;
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\PermissionDescription;
@@ -176,7 +177,7 @@ class Channel extends Controller {
 
 	function get($update = 0, $load = false) {
 
-		$noscript_content = get_config('system', 'noscript_content', '1');
+		$noscript_content = Config::Get('system', 'noscript_content', '1');
 
 		$category = $datequery = $datequery2 = '';
 

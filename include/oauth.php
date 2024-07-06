@@ -1,10 +1,12 @@
 <?php /** @file */
 
-/** 
+/**
  * OAuth server
  * Based on oauth2-php <http://code.google.com/p/oauth2-php/>
- * 
+ *
  */
+
+use Zotlabs\Lib\Config;
 
 define('REQUEST_TOKEN_DURATION', 300);
 define('ACCESS_TOKEN_DURATION', 31536000);
@@ -18,7 +20,7 @@ class ZotOAuth1DataStore extends OAuth1DataStore {
 	function gen_token(){
 		return md5(base64_encode(pack('N6', mt_rand(), mt_rand(), mt_rand(), mt_rand(), mt_rand(), uniqid())));
 	}
-	
+
 	function lookup_consumer($consumer_key) {
 		logger('consumer_key: ' . $consumer_key, LOGGER_DEBUG);
 
@@ -72,7 +74,7 @@ class ZotOAuth1DataStore extends OAuth1DataStore {
 
 		$key = $this->gen_token();
 		$sec = $this->gen_token();
-		
+
 		if ($consumer->key){
 			$k = $consumer->key;
 		} else {
@@ -94,19 +96,19 @@ class ZotOAuth1DataStore extends OAuth1DataStore {
 	function new_access_token($token, $consumer, $verifier = null) {
 
 		logger(__function__.":".$token.", ". $consumer.", ". $verifier, LOGGER_DEBUG);
-    
+
 		// return a new access token attached to this consumer
 		// for the user associated with this token if the request token
 		// is authorized
 		// should also invalidate the request token
-	
+
 		$ret=Null;
-	
+
 		// get user for this verifier
-		$uverifier = get_config("oauth", $verifier);
+		$uverifier = Config::Get("oauth", $verifier);
 		logger(__function__.":".$verifier.",".$uverifier, LOGGER_DEBUG);
 		if (is_null($verifier) || ($uverifier!==false)) {
-		
+
 			$key = $this->gen_token();
 			$sec = $this->gen_token();
 
@@ -119,16 +121,16 @@ class ZotOAuth1DataStore extends OAuth1DataStore {
 				intval($uverifier));
 
 			if ($r)
-				$ret = new OAuth1Token($key,$sec);		
+				$ret = new OAuth1Token($key,$sec);
 		}
-		
-		
+
+
 		q("DELETE FROM tokens WHERE id='%s'", $token->key);
-	
-	
+
+
 		if (!is_null($ret) && $uverifier!==false) {
-			del_config("oauth", $verifier);
-	
+			Config::Delete("oauth", $verifier);
+
 			//	$apps = get_pconfig($uverifier, "oauth", "apps");
 			//	if ($apps===false) $apps=array();
 			//  $apps[] = $consumer->key;
@@ -145,7 +147,7 @@ class ZotOAuth1 extends OAuth1Server {
 		$this->add_signature_method(new OAuth1SignatureMethod_PLAINTEXT());
 		$this->add_signature_method(new OAuth1SignatureMethod_HMAC_SHA1());
 	}
-	
+
 	function loginUser($uid){
 
 		logger("ZotOAuth1::loginUser $uid");
@@ -174,7 +176,7 @@ class ZotOAuth1 extends OAuth1Server {
 			$_SESSION['allow_api'] = true;
 		}
 	}
-	
+
 }
 
 /*
@@ -195,13 +197,13 @@ class FKOAuth2 extends OAuth2 {
 			dbesc($client_secret),
 			dbesc($redirect_uri)
 		);
-		  
+
 		return $r;
 	}
 
 	protected function checkClientCredentials($client_id, $client_secret = NULL) {
 		$client_secret = $this->db_secret($client_secret);
-		
+
 		$r = q("SELECT pw FROM clients WHERE client_id = '%s'",
 			dbesc($client_id));
 
@@ -223,21 +225,21 @@ class FKOAuth2 extends OAuth2 {
 	protected function getAccessToken($oauth_token) {
 		$r = q("SELECT client_id, expires, scope FROM tokens WHERE id = '%s'",
 				dbesc($oauth_token));
-	
+
 		if (count($r))
 			return $r[0];
 		return null;
 	}
 
 
-	
+
 	protected function setAccessToken($oauth_token, $client_id, $expires, $scope = NULL) {
 		$r = q("INSERT INTO tokens (id, client_id, expires, scope) VALUES ('%s', '%s', %d, '%s')",
 				dbesc($oauth_token),
 				dbesc($client_id),
 				intval($expires),
 				dbesc($scope));
-				
+
 		return $r;
 	}
 
@@ -251,23 +253,23 @@ class FKOAuth2 extends OAuth2 {
 	protected function getAuthCode($code) {
 		$r = q("SELECT id, client_id, redirect_uri, expires, auth_scope FROM auth_codes WHERE id = '%s'",
 				dbesc($code));
-		
+
 		if (count($r))
 			return $r[0];
 		return null;
 	}
 
 	protected function setAuthCode($code, $client_id, $redirect_uri, $expires, $scope = NULL) {
-		$r = q("INSERT INTO auth_codes 
-					(id, client_id, redirect_uri, expires, auth_scope) VALUES 
+		$r = q("INSERT INTO auth_codes
+					(id, client_id, redirect_uri, expires, auth_scope) VALUES
 					('%s', '%s', '%s', %d, '%s')",
 				dbesc($code),
 				dbesc($client_id),
 				dbesc($redirect_uri),
 				intval($expires),
 				dbesc($scope));
-		return $r;	  
-	}	
-	
+		return $r;
+	}
+
 }
 */
