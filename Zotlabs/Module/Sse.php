@@ -31,13 +31,14 @@ class Sse extends Controller {
 
 		// this is important!
 		session_write_close();
+		ignore_user_abort(true);
 
 		self::$uid = local_channel();
 		self::$ob_hash = get_observer_hash();
 		self::$sse_id = false;
 		self::$vnotify = -1;
 
-		if(! self::$ob_hash) {
+		if (!self::$ob_hash) {
 			if(session_id()) {
 				self::$sse_id = true;
 				self::$ob_hash = 'sse_id.' . session_id();
@@ -55,7 +56,7 @@ class Sse extends Controller {
 
 		self::$sse_enabled = Config::Get('system', 'sse_enabled', 0);
 
-		if(self::$sse_enabled) {
+		if (self::$sse_enabled) {
 
 			// Server Sent Events
 
@@ -73,7 +74,7 @@ class Sse extends Controller {
 					$i = 0;
 				}
 
-				if(!self::$sse_id && $i === 0) {
+				if (!self::$sse_id && $i === 0) {
 					// Update chat presence indication about once per minute
 					$r = q("select cp_id, cp_room from chatpresence where cp_xchan = '%s' and cp_client = '%s' and cp_room = 0 limit 1",
 						dbesc(self::$ob_hash),
@@ -82,7 +83,7 @@ class Sse extends Controller {
 
 					$basic_presence = false;
 
-					if($r) {
+					if ($r) {
 						$basic_presence = true;
 						q("update chatpresence set cp_last = '%s' where cp_id = %d",
 							dbesc(datetime_convert()),
@@ -90,7 +91,7 @@ class Sse extends Controller {
 						);
 					}
 
-					if(!$basic_presence) {
+					if (!$basic_presence) {
 						q("insert into chatpresence ( cp_xchan, cp_last, cp_status, cp_client)
 							values( '%s', '%s', '%s', '%s' ) ",
 							dbesc(self::$ob_hash),
@@ -101,15 +102,16 @@ class Sse extends Controller {
 					}
 				}
 
-				XConfig::Load(self::$ob_hash);
 
 				$result = [];
+
+				XConfig::Load(self::$ob_hash);
+
 				$lock = XConfig::Get(self::$ob_hash, 'sse', 'lock');
 
 				if (!$lock) {
 					$result = XConfig::Get(self::$ob_hash, 'sse', 'notifications', []);
 				}
-
 
 				// We do not have the local_channel in the addon.
 				// Reset pubs here if the app is not installed.
@@ -119,34 +121,37 @@ class Sse extends Controller {
 					}
 				}
 
-				if($result) {
+				if ($result) {
 					echo "event: notifications\n";
 					echo 'data: ' . json_encode($result);
 					echo "\n\n";
-
-					XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
-					unset($result);
+				}
+				else {
+					// if no result we will send a heartbeat to keep connected
+					echo "event: heartbeat\n";
+					echo 'data: {}';
+					echo "\n\n";
 				}
 
-				// always send heartbeat to detect disconnected clients
-				echo "event: heartbeat\n";
-				echo 'data: {}';
-				echo "\n\n";
-
-				if(ob_get_length() > 0)
+				if (connection_status() != CONNECTION_NORMAL || connection_aborted()) {
 					ob_end_flush();
+					flush();
 
+					XConfig::Set(self::$ob_hash, 'sse', 'timestamp', NULL_DATE);
+
+					exit;
+				}
+
+				ob_flush();
 				flush();
 
-				if(connection_status() != CONNECTION_NORMAL || connection_aborted()) {
-					//TODO: this does not seem to be triggered
-					XConfig::Set(self::$ob_hash, 'sse', 'timestamp', NULL_DATE);
-					break;
+				if ($result) {
+					XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
 				}
 
-				$i++;
-
 				usleep($sleep);
+
+				$i++;
 
 			}
 

@@ -1928,19 +1928,11 @@ function notice($s) {
 		}
 	}
 
-	$t = get_xconfig($hash, 'sse', 'timestamp', NULL_DATE);
+	$x = get_xconfig($hash, 'sse', 'notifications', []);
 
-	if (datetime_convert('UTC', 'UTC', $t) < datetime_convert('UTC', 'UTC', '- 30 seconds')) {
-		set_xconfig($hash, 'sse', 'notifications', []);
-	}
-
-	$x = get_xconfig($hash, 'sse', 'notifications');
-
-	if ($x === false)
-		$x = [];
-
-	if (isset($x['notice']) && in_array($s, $x['notice']['notifications']))
+	if (isset($x['notice']) && in_array($s, $x['notice']['notifications'])) {
 		return;
+	}
 
 	if (App::$interactive) {
 		$x['notice']['notifications'][] = $s;
@@ -1988,19 +1980,11 @@ function info($s) {
 		}
 	}
 
-	$t = get_xconfig($hash, 'sse', 'timestamp', NULL_DATE);
+	$x = get_xconfig($hash, 'sse', 'notifications', []);
 
-	if (datetime_convert('UTC', 'UTC', $t) < datetime_convert('UTC', 'UTC', '- 30 seconds')) {
-		set_xconfig($hash, 'sse', 'notifications', []);
-	}
-
-	$x = get_xconfig($hash, 'sse', 'notifications');
-
-	if ($x === false)
-		$x = [];
-
-	if (isset($x['info']) && in_array($s, $x['info']['notifications']))
+	if (isset($x['info']) && in_array($s, $x['info']['notifications'])) {
 		return;
+	}
 
 	if (App::$interactive) {
 		$x['info']['notifications'][] = $s;

@@ -126,7 +126,7 @@ class Channels {
 			goaway(z_root() . '/admin/channels' );
 		}
 
-		$key = (($_REQUEST['key']) ? dbesc($_REQUEST['key']) : 'channel_id');
+		$key = ((isset($_REQUEST['key']) && $_REQUEST['key']) ? dbesc($_REQUEST['key']) : 'channel_id');
 		$dir = 'asc';
 		if(array_key_exists('dir',$_REQUEST))
 			$dir = ((intval($_REQUEST['dir'])) ? 'asc' : 'desc');
