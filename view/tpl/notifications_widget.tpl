@@ -319,6 +319,10 @@
 			});
 		}
 
+		if (sse_sys_only) {
+			return;
+		}
+
 		let primary_notifications = ['dm', 'home', 'intros', 'register', 'notify', 'files'];
 		let secondary_notifications = ['network', 'forums', 'all_events', 'pubs'];
 		let all_notifications = primary_notifications.concat(secondary_notifications);
@@ -328,7 +332,6 @@
 				return true;
 
 			var count = Number(obj[type].count);
-
 
 			if(obj[type].count) {
 				$('.' + type + '-button').fadeIn();
