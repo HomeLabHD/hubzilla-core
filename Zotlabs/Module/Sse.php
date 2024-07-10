@@ -138,6 +138,7 @@ class Sse extends Controller {
 					flush();
 
 					XConfig::Set(self::$ob_hash, 'sse', 'timestamp', NULL_DATE);
+					XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
 
 					exit;
 				}
@@ -145,11 +146,11 @@ class Sse extends Controller {
 				ob_flush();
 				flush();
 
+				usleep($sleep);
+
 				if ($result) {
 					XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
 				}
-
-				usleep($sleep);
 
 				$i++;
 
