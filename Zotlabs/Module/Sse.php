@@ -133,18 +133,17 @@ class Sse extends Controller {
 					echo "\n\n";
 				}
 
-				if (connection_status() != CONNECTION_NORMAL || connection_aborted()) {
+				if (ob_get_length() > 0) {
 					ob_end_flush();
-					flush();
-
-					XConfig::Set(self::$ob_hash, 'sse', 'timestamp', NULL_DATE);
-					XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
-
-					exit;
 				}
 
-				ob_flush();
 				flush();
+
+				if (connection_status() != CONNECTION_NORMAL || connection_aborted()) {
+					XConfig::Set(self::$ob_hash, 'sse', 'timestamp', NULL_DATE);
+					XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
+					exit;
+				}
 
 				usleep($sleep);
 
