@@ -3271,7 +3271,7 @@ class Activity {
 			return $content;
 		}
 
-		if ($act['type'] === 'Event') {
+		if (isset($act['type']) && $act['type'] === 'Event') {
 			$adjust              = false;
 			$event               = [];
 			$event['event_hash'] = $act['id'];
