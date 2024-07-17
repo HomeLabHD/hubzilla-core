@@ -1928,7 +1928,18 @@ function notice($s) {
 		}
 	}
 
-	$x = get_xconfig($hash, 'sse', 'notifications', []);
+	$x = null;
+
+	$t = get_xconfig($hash, 'sse', 'timestamp', NULL_DATE);
+
+	if (datetime_convert('UTC', 'UTC', $t) < datetime_convert('UTC', 'UTC', '- 30 seconds')) {
+		set_xconfig($hash, 'sse', 'notifications', []);
+		$x = [];
+	}
+
+	if ($x === null) {
+		$x = get_xconfig($hash, 'sse', 'notifications', []);
+	}
 
 	if (isset($x['notice']) && in_array($s, $x['notice']['notifications'])) {
 		return;
@@ -1980,7 +1991,18 @@ function info($s) {
 		}
 	}
 
-	$x = get_xconfig($hash, 'sse', 'notifications', []);
+	$x = null;
+
+	$t = get_xconfig($hash, 'sse', 'timestamp', NULL_DATE);
+
+	if (datetime_convert('UTC', 'UTC', $t) < datetime_convert('UTC', 'UTC', '- 30 seconds')) {
+		set_xconfig($hash, 'sse', 'notifications', []);
+		$x = [];
+	}
+
+	if ($x === null) {
+		$x = get_xconfig($hash, 'sse', 'notifications', []);
+	}
 
 	if (isset($x['info']) && in_array($s, $x['info']['notifications'])) {
 		return;
