@@ -94,6 +94,12 @@ class Share extends \Zotlabs\Web\Controller {
 		else
 			killme();
 
+		$object = Activity::fetch_item([ 'id' => $item['mid'] ]);
+
+		if (!$object) {
+			killme();
+		}
+
 		$arr['aid'] =  $item['aid'];
 		$arr['uid'] =  $item['uid'];
 
@@ -121,7 +127,7 @@ class Share extends \Zotlabs\Web\Controller {
 		$arr['owner_xchan'] = $item['author_xchan'];
 		$arr['source_xchan'] = '';
 
-		$arr['obj'] = $item['obj'];
+		$arr['obj'] = $object;
 		$arr['obj_type'] = $item['obj_type'];
 		$arr['verb'] = ACTIVITY_SHARE;
 

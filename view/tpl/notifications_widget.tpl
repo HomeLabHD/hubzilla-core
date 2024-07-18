@@ -5,6 +5,7 @@
 	var sse_partial_result = false;
 	var sse_rmids = [];
 	var sse_fallback_interval;
+	var sse_sys_only = {{$sys_only}};
 
 	$(document).ready(function() {
 		let notifications_parent;
@@ -219,8 +220,9 @@
 	}
 
 	function sse_bs_counts() {
-		if(sse_bs_active)
+		if(sse_bs_active || sse_sys_only) {
 			return;
+		}
 
 		sse_bs_active = true;
 
@@ -238,10 +240,11 @@
 
 	function sse_bs_notifications(e, replace, followup) {
 
-		if(sse_bs_active)
+		if(sse_bs_active || sse_sys_only) {
 			return;
+		}
 
-		var manual = false;
+		let manual = false;
 
 		if(typeof replace === 'undefined')
 			replace = e.data.replace;
@@ -302,16 +305,33 @@
 
 	function sse_handleNotifications(obj, replace, followup) {
 
-		var primary_notifications = ['dm', 'home', 'intros', 'register', 'notify', 'files'];
-		var secondary_notifications = ['network', 'forums', 'all_events', 'pubs'];
-		var all_notifications = primary_notifications.concat(secondary_notifications);
+		// notice and info
+
+		if(obj.notice) {
+			$(obj.notice.notifications).each(function() {
+				toast(this, 'danger');
+			});
+		}
+
+		if(obj.info) {
+			$(obj.info.notifications).each(function(){
+				toast(this, 'info');
+			});
+		}
+
+		if (sse_sys_only) {
+			return;
+		}
+
+		let primary_notifications = ['dm', 'home', 'intros', 'register', 'notify', 'files'];
+		let secondary_notifications = ['network', 'forums', 'all_events', 'pubs'];
+		let all_notifications = primary_notifications.concat(secondary_notifications);
 
 		all_notifications.forEach(function(type, index) {
 			if(typeof obj[type] === typeof undefined)
 				return true;
 
 			var count = Number(obj[type].count);
-
 
 			if(obj[type].count) {
 				$('.' + type + '-button').fadeIn();
@@ -335,20 +355,6 @@
 		});
 
 		sse_setNotificationsStatus();
-
-		// notice and info
-
-		if(obj.notice) {
-			$(obj.notice.notifications).each(function() {
-				toast(this, 'danger');
-			});
-		}
-
-		if(obj.info) {
-			$(obj.info.notifications).each(function(){
-				toast(this, 'info');
-			});
-		}
 
 		// load more notifications if visible notifications count becomes low
 		if(sse_type  && sse_offset != -1 && $('#nav-' + sse_type + '-menu').children(':not(.tt-filter-active)').length < 15) {
@@ -533,6 +539,7 @@
 	}
 </script>
 
+{{if !$sys_only}}
 <div id="notifications_wrapper" class="mb-4">
 	<div id="no_notifications" class="d-xl-none">
 		{{$no_notifications}}<span class="jumping-dots"><span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span></span>
@@ -604,3 +611,4 @@
 		{{/foreach}}
 	</div>
 </div>
+{{/if}}

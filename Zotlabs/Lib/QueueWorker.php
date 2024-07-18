@@ -59,7 +59,7 @@ class QueueWorker {
 			$transaction = new \DbaTransaction(\DBA::$dba);
 			$r = q("INSERT INTO workerq (workerq_priority, workerq_data, workerq_uuid, workerq_cmd) VALUES (%d, '%s', '%s', '%s')",
 				intval($priority),
-				$workinfo_json,
+				dbesc($workinfo_json),
 				dbesc($uuid),
 				dbesc($argv[0])
 			);
@@ -105,7 +105,7 @@ class QueueWorker {
 			$transaction = new \DbaTransaction(\DBA::$dba);
 			$r = q("INSERT INTO workerq (workerq_priority, workerq_data, workerq_uuid, workerq_cmd) VALUES (%d, '%s', '%s', '%s')",
 				intval($priority),
-				$workinfo_json,
+				dbesc($workinfo_json),
 				dbesc($uuid),
 				dbesc($argv[0])
 			);

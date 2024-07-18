@@ -66,7 +66,7 @@ require_once('include/security.php');
 
 
 define('PLATFORM_NAME', 'hubzilla');
-define('STD_VERSION', '9.2');
+define('STD_VERSION', '9.3.2');
 define('ZOT_REVISION', '6.0');
 
 define('DB_UPDATE_VERSION', 1263);
@@ -1928,19 +1928,22 @@ function notice($s) {
 		}
 	}
 
+	$x = null;
+
 	$t = get_xconfig($hash, 'sse', 'timestamp', NULL_DATE);
 
 	if (datetime_convert('UTC', 'UTC', $t) < datetime_convert('UTC', 'UTC', '- 30 seconds')) {
 		set_xconfig($hash, 'sse', 'notifications', []);
+		$x = [];
 	}
 
-	$x = get_xconfig($hash, 'sse', 'notifications');
+	if ($x === null) {
+		$x = get_xconfig($hash, 'sse', 'notifications', []);
+	}
 
-	if ($x === false)
-		$x = [];
-
-	if (isset($x['notice']) && in_array($s, $x['notice']['notifications']))
+	if (isset($x['notice']) && in_array($s, $x['notice']['notifications'])) {
 		return;
+	}
 
 	if (App::$interactive) {
 		$x['notice']['notifications'][] = $s;
@@ -1988,19 +1991,22 @@ function info($s) {
 		}
 	}
 
+	$x = null;
+
 	$t = get_xconfig($hash, 'sse', 'timestamp', NULL_DATE);
 
 	if (datetime_convert('UTC', 'UTC', $t) < datetime_convert('UTC', 'UTC', '- 30 seconds')) {
 		set_xconfig($hash, 'sse', 'notifications', []);
+		$x = [];
 	}
 
-	$x = get_xconfig($hash, 'sse', 'notifications');
+	if ($x === null) {
+		$x = get_xconfig($hash, 'sse', 'notifications', []);
+	}
 
-	if ($x === false)
-		$x = [];
-
-	if (isset($x['info']) && in_array($s, $x['info']['notifications']))
+	if (isset($x['info']) && in_array($s, $x['info']['notifications'])) {
 		return;
+	}
 
 	if (App::$interactive) {
 		$x['info']['notifications'][] = $s;

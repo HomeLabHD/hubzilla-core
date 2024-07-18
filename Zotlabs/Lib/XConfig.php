@@ -83,7 +83,7 @@ class XConfig {
 			return $default;
 
 		if(! array_key_exists($xchan, \App::$config))
-			load_xconfig($xchan);
+			self::Load($xchan);
 
 		if((! array_key_exists($family, \App::$config[$xchan])) || (! array_key_exists($key, \App::$config[$xchan][$family])))
 			return $default;

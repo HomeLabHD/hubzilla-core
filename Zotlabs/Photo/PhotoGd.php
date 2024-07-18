@@ -160,16 +160,28 @@ class PhotoGd extends PhotoDriver {
 
 			case 'image/png':
 				$quality = Config::Get('system', 'png_quality');
-				if((! $quality) || ($quality > 9))
+
+				if((! $quality) || ($quality > 9)) {
 					$quality = PNG_QUALITY;
-				\imagepng($this->image, NULL, $quality);
+				}
+
+				if (function_exists('imagepng')) {
+					\imagepng($this->image, NULL, $quality);
+				}
+
 				break;
 
 			case 'image/webp':
 			    $quality = Config::Get('system', 'webp_quality');
-			    if((! $quality) || ($quality > 100))
+
+			    if((! $quality) || ($quality > 100)) {
 			        $quality = WEBP_QUALITY;
-			    \imagewebp($this->image, NULL, $quality);
+				}
+
+				if (function_exists('imagewebp')) {
+					\imagewebp($this->image, NULL, $quality);
+				}
+
 			    break;
 
 			case 'image/jpeg':
@@ -177,9 +189,15 @@ class PhotoGd extends PhotoDriver {
 
 			default:
 				$quality = Config::Get('system', 'jpeg_quality');
-				if((! $quality) || ($quality > 100))
+
+				if((! $quality) || ($quality > 100)) {
 					$quality = JPEG_QUALITY;
-				\imagejpeg($this->image, NULL, $quality);
+				}
+
+				if (function_exists('imagejpeg')) {
+					\imagejpeg($this->image, NULL, $quality);
+				}
+
 				break;
 		}
 
