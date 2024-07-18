@@ -1,3 +1,15 @@
+Hubzilla 9.2.1 (2024-07-18)
+	- Fix fatal error if gd function image{jpeg, png, webp}() does not exist for some reason
+	- Add missing pdl for mod import
+	- Escape queueworker json data
+	- Fix missing object when repeating own posts
+	- Improve display of system notifications in relation with page reloads
+	- Add possibility to only display system notifications with notifications widget
+	- Fix layout issue with socialauth addon
+	- Save a db lookup if we have just reset notifications in sse addon
+	- Fix php error if attachment was an empty string in pubcrawl addon
+
+
 Hubzilla 9.2 (2024-07-06)
 	- Fail to import more gracefully if a channel has already been imported at some point but was deleted again
 	- Use the doubleleft template by default for admin pages to work around some display issues
