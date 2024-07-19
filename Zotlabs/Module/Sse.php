@@ -23,14 +23,7 @@ class Sse extends Controller {
 			killme();
 		}
 
-		if(! intval(Config::Get('system','open_pubstream',1))) {
-			if(! get_observer_hash()) {
-				killme();
-			}
-		}
-
 		// this is important!
-		session_write_close();
 		ignore_user_abort(true);
 
 		self::$uid = local_channel();
@@ -47,6 +40,8 @@ class Sse extends Controller {
 				return;
 			}
 		}
+
+
 
 		if (self::$uid) {
 			self::$vnotify = get_pconfig(self::$uid, 'system', 'vnotify');
@@ -102,7 +97,6 @@ class Sse extends Controller {
 					}
 				}
 
-
 				$result = [];
 
 				XConfig::Load(self::$ob_hash);
@@ -110,8 +104,18 @@ class Sse extends Controller {
 				$lock = XConfig::Get(self::$ob_hash, 'sse', 'lock');
 
 				if (!$lock) {
-					$result = XConfig::Get(self::$ob_hash, 'sse', 'notifications', []);
+					$result_db = XConfig::Get(self::$ob_hash, 'sse', 'notifications', []);
 				}
+
+				if (!empty($_SESSION['sysmsg'])) {
+					$result['notice']['notifications'] = $_SESSION['sysmsg'];
+				}
+
+				if (!empty($_SESSION['sysmsg_info'])) {
+					$result['info']['notifications'] = $_SESSION['sysmsg_info'];
+				}
+
+				$result = array_merge($result, $result_db);
 
 				// We do not have the local_channel in the addon.
 				// Reset pubs here if the app is not installed.
@@ -133,22 +137,36 @@ class Sse extends Controller {
 					echo "\n\n";
 				}
 
+				if (connection_status() != CONNECTION_NORMAL || connection_aborted()) {
+					XConfig::Set(self::$ob_hash, 'sse', 'timestamp', NULL_DATE);
+					XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
+					$_SESSION['sysmsg'] = [];
+					$_SESSION['sysmsg_info'] = [];
+
+					if (ob_get_length() > 0) {
+						ob_end_flush();
+					}
+
+					flush();
+
+					exit;
+				}
+
 				if (ob_get_length() > 0) {
-					ob_end_flush();
+					ob_flush();
 				}
 
 				flush();
 
-				if (connection_status() != CONNECTION_NORMAL || connection_aborted()) {
-					XConfig::Set(self::$ob_hash, 'sse', 'timestamp', NULL_DATE);
-					XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
-					exit;
-				}
-
 				usleep($sleep);
 
 				if ($result) {
-					XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
+					if ($result_db) {
+						XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
+					}
+
+					$_SESSION['sysmsg'] = [];
+					$_SESSION['sysmsg_info'] = [];
 				}
 
 				$i++;
@@ -186,13 +204,35 @@ class Sse extends Controller {
 				}
 			}
 
+			$result = [];
+			$result_db = [];
+
 			XConfig::Load(self::$ob_hash);
 
-			$result = XConfig::Get(self::$ob_hash, 'sse', 'notifications', []);
 			$lock = XConfig::Get(self::$ob_hash, 'sse', 'lock');
 
-			if($result && !$lock) {
-				XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
+			if (!$lock) {
+				$result_db = XConfig::Get(self::$ob_hash, 'sse', 'notifications', []);
+			}
+
+			if (!empty($_SESSION['sysmsg'])) {
+				$result['notice']['notifications'] = $_SESSION['sysmsg'];
+			}
+
+			if (!empty($_SESSION['sysmsg_info'])) {
+				$result['info']['notifications'] = $_SESSION['sysmsg_info'];
+			}
+
+			$result = array_merge($result, $result_db);
+
+			if($result) {
+				if ($result_db) {
+					XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
+				}
+
+				$_SESSION['sysmsg'] = [];
+				$_SESSION['sysmsg_info'] = [];
+
 				json_return_and_die($result);
 			}
 
