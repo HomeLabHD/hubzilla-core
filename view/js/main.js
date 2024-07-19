@@ -1144,7 +1144,7 @@ function pageUpdate() {
 		bParam_page = 1;
 	}
 
-	update_url = baseurl + '/' + decodeURIComponent(page_query) + '/?aj=1&page=' + bParam_page + extra_args ;
+	update_url = baseurl + '/' + decodeURIComponent(page_query) + '?aj=1&page=' + bParam_page + extra_args ;
 
 	$("#page-spinner").show();
 	update_mode = 'append';
