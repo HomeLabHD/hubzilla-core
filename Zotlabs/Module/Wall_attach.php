@@ -111,7 +111,7 @@ class Wall_attach extends \Zotlabs\Web\Controller {
 				// give a wee bit of time for the background thumbnail processor to do its thing
 				// or else we'll never see a video poster
 				sleep(3);
-				$url = z_root() . '/cloud/' . $channel['channel_address'] . '/' . $r['data']['display_path'];
+				$url = z_root() . '/attach/' . $r['data']['hash'];
 				$thumb = Linkinfo::get_video_poster($url);
 				if($thumb) {
 					$s = '[zvideo poster=\'' . $thumb . '\']' . $url . '[/zvideo]';
@@ -120,8 +120,8 @@ class Wall_attach extends \Zotlabs\Web\Controller {
 					$s = '[zvideo]' . $url . '[/zvideo]';
 				}
 			}
-			if(strpos($r['data']['filetype'],'audio') === 0) {
-				$url = z_root() . '/cloud/' . $channel['channel_address'] . '/' . $r['data']['display_path'];
+			if(strpos($r['data']['filetype'], 'audio') === 0) {
+				$url = z_root() . '/attach/' . $r['data']['hash'];
 				$s = '[zaudio]' . $url . '[/zaudio]';
 			}
 			if ($r['data']['filetype'] === 'image/svg+xml') {
