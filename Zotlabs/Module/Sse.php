@@ -41,8 +41,6 @@ class Sse extends Controller {
 			}
 		}
 
-
-
 		if (self::$uid) {
 			self::$vnotify = get_pconfig(self::$uid, 'system', 'vnotify');
 		}
@@ -138,8 +136,17 @@ class Sse extends Controller {
 				}
 
 				if (connection_status() != CONNECTION_NORMAL || connection_aborted()) {
+
+					// IMPORTANT: in case the channel was changed we need to reset the
+					// session here to it's current stored state.
+					// Otherwise the uid might switch back to the previous value
+					// in the background.
+
+					session_reset();
+
 					XConfig::Set(self::$ob_hash, 'sse', 'timestamp', NULL_DATE);
 					XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
+
 					$_SESSION['sysmsg'] = [];
 					$_SESSION['sysmsg_info'] = [];
 
