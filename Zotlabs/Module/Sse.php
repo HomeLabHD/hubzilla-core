@@ -18,13 +18,20 @@ class Sse extends Controller {
 	public static $sse_enabled;
 
 	function init() {
-		// this is important!
-		session_write_close();
-		ignore_user_abort(true);
 
 		if((observer_prohibited(true))) {
 			killme();
 		}
+
+		if(! intval(Config::Get('system','open_pubstream',1))) {
+			if(! get_observer_hash()) {
+				killme();
+			}
+		}
+
+		// this is important!
+		session_write_close();
+		ignore_user_abort(true);
 
 		self::$uid = local_channel();
 		self::$ob_hash = get_observer_hash();
