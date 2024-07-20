@@ -12,5 +12,5 @@ class Login extends \Zotlabs\Web\Controller {
 
 		return login(true);
 	}
-
+	
 }

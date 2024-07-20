@@ -1897,22 +1897,57 @@ function can_view_public_stream() {
  */
 function notice($s) {
 
-	if (!session_id()) {
-		return;
+	/*
+		if(! session_id())
+			return;
+
+		if(! x($_SESSION, 'sysmsg')) $_SESSION['sysmsg'] = array();
+
+		// ignore duplicated error messages which haven't yet been displayed
+		// - typically seen as multiple 'permission denied' messages
+		// as a result of auto-reloading a protected page with &JS=1
+
+		if(in_array($s, $_SESSION['sysmsg']))
+			return;
+
+		if(App::$interactive) {
+			$_SESSION['sysmsg'][] = $s;
+		}
+	*/
+
+	$hash   = get_observer_hash();
+	$sse_id = false;
+
+	if (!$hash) {
+		if (session_id()) {
+			$sse_id = true;
+			$hash   = 'sse_id.' . session_id();
+		}
+		else {
+			return;
+		}
 	}
 
-	if (!isset($_SESSION['sysmsg'])) {
-		$_SESSION['sysmsg'] = [];
+	$x = null;
+
+	$t = get_xconfig($hash, 'sse', 'timestamp', NULL_DATE);
+
+	if (datetime_convert('UTC', 'UTC', $t) < datetime_convert('UTC', 'UTC', '- 30 seconds')) {
+		set_xconfig($hash, 'sse', 'notifications', []);
+		$x = [];
 	}
 
-	// ignore duplicated error messages which haven't yet been displayed
+	if ($x === null) {
+		$x = get_xconfig($hash, 'sse', 'notifications', []);
+	}
 
-	if (in_array($s, $_SESSION['sysmsg'])) {
+	if (isset($x['notice']) && in_array($s, $x['notice']['notifications'])) {
 		return;
 	}
 
 	if (App::$interactive) {
-		$_SESSION['sysmsg'][] = $s;
+		$x['notice']['notifications'][] = $s;
+		set_xconfig($hash, 'sse', 'notifications', $x);
 	}
 
 }
@@ -1929,22 +1964,53 @@ function notice($s) {
  */
 function info($s) {
 
-	if (!session_id()) {
-		return;
+	/*
+		if(! session_id())
+			return;
+
+		if(! x($_SESSION, 'sysmsg_info'))
+			$_SESSION['sysmsg_info'] = array();
+
+		if(in_array($s, $_SESSION['sysmsg_info']))
+			return;
+
+		if(App::$interactive)
+			$_SESSION['sysmsg_info'][] = $s;
+	*/
+
+	$hash   = get_observer_hash();
+	$sse_id = false;
+
+	if (!$hash) {
+		if (session_id()) {
+			$sse_id = true;
+			$hash   = 'sse_id.' . session_id();
+		}
+		else {
+			return;
+		}
 	}
 
-	if (!isset($_SESSION['sysmsg_info'])) {
-		$_SESSION['sysmsg_info'] = [];
+	$x = null;
+
+	$t = get_xconfig($hash, 'sse', 'timestamp', NULL_DATE);
+
+	if (datetime_convert('UTC', 'UTC', $t) < datetime_convert('UTC', 'UTC', '- 30 seconds')) {
+		set_xconfig($hash, 'sse', 'notifications', []);
+		$x = [];
 	}
 
-	// ignore duplicated error messages which haven't yet been displayed
+	if ($x === null) {
+		$x = get_xconfig($hash, 'sse', 'notifications', []);
+	}
 
-	if (in_array($s, $_SESSION['sysmsg_info'])) {
+	if (isset($x['info']) && in_array($s, $x['info']['notifications'])) {
 		return;
 	}
 
 	if (App::$interactive) {
-		$_SESSION['sysmsg_info'][] = $s;
+		$x['info']['notifications'][] = $s;
+		set_xconfig($hash, 'sse', 'notifications', $x);
 	}
 
 }
