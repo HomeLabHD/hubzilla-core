@@ -129,7 +129,7 @@ class ThreadItem {
 		if($item['author']['xchan_network'] === 'rss')
 			$shareable = true;
 
-		$repeatable = ((($conv->get_profile_owner() == local_channel() && local_channel()) && (intval($item['item_private']) === 0) && (in_array($item['author']['xchan_network'], ['zot6', 'activitypub']))) ? true : false);
+		$repeatable = (intval($item['item_private']) === 0 && in_array($item['author']['xchan_network'], ['zot6', 'activitypub']));
 
 		// @fixme
 		// Have recently added code to properly handle polls in group reshares by redirecting all of the poll responses to the group.
@@ -204,9 +204,11 @@ class ThreadItem {
 			$response_verbs[] = 'dislike';
 		}
 
-		$response_verbs[] = 'announce';
+		if ($repeatable) {
+			$response_verbs[] = 'announce';
+		}
 
-		if(in_array($item['obj_type'], ['Event', ACTIVITY_OBJ_EVENT])) {
+		if (in_array($item['obj_type'], ['Event', ACTIVITY_OBJ_EVENT])) {
 			$response_verbs[] = 'attendyes';
 			$response_verbs[] = 'attendno';
 			$response_verbs[] = 'attendmaybe';
@@ -216,18 +218,18 @@ class ThreadItem {
 			}
 		}
 
-		if($item['obj_type'] === 'Question') {
+		if ($item['obj_type'] === 'Question') {
 			$response_verbs[] = 'answer';
 		}
 
-		if(! feature_enabled($conv->get_profile_owner(),'dislike'))
+		if (!feature_enabled($conv->get_profile_owner(),'dislike')) {
 			unset($conv_responses['dislike']);
+		}
 
 		$responses = get_responses($conv_responses,$response_verbs,$this,$item);
 
 		$my_responses = [];
 		foreach($response_verbs as $v) {
-
 			$my_responses[$v] = ((isset($conv_responses[$v][$item['mid'] . '-m'])) ? 1 : 0);
 		}
 
@@ -327,11 +329,13 @@ class ThreadItem {
 		$like = [];
 		$dislike = [];
 		$reply_to = [];
+		$reactions_allowed = false;
 
 		if($this->is_commentable() && $observer) {
 			$like = array( t("I like this \x28toggle\x29"), t("like"));
 			$dislike = array( t("I don't like this \x28toggle\x29"), t("dislike"));
-			$reply_to = array( t("Reply on this comment"), t("reply"), t("Reply to"));
+			$reply_to = array( t("Reply to this comment"), t("reply"), t("Reply to"));
+			$reactions_allowed = true;
 		}
 
 		$share = [];
@@ -539,6 +543,7 @@ class ThreadItem {
 			'moderate_approve' => t('Approve'),
 			'moderate_delete' => t('Delete'),
 			'rtl' => in_array($item['lang'], rtl_languages()),
+			'reactions_allowed' => $reactions_allowed
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);

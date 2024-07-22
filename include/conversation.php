@@ -1525,6 +1525,12 @@ function get_responses($conv_responses,$response_verbs,$ob,$item) {
 
 	$ret = array();
 	foreach($response_verbs as $v) {
+		if ($v === 'answer') {
+			// we require the structure to collect the response hashes
+			// but we do not use them for display - do not collect them.
+			continue;
+		}
+
 		$ret[$v] = [];
 		$ret[$v]['count'] = $conv_responses[$v][$item['mid']] ?? 0;
 		$ret[$v]['list']  = ((isset($conv_responses[$v][$item['mid']])) ? $conv_responses[$v][$item['mid'] . '-l'] : '');
@@ -1532,14 +1538,6 @@ function get_responses($conv_responses,$response_verbs,$ob,$item) {
 		$ret[$v]['title'] = $conv_responses[$v]['title'] ?? '';
 		$ret[$v]['modal'] = (($ret[$v]['count'] > MAX_LIKERS) ? true : false);
 	}
-
-	$count = 0;
-	foreach ($ret as $key) {
-		if ($key['count'] == true)
-			$count++;
-	}
-
-	$ret['count'] = $count;
 
 //logger('ret: ' . print_r($ret,true));
 
@@ -1549,25 +1547,25 @@ function get_responses($conv_responses,$response_verbs,$ob,$item) {
 function get_response_button_text($v,$count) {
 	switch($v) {
 		case 'like':
-			return ['label' => tt('Like','Likes',$count,'noun'), 'icon' => 'thumbs-o-up', 'class' => 'like'];
+			return ['label' => tt('Like','Likes',$count,'noun'), 'icon' => 'thumbs-o-up', 'class' => 'like', 'onclick' => 'dolike'];
 			break;
 		case 'announce':
-			return ['label' => tt('Repeat','Repeats',$count,'noun'), 'icon' => 'retweet', 'class' => 'announce'];
+			return ['label' => tt('Repeat','Repeats',$count,'noun'), 'icon' => 'retweet', 'class' => 'announce', 'onclick' => 'jotShare'];
 			break;
 		case 'dislike':
-			return ['label' => tt('Dislike','Dislikes',$count,'noun'), 'icon' => 'thumbs-o-down', 'class' => 'dislike'];
+			return ['label' => tt('Dislike','Dislikes',$count,'noun'), 'icon' => 'thumbs-o-down', 'class' => 'dislike', 'onclick' => 'dolike'];
 			break;
 		case 'attendyes':
-			return ['label' => tt('Attending','Attending',$count,'noun'), 'icon' => 'calendar-check-o', 'class' => 'attendyes'];
+			return ['label' => tt('Attending','Attending',$count,'noun'), 'icon' => 'calendar-check-o', 'class' => 'attendyes', 'onclick' => 'dolike'];
 			break;
 		case 'attendno':
-			return ['label' => tt('Not Attending','Not Attending',$count,'noun'), 'icon' => 'calendar-times-o', 'class' => 'attendno'];
+			return ['label' => tt('Not Attending','Not Attending',$count,'noun'), 'icon' => 'calendar-times-o', 'class' => 'attendno', 'onclick' => 'dolike'];
 			break;
 		case 'attendmaybe':
-			return ['label' => tt('Undecided','Undecided',$count,'noun'), 'icon' => 'calendar-o', 'class' => 'attendmaybe'];
+			return ['label' => tt('Undecided','Undecided',$count,'noun'), 'icon' => 'calendar-o', 'class' => 'attendmaybe', 'onclick' => 'dolike'];
 			break;
 		default:
-			return '';
+			return [];
 			break;
 	}
 }

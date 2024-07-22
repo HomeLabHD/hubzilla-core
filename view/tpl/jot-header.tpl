@@ -374,6 +374,7 @@ var activeCommentText = '';
 		timer = setTimeout(updateInit,1000);
 	}
 
+/*
 	function toggleVoting() {
 		if($('#jot-consensus').val() > 0) {
 			$('#jot-consensus').val(0);
@@ -384,6 +385,7 @@ var activeCommentText = '';
 			$('#profile-voting, #profile-voting-sub').removeClass('fa-square-o').addClass('fa-check-square-o');
 		}
 	}
+*/
 
 	function toggleNoComment() {
 		if($('#jot-nocomment').val() > 0) {
@@ -400,6 +402,7 @@ var activeCommentText = '';
 
 	function jotReact(id,icon) {
 		if(id && icon) {
+			$('#like-rotator-' + id).show();
 			$.get('{{$baseurl}}/react?f=&postid=' + id + '&emoji=' + icon);
 			if(timer) clearTimeout(timer);
 			timer = setTimeout(updateInit,1000);

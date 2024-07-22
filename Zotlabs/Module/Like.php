@@ -569,6 +569,11 @@ class Like extends Controller {
 
 		call_hooks('post_local_end', $arr);
 
+		if ($is_rsvp && in_array($verb, ['attendyes', 'attendmaybe'])) {
+			event_addtocal($item_id, local_channel());
+		}
+
+
 		$r = q("select * from item where id = %d",
 			intval($post_id)
 		);

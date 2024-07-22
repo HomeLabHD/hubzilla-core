@@ -256,19 +256,18 @@ function getConversationSettings() {
 }
 
 function postConversationSettings() {
-	$.post(
-		'settings/conversation',
-		$('#settings_module_ajax_form').serialize() + "&auto_update=" + next_page
-	);
-
 	if(next_page === 1) {
 		page_load = true;
 	}
 
-	$('#conversation_settings').modal('hide');
-
-	if(timer) clearTimeout(timer);
-	timer = setTimeout(updateInit,100);
+	$.post(
+		'settings/conversation',
+		$('#settings_module_ajax_form').serialize() + "&auto_update=" + next_page
+	).done(function() {
+		$('#conversation_settings').modal('hide');
+		toast('Conversation features updated', 'info');
+		updateInit();
+	});
 
 	return false;
 }
@@ -1305,7 +1304,7 @@ function dropItem(url, object, b64mid) {
 			$(object + ', #pinned-wrapper-' + id).remove();
 			$('body').css('cursor', 'auto');
 
-			toast(aStr.itemdel, 'info')
+			toast(aStr.itemdel, 'info');
 			//$.jGrowl(aStr.itemdel, { sticky: false, theme: 'info', life: 3000 });
 
 			if (typeof b64mid !== typeof undefined) {
@@ -1361,8 +1360,8 @@ function dostar(ident) {
 			$('#starred-' + ident).removeClass('fa-star-o');
 			$('#star-' + ident).addClass('hidden');
 			$('#unstar-' + ident).removeClass('hidden');
-			var btn_tpl = '<div class="btn-group" id="star-button-' + ident + '"><button type="button" class="btn btn-outline-secondary border-0 btn-sm wall-item-star" onclick="dostar(' + ident + ');"><i class="fa fa-star"></i></button></div>'
-			$('#wall-item-tools-left-' + ident).prepend(btn_tpl);
+			var btn_tpl = '<div class="" id="star-button-' + ident + '"><button type="button" class="btn btn-outline-secondary border-0 wall-item-star" onclick="dostar(' + ident + ');"><i class="fa fa-star"></i></button></div>'
+			$('#wall-item-tools-right-' + ident).prepend(btn_tpl);
 		}
 		else {
 			$('#starred-' + ident).addClass('unstarred');

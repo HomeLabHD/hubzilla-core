@@ -1429,7 +1429,6 @@ class Item extends Controller {
 
 			require_once('include/items.php');
 
-
 			$i = q("select id, uid, item_origin, author_xchan, owner_xchan, source_xchan, item_type from item where id = %d limit 1",
 				intval(argv(2))
 			);
