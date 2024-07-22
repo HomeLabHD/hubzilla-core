@@ -543,7 +543,8 @@ class ThreadItem {
 			'moderate_approve' => t('Approve'),
 			'moderate_delete' => t('Delete'),
 			'rtl' => in_array($item['lang'], rtl_languages()),
-			'reactions_allowed' => $reactions_allowed
+			'reactions_allowed' => $reactions_allowed,
+			'reaction_str' => [t('Add yours'), t('Remove yours')]
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);
