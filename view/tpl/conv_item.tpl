@@ -115,7 +115,7 @@
 											<h3 class="modal-title">{{$response.count}} {{$response.button.label}}</h3>
 											<button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
 										</div>
-										{{if $item.reactions_allowed && !($verb === 'announce' && $item.my_responses.announce)}} {{** undo announce is not yet supported **}}
+										{{if $item.reactions_allowed && !($verb === 'announce' && $item.my_responses.$verb)}} {{** undo announce is not yet supported **}}
 										<div class="modal-header">
 											<a href="#" class="text-reset" onclick="{{$response.button.onclick}}({{$item.id}},'{{$verb}}'); return false;">{{if $item.my_responses.$verb}}- {{$item.reaction_str.1}}{{else}}+ {{$item.reaction_str.0}}{{/if}}</a>
 										</div>
@@ -135,7 +135,7 @@
 							</div><!-- /.modal -->
 							{{else}}
 							<div class="dropdown-menu">
-								{{if $item.reactions_allowed && !($verb === 'announce' && $item.my_responses.announce)}} {{** undo announce is not yet supported **}}
+								{{if $item.reactions_allowed && !($verb === 'announce' && $item.my_responses.$verb)}} {{** undo announce is not yet supported **}}
 								<div class="dropdown-item">
 									<a href="#" class="text-reset" onclick="{{$response.button.onclick}}({{$item.id}},'{{$verb}}'); return false;">{{if $item.my_responses.$verb}}- {{$item.reaction_str.1}}{{else}}+ {{$item.reaction_str.0}}{{/if}}</a>
 								</div>
