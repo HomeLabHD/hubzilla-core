@@ -1,0 +1,54 @@
+#!/usr/bin/env php
+<?php
+
+if(!file_exists('include/cli_startup.php')) {
+    echo 'Run update_db from the top level Hubzilla web directory, as util/update_db <args>' . PHP_EOL;
+	exit(1);
+}
+
+require_once('include/cli_startup.php');
+
+cli_startup();
+
+use Zotlabs\Lib\Config;
+
+$CURRENT_DBV = Config::Get('system','db_version');
+$LATEST_DBV = DB_UPDATE_VERSION;
+
+if($argc == 1) {
+    if($CURRENT_DBV != $LATEST_DBV) {
+        echo "Updating database...";
+        check_config();
+        echo "Done";
+    } else {
+        echo 'DB up to date: ' . $CURRENT_DBV . PHP_EOL;
+    }
+}
+
+if($argc > 1 && $argv[1] === 'list') {
+    echo 'CURRENT: ' . $CURRENT_DBV . PHP_EOL;
+    $count = 1;
+    foreach (new DirectoryIterator('Zotlabs/Update') as $filename) {
+        if($filename->isDot()) continue;
+        $find = array("_",".php");
+        $filename = str_replace($find,"",$filename);
+        if($filename > $CURRENT_DBV) {
+            echo $count . ': ' . $filename . PHP_EOL;
+            ++$count;
+        }
+    }
+    echo 'LATEST: ' . $LATEST_DBV . PHP_EOL;
+}
+
+if($argc > 1 && $argv[1] === 'help' || $argv[1] === 'h') {
+
+	echo <<<'EOHelp'
+runs or lists db updates
+
+Usage: util/update_db
+       util/update_db list
+       util/update_db help
+
+EOHelp;
+    return;
+}
