@@ -31,30 +31,7 @@ class HelpTest extends \Zotlabs\Tests\Unit\Module\TestCase {
 	 *	["html"]
 	 */
 	public function test_get_request_when_help_file_exists(string $ext): void {
-		// Stub file exists, to only retur true for the file with the current
-		// extension
-		$fe_stub = $this->getFunctionMock('Zotlabs\Lib\Traits', 'file_exists');
-		$fe_stub
-			->expects($this->any())
-			->willReturnCallback(
-				fn (string $path) => $path === "doc/en/about/help_topic.{$ext}"
-			);
-
-		// Use a value map to make the `file_get_contents` stub return the
-		// correct content for the file types.
-		$file_content_map = [
-			[ 'doc/en/about/help_topic.md', "### Help heading\n\$Projectname help content" ],
-			[ 'doc/en/about/help_topic.bb', "[h3]Help heading[/h3]\n\n\$Projectname help content" ],
-			[ 'doc/en/about/help_topic.html', "<h3>Help heading</h3><p>\$Projectname help content</p>" ],
-		];
-
-		// Stub `file_get_contents` to plant our own content.
-		$fgc_stub = $this->getFunctionMock('Zotlabs\Module', 'file_get_contents');
-		$fgc_stub
-			->expects($this->once())
-			->willReturnMap($file_content_map);
-
-
+		$stubs = $this->prepare_stubs($ext);
 		$this->get("help/about/help_topic");
 
 		// Check that markdown content was correctly rendered
@@ -180,5 +157,32 @@ class HelpTest extends \Zotlabs\Tests\Unit\Module\TestCase {
 		$this->get('help/main');
 
 		$this->assertPageContains('<h3>This is the included file.</h3>');
+	}
+
+	private function prepare_stubs(string $ext): array {
+		// Stub file exists, to only retur true for the file with the current
+		// extension
+		$fe_stub = $this->getFunctionMock('Zotlabs\Lib\Traits', 'file_exists');
+		$fe_stub
+			->expects($this->any())
+			->willReturnCallback(
+				fn (string $path) => $path === "doc/en/about/help_topic.{$ext}"
+			);
+
+		// Use a value map to make the `file_get_contents` stub return the
+		// correct content for the file types.
+		$file_content_map = [
+			[ 'doc/en/about/help_topic.md', "### Help heading\n\$Projectname help content" ],
+			[ 'doc/en/about/help_topic.bb', "[h3]Help heading[/h3]\n\n\$Projectname help content" ],
+			[ 'doc/en/about/help_topic.html', "<h3>Help heading</h3><p>\$Projectname help content</p>" ],
+		];
+
+		// Stub `file_get_contents` to plant our own content.
+		$fgc_stub = $this->getFunctionMock('Zotlabs\Module', 'file_get_contents');
+		$fgc_stub
+			->expects($this->once())
+			->willReturnMap($file_content_map);
+
+		return [ 'file_exists' => $fe_stub, 'file_get_contents' => $fgc_stub ];
 	}
 }
