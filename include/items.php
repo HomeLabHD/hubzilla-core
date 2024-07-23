@@ -2951,11 +2951,10 @@ function tgroup_check($uid, $item) {
 	// post to group via DM
 
 	if ($is_group) {
-		if (intval($item['item_private']) === 2 && $item['mid'] === $item['parent_mid']) {
+		if (intval($item['item_private']) === 2 && $item['mid'] === $item['parent_mid'] && perm_is_allowed($uid, $item['owner_xchan'], 'post_wall')) {
 			return true;
 		}
 	}
-
 
 	// see if we already have this item. Maybe it is being updated.
 
