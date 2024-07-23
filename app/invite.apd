@@ -1,7 +1,7 @@
-version: 3
+version: 4
 url: $baseurl/invite
 requires: local_channel
 name: Invite
-photo: icon:user-plus
+photo: icon:person-plus
 categories: Networking
 desc: Send invite emails with an invite token. This app only works if your hub is configured to allow invites.

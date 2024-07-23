@@ -170,10 +170,10 @@ class Messages {
 
 			switch(intval($item['item_private'])) {
 				case 1:
-					$icon = '<i class="fa fa-lock"></i>';
+					$icon = '<i class="bi bi-lock"></i>';
 					break;
 				case 2:
-					$icon = '<i class="fa fa-envelope-o"></i>';
+					$icon = '<i class="bi bi-envelope"></i>';
 					break;
 				default:
 					$icon = '';
@@ -293,7 +293,7 @@ class Messages {
 			$entries[$i]['summary'] = $summary;
 			$entries[$i]['b64mid'] = (($notice['ntype'] & NOTIFY_INTRO) ? '' : ((str_contains($notice['hash'], '-')) ? $notice['hash'] : basename($notice['link'])));
 			$entries[$i]['href'] = (($notice['ntype'] & NOTIFY_INTRO) ? $notice['link'] : z_root() . '/hq/' . ((str_contains($notice['hash'], '-')) ? $notice['hash'] : basename($notice['link'])));
-			$entries[$i]['icon'] = (($notice['ntype'] & NOTIFY_INTRO) ? '<i class="fa fa-user-plus"></i>' : '');
+			$entries[$i]['icon'] = (($notice['ntype'] & NOTIFY_INTRO) ? '<i class="bi bi-person-plus"></i>' : '');
 
 			$i++;
 		}

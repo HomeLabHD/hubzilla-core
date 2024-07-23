@@ -1,7 +1,7 @@
-version: 3
+version: 4
 url: $baseurl/defperms
 requires: local_channel, custom_role
 name: Default Permissions
-photo: icon:unlock-alt
+photo: icon:person-lock
 categories: Access Control
 desc: Set custom default permissions for new connections.

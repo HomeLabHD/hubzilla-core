@@ -1,6 +1,6 @@
-version: 3
+version: 4
 url: $baseurl/lang
 name: Language
-photo: icon:language
+photo: icon:translate
 categories: System
 desc: A simple language selector.

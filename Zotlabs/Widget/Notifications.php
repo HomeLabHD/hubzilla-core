@@ -18,7 +18,7 @@ class Notifications {
 		if(local_channel()) {
 			$notifications[] = [
 				'type' => 'network',
-				'icon' => 'th',
+				'icon' => 'grid-3x3',
 				'severity' => 'secondary',
 				'label' => t('Network'),
 				'title' => t('New network activity notifications'),
@@ -38,7 +38,7 @@ class Notifications {
 
 			$notifications[] = [
 				'type' => 'home',
-				'icon' => 'home',
+				'icon' => 'house',
 				'severity' => 'danger',
 				'label' => t('Home'),
 				'title' => t('New home activity notifications'),
@@ -76,7 +76,7 @@ class Notifications {
 
 			$notifications[] = [
 				'type' => 'all_events',
-				'icon' => 'calendar',
+				'icon' => 'calendar-week',
 				'severity' => 'secondary',
 				'label' => t('Events'),
 				'title' => t('New events notifications'),
@@ -91,7 +91,7 @@ class Notifications {
 
 			$notifications[] = [
 				'type' => 'intros',
-				'icon' => 'users',
+				'icon' => 'people',
 				'severity' => 'danger',
 				'label' => t('New Connections'),
 				'title' => t('New connections notifications'),
@@ -111,7 +111,7 @@ class Notifications {
 
 			$notifications[] = [
 				'type' => 'notify',
-				'icon' => 'exclamation',
+				'icon' => 'exclamation-circle',
 				'severity' => 'danger',
 				'label' => t('Notices'),
 				'title' => t('Notices'),
@@ -126,7 +126,7 @@ class Notifications {
 
 			$notifications[] = [
 				'type' => 'forums',
-				'icon' => 'comments-o',
+				'icon' => 'chat-quote',
 				'severity' => 'secondary',
 				'label' => t('Forums'),
 				'title' => t('Forums'),
@@ -139,7 +139,7 @@ class Notifications {
 		if(local_channel() && is_site_admin()) {
 			$notifications[] = [
 				'type' => 'register',
-				'icon' => 'user-o',
+				'icon' => 'person-exclamation',
 				'severity' => 'danger',
 				'label' => t('Registrations'),
 				'title' => t('New registrations notifications'),

@@ -855,12 +855,12 @@ a .generic-icons {
 
 .generic-icons-nav {
 	font-size: 1rem;
-	margin-right: 7px;
+	margin-right: 0.5rem;
 }
 
 .admin-icons {
-	font-size: 1.2em;
-	margin-right: 7px;
+	font-size: 1rem;
+	margin-right: 0.5rem;
 }
 
 .drop-icons,

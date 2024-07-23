@@ -187,7 +187,7 @@
 						{{/if}}
 						{{if $item.reply_to}}
 						<button type="button" title="{{$item.reply_to.0}}" class="btn btn-outline-secondary border-0" onclick="doreply({{$item.parent}}, {{$item.id}}, '{{$item.author_id}}', '{{$item.reply_to.2}} {{$item.name|escape:javascript}}');">
-							<i class="bi bi-reply" ></i>
+							<i class="bi bi-arrow-90deg-left" ></i>
 						</button>
 						{{/if}}
 						<div class="">
@@ -199,7 +199,7 @@
 								<!--a class="dropdown-item" href="#" onclick="jotShare({{$item.id}},{{$item.item_type}}); return false"><i class="generic-icons-nav fa fa-fw fa-retweet" title="{{$item.share.0}}"></i>{{$item.share.0}}</a-->
 								{{/if}}
 								{{if $item.embed}}
-								<a class="dropdown-item" href="#" onclick="jotEmbed({{$item.id}},{{$item.item_type}}); return false"><i class="generic-icons-nav bi bi-arrow-up-right" title="{{$item.embed.0}}"></i>{{$item.embed.0}}</a>
+								<a class="dropdown-item" href="#" onclick="jotEmbed({{$item.id}},{{$item.item_type}}); return false"><i class="generic-icons-nav bi bi-arrow-90deg-right" title="{{$item.embed.0}}"></i>{{$item.embed.0}}</a>
 								{{/if}}
 								{{if $item.plink}}
 								<a class="dropdown-item" href="{{$item.plink.href}}" title="{{$item.plink.title}}" class="u-url"><i class="generic-icons-nav bi bi-box-arrow-up-right"></i>{{$item.plink.title}}</a>

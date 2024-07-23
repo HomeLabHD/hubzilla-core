@@ -1256,7 +1256,7 @@ function doscroll(parent, hidden) {
 	});
 
 	$('html, body').animate({scrollTop:(id.offset().top) - 50}, 'slow');
-	$('<a href="javascript:doscrollback(' + pos + ');" id="back-to-reply" title="' + aStr['to_reply'] + '"><i class="fa fa-angle-double-down"></i></a>').insertAfter('#wall-item-ago-' + id.attr('id').replace(/\D/g,''));
+	$('<a href="javascript:doscrollback(' + pos + ');" id="back-to-reply" title="' + aStr['to_reply'] + '"><i class="bi bi-chevron-double-down"></i></a>').insertAfter('#wall-item-ago-' + id.attr('id').replace(/\D/g,''));
 }
 
 function doscrollback(pos) {
@@ -1281,7 +1281,7 @@ function dopin(id) {
                         $('.dropdown-item-pinnable').html($('.dropdown-item-pinnable').html().replace(aStr['unpin_item'],aStr['pin_item']));
                         $('.wall-item-pinned').remove()
                         if(i.length == 0) {
-                                $('<span class="wall-item-pinned" title="' + aStr['pinned'] + '" id="wall-item-pinned-' + id + '"><i class="fa fa-thumb-tack">&nbsp;</i></span>').insertAfter('#wall-item-ago-' + id);
+                                $('<span class="wall-item-pinned" title="' + aStr['pinned'] + '" id="wall-item-pinned-' + id + '"><i class="bi bi-pin">&nbsp;</i></span>').insertAfter('#wall-item-ago-' + id);
                                 me.html(me.html().replace(aStr['pin_item'],aStr['unpin_item']));
                         };
                 })
@@ -1356,8 +1356,8 @@ function dostar(ident) {
 		if(data.result == 1) {
 			$('#starred-' + ident).addClass('starred');
 			$('#starred-' + ident).removeClass('unstarred');
-			$('#starred-' + ident).addClass('fa-star');
-			$('#starred-' + ident).removeClass('fa-star-o');
+			$('#starred-' + ident).addClass('bi-star-fill');
+			$('#starred-' + ident).removeClass('bi-star');
 			$('#star-' + ident).addClass('hidden');
 			$('#unstar-' + ident).removeClass('hidden');
 			var btn_tpl = '<div class="" id="star-button-' + ident + '"><button type="button" class="btn btn-outline-secondary border-0 wall-item-star" onclick="dostar(' + ident + ');"><i class="fa fa-star"></i></button></div>'
@@ -1366,8 +1366,8 @@ function dostar(ident) {
 		else {
 			$('#starred-' + ident).addClass('unstarred');
 			$('#starred-' + ident).removeClass('starred');
-			$('#starred-' + ident).addClass('fa-star-o');
-			$('#starred-' + ident).removeClass('fa-star');
+			$('#starred-' + ident).addClass('bi-star');
+			$('#starred-' + ident).removeClass('bi-star-fill');
 			$('#star-' + ident).removeClass('hidden');
 			$('#unstar-' + ident).addClass('hidden');
 			$('#star-button-' + ident).remove();
@@ -1678,7 +1678,7 @@ function push_notification(title, body, b64mid) {
 
 function toggleAside() {
 	if ($('main.region_1-on').length) {
-		$('#expand-aside-icon').addClass('fa-arrow-circle-right').removeClass('fa-arrow-circle-left');
+		$('#expand-aside-icon').addClass('bi-arrow-right-circle').removeClass('bi-arrow-left-circle');
 		$('html, body').css({ 'position': '', 'left': '' });
 		$('main').removeClass('region_1-on');
 		$('#region_1').addClass('d-none');
@@ -1686,7 +1686,7 @@ function toggleAside() {
 		$('#overlay').remove();
 	}
 	else {
-		$('#expand-aside-icon').removeClass('fa-arrow-circle-right').addClass('fa-arrow-circle-left');
+		$('#expand-aside-icon').removeClass('bi-arrow-right-circle').addClass('bi-arrow-left-circle');
 		$('html, body').css({ 'position': 'sticky',  'left': '0px'});
 		$('main').addClass('region_1-on');
 		$('#region_1').removeClass('d-none');
