@@ -123,13 +123,13 @@ class ThreadItem {
 			$locktype = 0;
 		}
 
-		$shareable = ((($conv->get_profile_owner() == local_channel() && local_channel()) && (intval($item['item_private']) === 0)) ? true : false);
+		$shareable = ((local_channel() && $conv->get_profile_owner() == local_channel()) && (intval($item['item_private']) === 0));
 
 		// allow an exemption for sharing stuff from your private feeds
 		if($item['author']['xchan_network'] === 'rss')
 			$shareable = true;
 
-		$repeatable = (intval($item['item_private']) === 0 && in_array($item['author']['xchan_network'], ['zot6', 'activitypub']));
+		$repeatable = ((local_channel() && $conv->get_profile_owner() == local_channel()) && intval($item['item_private']) === 0 && in_array($item['author']['xchan_network'], ['zot6', 'activitypub']));
 
 		// @fixme
 		// Have recently added code to properly handle polls in group reshares by redirecting all of the poll responses to the group.
