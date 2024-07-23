@@ -2965,9 +2965,6 @@ function tgroup_check($uid, $item) {
 	if($r)
 		return true;
 
-	if(! perm_is_allowed($uid,$item['author_xchan'],'tag_deliver'))
-		return false;
-
 	$u = q("select * from channel left join xchan on channel_hash = xchan_hash where channel_id = %d limit 1",
 		intval($uid)
 	);
