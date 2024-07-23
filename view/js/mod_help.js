@@ -97,8 +97,6 @@ $(document).ready(function () {
 		}
 
 	}
-	// Update the address bar to reflect the loaded language
-	window.history.replaceState({}, '', '/' + pathParts.join('/'));
 
 	// Highlight the language in the language selector that is currently viewed
 	$('.lang-selector').find('.lang-choice:contains("' + help_language + '")').addClass('active');
