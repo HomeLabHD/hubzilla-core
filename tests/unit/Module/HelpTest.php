@@ -103,6 +103,15 @@ class HelpTest extends \Zotlabs\Tests\Unit\Module\TestCase {
 		$this->get('help/first');
 	}
 
+	public function test_fall_back_to_english_if_localized_topic_dont_exist(): void {
+		\App::$language = 'nb';
+
+		$stubs = $this->prepare_stubs('bb');
+		$this->get('help/about/help_topic');
+
+		$this->assertPageContains('Hubzilla Documentation: About');
+	}
+
 	public function test_includes(): void {
 		// Stub `file_get_contents` to plant our own content.
 		$fgc_stub = $this->getFunctionMock('Zotlabs\Module', 'file_get_contents');

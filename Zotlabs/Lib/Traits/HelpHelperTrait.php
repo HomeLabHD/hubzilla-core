@@ -53,16 +53,20 @@ trait HelpHelperTrait {
 		// Use local variable until we can use trait constants.
 		$valid_file_ext = ['md', 'bb', 'html'];
 
-		$base_path = "doc/{$lang}/${base_path}";
+		$base_path_with_lang = "doc/{$lang}/${base_path}";
 
 		foreach ($valid_file_ext as $ext) {
-			$path = "{$base_path}.{$ext}";
+			$path = "{$base_path_with_lang}.{$ext}";
 			if (file_exists($path)) {
 				$this->file_name = $path;
 				$this->file_type = $ext;
 
 				break;
 			}
+		}
+
+		if (empty($this->file_name) && $lang !== 'en') {
+			$this->find_help_file($base_path, 'en');
 		}
 	}
 }
