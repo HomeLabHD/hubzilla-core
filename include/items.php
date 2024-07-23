@@ -2962,20 +2962,21 @@ function tgroup_check($uid, $item) {
 		dbesc($item['mid']),
 		intval($uid)
 	);
-	if($r)
+
+	if ($r) {
 		return true;
+	}
 
-	$u = q("select * from channel left join xchan on channel_hash = xchan_hash where channel_id = %d limit 1",
-		intval($uid)
-	);
+	$u = channelx_by_n($uid);
 
-	if(! $u)
+	if (!$u) {
 		return false;
+	}
 
 	$max_forums = Config::Get('system','max_tagged_forums',2);
 	$matched_forums = 0;
 
-	$link = normalise_link($u[0]['xchan_url']);
+	$link = normalise_link($u['xchan_url']);
 
 	$terms = [];
 
@@ -2992,7 +2993,7 @@ function tgroup_check($uid, $item) {
 			}
 
 			$mention = true;
-			logger('tgroup_check: mention found for ' . $u[0]['channel_name']);
+			logger('tgroup_check: mention found for ' . $u['channel_name']);
 
 			// At this point we've determined that the person receiving this post was mentioned in it.
 			// Now let's check if this mention was inside a reshare so we don't spam a forum
