@@ -3,7 +3,7 @@
         'name' => 'zotlabs/hubzilla',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '3c0d6339bb12bd7fbf65ba7a79078e39737b4387',
+        'reference' => '39933052a9eb827afee3965509909ba314de5257',
         'type' => 'application',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -313,6 +313,15 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'twbs/bootstrap-icons' => array(
+            'pretty_version' => 'v1.11.3',
+            'version' => '1.11.3.0',
+            'reference' => '8d88686c03c3768a2d82ba4f20c3c4e1b100fa29',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../twbs/bootstrap-icons',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'twitter/bootstrap' => array(
             'dev_requirement' => false,
             'replaced' => array(
@@ -340,7 +349,7 @@
         'zotlabs/hubzilla' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '3c0d6339bb12bd7fbf65ba7a79078e39737b4387',
+            'reference' => '39933052a9eb827afee3965509909ba314de5257',
             'type' => 'application',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

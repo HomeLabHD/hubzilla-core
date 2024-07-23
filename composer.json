@@ -55,10 +55,11 @@
         "patrickschur/language-detection": "^5.3",
         "stephenhill/base58": "^1.1",
         "mmccook/php-json-canonicalization-scheme": "^1.0",
-        "scssphp/scssphp": "^1.12"
+        "scssphp/scssphp": "^1.12",
+        "twbs/bootstrap-icons": "^1.11"
     },
     "require-dev": {
-		"ext-yaml": "*",
+        "ext-yaml": "*",
         "phpunit/phpunit": "^10.5",
         "php-mock/php-mock-phpunit": "^2.10",
         "phpmd/phpmd": "^2.6",

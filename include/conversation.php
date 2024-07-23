@@ -817,7 +817,7 @@ function thread_action_menu($item,$mode = '') {
 			$menu[] = [
 				'menu' => 'unfollow_thread',
 				'title' => t('Unfollow Thread'),
-				'icon' => 'minus',
+				'icon' => 'dash',
 				'action' => 'dounsubthread(' . $item['id'] . '); return false;',
 				'href' => '#'
 			];
@@ -1547,22 +1547,22 @@ function get_responses($conv_responses,$response_verbs,$ob,$item) {
 function get_response_button_text($v,$count) {
 	switch($v) {
 		case 'like':
-			return ['label' => tt('Like','Likes',$count,'noun'), 'icon' => 'thumbs-o-up', 'class' => 'like', 'onclick' => 'dolike'];
+			return ['label' => tt('Like','Likes',$count,'noun'), 'icon' => 'hand-thumbs-up', 'class' => 'like', 'onclick' => 'dolike'];
 			break;
 		case 'announce':
-			return ['label' => tt('Repeat','Repeats',$count,'noun'), 'icon' => 'retweet', 'class' => 'announce', 'onclick' => 'jotShare'];
+			return ['label' => tt('Repeat','Repeats',$count,'noun'), 'icon' => 'repeat', 'class' => 'announce', 'onclick' => 'jotShare'];
 			break;
 		case 'dislike':
-			return ['label' => tt('Dislike','Dislikes',$count,'noun'), 'icon' => 'thumbs-o-down', 'class' => 'dislike', 'onclick' => 'dolike'];
+			return ['label' => tt('Dislike','Dislikes',$count,'noun'), 'icon' => 'hand-thumbs-down', 'class' => 'dislike', 'onclick' => 'dolike'];
 			break;
 		case 'attendyes':
-			return ['label' => tt('Attending','Attending',$count,'noun'), 'icon' => 'calendar-check-o', 'class' => 'attendyes', 'onclick' => 'dolike'];
+			return ['label' => tt('Attending','Attending',$count,'noun'), 'icon' => 'calendar-check', 'class' => 'attendyes', 'onclick' => 'dolike'];
 			break;
 		case 'attendno':
-			return ['label' => tt('Not Attending','Not Attending',$count,'noun'), 'icon' => 'calendar-times-o', 'class' => 'attendno', 'onclick' => 'dolike'];
+			return ['label' => tt('Not Attending','Not Attending',$count,'noun'), 'icon' => 'calendar-x', 'class' => 'attendno', 'onclick' => 'dolike'];
 			break;
 		case 'attendmaybe':
-			return ['label' => tt('Undecided','Undecided',$count,'noun'), 'icon' => 'calendar-o', 'class' => 'attendmaybe', 'onclick' => 'dolike'];
+			return ['label' => tt('Undecided','Undecided',$count,'noun'), 'icon' => 'calendar', 'class' => 'attendmaybe', 'onclick' => 'dolike'];
 			break;
 		default:
 			return [];
