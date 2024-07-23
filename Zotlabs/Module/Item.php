@@ -837,8 +837,10 @@ class Item extends Controller {
 
 			if ($results) {
 
-				// Set permissions based on tag replacements
-				set_linkified_perms($results, $str_contact_allow, $str_group_allow, $profile_uid, $private, $parent_item);
+				// Set permissions based on tag replacements only if not editing an existing post
+				if (!$orig_post) {
+					set_linkified_perms($results, $str_contact_allow, $str_group_allow, $profile_uid, $private, $parent_item);
+				}
 
 				foreach ($results as $result) {
 					$success = $result['success'];
