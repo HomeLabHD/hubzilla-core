@@ -104,6 +104,11 @@ class HelpTest extends \Zotlabs\Tests\Unit\Module\TestCase {
 		$this->get('help');
 	}
 
+	public function test_getting_locale_with_no_topic_should_redirect_to_about_page_for_locale(): void {
+		$this->expectRedirectTo('help/de/about/about');
+		$this->get('help/de');
+	}
+
 	public function test_find_help_file_returns_first_match(): void {
 		// Stub file exists, to always return true
 		$fe_stub = $this->getFunctionMock('Zotlabs\Lib\Traits', 'file_exists');

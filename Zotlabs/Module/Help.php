@@ -6,6 +6,7 @@ use Michelf\MarkdownExtra;
 /**
  * You can create local site resources in doc/Site.md and either link to doc/Home.md for the standard resources
  * or use our include mechanism to include it on your local page.
+ *
  *@code
  * #include doc/Home.md;
  *@endcode
@@ -158,6 +159,10 @@ class Help extends \Zotlabs\Web\Controller {
 		// `init` function.
 		if ($this->lang['from_url']) {
 			array_shift($args);
+		}
+
+		if (empty($args)) {
+			goaway("/help/{$this->lang['language']}/about/about");
 		}
 
 		// Keep the first remaining arg as the heading slug
