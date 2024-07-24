@@ -470,12 +470,12 @@
 		});
 
 		if(primary_available) {
-			$('.notifications-btn-icon').removeClass('fa-exclamation-circle');
-			$('.notifications-btn-icon').addClass('fa-exclamation-triangle');
+			$('.notifications-btn-icon').removeClass('bi-exclamation-circle');
+			$('.notifications-btn-icon').addClass('bi-exclamation-triangle');
 		}
 		else {
-			$('.notifications-btn-icon').removeClass('fa-exclamation-triangle');
-			$('.notifications-btn-icon').addClass('fa-exclamation-circle');
+			$('.notifications-btn-icon').removeClass('bi-exclamation-triangle');
+			$('.notifications-btn-icon').addClass('bi-exclamation-circle');
 		}
 
 		if(any_available) {
