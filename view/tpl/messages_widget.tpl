@@ -1,24 +1,24 @@
 <ul class="nav nav-tabs nav-fill clearfix">
 	<li class="nav-item">
 		<a class="nav-link active messages-type" href="#" title="{{$strings.messages_title}}" data-messages_type="">
-			<i class="bi bi-chat"></i>
+			<i class="bi bi-chat generic-icons"></i>
 		</a>
 	</li>
 	<li class="nav-item">
 		<a class="nav-link messages-type" href="#" title="{{$strings.direct_messages_title}}" data-messages_type="direct">
-			<i class="bi bi-envelope"></i>
+			<i class="bi bi-envelope generic-icons"></i>
 		</a>
 	</li>
 	{{if $feature_star}}
 	<li class="nav-item">
 		<a class="nav-link messages-type" href="#" title="{{$strings.starred_messages_title}}" data-messages_type="starred">
-			<i class="bi bi-star"></i>
+			<i class="bi bi-star generic-icons"></i>
 		</a>
 	</li>
 	{{/if}}
 	<li class="nav-item">
 		<a class="nav-link messages-type" href="#" title="{{$strings.notice_messages_title}}" data-messages_type="notification">
-			<i class="bi bi-exclamation-circle"></i>
+			<i class="bi bi-exclamation-circle generic-icons"></i>
 		</a>
 	</li>
 </ul>

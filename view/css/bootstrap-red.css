@@ -32,10 +32,6 @@ input {
 	min-width: 0;
 }
 
-#navbar-collapse-1 i {
-	font-size: 1.0rem;
-}
-
 nav .dropdown-menu {
 	max-height: 70vh;
 	overflow: auto;

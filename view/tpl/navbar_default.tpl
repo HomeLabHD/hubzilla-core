@@ -125,7 +125,7 @@
 					</div>
 				</li>
 				<li class="nav-item" id="nav-search-btn">
-					<a class="nav-link" href="#nav-search" title="{{$nav.search.3}}" onclick="openMenu('nav-search'); closeMenu('nav-search-btn'); $('#nav-search-text').focus(); return false;"><i class="bi bi-search"></i></a>
+					<a class="nav-link" href="#nav-search" title="{{$nav.search.3}}" onclick="openMenu('nav-search'); closeMenu('nav-search-btn'); $('#nav-search-text').focus(); return false;"><i class="bi bi-search generic-icons"></i></a>
 				</li>
 				{{if $nav.help.6}}
 				<li class="nav-item dropdown {{$sel.help}}">
@@ -145,7 +145,7 @@
 				{{/foreach}}
 				{{/if}}
 				<li class="nav-item dropdown" id="app-menu">
-					<a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#app-bin" aria-controls="app-bin"><i class="bi bi-three-dots-vertical"></i></a>
+					<a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#app-bin" aria-controls="app-bin"><i class="bi bi-three-dots-vertical generic-icons"></i></a>
 				</li>
 			</ul>
 		</div>
@@ -219,12 +219,13 @@
 		</div>
 		<div id="nav-app-bin-container" class="d-lg-none nav nav-pills flex-column">
 			{{foreach $navbar_apps as $navbar_app}}
-				{{$navbar_app|replace:'fa':'generic-icons-nav fa'}}
+				{{$navbar_app|replace:'generic-icons':'generic-icons-nav'}}
 			{{/foreach}}
 		</div>
+
 		{{/if}}
 		{{if $is_owner}}
-		<div class="text-uppercase text-muted nav-link">
+		<div class="text-uppercase dropdown-header text-muted">
 			{{$featured_apps}}
 		</div>
 		<div id="app-bin-container" data-token="{{$form_security_token}}" class="nav nav-pills flex-column">

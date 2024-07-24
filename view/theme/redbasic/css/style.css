@@ -844,28 +844,27 @@ margin-right: 50px;
 
 .generic-icons,
 a .generic-icons {
-	font-size: 1rem;
-	margin-right: 0.5rem;
+	font-size: 1.2rem;
 }
 
 .generic-icons-right {
-	font-size: 1rem;
+	font-size: 1.2rem;
 	margin-left: 0.5rem;
 }
 
 .generic-icons-nav {
-	font-size: 1rem;
+	font-size: 1.2rem;
 	margin-right: 0.5rem;
 }
 
 .admin-icons {
-	font-size: 1rem;
+	font-size: 1.2rem;
 	margin-right: 0.5rem;
 }
 
 .drop-icons,
 a .drop-icons {
-	font-size: 1rem;
+	font-size: 1.2rem;
 	text-decoration: none;
 	cursor: pointer;
 }
