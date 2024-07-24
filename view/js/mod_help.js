@@ -1,14 +1,3 @@
-function docoTocToggle() {
-	if ($('#doco-top-toc').is(':visible')) {
-		$('#doco-toc-toggle').removeClass('bi-gear').addClass('bi-caret-right');
-	} else {
-		$('#doco-toc-toggle').removeClass('bi-caret-right').addClass('bi-caret-down');
-	}
-	$('#doco-top-toc').toggle();
-
-	return false;
-}
-
 toc = {};
 // Generate the table of contents in the side nav menu (see view/tpl/help.tpl)
 $(document).ready(function () {

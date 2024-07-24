@@ -15,6 +15,14 @@
 	list-style-type: none;
 }
 
+#doco-top-toc-wrapper {
+	margin-bottom: 1em;
+}
+
+#doco-top-toc-wrapper > summary {
+	font-size: large;
+}
+
 .toc-content li,
 	#doco-top-toc li {
 	padding: 3px 0px;
@@ -23,4 +31,3 @@
 #doco-side-toc li {
 	padding-left: 20px;
 }
-
