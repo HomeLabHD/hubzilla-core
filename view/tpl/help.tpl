@@ -7,7 +7,7 @@
 		{{$module->missing_translation_message()}}
 	</div>
 	{{/if}}
-	<div class="section-content-wrapper" id="doco-content">
+	<div class="section-content-wrapper">
 		<h3 id="doco-top-toc-heading">
 			<span class="fakelink" onclick="docoTocToggle(); return false;">
 				<i class="bi bi-caret-right fakelink" id="doco-toc-toggle"></i>
@@ -15,6 +15,8 @@
 			</span>
 		</h3>
 		<ul id="doco-top-toc" style="margin-bottom: 1.5em; display: none;"></ul>
-		{{$module->render_content()}}
+		<div id="doco-content">
+			{{$module->render_content()}}
+		</div>
 	</div>
 </div>
