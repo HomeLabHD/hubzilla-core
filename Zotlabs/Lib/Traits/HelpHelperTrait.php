@@ -15,6 +15,14 @@ trait HelpHelperTrait {
 	private string $file_type = '';
 
 	/**
+	 * Associative array containing the detected language.
+	 */
+	private array $lang = [
+		'language' => 'en',		//! Detected language, 2-letter ISO 639-1 code ("en")
+		'from_url' => false,	//! true if language from URL overrides browser default
+	];
+
+	/**
 	 * Determines help language.
 	 *
 	 * If the language was specified in the URL, override the language preference

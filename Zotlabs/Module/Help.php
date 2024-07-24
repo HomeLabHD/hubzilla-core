@@ -20,14 +20,6 @@ class Help extends \Zotlabs\Web\Controller {
 	private string $heading_slug = '';
 
 	/**
-	 * Associative array containing the detected language.
-	 */
-	public array $lang = [
-		'language' => 'en',		//! Detected language, 2-letter ISO 639-1 code ("en")
-		'from_url' => false,	//! true if language from URL overrides browser default
-	];
-
-	/**
 	 * Pre-check before processing request.
 	 *
 	 * Determine language requested, and ensure that a topic was requested.
