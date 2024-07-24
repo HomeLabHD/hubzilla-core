@@ -83,8 +83,13 @@ trait HelpHelperTrait {
 	}
 
 	public function missing_translation_message(): string {
+		$prefered_language_name = get_language_name(
+			$this->lang['language'],
+			$this->lang['language']
+		);
+
 		return bbcode(
-			t("This page is not yet available in your preferred language. See [observer.baseurl]/help/developer/developer_guide#Translations for information about how to help.")
+			t("This page is not yet available in {$prefered_language_name}. See [observer.baseurl]/help/developer/developer_guide#Translations for information about how to help.")
 		);
 	}
 }
