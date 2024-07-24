@@ -110,6 +110,7 @@ class HelpTest extends \Zotlabs\Tests\Unit\Module\TestCase {
 		$this->get('help/about/help_topic');
 
 		$this->assertPageContains('Hubzilla Documentation: About');
+		$this->assertPageContains('This page is not yet available in your preferred language');
 	}
 
 	public function test_includes(): void {
