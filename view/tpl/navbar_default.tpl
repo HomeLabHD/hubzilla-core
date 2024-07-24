@@ -79,7 +79,7 @@
 			</button>
 			{{if $localuser || $nav.pubs}}
 			<button id="notifications-btn-1" type="button" class="navbar-toggler border-0 notifications-btn">
-				<i id="notifications-btn-icon-1" class="bi bi-exclamation-circle notifications-btn-icon"></i>
+				<i id="notifications-btn-icon-1" class="bi bi-exclamation-circle notifications-btn-icon generic-icons"></i>
 			</button>
 			{{/if}}
 			<button id="menu-btn" class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#app-bin">
@@ -134,7 +134,7 @@
 				{{/if}}
 				{{if $localuser || $nav.pubs}}
 				<li id="notifications-btn" class="nav-item d-xl-none">
-					<a class="nav-link notifications-btn" href="#"><i id="notifications-btn-icon" class="bi bi-exclamation-circle notifications-btn-icon"></i></a>
+					<a class="nav-link notifications-btn" href="#"><i id="notifications-btn-icon" class="bi bi-exclamation-circle notifications-btn-icon generic-icons"></i></a>
 				</li>
 				{{/if}}
 				{{if $navbar_apps}}
