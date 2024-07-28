@@ -19,12 +19,13 @@ class Sse extends Controller {
 
 	function init() {
 
+		// This is important!
+		session_write_close();
+		ignore_user_abort(true);
+
 		if((observer_prohibited(true))) {
 			killme();
 		}
-
-		// this is important!
-		ignore_user_abort(true);
 
 		self::$uid = local_channel();
 		self::$ob_hash = get_observer_hash();
@@ -102,18 +103,8 @@ class Sse extends Controller {
 				$lock = XConfig::Get(self::$ob_hash, 'sse', 'lock');
 
 				if (!$lock) {
-					$result_db = XConfig::Get(self::$ob_hash, 'sse', 'notifications', []);
+					$result = XConfig::Get(self::$ob_hash, 'sse', 'notifications', []);
 				}
-
-				if (!empty($_SESSION['sysmsg'])) {
-					$result['notice']['notifications'] = $_SESSION['sysmsg'];
-				}
-
-				if (!empty($_SESSION['sysmsg_info'])) {
-					$result['info']['notifications'] = $_SESSION['sysmsg_info'];
-				}
-
-				$result = array_merge($result, $result_db);
 
 				// We do not have the local_channel in the addon.
 				// Reset pubs here if the app is not installed.
@@ -137,8 +128,9 @@ class Sse extends Controller {
 
 				if (connection_status() != CONNECTION_NORMAL || connection_aborted()) {
 
-					// IMPORTANT: in case the channel was changed we need to reset the
-					// session here to it's current stored state.
+					// In case session_write_close() failed for some reason and
+					// the channel was changed we might need to reset the
+					// session to it's current stored state here.
 					// Otherwise the uid might switch back to the previous value
 					// in the background.
 
@@ -146,9 +138,6 @@ class Sse extends Controller {
 
 					XConfig::Set(self::$ob_hash, 'sse', 'timestamp', NULL_DATE);
 					XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
-
-					$_SESSION['sysmsg'] = [];
-					$_SESSION['sysmsg_info'] = [];
 
 					if (ob_get_length() > 0) {
 						ob_end_flush();
@@ -168,12 +157,7 @@ class Sse extends Controller {
 				usleep($sleep);
 
 				if ($result) {
-					if ($result_db) {
-						XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
-					}
-
-					$_SESSION['sysmsg'] = [];
-					$_SESSION['sysmsg_info'] = [];
+					XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
 				}
 
 				$i++;
@@ -184,7 +168,7 @@ class Sse extends Controller {
 		else {
 			// Fallback to traditional polling
 
-			if(! self::$sse_id) {
+			if(!self::$sse_id) {
 
 				// Update chat presence indication
 
@@ -193,14 +177,14 @@ class Sse extends Controller {
 					dbesc($_SERVER['REMOTE_ADDR'])
 				);
 				$basic_presence = false;
-				if($r) {
+				if ($r) {
 					$basic_presence = true;
 					q("update chatpresence set cp_last = '%s' where cp_id = %d",
 						dbesc(datetime_convert()),
 						intval($r[0]['cp_id'])
 					);
 				}
-				if(! $basic_presence) {
+				if (!$basic_presence) {
 					q("insert into chatpresence ( cp_xchan, cp_last, cp_status, cp_client)
 						values( '%s', '%s', '%s', '%s' ) ",
 						dbesc(self::$ob_hash),
@@ -212,34 +196,17 @@ class Sse extends Controller {
 			}
 
 			$result = [];
-			$result_db = [];
 
 			XConfig::Load(self::$ob_hash);
 
 			$lock = XConfig::Get(self::$ob_hash, 'sse', 'lock');
 
 			if (!$lock) {
-				$result_db = XConfig::Get(self::$ob_hash, 'sse', 'notifications', []);
+				$result = XConfig::Get(self::$ob_hash, 'sse', 'notifications', []);
 			}
 
-			if (!empty($_SESSION['sysmsg'])) {
-				$result['notice']['notifications'] = $_SESSION['sysmsg'];
-			}
-
-			if (!empty($_SESSION['sysmsg_info'])) {
-				$result['info']['notifications'] = $_SESSION['sysmsg_info'];
-			}
-
-			$result = array_merge($result, $result_db);
-
-			if($result) {
-				if ($result_db) {
-					XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
-				}
-
-				$_SESSION['sysmsg'] = [];
-				$_SESSION['sysmsg_info'] = [];
-
+			if ($result) {
+				XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
 				json_return_and_die($result);
 			}
 

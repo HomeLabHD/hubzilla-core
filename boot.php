@@ -1897,6 +1897,8 @@ function can_view_public_stream() {
  */
 function notice($s) {
 
+/*
+
 	if (!session_id()) {
 		return;
 	}
@@ -1914,6 +1916,42 @@ function notice($s) {
 	if (App::$interactive) {
 		$_SESSION['sysmsg'][] = $s;
 	}
+*/
+
+	$hash   = get_observer_hash();
+	$sse_id = false;
+
+	if (!$hash) {
+		if (session_id()) {
+			$sse_id = true;
+			$hash   = 'sse_id.' . session_id();
+		}
+		else {
+			return;
+		}
+	}
+
+	$x = null;
+
+	$t = get_xconfig($hash, 'sse', 'timestamp', NULL_DATE);
+
+	if (datetime_convert('UTC', 'UTC', $t) < datetime_convert('UTC', 'UTC', '- 30 seconds')) {
+		set_xconfig($hash, 'sse', 'notifications', []);
+		$x = [];
+	}
+
+	if ($x === null) {
+		$x = get_xconfig($hash, 'sse', 'notifications', []);
+	}
+
+	if (isset($x['notice']) && in_array($s, $x['notice']['notifications'])) {
+		return;
+	}
+
+	if (App::$interactive) {
+		$x['notice']['notifications'][] = $s;
+		set_xconfig($hash, 'sse', 'notifications', $x);
+	}
 
 }
 
@@ -1928,7 +1966,7 @@ function notice($s) {
  * @param string $s Text to display
  */
 function info($s) {
-
+/*
 	if (!session_id()) {
 		return;
 	}
@@ -1945,6 +1983,42 @@ function info($s) {
 
 	if (App::$interactive) {
 		$_SESSION['sysmsg_info'][] = $s;
+	}
+*/
+
+	$hash   = get_observer_hash();
+	$sse_id = false;
+
+	if (!$hash) {
+		if (session_id()) {
+			$sse_id = true;
+			$hash   = 'sse_id.' . session_id();
+		}
+		else {
+			return;
+		}
+	}
+
+	$x = null;
+
+	$t = get_xconfig($hash, 'sse', 'timestamp', NULL_DATE);
+
+	if (datetime_convert('UTC', 'UTC', $t) < datetime_convert('UTC', 'UTC', '- 30 seconds')) {
+		set_xconfig($hash, 'sse', 'notifications', []);
+		$x = [];
+	}
+
+	if ($x === null) {
+		$x = get_xconfig($hash, 'sse', 'notifications', []);
+	}
+
+	if (isset($x['info']) && in_array($s, $x['info']['notifications'])) {
+		return;
+	}
+
+	if (App::$interactive) {
+		$x['info']['notifications'][] = $s;
+		set_xconfig($hash, 'sse', 'notifications', $x);
 	}
 
 }
