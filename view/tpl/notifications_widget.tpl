@@ -597,7 +597,7 @@
 			{{/if}}
 			{{if $notification.filter.name_label}}
 			<div class="list-group-item clearfix notifications-textinput" id="cn-{{$notification.type}}-only">
-				<div class="text-muted notifications-textinput-filter"><i class="bi bi-funnel"></i></div>
+				<div class="text-muted notifications-textinput-filter"><i class="bi bi-filter"></i></div>
 				<input id="cn-{{$notification.type}}-input" type="text" class="notification-filter form-control form-control-sm" placeholder="{{$notification.filter.name_label}}">
 				<div id="cn-{{$notification.type}}-input-clear" class="text-muted notifications-textinput-clear d-none"><i class="bi bi-x-lg"></i></div>
 			</div>

@@ -49,7 +49,7 @@
 	</div>
 	<div id="messages-container" class="list-group list-group-flush" data-offset="10">
 		<div id="messages-author-container" class="list-group-item notifications-textinput">
-			<div class="text-muted notifications-textinput-filter"><i class="bi bi-funnel"></i></div>
+			<div class="text-muted notifications-textinput-filter"><i class="bi bi-filter"></i></div>
 			<input id="messages-author" type="text" class="form-control form-control-sm" placeholder="{{$strings.filter}}">
 			<div id="messages-author-input-clear" class="text-muted notifications-textinput-clear d-none"><i class="bi bi-x-lg"></i></div>
 		</div>
