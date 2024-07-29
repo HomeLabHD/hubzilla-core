@@ -27,7 +27,7 @@
 				{{/if}}
 				{{/if}}
 				<div class="p-2 wall-item-head{{if !$item.title && !$item.event && !$item.photo}} rounded-top{{/if}}{{if $item.is_new && !$item.event && !$item.is_comment}} wall-item-head-new{{/if}} clearfix">
-					<div class="text-end float-end">
+					<div class="lh-sm text-end float-end">
 						<div class="wall-item-ago opacity-75" id="wall-item-ago-{{$item.id}}">
 							{{if $item.editedtime}}
 							<i class="bi bi-pencil"></i>
