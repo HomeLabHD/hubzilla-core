@@ -3464,7 +3464,7 @@ class Activity {
 				$ret[$collection] = $actor_record[$collection];
 			}
 		}
-		if (array_path_exists('endpoints/sharedInbox', $actor_record) && $actor_record['endpoints']['sharedInbox']) {
+		if (!empty($actor_record['endpoints']['sharedInbox'])) {
 			$ret['sharedInbox'] = $actor_record['endpoints']['sharedInbox'];
 		}
 
