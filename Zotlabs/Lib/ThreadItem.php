@@ -93,7 +93,7 @@ class ThreadItem {
 		$buttons = '';
 		$dropping = false;
 		$star = false;
-		$isstarred = "unstarred fa-star-o";
+		$isstarred = "unstarred bi-star";
 		$is_comment = false;
 		$is_item = false;
 		$osparkle = '';
@@ -573,7 +573,7 @@ class ThreadItem {
 			if(($nb_children > $visible_comments) || ($thread_level > 1)) {
 				$result['children'][0]['comment_firstcollapsed'] = true;
 				$result['children'][0]['num_comments'] = $comment_count_txt['label'];
-				$result['children'][0]['hide_text'] = sprintf( t('%s show all'), '<i class="fa fa-chevron-down"></i>');
+				$result['children'][0]['hide_text'] = sprintf( t('%s show all'), '<i class="bi bi-chevron-down"></i>');
 				if($thread_level > 1) {
 					$result['children'][$nb_children - 1]['comment_lastcollapsed'] = true;
 				}

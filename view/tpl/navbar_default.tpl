@@ -71,11 +71,11 @@
 		<div class="navbar-toggler-right">
 			{{if $nav.help.6}}
 			<button id="context-help-btn" class="navbar-toggler border-0" type="button" onclick="contextualHelp(); return false;">
-				<i class="bi bi-question-circle-fill"></i>
+				<i class="bi bi-question-circle-fill generic-icons"></i>
 			</button>
 			{{/if}}
 			<button id="expand-aside" type="button" class="d-lg-none navbar-toggler border-0">
-				<i class="bi bi-arrow-right-circle" id="expand-aside-icon"></i>
+				<i class="bi bi-arrow-right-circle generic-icons" id="expand-aside-icon"></i>
 			</button>
 			{{if $localuser || $nav.pubs}}
 			<button id="notifications-btn-1" type="button" class="navbar-toggler border-0 notifications-btn">
@@ -83,7 +83,7 @@
 			</button>
 			{{/if}}
 			<button id="menu-btn" class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#app-bin">
-				<i class="bi bi-three-dots-vertical"></i>
+				<i class="bi bi-three-dots-vertical generic-icons"></i>
 			</button>
 		</div>
 		<div class="collapse navbar-collapse justify-content-between" id="navbar-collapse-1">
