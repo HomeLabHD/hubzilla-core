@@ -15,6 +15,15 @@ trait HelpHelperTrait {
 	private string $file_type = '';
 
 	/**
+	 * Associative array containing the detected language.
+	 */
+	private array $lang = [
+		'language' => 'en',		//! Detected language, 2-letter ISO 639-1 code ("en")
+		'from_url' => false,	//! true if language from URL overrides browser default
+		'missing' => false,		//! true if topic not found in detected language
+	];
+
+	/**
 	 * Determines help language.
 	 *
 	 * If the language was specified in the URL, override the language preference
@@ -28,17 +37,15 @@ trait HelpHelperTrait {
 		$languages = $language_repository->getList();
 
 		if(array_key_exists(argv(1), $languages)) {
-			$lang = argv(1);
-			$from_url = true;
+			$this->lang['language']	= argv(1);
+			$this->lang['from_url'] = true;
 		} else {
-			$lang = \App::$language;
-			if(! isset($lang))
-				$lang = 'en';
+			if(isset(\App::$language)) {
+				$this->lang['language'] = \App::$language;
+			}
 
-			$from_url = false;
+			$this->lang['from_url'] = false;
 		}
-
-		$this->lang =  array('language' => $lang, 'from_url' => $from_url);
 	}
 
 	/**
@@ -53,10 +60,10 @@ trait HelpHelperTrait {
 		// Use local variable until we can use trait constants.
 		$valid_file_ext = ['md', 'bb', 'html'];
 
-		$base_path = "doc/{$lang}/${base_path}";
+		$base_path_with_lang = "doc/{$lang}/${base_path}";
 
 		foreach ($valid_file_ext as $ext) {
-			$path = "{$base_path}.{$ext}";
+			$path = "{$base_path_with_lang}.{$ext}";
 			if (file_exists($path)) {
 				$this->file_name = $path;
 				$this->file_type = $ext;
@@ -64,5 +71,25 @@ trait HelpHelperTrait {
 				break;
 			}
 		}
+
+		if (empty($this->file_name) && $lang !== 'en') {
+			$this->lang['missing'] = true;
+			$this->find_help_file($base_path, 'en');
+		}
+	}
+
+	public function missing_translation(): bool {
+		return !!$this->lang['missing'];
+	}
+
+	public function missing_translation_message(): string {
+		$prefered_language_name = get_language_name(
+			$this->lang['language'],
+			$this->lang['language']
+		);
+
+		return bbcode(
+			t("This page is not yet available in {$prefered_language_name}. See [observer.baseurl]/help/developer/developer_guide#Translations for information about how to help.")
+		);
 	}
 }
