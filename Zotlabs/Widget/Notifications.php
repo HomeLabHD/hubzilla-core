@@ -76,7 +76,7 @@ class Notifications {
 
 			$notifications[] = [
 				'type' => 'all_events',
-				'icon' => 'calendar-week',
+				'icon' => 'calendar-date',
 				'severity' => 'secondary',
 				'label' => t('Events'),
 				'title' => t('New events notifications'),
