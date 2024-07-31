@@ -9,7 +9,7 @@
 			<div class="card h-100">
 				<a href="{{$parentpath}}" class="text-decoration-none">
 					<div class="d-flex align-items-center justify-content-center m-1" style="height: 4.5rem;">
-						<i class="fa fa-fw fa-level-up fa-5x" style="font-size: 4rem"></i>
+						<i class="bi bi-arrow-90deg-up" style="font-size: 4rem"></i>
 					</div>
 					<div class="card-footer text-center">
 						<small class="text-muted text-truncate">..</small>
@@ -26,7 +26,7 @@
 						{{if $item.photo_icon}}
 						<img src="{{$item.photo_icon}}" class="rounded" alt="{{$item.photo_icon}}" title="{{$item.size_formatted}}" style="max-height: 4rem; width: auto; max-width: 100%;">
 						{{else}}
-						<i class="fa fa-fw {{$item.icon_from_type}}" title="{{$item.size_formatted}}" style="font-size: 4rem"></i>
+						<i class="bi {{$item.icon_from_type}}" title="{{$item.size_formatted}}" style="font-size: 4rem"></i>
 						{{/if}}
 					</div>
 					<div class="card-footer text-truncate text-center">
@@ -52,7 +52,7 @@
 		{{if $parentpath}}
 		<tr id="cloud-index-up" class="cloud-index{{if ! $is_root_folder}} attach-drop{{/if}}"{{if ! $is_root_folder}} data-folder="{{$folder_parent}}"/{{/if}}>
 			<td></td>
-			<td><i class="fa fa-level-up"></i></td>
+			<td><i class="bi bi-arrow-90deg-up"></i></td>
 			<td colspan="6"><a href="{{$parentpath}}" title="{{$parent}}" class="p-2" draggable="false">..</a></td>
 		</tr>
 		<tr class="cloud-tools">
@@ -146,12 +146,12 @@
 				</div>
 				{{/if}}
 			</td>
-			<td><i class="fa {{$item.icon_from_type}}" title="{{$item.type}}"></i></td>
+			<td><i class="bi {{$item.icon_from_type}} generic-icons" title="{{$item.type}}"></i></td>
 			<td><a href="{{$item.rel_path}}" class="p-2" draggable="false">{{$item.name}}</a></td>
 			<td>{{$item.terms}}</td>
 			<td class="cloud-index-tool p-2">
 				{{if $item.lockstate == 'lock'}}
-				<i class="fa fa-lock lockview" data-bs-toggle="dropdown" onclick="lockview('attach',{{$item.attach_id}});"></i>
+				<i class="bi bi-lock lockview generic-icons" data-bs-toggle="dropdown" onclick="lockview('attach',{{$item.attach_id}});"></i>
 				<ul id="panel-{{$item.attach_id}}" class="lockview-panel dropdown-menu dropdown-menu-end"></ul>
 				{{/if}}
 			</td>
@@ -159,25 +159,25 @@
 				{{if ($is_owner || ($item.is_creator && $has_perms)) && $item.attach_id}}
 				<div class="dropdown">
 					<button class="btn btn-link btn-sm" id="dropdown-button-{{$item.attach_id}}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						<i class="fa fa-fw fa-ellipsis-v"></i>
+						<i class="bi bi-three-dots-vertical generic-icons"></i>
 					</button>
 					<div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-button-{{$item.attach_id}}">
-						<a id="cloud-tool-info-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-info-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-info"></i> {{$info_label}}</a>
+						<a id="cloud-tool-info-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-info-btn" href="#" data-id="{{$item.attach_id}}"><i class="bi bi-info-lg generic-icons-nav"></i>{{$info_label}}</a>
 						{{if $is_owner}}
-						<a id="cloud-tool-perms-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-perms-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-{{$item.lockstate}}"></i> {{$adjust_permissions_label}}</a>
+						<a id="cloud-tool-perms-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-perms-btn" href="#" data-id="{{$item.attach_id}}"><i class="bi bi-{{$item.lockstate}} generic-icons-nav"></i>{{$adjust_permissions_label}}</a>
 						{{/if}}
-						<a id="cloud-tool-rename-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-rename-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-pencil"></i> {{$rename_label}}</a>
-						<a id="cloud-tool-move-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-move-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-copy"></i> {{$move_copy_label}}</a>
-						<a id="cloud-tool-categories-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-categories-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-asterisk"></i> {{$categories_label}}</a>
+						<a id="cloud-tool-rename-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-rename-btn" href="#" data-id="{{$item.attach_id}}"><i class="bi bi-pencil generic-icons-nav"></i>{{$rename_label}}</a>
+						<a id="cloud-tool-move-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-move-btn" href="#" data-id="{{$item.attach_id}}"><i class="bi bi-copy generic-icons-nav"></i>{{$move_copy_label}}</a>
+						<a id="cloud-tool-categories-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-categories-btn" href="#" data-id="{{$item.attach_id}}"><i class="bi bi-asterisk generic-icons-nav"></i>{{$categories_label}}</a>
 						{{if $item.collection}}
-						<a id="cloud-tool-dir-download-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-dir-download-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-cloud-download"></i> {{$download_label}}</a>
+						<a id="cloud-tool-dir-download-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-dir-download-btn" href="#" data-id="{{$item.attach_id}}"><i class="bi bi-download generic-icons-nav"></i>{{$download_label}}</a>
 						{{else}}
 						{{if $is_owner}}
-						<a id="cloud-tool-share-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-share-btn" href="/rpost?attachment=[attachment]{{$item.resource}},{{$item.revision}}[/attachment]" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-share-square-o"></i> {{$post_label}}</a>
+						<a id="cloud-tool-share-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-share-btn" href="/rpost?attachment=[attachment]{{$item.resource}},{{$item.revision}}[/attachment]" data-id="{{$item.attach_id}}"><i class="bi bi-arrow-90deg-right generic-icons-nav"></i>{{$post_label}}</a>
 						{{/if}}
-						<a download="{{$item.name}}" id="cloud-tool-download-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-download-btn" href="/attach/{{$item.resource}}" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-cloud-download"></i> {{$download_label}}</a>
+						<a download="{{$item.name}}" id="cloud-tool-download-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-download-btn" href="/attach/{{$item.resource}}" data-id="{{$item.attach_id}}"><i class="bi bi-download generic-icons-nav"></i>{{$download_label}}</a>
 						{{/if}}
-						<a id="cloud-tool-delete-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-delete-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-trash-o"></i> {{$delete_label}}</a>
+						<a id="cloud-tool-delete-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-delete-btn" href="#" data-id="{{$item.attach_id}}"><i class="bi bi-trash generic-icons-nav"></i>{{$delete_label}}</a>
 					</div>
 				</div>
 				{{else}}
