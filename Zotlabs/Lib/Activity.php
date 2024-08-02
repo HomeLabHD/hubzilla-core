@@ -2116,6 +2116,13 @@ class Activity {
 			$s['expires'] = datetime_convert('UTC', 'UTC', $act->obj['expires']);
 		}
 
+		if ($act->objprop('location')) {
+			$s['location'] = ((isset($act->objprop('location')['name'])) ? html2plain(purify_html($act->objprop('location')['name'])) : '');
+			if (isset($act->objprop('location')['latitude'], $act->objprop('location')['longitude'])) {
+				$s['coord'] = floatval($act->objprop('location')['latitude']) . ' ' . floatval($act->objprop('location')['longitude']);
+			}
+		}
+
 		if (in_array($act->type, ['Invite', 'Create']) && $act->objprop('type') === 'Event') {
 			$s['mid'] = $s['parent_mid'] = $act->id;
 		}
