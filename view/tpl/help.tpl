@@ -10,7 +10,7 @@
 	<div class="section-content-wrapper" id="doco-content">
 		<h3 id="doco-top-toc-heading">
 			<span class="fakelink" onclick="docoTocToggle(); return false;">
-				<i class="fa fa-fw fa-caret-right fakelink" id="doco-toc-toggle"></i>
+				<i class="bi bi-caret-right fakelink" id="doco-toc-toggle"></i>
 				{{$module->get_toc_heading()}}
 			</span>
 		</h3>

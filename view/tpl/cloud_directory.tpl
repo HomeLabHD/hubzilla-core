@@ -75,25 +75,25 @@
 				{{if $is_owner}}
 				<div class="dropdown">
 					<button class="btn btn-warning btn-sm" id="multi-dropdown-button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						<i class="fa fa-fw fa-ellipsis-v d-table-cell"></i><span class="d-none d-md-table-cell">{{$bulk_actions_label}}</span>
+						<i class="bi fa-ellipsis-v d-table-cell"></i><span class="d-none d-md-table-cell">{{$bulk_actions_label}}</span>
 					</button>
 					<div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-button">
 						{{if $is_owner}}
-						<a id="cloud-multi-tool-perms-btn" class="dropdown-item" href="#"><i class="fa fa-fw fa-lock"></i> {{$adjust_permissions_label}}</a>
+						<a id="cloud-multi-tool-perms-btn" class="dropdown-item" href="#"><i class="bi bi-lock"></i> {{$adjust_permissions_label}}</a>
 						{{/if}}
-						<a id="cloud-multi-tool-move-btn" class="dropdown-item" href="#"><i class="fa fa-fw fa-copy"></i> {{$move_copy_label}}</a>
-						<a id="cloud-multi-tool-categories-btn" class="dropdown-item" href="#"><i class="fa fa-fw fa-asterisk"></i> {{$categories_label}}</a>
-						<a id="cloud-multi-tool-download-btn" class="dropdown-item" href="#"><i class="fa fa-fw fa-cloud-download"></i> {{$download_label}}</a>
-						<a id="cloud-multi-tool-delete-btn" class="dropdown-item" href="#"><i class="fa fa-fw fa-trash-o"></i> {{$delete_label}}</a>
+						<a id="cloud-multi-tool-move-btn" class="dropdown-item" href="#"><i class="bi fa-copy"></i> {{$move_copy_label}}</a>
+						<a id="cloud-multi-tool-categories-btn" class="dropdown-item" href="#"><i class="bi fa-asterisk"></i> {{$categories_label}}</a>
+						<a id="cloud-multi-tool-download-btn" class="dropdown-item" href="#"><i class="bi bi-download"></i> {{$download_label}}</a>
+						<a id="cloud-multi-tool-delete-btn" class="dropdown-item" href="#"><i class="bi bi-trash"></i> {{$delete_label}}</a>
 					</div>
 				</div>
 				{{else if $is_admin}}
 				<div class="dropdown">
 					<button class="btn btn-warning btn-sm" id="multi-dropdown-button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						<i class="fa fa-fw fa-ellipsis-v d-table-cell"></i><span class="d-none d-md-table-cell">{{$bulk_actions_label}}</span>
+						<i class="bi fa-ellipsis-v d-table-cell"></i><span class="d-none d-md-table-cell">{{$bulk_actions_label}}</span>
 					</button>
 					<div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-button">
-						<a id="cloud-multi-tool-delete-btn" class="dropdown-item" href="#"><i class="fa fa-fw fa-trash-o"></i> {{$admin_delete_label}}</a>
+						<a id="cloud-multi-tool-delete-btn" class="dropdown-item" href="#"><i class="bi bi-trash"></i> {{$admin_delete_label}}</a>
 					</div>
 				</div>
 				{{/if}}
@@ -123,7 +123,7 @@
 							<div id="attach-multi-edit-perms" class="btn-group float-end">
 								{{if $is_owner}}
 								<button id="multi-dbtn-acl" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#aclModal" title="{{$permset}}" type="button">
-									<i id="multi-jot-perms-icon" class="fa fa-{{$lockstate}} jot-icons jot-perms-icon"></i>
+									<i id="multi-jot-perms-icon" class="bi bi-{{$lockstate}} jot-icons jot-perms-icon"></i>
 								</button>
 								{{/if}}
 								<button id="multi-dbtn-submit" class="btn btn-primary btn-sm" type="submit" name="submit">
@@ -184,16 +184,16 @@
 				{{if $is_admin || $item.attach_id}}
 				<div class="dropdown">
 					<button class="btn btn-link btn-sm" id="dropdown-button-{{$item.attach_id}}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						<i class="fa fa-fw fa-ellipsis-v"></i>
+						<i class="bi fa-ellipsis-v"></i>
 					</button>
 					<div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-button-{{$item.attach_id}}">
 						{{if $item.collection}}
-						<a id="cloud-tool-dir-download-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-dir-download-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-cloud-download"></i> {{$download_label}}</a>
+						<a id="cloud-tool-dir-download-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-dir-download-btn" href="#" data-id="{{$item.attach_id}}"><i class="bi bi-download"></i> {{$download_label}}</a>
 						{{else}}
-						<a id="cloud-tool-download-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-download-btn" href="/attach/{{$item.resource}}" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-cloud-download"></i> {{$download_label}}</a>
+						<a id="cloud-tool-download-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-download-btn" href="/attach/{{$item.resource}}" data-id="{{$item.attach_id}}"><i class="bi bi-download"></i> {{$download_label}}</a>
 						{{/if}}
 						{{if $is_admin}}
-						<a id="cloud-tool-delete-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-delete-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-trash-o"></i> {{$admin_delete_label}}</a>
+						<a id="cloud-tool-delete-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-delete-btn" href="#" data-id="{{$item.attach_id}}"><i class="bi bi-trash"></i> {{$admin_delete_label}}</a>
 						{{/if}}
 					</div>
 				</div>
@@ -255,7 +255,7 @@
 							<div id="attach-edit-perms-{{$item.attach_id}}" class="btn-group float-end">
 								{{if $is_owner}}
 								<button id="dbtn-acl-{{$item.attach_id}}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#aclModal" title="{{$permset}}" type="button">
-									<i id="jot-perms-icon-{{$item.attach_id}}" class="fa fa-{{$item.lockstate}} jot-icons jot-perms-icon"></i>
+									<i id="jot-perms-icon-{{$item.attach_id}}" class="bi bi-{{$item.lockstate}} jot-icons jot-perms-icon"></i>
 								</button>
 								{{/if}}
 								<button id="dbtn-submit-{{$item.attach_id}}" class="btn btn-primary btn-sm" type="submit" name="submit">

@@ -909,6 +909,10 @@ a .drop-icons:hover {
 	font-weight: bold;
 }
 
+.jot-icons {
+	font-size: 1.2rem;
+}
+
 #profile-jot-wrapper {
 	background-color: var(--bs-body-bg);
 	border: 1px solid var(--bs-border-color);

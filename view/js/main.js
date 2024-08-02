@@ -114,7 +114,7 @@ $(document).ready(function() {
 	}
 	if ( typeof(window.tao.zin) == 'undefined' ) {
 		tao.zin = { syslc: '', syslcs: {}, htm: '', me: '', debug: '' };
-		tao.zin.axim = '<div class="zinpax fa fa-sync fa-spin"> </div>';
+		tao.zin.axim = '<i class="zinpax bi bi-arrow-repeat"></i>';
 		$('.navbar-app[href*="/lang"]').attr({"aria-expand": "true", "id": "zintog"})
 			.removeAttr('href').addClass('zinlcx zinlcxp dropdown dropdown-toggle').css('cursor','pointer');
 		$('.nav-link[href*="/lang"]').addClass('zinlcxmi zinlcx').removeAttr('href').css('cursor','pointer');
@@ -129,9 +129,9 @@ $(document).ready(function() {
    				tao.zin.re = JSON.parse(re);
    			 	tao.zin.syslc = tao.zin.re.lc;
    			 	tao.zin.syslcs = tao.zin.re.lcs;
-				tao.zin.htm = '<ul class="zinlcs fa-ul">';
+				tao.zin.htm = '<ul class="zinlcs">';
 				$.each( tao.zin.syslcs, function( k, v ) {
-					tao.zin.htm += '<li><a id="zinlc' + k + '" class="zinlc nav-link fakelink">' + k + ' ' + v + '</a></li>';
+					tao.zin.htm += '<li><a id="zinlc' + k + '" class="zinlc fakelink">' + k + ' ' + v + '</a></li>';
 				});
 				tao.zin.htm += '</ul>';
 				$('.zinpax').remove();
@@ -1224,7 +1224,7 @@ function doreply(parent, ident, owner, hint) {
         form.find('input[name=parent]').val(ident);
         var i = form.find('button[type=submit]');
         var btn = i.html().replace(/<[^>]*>/g, '').trim();
-        i.html('<i class="fa fa-reply" ></i> ' + btn);
+        i.html('<i class="bi bi-arrow-90deg-left"></i> ' + btn);
         var sel = 'wall-item-body-' + ident.toString();
         var quote = window.getSelection().toString().trim();
         form.find('textarea').val("@{" + owner + "}" + ((($(window.getSelection().anchorNode).closest("#" + sel).attr("id") != sel) || (quote.length === 0))? " " : "\n[quote]" + quote + "[/quote]\n"));
@@ -1360,7 +1360,7 @@ function dostar(ident) {
 			$('#starred-' + ident).removeClass('bi-star');
 			$('#star-' + ident).addClass('hidden');
 			$('#unstar-' + ident).removeClass('hidden');
-			var btn_tpl = '<div class="" id="star-button-' + ident + '"><button type="button" class="btn btn-outline-secondary border-0 wall-item-star" onclick="dostar(' + ident + ');"><i class="fa fa-star"></i></button></div>'
+			var btn_tpl = '<div class="" id="star-button-' + ident + '"><button type="button" class="btn btn-outline-secondary border-0 wall-item-star" onclick="dostar(' + ident + ');"><i class="bi bi-star"></i></button></div>'
 			$('#wall-item-tools-right-' + ident).prepend(btn_tpl);
 		}
 		else {
@@ -1552,7 +1552,7 @@ function contactgroupChangeMember(gid, cid) {
 	$('body').css('cursor', 'wait');
 	$.get('contactgroup/' + gid + '/' + cid, function(data) {
 		$('body').css('cursor', 'auto');
-		$('#group-' + gid).toggleClass('fa-check-square-o fa-square-o');
+		$('#group-' + gid).toggleClass('bi-check-square bi-square');
 	});
 }
 

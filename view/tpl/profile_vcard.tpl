@@ -6,12 +6,12 @@
 			</div>
 			{{if $connect}}
 			<a href="{{$connect_url}}" class="btn btn-success btn-sm m-2 position-absolute top-0 end-0" rel="nofollow">
-				<i class="fa fa-plus"></i> {{$connect}}
+				<i class="bi bi-plus-lg"></i> {{$connect}}
 			</a>
 			{{/if}}
 			<div id="profile-cover-text" class="p-2 position-absolute bottom-0 w-100">
 				<div class="text-truncate h3 mb-0 lh-sm">
-					<strong class="text-white fn p-name">{{$profile.fullname}}{{if $profile.online}}<i class="fa fa-fw fa-circle text-success ps-2" title="{{$profile.online}}"></i>{{/if}}</strong>
+					<strong class="text-white fn p-name">{{$profile.fullname}}{{if $profile.online}}<i class="bi bi-circle-fill text-success ps-2" title="{{$profile.online}}"></i>{{/if}}</strong>
 				</div>
 				<div class="text-truncate">
 					<span class="text-white p-adr">{{$profile.reddress}}</span>
@@ -19,7 +19,7 @@
 			</div>
 			{{if $editmenu.multi}}
 			<div class="dropdown position-absolute bottom-0 end-0 m-2">
-				<a class="profile-edit-side-link text-white" data-bs-toggle="dropdown" href="#" ><i class="fa fa-pencil" title="{{$editmenu.edit.1}}"></i></a>
+				<a class="profile-edit-side-link text-white" data-bs-toggle="dropdown" href="#" ><i class="bi bi-pencil" title="{{$editmenu.edit.1}}"></i></a>
 				<div class="dropdown-menu dropdown-menu-end" role="menu">
 					{{foreach $editmenu.menu.entries as $e}}
 					<a href="profiles/{{$e.id}}" class="dropdown-item"><img class="menu-img-1" src='{{$e.photo}}'> {{$e.profile_name}}</a>
@@ -31,11 +31,11 @@
 			</div>
 			{{elseif $editmenu}}
 			<div class="position-absolute bottom-0 end-0 m-2">
-				<a class="profile-edit-side-link text-white" href="{{$editmenu.edit.0}}" ><i class="fa fa-pencil" title="{{$editmenu.edit.1}}"></i></a>
+				<a class="profile-edit-side-link text-white" href="{{$editmenu.edit.0}}" ><i class="bi bi-pencil" title="{{$editmenu.edit.1}}"></i></a>
 			</div>
 			{{else}}
 			<div class="position-absolute bottom-0 end-0 m-2">
-				<a class="profile-edit-side-link text-white" href="profile/{{$profile.channel_address}}" ><i class="fa fa-external-link" title="{{$editmenu.edit.1}}"></i></a>
+				<a class="profile-edit-side-link text-white" href="profile/{{$profile.channel_address}}" ><i class="bi bi-box-arrow-up-right" title="{{$editmenu.edit.1}}"></i></a>
 			</div>
 			{{/if}}
 		</div>
@@ -83,12 +83,12 @@
 		{{if $gender}}
 		<dl class="mb-0 pb-1 rounded">
 			<dt class="gender-label">{{$gender}}</dt>
-			<dd class="p-gender">{{if $profile.gender_icon}}<i class="fa fa-{{$profile.gender_icon}}"></i>&nbsp;{{/if}}{{$profile.gender}}</dd>
+			<dd class="p-gender">{{if $profile.gender_icon}}<i class="bi bi-{{$profile.gender_icon}}"></i>&nbsp;{{/if}}{{$profile.gender}}</dd>
 		</dl>
 		{{/if}}
 		{{if $marital}}
 		<dl class="mb-0 pb-1 rounded">
-			<dt class="marital-label"><span class="heart"><i class="fa fa-heart"></i>&nbsp;</span>{{$marital}}</dt>
+			<dt class="marital-label"><span class="heart"><i class="bi fa-heart"></i>&nbsp;</span>{{$marital}}</dt>
 			<dd class="marital-text">{{$profile.marital}}</dd>
 		</dl>
 		{{/if}}

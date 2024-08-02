@@ -3,7 +3,7 @@
 		<h1>{{$title}}</h1>
 		<hr class="my-4">
 		{{if $icon}}
-		<h2><i class="fa fa-{{$icon}}"></i>&nbsp; {{$pass}}</h2>
+		<h2><i class="bi bi-{{$icon}}"></i>&nbsp; {{$pass}}</h2>
 		{{/if}}
 	</div>
 

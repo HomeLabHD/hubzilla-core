@@ -2,7 +2,7 @@
 	<div class="jumbotron">
 		<h1>{{$title}}</h1>
 		<hr class="my-4">
-		<h2><i class="fa fa-database"></i>&nbsp; {{$pass}}</h2>
+		<h2><i class="bi fa-database"></i>&nbsp; {{$pass}}</h2>
 	</div>
 	<div class="alert alert-info">
 	{{$info_01}}<br>

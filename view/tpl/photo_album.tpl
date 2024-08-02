@@ -2,14 +2,14 @@
 	<div class="section-title-wrapper">
 		<div class="float-end">
 			{{if $order}}
-			<a class="btn btn-outline-secondary btn-sm" href="{{$order.1}}" title="{{$order.0}}"><i class="fa fa-sort"></i></a>
+			<a class="btn btn-outline-secondary btn-sm" href="{{$order.1}}" title="{{$order.0}}"><i class="bi fa-sort"></i></a>
 			{{/if}}
 			<div class="btn-group btn-group">
 				{{if $album_edit.1}}
-				<i class="fa fa-pencil btn btn-outline-secondary btn-sm" title="{{$album_edit.0}}" onclick="openClose('photo-album-edit-wrapper'); closeMenu('photo-upload-form');"></i>
+				<i class="bi bi-pencil btn btn-outline-secondary btn-sm" title="{{$album_edit.0}}" onclick="openClose('photo-album-edit-wrapper'); closeMenu('photo-upload-form');"></i>
 				{{/if}}
 				{{if $can_post}}
-				<button class="btn btn-sm btn-success btn-sm" title="{{$usage}}" onclick="openClose('photo-upload-form'); {{if $album_edit.1}}closeMenu('photo-album-edit-wrapper');{{/if}}"><i class="fa fa-plus-circle"></i>&nbsp;{{$upload.0}}</button>
+				<button class="btn btn-sm btn-success btn-sm" title="{{$usage}}" onclick="openClose('photo-upload-form'); {{if $album_edit.1}}closeMenu('photo-album-edit-wrapper');{{/if}}"><i class="bi bi-plus-lg"></i>&nbsp;{{$upload.0}}</button>
 				{{/if}}
 			</div>
 		</div>

@@ -25,8 +25,8 @@
 				<td class="">{{$u.reg_atip_n}}</td>
 				<td class="checkbox_bulkedit"><input type="checkbox" class="pending_ckbx" id="id_pending_{{$n}}" name="pending[]" value="{{$n}}"></td>
 				<td class="tools">
-					<a id="zara_{{$n}}" {{* href="{{$baseurl}}/regmod/allow/{{$n}}" *}} class="zar2s zara btn btn-default btn-xs" title="{{$approve}}"><i class="fa fa-thumbs-o-up admin-icons"></i></a>
-					<a id="zard_{{$n}}" {{* href="{{$baseurl}}/regmod/deny/{{$n}}" *}} class="zar2s zard btn btn-default btn-xs" title="{{$deny}}"><i class="fa fa-thumbs-o-down admin-icons"></i></a>
+					<a id="zara_{{$n}}" {{* href="{{$baseurl}}/regmod/allow/{{$n}}" *}} class="zar2s zara btn btn-default btn-xs" title="{{$approve}}"><i class="bi fa-thumbs-o-up admin-icons"></i></a>
+					<a id="zard_{{$n}}" {{* href="{{$baseurl}}/regmod/deny/{{$n}}" *}} class="zar2s zard btn btn-default btn-xs" title="{{$deny}}"><i class="bi fa-thumbs-o-down admin-icons"></i></a>
 					<span id="zarreax_{{$n}}" class="zarreax"></span>
 				</td>
 			</tr>
@@ -38,8 +38,8 @@
 		</table>
 		<div class="float-end">
 			<a id="zar2sat" class="btn btn-sm btn-primary" href="javascript:;">{{$sel_tall}}</a>
-			<a id="zar2aas" class="zar2xas btn btn-sm btn-success" href="javascript:;"><i class="fa fa-check"></i> {{$sel_aprv}}</a>
-			<a id="zar2das" class="zar2xas btn btn-sm btn-danger" href="javascript:;"><i class="fa fa-close"></i> {{$sel_deny}}</a>
+			<a id="zar2aas" class="zar2xas btn btn-sm btn-success" href="javascript:;"><i class="bi bi-check-lg"></i> {{$sel_aprv}}</a>
+			<a id="zar2das" class="zar2xas btn btn-sm btn-danger" href="javascript:;"><i class="bi bi-x-lg"></i> {{$sel_deny}}</a>
 		</div>
 		{{else}}
 		<div class="text-muted">
@@ -78,10 +78,10 @@
 						<td class="service_class">{{$u.account_service_class}}</td>
 						<td class="checkbox_bulkedit"><input type="checkbox" class="users_ckbx p-1" id="id_user_{{$u.account_id}}" name="user[]" value="{{$u.account_id}}"><input type="hidden" name="blocked[]" value="{{$u.blocked}}"></td>
 						<td class="tools">
-							<a href="{{$baseurl}}/admin/accounts/delete/{{$u.account_id}}?t={{$form_security_token}}" class="p-1 text-reset" title='{{$delete}}' onclick="return confirm_delete('{{$u.name}}')"><i class="fa fa-trash-o admin-icons"></i></a>
+							<a href="{{$baseurl}}/admin/accounts/delete/{{$u.account_id}}?t={{$form_security_token}}" class="p-1 text-reset" title='{{$delete}}' onclick="return confirm_delete('{{$u.name}}')"><i class="bi bi-trash admin-icons"></i></a>
 						</td>
 						<td class="tools">
-							<a href="{{$baseurl}}/admin/accounts/{{if ($u.blocked)}}un{{/if}}block/{{$u.account_id}}?t={{$form_security_token}}" class="p-1 text-reset" title='{{if ($u.blocked)}}{{$unblock}}{{else}}{{$block}}{{/if}}'><i class="fa fa-ban admin-icons{{if ($u.blocked)}} dim{{/if}}"></i></a>
+							<a href="{{$baseurl}}/admin/accounts/{{if ($u.blocked)}}un{{/if}}block/{{$u.account_id}}?t={{$form_security_token}}" class="p-1 text-reset" title='{{if ($u.blocked)}}{{$unblock}}{{else}}{{$block}}{{/if}}'><i class="bi fa-ban admin-icons{{if ($u.blocked)}} dim{{/if}}"></i></a>
 						</td>
 					</tr>
 				{{/foreach}}

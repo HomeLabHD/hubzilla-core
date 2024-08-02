@@ -7,7 +7,7 @@
 	{{$baseurl}}/{{$ept.0}}/?{{foreach $ept.1 as $field}}{{$field.0}}={{$field.1}}&<input type="hidden" name="{{$field.0}}" value="{{$field.1}}" />{{/foreach}}
 	<br>
 	<button type="submit" name="{{$ept.2}}_submit" value="submit" class="btn btn-med" title="">Submit</button>
-	<span style="display: {{if $ept.5}}inline{{else}}none{{/if}}; font-size: 2em;">&nbsp;<i class="fa fa-check"></i></span>
+	<span style="display: {{if $ept.5}}inline{{else}}none{{/if}}; font-size: 2em;">&nbsp;<i class="bi bi-check-lg"></i></span>
 </form>
 	</div>
 {{/foreach}}

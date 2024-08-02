@@ -2,7 +2,7 @@
 	<div class="section-title-wrapper clearfix">
 		<div class="btn-group float-end">
 			<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{{$sort}}">
-				<i class="fa fa-sort"></i>
+				<i class="bi fa-sort"></i>
 			</button>
 			<div class="dropdown-menu dropdown-menu-end">
 				<a class="dropdown-item" href="directory?f=&order=date{{$suggest}}">{{$date}}</a>

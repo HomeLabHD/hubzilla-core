@@ -1,6 +1,6 @@
 <div class="generic-content-wrapper">
 	<div class="section-title-wrapper">
-		<button class="btn btn-success btn-sm float-end" onclick="window.location.href='/locs/f=&sync=1'; return false;"><i class="fa fa-refresh"></i>&nbsp;{{$sync}}</button>
+		<button class="btn btn-success btn-sm float-end" onclick="window.location.href='/locs/f=&sync=1'; return false;"><i class="bi fa-refresh"></i>&nbsp;{{$sync}}</button>
 		<h2>{{$header}}</h2>
 	</div>
 	<div class="section-content-wrapper-np">
@@ -23,10 +23,10 @@
 			<tr class="locs-index-row">
 				<td>{{$hub.hubloc_addr}}</td>
 				<td class="d-none d-md-table-cell">{{$hub.hubloc_url}}</td>
-				<td>{{if $hub.hubloc_primary}}<i class="fa fa-check-square-o"></i>{{else}}<i class="fa fa-square-o primehub" onclick="primehub({{$hub.hubloc_id}}); return false;"></i>{{/if}}</td>
+				<td>{{if $hub.hubloc_primary}}<i class="bi bi-check-square"></i>{{else}}<i class="bi bi-square primehub" onclick="primehub({{$hub.hubloc_id}}); return false;"></i>{{/if}}</td>
 				<td>
 					{{if $hub.hubloc_url != $base_url}}
-					<i class="fa fa-trash-o drophub" onclick="drophub({{$hub.hubloc_id}}); return false;"></i>
+					<i class="bi bi-trash drophub" onclick="drophub({{$hub.hubloc_id}}); return false;"></i>
 					{{/if}}
 				</td>
 			</tr>

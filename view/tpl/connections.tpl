@@ -2,13 +2,13 @@
 	<div class="section-title-wrapper clearfix">
 		<div class="dropdown float-end">
 			<button type="button" class="btn btn-success btn-sm" onclick="openClose('contacts-follow-form'); closeMenu('contacts-search-form'); $('#contacts-follow').focus();">
-				<i class="fa fa-plus"></i>&nbsp;Add
+				<i class="bi bi-plus-lg"></i>&nbsp;Add
 			</button>
 			<button type="button" class="btn btn-primary btn-sm" onclick="openClose('contacts-search-form'); closeMenu('contacts-follow-form'); $('#contacts-search').focus();">
-				<i class="fa fa-search"></i>&nbsp;{{$label}}
+				<i class="bi bi-search"></i>&nbsp;{{$label}}
 			</button>
 			<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{{$sort}}">
-				<i class="fa fa-filter"></i>
+				<i class="bi bi-funnel"></i>
 			</button>
 			<div class="dropdown-menu dropdown-menu-end">
 				{{foreach $tabs as $menu}}
@@ -23,7 +23,7 @@
 			<div class="input-group mb-3">
 				<input type="text" name="search" id="contacts-search" class="form-control" onfocus="this.select();" value="{{$search}}" placeholder="{{$desc}}" />
 				<input type="hidden" name="search_xchan" id="contacts-search-xchan" value=""/>
-				<button id="contacts-search-submit" class="btn btn-primary" type="submit"><i class="fa fa-fw fa-search"></i></button>
+				<button id="contacts-search-submit" class="btn btn-primary" type="submit"><i class="bi bi-search"></i></button>
 			</div>
 		</form>
 	</div>
@@ -36,7 +36,7 @@
 		<form action="follow" method="post">
 			<div class="input-group mb-3">
 				<input class="form-control" id="contacts-follow" type="text" name="url" title="Examples: bob@example.com, https://example.com/barbara" placeholder="Enter channel address">
-				<button class="btn btn-success" type="submit" name="submit" value="Connect" title="Connect"><i class="fa fa-fw fa-plus"></i></button>
+				<button class="btn btn-success" type="submit" name="submit" value="Connect" title="Connect"><i class="bi bi-plus-lg"></i></button>
 			</div>
 		</form>
 	</div>

@@ -28,7 +28,7 @@
 							</div>
 							<div class="modal-body">
 								<div class="multi-collapse collapse show">
-									<h2 class="text-danger mb-3"><i class="fa fa-warning"></i> {{$permission_limits_warning.0}}</h2>
+									<h2 class="text-danger mb-3"><i class="bi fa-warning"></i> {{$permission_limits_warning.0}}</h2>
 									<h3 class="mb-3">{{$permission_limits_warning.1}}</h3>
 									<button type="button" class="btn btn-primary"  data-bs-toggle="collapse" data-bs-target=".multi-collapse" aria-expanded="false" aria-controls="collapseExample">{{$permission_limits_warning.2}}</button>
 								</div>

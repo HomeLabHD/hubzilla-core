@@ -15,7 +15,7 @@
 						{{$compare_label}}
 					</button>
 					<a href="permcats/{{$permcat_value}}" class="btn btn-sm btn-outline-primary">
-						<i class="fa fa-external-link"></i>&nbsp;{{$permcat_new}}
+						<i class="bi bi-box-arrow-up-right"></i>&nbsp;{{$permcat_new}}
 					</a>
 					<table id="perms-table" class="table table-hover table-sm mt-3" style="display: {{if $sub_section == 'perms'}}table{{else}}none{{/if}};">
 						<thead>
@@ -31,16 +31,16 @@
 								<td>{{$perm.1}}</td>
 								<td>
 									{{if $perm.2}}
-									<i class="fa fa-check text-success"></i>
+									<i class="bi bi-check-lg text-success"></i>
 									{{else}}
-									<i class="fa fa-times text-danger"></i>
+									<i class="bi bi-x-lg text-danger"></i>
 									{{/if}}
 								</td>
 								<td>
 									{{if $perm.3}}
-									<i class="fa fa-check text-success"></i>
+									<i class="bi bi-check-lg text-success"></i>
 									{{else}}
-									<i class="fa fa-times text-danger"></i>
+									<i class="bi bi-x-lg text-danger"></i>
 									{{/if}}
 								</td>
 							</tr>
@@ -66,7 +66,7 @@
 					{{include file="field_checkbox.tpl" field=$group}}
 					{{/foreach}}
 					<a href="group/new" class="btn btn-sm btn-outline-primary">
-						<i class="fa fa-external-link"></i>&nbsp;{{$pgroups_label}}
+						<i class="bi bi-box-arrow-up-right"></i>&nbsp;{{$pgroups_label}}
 					</a>
 				</div>
 			</div>
@@ -85,7 +85,7 @@
 				<div class="section-content-tools-wrapper">
 					{{$profile_select}}
 					<a href="profiles" class="btn btn-sm btn-outline-primary">
-						<i class="fa fa-external-link"></i>&nbsp;{{$profiles_label}}
+						<i class="bi bi-box-arrow-up-right"></i>&nbsp;{{$profiles_label}}
 					</a>
 				</div>
 			</div>

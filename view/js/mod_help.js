@@ -1,8 +1,8 @@
 function docoTocToggle() {
 	if ($('#doco-top-toc').is(':visible')) {
-		$('#doco-toc-toggle').removeClass('fa-cog').addClass('fa-caret-right');
+		$('#doco-toc-toggle').removeClass('bi-gear').addClass('bi-caret-right');
 	} else {
-		$('#doco-toc-toggle').removeClass('fa-caret-right').addClass('fa-caret-down');
+		$('#doco-toc-toggle').removeClass('bi-caret-right').addClass('bi-caret-down');
 	}
 	$('#doco-top-toc').toggle();
 

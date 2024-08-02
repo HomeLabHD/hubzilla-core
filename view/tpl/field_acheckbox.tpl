@@ -8,9 +8,9 @@
 		<span class="text-nowrap text-danger">
 			{{$inherited}}
 			{{if $field.7}}
-			<i class="fa fa-check-square-o"></i>
+			<i class="bi bi-check-square"></i>
 			{{else}}
-			<i class="fa fa-square-o"></i>
+			<i class="bi bi-square"></i>
 			{{/if}}
 		</span>
 		{{/if}}
@@ -18,9 +18,9 @@
 	<td>
 		{{if $is_system_role}}
 		{{if $field.3}}
-		<i class="fa fa-check-square-o"></i>
+		<i class="bi bi-check-square"></i>
 		{{else}}
-		<i class="fa fa-square-o"></i>
+		<i class="bi bi-square"></i>
 		{{/if}}
 		{{else}}
 		<input type="checkbox" name="{{$field.0}}" value="{{$field.4}}" {{if $field.3}}checked="checked"{{/if}} />

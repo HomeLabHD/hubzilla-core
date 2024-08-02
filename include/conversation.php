@@ -999,7 +999,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 
 			$name = (($item['author']['xchan_name']) ? $item['author']['xchan_name'] : t('Unknown'));
 
-			$moderate = ((intval($item['item_blocked']) === ITEM_MODERATED) ? '<a href="moderate/' . $item['id'] . '/approve" onclick="moderate_approve(' . $item['id'] . '); return false;" class="text-success pe-2" title="' . t('Approve this item') . '"><i class="fa fa-check" ></i></a><a href="moderate/' . $item['id'] . '/drop" onclick="moderate_drop(' . $item['id'] . '); return false;" class="text-danger pe-2" title="' . t('Delete this item') . '"><i class="fa fa-trash-o" ></i></a>' : '');
+			$moderate = ((intval($item['item_blocked']) === ITEM_MODERATED) ? '<a href="moderate/' . $item['id'] . '/approve" onclick="moderate_approve(' . $item['id'] . '); return false;" class="text-success pe-2" title="' . t('Approve this item') . '"><i class="bi bi-check-lg" ></i></a><a href="moderate/' . $item['id'] . '/drop" onclick="moderate_drop(' . $item['id'] . '); return false;" class="text-danger pe-2" title="' . t('Delete this item') . '"><i class="bi bi-trash" ></i></a>' : '');
 
 			$url = (($item['author_xchan'] && $item['author']['xchan_photo_s'])
 				? '<div class="dropdown-item">' . $moderate . '<a href="' . chanlink_hash($item['author_xchan']) . '" class="text-reset">' . '<img class="menu-img-1" src="' . zid($item['author']['xchan_photo_s'])  . '" alt="' . urlencode($name) . '" /> ' . $name . '</a></div>'

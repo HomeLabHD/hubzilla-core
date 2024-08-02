@@ -5,7 +5,7 @@
 			<button id="dbtn-cancel" class="btn btn-warning btn-sm" onclick="itemCancel(); return false;">{{$cancel}}</button>
 			{{/if}}
 			{{if $delete}}
-			<a  href="item/drop/{{$id}}" id="delete-btn" class="btn btn-sm btn-danger" onclick="return confirmDelete();"><i class="fa fa-trash-o"></i>&nbsp;{{$delete}}</a>
+			<a  href="item/drop/{{$id}}" id="delete-btn" class="btn btn-sm btn-danger" onclick="return confirmDelete();"><i class="bi bi-trash"></i>&nbsp;{{$delete}}</a>
 			{{/if}}
 		</div>
 		<h2>{{$title}}</h2>
