@@ -26,7 +26,7 @@ function populate_acl($defaults = null,$show_jotnets = true, $emptyACL_descripti
 
 	$allow_cid = $allow_gid = $deny_cid = $deny_gid = false;
 	$showall_origin = '';
-	$showall_icon   = 'fa-globe';
+	$showall_icon   = 'bi-globe';
 	$role = get_pconfig(local_channel(), 'system', 'permissions_role');
 
 	if(! $emptyACL_description) {

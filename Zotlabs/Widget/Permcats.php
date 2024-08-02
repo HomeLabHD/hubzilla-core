@@ -40,7 +40,7 @@ class Permcats {
 		if($active_role) {
 
 			$roles[] = [
-				'name' => '<i class="fa fa-plus"></i>&nbsp;' . t('Add new role'),
+				'name' => '<i class="bi bi-plus-lg"></i>&nbsp;' . t('Add new role'),
 				'url' => z_root() . '/permcats',
 				'active' => ''
 			];
