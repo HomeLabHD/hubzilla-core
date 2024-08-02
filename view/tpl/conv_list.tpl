@@ -1,9 +1,3 @@
-{{if $item.comment_firstcollapsed}}
-<div class="hide-comments-outer fakelink" onclick="showHideComments({{$item.id}});">
-	<span id="hide-comments-{{$item.id}}" class="hide-comments">{{$item.hide_text}}</span>&nbsp;<span id="hide-comments-total-{{$item.id}}" class="hide-comments-total">{{$item.num_comments}}</span>
-</div>
-<div id="collapsed-comments-{{$item.id}}" class="collapsed-comments" style="display: none;">
-{{/if}}
 	<div id="thread-wrapper-{{$item.id}}" class="thread-wrapper{{if $item.toplevel}} {{$item.toplevel}} generic-content-wrapper h-entry {{else}} u-comment h-cite {{/if}}" data-b64mids='{{$item.mids}}'>
 		<a name="item_{{$item.id}}" ></a>
 		<div class="wall-item-outside-wrapper{{if $item.is_comment}} comment{{/if}}{{if $item.previewing}} preview{{/if}}" id="wall-item-outside-wrapper-{{$item.id}}" >
@@ -255,6 +249,3 @@
 			</div>
 		</div>
 	</div>
-{{if $item.comment_lastcollapsed}}
-</div>
-{{/if}}

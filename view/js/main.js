@@ -868,8 +868,8 @@ function collapseHeight() {
 					startOpen: open,
 					heightMargin: 50,
 					collapsedHeight: divmore_height,
-					moreLink: '<a href="#" class="divgrow-showmore fakelink">' + aStr.divgrowmore + '</a>',
-					lessLink: '<a href="#" class="divgrow-showmore fakelink">' + aStr.divgrowless + '</a>',
+					moreLink: '<a href="#" class="divgrow-showmore fakelink small">' + aStr.divgrowmore + '</a>',
+					lessLink: '<a href="#" class="divgrow-showmore fakelink small">' + aStr.divgrowless + '</a>',
 					beforeToggle: function(trigger, element, expanded) {
 						if(expanded) {
 							if((($(element).offset().top + divmore_height) - $(window).scrollTop()) < 65 ) {
