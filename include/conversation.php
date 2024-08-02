@@ -1467,14 +1467,18 @@ function render_location_default($item) {
 	$location = $item['location'];
 	$coord = $item['coord'];
 
-	if($coord) {
+	if ($coord) {
 		if($location)
-			$location .= '&nbsp;<span class="smalltext">(' . $coord . ')</span>';
+			$location .= '&nbsp;(' . $coord . ')';
 		else
-			$location = '<span class="smalltext">' . $coord . '</span>';
+			$location = $coord;
 	}
 
-	return $location;
+	if (!$location) {
+		return '';
+	}
+
+	return '<i class="bi bi-geo-alt" title="' . $location . '"></i>';
 }
 
 

@@ -29,14 +29,14 @@
 				<div class="p-2 wall-item-head{{if !$item.title && !$item.event && !$item.photo}} rounded-top{{/if}}{{if $item.is_new && !$item.event && !$item.is_comment}} wall-item-head-new{{/if}} clearfix">
 					<div class="lh-sm text-end float-end">
 						<div class="wall-item-ago opacity-75" id="wall-item-ago-{{$item.id}}">
-							{{if $item.editedtime}}
-							<i class="bi bi-pencil"></i>
+							{{if $item.location}}
+							{{$item.location}}
 							{{/if}}
 							{{if $item.delayed}}
 							<i class="bi bi-clock"></i>
 							{{/if}}
-							{{if $item.location}}
-							<small class="wall-item-location p-location" id="wall-item-location-{{$item.id}}">{{$item.location}}</small>
+							{{if $item.editedtime}}
+							<i class="bi bi-pencil"></i>
 							{{/if}}
 							{{if $item.verified}}
 							<i class="bi bi-shield-check" title="{{$item.verified}}"></i>

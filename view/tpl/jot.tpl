@@ -138,12 +138,12 @@
 				<div class="btn-group me-2 d-none d-lg-flex">
 					{{if $setloc}}
 					<button type="button" id="profile-location-wrapper" class="btn btn-outline-secondary btn-sm border-0" title="{{$setloc}}" onclick="jotGetLocation();return false;">
-						<i id="profile-location" class="bi bi-geo-fill jot-icons"></i>
+						<i id="profile-location" class="bi bi-geo-alt-fill jot-icons"></i>
 					</button>
 					{{/if}}
 					{{if $clearloc}}
 					<button type="button" id="profile-nolocation-wrapper" class="btn btn-outline-secondary btn-sm border-0" title="{{$clearloc}}" onclick="jotClearLocation();return false;" disabled="disabled">
-						<i id="profile-nolocation" class="bi bi-geo jot-icons"></i>
+						<i id="profile-nolocation" class="bi bi-geo-alt jot-icons"></i>
 					</button>
 					{{/if}}
 				{{else}}
@@ -193,10 +193,10 @@
 						<a class="dropdown-item" href="#" onclick="initializeEmbedPhotoDialog(); return false;"><i class="bi bi-file-image jot-icons"></i>&nbsp;{{$embedPhotos}}</a>
 						{{/if}}
 						{{if $setloc}}
-						<a class="dropdown-item" href="#" onclick="jotGetLocation(); return false;"><i class="bi bi-geo-fill"></i>&nbsp;{{$setloc}}</a>
+						<a class="dropdown-item" href="#" onclick="jotGetLocation(); return false;"><i class="bi bi-geo-alt-fill"></i>&nbsp;{{$setloc}}</a>
 						{{/if}}
 						{{if $clearloc}}
-						<a class="dropdown-item" href="#" onclick="jotClearLocation(); return false;"><i class="bi bi-geo"></i>&nbsp;{{$clearloc}}</a>
+						<a class="dropdown-item" href="#" onclick="jotClearLocation(); return false;"><i class="bi bi-geo-alt"></i>&nbsp;{{$clearloc}}</a>
 						{{/if}}
 						{{/if}}
 						{{if $feature_expire}}
