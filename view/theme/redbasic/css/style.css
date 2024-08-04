@@ -991,6 +991,19 @@ a .drop-icons:hover {
 	border-top: 1px dashed #adadad;
 }
 
+
+.hide-comments-icon,
+.divgrow-showmore-icon {
+	font-size: $font_size;
+}
+
+.divgrow-showmore-label,
+.hide-comments-label {
+	text-transform: uppercase;
+	font-size: 0.7rem;
+}
+
+
 .wall-item-comment-wrapper {
 	padding: 7px 10px;
 	background-color: var(--bs-tertiary-bg);

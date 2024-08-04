@@ -25,8 +25,8 @@
 				<td class="">{{$u.reg_atip_n}}</td>
 				<td class="checkbox_bulkedit"><input type="checkbox" class="pending_ckbx" id="id_pending_{{$n}}" name="pending[]" value="{{$n}}"></td>
 				<td class="tools">
-					<a id="zara_{{$n}}" {{* href="{{$baseurl}}/regmod/allow/{{$n}}" *}} class="zar2s zara btn btn-default btn-xs" title="{{$approve}}"><i class="bi fa-thumbs-o-up admin-icons"></i></a>
-					<a id="zard_{{$n}}" {{* href="{{$baseurl}}/regmod/deny/{{$n}}" *}} class="zar2s zard btn btn-default btn-xs" title="{{$deny}}"><i class="bi fa-thumbs-o-down admin-icons"></i></a>
+					<a id="zara_{{$n}}" {{* href="{{$baseurl}}/regmod/allow/{{$n}}" *}} class="zar2s zara btn btn-default btn-xs" title="{{$approve}}"><i class="bi bi-hand-thumbs-up generic-icons"></i></a>
+					<a id="zard_{{$n}}" {{* href="{{$baseurl}}/regmod/deny/{{$n}}" *}} class="zar2s zard btn btn-default btn-xs" title="{{$deny}}"><i class="bi bi-hand-thumbs-down generic-icons"></i></a>
 					<span id="zarreax_{{$n}}" class="zarreax"></span>
 				</td>
 			</tr>

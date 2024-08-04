@@ -514,16 +514,19 @@ function viewsrc(id) {
 }
 
 function showHideComments(id) {
-	if( $('#collapsed-comments-' + id).is(':visible')) {
+	if($('#collapsed-comments-' + id).is(':visible')) {
 		$('#collapsed-comments-' + id + ' .autotime').timeago('dispose');
 		$('#collapsed-comments-' + id).hide();
-		$('#hide-comments-' + id).html(aStr.showmore);
+		$('#hide-comments-label-' + id).html(aStr.showmore);
 		$('#hide-comments-total-' + id).show();
+		$('#hide-comments-icon-' + id).toggleClass('bi-chevron-down bi-chevron-up');
+
 	} else {
 		$('#collapsed-comments-' + id + ' .autotime').timeago();
 		$('#collapsed-comments-' + id).show();
-		$('#hide-comments-' + id).html(aStr.showfewer);
+		$('#hide-comments-label-' + id).html(aStr.showfewer);
 		$('#hide-comments-total-' + id).hide();
+		$('#hide-comments-icon-' + id).toggleClass('bi-chevron-down bi-chevron-up');
 	}
 }
 
@@ -834,7 +837,7 @@ function scrollToItem() {
 				var scrolltoid = $('.collapsed-comments').attr('id').substring(19);
 				$('#collapsed-comments-' + scrolltoid + ' .autotime').timeago();
 				$('#collapsed-comments-' + scrolltoid).show();
-				$('#hide-comments-' + scrolltoid).html(aStr.showfewer);
+				$('#hide-comments-label-' + scrolltoid).html(aStr.showfewer);
 				$('#hide-comments-total-' + scrolltoid).hide();
 			}
 			$('html, body').animate({ scrollTop: $(this).offset().top - $('nav').outerHeight(true) }, 'slow');
@@ -868,8 +871,8 @@ function collapseHeight() {
 					startOpen: open,
 					heightMargin: 50,
 					collapsedHeight: divmore_height,
-					moreLink: '<a href="#" class="divgrow-showmore fakelink small">' + aStr.divgrowmore + '</a>',
-					lessLink: '<a href="#" class="divgrow-showmore fakelink small">' + aStr.divgrowless + '</a>',
+					moreLink: '<a href="#" class="divgrow-showmore fakelink"><i class="bi bi-chevron-down align-middle divgrow-showmore-icon"></i>&nbsp;<span class="divgrow-showmore-label align-middle">' + aStr.divgrowmore + '</span></a>',
+					lessLink: '<a href="#" class="divgrow-showmore fakelink"><i class="bi bi-chevron-up align-middle divgrow-showmore-icon"></i>&nbsp;<span class="divgrow-showmore-label align-middle">' + aStr.divgrowless + '</span></a>',
 					beforeToggle: function(trigger, element, expanded) {
 						if(expanded) {
 							if((($(element).offset().top + divmore_height) - $(window).scrollTop()) < 65 ) {
