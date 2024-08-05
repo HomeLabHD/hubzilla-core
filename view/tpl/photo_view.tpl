@@ -30,10 +30,10 @@
 			{{if $prevlink || $nextlink}}
 			<div class="btn-group">
 				{{if $prevlink}}
-				<a href="{{$prevlink.0}}" class="btn btn-outline-secondary btn-sm" title="{{$prevlink.1}}"><i class="bi fa-backward"></i></a>
+				<a href="{{$prevlink.0}}" class="btn btn-outline-secondary btn-sm" title="{{$prevlink.1}}"><i class="bi bi-chevron-left"></i></a>
 				{{/if}}
 				{{if $nextlink}}
-				<a href="{{$nextlink.0}}" class="btn btn-outline-secondary btn-sm" title="{{$nextlink.1}}"><i class="bi fa-forward"></i></a>
+				<a href="{{$nextlink.0}}" class="btn btn-outline-secondary btn-sm" title="{{$nextlink.1}}"><i class="bi bi-chevron-right"></i></a>
 				{{/if}}
 			</div>
 			{{/if}}
