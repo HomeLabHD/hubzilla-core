@@ -374,19 +374,6 @@ var activeCommentText = '';
 		timer = setTimeout(updateInit,1000);
 	}
 
-/*
-	function toggleVoting() {
-		if($('#jot-consensus').val() > 0) {
-			$('#jot-consensus').val(0);
-			$('#profile-voting, #profile-voting-sub').removeClass('bi-check-square').addClass('bi-square');
-		}
-		else {
-			$('#jot-consensus').val(1);
-			$('#profile-voting, #profile-voting-sub').removeClass('bi-square').addClass('bi-check-square');
-		}
-	}
-*/
-
 	function toggleNoComment() {
 		if($('#jot-nocomment').val() > 0) {
 			$('#jot-nocomment').val(0);
@@ -432,7 +419,7 @@ var activeCommentText = '';
                     $('#embedPhotoModalBodyAlbumDialog').html('\
                             <div><div class="nav nav-pills flex-column">\n\
                                 <li class="nav-item"><a class="nav-link" href="#" onclick="initializeEmbedPhotoDialog();return false;">\n\
-                                    <i class="bi fa-chevron-left"></i>&nbsp\n\
+                                    <i class="bi bi-chevron-left"></i>&nbsp\n\
                                     {{$modaldiffalbum}}\n\
                                     </a>\n\
                                 </li>\n\
