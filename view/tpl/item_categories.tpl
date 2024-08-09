@@ -1,7 +1,7 @@
 {{if $categories}}
 <!--div class="categorytags"-->
 {{foreach $categories as $cat}}
-<span class="item-category badge rounded-pill bg-warning text-dark"><i class="bi fa-asterisk"></i>&nbsp;{{if $cat.url}}<a class="text-dark" href="{{$cat.url}}">{{$cat.term}}</a>{{else}}{{$cat.term}}{{/if}}</span>
+<span class="item-category badge rounded-pill bg-warning text-dark"><i class="bi bi-asterisk"></i>&nbsp;{{if $cat.url}}<a class="text-dark" href="{{$cat.url}}">{{$cat.term}}</a>{{else}}{{$cat.term}}{{/if}}</span>
 {{/foreach}}
 <!--/div-->
 {{/if}}
