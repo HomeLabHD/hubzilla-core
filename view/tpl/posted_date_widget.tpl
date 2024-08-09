@@ -2,18 +2,18 @@
 
 function toggle_posted_date_button() {
 	if($('#posted-date-dropdown').is(':visible')) {
-		$('#posted-date-icon').removeClass('fa-caret-up');
-		$('#posted-date-icon').addClass('bi-gear');
+		$('#posted-date-icon').removeClass('bi-chevron-up');
+		$('#posted-date-icon').addClass('bi-chevron-down');
 		$('#posted-date-dropdown').hide();
 	}
 	else {
-		$('#posted-date-icon').addClass('fa-caret-up');
-		$('#posted-date-icon').removeClass('bi-gear');
+		$('#posted-date-icon').addClass('bi-chevron-up');
+		$('#posted-date-icon').removeClass('bi-chevron-down');
 		$('#posted-date-dropdown').show();
 	}
 }
 </script>
-		
+
 
 <div id="datebrowse-sidebar" class="widget">
 	<h3>{{$title}}</h3>
@@ -24,7 +24,7 @@ function toggle_posted_date_button() {
 		</ul>
 		<div id="posted-date-dropdown" style="display: none;">
 		<ul id="posted-date-selector-drop" class="nav nav-pills flex-column">
-		{{/if}} 
+		{{/if}}
 		<li class="nav-item" id="posted-date-selector-year-{{$y}}">
 			<a class="nav-link" href="#" onclick="openClose('posted-date-selector-{{$y}}'); return false;">{{$y}}</a>
 		</li>
@@ -40,7 +40,7 @@ function toggle_posted_date_button() {
 		{{/foreach}}
 		{{if $cutoff}}
 		</div>
-		<button class="btn btn-outline-secondary btn-sm" onclick="toggle_posted_date_button(); return false;"><i id="posted-date-icon" class="bi bi-gear"></i></button>
+		<button class="btn btn-outline-secondary btn-sm" onclick="toggle_posted_date_button(); return false;"><i id="posted-date-icon" class="bi bi-chevron-down"></i></button>
 		{{/if}}
 	</ul>
 </div>
