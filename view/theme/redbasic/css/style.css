@@ -909,7 +909,8 @@ a .drop-icons:hover {
 	font-weight: bold;
 }
 
-.jot-icons {
+.jot-icons,
+.comment-icon {
 	font-size: 1.2rem;
 }
 
