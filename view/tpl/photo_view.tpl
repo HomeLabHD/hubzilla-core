@@ -151,10 +151,10 @@
 			{{if $likebuttons}}
 			<div class="photo-item-tools-right btn-group float-end">
 				<button type="button" class="btn btn-outline-secondary btn-sm" onclick="dolike({{$likebuttons.id}},'like'); return false">
-					<i class="bi fa-thumbs-o-up" title="{{$likebuttons.likethis}}"></i>
+					<i class="bi bi-hand-thumbs-up" title="{{$likebuttons.likethis}}"></i>
 				</button>
 				<button type="button" class="btn btn-outline-secondary btn-sm" onclick="dolike({{$likebuttons.id}},'dislike'); return false">
-					<i class="bi fa-thumbs-o-down" title="{{$likebuttons.nolike}}"></i>
+					<i class="bi bi-hand-thumbs-down" title="{{$likebuttons.nolike}}"></i>
 				</button>
 			</div>
 			<div id="like-rotator-{{$likebuttons.id}}" class="photo-like-rotator float-end"></div>
