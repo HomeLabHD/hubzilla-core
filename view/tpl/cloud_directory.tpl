@@ -151,7 +151,7 @@
 			<td>{{$item.terms}}</td>
 			<td class="cloud-index-tool p-2">
 				{{if $item.lockstate == 'lock'}}
-				<i class="bi bi-lock lockview generic-icons" data-bs-toggle="dropdown" onclick="lockview('attach',{{$item.attach_id}});"></i>
+				<i class="bi bi-lock lockview" data-bs-toggle="dropdown" onclick="lockview('attach',{{$item.attach_id}});"></i>
 				<ul id="panel-{{$item.attach_id}}" class="lockview-panel dropdown-menu dropdown-menu-end"></ul>
 				{{/if}}
 			</td>
@@ -159,7 +159,7 @@
 				{{if ($is_owner || ($item.is_creator && $has_perms)) && $item.attach_id}}
 				<div class="dropdown">
 					<button class="btn btn-link btn-sm" id="dropdown-button-{{$item.attach_id}}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						<i class="bi bi-three-dots-vertical generic-icons"></i>
+						<i class="bi bi-three-dots-vertical"></i>
 					</button>
 					<div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-button-{{$item.attach_id}}">
 						<a id="cloud-tool-info-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-info-btn" href="#" data-id="{{$item.attach_id}}"><i class="bi bi-info-lg generic-icons-nav"></i>{{$info_label}}</a>
@@ -184,7 +184,7 @@
 				{{if $is_admin || $item.attach_id}}
 				<div class="dropdown">
 					<button class="btn btn-link btn-sm" id="dropdown-button-{{$item.attach_id}}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						<i class="bi fa-ellipsis-v"></i>
+						<i class="bi bi-three-dots-vertical"></i>
 					</button>
 					<div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-button-{{$item.attach_id}}">
 						{{if $item.collection}}

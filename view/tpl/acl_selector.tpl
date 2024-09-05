@@ -27,13 +27,13 @@
 
 				{{if $showallOrigin}}
 				<div id="acl-info" class="mb-3">
-					<i class="bi fa-info-circle"></i>&nbsp;{{$showallOrigin}}
+					<i class="bi bi-info-circle"></i>&nbsp;{{$showallOrigin}}
 				</div>
 				{{/if}}
 
 				<div id="acl-wrapper">
 					<div id="acl-list">
-						<input class="form-control" type="text" id="acl-search" placeholder="&#xf002;" title="{{$search}}">
+						<input class="form-control" type="text" id="acl-search" placeholder="{{$search}}" title="{{$search}}">
 						<small class="text-muted">{{$showlimitedDesc}}</small>
 						<div id="acl-list-content"></div>
 					</div>
