@@ -452,7 +452,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 		// Allow uploading if OCAP tokens are enabled
 		if (PConfig::Get(local_channel(), 'system', 'ocap_enabled')) {
-		//	$uploading = true;
+			$uploading = true;
 		}
 	}
 

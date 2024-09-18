@@ -5005,7 +5005,7 @@ function fix_attached_permissions($uid, $body, $str_contact_allow, $str_group_al
 
 		$attach = array_shift($attach_q);
 
-		$new_public = !(($str_contact_allow || $str_group_allow || $str_contact_deny || $str_group_deny));
+		//$new_public = !(($str_contact_allow || $str_group_allow || $str_contact_deny || $str_group_deny));
 		$existing_public = !(($attach['allow_cid'] || $attach['allow_gid'] || $attach['deny_cid'] || $attach['deny_gid']));
 
 		if ($existing_public) {
@@ -5020,10 +5020,11 @@ function fix_attached_permissions($uid, $body, $str_contact_allow, $str_group_al
 			continue;
 		}
 
-		$item_private = 0;
-
-		if ($new_public === false) {
-			$item_private = (($str_group_allow || ($str_contact_allow && substr_count($str_contact_allow,'<') > 2)) ? 1 : 2);
+		if ($token) {
+			$str_contact_allow = $attach['allow_cid'];
+			$str_group_allow = $attach['allow_gid'];
+			$str_contact_deny = $attach['deny_cid'];
+			$str_group_deny = $attach['deny_gid'];
 
 			// preserve any existing tokens that may have been set for this file
 			$token_matches = null;
@@ -5051,7 +5052,7 @@ function fix_attached_permissions($uid, $body, $str_contact_allow, $str_group_al
 		);
 
 		if ($attach['is_photo']) {
-			$r = q("UPDATE photo SET allow_cid = '%s', allow_gid = '%s', deny_cid = '%s', deny_gid = '%s'
+			q("UPDATE photo SET allow_cid = '%s', allow_gid = '%s', deny_cid = '%s', deny_gid = '%s'
 				WHERE resource_id = '%s' AND uid = %d ",
 				dbesc($str_contact_allow),
 				dbesc($str_group_allow),
@@ -5061,7 +5062,16 @@ function fix_attached_permissions($uid, $body, $str_contact_allow, $str_group_al
 				intval($uid)
 			);
 
-			$r = q("UPDATE item SET allow_cid = '%s', allow_gid = '%s', deny_cid = '%s', deny_gid = '%s', item_private = %d
+			$item_private = 0;
+
+			if ($str_group_allow || $str_contact_deny || $str_group_deny) {
+				$item_private = 1;
+			}
+			elseif ($str_contact_allow) {
+				$item_private = 2;
+			}
+
+			q("UPDATE item SET allow_cid = '%s', allow_gid = '%s', deny_cid = '%s', deny_gid = '%s', item_private = %d
 				WHERE resource_id = '%s' AND 'resource_type' = 'photo'  AND uid = %d",
 				dbesc($str_contact_allow),
 				dbesc($str_group_allow),
