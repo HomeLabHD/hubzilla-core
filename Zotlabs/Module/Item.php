@@ -898,6 +898,11 @@ class Item extends Controller {
 			 */
 
 			if (!$preview) {
+
+				hz_syslog(print_r($gacl, true));
+
+
+				//if ($parent_item && ($parent_item['owner_xchan'] === $channel['channel_hash']))
 				fix_attached_permissions($profile_uid, ((strpos($body, '[/crypt]')) ? $_POST['media_str'] : $body), $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny, $token);
 				//fix_attached_photo_permissions($profile_uid, $owner_xchan['xchan_hash'], ((strpos($body, '[/crypt]')) ? $_POST['media_str'] : $body), $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny, $token);
 				//fix_attached_file_permissions($channel, $observer['xchan_hash'], ((strpos($body, '[/crypt]')) ? $_POST['media_str'] : $body), $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny, $token);
