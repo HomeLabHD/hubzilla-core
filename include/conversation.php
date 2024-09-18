@@ -3,6 +3,7 @@
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\Apps;
 use Zotlabs\Lib\Config;
+use Zotlabs\Lib\PConfig;
 
 require_once('include/items.php');
 
@@ -438,17 +439,22 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 	$uploading = false;
 
-	if(local_channel()) {
-		$cur_channel = App::get_channel();
-		if($cur_channel['channel_allow_cid'] === '' &&  $cur_channel['channel_allow_gid'] === ''
-			&& $cur_channel['channel_deny_cid'] === '' && $cur_channel['channel_deny_gid'] === ''
+	$channel = App::get_channel();
+	$observer = App::get_observer();
+
+	if (local_channel()) {
+		// Allow uploading if there is no default privacy and the view_storage permission is set to PERMS_PUBLIC
+		if ($channel['channel_allow_cid'] === '' &&  $channel['channel_allow_gid'] === ''
+			&& $channel['channel_deny_cid'] === '' && $channel['channel_deny_gid'] === ''
 			&& intval(\Zotlabs\Access\PermissionLimits::Get(local_channel(),'view_storage')) === PERMS_PUBLIC) {
 			$uploading = true;
 		}
-	}
 
-	$channel = App::get_channel();
-	$observer = App::get_observer();
+		// Allow uploading if OCAP tokens are enabled
+		if (PConfig::Get(local_channel(), 'system', 'ocap_enabled')) {
+			$uploading = true;
+		}
+	}
 
 	if (!$update) {
 		$_SESSION['return_url'] = App::$query_string;
