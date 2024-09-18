@@ -497,7 +497,7 @@ function item_permissions_sql($owner_id, $remote_observer = null) {
 				" AND ( author_xchan = '%s' OR owner_xchan = '%s' OR
 				(( NOT (deny_cid $regexop '%s' OR deny_gid $regexop '%s')
 				AND ( allow_cid $regexop '%s' OR allow_gid $regexop '%s' OR ( allow_cid = '' AND allow_gid = '' AND item_private = 0 ))
-				)))
+				)) OR ( item_private = 1 $scope ))
 				",
 				dbesc($observer),
 				dbesc($observer),
@@ -708,55 +708,60 @@ function get_security_ids($channel_id, $ob_hash) {
 		'allow_gid' => []
 	];
 
-	if ($channel_id) {
-		$ch = q("select channel_hash from channel where channel_id = %d",
-			intval($channel_id)
-		);
-		if ($ch) {
-			$ret['channel_id'][] = $ch[0]['channel_hash'];
-		}
+	$x = q("select xchan_hash from xchan where xchan_hash = '%s'",
+		dbesc($ob_hash)
+	);
+
+	if (!$x) {
+		return $ret;
+	}
+
+	$ret['allow_cid'][] = $x[0]['xchan_hash'];
+
+	if (!$channel_id) {
+		return $ret;
+	}
+
+	$ch = q("select channel_hash from channel where channel_id = %d",
+		intval($channel_id)
+	);
+	if ($ch) {
+		$ret['channel_id'][] = $ch[0]['channel_hash'];
 	}
 
 	$groups = [];
 
-	$x = q("select * from xchan where xchan_hash = '%s'",
-		dbesc($ob_hash)
+	// private profiles are treated as a virtual group
+
+	$r = q("SELECT abook_profile from abook where abook_channel = %d and abook_xchan = '%s' and abook_profile != ''",
+		intval($channel_id),
+		dbesc(protect_sprintf($x[0]['xchan_hash']))
 	);
 
-	if ($x) {
-
-		// include xchans for all zot-like networks
-
-		$xchans = q("select xchan_hash from xchan where xchan_hash = '%s' OR ( xchan_guid = '%s' AND xchan_pubkey = '%s' ) ",
-			dbesc($ob_hash),
-			dbesc($x[0]['xchan_guid']),
-			dbesc($x[0]['xchan_pubkey'])
-		);
-
-		if ($xchans) {
-			$ret['allow_cid'] = ids_to_array($xchans, 'xchan_hash');
-			$hashes = ids_to_querystr($xchans, 'xchan_hash', true);
-
-			// private profiles are treated as a virtual group
-
-			$r = q("SELECT abook_profile from abook where abook_xchan in ( " . protect_sprintf($hashes) . " ) and abook_profile != '' ");
-			if ($r) {
-				foreach ($r as $rv) {
-					$groups[] = 'vp.' . $rv['abook_profile'];
-				}
+	if ($r) {
+		foreach ($r as $rv) {
+			if (!in_array('vp.' . $rv['abook_profile'], $groups)) {
+				$groups[] = 'vp.' . $rv['abook_profile'];
 			}
-
-			// physical groups this identity is a member of
-
-			$r = q("SELECT hash FROM pgrp left join pgrp_member on pgrp.id = pgrp_member.gid WHERE xchan in ( " . protect_sprintf($hashes) . " ) ");
-			if ($r) {
-				foreach ($r as $rv) {
-					$groups[] = $rv['hash'];
-				}
-			}
-			$ret['allow_gid'] = $groups;
 		}
 	}
+
+	// physical groups this identity is a member of
+
+	$r = q("SELECT hash FROM pgrp left join pgrp_member on pgrp.id = pgrp_member.gid WHERE pgrp.uid = %d and pgrp_member.xchan = '%s'",
+		intval($channel_id),
+		dbesc(protect_sprintf($x[0]['xchan_hash']))
+	);
+
+	if ($r) {
+		foreach ($r as $rv) {
+			if (!in_array($rv['hash'], $groups)) {
+				$groups[] = $rv['hash'];
+			}
+		}
+	}
+
+	$ret['allow_gid'] = $groups;
 
 	return $ret;
 }
