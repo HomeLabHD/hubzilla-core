@@ -321,6 +321,7 @@ function change_channel($change_channel) {
 function permissions_sql($owner_id, $remote_observer = null, $table = '', $token = EMPTY_STR) {
 
 	$local_channel = local_channel();
+	$observer = $remote_observer ?? get_observer_hash();
 
 	/**
 	 * Construct permissions
@@ -344,15 +345,22 @@ function permissions_sql($owner_id, $remote_observer = null, $table = '', $token
 	if (($local_channel) && ($local_channel == $owner_id)) {
 		return EMPTY_STR;
 	}
-	/**
-	 * Authenticated visitor.
-	 */
-
 	else {
 
-		$observer = ((!is_null($remote_observer)) ? $remote_observer : get_observer_hash());
+		/*
+		 * OCAP token access
+		 */
 
-		if ($observer) {
+		if ($token) {
+			$sql = " AND ( {$table}allow_cid like '" . protect_sprintf('%<token:' . $token . '>%') .
+			"' OR ( {$table}allow_cid = '' AND {$table}allow_gid = '' AND {$table}deny_cid = '' AND {$table}deny_gid = '' ) )";
+		}
+
+		/**
+		 * Authenticated visitor.
+		*/
+
+		elseif ($observer) {
 
 			$sec = get_security_ids($owner_id, $observer);
 
@@ -400,16 +408,6 @@ function permissions_sql($owner_id, $remote_observer = null, $table = '', $token
 				dbesc($gs)
 			);
 		}
-
-		/*
-		 * OCAP token access
-		 */
-
-		elseif ($token) {
-			$sql = " AND ( {$table}allow_cid like '" . protect_sprintf('%<token:' . $token . '>%') .
-			"' OR ( {$table}allow_cid = '' AND {$table}allow_gid = '' AND {$table}deny_cid = '' AND {$table}deny_gid = '' ) )";
-		}
-
 	}
 
 	return $sql;
