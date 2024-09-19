@@ -348,7 +348,6 @@ function attach_can_view($uid, $ob_hash, $resource, $token = EMPTY_STR) {
 
 	$sql_extra = permissions_sql($uid, $ob_hash, '', $token);
 
-
 	$r = q("select folder from attach where hash = '%s' and uid = %d $sql_extra",
 		dbesc($resource),
 		intval($uid)
