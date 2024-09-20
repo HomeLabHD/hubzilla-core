@@ -1,3 +1,33 @@
+Hubzilla 9.4 (2024-??-??)
+	- If we got an ocap token try to authenticate with it first
+	- Hide comment titles
+	- Adjust fix_attached_permissions() to only add the token if we got one
+	- Allow uploading to comments if ocap tokens are enabled
+	- Refactor get_security_ids() to remove legacy code
+	- Add privacy scope sql to item_permissions_sql()
+	- Removed fork awesome in favour of bootstrap icons
+	- Improved content and comment collapse/expand rendering
+	- Add support for inbound locations
+	- Streamline item location rendering (use icon)
+	- Fix html2bbcode table and add test
+	- Store info/notice messages in xconfig instead of session
+	- Refactor help and add tests
+	- Do not run set_linkified_perms() if editing a post
+	- Remove deprecated tag_deliver permissions
+	- Make sure that tgroup_check() fails for group posts if they do not have the post_wall permission
+	- Show repeat button to channel owners only
+	- Refactor item buttons
+	- Add util/update_db
+	- Remove the unused f argument in various places
+	- Streamline URLs used in attachments and body to ease deduplication
+	- Code cleanup and remove some unused/deprecated functions
+
+	Addons
+	- Gallery: update to photoswipe 5.4.4
+	- Openstreemap: streamline location rendering
+	- Socialauth: update version and contact details
+	- Socialauth: fix rendering issue
+
 Hubzilla 9.2.1 (2024-07-18)
 	- Fix fatal error if gd function image{jpeg, png, webp}() does not exist for some reason
 	- Add missing pdl for mod import
