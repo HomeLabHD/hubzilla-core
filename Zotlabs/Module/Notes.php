@@ -13,31 +13,34 @@ class Notes extends Controller {
 
 	function post() {
 
-		if(! local_channel())
-			return EMPTY_STR;
+		if(!local_channel()) {
+			return;
+		}
 
-		if(! Apps::system_app_installed(local_channel(), 'Notes'))
-			return EMPTY_STR;
+		if(!Apps::system_app_installed(local_channel(), 'Notes')) {
+			return;
+		}
 
 		$ret = [
 			'success' => false,
 			'html' => ''
 		];
 
-
-		if(array_key_exists('note_text',$_REQUEST)) {
+		if (array_key_exists('note_text',$_REQUEST)) {
 			$body = escape_tags($_REQUEST['note_text']);
 
 			// I've had my notes vanish into thin air twice in four years.
 			// Provide a backup copy if there were contents previously
 			// and there are none being saved now.
 
-			if(! $body) {
-				$old_text = get_pconfig(local_channel(),'notes','text');
-				if($old_text)
-					set_pconfig(local_channel(),'notes','text.bak',$old_text);
+			if(!$body) {
+				$old_text = get_pconfig(local_channel(), 'notes', 'text');
+				if ($old_text) {
+					set_pconfig(local_channel(), 'notes', 'text.bak', $old_text);
+				}
 			}
-			set_pconfig(local_channel(),'notes','text',$body);
+
+			set_pconfig(local_channel(), 'notes', 'text', $body);
 
 			$ret['html'] = bbcode($body, ['tryoembed' => false]);
 			$ret['success'] = true;
@@ -55,8 +58,9 @@ class Notes extends Controller {
 	}
 
 	function get() {
-		if(! local_channel())
+		if(!local_channel()) {
 			return EMPTY_STR;
+		}
 
 		if(! Apps::system_app_installed(local_channel(), 'Notes')) {
 			//Do not display any associated widgets at this point
@@ -64,6 +68,8 @@ class Notes extends Controller {
 			$papp = Apps::get_papp('Notes');
 			return Apps::app_render($papp, 'module');
 		}
+
+		App::$profile_uid = local_channel();
 
 		$w = new \Zotlabs\Widget\Notes;
 		$arr = ['app' => true];

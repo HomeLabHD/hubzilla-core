@@ -16,14 +16,17 @@ use Zotlabs\Lib\Apps;
 class Notes {
 
 	function widget($arr) {
-		if(! local_channel())
+		if(!local_channel()) {
 			return EMPTY_STR;
+		}
 
-		if(App::$profile_uid !== local_channel())
+		if (App::$profile_uid !== local_channel()) {
 			return EMPTY_STR;
+		}
 
-		if(! Apps::system_app_installed(local_channel(), 'Notes'))
+		if(!Apps::system_app_installed(local_channel(), 'Notes')) {
 			return EMPTY_STR;
+		}
 
 		$text = get_pconfig(local_channel(),'notes','text');
 
