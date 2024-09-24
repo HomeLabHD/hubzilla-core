@@ -29,7 +29,7 @@ class Help extends \Zotlabs\Web\Controller {
 	public function init() {
 		$this->determine_help_language();
 
-		if (argc() === 1) {
+		if (empty($_REQUEST['search']) && argc() === 1) {
 			goaway("/help/{$this->lang['language']}/about/about");
 			killme();
 		}
@@ -62,6 +62,7 @@ class Help extends \Zotlabs\Web\Controller {
 			$o .= '</div>';
 			$o .= '<div class="section-content-wrapper">';
 
+			require_once('include/help.php');
 			$r = search_doc_files($_REQUEST['search']);
 			if($r) {
 				$o .= '<ul class="help-searchlist">';
