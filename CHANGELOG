@@ -22,7 +22,11 @@ Hubzilla 9.4 (2024-??-??)
 	- Streamline URLs used in attachments and body to ease deduplication
 	- Code cleanup and remove some unused/deprecated functions
 
+	Bugfixes
+	- Fix notes app not displaying anything - issue #1865
+
 	Addons
+	- Wiki: fix markdown content not unescaped when undoing history - issue #1864
 	- Gallery: update to photoswipe 5.4.4
 	- Openstreemap: streamline location rendering
 	- Socialauth: update version and contact details
