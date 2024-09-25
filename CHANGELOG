@@ -1,4 +1,4 @@
-Hubzilla 9.4 (2024-??-??)
+Hubzilla 9.4 (2024-09-25)
 	- If we got an ocap token try to authenticate with it first
 	- Hide comment titles
 	- Adjust fix_attached_permissions() to only add the token if we got one
