@@ -42,7 +42,7 @@ class Activity_filter {
 
 		$tabs[] = [
 			'label' => t('Direct Messages'),
-			'icon' => 'envelope-o',
+			'icon' => 'envelope',
 			'url' => z_root() . '/' . $cmd . '/?f=&dm=1',
 			'sel' => $dm_active,
 			'title' => t('Show direct (private) messages')
@@ -51,7 +51,7 @@ class Activity_filter {
 		if(feature_enabled(local_channel(),'events_tab')) {
 			$tabs[] = [
 				'label' => t('Events'),
-				'icon' => 'calendar',
+				'icon' => 'calendar-date',
 				'url' => z_root() . '/' . $cmd . '/?verb=%2EEvent',
 				'sel' => $events_active,
 				'title' => t('Show posts that include events')
@@ -93,7 +93,7 @@ class Activity_filter {
 				$tabs[] = [
 					'id' => 'privacy_groups',
 					'label' => t('Privacy Groups'),
-					'icon' => 'users',
+					'icon' => 'person',
 					'url' => '#',
 					'sel' => (($filter_active == 'group') ? true : false),
 					'title' => t('Show my privacy groups'),
@@ -128,7 +128,7 @@ class Activity_filter {
 				$tabs[] = [
 					'id' => 'forums',
 					'label' => t('Forums'),
-					'icon' => 'comments-o',
+					'icon' => 'chat-quote',
 					'url' => '#',
 					'sel' => (($filter_active == 'forums') ? true : false),
 					'title' => t('Show forums'),
@@ -161,7 +161,7 @@ class Activity_filter {
 
 			$tabs[] = [
 				'label' => t('Personal Posts'),
-				'icon' => 'user-circle',
+				'icon' => 'person-circle',
 				'url' => z_root() . '/' . $cmd . '/?f=&conv=1',
 				'sel' => $conv_active,
 				'title' => t('Show posts that mention or involve me')
@@ -233,7 +233,7 @@ class Activity_filter {
 		if($filter_active) {
 			$reset = [
 				'label' => '',
-				'icon' => 'remove',
+				'icon' => 'x-lg',
 				'url'=> z_root() . '/' . $cmd,
 				'sel'=> '',
 				'title' => t('Remove active filter')

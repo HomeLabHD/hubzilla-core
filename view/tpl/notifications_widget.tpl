@@ -470,12 +470,12 @@
 		});
 
 		if(primary_available) {
-			$('.notifications-btn-icon').removeClass('fa-exclamation-circle');
-			$('.notifications-btn-icon').addClass('fa-exclamation-triangle');
+			$('.notifications-btn-icon').removeClass('bi-exclamation-circle');
+			$('.notifications-btn-icon').addClass('bi-exclamation-triangle');
 		}
 		else {
-			$('.notifications-btn-icon').removeClass('fa-exclamation-triangle');
-			$('.notifications-btn-icon').addClass('fa-exclamation-circle');
+			$('.notifications-btn-icon').removeClass('bi-exclamation-triangle');
+			$('.notifications-btn-icon').addClass('bi-exclamation-circle');
 		}
 
 		if(any_available) {
@@ -572,7 +572,7 @@
 		<div class="rounded-top rounded-bottom border border-start-0 border-end-0 border-bottom-0 list-group list-group-flush collapse {{$notification.type}}-button">
 			<a id="notification-link-{{$notification.type}}" class="collapsed list-group-item justify-content-between align-items-center d-flex fakelink stretched-link notification-link" href="#" title="{{$notification.title}}" data-bs-target="#nav-{{$notification.type}}-sub" data-bs-toggle="collapse" data-sse_type="{{$notification.type}}">
 				<div>
-					<i class="fa fa-fw fa-{{$notification.icon}}"></i>
+					<i class="bi bi-{{$notification.icon}} generic-icons-nav"></i>
 					{{$notification.label}}
 				</div>
 				<span class="badge bg-{{$notification.severity}} {{$notification.type}}-update"></span>
@@ -581,25 +581,25 @@
 		<div id="nav-{{$notification.type}}-sub" class="rounded-bottom border border-start-0 border-end-0 border-bottom-0 list-group list-group-flush collapse notification-content" data-bs-parent="#notifications" data-sse_type="{{$notification.type}}">
 			{{if $notification.viewall}}
 			<a class="list-group-item list-group-item-action text-decoration-none" id="nav-{{$notification.type}}-see-all" href="{{$notification.viewall.url}}">
-				<i class="fa fa-fw fa-external-link"></i> {{$notification.viewall.label}}
+				<i class="bi bi-box-arrow-up-right generic-icons-nav"></i> {{$notification.viewall.label}}
 			</a>
 			{{/if}}
 			{{if $notification.markall}}
 			<div class="list-group-item list-group-item-action cursor-pointer" id="nav-{{$notification.type}}-mark-all" onclick="markRead('{{$notification.type}}'); return false;">
-				<i class="fa fa-fw fa-check"></i> {{$notification.markall.label}}
+				<i class="bi bi-check-circle generic-icons-nav"></i> {{$notification.markall.label}}
 			</div>
 			{{/if}}
 			{{if $notification.filter}}
 			{{if $notification.filter.posts_label}}
 			<div class="list-group-item list-group-item-action cursor-pointer" id="tt-{{$notification.type}}-only">
-				<i class="fa fa-fw fa-filter"></i> {{$notification.filter.posts_label}}
+				<i class="bi bi-funnel generic-icons-nav"></i> {{$notification.filter.posts_label}}
 			</div>
 			{{/if}}
 			{{if $notification.filter.name_label}}
 			<div class="list-group-item clearfix notifications-textinput" id="cn-{{$notification.type}}-only">
-				<div class="text-muted notifications-textinput-filter"><i class="fa fa-fw fa-filter"></i></div>
+				<div class="text-muted notifications-textinput-filter"><i class="bi bi-filter"></i></div>
 				<input id="cn-{{$notification.type}}-input" type="text" class="notification-filter form-control form-control-sm" placeholder="{{$notification.filter.name_label}}">
-				<div id="cn-{{$notification.type}}-input-clear" class="text-muted notifications-textinput-clear d-none"><i class="fa fa-times"></i></div>
+				<div id="cn-{{$notification.type}}-input-clear" class="text-muted notifications-textinput-clear d-none"><i class="bi bi-x-lg"></i></div>
 			</div>
 			{{/if}}
 			{{/if}}

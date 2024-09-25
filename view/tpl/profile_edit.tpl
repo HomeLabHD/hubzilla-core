@@ -2,17 +2,17 @@
 	<div class="section-title-wrapper">
 		<div class="dropdown float-end" id="profile-edit-links">
 			<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				<i class="fa fa-cog"></i>&nbsp;{{$tools_label}}
+				<i class="bi bi-gear"></i>&nbsp;{{$tools_label}}
 			</button>
 			<div class="dropdown-menu dropdown-menu-end">
-				<a class="dropdown-item" href="profile_photo/{{$profile_id}}" id="profile-photo_upload-link" title="{{$profpic}}"><i class="fa fa-fw fa-user"></i>&nbsp;{{$profpic}}</a>
+				<a class="dropdown-item" href="profile_photo/{{$profile_id}}" id="profile-photo_upload-link" title="{{$profpic}}"><i class="bi bi-person"></i>&nbsp;{{$profpic}}</a>
 				{{if $is_default}}
-				<a class="dropdown-item" href="cover_photo" id="cover-photo_upload-link" title="{{$coverpic}}"><i class="fa fa-fw fa-picture-o"></i>&nbsp;{{$coverpic}}</a>
+				<a class="dropdown-item" href="cover_photo" id="cover-photo_upload-link" title="{{$coverpic}}"><i class="bi bi-image"></i>&nbsp;{{$coverpic}}</a>
 				{{/if}}
 				{{if ! $is_default}}
-				<a class="dropdown-item" href="profperm/{{$profile_id}}" id="profile-edit-visibility-link" title="{{$editvis}}"><i class="fa fa-fw fa-pencil"></i>&nbsp;{{$editvis}}</a>
+				<a class="dropdown-item" href="profperm/{{$profile_id}}" id="profile-edit-visibility-link" title="{{$editvis}}"><i class="bi bi-pencil"></i>&nbsp;{{$editvis}}</a>
 				{{/if}}
-				<a class="dropdown-item" href="thing" id="profile-edit-thing-link" title="{{$addthing}}"><i class="fa fa-fw fa-plus-circle"></i>&nbsp;{{$addthing}}</a>
+				<a class="dropdown-item" href="thing" id="profile-edit-thing-link" title="{{$addthing}}"><i class="bi bi-plus-lg"></i>&nbsp;{{$addthing}}</a>
 				<div class="dropdown-divider"></div>
 				<a class="dropdown-item" href="profile/{{$profile_id}}/view" id="profile-edit-view-link" title="{{$viewprof}}">{{$viewprof}}</a>
 				{{if $multi_profiles}}
@@ -26,7 +26,7 @@
 				{{/if}}
 				{{if ! $is_default}}
 				<div class="dropdown-divider"></div>
-				<a class="dropdown-item" href="{{$profile_drop_link}}" id="profile-edit-drop-link" title="{{$del_prof}}" onclick="return confirmDelete();"><i class="fa fa-trash-o"></i>&nbsp;{{$del_prof}}</a>
+				<a class="dropdown-item" href="{{$profile_drop_link}}" id="profile-edit-drop-link" title="{{$del_prof}}" onclick="return confirmDelete();"><i class="bi bi-trash"></i>&nbsp;{{$del_prof}}</a>
 				{{/if}}
 			</div>
 		</div>
@@ -114,7 +114,7 @@
 						<option value="OTHER">{{$other}}</option>
 					</select>
 					<input type="text" name="tel[]" value="" placeholder="{{$tel_label}}">
-					<i data-remove="vcard-tel" data-id="" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+					<i data-remove="vcard-tel" data-id="" class="bi bi-trash remove-field drop-icons fakelink"></i>
 				</div>
 
 				<div id="template-form-vcard-email" class="mb-3 form-vcard-email">
@@ -124,7 +124,7 @@
 						<option value="OTHER">{{$other}}</option>
 					</select>
 					<input type="text" name="email[]" value="" placeholder="{{$email_label}}">
-					<i data-remove="vcard-email" data-id="" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+					<i data-remove="vcard-email" data-id="" class="bi bi-trash remove-field drop-icons fakelink"></i>
 				</div>
 
 				<div id="template-form-vcard-impp" class="mb-3 form-vcard-impp">
@@ -134,13 +134,13 @@
 						<option value="OTHER">{{$other}}</option>
 					</select>
 					<input type="text" name="impp[]" value="" placeholder="{{$impp_label}}">
-					<i data-remove="vcard-impp" data-id="" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+					<i data-remove="vcard-impp" data-id="" class="bi bi-trash remove-field drop-icons fakelink"></i>
 				</div>
 
 				<div class="section-content-wrapper-np">
-					<div id="vcard-cancel-{{$vcard.id}}" class="vcard-cancel vcard-cancel-btn" data-id="{{$vcard.id}}" data-action="cancel"><i class="fa fa-close"></i></div>
+					<div id="vcard-cancel-{{$vcard.id}}" class="vcard-cancel vcard-cancel-btn" data-id="{{$vcard.id}}" data-action="cancel"><i class="bi bi-x-lg"></i></div>
 					<div id="vcard-add-field-{{$vcard.id}}" class="dropdown float-end vcard-add-field">
-						<button data-bs-toggle="dropdown" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle"><i class="fa fa-plus"></i> {{$add_field}}</button>
+						<button data-bs-toggle="dropdown" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle"><i class="bi bi-plus-lg"></i> {{$add_field}}</button>
 						<ul class="dropdown-menu">
 							<li class="add-vcard-tel"><a href="#" data-add="vcard-tel" data-id="{{$vcard.id}}" class="add-field" onclick="return false;">{{$tel_label}}</a></li>
 							<li class="add-vcard-email"><a href="#" data-add="vcard-email" data-id="{{$vcard.id}}" class="add-field" onclick="return false;">{{$email_label}}</a></li>
@@ -148,11 +148,11 @@
 						</ul>
 					</div>
 					<div id="vcard-header-{{$vcard.id}}" class="vcard-header" data-id="{{$vcard.id}}" data-action="open">
-						<i class="vcard-fn-preview fa fa-address-card-o"></i>
+						<i class="vcard-fn-preview bi fa-address-card-o"></i>
 						<span id="vcard-preview-{{$vcard.id}}" class="vcard-preview">
 							{{if $vcard.fn}}<span class="vcard-fn-preview">{{$vcard.fn}}</span>{{/if}}
 							{{if $vcard.emails.0.address}}<span class="vcard-email-preview hidden-xs"><a href="mailto:{{$vcard.emails.0.address}}">{{$vcard.emails.0.address}}</a></span>{{/if}}
-							{{if $vcard.tels.0}}<span class="vcard-tel-preview hidden-xs">{{$vcard.tels.0.nr}}{{if $is_mobile}} <a class="btn btn-outline-secondary btn-sm" href="tel:{{$vcard.tels.0.nr}}"><i class="fa fa-phone connphone"></i></a>{{/if}}</span>{{/if}}
+							{{if $vcard.tels.0}}<span class="vcard-tel-preview hidden-xs">{{$vcard.tels.0.nr}}{{if $is_mobile}} <a class="btn btn-outline-secondary btn-sm" href="tel:{{$vcard.tels.0.nr}}"><i class="bi fa-phone connphone"></i></a>{{/if}}</span>{{/if}}
 						</span>
 						<input id="vcard-fn-{{$vcard.id}}" class="vcard-fn" type="text" name="fn" value="{{$vcard.fn}}" size="{{$vcard.fn|count_characters:true}}" placeholder="{{$name_label}}">
 					</div>
@@ -172,7 +172,7 @@
 									<option value="OTHER"{{if $tel.type.0 == 'OTHER'}} selected="selected"{{/if}}>{{$other}}</option>
 								</select>
 								<input type="text" name="tel[]" value="{{$tel.nr}}" size="{{$tel.nr|count_characters:true}}" placeholder="{{$tel_label}}">
-								<i data-remove="vcard-tel" data-id="{{$vcard.id}}" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+								<i data-remove="vcard-tel" data-id="{{$vcard.id}}" class="bi bi-trash remove-field drop-icons fakelink"></i>
 							</div>
 							{{/foreach}}
 							{{/if}}
@@ -192,7 +192,7 @@
 									<option value="OTHER"{{if $email.type.0 == 'OTHER'}} selected="selected"{{/if}}>{{$other}}</option>
 								</select>
 								<input type="text" name="email[]" value="{{$email.address}}" size="{{$email.address|count_characters:true}}" placeholder="{{$email_label}}">
-								<i data-remove="vcard-email" data-id="{{$vcard.id}}" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+								<i data-remove="vcard-email" data-id="{{$vcard.id}}" class="bi bi-trash remove-field drop-icons fakelink"></i>
 							</div>
 							{{/foreach}}
 							{{/if}}
@@ -211,7 +211,7 @@
 									<option value="OTHER"{{if $impp.type.0 == 'OTHER'}} selected="selected"{{/if}}>{{$other}}</option>
 								</select>
 								<input type="text" name="impp[]" value="{{$impp.address}}" size="{{$impp.address|count_characters:true}}" placeholder="{{$impp_label}}">
-								<i data-remove="vcard-impp" data-id="{{$vcard.id}}" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+								<i data-remove="vcard-impp" data-id="{{$vcard.id}}" class="bi bi-trash remove-field drop-icons fakelink"></i>
 							</div>
 							{{/foreach}}
 							{{/if}}
@@ -283,7 +283,7 @@
 						<div class="section-content-tools-wrapper">
 							{{if $fields.marital }}
 							<div id="profile-edit-marital-wrapper" class="mb-3 field" >
-							<label id="profile-edit-marital-label" for="profile-edit-marital" ><span class="heart"><i class="fa fa-heart"></i>&nbsp;</span>{{$lbl_marital}}</label>
+							<label id="profile-edit-marital-label" for="profile-edit-marital" ><span class="heart"><i class="bi fa-heart"></i>&nbsp;</span>{{$lbl_marital}}</label>
 							{{if $advanced}}
 							{{$marital}}
 							{{else}}

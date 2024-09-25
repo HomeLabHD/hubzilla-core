@@ -22,7 +22,9 @@ class Helpindex {
 		$this->find_help_file('toc', $this->lang['language']);
 
 		if (! empty($this->file_name)) {
-			$this->contents = file_get_contents($this->file_name);
+			$this->contents = translate_projectname(
+				file_get_contents($this->file_name)
+			);
 		}
 
 		$tpl = get_markup_template('widget.tpl');

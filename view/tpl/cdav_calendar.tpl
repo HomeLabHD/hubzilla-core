@@ -106,7 +106,7 @@ $(document).ready(function() {
 				if(! $('#l2s').length)
 					$('#id_title_wrapper').prepend('<span id="l2s" class="float-end"></span>');
 
-				$('#l2s').html('<a href="' + event.extendedProps.plink[0] + '" target="_blank"><i class="fa fa-external-link"></i> ' + event.extendedProps.plink[1] + '</a>');
+				$('#l2s').html('<a href="' + event.extendedProps.plink[0] + '" target="_blank"><i class="bi bi-box-arrow-up-right"></i> ' + event.extendedProps.plink[1] + '</a>');
 			}
 			else {
 				$('#l2s').remove();
@@ -349,7 +349,7 @@ $(document).ready(function() {
 		$('.section-content-tools-wrapper, #event_form_wrapper').show();
 
 		$('#id_title_wrapper').prepend('<span id="l2s" class="float-end"></span>');
-		$('#l2s').html('<a href="' + resource.plink[0] + '" target="_blank"><i class="fa fa-external-link"></i> ' + resource.plink[1] + '</a>');
+		$('#l2s').html('<a href="' + resource.plink[0] + '" target="_blank"><i class="bi bi-box-arrow-up-right"></i> ' + resource.plink[1] + '</a>');
 
 		event_id = resource.id;
 		event_uri = resource.event_hash;
@@ -411,7 +411,7 @@ function add_remove_json_source(source, color, editable, status) {
 	var selector = '#calendar-btn-' + id;
 
 	if(status === undefined)
-		status = 'fa-calendar-check-o';
+		status = 'bi-calendar-check';
 
 	if(status === 'drop') {
 		eventSource.remove();
@@ -419,16 +419,16 @@ function add_remove_json_source(source, color, editable, status) {
 		return;
 	}
 
-	if($(selector).hasClass('fa-calendar-o')) {
+	if($(selector).hasClass('bi-calendar')) {
 		calendar.addEventSource({ id: id, url: source, color: color, editable: editable });
-		$(selector).removeClass('fa-calendar-o');
+		$(selector).removeClass('bi-calendar');
 		$(selector).addClass(status);
 		$.get('/cdav/calendar/switch/' + id + '/1');
 	}
 	else {
 		eventSource.remove();
 		$(selector).removeClass(status);
-		$(selector).addClass('fa-calendar-o');
+		$(selector).addClass('bi-calendar');
 		$.get('/cdav/calendar/switch/' + id + '/0');
 	}
 }
@@ -559,11 +559,11 @@ function reset_form() {
 
 function on_more() {
 	if($('#more_block').hasClass('open')) {
-		$('#event_more').html('<i class="fa fa-caret-down"></i> {{$more}}');
+		$('#event_more').html('<i class="bi bi-caret-down"></i> {{$more}}');
 		$('#more_block').removeClass('open').hide();
 	}
 	else {
-		$('#event_more').html('<i class="fa fa-caret-up"></i> {{$less}}');
+		$('#event_more').html('<i class="bi bi-caret-up"></i> {{$less}}');
 		$('#more_block').addClass('open').show();
 	}
 }
@@ -589,12 +589,12 @@ function exportDate() {
 					<a class="dropdown-item" href="#" onclick="changeView('listDay'); return false;">{{$list_day}}</a>
 				</div>
 				<div class="btn-group">
-					<button id="prev-btn" class="btn btn-outline-secondary btn-sm" title="{{$prev}}"><i class="fa fa-backward"></i></button>
-					<button id="today-btn" class="btn btn-outline-secondary btn-sm" title="{{$today}}"><span id="events-spinner" class="spinner s"></span><i class="fa fa-bullseye" style="display: none; width: 1rem;"></i></button>
-					<button id="next-btn" class="btn btn-outline-secondary btn-sm" title="{{$next}}"><i class="fa fa-forward"></i></button>
+					<button id="prev-btn" class="btn btn-outline-secondary btn-sm" title="{{$prev}}"><i class="bi bi-chevron-left"></i></button>
+					<button id="today-btn" class="btn btn-outline-secondary btn-sm" title="{{$today}}"><span id="events-spinner" class="spinner s"></span><i class="bi bi-crosshair" style="display: none; padding: 0.065rem;"></i></button>
+					<button id="next-btn" class="btn btn-outline-secondary btn-sm" title="{{$next}}"><i class="bi bi-chevron-right"></i></button>
 				</div>
-				<button id="fullscreen-btn" type="button" class="btn btn-outline-secondary btn-sm" onclick="makeFullScreen();"><i class="fa fa-expand"></i></button>
-				<button id="inline-btn" type="button" class="btn btn-outline-secondary btn-sm" onclick="makeFullScreen(false);"><i class="fa fa-compress"></i></button>
+				<button id="fullscreen-btn" type="button" class="btn btn-outline-secondary btn-sm" onclick="makeFullScreen();"><i class="bi bi-arrows-angle-expand"></i></button>
+				<button id="inline-btn" type="button" class="btn btn-outline-secondary btn-sm" onclick="makeFullScreen(false);"><i class="bi bi-arrows-angle-contract"></i></button>
 			</div>
 		</div>
 		<h2 id="title"></h2>
@@ -643,8 +643,8 @@ function exportDate() {
 				</div>
 				<div class="mb-3">
 					<div class="float-end">
-						<button id="event_more" type="button" class="btn btn-outline-secondary btn-sm"><i class="fa fa-caret-down"></i> {{$more}}</button>
-						<button id="dbtn-acl" class="btn btn-outline-secondary btn-sm d-none" type="button" data-bs-toggle="modal" data-bs-target="#aclModal"><i id="jot-perms-icon" class="fa fa-{{$lockstate}}"></i></button>
+						<button id="event_more" type="button" class="btn btn-outline-secondary btn-sm"><i class="bi bi-caret-down"></i> {{$more}}</button>
+						<button id="dbtn-acl" class="btn btn-outline-secondary btn-sm d-none" type="button" data-bs-toggle="modal" data-bs-target="#aclModal"><i id="jot-perms-icon" class="bi bi-{{$lockstate}}"></i></button>
 						<button id="event_submit" type="button" value="" class="btn btn-primary btn-sm"></button>
 
 					</div>

@@ -34,7 +34,7 @@ class Hq_controls {
 				'href' => '#',
 				'class' => 'btn notes-toggle',
 				'type' => 'button',
-				'icon' => 'sticky-note-o',
+				'icon' => 'sticky',
 				'extra' => 'data-toggle="button"'
 			];
 		}
@@ -44,7 +44,7 @@ class Hq_controls {
 			'href' => '#',
 			'class' => 'btn channel-activities-toggle d-none',
 			'type' => 'button',
-			'icon' => 'user-circle-o',
+			'icon' => 'person-circle',
 			'extra' => 'data-toggle="button"'
 		];
 

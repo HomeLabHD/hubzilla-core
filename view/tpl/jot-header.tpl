@@ -374,32 +374,22 @@ var activeCommentText = '';
 		timer = setTimeout(updateInit,1000);
 	}
 
-	function toggleVoting() {
-		if($('#jot-consensus').val() > 0) {
-			$('#jot-consensus').val(0);
-			$('#profile-voting, #profile-voting-sub').removeClass('fa-check-square-o').addClass('fa-square-o');
-		}
-		else {
-			$('#jot-consensus').val(1);
-			$('#profile-voting, #profile-voting-sub').removeClass('fa-square-o').addClass('fa-check-square-o');
-		}
-	}
-
 	function toggleNoComment() {
 		if($('#jot-nocomment').val() > 0) {
 			$('#jot-nocomment').val(0);
-			$('#profile-nocomment, #profile-nocomment-sub').removeClass('fa-comments-o').addClass('fa-comments');
+			$('#profile-nocomment, #profile-nocomment-sub').removeClass('bi-chat').addClass('bi-chat-dots');
 			$('#profile-nocomment-wrapper').attr('title', '{{$nocomment_enabled|escape:'javascript'}}');
 		}
 		else {
 			$('#jot-nocomment').val(1);
-			$('#profile-nocomment, #profile-nocomment-sub').removeClass('fa-comments').addClass('fa-comments-o');
+			$('#profile-nocomment, #profile-nocomment-sub').removeClass('bi-chat-dots').addClass('bi-chat');
 			$('#profile-nocomment-wrapper').attr('title', '{{$nocomment_disabled|escape:'javascript'}}');
 		}
 	}
 
 	function jotReact(id,icon) {
 		if(id && icon) {
+			$('#like-rotator-' + id).show();
 			$.get('{{$baseurl}}/react?f=&postid=' + id + '&emoji=' + icon);
 			if(timer) clearTimeout(timer);
 			timer = setTimeout(updateInit,1000);
@@ -429,7 +419,7 @@ var activeCommentText = '';
                     $('#embedPhotoModalBodyAlbumDialog').html('\
                             <div><div class="nav nav-pills flex-column">\n\
                                 <li class="nav-item"><a class="nav-link" href="#" onclick="initializeEmbedPhotoDialog();return false;">\n\
-                                    <i class="fa fa-chevron-left"></i>&nbsp\n\
+                                    <i class="bi bi-chevron-left"></i>&nbsp\n\
                                     {{$modaldiffalbum}}\n\
                                     </a>\n\
                                 </li>\n\
@@ -532,7 +522,7 @@ var activeCommentText = '';
 	}
 
 	function jotAddOption() {
-		var option = '<div class="jot-poll-option mb-3"><input class="w-100 border-0" name="poll_answers[]" type="text" value="" placeholder="Option"><div class="poll-option-close"><i class="fa fa-close"></i></div></div>';
+		var option = '<div class="jot-poll-option mb-3"><input class="w-100 border-0" name="poll_answers[]" type="text" value="" placeholder="Option"><div class="poll-option-close"><i class="bi bi-x-lg"></i></div></div>';
 		$('#jot-poll-options').append(option);
 	}
 

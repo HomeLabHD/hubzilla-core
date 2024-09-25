@@ -72,14 +72,14 @@ $(document).ready(function() {
 <div id="template-form-vcard-org" class="mb-3 form-vcard-org">
 	<div class="mb-3 form-vcard-org">
 		<input type="text" name="org" value="" placeholder="{{$org_label}}">
-		<i data-remove="vcard-org" data-id="" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+		<i data-remove="vcard-org" data-id="" class="bi bi-trash remove-field drop-icons fakelink"></i>
 	</div>
 </div>
 
 <div id="template-form-vcard-title" class="mb-3 form-vcard-title">
 	<div class="mb-3 form-vcard-title">
 		<input type="text" name="title" value="" placeholder="{{$title_label}}">
-		<i data-remove="vcard-title" data-id="" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+		<i data-remove="vcard-title" data-id="" class="bi bi-trash remove-field drop-icons fakelink"></i>
 	</div>
 </div>
 
@@ -91,7 +91,7 @@ $(document).ready(function() {
 		<option value="OTHER">{{$other}}</option>
 	</select>
 	<input type="text" name="tel[]" value="" placeholder="{{$tel_label}}">
-	<i data-remove="vcard-tel" data-id="" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+	<i data-remove="vcard-tel" data-id="" class="bi bi-trash remove-field drop-icons fakelink"></i>
 </div>
 
 <div id="template-form-vcard-email" class="mb-3 form-vcard-email">
@@ -101,7 +101,7 @@ $(document).ready(function() {
 		<option value="OTHER">{{$other}}</option>
 	</select>
 	<input type="text" name="email[]" value="" placeholder="{{$email_label}}">
-	<i data-remove="vcard-email" data-id="" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+	<i data-remove="vcard-email" data-id="" class="bi bi-trash remove-field drop-icons fakelink"></i>
 </div>
 
 <div id="template-form-vcard-impp" class="mb-3 form-vcard-impp">
@@ -111,7 +111,7 @@ $(document).ready(function() {
 		<option value="OTHER">{{$other}}</option>
 	</select>
 	<input type="text" name="impp[]" value="" placeholder="{{$impp_label}}">
-	<i data-remove="vcard-impp" data-id="" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+	<i data-remove="vcard-impp" data-id="" class="bi bi-trash remove-field drop-icons fakelink"></i>
 </div>
 
 <div id="template-form-vcard-url" class="mb-3 form-vcard-url">
@@ -121,7 +121,7 @@ $(document).ready(function() {
 		<option value="OTHER">{{$other}}</option>
 	</select>
 	<input type="text" name="url[]" value="" placeholder="{{$url_label}}">
-	<i data-remove="vcard-url" data-id="" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+	<i data-remove="vcard-url" data-id="" class="bi bi-trash remove-field drop-icons fakelink"></i>
 </div>
 
 <div id="template-form-vcard-adr" class="mb-3 form-vcard-adr">
@@ -132,7 +132,7 @@ $(document).ready(function() {
 			<option value="OTHER">{{$other}}</option>
 		</select>
 		<label>{{$adr_label}}</label>
-		<i data-remove="vcard-adr" data-id="" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+		<i data-remove="vcard-adr" data-id="" class="bi bi-trash remove-field drop-icons fakelink"></i>
 	</div>
 	<div class="mb-3">
 		<input type="text" name="" value="" placeholder="{{$po_box}}">
@@ -159,20 +159,20 @@ $(document).ready(function() {
 
 <div id="template-form-vcard-note" class="mb-3 form-vcard-note">
 	<label>{{$note_label}}</label>
-	<i data-remove="vcard-note" data-id="" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+	<i data-remove="vcard-note" data-id="" class="bi bi-trash remove-field drop-icons fakelink"></i>
 	<textarea name="note" class="form-control"></textarea>
 </div>
 
 <div class="generic-content-wrapper">
 	<div class="section-title-wrapper">
-		<button type="button" class="btn btn-success btn-sm float-end" onclick="openClose('create_form')"><i class="fa fa-plus-circle"></i> {{$add_card}}</button>
+		<button type="button" class="btn btn-success btn-sm float-end" onclick="openClose('create_form')"><i class="bi bi-plus-lg"></i> {{$add_card}}</button>
 		<h2>{{$displayname}}</h2>
 	</div>
 	<div id="create_form" class="section-content-tools-wrapper">
 		<form id="card_form_new" method="post" action="">
 			<input type="hidden" name="target" value="{{$id}}">
 			<div class="dropdown float-end">
-				<button data-bs-toggle="dropdown" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle"><i class="fa fa-plus"></i> {{$add_field}}</button>
+				<button data-bs-toggle="dropdown" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle"><i class="bi bi-plus-lg"></i> {{$add_field}}</button>
 				<div class="dropdown-menu dropdown-menu-end">
 					<a class="dropdown-item add-vcard-org add-field" style="display: none" href="#" data-add="vcard-org" data-id="new">{{$org_label}}</a>
 					<a class="dropdown-item add-vcard-title add-field" style="display: none" href="#" data-add="vcard-title" data-id="new">{{$title_label}}</a>
@@ -188,7 +188,7 @@ $(document).ready(function() {
 			<div class="vcard-fn-create mb-3">
 				<div class="form-vcard-fn-wrapper">
 					<div class="mb-3 form-vcard-fn">
-						<div class="vcard-nophoto"><i class="fa fa-user"></i></div><input type="text" name="fn" value="" placeholder="{{$name_label}}">
+						<div class="vcard-nophoto"><i class="bi bi-person"></i></div><input type="text" name="fn" value="" placeholder="{{$name_label}}">
 					</div>
 				</div>
 			</div>
@@ -197,7 +197,7 @@ $(document).ready(function() {
 				<div class="form-vcard-org-wrapper">
 					<div class="mb-3 form-vcard-org">
 						<input type="text" name="org" value="" placeholder="{{$org_label}}">
-						<i data-remove="vcard-org" data-id="new" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+						<i data-remove="vcard-org" data-id="new" class="bi bi-trash remove-field drop-icons fakelink"></i>
 					</div>
 				</div>
 			</div>
@@ -206,7 +206,7 @@ $(document).ready(function() {
 				<div class="form-vcard-title-wrapper">
 					<div class="mb-3 form-vcard-title">
 						<input type="text" name="title" value="" placeholder="{{$title_label}}">
-						<i data-remove="vcard-title" data-id="new" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+						<i data-remove="vcard-title" data-id="new" class="bi bi-trash remove-field drop-icons fakelink"></i>
 					</div>
 				</div>
 			</div>
@@ -221,7 +221,7 @@ $(document).ready(function() {
 							<option value="OTHER">{{$other}}</option>
 						</select>
 						<input type="text" name="tel[]" value="" placeholder="{{$tel_label}}">
-						<i data-remove="vcard-tel" data-id="new" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+						<i data-remove="vcard-tel" data-id="new" class="bi bi-trash remove-field drop-icons fakelink"></i>
 					</div>
 				</div>
 			</div>
@@ -236,7 +236,7 @@ $(document).ready(function() {
 							<option value="OTHER">{{$other}}</option>
 						</select>
 						<input type="text" name="email[]" value="" placeholder="{{$email_label}}">
-						<i data-remove="vcard-email" data-id="new" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+						<i data-remove="vcard-email" data-id="new" class="bi bi-trash remove-field drop-icons fakelink"></i>
 					</div>
 				</div>
 			</div>
@@ -272,9 +272,9 @@ $(document).ready(function() {
 		<input type="hidden" name="target" value="{{$id}}">
 		<input type="hidden" name="uri" value="{{$card.uri}}">
 		<div class="section-content-wrapper-np">
-			<div id="vcard-cancel-{{$card.id}}" class="vcard-cancel vcard-cancel-btn" data-id="{{$card.id}}" data-action="cancel"><i class="fa fa-close"></i></div>
+			<div id="vcard-cancel-{{$card.id}}" class="vcard-cancel vcard-cancel-btn" data-id="{{$card.id}}" data-action="cancel"><i class="bi bi-x-lg"></i></div>
 			<div id="vcard-add-field-{{$card.id}}" class="dropdown float-end vcard-add-field">
-				<button data-bs-toggle="dropdown" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle"><i class="fa fa-plus"></i> {{$add_field}}</button>
+				<button data-bs-toggle="dropdown" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle"><i class="bi bi-plus-lg"></i> {{$add_field}}</button>
 				<div class="dropdown-menu dropdown-menu-end">
 					<a class="dropdown-item add-vcard-org add-field"{{if $card.org}} style="display: none"{{/if}} href="#" data-add="vcard-org" data-id="{{$card.id}}">{{$org_label}}</a>
 					<a class="dropdown-item add-vcard-title add-field"{{if $card.title}} style="display: none"{{/if}} href="#" data-add="vcard-title" data-id="{{$card.id}}">{{$title_label}}</a>
@@ -287,7 +287,7 @@ $(document).ready(function() {
 				</div>
 			</div>
 			<div id="vcard-header-{{$card.id}}" class="vcard-header" data-id="{{$card.id}}" data-action="open">
-				{{if $card.photo}}<img class="vcard-photo" src="{{$card.photo}}" width="32px" height="32px">{{else}}<div class="vcard-nophoto"><i class="fa fa-user"></i></div>{{/if}}
+				{{if $card.photo}}<img class="vcard-photo" src="{{$card.photo}}" width="32px" height="32px">{{else}}<div class="vcard-nophoto"><i class="bi bi-person"></i></div>{{/if}}
 				<span id="vcard-preview-{{$card.id}}" class="vcard-preview">
 					{{if $card.fn}}<span class="vcard-fn-preview">{{$card.fn}}</span>{{/if}}
 					{{if $card.emails.0.address}}<span class="vcard-email-preview hidden-xs">{{$card.emails.0.address}}</span>{{/if}}
@@ -303,7 +303,7 @@ $(document).ready(function() {
 					{{if $card.org}}
 					<div class="mb-3 form-vcard-org">
 						<input type="text" name="org" value="{{$card.org}}" size="{{$card.org|count_characters:true}}" placeholder="{{$org_label}}">
-						<i data-remove="vcard-org" data-id="{{$card.id}}" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+						<i data-remove="vcard-org" data-id="{{$card.id}}" class="bi bi-trash remove-field drop-icons fakelink"></i>
 					</div>
 					{{/if}}
 				</div>
@@ -314,7 +314,7 @@ $(document).ready(function() {
 					{{if $card.title}}
 					<div class="mb-3 form-vcard-title">
 						<input type="text" name="title" value="{{$card.title}}" size="{{$card.title|count_characters:true}}" placeholder="{{$title_label}}">
-						<i data-remove="vcard-title" data-id="{{$card.id}}" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+						<i data-remove="vcard-title" data-id="{{$card.id}}" class="bi bi-trash remove-field drop-icons fakelink"></i>
 					</div>
 					{{/if}}
 				</div>
@@ -334,7 +334,7 @@ $(document).ready(function() {
 							<option value="OTHER"{{if $tel.type.0 == 'OTHER'}} selected="selected"{{/if}}>{{$other}}</option>
 						</select>
 						<input type="text" name="tel[]" value="{{$tel.nr}}" size="{{$tel.nr|count_characters:true}}" placeholder="{{$tel_label}}">
-						<i data-remove="vcard-tel" data-id="{{$card.id}}" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+						<i data-remove="vcard-tel" data-id="{{$card.id}}" class="bi bi-trash remove-field drop-icons fakelink"></i>
 					</div>
 					{{/foreach}}
 					{{/if}}
@@ -354,7 +354,7 @@ $(document).ready(function() {
 							<option value="OTHER"{{if $email.type.0 == 'OTHER'}} selected="selected"{{/if}}>{{$other}}</option>
 						</select>
 						<input type="text" name="email[]" value="{{$email.address}}" size="{{$email.address|count_characters:true}}" placeholder="{{$email_label}}">
-						<i data-remove="vcard-email" data-id="{{$card.id}}" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+						<i data-remove="vcard-email" data-id="{{$card.id}}" class="bi bi-trash remove-field drop-icons fakelink"></i>
 					</div>
 					{{/foreach}}
 					{{/if}}
@@ -373,7 +373,7 @@ $(document).ready(function() {
 							<option value="OTHER"{{if $impp.type.0 == 'OTHER'}} selected="selected"{{/if}}>{{$other}}</option>
 						</select>
 						<input type="text" name="impp[]" value="{{$impp.address}}" size="{{$impp.address|count_characters:true}}" placeholder="{{$impp_label}}">
-						<i data-remove="vcard-impp" data-id="{{$card.id}}" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+						<i data-remove="vcard-impp" data-id="{{$card.id}}" class="bi bi-trash remove-field drop-icons fakelink"></i>
 					</div>
 					{{/foreach}}
 					{{/if}}
@@ -392,7 +392,7 @@ $(document).ready(function() {
 							<option value="OTHER"{{if $url.type.0 == 'OTHER'}} selected="selected"{{/if}}>{{$other}}</option>
 						</select>
 						<input type="text" name="url[]" value="{{$url.address}}" size="{{$url.address|count_characters:true}}" placeholder="{{$url_label}}">
-						<i data-remove="vcard-url" data-id="{{$card.id}}" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+						<i data-remove="vcard-url" data-id="{{$card.id}}" class="bi bi-trash remove-field drop-icons fakelink"></i>
 					</div>
 					{{/foreach}}
 					{{/if}}
@@ -412,7 +412,7 @@ $(document).ready(function() {
 								<option value="WORK"{{if $adr.type.0 == 'WORK'}} selected="selected"{{/if}}>{{$work}}</option>
 								<option value="OTHER"{{if $adr.type.0 == 'OTHER'}} selected="selected"{{/if}}>{{$other}}</option>
 							</select>
-							<i data-remove="vcard-adr" data-id="{{$card.id}}" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+							<i data-remove="vcard-adr" data-id="{{$card.id}}" class="bi bi-trash remove-field drop-icons fakelink"></i>
 						</div>
 						<div class="mb-3">
 							<input type="text" name="adr[{{$adr@index}}][]" value="{{$adr.address.0}}" size="{{$adr.address.0|count_characters:true}}" placeholder="{{$po_box}}">
@@ -445,7 +445,7 @@ $(document).ready(function() {
 				<div class="form-vcard-note-wrapper">
 					{{if $card.note}}
 					<label>{{$note_label}}</label>
-					<i data-remove="vcard-note" data-id="{{$card.id}}" class="fa fa-trash-o remove-field drop-icons fakelink"></i>
+					<i data-remove="vcard-note" data-id="{{$card.id}}" class="bi bi-trash remove-field drop-icons fakelink"></i>
 					<textarea name="note" class="form-control">{{$card.note}}</textarea>
 					{{/if}}
 				</div>

@@ -1,5 +1,5 @@
 <button id="contact-tools" class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-	<i class="fa fa-cog"></i>&nbsp;{{$tools_label}}
+	<i class="bi bi-gear"></i>&nbsp;{{$tools_label}}
 </button>
 <div class="dropdown-menu">
 	<a class="dropdown-item contact-tool" href="#" title="{{$tools.refresh.title}}" data-cmd="refresh">{{$tools.refresh.label}}</a>

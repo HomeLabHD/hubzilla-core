@@ -16,21 +16,21 @@ class Appman extends \Zotlabs\Web\Controller {
 		if(isset($_POST['url']) && $_POST['url']) {
 			$arr = array(
 				'uid' => intval($_REQUEST['uid']),
-				'url' => escape_tags($_REQUEST['url']),
-				'guid' => escape_tags($_REQUEST['guid']),
-				'author' => escape_tags($_REQUEST['author']),
-				'addr' => escape_tags($_REQUEST['addr']),
-				'name' => escape_tags($_REQUEST['name']),
-				'desc' => escape_tags($_REQUEST['desc']),
-				'photo' => escape_tags($_REQUEST['photo']),
-				'version' => escape_tags($_REQUEST['version']),
-				'price' => escape_tags($_REQUEST['price']),
-				'page' => escape_tags($_REQUEST['page']),
-				'requires' => escape_tags($_REQUEST['requires']),
+				'url' => escape_tags($_REQUEST['url'] ?? ''),
+				'guid' => escape_tags($_REQUEST['guid'] ?? ''),
+				'author' => escape_tags($_REQUEST['author'] ?? ''),
+				'addr' => escape_tags($_REQUEST['addr'] ?? ''),
+				'name' => escape_tags($_REQUEST['name'] ?? ''),
+				'desc' => escape_tags($_REQUEST['desc'] ?? ''),
+				'photo' => escape_tags($_REQUEST['photo'] ?? ''),
+				'version' => escape_tags($_REQUEST['version'] ?? ''),
+				'price' => escape_tags($_REQUEST['price'] ?? ''),
+				'page' => escape_tags($_REQUEST['page'] ?? ''),
+				'requires' => escape_tags($_REQUEST['requires'] ?? ''),
 				'system' => intval($_REQUEST['system']),
-				'plugin' => escape_tags($_REQUEST['plugin']),
-				'sig' => escape_tags($_REQUEST['sig']),
-				'categories' => escape_tags($_REQUEST['categories'])
+				'plugin' => escape_tags($_REQUEST['plugin'] ?? ''),
+				'sig' => escape_tags($_REQUEST['sig'] ?? ''),
+				'categories' => escape_tags($_REQUEST['categories'] ?? '')
 			);
 
 			$_REQUEST['appid'] = Apps::app_install(local_channel(),$arr);

@@ -67,7 +67,7 @@
   '<style> '+
   '  .zai_h0 { font-size: 1.2rem; display: inline; }'+
   '  .zai_hi { background: #ffc107; font-weight: bold; }'+
-  '  .zai_fa { margin: 0 0.2em 0 1em; }'+
+  '  .zai_bi { margin: 0 0.2em 0 1em; }'+
   '  .zai_lcc, .zai_qmc, .zuiqmid { font-family: monospace; text-transform: uppercase; }'+
   '  .zai_lcc5 { display: none; }'+
   '  .zai_ax { margin-inline: 8rem; }'+

@@ -11,7 +11,7 @@
 				<div class="btn-group">
 					{{if $lockstate}}
 					<button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#aclModal" type="button">
-						<i class="jot-perms-icon fa fa-{{$lockstate}}"></i>
+						<i class="jot-perms-icon bi bi-{{$lockstate}}"></i>
 					</button>
 					{{/if}}
 					<button class="btn btn-primary btn-sm float-end" type="submit" value="{{$folder_submit}}">{{$folder_submit}}</button>
@@ -37,7 +37,7 @@
 				<div class="btn-group">
 					{{if $lockstate}}
 					<button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#aclModal" type="button">
-						<i class="jot-perms-icon fa fa-{{$lockstate}}"></i>
+						<i class="jot-perms-icon bi bi-{{$lockstate}}"></i>
 					</button>
 					{{/if}}
 					<button id="upload-submit" class="btn btn-primary btn-sm float-end">{{$upload_submit}}</button>

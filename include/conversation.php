@@ -3,6 +3,7 @@
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\Apps;
 use Zotlabs\Lib\Config;
+use Zotlabs\Lib\PConfig;
 
 require_once('include/items.php');
 
@@ -438,17 +439,22 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 	$uploading = false;
 
-	if(local_channel()) {
-		$cur_channel = App::get_channel();
-		if($cur_channel['channel_allow_cid'] === '' &&  $cur_channel['channel_allow_gid'] === ''
-			&& $cur_channel['channel_deny_cid'] === '' && $cur_channel['channel_deny_gid'] === ''
+	$channel = App::get_channel();
+	$observer = App::get_observer();
+
+	if (local_channel()) {
+		// Allow uploading if there is no default privacy and the view_storage permission is set to PERMS_PUBLIC
+		if ($channel['channel_allow_cid'] === '' &&  $channel['channel_allow_gid'] === ''
+			&& $channel['channel_deny_cid'] === '' && $channel['channel_deny_gid'] === ''
 			&& intval(\Zotlabs\Access\PermissionLimits::Get(local_channel(),'view_storage')) === PERMS_PUBLIC) {
 			$uploading = true;
 		}
-	}
 
-	$channel = App::get_channel();
-	$observer = App::get_observer();
+		// Allow uploading if OCAP tokens are enabled
+		if (PConfig::Get(local_channel(), 'system', 'ocap_enabled')) {
+			$uploading = true;
+		}
+	}
 
 	if (!$update) {
 		$_SESSION['return_url'] = App::$query_string;
@@ -817,7 +823,7 @@ function thread_action_menu($item,$mode = '') {
 			$menu[] = [
 				'menu' => 'unfollow_thread',
 				'title' => t('Unfollow Thread'),
-				'icon' => 'minus',
+				'icon' => 'dash',
 				'action' => 'dounsubthread(' . $item['id'] . '); return false;',
 				'href' => '#'
 			];
@@ -999,7 +1005,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 
 			$name = (($item['author']['xchan_name']) ? $item['author']['xchan_name'] : t('Unknown'));
 
-			$moderate = ((intval($item['item_blocked']) === ITEM_MODERATED) ? '<a href="moderate/' . $item['id'] . '/approve" onclick="moderate_approve(' . $item['id'] . '); return false;" class="text-success pe-2" title="' . t('Approve this item') . '"><i class="fa fa-check" ></i></a><a href="moderate/' . $item['id'] . '/drop" onclick="moderate_drop(' . $item['id'] . '); return false;" class="text-danger pe-2" title="' . t('Delete this item') . '"><i class="fa fa-trash-o" ></i></a>' : '');
+			$moderate = ((intval($item['item_blocked']) === ITEM_MODERATED) ? '<a href="moderate/' . $item['id'] . '/approve" onclick="moderate_approve(' . $item['id'] . '); return false;" class="text-success pe-2" title="' . t('Approve this item') . '"><i class="bi bi-check-lg" ></i></a><a href="moderate/' . $item['id'] . '/drop" onclick="moderate_drop(' . $item['id'] . '); return false;" class="text-danger pe-2" title="' . t('Delete this item') . '"><i class="bi bi-trash" ></i></a>' : '');
 
 			$url = (($item['author_xchan'] && $item['author']['xchan_photo_s'])
 				? '<div class="dropdown-item">' . $moderate . '<a href="' . chanlink_hash($item['author_xchan']) . '" class="text-reset">' . '<img class="menu-img-1" src="' . zid($item['author']['xchan_photo_s'])  . '" alt="' . urlencode($name) . '" /> ' . $name . '</a></div>'
@@ -1467,14 +1473,18 @@ function render_location_default($item) {
 	$location = $item['location'];
 	$coord = $item['coord'];
 
-	if($coord) {
+	if ($coord) {
 		if($location)
-			$location .= '&nbsp;<span class="smalltext">(' . $coord . ')</span>';
+			$location .= '&nbsp;(' . $coord . ')';
 		else
-			$location = '<span class="smalltext">' . $coord . '</span>';
+			$location = $coord;
 	}
 
-	return $location;
+	if (!$location) {
+		return '';
+	}
+
+	return '<i class="bi bi-geo-alt" title="' . $location . '"></i>';
 }
 
 
@@ -1525,6 +1535,12 @@ function get_responses($conv_responses,$response_verbs,$ob,$item) {
 
 	$ret = array();
 	foreach($response_verbs as $v) {
+		if ($v === 'answer') {
+			// we require the structure to collect the response hashes
+			// but we do not use them for display - do not collect them.
+			continue;
+		}
+
 		$ret[$v] = [];
 		$ret[$v]['count'] = $conv_responses[$v][$item['mid']] ?? 0;
 		$ret[$v]['list']  = ((isset($conv_responses[$v][$item['mid']])) ? $conv_responses[$v][$item['mid'] . '-l'] : '');
@@ -1532,14 +1548,6 @@ function get_responses($conv_responses,$response_verbs,$ob,$item) {
 		$ret[$v]['title'] = $conv_responses[$v]['title'] ?? '';
 		$ret[$v]['modal'] = (($ret[$v]['count'] > MAX_LIKERS) ? true : false);
 	}
-
-	$count = 0;
-	foreach ($ret as $key) {
-		if ($key['count'] == true)
-			$count++;
-	}
-
-	$ret['count'] = $count;
 
 //logger('ret: ' . print_r($ret,true));
 
@@ -1549,25 +1557,25 @@ function get_responses($conv_responses,$response_verbs,$ob,$item) {
 function get_response_button_text($v,$count) {
 	switch($v) {
 		case 'like':
-			return ['label' => tt('Like','Likes',$count,'noun'), 'icon' => 'thumbs-o-up', 'class' => 'like'];
+			return ['label' => tt('Like','Likes',$count,'noun'), 'icon' => 'hand-thumbs-up', 'class' => 'like', 'onclick' => 'dolike'];
 			break;
 		case 'announce':
-			return ['label' => tt('Repeat','Repeats',$count,'noun'), 'icon' => 'retweet', 'class' => 'announce'];
+			return ['label' => tt('Repeat','Repeats',$count,'noun'), 'icon' => 'repeat', 'class' => 'announce', 'onclick' => 'jotShare'];
 			break;
 		case 'dislike':
-			return ['label' => tt('Dislike','Dislikes',$count,'noun'), 'icon' => 'thumbs-o-down', 'class' => 'dislike'];
+			return ['label' => tt('Dislike','Dislikes',$count,'noun'), 'icon' => 'hand-thumbs-down', 'class' => 'dislike', 'onclick' => 'dolike'];
 			break;
 		case 'attendyes':
-			return ['label' => tt('Attending','Attending',$count,'noun'), 'icon' => 'calendar-check-o', 'class' => 'attendyes'];
+			return ['label' => tt('Attending','Attending',$count,'noun'), 'icon' => 'calendar-check', 'class' => 'attendyes', 'onclick' => 'dolike'];
 			break;
 		case 'attendno':
-			return ['label' => tt('Not Attending','Not Attending',$count,'noun'), 'icon' => 'calendar-times-o', 'class' => 'attendno'];
+			return ['label' => tt('Not Attending','Not Attending',$count,'noun'), 'icon' => 'calendar-x', 'class' => 'attendno', 'onclick' => 'dolike'];
 			break;
 		case 'attendmaybe':
-			return ['label' => tt('Undecided','Undecided',$count,'noun'), 'icon' => 'calendar-o', 'class' => 'attendmaybe'];
+			return ['label' => tt('Undecided','Undecided',$count,'noun'), 'icon' => 'calendar', 'class' => 'attendmaybe', 'onclick' => 'dolike'];
 			break;
 		default:
-			return '';
+			return [];
 			break;
 	}
 }

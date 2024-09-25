@@ -3,7 +3,8 @@ use Zotlabs\Lib\Config;
 
 require_once('view/php/theme_init.php');
 
-head_add_css('/library/fork-awesome/css/fork-awesome.min.css');
+head_add_css('/vendor/twbs/bootstrap-icons/font/bootstrap-icons.min.css');
+
 head_add_css('/library/bootstrap-tagsinput/bootstrap-tagsinput.css');
 head_add_css('/library/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css');
 

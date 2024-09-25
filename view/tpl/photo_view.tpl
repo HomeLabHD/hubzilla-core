@@ -5,35 +5,35 @@
 			{{if $tools || $map || $edit}}
 			<div class="btn-group">
 				<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
-					<i class="fa fa-cog"></i>&nbsp;{{$tools_label}}
+					<i class="bi bi-gear"></i>&nbsp;{{$tools_label}}
 				</button>
 				<div class="dropdown-menu dropdown-menu-end flex-column">
 					{{if $tools}}
-					<a class="dropdown-item" href="{{$tools.profile.0}}"><i class="fa fa-user"></i>&nbsp;{{$tools.profile.1}}</a>
-					<a class="dropdown-item" href="{{$tools.cover.0}}"><i class="fa fa-picture-o"></i>&nbsp;{{$tools.cover.1}}</a>
+					<a class="dropdown-item" href="{{$tools.profile.0}}"><i class="bi bi-person"></i>&nbsp;{{$tools.profile.1}}</a>
+					<a class="dropdown-item" href="{{$tools.cover.0}}"><i class="bi bi-image"></i>&nbsp;{{$tools.cover.1}}</a>
 					{{/if}}
 					{{if $map}}
-					<a class="dropdown-item" href="#" onclick="var pos = $('#photo-map').css('position'); if(pos === 'absolute') { $('#photo-map').css( { position: 'relative', left: 'auto', top: 'auto' }); } else { $('#photo-map').css( { position: 'absolute', left: '-9999px', top: '-9999px' }); } return false; " ><i class="fa fa-globe"></i>&nbsp;{{$map_text}}</a>
+					<a class="dropdown-item" href="#" onclick="var pos = $('#photo-map').css('position'); if(pos === 'absolute') { $('#photo-map').css( { position: 'relative', left: 'auto', top: 'auto' }); } else { $('#photo-map').css( { position: 'absolute', left: '-9999px', top: '-9999px' }); } return false; " ><i class="bi bi-globe"></i>&nbsp;{{$map_text}}</a>
 					{{/if}}
 					{{if $edit}}
-					<a class="dropdown-item acl-form-trigger" href="#"  title="" onclick="openClose('photo-edit'); return false;" data-form_id="photo_edit_form"><i class="fa fa-pencil"></i>&nbsp;{{$edit.edit}}</a>
+					<a class="dropdown-item acl-form-trigger" href="#"  title="" onclick="openClose('photo-edit'); return false;" data-form_id="photo_edit_form"><i class="bi bi-pencil"></i>&nbsp;{{$edit.edit}}</a>
 					{{/if}}
 				</div>
 			</div>
 			{{/if}}
 			{{if $lock}}
 			<div class="btn-group">
-				<button id="lockview" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" title="{{$lock}}" onclick="lockview('photo',{{$id}});" ><i class="fa fa-lock"></i></button>
+				<button id="lockview" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" title="{{$lock}}" onclick="lockview('photo',{{$id}});" ><i class="bi bi-lock"></i></button>
 				<ul id="panel-{{$id}}" class="lockview-panel dropdown-menu dropdown-menu-end"></ul>
 			</div>
 			{{/if}}
 			{{if $prevlink || $nextlink}}
 			<div class="btn-group">
 				{{if $prevlink}}
-				<a href="{{$prevlink.0}}" class="btn btn-outline-secondary btn-sm" title="{{$prevlink.1}}"><i class="fa fa-backward"></i></a>
+				<a href="{{$prevlink.0}}" class="btn btn-outline-secondary btn-sm" title="{{$prevlink.1}}"><i class="bi bi-chevron-left"></i></a>
 				{{/if}}
 				{{if $nextlink}}
-				<a href="{{$nextlink.0}}" class="btn btn-outline-secondary btn-sm" title="{{$nextlink.1}}"><i class="fa fa-forward"></i></a>
+				<a href="{{$nextlink.0}}" class="btn btn-outline-secondary btn-sm" title="{{$nextlink.1}}"><i class="bi bi-chevron-right"></i></a>
 				{{/if}}
 			</div>
 			{{/if}}
@@ -91,7 +91,7 @@
 			<div class="mb-3 btn-group float-end">
 				{{if $edit.aclselect}}
 				<button id="dbtn-acl" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#aclModal" onclick="return false;">
-					<i id="jot-perms-icon" class="fa fa-{{$edit.lockstate}}"></i>
+					<i id="jot-perms-icon" class="bi bi-{{$edit.lockstate}}"></i>
 				</button>
 				{{/if}}
 				<button id="tool-submit" class="btn btn-primary btn-sm" type="submit" name="submit" >{{$edit.submit}}</button>
@@ -107,7 +107,7 @@
 		<div class="photo-item-tools-left" id="in-this-photo">
 			<span id="in-this-photo-text">{{$tag_hdr}}</span>
 			{{foreach $tags as $t}}
-				{{$t.0}}{{if $edit}}<span id="tag-remove">&nbsp;<a href="{{$t.1}}" onclick="return confirmDelete();"><i class="fa fa-times"></i></a>&nbsp;</span>{{/if}}
+				{{$t.0}}{{if $edit}}<span id="tag-remove">&nbsp;<a href="{{$t.1}}" onclick="return confirmDelete();"><i class="bi bi-x-lg"></i></a>&nbsp;</span>{{/if}}
 			{{/foreach}}
 		</div>
 		{{/if}}
@@ -151,10 +151,10 @@
 			{{if $likebuttons}}
 			<div class="photo-item-tools-right btn-group float-end">
 				<button type="button" class="btn btn-outline-secondary btn-sm" onclick="dolike({{$likebuttons.id}},'like'); return false">
-					<i class="fa fa-thumbs-o-up" title="{{$likebuttons.likethis}}"></i>
+					<i class="bi bi-hand-thumbs-up" title="{{$likebuttons.likethis}}"></i>
 				</button>
 				<button type="button" class="btn btn-outline-secondary btn-sm" onclick="dolike({{$likebuttons.id}},'dislike'); return false">
-					<i class="fa fa-thumbs-o-down" title="{{$likebuttons.nolike}}"></i>
+					<i class="bi bi-hand-thumbs-down" title="{{$likebuttons.nolike}}"></i>
 				</button>
 			</div>
 			<div id="like-rotator-{{$likebuttons.id}}" class="photo-like-rotator float-end"></div>

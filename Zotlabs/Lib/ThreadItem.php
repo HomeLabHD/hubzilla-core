@@ -93,7 +93,7 @@ class ThreadItem {
 		$buttons = '';
 		$dropping = false;
 		$star = false;
-		$isstarred = "unstarred fa-star-o";
+		$isstarred = "unstarred bi-star";
 		$is_comment = false;
 		$is_item = false;
 		$osparkle = '';
@@ -123,13 +123,13 @@ class ThreadItem {
 			$locktype = 0;
 		}
 
-		$shareable = ((($conv->get_profile_owner() == local_channel() && local_channel()) && (intval($item['item_private']) === 0)) ? true : false);
+		$shareable = ((local_channel() && $conv->get_profile_owner() == local_channel()) && (intval($item['item_private']) === 0));
 
 		// allow an exemption for sharing stuff from your private feeds
 		if($item['author']['xchan_network'] === 'rss')
 			$shareable = true;
 
-		$repeatable = ((($conv->get_profile_owner() == local_channel() && local_channel()) && (intval($item['item_private']) === 0) && (in_array($item['author']['xchan_network'], ['zot6', 'activitypub']))) ? true : false);
+		$repeatable = ((local_channel() && $conv->get_profile_owner() == local_channel()) && intval($item['item_private']) === 0 && in_array($item['author']['xchan_network'], ['zot6', 'activitypub']));
 
 		// @fixme
 		// Have recently added code to properly handle polls in group reshares by redirecting all of the poll responses to the group.
@@ -204,9 +204,11 @@ class ThreadItem {
 			$response_verbs[] = 'dislike';
 		}
 
-		$response_verbs[] = 'announce';
+		if ($repeatable) {
+			$response_verbs[] = 'announce';
+		}
 
-		if(in_array($item['obj_type'], ['Event', ACTIVITY_OBJ_EVENT])) {
+		if (in_array($item['obj_type'], ['Event', ACTIVITY_OBJ_EVENT])) {
 			$response_verbs[] = 'attendyes';
 			$response_verbs[] = 'attendno';
 			$response_verbs[] = 'attendmaybe';
@@ -216,18 +218,18 @@ class ThreadItem {
 			}
 		}
 
-		if($item['obj_type'] === 'Question') {
+		if ($item['obj_type'] === 'Question') {
 			$response_verbs[] = 'answer';
 		}
 
-		if(! feature_enabled($conv->get_profile_owner(),'dislike'))
+		if (!feature_enabled($conv->get_profile_owner(),'dislike')) {
 			unset($conv_responses['dislike']);
+		}
 
 		$responses = get_responses($conv_responses,$response_verbs,$this,$item);
 
 		$my_responses = [];
 		foreach($response_verbs as $v) {
-
 			$my_responses[$v] = ((isset($conv_responses[$v][$item['mid'] . '-m'])) ? 1 : 0);
 		}
 
@@ -327,11 +329,13 @@ class ThreadItem {
 		$like = [];
 		$dislike = [];
 		$reply_to = [];
+		$reactions_allowed = false;
 
 		if($this->is_commentable() && $observer) {
 			$like = array( t("I like this \x28toggle\x29"), t("like"));
 			$dislike = array( t("I don't like this \x28toggle\x29"), t("dislike"));
-			$reply_to = array( t("Reply on this comment"), t("reply"), t("Reply to"));
+			$reply_to = array( t("Reply to this comment"), t("reply"), t("Reply to"));
+			$reactions_allowed = true;
 		}
 
 		$share = [];
@@ -539,6 +543,8 @@ class ThreadItem {
 			'moderate_approve' => t('Approve'),
 			'moderate_delete' => t('Delete'),
 			'rtl' => in_array($item['lang'], rtl_languages()),
+			'reactions_allowed' => $reactions_allowed,
+			'reaction_str' => [t('Add yours'), t('Remove yours')]
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);
@@ -567,7 +573,7 @@ class ThreadItem {
 			if(($nb_children > $visible_comments) || ($thread_level > 1)) {
 				$result['children'][0]['comment_firstcollapsed'] = true;
 				$result['children'][0]['num_comments'] = $comment_count_txt['label'];
-				$result['children'][0]['hide_text'] = sprintf( t('%s show all'), '<i class="fa fa-chevron-down"></i>');
+				$result['children'][0]['hide_text'] = t('show all');
 				if($thread_level > 1) {
 					$result['children'][$nb_children - 1]['comment_lastcollapsed'] = true;
 				}

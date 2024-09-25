@@ -1,7 +1,7 @@
-version: 3
+version: 4
 url: $baseurl/network, $baseurl/settings/network
 requires: local_channel
 name: Network
-photo: icon:th
+photo: icon:grid-3x3
 categories: nav_featured_app, Networking
 desc: Your network activity in a traditional timeline view.

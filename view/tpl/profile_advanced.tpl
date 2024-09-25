@@ -12,13 +12,13 @@
 			{{if $profile.canlike}}
 			<div class="btn-group">
 				<button type="button" class="btn btn-success btn-sm" onclick="doprofilelike('profile/' + '{{$profile.profile_guid}}','like'); return false;" title="{{$profile.likethis}}" >
-					<i class="fa fa-thumbs-o-up" title="{{$profile.likethis}}"></i>
+					<i class="bi fa-thumbs-o-up" title="{{$profile.likethis}}"></i>
 				</button>
 			</div>
 			{{/if}}
 			{{if $editmenu.multi}}
 			<div class="btn-group">
-				<a class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" href="#" ><i class="fa fa-pencil"></i>&nbsp;{{$editmenu.edit.3}}</a>
+				<a class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" href="#" ><i class="bi bi-pencil"></i>&nbsp;{{$editmenu.edit.3}}</a>
 				<div class="dropdown-menu dropdown-menu-end">
 					{{foreach $editmenu.menu.entries as $e}}
 					<a class="dropdown-item" href="profiles/{{$e.id}}"><img class="menu-img-1" src='{{$e.photo}}'> {{$e.profile_name}}</a>
@@ -30,12 +30,12 @@
 			</div>
 			{{elseif $editmenu}}
 			<div class="btn-group">
-				<a class="btn btn-primary btn-sm" href="{{$editmenu.edit.0}}" ><i class="fa fa-pencil"></i>&nbsp;{{$editmenu.edit.3}}</a>
+				<a class="btn btn-primary btn-sm" href="{{$editmenu.edit.0}}" ><i class="bi bi-pencil"></i>&nbsp;{{$editmenu.edit.3}}</a>
 			</div>
 			{{/if}}
 			{{** if $exportlink}}
 			<div class="btn-group">
-				<a class="btn btn-outline-secondary btn-sm" href="{{$exportlink}}" ><i class="fa fa-vcard"></i>&nbsp;{{$export}}</a>
+				<a class="btn btn-outline-secondary btn-sm" href="{{$exportlink}}" ><i class="bi fa-vcard"></i>&nbsp;{{$export}}</a>
 			</div>
 			{{/if **}}
 		</div>
@@ -113,7 +113,7 @@
 		{{if $f == 'marital'}}
 		{{if $profile.marital}}
 		<dl id="aprofile-marital" class="aprofile">
-		 <dt><span class="heart"><i class="fa fa-heart"></i>&nbsp;</span>{{$profile.marital.0}}</dt>
+		 <dt><span class="heart"><i class="bi fa-heart"></i>&nbsp;</span>{{$profile.marital.0}}</dt>
 		 <dd>{{$profile.marital.1}}{{if in_array('partner',$fields)}}{{if $profile.marital.partner}} ({{$profile.marital.partner}}){{/if}}{{/if}}{{if in_array('howlong',$fields)}}{{if $profile.howlong}} {{$profile.howlong}}{{/if}}{{/if}}</dd>
 		</dl>
 		{{/if}}
@@ -319,7 +319,7 @@
 		<a href="{{$item.editurl}}" >{{$item.term}}</a>
 		{{if $profile.canlike}}<br />
 		<button type="button" class="btn btn-outline-secondary btn-sm" onclick="doprofilelike('thing/' + '{{$item.term_hash}}','like'); return false;" title="{{$likethis}}" >
-		<i class="fa fa-thumbs-o-up" title="{{$likethis}}"></i>
+		<i class="bi fa-thumbs-o-up" title="{{$likethis}}"></i>
 		</button>
 		{{/if}}
 		{{if $item.like_count}}

@@ -34,7 +34,7 @@
 					<div class="wall-item-photo-wrapper{{if $owner_url}} wwfrom{{/if}} h-card p-author" id="wall-item-photo-wrapper-{{$id}}">
 						<img src="{{$thumb}}" class="fakelink wall-item-photo{{$sparkle}} u-photo p-name" id="wall-item-photo-{{$id}}" alt="{{$name}}" loading="lazy" data-bs-toggle="dropdown" />
 						{{if $thread_author_menu}}
-						<i class="fa fa-caret-down wall-item-photo-caret cursor-pointer" data-bs-toggle="dropdown"></i>
+						<i class="bi bi-caret-down wall-item-photo-caret cursor-pointer" data-bs-toggle="dropdown"></i>
 						<div class="dropdown-menu">
 							{{foreach $thread_author_menu as $mitem}}
 							<a class="dropdown-item{{if $mitem.class}} {{$mitem.class}}{{/if}}" {{if $mitem.href}}href="{{$mitem.href}}"{{/if}} {{if $mitem.action}}onclick="{{$mitem.action}}"{{/if}} {{if $mitem.title}}title="{{$mitem.title}}"{{/if}}{{if $mitem.data}} {{$mitem.data}}{{/if}}>{{$mitem.title}}</a>
@@ -50,22 +50,22 @@
 				<div class="text-end ms-auto">
 					<div class="wall-item-ago text-nowrap opacity-75" id="wall-item-ago-{{$id}}">
 						{{if $editedtime}}
-						<i class="fa fa-pencil"></i>
+						<i class="bi bi-pencil"></i>
 						{{/if}}
 						{{if $delayed}}
-						<i class="fa fa-clock-o"></i>
+						<i class="bi fa-clock-o"></i>
 						{{/if}}
 						{{if $location}}
 						<small class="wall-item-location p-location" id="wall-item-location-{{$id}}">{{$location}}</small>
 						{{/if}}
 						{{if $verified}}
-						<i class="fa fa-check text-success" title="{{$verified}}"></i>
+						<i class="bi bi-check-lg text-success" title="{{$verified}}"></i>
 						{{elseif $forged}}
-						<i class="fa fa-exclamation text-danger" title="{{$forged}}"></i>
+						<i class="bi fa-exclamation text-danger" title="{{$forged}}"></i>
 						{{/if}}
 						<small class="autotime" title="{{$isotime}}"><time class="dt-published" datetime="{{$isotime}}">{{$localtime}}</time>{{if $editedtime}}&nbsp;{{$editedtime}}{{/if}}{{if $expiretime}}&nbsp;{{$expiretime}}{{/if}}</small>
 					</div>
-					<div class="wall-item-pinned" title="{{$pinned}}" id="wall-item-pinned-{{$id}}"><i class="fa fa-thumb-tack"></i></div>
+					<div class="wall-item-pinned" title="{{$pinned}}" id="wall-item-pinned-{{$id}}"><i class="bi fa-thumb-tack"></i></div>
 				</div>
 			</div>
 			{{if $divider}}
@@ -96,17 +96,17 @@
 						{{if $isevent}}
 							<div class="btn-group">
 								<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" id="pinned-item-attend-menu-{{$id}}" title="{{$attend_title}}">
-									<i class="fa fa-calendar-check-o"></i>
+									<i class="bi fa-calendar-check-o"></i>
 								</button>
 								<div class="dropdown-menu dropdown-menu-end">
 									<a class="dropdown-item" href="#" title="{{$attend.0}}" onclick="itemAddToCal({{$id}}); dolike({{$id}},'attendyes'); return false;">
-										<i class="item-act-list fa fa-check{{if $my_responses.attend}} ivoted{{/if}}" ></i> {{$attend.0}}
+										<i class="item-act-list bi bi-check-lg{{if $my_responses.attend}} ivoted{{/if}}" ></i> {{$attend.0}}
 									</a>
 									<a class="dropdown-item" href="#" title="{{$attend.1}}" onclick="itemAddToCal({{$id}}), dolike({{$id}},'attendno'); return false;">
-										<i class="item-act-list fa fa-times{{if $my_responses.attendno}} ivoted{{/if}}" ></i> {{$attend.1}}
+										<i class="item-act-list bi bi-x-lg{{if $my_responses.attendno}} ivoted{{/if}}" ></i> {{$attend.1}}
 									</a>
 									<a class="dropdown-item" href="#" title="{{$attend.2}}" onclick="itemAddToCal({{$id}}); dolike({{$id}},'attendmaybe'); return false;">
-										<i class="item-act-list fa fa-question{{if $my_responses.attendmaybe}} ivoted{{/if}}" ></i> {{$attend.2}}
+										<i class="item-act-list bi bi-question-lg{{if $my_responses.attendmaybe}} ivoted{{/if}}" ></i> {{$attend.2}}
 									</a>
 								</div>
 							</div>
@@ -114,40 +114,40 @@
 						{{if $canvote}}
 							<div class="btn-group">
 								<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" id="pinned-item-consensus-menu-{{$id}}" title="{{$vote_title}}">
-									<i class="fa fa-check-square-o"></i>
+									<i class="bi bi-check-square"></i>
 								</button>
 								<div class="dropdown-menu dropdown-menu-end" role="menu" aria-labelledby="wall-item-consensus-menu-{{$id}}">
 									<a class="dropdown-item" href="#" title="{{$conlabels.0}}" onclick="dolike({{$id}},'agree'); return false;">
-										<i class="item-act-list fa fa-check{{if $my_responses.agree}} ivoted{{/if}}" ></i> {{$conlabels.0}}
+										<i class="item-act-list bi bi-check-lg{{if $my_responses.agree}} ivoted{{/if}}" ></i> {{$conlabels.0}}
 									</a>
 									<a class="dropdown-item" href="#" title="{{$conlabels.1}}" onclick="dolike({{$id}},'disagree'); return false;">
-										<i class="item-act-list fa fa-times{{if $my_responses.disagree}} ivoted{{/if}}" ></i> {{$conlabels.1}}
+										<i class="item-act-list bi bi-x-lg{{if $my_responses.disagree}} ivoted{{/if}}" ></i> {{$conlabels.1}}
 									</a>
 									<a class="dropdown-item" href="#" title="{{$conlabels.2}}" onclick="dolike({{$id}},'abstain'); return false;">
-										<i class="item-act-list fa fa-question{{if $my_responses.abstain}} ivoted{{/if}}" ></i> {{$conlabels.2}}
+										<i class="item-act-list bi bi-question-lg{{if $my_responses.abstain}} ivoted{{/if}}" ></i> {{$conlabels.2}}
 									</a>
 								</div>
 							</div>
 						{{/if}}
 						<div class="btn-group">
 							<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" id="pinned-item-menu-{{$id}}">
-								<i class="fa fa-cog"></i>
+								<i class="bi bi-gear"></i>
 							</button>
 							<div class="dropdown-menu dropdown-menu-end" role="menu" aria-labelledby="wall-item-menu-{{$id}}">
 								{{if $share}}
-									<a class="dropdown-item" href="#" onclick="jotShare({{$id}},{{$item_type}}); return false;"><i class="generic-icons-nav fa fa-fw fa-retweet" title="{{$share.0}}"></i>{{$share.0}}</a>
+									<a class="dropdown-item" href="#" onclick="jotShare({{$id}},{{$item_type}}); return false;"><i class="generic-icons-nav bi fa-retweet" title="{{$share.0}}"></i>{{$share.0}}</a>
 								{{/if}}
 								{{if $embed}}
-									<a class="dropdown-item" href="#" onclick="jotEmbed({{$id}},{{$item_type}}); return false;"><i class="generic-icons-nav fa fa-fw fa-share" title="{{$embed.0}}"></i>{{$embed.0}}</a>
+									<a class="dropdown-item" href="#" onclick="jotEmbed({{$id}},{{$item_type}}); return false;"><i class="generic-icons-nav bi fa-share" title="{{$embed.0}}"></i>{{$embed.0}}</a>
 								{{/if}}
 								{{if $plink}}
-									<a class="dropdown-item" href="{{$plink.href}}" title="{{$plink.title}}" class="u-url"><i class="generic-icons-nav fa fa-fw fa-external-link"></i>{{$plink.title}}</a>
+									<a class="dropdown-item" href="{{$plink.href}}" title="{{$plink.title}}" class="u-url"><i class="generic-icons-nav bi bi-box-arrow-up-right"></i>{{$plink.title}}</a>
 								{{/if}}
 								{{if $pinme}}
-								    <a class="dropdown-item dropdown-item-pinnable" href="#" onclick="dopin({{$id}}); return false;"><i class="generic-icons-nav fa fa-fw fa-thumb-tack"></i>{{$pinme}}</a>
+								    <a class="dropdown-item dropdown-item-pinnable" href="#" onclick="dopin({{$id}}); return false;"><i class="generic-icons-nav bi fa-thumb-tack"></i>{{$pinme}}</a>
 								{{/if}}
 								{{if $hide}}
-									<a class="dropdown-item" href="#" onclick="dopinhide({{$id}}); return false;" class="u-url"><i class="generic-icons-nav fa fa-fw fa-remove"></i>{{$hide}}</a>
+									<a class="dropdown-item" href="#" onclick="dopinhide({{$id}}); return false;" class="u-url"><i class="generic-icons-nav bi fa-remove"></i>{{$hide}}</a>
 								{{/if}}
 							</div>
 						</div>
@@ -159,7 +159,7 @@
 							<div class="wall-item-tools-left btn-group" id="pinned-item-tools-left-{{$id}}">
 								<div class="btn-group">
 									<button type="button" class="btn btn-outline-secondary btn-sm wall-item-like dropdown-toggle" data-bs-toggle="dropdown" id="pinned-attachment-menu-{{$id}}">
-										<i class="fa fa-paperclip"></i>
+										<i class="bi bi-paperclip"></i>
 									</button>
 									<div class="dropdown-menu">{{$attachments}}</div>
 								</div>

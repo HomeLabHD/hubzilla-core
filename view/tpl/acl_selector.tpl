@@ -4,9 +4,9 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h4 class="modal-title">
-					<i id="dialog-perms-icon" class="fa fa-fw"></i> {{$aclModalTitle}}
+					<i id="dialog-perms-icon" class="bi"></i> {{$aclModalTitle}}
 					{{if $helpUrl}}
-					<a target="hubzilla-help" href="{{$helpUrl}}" class="contextual-help-tool" title="Help and documentation"><i class="fa fa-fw fa-question"></i></a>
+					<a target="hubzilla-help" href="{{$helpUrl}}" class="contextual-help-tool" title="Help and documentation"><i class="bi bi-question-lg"></i></a>
 					{{/if}}
 				</h4>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
@@ -15,7 +15,7 @@
 				{{if $aclModalDesc}}
 				<div id="acl-dialog-description" class="section-content-info-wrapper">{{$aclModalDesc}}</div>
 				{{/if}}
-				<label for="acl-select">{{if $aclModalDesc}}<i class="fa fa-send-o"></i> {{/if}}{{$select_label}}</label>
+				<label for="acl-select">{{if $aclModalDesc}}<i class="bi bi-send"></i> {{/if}}{{$select_label}}</label>
 				<select id="acl-select" name="optionsRadios" class="form-control mb-3">
 					<option id="acl-showall" value="public" {{$public_selected}}>{{$showall}}</option>
 					<option id="acl-onlyme" value="onlyme" {{$justme_selected}}>{{$onlyme}}</option>
@@ -27,13 +27,13 @@
 
 				{{if $showallOrigin}}
 				<div id="acl-info" class="mb-3">
-					<i class="fa fa-info-circle"></i>&nbsp;{{$showallOrigin}}
+					<i class="bi bi-info-circle"></i>&nbsp;{{$showallOrigin}}
 				</div>
 				{{/if}}
 
 				<div id="acl-wrapper">
 					<div id="acl-list">
-						<input class="form-control" type="text" id="acl-search" placeholder="&#xf002;" title="{{$search}}">
+						<input class="form-control" type="text" id="acl-search" placeholder="{{$search}}" title="{{$search}}">
 						<small class="text-muted">{{$showlimitedDesc}}</small>
 						<div id="acl-list-content"></div>
 					</div>
@@ -45,8 +45,8 @@
 						<span class="font-weight-bold contactname">{1}</span>
 						<span class="dropdown-sub-text">{6}</span>
 					</div>
-					<button class="acl-button-hide btn btn-sm btn-outline-danger"><i class="fa fa-times"></i> {{$hide}}</button>
-					<button class="acl-button-show btn btn-sm btn-outline-success"><i class="fa fa-check"></i> {{$show}}</button>
+					<button class="acl-button-hide btn btn-sm btn-outline-danger"><i class="bi bi-x-lg"></i> {{$hide}}</button>
+					<button class="acl-button-show btn btn-sm btn-outline-success"><i class="bi bi-check-lg"></i> {{$show}}</button>
 				</div>
 			</div>
 			<div class="modal-footer clear">

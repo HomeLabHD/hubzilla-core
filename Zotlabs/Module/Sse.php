@@ -19,19 +19,13 @@ class Sse extends Controller {
 
 	function init() {
 
+		// This is important!
+		session_write_close();
+		ignore_user_abort(true);
+
 		if((observer_prohibited(true))) {
 			killme();
 		}
-
-		if(! intval(Config::Get('system','open_pubstream',1))) {
-			if(! get_observer_hash()) {
-				killme();
-			}
-		}
-
-		// this is important!
-		session_write_close();
-		ignore_user_abort(true);
 
 		self::$uid = local_channel();
 		self::$ob_hash = get_observer_hash();
@@ -102,7 +96,6 @@ class Sse extends Controller {
 					}
 				}
 
-
 				$result = [];
 
 				XConfig::Load(self::$ob_hash);
@@ -133,17 +126,33 @@ class Sse extends Controller {
 					echo "\n\n";
 				}
 
+				if (connection_status() != CONNECTION_NORMAL || connection_aborted()) {
+
+					// In case session_write_close() failed for some reason and
+					// the channel was changed we might need to reset the
+					// session to it's current stored state here.
+					// Otherwise the uid might switch back to the previous value
+					// in the background.
+
+					session_reset();
+
+					XConfig::Set(self::$ob_hash, 'sse', 'timestamp', NULL_DATE);
+					XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
+
+					if (ob_get_length() > 0) {
+						ob_end_flush();
+					}
+
+					flush();
+
+					exit;
+				}
+
 				if (ob_get_length() > 0) {
-					ob_end_flush();
+					ob_flush();
 				}
 
 				flush();
-
-				if (connection_status() != CONNECTION_NORMAL || connection_aborted()) {
-					XConfig::Set(self::$ob_hash, 'sse', 'timestamp', NULL_DATE);
-					XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
-					exit;
-				}
 
 				usleep($sleep);
 
@@ -159,7 +168,7 @@ class Sse extends Controller {
 		else {
 			// Fallback to traditional polling
 
-			if(! self::$sse_id) {
+			if(!self::$sse_id) {
 
 				// Update chat presence indication
 
@@ -168,14 +177,14 @@ class Sse extends Controller {
 					dbesc($_SERVER['REMOTE_ADDR'])
 				);
 				$basic_presence = false;
-				if($r) {
+				if ($r) {
 					$basic_presence = true;
 					q("update chatpresence set cp_last = '%s' where cp_id = %d",
 						dbesc(datetime_convert()),
 						intval($r[0]['cp_id'])
 					);
 				}
-				if(! $basic_presence) {
+				if (!$basic_presence) {
 					q("insert into chatpresence ( cp_xchan, cp_last, cp_status, cp_client)
 						values( '%s', '%s', '%s', '%s' ) ",
 						dbesc(self::$ob_hash),
@@ -186,12 +195,17 @@ class Sse extends Controller {
 				}
 			}
 
+			$result = [];
+
 			XConfig::Load(self::$ob_hash);
 
-			$result = XConfig::Get(self::$ob_hash, 'sse', 'notifications', []);
 			$lock = XConfig::Get(self::$ob_hash, 'sse', 'lock');
 
-			if($result && !$lock) {
+			if (!$lock) {
+				$result = XConfig::Get(self::$ob_hash, 'sse', 'notifications', []);
+			}
+
+			if ($result) {
 				XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
 				json_return_and_die($result);
 			}

@@ -49,18 +49,18 @@ class Pubsites extends \Zotlabs\Web\Controller {
 						}
 						$m = parse_url($jj['url']);
 						$host = strtolower(substr($jj['url'],strpos($jj['url'],'://')+3));
-						$rate_links = ((local_channel()) ? '<td><a href="rate?f=&target=' . $host . '" class="btn-btn-default"><i class="fa fa-check-square-o"></i> ' . t('Rate') . '</a></td>' : '');
+						$rate_links = ((local_channel()) ? '<td><a href="rate?f=&target=' . $host . '" class="btn-btn-default"><i class="bi bi-check-square"></i> ' . t('Rate') . '</a></td>' : '');
 						$location = '';
 						if(!empty($jj['location'])) {
-							$location = '<p title="' . t('Location') . '" style="margin: 5px 5px 0 0; text-align: right"><i class="fa fa-globe"></i> ' . $jj['location'] . '</p>';
+							$location = '<p title="' . t('Location') . '" style="margin: 5px 5px 0 0; text-align: right"><i class="bi bi-globe"></i> ' . $jj['location'] . '</p>';
 							}
 						else {
 							$location = '<br />&nbsp;';
 							}
 						$urltext = str_replace(array('https://'), '', $jj['url']);
-						$o .= '<tr><td><a href="'. (($jj['sellpage']) ? $jj['sellpage'] : $jj['url'] . '/register' ) . '" ><i class="fa fa-link"></i> ' . $urltext . '</a>' . $location . '</td><td>' . $jj['access'] . '</td><td>' . $jj['register'] . '</td><!--td>' . '<a target="stats" href="https://hubchart-tarine.rhcloud.com/hub.jsp?hubFqdn=' . $m['host'] . '"><i class="fa fa-area-chart"></i></a></td--><td>' . ucwords($jj['project']) . (($jj['version']) ? ' ' . $jj['version'] : '') . '</td>';
+						$o .= '<tr><td><a href="'. (($jj['sellpage']) ? $jj['sellpage'] : $jj['url'] . '/register' ) . '" ><i class="bi bi-link-45deg"></i> ' . $urltext . '</a>' . $location . '</td><td>' . $jj['access'] . '</td><td>' . $jj['register'] . '</td><!--td>' . '<a target="stats" href="https://hubchart-tarine.rhcloud.com/hub.jsp?hubFqdn=' . $m['host'] . '"><i class="bi bi-graph-up"></i></a></td--><td>' . ucwords($jj['project']) . (($jj['version']) ? ' ' . $jj['version'] : '') . '</td>';
 						if($rating_enabled)
-							$o .= '<td><a href="ratings/' . $host . '" class="btn-btn-default"><i class="fa fa-eye"></i> ' . t('View') . '</a></td>' . $rate_links ;
+							$o .= '<td><a href="ratings/' . $host . '" class="btn-btn-default"><i class="bi bi-eye"></i> ' . t('View') . '</a></td>' . $rate_links ;
 						$o .=  '</tr>';
 					}
 				}

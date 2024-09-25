@@ -93,7 +93,7 @@ $(document).ready(function() {
 	$(document).on('click focus', '.comment-edit-form  textarea', function(e) {
 		if(! this.autocomplete_handled) {
 			/* autocomplete @nicknames */
-			$(this).editor_autocomplete(baseurl+"/acl?f=&n=1");
+			$(this).editor_autocomplete(baseurl+"/acl?n=1");
 			/* autocomplete bbcode */
 			$(this).bbco_autocomplete('bbcode');
 
@@ -114,7 +114,7 @@ $(document).ready(function() {
 	}
 	if ( typeof(window.tao.zin) == 'undefined' ) {
 		tao.zin = { syslc: '', syslcs: {}, htm: '', me: '', debug: '' };
-		tao.zin.axim = '<div class="zinpax fa fa-sync fa-spin"> </div>';
+		tao.zin.axim = '<i class="zinpax bi bi-arrow-repeat"></i>';
 		$('.navbar-app[href*="/lang"]').attr({"aria-expand": "true", "id": "zintog"})
 			.removeAttr('href').addClass('zinlcx zinlcxp dropdown dropdown-toggle').css('cursor','pointer');
 		$('.nav-link[href*="/lang"]').addClass('zinlcxmi zinlcx').removeAttr('href').css('cursor','pointer');
@@ -129,9 +129,9 @@ $(document).ready(function() {
    				tao.zin.re = JSON.parse(re);
    			 	tao.zin.syslc = tao.zin.re.lc;
    			 	tao.zin.syslcs = tao.zin.re.lcs;
-				tao.zin.htm = '<ul class="zinlcs fa-ul">';
+				tao.zin.htm = '<ul class="zinlcs">';
 				$.each( tao.zin.syslcs, function( k, v ) {
-					tao.zin.htm += '<li><a id="zinlc' + k + '" class="zinlc nav-link fakelink">' + k + ' ' + v + '</a></li>';
+					tao.zin.htm += '<li><a id="zinlc' + k + '" class="zinlc fakelink">' + k + ' ' + v + '</a></li>';
 				});
 				tao.zin.htm += '</ul>';
 				$('.zinpax').remove();
@@ -250,25 +250,24 @@ $(document).ready(function() {
 });
 
 function getConversationSettings() {
-	$.get('settings/conversation/?f=&aj=1',function(data) {
+	$.get('settings/conversation/?aj=1',function(data) {
 		$('#conversation_settings_body').html(data);
 	});
 }
 
 function postConversationSettings() {
-	$.post(
-		'settings/conversation',
-		$('#settings_module_ajax_form').serialize() + "&auto_update=" + next_page
-	);
-
 	if(next_page === 1) {
 		page_load = true;
 	}
 
-	$('#conversation_settings').modal('hide');
-
-	if(timer) clearTimeout(timer);
-	timer = setTimeout(updateInit,100);
+	$.post(
+		'settings/conversation',
+		$('#settings_module_ajax_form').serialize() + "&auto_update=" + next_page
+	).done(function() {
+		$('#conversation_settings').modal('hide');
+		toast('Conversation features updated', 'info');
+		updateInit();
+	});
 
 	return false;
 }
@@ -486,7 +485,7 @@ function insertCommentURL(comment, id) {
 	if(reply && reply.length) {
 		reply = bin2hex(reply);
 		$('body').css('cursor', 'wait');
-		$.get('linkinfo?f=&binurl=' + reply, function(data) {
+		$.get('linkinfo?binurl=' + reply, function(data) {
 			var tmpStr = $("#comment-edit-text-" + id).val();
 			if(tmpStr == comment) {
 				tmpStr = "";
@@ -515,16 +514,19 @@ function viewsrc(id) {
 }
 
 function showHideComments(id) {
-	if( $('#collapsed-comments-' + id).is(':visible')) {
+	if($('#collapsed-comments-' + id).is(':visible')) {
 		$('#collapsed-comments-' + id + ' .autotime').timeago('dispose');
 		$('#collapsed-comments-' + id).hide();
-		$('#hide-comments-' + id).html(aStr.showmore);
+		$('#hide-comments-label-' + id).html(aStr.showmore);
 		$('#hide-comments-total-' + id).show();
+		$('#hide-comments-icon-' + id).toggleClass('bi-chevron-down bi-chevron-up');
+
 	} else {
 		$('#collapsed-comments-' + id + ' .autotime').timeago();
 		$('#collapsed-comments-' + id).show();
-		$('#hide-comments-' + id).html(aStr.showfewer);
+		$('#hide-comments-label-' + id).html(aStr.showfewer);
 		$('#hide-comments-total-' + id).hide();
+		$('#hide-comments-icon-' + id).toggleClass('bi-chevron-down bi-chevron-up');
 	}
 }
 
@@ -566,7 +568,7 @@ function closeMenu(theID) {
 }
 
 function markRead(notifType) {
-	$.get('notifications?f=&markRead='+notifType);
+	$.get('notifications?markRead='+notifType);
 	$('.' + notifType + '-button').fadeOut(function() {
 		$("." + notifType + "-update").html('0');
 		$('#nav-' + notifType + '-menu').html('');
@@ -579,7 +581,7 @@ function markRead(notifType) {
 }
 
 function markItemRead(itemId) {
-	$.get('notifications?f=&markItemRead='+itemId);
+	$.get('notifications?markItemRead='+itemId);
 	$('.unseen-wall-indicator-'+itemId).remove();
 }
 
@@ -835,7 +837,7 @@ function scrollToItem() {
 				var scrolltoid = $('.collapsed-comments').attr('id').substring(19);
 				$('#collapsed-comments-' + scrolltoid + ' .autotime').timeago();
 				$('#collapsed-comments-' + scrolltoid).show();
-				$('#hide-comments-' + scrolltoid).html(aStr.showfewer);
+				$('#hide-comments-label-' + scrolltoid).html(aStr.showfewer);
 				$('#hide-comments-total-' + scrolltoid).hide();
 			}
 			$('html, body').animate({ scrollTop: $(this).offset().top - $('nav').outerHeight(true) }, 'slow');
@@ -869,8 +871,8 @@ function collapseHeight() {
 					startOpen: open,
 					heightMargin: 50,
 					collapsedHeight: divmore_height,
-					moreLink: '<a href="#" class="divgrow-showmore fakelink">' + aStr.divgrowmore + '</a>',
-					lessLink: '<a href="#" class="divgrow-showmore fakelink">' + aStr.divgrowless + '</a>',
+					moreLink: '<a href="#" class="divgrow-showmore fakelink"><i class="bi bi-chevron-down align-middle divgrow-showmore-icon"></i>&nbsp;<span class="divgrow-showmore-label align-middle">' + aStr.divgrowmore + '</span></a>',
+					lessLink: '<a href="#" class="divgrow-showmore fakelink"><i class="bi bi-chevron-up align-middle divgrow-showmore-icon"></i>&nbsp;<span class="divgrow-showmore-label align-middle">' + aStr.divgrowless + '</span></a>',
 					beforeToggle: function(trigger, element, expanded) {
 						if(expanded) {
 							if((($(element).offset().top + divmore_height) - $(window).scrollTop()) < 65 ) {
@@ -1144,7 +1146,7 @@ function pageUpdate() {
 		bParam_page = 1;
 	}
 
-	update_url = baseurl + '/' + decodeURIComponent(page_query) + '/?f=&aj=1&page=' + bParam_page + extra_args ;
+	update_url = baseurl + '/' + decodeURIComponent(page_query) + '?aj=1&page=' + bParam_page + extra_args ;
 
 	$("#page-spinner").show();
 	update_mode = 'append';
@@ -1225,7 +1227,7 @@ function doreply(parent, ident, owner, hint) {
         form.find('input[name=parent]').val(ident);
         var i = form.find('button[type=submit]');
         var btn = i.html().replace(/<[^>]*>/g, '').trim();
-        i.html('<i class="fa fa-reply" ></i> ' + btn);
+        i.html('<i class="bi bi-arrow-90deg-left"></i> ' + btn);
         var sel = 'wall-item-body-' + ident.toString();
         var quote = window.getSelection().toString().trim();
         form.find('textarea').val("@{" + owner + "}" + ((($(window.getSelection().anchorNode).closest("#" + sel).attr("id") != sel) || (quote.length === 0))? " " : "\n[quote]" + quote + "[/quote]\n"));
@@ -1257,7 +1259,7 @@ function doscroll(parent, hidden) {
 	});
 
 	$('html, body').animate({scrollTop:(id.offset().top) - 50}, 'slow');
-	$('<a href="javascript:doscrollback(' + pos + ');" id="back-to-reply" title="' + aStr['to_reply'] + '"><i class="fa fa-angle-double-down"></i></a>').insertAfter('#wall-item-ago-' + id.attr('id').replace(/\D/g,''));
+	$('<a href="javascript:doscrollback(' + pos + ');" id="back-to-reply" title="' + aStr['to_reply'] + '"><i class="bi bi-chevron-double-down"></i></a>').insertAfter('#wall-item-ago-' + id.attr('id').replace(/\D/g,''));
 }
 
 function doscrollback(pos) {
@@ -1282,7 +1284,7 @@ function dopin(id) {
                         $('.dropdown-item-pinnable').html($('.dropdown-item-pinnable').html().replace(aStr['unpin_item'],aStr['pin_item']));
                         $('.wall-item-pinned').remove()
                         if(i.length == 0) {
-                                $('<span class="wall-item-pinned" title="' + aStr['pinned'] + '" id="wall-item-pinned-' + id + '"><i class="fa fa-thumb-tack">&nbsp;</i></span>').insertAfter('#wall-item-ago-' + id);
+                                $('<span class="wall-item-pinned" title="' + aStr['pinned'] + '" id="wall-item-pinned-' + id + '"><i class="bi bi-pin">&nbsp;</i></span>').insertAfter('#wall-item-ago-' + id);
                                 me.html(me.html().replace(aStr['pin_item'],aStr['unpin_item']));
                         };
                 })
@@ -1305,7 +1307,7 @@ function dropItem(url, object, b64mid) {
 			$(object + ', #pinned-wrapper-' + id).remove();
 			$('body').css('cursor', 'auto');
 
-			toast(aStr.itemdel, 'info')
+			toast(aStr.itemdel, 'info');
 			//$.jGrowl(aStr.itemdel, { sticky: false, theme: 'info', life: 3000 });
 
 			if (typeof b64mid !== typeof undefined) {
@@ -1357,18 +1359,18 @@ function dostar(ident) {
 		if(data.result == 1) {
 			$('#starred-' + ident).addClass('starred');
 			$('#starred-' + ident).removeClass('unstarred');
-			$('#starred-' + ident).addClass('fa-star');
-			$('#starred-' + ident).removeClass('fa-star-o');
+			$('#starred-' + ident).addClass('bi-star-fill');
+			$('#starred-' + ident).removeClass('bi-star');
 			$('#star-' + ident).addClass('hidden');
 			$('#unstar-' + ident).removeClass('hidden');
-			var btn_tpl = '<div class="btn-group" id="star-button-' + ident + '"><button type="button" class="btn btn-outline-secondary border-0 btn-sm wall-item-star" onclick="dostar(' + ident + ');"><i class="fa fa-star"></i></button></div>'
-			$('#wall-item-tools-left-' + ident).prepend(btn_tpl);
+			var btn_tpl = '<div class="" id="star-button-' + ident + '"><button type="button" class="btn btn-outline-secondary border-0 wall-item-star" onclick="dostar(' + ident + ');"><i class="bi bi-star"></i></button></div>'
+			$('#wall-item-tools-right-' + ident).prepend(btn_tpl);
 		}
 		else {
 			$('#starred-' + ident).addClass('unstarred');
 			$('#starred-' + ident).removeClass('starred');
-			$('#starred-' + ident).addClass('fa-star-o');
-			$('#starred-' + ident).removeClass('fa-star');
+			$('#starred-' + ident).addClass('bi-star');
+			$('#starred-' + ident).removeClass('bi-star-fill');
 			$('#star-' + ident).removeClass('hidden');
 			$('#unstar-' + ident).addClass('hidden');
 			$('#star-button-' + ident).remove();
@@ -1553,7 +1555,7 @@ function contactgroupChangeMember(gid, cid) {
 	$('body').css('cursor', 'wait');
 	$.get('contactgroup/' + gid + '/' + cid, function(data) {
 		$('body').css('cursor', 'auto');
-		$('#group-' + gid).toggleClass('fa-check-square-o fa-square-o');
+		$('#group-' + gid).toggleClass('bi-check-square bi-square');
 	});
 }
 
@@ -1622,11 +1624,6 @@ $(window).scroll(function () {
 	}
 });
 
-function addhtmltext(data) {
-	data = h2b(data);
-	addeditortext(data);
-}
-
 function loadText(textRegion,data) {
 	var currentText = $(textRegion).val();
 	$(textRegion).val(currentText + data);
@@ -1637,123 +1634,6 @@ function addeditortext(data) {
 		var currentText = $("#profile-jot-text").val();
 		$("#profile-jot-text").val(currentText + data);
 	}
-}
-
-function h2b(s) {
-	var y = s;
-	function rep(re, str) {
-		y = y.replace(re,str);
-	}
-
-	rep(/<a.*?href=\"(.*?)\".*?>(.*?)<\/a>/gi,"[url=$1]$2[/url]");
-	rep(/<span style=\"font-size:(.*?);\">(.*?)<\/span>/gi,"[size=$1]$2[/size]");
-	rep(/<span style=\"color:(.*?);\">(.*?)<\/span>/gi,"[color=$1]$2[/color]");
-	rep(/<font>(.*?)<\/font>/gi,"$1");
-	rep(/<img.*?width=\"(.*?)\".*?height=\"(.*?)\".*?src=\"(.*?)\".*?\/>/gi,"[img=$1x$2]$3[/img]");
-	rep(/<img.*?height=\"(.*?)\".*?width=\"(.*?)\".*?src=\"(.*?)\".*?\/>/gi,"[img=$2x$1]$3[/img]");
-	rep(/<img.*?src=\"(.*?)\".*?height=\"(.*?)\".*?width=\"(.*?)\".*?\/>/gi,"[img=$3x$2]$1[/img]");
-	rep(/<img.*?src=\"(.*?)\".*?width=\"(.*?)\".*?height=\"(.*?)\".*?\/>/gi,"[img=$2x$3]$1[/img]");
-	rep(/<img.*?src=\"(.*?)\".*?\/>/gi,"[img]$1[/img]");
-
-	rep(/<ul class=\"listbullet\" style=\"list-style-type\: circle\;\">(.*?)<\/ul>/gi,"[list]$1[/list]");
-	rep(/<ul class=\"listnone\" style=\"list-style-type\: none\;\">(.*?)<\/ul>/gi,"[list=]$1[/list]");
-	rep(/<ul class=\"listdecimal\" style=\"list-style-type\: decimal\;\">(.*?)<\/ul>/gi,"[list=1]$1[/list]");
-	rep(/<ul class=\"listlowerroman\" style=\"list-style-type\: lower-roman\;\">(.*?)<\/ul>/gi,"[list=i]$1[/list]");
-	rep(/<ul class=\"listupperroman\" style=\"list-style-type\: upper-roman\;\">(.*?)<\/ul>/gi,"[list=I]$1[/list]");
-	rep(/<ul class=\"listloweralpha\" style=\"list-style-type\: lower-alpha\;\">(.*?)<\/ul>/gi,"[list=a]$1[/list]");
-	rep(/<ul class=\"listupperalpha\" style=\"list-style-type\: upper-alpha\;\">(.*?)<\/ul>/gi,"[list=A]$1[/list]");
-	rep(/<li>(.*?)<\/li>/gi,"[li]$1[/li]");
-
-	rep(/<code>(.*?)<\/code>/gi,"[code]$1[/code]");
-	rep(/<\/(strong|b)>/gi,"[/b]");
-	rep(/<(strong|b)>/gi,"[b]");
-	rep(/<\/(em|i)>/gi,"[/i]");
-	rep(/<(em|i)>/gi,"[i]");
-	rep(/<\/u>/gi,"[/u]");
-
-	rep(/<span style=\"text-decoration: ?underline;\">(.*?)<\/span>/gi,"[u]$1[/u]");
-	rep(/<u>/gi,"[u]");
-	rep(/<blockquote[^>]*>/gi,"[quote]");
-	rep(/<\/blockquote>/gi,"[/quote]");
-	rep(/<hr \/>/gi,"[hr]");
-	rep(/<br (.*?)\/>/gi,"\n");
-	rep(/<br\/>/gi,"\n");
-	rep(/<br>/gi,"\n");
-	rep(/<p>/gi,"");
-	rep(/<\/p>/gi,"\n");
-	rep(/&nbsp;/gi," ");
-	rep(/&quot;/gi,"\"");
-	rep(/&lt;/gi,"<");
-	rep(/&gt;/gi,">");
-	rep(/&amp;/gi,"&");
-
-	return y;
-}
-
-function b2h(s) {
-	var y = s;
-	function rep(re, str) {
-		y = y.replace(re,str);
-	}
-
-	rep(/\&/gi,"&amp;");
-	rep(/\</gi,"&lt;");
-	rep(/\>/gi,"&gt;");
-	rep(/\"/gi,"&quot;");
-
-	rep(/\n/gi,"<br />");
-	rep(/\[b\]/gi,"<strong>");
-	rep(/\[\/b\]/gi,"</strong>");
-	rep(/\[i\]/gi,"<em>");
-	rep(/\[\/i\]/gi,"</em>");
-	rep(/\[u\]/gi,"<u>");
-	rep(/\[\/u\]/gi,"</u>");
-	rep(/\[hr\]/gi,"<hr />");
-	rep(/\[url=([^\]]+)\](.*?)\[\/url\]/gi,"<a href=\"$1\">$2</a>");
-	rep(/\[url\](.*?)\[\/url\]/gi,"<a href=\"$1\">$1</a>");
-	rep(/\[img=(.*?)x(.*?)\](.*?)\[\/img\]/gi,"<img width=\"$1\" height=\"$2\" src=\"$3\" />");
-	rep(/\[img\](.*?)\[\/img\]/gi,"<img src=\"$1\" />");
-
-	rep(/\[zrl=([^\]]+)\](.*?)\[\/zrl\]/gi,"<a href=\"$1" + '?f=&zid=' + zid + "\">$2</a>");
-	rep(/\[zrl\](.*?)\[\/zrl\]/gi,"<a href=\"$1" + '?f=&zid=' + zid + "\">$1</a>");
-	rep(/\[zmg=(.*?)x(.*?)\](.*?)\[\/zmg\]/gi,"<img width=\"$1\" height=\"$2\" src=\"$3" + '?f=&zid=' + zid + "\" />");
-	rep(/\[zmg\](.*?)\[\/zmg\]/gi,"<img src=\"$1" + '?f=&zid=' + zid + "\" />");
-
-	rep(/\[list\](.*?)\[\/list\]/gi, '<ul class="listbullet" style="list-style-type: circle;">$1</ul>');
-	rep(/\[list=\](.*?)\[\/list\]/gi, '<ul class="listnone" style="list-style-type: none;">$1</ul>');
-	rep(/\[list=1\](.*?)\[\/list\]/gi, '<ul class="listdecimal" style="list-style-type: decimal;">$1</ul>');
-	rep(/\[list=i\](.*?)\[\/list\]/gi,'<ul class="listlowerroman" style="list-style-type: lower-roman;">$1</ul>');
-	rep(/\[list=I\](.*?)\[\/list\]/gi, '<ul class="listupperroman" style="list-style-type: upper-roman;">$1</ul>');
-	rep(/\[list=a\](.*?)\[\/list\]/gi, '<ul class="listloweralpha" style="list-style-type: lower-alpha;">$1</ul>');
-	rep(/\[list=A\](.*?)\[\/list\]/gi, '<ul class="listupperalpha" style="list-style-type: upper-alpha;">$1</ul>');
-	rep(/\[li\](.*?)\[\/li\]/gi, '<li>$1</li>');
-	rep(/\[color=(.*?)\](.*?)\[\/color\]/gi,"<span style=\"color: $1;\">$2</span>");
-	rep(/\[size=(.*?)\](.*?)\[\/size\]/gi,"<span style=\"font-size: $1;\">$2</span>");
-	rep(/\[code\](.*?)\[\/code\]/gi,"<code>$1</code>");
-	rep(/\[quote.*?\](.*?)\[\/quote\]/gi,"<blockquote>$1</blockquote>");
-
-	rep(/\[video\](.*?)\[\/video\]/gi,"<a href=\"$1\">$1</a>");
-	rep(/\[audio\](.*?)\[\/audio\]/gi,"<a href=\"$1\">$1</a>");
-
-	rep(/\[\&amp\;([#a-z0-9]+)\;\]/gi,'&$1;');
-
-	rep(/\<(.*?)(src|href)=\"[^hfm](.*?)\>/gi,'<$1$2="">');
-
-	return y;
-}
-
-function zid(s) {
-	if((! s.length) || (s.indexOf('zid=') != (-1)))
-		return s;
-
-	if(! zid.length)
-		return s;
-
-	var has_params = ((s.indexOf('?') == (-1)) ? false : true);
-	var achar = ((has_params) ? '&' : '?');
-	s = s + achar + 'f=&zid=' + zid;
-
-	return s;
 }
 
 function makeid(length) {
@@ -1801,7 +1681,7 @@ function push_notification(title, body, b64mid) {
 
 function toggleAside() {
 	if ($('main.region_1-on').length) {
-		$('#expand-aside-icon').addClass('fa-arrow-circle-right').removeClass('fa-arrow-circle-left');
+		$('#expand-aside-icon').addClass('bi-arrow-right-circle').removeClass('bi-arrow-left-circle');
 		$('html, body').css({ 'position': '', 'left': '' });
 		$('main').removeClass('region_1-on');
 		$('#region_1').addClass('d-none');
@@ -1809,7 +1689,7 @@ function toggleAside() {
 		$('#overlay').remove();
 	}
 	else {
-		$('#expand-aside-icon').removeClass('fa-arrow-circle-right').addClass('fa-arrow-circle-left');
+		$('#expand-aside-icon').removeClass('bi-arrow-right-circle').addClass('bi-arrow-left-circle');
 		$('html, body').css({ 'position': 'sticky',  'left': '0px'});
 		$('main').addClass('region_1-on');
 		$('#region_1').removeClass('d-none');

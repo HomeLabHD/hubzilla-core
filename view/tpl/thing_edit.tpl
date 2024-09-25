@@ -31,7 +31,7 @@
 
 {{if $lockstate}}
 	<button id="dbtn-acl" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#aclModal" onclick="return false;">
-		<i id="jot-perms-icon" class="fa fa-{{$lockstate}}"></i>
+		<i id="jot-perms-icon" class="bi bi-{{$lockstate}}"></i>
 	</button>
 {{/if}}
 

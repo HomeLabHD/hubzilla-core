@@ -23,10 +23,10 @@
 				<span class="float-start">{{$repo.name}}</span><span id="update-message-{{$repo.name}}" style="margin-left: 20px;"></span>
             </td>
             <td style="width: 15%;">
-              <button class="btn btn-sm btn-primary float-end" style="margin-left: 10px; margin-right: 10px;" onclick="updateAddonRepo('{{$repo.name}}'); return false;"><i class='fa fa-download'></i>&nbsp;{{$repoUpdateButton}}</button>
+              <button class="btn btn-sm btn-primary float-end" style="margin-left: 10px; margin-right: 10px;" onclick="updateAddonRepo('{{$repo.name}}'); return false;"><i class='bi fa-download'></i>&nbsp;{{$repoUpdateButton}}</button>
             </td>
             <td style="width: 15%;">
-              <button class="btn btn-sm btn-danger float-end" style="margin-left: 10px; margin-right: 0px;" onclick="removeAddonRepo('{{$repo.name}}'); return false;"><i class='fa fa-trash-o'></i>&nbsp;{{$repoRemoveButton}}</button>
+              <button class="btn btn-sm btn-danger float-end" style="margin-left: 10px; margin-right: 0px;" onclick="removeAddonRepo('{{$repo.name}}'); return false;"><i class='bi bi-trash'></i>&nbsp;{{$repoRemoveButton}}</button>
             </td>
         <div class="clear"></div>
         </td></tr>
@@ -50,9 +50,9 @@
       <div class="section-content-tools-wrapper" id="pluginslist">		
 		<div class="contact-info plugin {{$p.1}}">
             {{if ! $p.2.disabled}}				
-            <a class='toggleplugin' href='{{$baseurl}}/admin/{{$function}}/{{$p.0}}?a=t&amp;t={{$form_security_token}}' title="{{if $p.1==on}}Disable{{else}}Enable{{/if}}" ><i class='fa {{if $p.1==on}}fa-check-square-o{{else}}fa-square-o{{/if}} admin-icons'></i></a>
+            <a class='toggleplugin' href='{{$baseurl}}/admin/{{$function}}/{{$p.0}}?a=t&amp;t={{$form_security_token}}' title="{{if $p.1==on}}Disable{{else}}Enable{{/if}}" ><i class='bi {{if $p.1==on}}bi-check-square{{else}}bi-square{{/if}} admin-icons'></i></a>
             {{else}}
-            <i class='fa fa-stop admin-icons'></i>
+            <i class='bi fa-stop admin-icons'></i>
             {{/if}}
             <a href='{{$baseurl}}/admin/{{$function}}/{{$p.0}}'><span class='name'>{{$p.2.name}}</span></a> - <span class="version">{{$p.2.version}}</span>{{if $p.2.disabled}} {{$disabled}}{{/if}}
             {{if $p.2.experimental}} {{$experimental}} {{/if}}{{if $p.2.unsupported}} {{$unsupported}} {{/if}}

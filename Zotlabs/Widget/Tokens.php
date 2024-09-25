@@ -38,7 +38,7 @@ class Tokens {
 		if ($active) {
 			$menu_items[] = [
 				'href' => $z_root . '/tokens',
-				'label' => '<i class="fa fa-plus"></i> &nbsp;' . t('Add new guest'),
+				'label' => '<i class="bi bi-plus-lg"></i> &nbsp;' . t('Add new guest'),
 				'title' => '',
 				'active' => ''
 			];

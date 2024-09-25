@@ -30,7 +30,7 @@
 					<button id="embed-photo-wrapper" type="button"
 							class="btn btn-default btn-outline-success float-end me-1" title="{{$embedPhotos}}"
 							onclick="initializeEmbedPhotoDialog();">
-						<i id="embed-photo" class="fa fa-file-image-o"></i> {{$select}}
+						<i id="embed-photo" class="bi bi-file-image"></i> {{$select}}
 					</button>
 					<button type="submit" class="btn btn-outline-danger" name="remove" id="profile-photo-remove">
 						{{$remove}}
@@ -81,7 +81,7 @@
 					$('#embedPhotoModalBodyAlbumDialog').html('\
 							<div><div class="nav nav-pills flex-column">\n\
 								<li class="nav-item"><a class="nav-link" href="#" onclick="initializeEmbedPhotoDialog();return false;">\n\
-									<i class="fa fa-chevron-left"></i>&nbsp\n\
+									<i class="bi fa-chevron-left"></i>&nbsp\n\
 									{{$modaldiffalbum}}\n\
 									</a>\n\
 								</li>\n\

@@ -11,24 +11,19 @@ class Conversation {
 		$module = substr(strrchr(strtolower(static::class), '\\'), 1);
 
 		check_form_security_token_redirectOnErr('/settings/' . $module, 'settings_' . $module);
-	
+
 		$features = get_module_features($module);
 
 		process_module_features_post(local_channel(), $features, $_POST);
-		
-		Libsync::build_sync_packet();
-		
-		if($_POST['aj']) {
-			if($_POST['auto_update'] == 1)
-				info(t('Settings saved.') . EOL);
-			else
-				info(t('Settings saved. Reload page please.') . EOL);
 
+		Libsync::build_sync_packet();
+
+		if($_POST['aj']) {
 			killme();
 		}
-		else {
-			return;
-		}
+
+		return;
+
 	}
 
 	function get() {
@@ -48,7 +43,7 @@ class Conversation {
 			'$features'  => process_module_features_get(local_channel(), $features),
 			'$submit'    => t('Submit')
 		));
-		
+
 		if($aj)	{
 			echo $o;
 			killme();

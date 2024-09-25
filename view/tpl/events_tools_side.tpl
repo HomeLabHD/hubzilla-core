@@ -1,8 +1,8 @@
 <div class="widget">
 	<h3>{{$title}}</h3>
 	<ul class="nav nav-pills flex-column">
-		<li class="nav-item"><a class="nav-link" href="#" onclick="exportDate(); return false;"><i class="fa fa-arrow-circle-o-down"></i>&nbsp;{{$export}}</a></li>
-		<li class="nav-item"><a class="nav-link" href="#" onclick="openClose('event-upload-form'); return false;"><i class="fa fa-arrow-circle-o-up"></i>&nbsp;{{$import}}</a></li>
+		<li class="nav-item"><a class="nav-link" href="#" onclick="exportDate(); return false;"><i class="bi fa-arrow-circle-o-down"></i>&nbsp;{{$export}}</a></li>
+		<li class="nav-item"><a class="nav-link" href="#" onclick="openClose('event-upload-form'); return false;"><i class="bi fa-arrow-circle-o-up"></i>&nbsp;{{$import}}</a></li>
 	</ul>
 	<div id="event-upload-form" class="sub-menu-wrapper">
 		<div class="sub-menu">

@@ -5,7 +5,7 @@
 			<div class="dropdown">
 				<div class="cursor-pointer usermenu" data-bs-toggle="dropdown">
 					<img id="avatar" src="{{$userinfo.icon}}" alt="{{$userinfo.name}}" class="rounded">
-					<i class="navbar-text fa fa-caret-down"></i>
+					<i class="navbar-text bi bi-caret-down-fill"></i>
 				</div>
 				{{if $is_owner}}
 				<div class="dropdown-menu" {{$color_mode}}>
@@ -20,7 +20,7 @@
 					{{/if}}
 					{{if $nav.channels}}
 					{{foreach $nav.channels as $chan}}
-					<a class="dropdown-item" href="manage/{{$chan.channel_id}}" title="{{$chan.channel_name}}" role="menuitem"><i class="fa fa-circle{{if $localuser == $chan.channel_id}} text-success{{else}} invisible{{/if}}"></i> {{$chan.channel_name}}</a>
+					<a class="dropdown-item" href="manage/{{$chan.channel_id}}" title="{{$chan.channel_name}}" role="menuitem"><i class="bi bi-circle-fill{{if $localuser == $chan.channel_id}} text-success{{else}} invisible{{/if}}"></i> {{$chan.channel_name}}</a>
 					{{/foreach}}
 					{{/if}}
 					{{if $nav.profiles}}
@@ -59,7 +59,7 @@
 			{{if $settings_url}}
 			<div id="nav-app-settings-link-wrapper" class="navbar-nav">
 				<a id="nav-app-settings-link" href="{{$settings_url}}/?f=&rpath={{$url}}" class="nav-link">
-					<i class="fa fa-fw fa-cog"></i>
+					<i class="bi bi-gear"></i>
 				</a>
 			</div>
 			{{/if}}
@@ -71,19 +71,19 @@
 		<div class="navbar-toggler-right">
 			{{if $nav.help.6}}
 			<button id="context-help-btn" class="navbar-toggler border-0" type="button" onclick="contextualHelp(); return false;">
-				<i class="fa fa-question-circle"></i>
+				<i class="bi bi-question-circle-fill generic-icons"></i>
 			</button>
 			{{/if}}
 			<button id="expand-aside" type="button" class="d-lg-none navbar-toggler border-0">
-				<i class="fa fa-arrow-circle-right" id="expand-aside-icon"></i>
+				<i class="bi bi-arrow-right-circle generic-icons" id="expand-aside-icon"></i>
 			</button>
 			{{if $localuser || $nav.pubs}}
 			<button id="notifications-btn-1" type="button" class="navbar-toggler border-0 notifications-btn">
-				<i id="notifications-btn-icon-1" class="fa fa-exclamation-circle notifications-btn-icon"></i>
+				<i id="notifications-btn-icon-1" class="bi bi-exclamation-circle notifications-btn-icon generic-icons"></i>
 			</button>
 			{{/if}}
 			<button id="menu-btn" class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#app-bin">
-				<i class="fa fa-bars"></i>
+				<i class="bi bi-three-dots-vertical generic-icons"></i>
 			</button>
 		</div>
 		<div class="collapse navbar-collapse justify-content-between" id="navbar-collapse-1">
@@ -125,16 +125,16 @@
 					</div>
 				</li>
 				<li class="nav-item" id="nav-search-btn">
-					<a class="nav-link" href="#nav-search" title="{{$nav.search.3}}" onclick="openMenu('nav-search'); closeMenu('nav-search-btn'); $('#nav-search-text').focus(); return false;"><i class="fa fa-fw fa-search"></i></a>
+					<a class="nav-link" href="#nav-search" title="{{$nav.search.3}}" onclick="openMenu('nav-search'); closeMenu('nav-search-btn'); $('#nav-search-text').focus(); return false;"><i class="bi bi-search generic-icons"></i></a>
 				</li>
 				{{if $nav.help.6}}
 				<li class="nav-item dropdown {{$sel.help}}">
-					<a class="nav-link {{$nav.help.2}}" target="hubzilla-help" href="{{$nav.help.0}}" title="{{$nav.help.3}}" id="{{$nav.help.4}}" onclick="contextualHelp(); return false;"><i class="fa fa-fw fa-question-circle"></i></a>
+					<a class="nav-link {{$nav.help.2}}" target="hubzilla-help" href="{{$nav.help.0}}" title="{{$nav.help.3}}" id="{{$nav.help.4}}" onclick="contextualHelp(); return false;"><i class="bi bi-question-circle-fill"></i></a>
 				</li>
 				{{/if}}
 				{{if $localuser || $nav.pubs}}
 				<li id="notifications-btn" class="nav-item d-xl-none">
-					<a class="nav-link notifications-btn" href="#"><i id="notifications-btn-icon" class="fa fa-exclamation-circle  notifications-btn-icon"></i></a>
+					<a class="nav-link notifications-btn" href="#"><i id="notifications-btn-icon" class="bi bi-exclamation-circle notifications-btn-icon generic-icons"></i></a>
 				</li>
 				{{/if}}
 				{{if $navbar_apps}}
@@ -145,7 +145,7 @@
 				{{/foreach}}
 				{{/if}}
 				<li class="nav-item dropdown" id="app-menu">
-					<a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#app-bin" aria-controls="app-bin"><i class="fa fa-fw fa-bars"></i></a>
+					<a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#app-bin" aria-controls="app-bin"><i class="bi bi-three-dots-vertical generic-icons"></i></a>
 				</li>
 			</ul>
 		</div>
@@ -153,8 +153,8 @@
 		<div id="contextual-help-content" class="contextual-help-content">
 			{{$nav.help.5}}
 			<div class="float-end">
-				<a class="btn btn-primary btn-sm" target="hubzilla-help" href="{{$nav.help.0}}" title="{{$nav.help.3}}"><i class="fa fa-question"></i>&nbsp;{{$fulldocs}}</a>
-				<a class="contextual-help-tool" href="#" onclick="contextualHelp(); return false;"><i class="fa fa-times"></i></a>
+				<a class="btn btn-primary btn-sm" target="hubzilla-help" href="{{$nav.help.0}}" title="{{$nav.help.3}}"><i class="bi bi-question"></i>&nbsp;{{$fulldocs}}</a>
+				<a class="contextual-help-tool" href="#" onclick="contextualHelp(); return false;"><i class="bi bi-x-lg"></i></a>
 			</div>
 		</div>
 		{{/if}}
@@ -192,11 +192,11 @@
 			</div>
 			{{/if}}
 		</div>
-		<i id="app-bin-trash" class="fa fa-2x fa-fw fa-trash-o d-none"></i>
+		<i id="app-bin-trash" class="bi bi-trash d-none"></i>
 		{{/if}}
 		<div class="hstack gap-1">
 			{{if $theme_switch_icon}}
-			<button id="theme-switch" type="button" class="btn btn-outline-secondary border-0"><i id="theme-switch-icon" class="fa fa-{{$theme_switch_icon}}-o"></i></button>
+			<button id="theme-switch" type="button" class="btn btn-outline-secondary border-0"><i id="theme-switch-icon" class="bi bi-{{$theme_switch_icon}}"></i></button>
 			{{/if}}
 			<button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 		</div>
@@ -219,12 +219,13 @@
 		</div>
 		<div id="nav-app-bin-container" class="d-lg-none nav nav-pills flex-column">
 			{{foreach $navbar_apps as $navbar_app}}
-				{{$navbar_app|replace:'fa':'generic-icons-nav fa'}}
+				{{$navbar_app|replace:'generic-icons':'generic-icons-nav'}}
 			{{/foreach}}
 		</div>
+
 		{{/if}}
 		{{if $is_owner}}
-		<div class="text-uppercase text-muted nav-link">
+		<div class="text-uppercase dropdown-header text-muted">
 			{{$featured_apps}}
 		</div>
 		<div id="app-bin-container" data-token="{{$form_security_token}}" class="nav nav-pills flex-column">
@@ -234,7 +235,7 @@
 		</div>
 		<hr>
 		<div class="nav nav-pills flex-column">
-			<a class="nav-link" href="/apps"><i class="generic-icons-nav fa fa-fw fa-plus"></i>{{$addapps}}</a>
+			<a class="nav-link" href="/apps"><i class="generic-icons-nav bi bi-plus-lg"></i>{{$addapps}}</a>
 		</div>
 		{{else}}
 		<div class="text-uppercase text-muted nav-link">
@@ -372,7 +373,7 @@
 			}
 		})
 		.done( function() {
-			$('<li><a class="navbar-app nav-link" href="' + app_url + '"><i class="fa fa-fw fa-' + app_icon + '"></i></li>').insertBefore('#app-menu');
+			$('<li><a class="navbar-app nav-link" href="' + app_url + '"><i class="bi bi-' + app_icon + '"></i></li>').insertBefore('#app-menu');
 		});
 
 	});
@@ -406,7 +407,7 @@
 			}
 		})
 		.done( function() {
-			$('<a class="dropdown-item" href="' + app_url + '"><i class="generic-icons-nav fa fa-fw fa-' + app_icon + '"></i>' + app_name + '</a>').appendTo('#app-bin-container');
+			$('<a class="dropdown-item" href="' + app_url + '"><i class="generic-icons-nav bi bi-' + app_icon + '"></i>' + app_name + '</a>').appendTo('#app-bin-container');
 		});
 
 	});

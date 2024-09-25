@@ -117,7 +117,7 @@ class PermissionDescription {
 	}
 
 	/**
-	 * Returns an icon css class name if an appropriate one is available, e.g. "fa-globe" for Public,
+	 * Returns an icon css class name if an appropriate one is available, e.g. "bi-globe" for Public,
 	 * otherwise returns empty string.
 	 *
 	 * @return string icon css class name (often FontAwesome)
@@ -125,12 +125,12 @@ class PermissionDescription {
 	public function get_permission_icon() {
 
 		switch($this->channel_perm) {
-			case 0:/* only me */ return 'fa-eye-slash';
-			case PERMS_PUBLIC:   return 'fa-globe';
-			case PERMS_NETWORK:  return 'fa-share-alt-square'; // fa-share-alt-square is very similiar to the hubzilla logo, but we should create our own logo class to use
-			case PERMS_SITE:     return 'fa-sitemap';
-			case PERMS_CONTACTS: return 'fa-group';
-			case PERMS_SPECIFIC: return 'fa-list';
+			case 0:/* only me */ return 'bi-eye-slash';
+			case PERMS_PUBLIC:   return 'bi-globe';
+			case PERMS_NETWORK:  return 'bi-share'; // bi-share is very similiar to the hubzilla logo, but we should create our own logo class to use
+			case PERMS_SITE:     return 'bi-geo';
+			case PERMS_CONTACTS: return 'bi-people';
+			case PERMS_SPECIFIC: return 'bi-list-ul';
 			case PERMS_AUTHED:   return '';
 			case PERMS_PENDING:  return '';
 			default:             return '';

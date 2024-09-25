@@ -217,14 +217,11 @@ function html2bbcode($message)
 
 	node2bbcode($doc, 'hr', array(), "[hr]", "");
 
-//	node2bbcode($doc, 'table', array(), "", "");
-//	node2bbcode($doc, 'tr', array(), "\n", "");
-//	node2bbcode($doc, 'td', array(), "\t", "");
-
-	node2bbcode($doc, 'table', array(), "[table]", "[/table]");
 	node2bbcode($doc, 'th', array(), "[th]", "[/th]");
 	node2bbcode($doc, 'tr', array(), "[tr]", "[/tr]");
 	node2bbcode($doc, 'td', array(), "[td]", "[/td]");
+	node2bbcode($doc, 'table', array(), "[table]", "[/table]");
+
 
 	node2bbcode($doc, 'h1', array(), "[h1]", "[/h1]");
 	node2bbcode($doc, 'h2', array(), "[h2]", "[/h2]");

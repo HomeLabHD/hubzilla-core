@@ -42,7 +42,7 @@ class Privacygroups {
 		if ($active) {
 			$menu_items[] = [
 				'href' => $z_root . '/group',
-				'label' => '<i class="fa fa-plus"></i> &nbsp;' . t('Add new group'),
+				'label' => '<i class="bi bi-plus-lg"></i> &nbsp;' . t('Add new group'),
 				'title' => '',
 				'active' => '',
 				'count' => ''

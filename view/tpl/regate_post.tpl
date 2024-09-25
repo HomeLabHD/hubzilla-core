@@ -4,7 +4,7 @@
 	</div>
 	<div class="section-content-wrapper">
 		<div class="section-content-success-wrapper">
-			<div class="h3"><i class="fa fa-check"></i> {{$strings.0}}</div>
+			<div class="h3"><i class="bi bi-check-lg"></i> {{$strings.0}}</div>
 		</div>
 		<div class="section-content-warning-wrapper">
 			{{$strings.2}}

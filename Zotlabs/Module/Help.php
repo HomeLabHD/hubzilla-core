@@ -6,6 +6,7 @@ use Michelf\MarkdownExtra;
 /**
  * You can create local site resources in doc/Site.md and either link to doc/Home.md for the standard resources
  * or use our include mechanism to include it on your local page.
+ *
  *@code
  * #include doc/Home.md;
  *@endcode
@@ -19,14 +20,6 @@ class Help extends \Zotlabs\Web\Controller {
 	private string $heading_slug = '';
 
 	/**
-	 * Associative array containing the detected language.
-	 */
-	public array $lang = [
-		'language' => 'en',		//! Detected language, 2-letter ISO 639-1 code ("en")
-		'from_url' => false,	//! true if language from URL overrides browser default
-	];
-
-	/**
 	 * Pre-check before processing request.
 	 *
 	 * Determine language requested, and ensure that a topic was requested.
@@ -36,7 +29,7 @@ class Help extends \Zotlabs\Web\Controller {
 	public function init() {
 		$this->determine_help_language();
 
-		if (argc() === 1) {
+		if (empty($_REQUEST['search']) && argc() === 1) {
 			goaway("/help/{$this->lang['language']}/about/about");
 			killme();
 		}
@@ -69,6 +62,7 @@ class Help extends \Zotlabs\Web\Controller {
 			$o .= '</div>';
 			$o .= '<div class="section-content-wrapper">';
 
+			require_once('include/help.php');
 			$r = search_doc_files($_REQUEST['search']);
 			if($r) {
 				$o .= '<ul class="help-searchlist">';
@@ -158,6 +152,10 @@ class Help extends \Zotlabs\Web\Controller {
 		// `init` function.
 		if ($this->lang['from_url']) {
 			array_shift($args);
+		}
+
+		if (empty($args)) {
+			goaway("/help/{$this->lang['language']}/about/about");
 		}
 
 		// Keep the first remaining arg as the heading slug

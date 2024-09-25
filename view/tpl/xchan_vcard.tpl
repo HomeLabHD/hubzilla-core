@@ -15,7 +15,7 @@
 			{{if $connect}}
 			<div class="mt-2">
 				<a href="follow?f=&url={{$follow}}&interactive=1" class="btn btn-success btn-sm" rel="nofollow">
-					<i class="fa fa-plus"></i> {{$connect}}
+					<i class="bi bi-plus-lg"></i> {{$connect}}
 				</a>
 			</div>
 			{{/if}}

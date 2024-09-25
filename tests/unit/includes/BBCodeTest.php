@@ -266,6 +266,10 @@ class BBCodeTest extends UnitTestCase {
 			'del tag' => [
 				'some <del>strike through</del> text',
 				'some [s]strike through[/s] text'
+			],
+			'table' => [
+				'<table><tr><td>row1, col1</td><td>row1, col2</td></tr><tr><td>row2, col1</td><td>row2, col2</td></tr></table>',
+				'[table][tr][td]row1, col1[/td][td]row1, col2[/td][/tr][tr][td]row2, col1[/td][td]row2, col2[/td][/tr][/table]'
 			]
 		];
 	}

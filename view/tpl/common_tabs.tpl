@@ -7,7 +7,7 @@
 </div>
 <div class="d-md-none dropdown clearfix" style="position:fixed; right:7px; top:4.5rem; z-index:1020">
 	<button type="button" class="btn btn-outline-secondary btn-sm float-end" data-bs-toggle="dropdown">
-		<i class="fa fa-bars"></i>
+		<i class="bi fa-bars"></i>
 	</button>
 	<div class="dropdown-menu dropdown-menu-end">
 		{{foreach $tabs as $tab}}

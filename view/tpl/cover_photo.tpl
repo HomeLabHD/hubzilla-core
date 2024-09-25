@@ -16,7 +16,7 @@
                     $('#embedPhotoModalBodyAlbumDialog').html('\
                             <div><div class="nav nav-pills flex-column">\n\
                                 <li class="nav-item"><a class="nav-link" href="#" onclick="initializeEmbedPhotoDialog();return false;">\n\
-                                    <i class="fa fa-chevron-left"></i>&nbsp\n\
+                                    <i class="bi fa-chevron-left"></i>&nbsp\n\
                                     {{$modaldiffalbum}}\n\
                                     </a>\n\
                                 </li>\n\
@@ -111,7 +111,7 @@
 		<br />
 		<div id="profile-photo-link-select-wrapper">
 		<button id="embed-photo-wrapper" class="btn btn-default btn-primary" title="{{$embedPhotos}}" onclick="initializeEmbedPhotoDialog();return false;">
-		<i id="embed-photo" class="fa fa-file-image-o"></i> {{$select}}
+		<i id="embed-photo" class="bi bi-file-image"></i> {{$select}}
 		</button>
 		</div>
 	</div>

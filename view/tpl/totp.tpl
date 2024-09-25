@@ -9,7 +9,7 @@
 	<body>
 		<nav class="navbar bg-body-tertiary">
 			<div class="container-sm">
-				<span class="navbar-brand"><i class="fa fa-fw fa-hubzilla"></i>{{$header}}</span>
+				<span class="navbar-brand"><i class="bi fa-hubzilla"></i>{{$header}}</span>
 			</div>
 		</nav>
 		<main class="container-sm mt-4">

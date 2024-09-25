@@ -3,7 +3,7 @@
 <div class="section-title-wrapper">
 	{{if $menu_edit_link}}
 	<div class="float-end">
-		<a href="{{$menu_edit_link}}" title="{{$hintedit}}" class="btn btn-sm btn-success"><i class="fa fa-pencil-square-o"></i>&nbsp;{{$editcontents}}</a>
+		<a href="{{$menu_edit_link}}" title="{{$hintedit}}" class="btn btn-sm btn-success"><i class="bi bi-pencil-square-o"></i>&nbsp;{{$editcontents}}</a>
 	</div>
 	{{/if}}
 	<h2>{{$header}}</h2>
@@ -23,7 +23,7 @@
 
 		{{include file="field_checkbox.tpl" field=$menu_bookmark}}
 		<div class="menuedit-submit-wrapper mb-3 float-end" >
-			<button type="submit" name="submit" class="btn btn-primary">{{$submit}}&nbsp;<i class="fa fa-caret-right"></i></button>
+			<button type="submit" name="submit" class="btn btn-primary">{{$submit}}&nbsp;<i class="bi bi-caret-right"></i></button>
 		</div>
 		<div class="clear"></div>
 	</form>

@@ -3,11 +3,11 @@
 	{{foreach $addressbooks as $addressbook}}
 	<div id="addressbook-{{$addressbook.id}}" class="ml-3">
 		<div class="mb-3">
-			<i class="fa fa-user generic-icons"></i><a href="/cdav/addressbook/{{$addressbook.id}}">{{$addressbook.displayname}}</a>
+			<i class="bi bi-person generic-icons"></i><a href="/cdav/addressbook/{{$addressbook.id}}">{{$addressbook.displayname}}</a>
 			<div class="float-end">
-				<i id="edit-icon" class="fa fa-pencil fakelink generic-icons" onclick="openClose('edit-addressbook-{{$addressbook.id}}')"></i>
-				<a href="/cdav/addressbooks/{{$addressbook.ownernick}}/{{$addressbook.uri}}/?export"><i id="download-icon" class="fa fa-cloud-download fakelink generic-icons"></i></a>
-				<a href="#" onclick="dropItem('/cdav/addressbook/drop/{{$addressbook.id}}', '#addressbook-{{$addressbook.id}}'); return false;"><i class="fa fa-trash-o drop-icons"></i></a>
+				<i id="edit-icon" class="bi bi-pencil fakelink generic-icons" onclick="openClose('edit-addressbook-{{$addressbook.id}}')"></i>
+				<a href="/cdav/addressbooks/{{$addressbook.ownernick}}/{{$addressbook.uri}}/?export"><i id="download-icon" class="bi bi-download fakelink generic-icons"></i></a>
+				<a href="#" onclick="dropItem('/cdav/addressbook/drop/{{$addressbook.id}}', '#addressbook-{{$addressbook.id}}'); return false;"><i class="bi bi-trash drop-icons"></i></a>
 			</div>
 		</div>
 		<div id="edit-addressbook-{{$addressbook.id}}" class="sub-menu" style="display: none;">
@@ -30,7 +30,7 @@
 	<h3>{{$tools_label}}</h3>
 	<ul class="nav nav-pills flex-column">
 		<li class="nav-item">
-			<a class="nav-link" href="#" onclick="openClose('create-addressbook'); return false;"><i class="fa fa-user-plus generic-icons"></i> {{$create_label}}</a>
+			<a class="nav-link" href="#" onclick="openClose('create-addressbook'); return false;"><i class="bi bi-person-plus generic-icons"></i> {{$create_label}}</a>
 		</li>
 		<div id="create-addressbook" class="sub-menu-wrapper">
 			<div class="sub-menu">
@@ -43,7 +43,7 @@
 			</div>
 		</div>
 		<li class="nav-item">
-			<a class="nav-link" href="#" onclick="openClose('upload-form'); return false;"><i class="fa fa-cloud-upload generic-icons"></i> {{$import_label}}</a>
+			<a class="nav-link" href="#" onclick="openClose('upload-form'); return false;"><i class="bi bi-upload generic-icons"></i> {{$import_label}}</a>
 		</li>
 		<div id="upload-form" class="sub-menu-wrapper">
 			<div class="sub-menu">

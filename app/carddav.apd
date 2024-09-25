@@ -1,7 +1,7 @@
-version: 3
+version: 4
 url: $baseurl/cdav/addressbook
 requires: local_channel
 name: CardDAV
-photo: icon:vcard-o
+photo: icon:person-vcard
 categories: Productivity, Personal
 desc: DAV capable addressbook

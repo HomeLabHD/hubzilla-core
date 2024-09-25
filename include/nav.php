@@ -449,7 +449,7 @@ function channel_apps($is_owner = false, $nickname = null) {
 			'sel'   => ((argv(0) == 'channel') ? 'active' : ''),
 			'title' => t('Status Messages and Posts'),
 			'id'    => 'status-tab',
-			'icon'  => 'home'
+			'icon'  => 'house'
 		],
 	];
 
@@ -462,7 +462,7 @@ function channel_apps($is_owner = false, $nickname = null) {
 			'sel'   => ((argv(0) == 'profile') ? 'active' : ''),
 			'title' => t('Profile Details'),
 			'id'    => 'profile-tab',
-			'icon'  => 'user'
+			'icon'  => 'person'
 		];
 	}
 	if ($p['view_storage']) {
@@ -472,7 +472,7 @@ function channel_apps($is_owner = false, $nickname = null) {
 			'sel'   => ((argv(0) == 'photos') ? 'active' : ''),
 			'title' => t('Photo Albums'),
 			'id'    => 'photo-tab',
-			'icon'  => 'photo'
+			'icon'  => 'image'
 		];
 		$tabs[] = [
 			'label' => t('Files'),
@@ -480,7 +480,7 @@ function channel_apps($is_owner = false, $nickname = null) {
 			'sel'   => ((argv(0) == 'cloud' || argv(0) == 'sharedwithme') ? 'active' : ''),
 			'title' => t('Files and Storage'),
 			'id'    => 'files-tab',
-			'icon'  => 'folder-open'
+			'icon'  => 'folder'
 		];
 	}
 
@@ -491,7 +491,7 @@ function channel_apps($is_owner = false, $nickname = null) {
 			'sel'   => ((argv(0) == 'cal') ? 'active' : ''),
 			'title' => t('Calendar'),
 			'id'    => 'event-tab',
-			'icon'  => 'calendar'
+			'icon'  => 'calendar-date'
 		];
 	}
 
@@ -505,7 +505,7 @@ function channel_apps($is_owner = false, $nickname = null) {
 				'sel'   => ((argv(0) == 'chat') ? 'active' : ''),
 				'title' => t('Chatrooms'),
 				'id'    => 'chat-tab',
-				'icon'  => 'comments-o'
+				'icon'  => 'chat'
 			];
 		}
 	}
@@ -529,18 +529,7 @@ function channel_apps($is_owner = false, $nickname = null) {
 			'sel'   => ((argv(0) == 'webpages') ? 'active' : ''),
 			'title' => t('View Webpages'),
 			'id'    => 'webpages-tab',
-			'icon'  => 'newspaper-o'
-		];
-	}
-
-	if ($p['view_wiki'] && Apps::system_app_installed($uid, 'Wiki')) {
-		$tabs[] = [
-			'label' => t('Wikis'),
-			'url'   => z_root() . '/wiki/' . $nickname,
-			'sel'   => ((argv(0) == 'wiki') ? 'active' : ''),
-			'title' => t('Wiki'),
-			'id'    => 'wiki-tab',
-			'icon'  => 'pencil-square-o'
+			'icon'  => 'layout-text-sidebar'
 		];
 	}
 

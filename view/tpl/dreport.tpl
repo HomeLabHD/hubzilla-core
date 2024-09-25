@@ -3,7 +3,7 @@
 		{{if $table == 'item'}}
 		<div class="dropdown float-end">
 			<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{{$options}}">
-				<i class="fa fa-cog"></i>
+				<i class="bi bi-gear"></i>
 			</button>
 			<div class="dropdown-menu">
 				<a href="dreport/push?mid={{$mid}}" class="dropdown-item">{{$push}}</a>

@@ -1,1 +1,1 @@
-<i class="fa fa-circle oneway-overlay text-{{if $perminfo.connpermcount == 3}}success{{elseif $perminfo.connpermcount > 0}}warning{{else}}danger{{/if}}" title="{{$perminfo.connperms}}"></i>
+<i class="bi bi-circle-fill oneway-overlay text-{{if $perminfo.connpermcount == 3}}success{{elseif $perminfo.connpermcount > 0}}warning{{else}}danger{{/if}}" title="{{$perminfo.connperms}}"></i>

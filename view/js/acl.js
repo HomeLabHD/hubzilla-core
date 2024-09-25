@@ -300,7 +300,7 @@ ACL.prototype.update_view = function(value) {
 		that.update_select('public');
 
 		/* jot acl */
-		$('#jot-perms-icon, #dialog-perms-icon, #' + that.form_id[0].id + ' .jot-perms-icon').removeClass('fa-lock').addClass('fa-unlock');
+		$('#jot-perms-icon, #dialog-perms-icon, #' + that.form_id[0].id + ' .jot-perms-icon').removeClass('bi-lock').addClass('bi-unlock');
 		$('#jot-perms-icon').removeClass('jot-lock-warn');
 		$('#dbtn-jotnets').show();
 		$('.profile-jot-net input').attr('disabled', false);
@@ -314,7 +314,7 @@ ACL.prototype.update_view = function(value) {
 		that.update_select(that.selected_id);
 
 		/* jot acl */
-		$('#jot-perms-icon, #dialog-perms-icon, #' + that.form_id[0].id + ' .jot-perms-icon').removeClass('fa-unlock').addClass('fa-lock');
+		$('#jot-perms-icon, #dialog-perms-icon, #' + that.form_id[0].id + ' .jot-perms-icon').removeClass('bi-unlock').addClass('bi-lock');
 		$('#dbtn-jotnets').hide();
 		$('.profile-jot-net input').attr('disabled', 'disabled');
 	}
@@ -326,7 +326,7 @@ ACL.prototype.update_view = function(value) {
 		that.update_select('onlyme');
 
 		/* jot acl */
-		$('#jot-perms-icon, #dialog-perms-icon, #' + that.form_id[0].id + ' .jot-perms-icon').removeClass('fa-unlock').addClass('fa-lock');
+		$('#jot-perms-icon, #dialog-perms-icon, #' + that.form_id[0].id + ' .jot-perms-icon').removeClass('bi-unlock').addClass('bi-lock');
 		$('#dbtn-jotnets').hide();
 		$('.profile-jot-net input').attr('disabled', 'disabled');
 	}
@@ -349,7 +349,7 @@ ACL.prototype.update_view = function(value) {
 		}
 
 		/* jot acl */
-		$('#jot-perms-icon, #dialog-perms-icon, #' + that.form_id[0].id + ' .jot-perms-icon').removeClass('fa-unlock').addClass('fa-lock');
+		$('#jot-perms-icon, #dialog-perms-icon, #' + that.form_id[0].id + ' .jot-perms-icon').removeClass('bi-unlock').addClass('bi-lock');
 		$('#dbtn-jotnets').hide();
 		$('.profile-jot-net input').attr('disabled', 'disabled');
 	}
@@ -366,12 +366,12 @@ ACL.prototype.update_view = function(value) {
 
 		/* jot acl */
 		if(that.allow_gid.length === 0 && that.allow_cid.length === 0 && that.deny_gid.length === 0 && that.deny_cid.length === 0 && value === 'custom') {
-			$('#jot-perms-icon, #dialog-perms-icon, #' + that.form_id[0].id + ' .jot-perms-icon').removeClass('fa-lock').addClass('fa-unlock');
+			$('#jot-perms-icon, #dialog-perms-icon, #' + that.form_id[0].id + ' .jot-perms-icon').removeClass('bi-lock').addClass('bi-unlock');
 			$('#dbtn-jotnets').show();
 			$('.profile-jot-net input').attr('disabled', false);
 		}
 		else {
-			$('#jot-perms-icon, #dialog-perms-icon, #' + that.form_id[0].id + ' .jot-perms-icon').removeClass('fa-unlock').addClass('fa-lock');
+			$('#jot-perms-icon, #dialog-perms-icon, #' + that.form_id[0].id + ' .jot-perms-icon').removeClass('bi-unlock').addClass('bi-lock');
 			$('#dbtn-jotnets').hide();
 			$('.profile-jot-net input').attr('disabled', 'disabled');
 		}

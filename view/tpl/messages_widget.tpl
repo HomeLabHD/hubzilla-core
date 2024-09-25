@@ -1,24 +1,24 @@
 <ul class="nav nav-tabs nav-fill clearfix">
 	<li class="nav-item">
 		<a class="nav-link active messages-type" href="#" title="{{$strings.messages_title}}" data-messages_type="">
-			<i class="fa fa-fw fa-comment-o"></i>
+			<i class="bi bi-chat generic-icons"></i>
 		</a>
 	</li>
 	<li class="nav-item">
 		<a class="nav-link messages-type" href="#" title="{{$strings.direct_messages_title}}" data-messages_type="direct">
-			<i class="fa fa-fw fa-envelope-o"></i>
+			<i class="bi bi-envelope generic-icons"></i>
 		</a>
 	</li>
 	{{if $feature_star}}
 	<li class="nav-item">
 		<a class="nav-link messages-type" href="#" title="{{$strings.starred_messages_title}}" data-messages_type="starred">
-			<i class="fa fa-fw fa-star"></i>
+			<i class="bi bi-star generic-icons"></i>
 		</a>
 	</li>
 	{{/if}}
 	<li class="nav-item">
 		<a class="nav-link messages-type" href="#" title="{{$strings.notice_messages_title}}" data-messages_type="notification">
-			<i class="fa fa-fw fa-exclamation"></i>
+			<i class="bi bi-exclamation-circle generic-icons"></i>
 		</a>
 	</li>
 </ul>
@@ -49,9 +49,9 @@
 	</div>
 	<div id="messages-container" class="list-group list-group-flush" data-offset="10">
 		<div id="messages-author-container" class="list-group-item notifications-textinput">
-			<div class="text-muted notifications-textinput-filter"><i class="fa fa-fw fa-filter"></i></div>
+			<div class="text-muted notifications-textinput-filter"><i class="bi bi-filter"></i></div>
 			<input id="messages-author" type="text" class="form-control form-control-sm" placeholder="{{$strings.filter}}">
-			<div id="messages-author-input-clear" class="text-muted notifications-textinput-clear d-none"><i class="fa fa-times"></i></div>
+			<div id="messages-author-input-clear" class="text-muted notifications-textinput-clear d-none"><i class="bi bi-x-lg"></i></div>
 		</div>
 		{{foreach $entries as $e}}
 		<a href="{{$e.href}}" class="list-group-item list-group-item-action message" data-b64mid="{{$e.b64mid}}">

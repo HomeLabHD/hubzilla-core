@@ -1,7 +1,7 @@
-version: 3
+version: 4
 url: $baseurl/oauth2
 requires: local_channel
 name: OAuth2 Apps Manager
-photo: icon:chevron-circle-up
+photo: icon:2-circle-fill
 categories: Access Control
 desc: Manage OAuth2 authentication tokens for mobile and remote apps.

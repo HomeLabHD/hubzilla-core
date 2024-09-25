@@ -66,7 +66,7 @@ require_once('include/security.php');
 
 
 define('PLATFORM_NAME', 'hubzilla');
-define('STD_VERSION', '9.2.1');
+define('STD_VERSION', '9.4');
 define('ZOT_REVISION', '6.0');
 
 define('DB_UPDATE_VERSION', 1263);
@@ -1897,23 +1897,26 @@ function can_view_public_stream() {
  */
 function notice($s) {
 
-	/*
-		if(! session_id())
-			return;
+/*
 
-		if(! x($_SESSION, 'sysmsg')) $_SESSION['sysmsg'] = array();
+	if (!session_id()) {
+		return;
+	}
 
-		// ignore duplicated error messages which haven't yet been displayed
-		// - typically seen as multiple 'permission denied' messages
-		// as a result of auto-reloading a protected page with &JS=1
+	if (!isset($_SESSION['sysmsg'])) {
+		$_SESSION['sysmsg'] = [];
+	}
 
-		if(in_array($s, $_SESSION['sysmsg']))
-			return;
+	// ignore duplicated error messages which haven't yet been displayed
 
-		if(App::$interactive) {
-			$_SESSION['sysmsg'][] = $s;
-		}
-	*/
+	if (in_array($s, $_SESSION['sysmsg'])) {
+		return;
+	}
+
+	if (App::$interactive) {
+		$_SESSION['sysmsg'][] = $s;
+	}
+*/
 
 	$hash   = get_observer_hash();
 	$sse_id = false;
@@ -1963,20 +1966,25 @@ function notice($s) {
  * @param string $s Text to display
  */
 function info($s) {
+/*
+	if (!session_id()) {
+		return;
+	}
 
-	/*
-		if(! session_id())
-			return;
+	if (!isset($_SESSION['sysmsg_info'])) {
+		$_SESSION['sysmsg_info'] = [];
+	}
 
-		if(! x($_SESSION, 'sysmsg_info'))
-			$_SESSION['sysmsg_info'] = array();
+	// ignore duplicated error messages which haven't yet been displayed
 
-		if(in_array($s, $_SESSION['sysmsg_info']))
-			return;
+	if (in_array($s, $_SESSION['sysmsg_info'])) {
+		return;
+	}
 
-		if(App::$interactive)
-			$_SESSION['sysmsg_info'][] = $s;
-	*/
+	if (App::$interactive) {
+		$_SESSION['sysmsg_info'][] = $s;
+	}
+*/
 
 	$hash   = get_observer_hash();
 	$sse_id = false;

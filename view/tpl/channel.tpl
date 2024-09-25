@@ -3,11 +3,11 @@
 		{{if $channel.default_links}}
 		{{if $channel.default}}
 		<div>
-			<i class="fa fa-check-square-o"></i>&nbsp;{{$msg_default}}
+			<i class="bi bi-check-square"></i>&nbsp;{{$msg_default}}
 		</div>
 		{{else}}
 		<a href="manage/{{$channel.channel_id}}/default" class="make-default-link">
-			<i class="fa fa-square-o"></i>&nbsp;{{$msg_make_default}}
+			<i class="bi bi-square"></i>&nbsp;{{$msg_make_default}}
 		</a>
 		{{/if}}
 		{{/if}}
@@ -17,10 +17,10 @@
 	</div>
 	<h3>
 		{{if $selected == $channel.channel_id}}
-		<i class="fa fa-circle text-success" title="{{$msg_selected}}"></i>
+		<i class="bi bi-circle-fill text-success" title="{{$msg_selected}}"></i>
 		{{/if}}
 		{{if $channel.delegate}}
-		<i class="fa fa-arrow-circle-right" title="{{$delegated_desc}}"></i>
+		<i class="bi fa-arrow-circle-right" title="{{$delegated_desc}}"></i>
 		{{/if}}
 		{{if $selected != $channel.channel_id}}<a href="{{$channel.link}}" title="{{$channel.channel_name}}">{{/if}}
 			{{$channel.channel_name}}
@@ -37,7 +37,7 @@
 	<div class="channel-notifications-wrapper">
 		{{if !$channel.delegate}}
 		<div class="channel-notification">
-			<i class="fa fa-fw fa-user{{if $channel.intros != 0}} text-danger{{/if}}"></i>
+			<i class="bi bi-person{{if $channel.intros != 0}} text-danger{{/if}}"></i>
 			{{if $channel.intros != 0}}<a href='manage/{{$channel.channel_id}}/connections/ifpending'>{{/if}}{{$channel.intros|string_format:$intros_format}}{{if $channel.intros != 0}}</a>{{/if}}
 		</div>
 		{{/if}}
