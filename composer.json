@@ -73,11 +73,6 @@
             "Zotlabs\\": "Zotlabs/"
         }
     },
-    "autoload-dev": {
-        "psr-4": {
-            "Zotlabs\\Tests\\Unit\\": "tests/unit"
-        }
-    },
     "minimum-stability": "stable",
     "config": {
         "notify-on-install": false,
