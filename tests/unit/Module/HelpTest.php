@@ -81,8 +81,8 @@ class HelpTest extends \Zotlabs\Tests\Unit\Module\TestCase {
 		$this->get('help');
 	}
 
-	public function test_getting_locale_with_no_topic_should_redirect_to_about_page_for_locale(): void {
-		$this->expectRedirectTo('help/de/about/about');
+	public function test_getting_locale_with_no_topic_should_redirect_to_about_page(): void {
+		$this->expectRedirectTo('help/about/about');
 		$this->get('help/de');
 	}
 

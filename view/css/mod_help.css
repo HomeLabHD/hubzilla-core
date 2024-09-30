@@ -11,8 +11,20 @@
 	padding-bottom: 0.3em;
 }
 
+#doco-content img {
+	width: 100%;
+}
+
 #region_1 .widget ul ul {
 	list-style-type: none;
+}
+
+#doco-top-toc-wrapper {
+	margin-bottom: 1em;
+}
+
+#doco-top-toc-wrapper > summary {
+	font-size: large;
 }
 
 .toc-content li,
@@ -24,3 +36,12 @@
 	padding-left: 20px;
 }
 
+.selected-doco-nav > a {
+	font-weight: bold;
+	color: var(--bs-link-hover-color);
+}
+
+#help-content pre code {
+	overflow-x: auto;
+	white-space: pre;
+}

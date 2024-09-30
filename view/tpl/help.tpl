@@ -7,14 +7,13 @@
 		{{$module->missing_translation_message()}}
 	</div>
 	{{/if}}
-	<div class="section-content-wrapper" id="doco-content">
-		<h3 id="doco-top-toc-heading">
-			<span class="fakelink" onclick="docoTocToggle(); return false;">
-				<i class="bi bi-caret-right fakelink" id="doco-toc-toggle"></i>
-				{{$module->get_toc_heading()}}
-			</span>
-		</h3>
-		<ul id="doco-top-toc" style="margin-bottom: 1.5em; display: none;"></ul>
-		{{$module->render_content()}}
+	<div class="section-content-wrapper">
+		<details id="doco-top-toc-wrapper">
+			<summary id="doco-top-toc-heading">{{$module->get_toc_heading()}}</summary>
+			<ul id="doco-top-toc"></ul>
+		</details>
+		<div id="doco-content">
+			{{$module->render_content()}}
+		</div>
 	</div>
 </div>
