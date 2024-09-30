@@ -93,6 +93,14 @@ class MarkdownTest extends UnitTestCase {
 				"[code=php]&lt;?php\necho phpinfo();[/code]",
 				"```php\n<?php\necho phpinfo();\n```"
 			],
+			'code block with URL' => [
+				"[code]an example url https://example.com[/code]",
+				"```\nan example url https://example.com\n```"
+			],
+			'bbcode code block with URL' => [
+				"[code] proxy_pass http://example.com; [/code]",
+				"[code]\nproxy_pass http://example.com;\n[/code]"
+			]
 		];
 	}
 
