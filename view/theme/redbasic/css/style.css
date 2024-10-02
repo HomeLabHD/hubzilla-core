@@ -150,20 +150,6 @@ input[type=text], textarea {
 	color: var(--bs-body-color);
 }
 
-.selected-doco-nav {
-	font-weight: bold;
-	text-shadow: 2px 2px 3px lightgray;
-}
-
-#doco-content img {
-	width: 100%;
-}
-
-#help-content pre code {
-	overflow-x: auto;
-	white-space: pre;
-}
-
 .heart {
 	color: #FF0000;
 }

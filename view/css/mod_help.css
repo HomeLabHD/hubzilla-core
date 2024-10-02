@@ -11,6 +11,10 @@
 	padding-bottom: 0.3em;
 }
 
+#doco-content img {
+	width: 100%;
+}
+
 #region_1 .widget ul ul {
 	list-style-type: none;
 }
@@ -30,4 +34,14 @@
 
 #doco-side-toc li {
 	padding-left: 20px;
+}
+
+.selected-doco-nav {
+	font-weight: bold;
+	text-shadow: 2px 2px 3px lightgray;
+}
+
+#help-content pre code {
+	overflow-x: auto;
+	white-space: pre;
 }
