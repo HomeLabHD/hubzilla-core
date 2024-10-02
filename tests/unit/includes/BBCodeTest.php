@@ -138,7 +138,15 @@ class BBCodeTest extends UnitTestCase {
 			'del tag' => [
 				'some [s]strike through[/s] text',
 				'some <del>strike through</del> text'
-			]
+			],
+			'naked url is converted to link' => [
+				'example url: https://example.com',
+				'example url: <a href="https://example.com"  target="_blank"  rel="nofollow noopener">https://example.com</a>'
+			],
+			'naked url within code block is not converted to link' => [
+				"[code]\nhttp://example.com\n[/code]",
+				"<pre><code>http://example.com</code></pre>"
+			],
 		];
 	}
 
@@ -222,6 +230,10 @@ class BBCodeTest extends UnitTestCase {
 			'code block with indentation' => [
 				"<pre><code>some\n    indented\ncode</code></pre>",
 				"[code]some\n    indented\ncode[/code]"
+			],
+			'code block with URL' => [
+				'<pre><code>\nproxy_pass http://example.com\n</code></pre>',
+				'[code]\nproxy_pass http://example.com\n[/code]'
 			],
 			'paragraph with a mention and some text' => [
 				'<p><span class="h-card" translate="no"><a href="https://example.org/@profile" class="u-url mention">@<span>profile</span></a></span> some content</p>',
