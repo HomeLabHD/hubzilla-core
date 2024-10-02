@@ -30,7 +30,7 @@ class Help extends \Zotlabs\Web\Controller {
 		$this->determine_help_language();
 
 		if (empty($_REQUEST['search']) && argc() === 1) {
-			goaway("/help/{$this->lang['language']}/about/about");
+			goaway("/help/about/about");
 			killme();
 		}
 	}
@@ -155,7 +155,7 @@ class Help extends \Zotlabs\Web\Controller {
 		}
 
 		if (empty($args)) {
-			goaway("/help/{$this->lang['language']}/about/about");
+			goaway("/help/about/about");
 		}
 
 		// Keep the first remaining arg as the heading slug
