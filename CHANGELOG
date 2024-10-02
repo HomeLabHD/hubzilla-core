@@ -1,3 +1,12 @@
+Hubzilla 9.4.1 (2024-10-02)
+	- Various fixes for the help module
+	- Update smarty library via composer
+	- Fix URLs replaced with bbcode in codeblocks if markdown enabled
+	- Fix unable to move multiple files when using postgresql DB backend
+	- Adjust icon for post app
+	- Fix check for while loop in wiki addon
+
+
 Hubzilla 9.4 (2024-09-25)
 	- If we got an ocap token try to authenticate with it first
 	- Hide comment titles
