@@ -1,4 +1,4 @@
-[size=large][b]Was ist $Projectname?[/b][/size]
+[h3]Was ist $Projectname?[/h3]
 
 $Projectname ist ein dezentralisiertes Kommunikationsnetzwerk mit dem Ziel, Kommunikationsmöglichkeiten bereitzustellen, die Zensur umgehen, die Privatsphäre respektieren und somit frei sind von den Einschränkungen, die die heutigen kommerziellen Kommunikationsgiganten uns auferlegen. Diese stellen in erster Linie Spionagenetzwerke für zahlende Kunden aller Art zur Verfügung und monopolisieren und zentralisieren das ganze Internet – was ursprünglich eben gerade nicht unter den revolutionären Zielen war, die einst zum World Wide Web führten.
 
