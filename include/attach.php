@@ -2599,33 +2599,31 @@ function attach_move($channel_id, $resource_id, $new_folder_hash, $newname = '',
 		intval($r[0]['id'])
 	);
 
-	if($r[0]['is_photo']) {
-		q("update photo set album = '%s', filename = '%s', os_path = '%s', display_path = '%s'
-			where resource_id = '%s' and uid = %d",
-			dbesc($newalbumname),
-			dbesc($filename),
-			dbesc($x['os_path']),
-			dbesc($x['path']),
-			dbesc($resource_id),
-			intval($channel_id)
-		);
-
-		q("update photo set content = CASE imgscale WHEN 0 THEN %s ELSE CONCAT(%s, '-', imgscale) END where resource_id = '%s' and uid = %d and os_storage = 1",
-			dbescbin($newstorepath),
-			dbescbin($newstorepath),
-			dbesc($resource_id),
-			intval($channel_id)
-		);
-
-		// now rename the thumbnails in os_storage - the original should have been copied before already
-		$ps = q("SELECT content, imgscale FROM photo WHERE uid = %d AND resource_id = '%s' and imgscale > 0 and os_storage = 1",
+	if ($r[0]['is_photo']) {
+		// update the photo DB entries and copy the thumbnails
+		$ps = q("SELECT imgscale FROM photo WHERE uid = %d AND resource_id = '%s' and os_storage = 1",
 			intval($channel_id),
 			dbesc($resource_id)
 		);
 
 		if ($recurse) {
 			foreach($ps as $p) {
-				rename($oldstorepath . '-' . $p['imgscale'], $p['content']);
+				q("update photo set album = '%s', filename = '%s', os_path = '%s', display_path = '%s', content = '%s'
+					where resource_id = '%s' and imgscale = %d and uid = %d",
+					dbesc($newalbumname),
+					dbesc($filename),
+					dbesc($x['os_path']),
+					dbesc($x['path']),
+					dbescbin($newstorepath . ((intval($p['imgscale']) > 0) ? '-' . $p['imgscale'] : '')),
+					dbesc($resource_id),
+					intval($p['imgscale']),
+					intval($channel_id)
+				);
+
+				// the original should have been copied already
+				if (intval($p['imgscale']) > 0) {
+					rename($oldstorepath . '-' . $p['imgscale'], $newstorepath . '-' . $p['imgscale']);
+				}
 			}
 		}
 	}
