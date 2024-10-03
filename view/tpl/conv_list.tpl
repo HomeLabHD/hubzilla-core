@@ -95,7 +95,7 @@
 				<div class="p-2 wall-item-tools d-flex justify-content-between">
 					<div class="wall-item-tools-left hstack gap-1" id="wall-item-tools-left-{{$item.id}}">
 						<div class="wall-item-list-comments btn-group">
-							<a class="btn btn-sm btn-outline-secondary border-0 wall-item-comments" href="{{$item.viewthread}}" title="{{$item.comment_count_txt.label}}{{if $item.list_unseen_txt}}, {{$item.list_unseen_txt.label}}{{/if}}">
+							<a class="btn btn-sm btn-link link-secondary wall-item-comments" href="{{$item.viewthread}}" title="{{$item.comment_count_txt.label}}{{if $item.list_unseen_txt}}, {{$item.list_unseen_txt.label}}{{/if}}">
 								<i class="bi bi-chat generic-icons"></i>{{if $item.comment_count_txt.count}}<span style="display: inline-block; margin-top: -.25rem;" class="align-top">{{$item.comment_count_txt.count}}</span>{{/if}}{{if $item.unseen_comments}}, <i class="bi bi-eye-slash generic-icons"></i><span class="unseen-wall-indicator-{{$item.id}} align-top" style="display: inline-block; margin-top: -.25rem;">{{$item.list_unseen_txt.count}}</span>{{/if}}
 							</a>
 						</div>
@@ -109,9 +109,10 @@
 						{{foreach $item.responses as $verb=>$response}}
 						{{if $item.reactions_allowed || (!$item.reactions_allowed && $response.count)}}
 						<div class="">
-							<button type="button" title="{{$response.count}} {{$response.button.label}}" class="btn btn-sm btn-outline-secondary border-0 wall-item-{{$response.button.class}}"{{if $response.modal}} data-bs-toggle="modal" data-bs-target="#{{$verb}}Modal-{{$item.id}}"{{else if $response.count}} data-bs-toggle="dropdown"{{elseif $item.reactions_allowed}} onclick="{{$response.button.onclick}}({{$item.id}},'{{$verb}}'); return false;"{{/if}} id="wall-item-{{$verb}}-{{$item.id}}">
-								<i class="bi bi-{{$response.button.icon}} generic-icons"></i>{{if $response.count}}<span style="display: inline-block; margin-top: -.25rem;" class="align-top{{if $item.my_responses.$verb}} text-decoration-underline{{/if}}">{{$response.count}}</span>{{/if}}
-							</button>							{{if $response.modal}}
+							<button type="button" title="{{$response.count}} {{$response.button.label}}" class="btn btn-sm btn-link{{if !$item.my_responses.$verb}} link-secondary{{/if}} wall-item-{{$response.button.class}}"{{if $response.modal}} data-bs-toggle="modal" data-bs-target="#{{$verb}}Modal-{{$item.id}}"{{else if $response.count}} data-bs-toggle="dropdown"{{elseif $item.reactions_allowed}} onclick="{{$response.button.onclick}}({{$item.id}},'{{$verb}}'); return false;"{{/if}} id="wall-item-{{$verb}}-{{$item.id}}">
+								<i class="bi bi-{{$response.button.icon}} generic-icons"></i>{{if $response.count}}<span style="display: inline-block; margin-top: -.25rem;" class="align-top">{{$response.count}}</span>{{/if}}
+							</button>
+							{{if $response.modal}}
 							<div class="modal" id="{{$verb}}Modal-{{$item.id}}">
 								<div class="modal-dialog">
 									<div class="modal-content">
@@ -153,7 +154,7 @@
 						{{/foreach}}
 						{{if $item.toplevel && $item.emojis && $item.reactions}}
 						<div class="">
-							<button type="button" class="btn btn-sm btn-outline-secondary border-0" data-bs-toggle="dropdown" id="wall-item-react-{{$item.id}}">
+							<button type="button" class="btn btn-sm btn-link link-secondary" data-bs-toggle="dropdown" id="wall-item-react-{{$item.id}}">
 								<i class="bi bi-emoji-smile generic-icons"></i>
 							</button>
 							<div class="dropdown-menu dropdown-menu-start container text-center w-25">
@@ -180,17 +181,17 @@
 						{{else}}
 						{{if $item.star && $item.star.isstarred}}
 						<div class="" id="star-button-{{$item.id}}">
-							<button type="button" class="btn btn-sm btn-outline-secondary border-0 wall-item-star" onclick="dostar({{$item.id}});"><i class="bi bi-star generic-icons"></i></button>
+							<button type="button" class="btn btn-sm btn-link link-secondary wall-item-star" onclick="dostar({{$item.id}});"><i class="bi bi-star generic-icons"></i></button>
 						</div>
 						{{/if}}
 						{{if $item.attachments}}
 						<div class="">
-							<button type="button" class="btn btn-sm btn-outline-secondary border-0 wall-item-attach" data-bs-toggle="dropdown" id="attachment-menu-{{$item.id}}"><i class="bi bi-paperclip generic-icons"></i></button>
+							<button type="button" class="btn btn-sm btn-link link-secondary wall-item-attach" data-bs-toggle="dropdown" id="attachment-menu-{{$item.id}}"><i class="bi bi-paperclip generic-icons"></i></button>
 							<div class="dropdown-menu dropdown-menu-end">{{$item.attachments}}</div>
 						</div>
 						{{/if}}
 						<div class="">
-							<button type="button" class="btn btn-sm btn-outline-secondary border-0" data-bs-toggle="dropdown" id="wall-item-menu-{{$item.id}}">
+							<button type="button" class="btn btn-sm btn-link link-secondary" data-bs-toggle="dropdown" id="wall-item-menu-{{$item.id}}">
 								<i class="bi bi-three-dots-vertical generic-icons"></i>
 							</button>
 							<div class="dropdown-menu dropdown-menu-end" role="menu" aria-labelledby="wall-item-menu-{{$item.id}}">

@@ -105,22 +105,17 @@
 					{{else}}
 					{{if $item.star && $item.star.isstarred}}
 					<div class="" id="star-button-{{$item.id}}">
-						<button type="button" class="btn btn-sm btn-outline-secondary border-0 wall-item-star" onclick="dostar({{$item.id}});"><i class="bi bi-star generic-icons"></i></button>
+						<button type="button" class="btn btn-sm btn-link link-secondary wall-item-star" onclick="dostar({{$item.id}});"><i class="bi bi-star generic-icons"></i></button>
 					</div>
 					{{/if}}
 					{{if $item.attachments}}
 					<div class="">
-						<button type="button" class="btn btn-sm btn-outline-secondary border-0 wall-item-attach" data-bs-toggle="dropdown" id="attachment-menu-{{$item.id}}"><i class="bi bi-paperclip generic-icons"></i></button>
+						<button type="button" class="btn btn-sm btn-link link-secondary wall-item-attach" data-bs-toggle="dropdown" id="attachment-menu-{{$item.id}}"><i class="bi bi-paperclip generic-icons"></i></button>
 						<div class="dropdown-menu dropdown-menu-end">{{$item.attachments}}</div>
 					</div>
 					{{/if}}
-					{{if $item.reply_to}}
-					<button type="button" title="{{$item.reply_to.0}}" class="btn btn-sm btn-outline-secondary border-0" onclick="doreply({{$item.parent}}, {{$item.id}}, '{{$item.author_id}}', '{{$item.reply_to.2}} {{$item.name|escape:javascript}}');">
-						<i class="bi bi-arrow-90deg-left generic-icons" ></i>
-					</button>
-					{{/if}}
 					<div class="">
-						<button type="button" class="btn btn-sm btn-outline-secondary border-0" data-bs-toggle="dropdown" id="wall-item-menu-{{$item.id}}">
+						<button type="button" class="btn btn-sm btn-link link-secondary" data-bs-toggle="dropdown" id="wall-item-menu-{{$item.id}}">
 							<i class="bi bi-three-dots-vertical generic-icons"></i>
 						</button>
 						<div class="dropdown-menu dropdown-menu-end" role="menu" aria-labelledby="wall-item-menu-{{$item.id}}">
