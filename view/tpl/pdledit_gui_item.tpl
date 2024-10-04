@@ -12,7 +12,7 @@
 		{{if $entry.type !== 'content'}}
 		<button type="button" class="btn btn-sm btn-outline-primary pdledit_gui_item_src{{if $disable_controls}} disabled{{/if}}">Edit</button>
 		<button type="button" class="btn btn-sm btn-outline-danger pdledit_gui_item_remove{{if $disable_controls}} disabled{{/if}}">Remove</button>
-		<i class="bi fa-arrows-alt m-2 float-end cursor-pointer pdledit_gui_item_handle"></i>
+		<i class="bi bi-arrows-move m-2 float-end cursor-pointer pdledit_gui_item_handle"></i>
 		{{/if}}
 	</div>
 </div>
