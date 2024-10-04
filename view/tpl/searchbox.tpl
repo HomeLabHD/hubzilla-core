@@ -4,7 +4,7 @@
 		<input class="form-control" type="text" name="search" id="search-text" value="{{$s}}" onclick="this.submit();" />
 		<button type="submit" name="submit" class="btn btn-outline-secondary" id="search-submit" value="{{$search_label}}"><i class="bi bi-search"></i></button>
 		{{if $savedsearch}}
-		<button type="submit" name="searchsave" class="btn btn-outline-secondary" id="search-save" value="{{$save_label}}"><i class="bi fa-floppy-o"></i></button>
+		<button type="submit" name="searchsave" class="btn btn-outline-secondary" id="search-save" value="{{$save_label}}"><i class="bi bi-save"></i></button>
 		{{/if}}
 	</div>
 </form>
