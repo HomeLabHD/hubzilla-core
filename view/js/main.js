@@ -1209,9 +1209,12 @@ function dolike(ident, verb) {
 			else {
 				$('#thread-wrapper-' + data.orig_id).replaceWith(data.html);
 			}
+
 			$('#wall-item-ago-' + data.id + ' .autotime').timeago();
 			collapseHeight();
 			liking = 0;
+			// remove modal backdrop in case the update was triggered from a modal
+			$('.modal-backdrop').remove();
 		}
 	});
 	liking = 1;
