@@ -1,3 +1,9 @@
+Hubzilla 9.4.2 (2024-10-04)
+	- Indicate reacted state via icon color (community wish)
+	- Fix modal backdrop not removed when reacting from the modal
+	- Fix missing handle icon in mod pdledit_gui
+
+
 Hubzilla 9.4.1 (2024-10-02)
 	- Various fixes for the help module
 	- Update smarty library via composer
