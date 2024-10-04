@@ -91,7 +91,7 @@ class Channel_activities {
 
 		self::$activities['photos'] = [
 			'label' => t('Photos'),
-			'icon' => 'photo',
+			'icon' => 'image',
 			'url' => z_root() . '/photos/' . self::$channel['channel_address'],
 			'date' => $r[0]['edited'],
 			'items' => $i,
@@ -123,7 +123,7 @@ class Channel_activities {
 
 		self::$activities['files'] = [
 			'label' => t('Files'),
-			'icon' => 'folder-open',
+			'icon' => 'folder',
 			'url' => z_root() . '/cloud/' . self::$channel['channel_address'],
 			'date' => $r[0]['edited'],
 			'items' => $i,
@@ -166,7 +166,7 @@ class Channel_activities {
 
 		self::$activities['webpages'] = [
 			'label' => t('Webpages'),
-			'icon' => 'newspaper-o',
+			'icon' => 'layout-text-sidebar',
 			'url' => z_root() . '/webpages/' . self::$channel['channel_address'],
 			'date' => $r[0]['edited'],
 			'items' => $i,
@@ -237,7 +237,7 @@ class Channel_activities {
 
 		self::$activities['channels'] = [
 			'label' => t('Channels'),
-			'icon' => 'home',
+			'icon' => 'house',
 			'url' => z_root() . '/manage',
 			'date' => datetime_convert(),
 			'items' => $i,
