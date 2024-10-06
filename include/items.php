@@ -431,8 +431,9 @@ function add_source_route($iid, $hash) {
  *  * \e boolean \b success true or false
  *  * \e array \b activity the resulting activity if successful
  */
-function post_activity_item($arr, $allow_code = false, $deliver = true) {
 
+
+function post_activity_item($arr, $allow_code = false, $deliver = true, $channel = null, $observer = null, $addAndSync = true) {
 	$ret = array('success' => false);
 
 	$is_comment = false;
@@ -446,8 +447,13 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 	if(! array_key_exists('item_thread_top',$arr) && (! $is_comment))
 		$arr['item_thread_top'] = 1;
 
-	$channel  = App::get_channel();
-	$observer = App::get_observer();
+	if (!$channel) {
+		$channel = App::get_channel();
+	}
+
+	if (!$observer) {
+		$observer = App::get_observer();
+	}
 
 	$arr['aid'] = ((x($arr,'aid')) ? $arr['aid'] : $channel['channel_account_id']);
 	$arr['uid'] = ((x($arr,'uid')) ? $arr['uid'] : $channel['channel_id']);
@@ -493,6 +499,14 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 		$arr['plink'] = $arr['mid'];
 	}
 
+	if (!$arr['target']) {
+		$arr['target'] = [
+			'id' => str_replace('/item/', '/conversation/', $arr['parent_mid']),
+			'type' => 'Collection',
+			'attributedTo' => z_root() . '/channel/' . $channel['channel_address'],
+		];
+		$arr['tgt_type'] = 'Collection';
+	}
 
 	// for the benefit of plugins, we will behave as if this is an API call rather than a normal online post
 
@@ -509,29 +523,32 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 		return $ret;
 	}
 
-	$post = item_store($arr,$allow_code,$deliver);
+	$post = item_store($arr, $allow_code, $deliver, $addAndSync);
 
-	if($post['success']) {
-		$post_id = $post['item_id'];
-		$ret['success'] = true;
-		$ret['item_id'] = $post_id;
-		$ret['activity'] = $post['item'];
+hz_syslog('xxx: ' . print_r($post, true));
 
-		/**
-		 * @hooks post_local_end
-		 *   Called after a local post operation has completed.
-		 *   * \e array - the item returned from item_store()
-		 */
-		call_hooks('post_local_end', $ret['activity']);
-	}
-	else
+	if (!$post['success']) {
 		return $ret;
+	}
+
+	$post_id = $post['item_id'];
+	$ret['success'] = true;
+	$ret['item_id'] = $post_id;
+	$ret['activity'] = $post['item'];
+
+	/**
+	 * @hooks post_local_end
+	 *   Called after a local post operation has completed.
+	 *   * \e array - the item returned from item_store()
+	 */
+	call_hooks('post_local_end', $ret['activity']);
 
 	if($post_id && $deliver) {
-		Master::Summon(['Notifier','activity', $post_id]);
+		Master::Summon(['Notifier', 'activity', $post_id]);
+		if (!empty($post['approval_id'])) {
+			Master::Summon(['Notifier', 'activity', $post['approval_id']]);
+		}
 	}
-
-	$ret['success'] = true;
 
 	return $ret;
 }
@@ -1594,7 +1611,7 @@ function item_json_encapsulate($arr, $k)  {
  *   * \e boolean \b success
  *   * \e int \b item_id
  */
-function item_store($arr, $allow_exec = false, $deliver = true) {
+function item_store($arr, $allow_exec = false, $deliver = true, $addAndSync = true) {
 
 	$d = [
 			'item' => $arr,
@@ -2052,6 +2069,13 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 		Master::Summon([ 'Cache_embeds', $current_post ]);
 	}
 
+	$ret['success'] = true;
+	$ret['item_id'] = $current_post;
+
+	if ($addAndSync) {
+		$ret = addToCollectionAndSync($ret);
+	}
+
 	// If _creating_ a deleted item, don't propagate it further or send out notifications.
 	// We need to store the item details just in case the delete came in before the original post,
 	// so that we have an item in the DB that's marked deleted and won't store a fresh post
@@ -2061,9 +2085,6 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 		send_status_notifications($current_post,$arr);
 		tag_deliver($arr['uid'],$current_post);
 	}
-
-	$ret['success'] = true;
-	$ret['item_id'] = $current_post;
 
 	return $ret;
 }
@@ -2077,7 +2098,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
  * @param boolean $deliver (optional) default true
  * @return array
  */
-function item_store_update($arr, $allow_exec = false, $deliver = true) {
+function item_store_update($arr, $allow_exec = false, $deliver = true, $addAndSync = true) {
 
 	$d = [
 			'item' => $arr,
@@ -2390,16 +2411,18 @@ function item_store_update($arr, $allow_exec = false, $deliver = true) {
 		Master::Summon([ 'Cache_embeds', $orig_post_id ]);
 	}
 
-
-
-
-	if($deliver) {
-		send_status_notifications($orig_post_id,$arr);
-		tag_deliver($uid,$orig_post_id);
-	}
-
 	$ret['success'] = true;
 	$ret['item_id'] = $orig_post_id;
+
+	if ($addAndSync) {
+		$ret = addToCollectionAndSync($ret);
+	}
+
+	if($deliver) {
+        // don't send notify_comment for edits
+        // send_status_notifications($orig_post_id,$arr);
+		tag_deliver($uid,$orig_post_id);
+	}
 
 	return $ret;
 }
@@ -3101,6 +3124,11 @@ function i_am_mentioned($channel, $item, $check_groups = false) {
  */
 function start_delivery_chain($channel, $item, $item_id, $parent, $group = false, $edit = false) {
 
+    if ($item['author_xchan'] === $channel['channel_hash'] && in_array($item['verb'], ['Add', 'Remove'])) {
+        logger('delivery chain already started');
+        return;
+    }
+
 	$sourced = check_item_source($channel['channel_id'],$item);
 
 	if($sourced) {
@@ -3362,7 +3390,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		$arr['deny_gid']  = $channel['channel_deny_gid'];
 		$arr['comment_policy'] = map_scope(PermissionLimits::Get($channel['channel_id'],'post_comments'));
 
-		$post = item_store($arr);
+        $post = item_store($arr, deliver: false, addAndSync: false);
 		$post_id = $post['item_id'];
 
 		if ($post_id) {
@@ -5092,7 +5120,7 @@ function fix_attached_permissions($uid, $body, $str_contact_allow, $str_group_al
  * which will allow you to interact with it.
  */
 
-function copy_of_pubitem($channel,$mid) {
+function copy_of_pubitem($channel, $mid) {
 
 	$result = null;
 	$syschan = get_sys_channel();
@@ -5134,12 +5162,68 @@ function copy_of_pubitem($channel,$mid) {
 			$rv['item_wall'] = 0;
 			$rv['item_origin'] = 0;
 
-			$x = item_store($rv);
+            $x = item_store($rv, deliver: false, addAndSync: false);
 			if($x['item_id'] && $x['item']['mid'] === $mid) {
 				$result = $x['item'];
+				sync_an_item($channel['channel_id'], $x['item_id']);
 			}
 
 		}
 	}
 	return $result;
+}
+
+function addToCollectionAndSync($ret) {
+	if (!$ret['success']) {
+		return $ret;
+	}
+
+	$channel = channelx_by_n($ret['item']['uid']);
+	if ($channel && $channel['channel_hash'] === $ret['item']['owner_xchan']) {
+		$items = [$ret['item']];
+		if ((int)$items[0]['item_blocked'] === ITEM_MODERATED
+			|| (int)$items[0]['item_unpublished'] || (int)$items[0]['item_delayed'])  {
+			return $ret;
+		}
+		xchan_query($items);
+		$items = fetch_post_tags($items);
+		$sync_items = [];
+		$sync_items[] = encode_item($items[0], true);
+
+		if (!in_array($ret['item']['verb'], ['Add', 'Remove'])) {
+
+			$newObj = Activity::build_packet(Activity::encode_activity($items[0]), $channel, false);
+			$approval = Activity::addToCollection($channel, $newObj, $ret['item']['parent_mid'], $ret['item'], deliver: false);
+//hz_syslog(print_r($approval, true));
+			if ($approval['success']) {
+				$ret['approval_id'] = $approval['item_id'];
+				$ret['approval'] = $approval['activity'];
+				$addItems = [$approval['activity']];
+				xchan_query($addItems);
+				$addItems = fetch_post_tags($addItems);
+				$sync_items[] = encode_item($addItems[0], true);
+			}
+		}
+
+		$resource_type = $ret['item']['resource_type'];
+
+		if ($resource_type === 'event') {
+			$z = q("select * from event where event_hash = '%s' and uid = %d limit 1",
+				dbesc($ret['item']['resource_id']),
+				intval($channel['channel_id'])
+			);
+
+			if ($z) {
+				Libsync::build_sync_packet($channel['channel_id'], ['event_item' => $sync_items, 'event' => $z]);
+			}
+		}
+		elseif ($resource_type === 'photo') {
+			// reserved for future use, currently handled in the photo upload workflow
+		}
+		else {
+			Libsync::build_sync_packet($ret['item']['uid'], ['item' => $sync_items]);
+		}
+	}
+
+	return $ret;
 }

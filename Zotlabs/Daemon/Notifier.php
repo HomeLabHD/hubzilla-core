@@ -345,7 +345,7 @@ class Notifier {
 			}
 
 			logger('target_item: ' . print_r($target_item, true), LOGGER_DEBUG);
-			logger('encoded: ' . print_r(self::$encoded_item, true), LOGGER_DEBUG);
+			hz_syslog('encoded: ' . print_r(self::$encoded_item, true), LOGGER_DEBUG);
 
 			// Send comments to the owner to re-deliver to everybody in the conversation
 			// We only do this if the item in question originated on this site. This prevents looping.

@@ -16,7 +16,7 @@ class Conversation extends Controller {
 
 	public function init() {
 
-		if (ActivityStreams::is_as_request()) {
+		if (ActivityStreams::is_as_request() || Libzot::is_zot_request()) {
 			$item_id = argv(1);
 
 			if (!$item_id) {
@@ -77,7 +77,7 @@ class Conversation extends Controller {
 					}
 				}
 			}
-			elseif (Config::get('system', 'require_authenticated_fetch', false)) {
+			elseif (Config::Get('system', 'require_authenticated_fetch', false)) {
 				http_status_exit(403, 'Permission denied');
 			}
 

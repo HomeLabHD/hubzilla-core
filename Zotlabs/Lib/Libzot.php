@@ -1148,6 +1148,7 @@ class Libzot {
 				logger('Activity rejected: ' . print_r($data, true));
 				return;
 			}
+
 			if (is_array($AS->obj)) {
 				$item = Activity::decode_note($AS);
 				if (!$item) {

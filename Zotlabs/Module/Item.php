@@ -1029,17 +1029,43 @@ class Item extends Controller {
 		}
 
 
-		if ($moderated)
+		if ($moderated) {
 			$item_blocked = ITEM_MODERATED;
+		}
 
 
-		if (!strlen($verb))
+		if (!strlen($verb)) {
 			$verb = 'Create';
+		}
 
 		$notify_type = (($parent) ? 'comment-new' : 'wall-new');
 
 		$uuid = $uuid ?? $message_id ?? item_message_id();
 		$mid = $mid ?? z_root() . '/item/' . $uuid;
+
+
+        // Set the conversation target.
+        if (empty($owner_hash)) {
+            $owner_hash = $owner_xchan['xchan_hash'];
+        }
+
+        if ($owner_hash === $channel['channel_hash']) {
+            $attributedTo = z_root() . '/channel/' . $channel['channel_address'];
+
+            $conversation = isset($parent_item) ? $parent_item['mid'] : $mid;
+            $datarray['target'] = [
+                'id' => str_replace('/item/', '/conversation/', $conversation),
+                'type' => 'Collection',
+                'attributedTo' => $attributedTo,
+            ];
+            $datarray['tgt_type'] = 'Collection';
+        }
+        elseif (!empty($parent_item['target'])) {
+            $datarray['target'] = $parent_item['target'];
+            $datarray['tgt_type'] = $parent_item['tgt_type'];
+        }
+
+
 
 		if ($is_poll) {
 			$poll = [
@@ -1375,8 +1401,12 @@ class Item extends Controller {
 			$nopush = false;
 		}
 
-		if (!$nopush)
-			Master::Summon(['Notifier', $notify_type, $post_id]);
+        if (!$nopush) {
+            Master::Summon(['Notifier', $notify_type, $post_id]);
+            if (intval($post['approval_id'])) {
+                Master::Summon(['Notifier', $notify_type, $post['approval_id']]);
+            }
+        }
 
 		logger('post_complete');
 
