@@ -1401,12 +1401,12 @@ class Item extends Controller {
 			$nopush = false;
 		}
 
-        if (!$nopush) {
-            Master::Summon(['Notifier', $notify_type, $post_id]);
-            if (intval($post['approval_id'])) {
-                Master::Summon(['Notifier', $notify_type, $post['approval_id']]);
-            }
-        }
+		if (!$nopush) {
+			Master::Summon(['Notifier', $notify_type, $post_id]);
+			if (!empty($post['approval_id'])) {
+				Master::Summon(['Notifier', $notify_type, $post['approval_id']]);
+			}
+		}
 
 		logger('post_complete');
 
