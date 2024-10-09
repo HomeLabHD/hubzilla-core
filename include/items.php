@@ -525,7 +525,7 @@ function post_activity_item($arr, $allow_code = false, $deliver = true, $channel
 
 	$post = item_store($arr, $allow_code, $deliver, $addAndSync);
 
-hz_syslog('xxx: ' . print_r($post, true));
+	hz_syslog('post_activity_item: ' . print_r($post['item_id'], true));
 
 	if (!$post['success']) {
 		return $ret;
@@ -3395,6 +3395,9 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 
 		if ($post_id) {
 			Master::Summon([ 'Notifier','tgroup',$post_id ]);
+            if (!empty($post['approval_id'])) {
+                Master::Summon(['Notifier', 'tgroup', $post['approval_id']]);
+            }
 		}
 
 		q("update channel set channel_lastpost = '%s' where channel_id = %d",
@@ -5181,10 +5184,12 @@ function addToCollectionAndSync($ret) {
 	$channel = channelx_by_n($ret['item']['uid']);
 	if ($channel && $channel['channel_hash'] === $ret['item']['owner_xchan']) {
 		$items = [$ret['item']];
+
 		if ((int)$items[0]['item_blocked'] === ITEM_MODERATED
 			|| (int)$items[0]['item_unpublished'] || (int)$items[0]['item_delayed'])  {
 			return $ret;
 		}
+
 		xchan_query($items);
 		$items = fetch_post_tags($items);
 		$sync_items = [];
@@ -5192,16 +5197,16 @@ function addToCollectionAndSync($ret) {
 
 		if (!in_array($ret['item']['verb'], ['Add', 'Remove'])) {
 
-			$newObj = Activity::build_packet(Activity::encode_activity($items[0]), $channel, false);
-			$approval = Activity::addToCollection($channel, $newObj, $ret['item']['parent_mid'], $ret['item'], deliver: false);
-//hz_syslog(print_r($approval, true));
+			$new_obj = Activity::build_packet(Activity::encode_activity($items[0]), $channel, false);
+			$approval = Activity::addToCollection($channel, $new_obj, $ret['item']['parent_mid'], $ret['item'], deliver: false);
+
 			if ($approval['success']) {
 				$ret['approval_id'] = $approval['item_id'];
 				$ret['approval'] = $approval['activity'];
-				$addItems = [$approval['activity']];
-				xchan_query($addItems);
-				$addItems = fetch_post_tags($addItems);
-				$sync_items[] = encode_item($addItems[0], true);
+				$add_items = [$approval['activity']];
+				xchan_query($add_items);
+				$add_items = fetch_post_tags($add_items);
+				$sync_items[] = encode_item($add_items[0], true);
 			}
 		}
 
@@ -5227,3 +5232,12 @@ function addToCollectionAndSync($ret) {
 
 	return $ret;
 }
+
+function reverse_activity_mid($string) {
+	return str_replace(z_root() . '/activity/', z_root() . '/item/', $string);
+}
+
+function set_activity_mid($string) {
+	return str_replace(z_root() . '/item/', z_root() . '/activity/', $string);
+}
+

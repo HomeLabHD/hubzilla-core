@@ -974,7 +974,7 @@ class Activity {
 			// inReplyTo needs to be set in the activity for followup actions (Like, Dislike, Announce, etc.),
 			// but *not* for comments and RSVPs, where it should only be present in the object
 
-			if (!in_array($ret['type'], ['Create', 'Update', 'Accept', 'Reject', 'TentativeAccept', 'TentativeReject'])) {
+			if (!in_array($ret['type'], ['Create', 'Update', 'Add', 'Remove', 'Accept', 'Reject', 'TentativeAccept', 'TentativeReject'])) {
 				$ret['inReplyTo'] = ((strpos($i['thr_parent'], 'http') === 0) ? $i['thr_parent'] : z_root() . '/item/' . urlencode($i['thr_parent']));
 			}
 
@@ -1067,10 +1067,7 @@ class Activity {
 
 		call_hooks('encode_activity', $hookinfo);
 
-//hz_syslog(print_r($hookinfo['encoded'], true));
-
 		return $hookinfo['encoded'];
-
 
 	}
 

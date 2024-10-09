@@ -299,7 +299,7 @@ class Notifier {
 				return;
 			}
 
-			if ($target_item['verb'] === ACTIVITY_SHARE) {
+			if (in_array($target_item['verb'], [ACTIVITY_SHARE])) {
 				// Provide correct representation across the wire. Internally this is treated as a comment.
 				$target_item['parent_mid'] = $target_item['thr_parent'] = $target_item['mid'];
 			}
@@ -345,7 +345,7 @@ class Notifier {
 			}
 
 			logger('target_item: ' . print_r($target_item, true), LOGGER_DEBUG);
-			hz_syslog('encoded: ' . print_r(self::$encoded_item, true), LOGGER_DEBUG);
+			logger('encoded: ' . print_r(self::$encoded_item, true), LOGGER_DEBUG);
 
 			// Send comments to the owner to re-deliver to everybody in the conversation
 			// We only do this if the item in question originated on this site. This prevents looping.
@@ -431,6 +431,9 @@ class Notifier {
 			return;
 		}
 
+		hz_syslog(print_r(self::$encoded_item['type'], true));
+		hz_syslog(print_r(self::$recipients, true));
+
 		// logger('recipients: ' . print_r(self::$recipients,true), LOGGER_NORMAL, LOG_DEBUG);
 
 		if (!count(self::$env_recips)) {
@@ -468,7 +471,7 @@ class Notifier {
 			'queued'         => []
 		];
 
-		call_hooks('notifier_process', $narr);
+		//call_hooks('notifier_process', $narr);
 		if ($narr['queued']) {
 			foreach ($narr['queued'] as $pq)
 				self::$deliveries[] = $pq;
@@ -589,7 +592,9 @@ class Notifier {
 
 		foreach ($dhubs as $hub) {
 
-			logger('notifier_hub: ' . $hub['hubloc_url'], LOGGER_DEBUG);
+			hz_syslog('notifier_hub: ' . $hub['hubloc_url'], LOGGER_DEBUG);
+			hz_syslog(print_r($target_item['id'], true));
+			hz_syslog(print_r($target_item['verb'], true));
 
 			if ($hub['hubloc_network'] !== 'zot6') {
 				$narr = [
@@ -611,7 +616,7 @@ class Notifier {
 					'queued'         => []
 				];
 
-				call_hooks('notifier_hub', $narr);
+		//		call_hooks('notifier_hub', $narr);
 				if ($narr['queued']) {
 					foreach ($narr['queued'] as $pq)
 						self::$deliveries[] = $pq;

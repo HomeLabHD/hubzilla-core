@@ -1302,6 +1302,11 @@ class Item extends Controller {
 
 		$post = item_store($datarray, $execflag);
 
+		hz_syslog('Item: ' . print_r($post['item_id'], true));
+		hz_syslog('Item mid: ' . print_r($post['item']['mid'], true));
+		hz_syslog('Item appr: ' . print_r($post['approval_id'], true));
+		hz_syslog('Item appr mid: ' . print_r($post['approval']['mid'], true));
+
 		if ($post['success']) {
 			$this->add_listeners($datarray);
 		}
