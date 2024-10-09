@@ -1157,7 +1157,6 @@ class Libzot {
 
 				logger('unsupported collection operation', LOGGER_DEBUG);
 				return;
-
 			}
 
 			if (is_array($AS->obj)) {
@@ -2019,7 +2018,13 @@ class Libzot {
 		foreach ($items as $activity) {
 
 			$AS = new ActivityStreams($activity);
-			if ($AS->is_valid() && $AS->type === 'Announce' && is_array($AS->obj)
+
+			if (!$AS->is_valid()) {
+				logger('Fetched activity rejected: ' . print_r($activity, true));
+				continue;
+			}
+
+			if ($AS->type === 'Announce' && is_array($AS->obj)
 				&& array_key_exists('object', $AS->obj) && array_key_exists('actor', $AS->obj)) {
 				// This is a relayed/forwarded Activity (as opposed to a shared/boosted object)
 				// Reparse the encapsulated Activity and use that instead
@@ -2027,9 +2032,14 @@ class Libzot {
 				$AS = new ActivityStreams($AS->obj);
 			}
 
-			if (!$AS->is_valid()) {
-				logger('Fetched activity rejected: ' . print_r($activity, true));
-				continue;
+			if (in_array($AS->type, ['Add', 'Remove'])
+				&& is_array($AS->obj)
+				&& array_key_exists('object', $AS->obj)
+				&& array_key_exists('actor', $AS->obj)
+				&& !empty($AS->tgt)) {
+
+				logger('unsupported collection operation', LOGGER_DEBUG);
+				return;
 			}
 
 			// logger($AS->debug());
