@@ -1148,6 +1148,18 @@ class Libzot {
 				logger('Activity rejected: ' . print_r($data, true));
 				return;
 			}
+
+			if (in_array($AS->type, ['Add', 'Remove'])
+				&& is_array($AS->obj)
+				&& array_key_exists('object', $AS->obj)
+				&& array_key_exists('actor', $AS->obj)
+				&& !empty($AS->tgt)) {
+
+				logger('unsupported collection operation', LOGGER_DEBUG);
+				return;
+
+			}
+
 			if (is_array($AS->obj)) {
 				$item = Activity::decode_note($AS);
 				if (!$item) {
@@ -1158,6 +1170,7 @@ class Libzot {
 			else {
 				$item = [];
 			}
+
 			logger($AS->debug(), LOGGER_DATA);
 
 		}
