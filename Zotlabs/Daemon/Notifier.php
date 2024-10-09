@@ -471,7 +471,7 @@ class Notifier {
 			'queued'         => []
 		];
 
-		//call_hooks('notifier_process', $narr);
+		call_hooks('notifier_process', $narr);
 		if ($narr['queued']) {
 			foreach ($narr['queued'] as $pq)
 				self::$deliveries[] = $pq;
@@ -616,7 +616,7 @@ class Notifier {
 					'queued'         => []
 				];
 
-		//		call_hooks('notifier_hub', $narr);
+				call_hooks('notifier_hub', $narr);
 				if ($narr['queued']) {
 					foreach ($narr['queued'] as $pq)
 						self::$deliveries[] = $pq;
