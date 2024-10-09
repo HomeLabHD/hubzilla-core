@@ -559,6 +559,7 @@ class Like extends Controller {
 
 		$post    = item_store($arr);
 		$post_id = $post['item_id'];
+		$approval_id = $post['approval_id'] ?? 0;
 
 		// save the conversation from expiration
 
@@ -609,7 +610,11 @@ class Like extends Controller {
 
 		}
 
-		Master::Summon(array('Notifier', 'like', $post_id));
+		Master::Summon(['Notifier', 'like', $post_id]);
+		if ($approval_id) {
+			Master::Summon(['Notifier', 'like', $approval_id]);
+		}
+
 
 		if ($interactive) {
 			notice(t('Action completed.') . EOL);

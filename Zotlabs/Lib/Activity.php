@@ -846,12 +846,32 @@ class Activity {
 		$ret['type'] = self::activity_mapper($i['verb']);
 
 		if ((isset($i['item_deleted']) && intval($i['item_deleted'])) && !$recurse) {
-			$is_response = false;
 
-			if (ActivityStreams::is_response_activity($ret['type'])) {
+			if ($i['verb'] === 'Add' && str_contains($i['tgt_type'], 'Collection')) {
+				$ret['id'] = str_replace('/item/', '/activity/', $i['mid']) . '#Remove';
+				$ret['type'] = 'Remove';
+				if (is_string($i['obj'])) {
+					$obj = json_decode($i['obj'], true);
+				}
+				elseif(is_array($i['obj'])) {
+					$obj = $i['obj'];
+				}
+				if (isset($obj['id'])) {
+					$ret['object'] = $obj['id'];
+				}
+				else {
+					$ret['object'] = str_replace('/item/', '/activity/', $i['mid']);
+				}
+				$ret['target'] = is_array($i['target']) ? $i['target'] : json_decode($i['target'], true);
+
+				return $ret;
+			}
+
+			$is_response = ActivityStreams::is_response_activity($ret['type']);
+
+			if ($is_response) {
 				$ret['type'] = 'Undo';
 				$fragment    = 'undo';
-				$is_response = true;
 			}
 			else {
 				$ret['type'] = 'Delete';

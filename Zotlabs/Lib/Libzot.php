@@ -1966,8 +1966,6 @@ class Libzot {
 				if (post_is_importable($arr['uid'], $arr, $abook)) {
 					$item_result = item_store($arr, addAndSync: false);
 
-
-
 					if ($item_result['success']) {
 						$item_id = $item_result['item_id'];
 

@@ -1312,6 +1312,7 @@ class Item extends Controller {
 		}
 
 		$post_id = $post['item_id'];
+		$approval_id = $post['approval_id'] ?? 0;
 
 		$datarray = $post['item'];
 
@@ -1408,8 +1409,8 @@ class Item extends Controller {
 
 		if (!$nopush) {
 			Master::Summon(['Notifier', $notify_type, $post_id]);
-			if (!empty($post['approval_id'])) {
-				Master::Summon(['Notifier', $notify_type, $post['approval_id']]);
+			if ($approval_id) {
+				Master::Summon(['Notifier', $notify_type, $approval_id]);
 			}
 		}
 
