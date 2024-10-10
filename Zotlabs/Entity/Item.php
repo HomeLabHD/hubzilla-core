@@ -16,7 +16,7 @@ class Item extends BaseObject
     // channel id of the owner of this record
     public $uid;
 
-    // UUID-V4
+    // UUID-V4 // If no UUID is provided UUID-V5 of the message id
     public $uuid;
 
     // message id
@@ -57,12 +57,8 @@ class Item extends BaseObject
     public $author_xchan;
     // portable id of real (upstream) author if relayed
     public $source_xchan;
-    // ActivityPub FEP
-    public $approved;
     // MIME type of item body
     public $mimetype;
-    // replyTo where to direct replies
-    public $replyto;
 
     // ISO language string
     public $lang;
@@ -106,13 +102,9 @@ class Item extends BaseObject
 
     // free-form text location
     public $location;
-    // float latitude;
-    public float $lat;
-    // float longitude;
-    public float $lon;
-    // deprecated combined coordinates (text)
+    // combined coordinates (text)
     public $coord;
-    // deprecated
+    // string public policy
     public $public_policy;
     // string comment policy
     public $comment_policy;
@@ -1537,40 +1529,6 @@ class Item extends BaseObject
         return $this;
     }
 
-    /**
-     * @return float|null
-     */
-    public function getLat()
-    {
-        return $this->lat;
-    }
 
-    /**
-     * @param float $lat
-     * @return Item
-     */
-    public function setLat($lat)
-    {
-        $this->lat = $lat;
-        return $this;
-    }
-
-    /**
-     * @return float|null
-     */
-    public function getLon()
-    {
-        return $this->lon;
-    }
-
-    /**
-     * @param float $lon
-     * @return Item
-     */
-    public function setLon($lon)
-    {
-        $this->lon = $lon;
-        return $this;
-    }
 
 }

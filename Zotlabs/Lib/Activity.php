@@ -3773,8 +3773,8 @@ class Activity {
 			->setObjType($object['type'])
 			->setParentMid(str_replace('/conversation/','/item/', $target))
 			->setThrParent(str_replace('/conversation/','/item/', $target))
-			->setApproved($object['object']['id'] ?? '')
-			->setReplyto(z_root() . '/channel/' . $channel['channel_address'])
+		//	->setApproved($object['object']['id'] ?? '')
+		//	->setReplyto(z_root() . '/channel/' . $channel['channel_address'])
 			->setTgtType('Collection')
 			->setTarget([
 				'id' => str_replace('/item/','/conversation/', $target),
@@ -3790,6 +3790,7 @@ class Activity {
 				->setPrivate($sourceItem['item_private'])
 				->setNocomment($sourceItem['item_nocomment'])
 				->setCommentPolicy($sourceItem['comment_policy'])
+				->setPublicPolicy($sourceItem['comment_policy'])
 				->setPostopts($sourceItem['postopts']);
 		}
 		$result = post_activity_item($item->toArray(), deliver: $deliver, channel: $channel, observer: $channel, addAndSync: false);
