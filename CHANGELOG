@@ -1,3 +1,7 @@
+Hubzilla 9.4.3 (2024-10-10)
+	- Discard Add/Remove activities (Hubzilla 10 and (streams) compatibility)
+
+
 Hubzilla 9.4.2 (2024-10-04)
 	- Indicate reacted state via icon color (community wish)
 	- Fix modal backdrop not removed when reacting from the modal
