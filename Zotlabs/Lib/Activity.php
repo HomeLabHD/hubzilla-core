@@ -3790,7 +3790,7 @@ class Activity {
 				->setPrivate($sourceItem['item_private'])
 				->setNocomment($sourceItem['item_nocomment'])
 				->setCommentPolicy($sourceItem['comment_policy'])
-				->setPublicPolicy($sourceItem['comment_policy'])
+				->setPublicPolicy($sourceItem['public_policy'])
 				->setPostopts($sourceItem['postopts']);
 		}
 		$result = post_activity_item($item->toArray(), deliver: $deliver, channel: $channel, observer: $channel, addAndSync: false);
