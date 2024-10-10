@@ -1876,11 +1876,15 @@ class Libzot {
 				dbesc($arr['author_xchan'])
 			);
 
+			// If we import an add/remove activity ($is_collection_operation) we strip off the
+			// add/remove part and only process the object.
+			// When looking up the item to pass it to the notifier for relay, we need to look up
+			// the original (stripped off) message id which we stored in $act->meta.
+
+			$sql_mid = (($is_collection_operation && $relay && $channel['channel_hash'] === $arr['owner_xchan']) ? $act->meta['original_id'] : $arr['mid']);
+
 			// Reactions such as like and dislike could	have an	mid with /activity/ in it.
 			// Check for both forms in order to prevent duplicates.
-
-			// If we process an add/remove activity, look for the original activity id instead of the object id
-			$sql_mid = (($is_collection_operation && $relay && $channel['channel_hash'] === $arr['owner_xchan']) ? $act->meta['original_id'] : $arr['mid']);
 
 			$r = q("select * from item where mid in ('%s', '%s') and uid = %d limit 1",
 				dbesc($sql_mid),
