@@ -8,7 +8,6 @@ use Zotlabs\Access\PermissionRoles;
 use Zotlabs\Access\Permissions;
 use Zotlabs\Daemon\Master;
 use Zotlabs\Web\HTTPSig;
-use Zotlabs\Entity\Item;
 
 require_once('include/event.php');
 require_once('include/html2plain.php');
@@ -571,25 +570,6 @@ class Activity {
 
 		if ($i['mid'] !== $i['parent_mid']) {
 			$ret['inReplyTo'] = ((strpos($i['thr_parent'], 'http') === 0) ? $i['thr_parent'] : z_root() . '/item/' . urlencode($i['thr_parent']));
-
-			$cnv = IConfig::Get($i['parent'], 'activitypub', 'context');
-			if (!$cnv) {
-				$cnv = $i['parent_mid'];
-			}
-		}
-
-		if (empty($cnv)) {
-			$cnv = IConfig::Get($i, 'activitypub', 'context');
-			if (!$cnv) {
-				$cnv = $i['parent_mid'];
-			}
-		}
-
-		if (!empty($cnv)) {
-			if (is_string($cnv) && str_starts_with($cnv, z_root())) {
-				$cnv = str_replace(['/item/', '/activity/'], ['/conversation/', '/conversation/'], $cnv);
-			}
-			$ret['context'] = $cnv;
 		}
 
 		if ($i['mimetype'] === 'text/bbcode') {
@@ -609,12 +589,6 @@ class Activity {
 
 		$t = self::encode_taxonomy($i);
 		if ($t) {
-			foreach($t as $tag) {
-				if (strcasecmp($tag['name'], '#nsfw') === 0 || strcasecmp($tag['name'], '#sensitive') === 0) {
-					$ret['sensitive'] = true;
-				}
-			}
-
 			$ret['tag'] = $t;
 		}
 
@@ -622,20 +596,7 @@ class Activity {
 		if ($a) {
 			$ret['attachment'] = $a;
 		}
-/*
-		if ($i['target']) {
-			if (is_string($i['target'])) {
-				$tmp = json_decode($i['target'], true);
-				if ($tmp !== null) {
-					$i['target'] = $tmp;
-				}
-			}
-			$tgt = self::encode_object($i['target']);
-			if ($tgt) {
-				$ret['target'] = $tgt;
-			}
-		}
-*/
+
 		if (intval($i['item_private']) === 0) {
 			$ret['to'] = [ACTIVITY_PUBLIC_INBOX];
 		}
@@ -846,32 +807,12 @@ class Activity {
 		$ret['type'] = self::activity_mapper($i['verb']);
 
 		if ((isset($i['item_deleted']) && intval($i['item_deleted'])) && !$recurse) {
+			$is_response = false;
 
-			if ($i['verb'] === 'Add' && str_contains($i['tgt_type'], 'Collection')) {
-				$ret['id'] = str_replace('/item/', '/activity/', $i['mid']) . '#Remove';
-				$ret['type'] = 'Remove';
-				if (is_string($i['obj'])) {
-					$obj = json_decode($i['obj'], true);
-				}
-				elseif(is_array($i['obj'])) {
-					$obj = $i['obj'];
-				}
-				if (isset($obj['id'])) {
-					$ret['object'] = $obj['id'];
-				}
-				else {
-					$ret['object'] = str_replace('/item/', '/activity/', $i['mid']);
-				}
-				$ret['target'] = is_array($i['target']) ? $i['target'] : json_decode($i['target'], true);
-
-				return $ret;
-			}
-
-			$is_response = ActivityStreams::is_response_activity($ret['type']);
-
-			if ($is_response) {
+			if (ActivityStreams::is_response_activity($ret['type'])) {
 				$ret['type'] = 'Undo';
 				$fragment    = 'undo';
+				$is_response = true;
 			}
 			else {
 				$ret['type'] = 'Delete';
@@ -994,28 +935,9 @@ class Activity {
 			// inReplyTo needs to be set in the activity for followup actions (Like, Dislike, Announce, etc.),
 			// but *not* for comments and RSVPs, where it should only be present in the object
 
-			if (!in_array($ret['type'], ['Create', 'Update', 'Add', 'Remove', 'Accept', 'Reject', 'TentativeAccept', 'TentativeReject'])) {
+			if (!in_array($ret['type'], ['Create', 'Update', 'Accept', 'Reject', 'TentativeAccept', 'TentativeReject'])) {
 				$ret['inReplyTo'] = ((strpos($i['thr_parent'], 'http') === 0) ? $i['thr_parent'] : z_root() . '/item/' . urlencode($i['thr_parent']));
 			}
-
-			$cnv = IConfig::Get($i['parent'], 'activitypub', 'context');
-			if (!$cnv) {
-				$cnv = $item['parent_mid'];
-			}
-		}
-
-		if (empty($cnv)) {
-			$cnv = IConfig::Get($i, 'activitypub', 'context');
-			if (!$cnv) {
-				$cnv = $i['parent_mid'];
-			}
-		}
-
-		if (!empty($cnv)) {
-			if (is_string($cnv) && str_starts_with($cnv, z_root())) {
-				$cnv = str_replace(['/item/', '/activity/'], ['/conversation/', '/conversation/'], $cnv);
-			}
-			$ret['context'] = $cnv;
 		}
 
 		$actor = self::encode_person($i['author'], false);
@@ -1088,7 +1010,6 @@ class Activity {
 		call_hooks('encode_activity', $hookinfo);
 
 		return $hookinfo['encoded'];
-
 	}
 
 	// Returns an array of URLS for any mention tags found in the item array $i.
@@ -2946,10 +2867,6 @@ class Activity {
 		// This isn't perfect but the best we can do for now.
 		$item['comment_policy'] = ((isset($act->data['commentPolicy'])) ? $act->data['commentPolicy'] : 'authenticated');
 
-		if (!empty($act->obj['context'])) {
-			IConfig::Set($item, 'activitypub', 'context', $act->obj['context'], 1);
-		}
-
 		IConfig::Set($item, 'activitypub', 'recips', $act->raw_recips);
 
 		if (intval($act->sigok)) {
@@ -3137,19 +3054,30 @@ class Activity {
 			}
 
 			$a = new ActivityStreams($n);
-			if ($a->type === 'Announce' && is_array($a->obj)
-				&& array_key_exists('object', $a->obj) && array_key_exists('actor', $a->obj)) {
-				// This is a relayed/forwarded Activity (as opposed to a shared/boosted object)
-				// Reparse the encapsulated Activity and use that instead
-				logger('relayed activity', LOGGER_DEBUG);
-				$a = new ActivityStreams($a->obj);
-			}
 
 			logger($a->debug(), LOGGER_DATA);
 
 			if (!$a->is_valid()) {
 				logger('not a valid activity');
 				break;
+			}
+
+			if (in_array($a->type, ['Add', 'Remove'])
+				&& is_array($a->obj)
+				&& array_key_exists('object', $a->obj)
+				&& array_key_exists('actor', $a->obj)
+				&& !empty($a->tgt)) {
+
+				logger('unsupported collection operation', LOGGER_DEBUG);
+				return;
+			}
+
+			if ($a->type === 'Announce' && is_array($a->obj)
+				&& array_key_exists('object', $a->obj) && array_key_exists('actor', $a->obj)) {
+				// This is a relayed/forwarded Activity (as opposed to a shared/boosted object)
+				// Reparse the encapsulated Activity and use that instead
+				logger('relayed activity', LOGGER_DEBUG);
+				$a = new ActivityStreams($a->obj);
 			}
 
 			$item = Activity::decode_note($a);
@@ -3759,70 +3687,5 @@ class Activity {
 		}
 	}
 
-	public static function addToCollection($channel, $object, $target, $sourceItem = null, $deliver = true) {
-		if (!isset($channel['xchan_hash'])) {
-			$channel = channelx_by_hash($channel['channel_hash']);
-		}
-
-		$item = ((new Item())
-			->setUid($channel['channel_id'])
-			->setVerb('Add')
-			->setAuthorXchan($channel['channel_hash'])
-			->setOwnerXchan($channel['channel_hash'])
-			->setObj($object)
-			->setObjType($object['type'])
-			->setParentMid(str_replace('/conversation/','/item/', $target))
-			->setThrParent(str_replace('/conversation/','/item/', $target))
-			->setApproved($object['object']['id'] ?? '')
-			->setReplyto(z_root() . '/channel/' . $channel['channel_address'])
-			->setTgtType('Collection')
-			->setTarget([
-				'id' => str_replace('/item/','/conversation/', $target),
-				'type' => 'Collection',
-				'attributedTo' => z_root() . '/channel/' . $channel['channel_address'],
-			])
-		);
-		if ($sourceItem) {
-			$item->setAllowCid($sourceItem['allow_cid'])
-				->setAllowGid($sourceItem['allow_gid'])
-				->setDenyCid($sourceItem['deny_cid'])
-				->setDenyGid($sourceItem['deny_gid'])
-				->setPrivate($sourceItem['item_private'])
-				->setNocomment($sourceItem['item_nocomment'])
-				->setCommentPolicy($sourceItem['comment_policy'])
-				->setPostopts($sourceItem['postopts']);
-		}
-		$result = post_activity_item($item->toArray(), deliver: $deliver, channel: $channel, observer: $channel, addAndSync: false);
-		logger('addToCollection: ' . print_r($result, true));
-		return $result;
-	}
-
-	public static function removeFromCollection($channel, $object, $target, $deliver = true) {
-		if (!isset($channel['xchan_hash'])) {
-			$channel = channelx_by_hash($channel['channel_hash']);
-		}
-
-		$item = ((new Item())
-			->setUid($channel['channel_id'])
-			->setVerb('Remove')
-			->setAuthorXchan($channel['channel_hash'])
-			->setOwnerXchan($channel['channel_hash'])
-			->setObj($object)
-			->setObjType($object['type'])
-			->setParentMid(str_replace('/conversation/','/item/', $target))
-			->setThrParent(str_replace('/conversation/','/item/', $target))
-			->setReplyto(z_root() . '/channel/' . $channel['channel_address'])
-			->setTgtType('Collection')
-			->setTarget([
-				'id' => str_replace('/item/','/conversation/', $target),
-				'type' => 'Collection',
-				'attributedTo' => z_root() . '/channel/' . $channel['channel_address']
-			])
-		);
-
-		$result = post_activity_item($item->toArray(), deliver: $deliver, channel: $channel, observer: $channel, addAndSync: false);
-		logger('removeFromCollection: ' . print_r($result, true));
-		return $result;
-	}
 
 }
