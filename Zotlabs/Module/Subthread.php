@@ -159,7 +159,7 @@ class Subthread extends \Zotlabs\Web\Controller {
 		$arr['deny_cid']      = $item['deny_cid'];
 		$arr['deny_gid']      = $item['deny_gid'];
 
-		$post = item_store($arr);
+		$post = item_store($arr, deliver: false, addAndSync: false);
 		$post_id = $post['item_id'];
 
 		$arr['id'] = $post_id;

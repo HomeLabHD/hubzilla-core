@@ -1855,8 +1855,6 @@ function pipe_streams($in, $out, $bufsize = 16384) {
 }
 
 function attach_store_item($channel, $observer, $file) {
-
-
 	if(is_string($file)) {
 		$r = q("SELECT * FROM attach WHERE uid = %d AND hash = '%s' LIMIT 1",
 			intval($channel['channel_id']),
@@ -1906,10 +1904,11 @@ function attach_store_item($channel, $observer, $file) {
 
 			$post = item_store($arr);
 
-			$item_id = $post['item_id'];
-
-			if($item_id) {
-				Master::Summon(['Notifier', 'activity', $item_id]);
+			if ($post['success']) {
+				Master::Summon(['Notifier', 'activity', $post['item_id']]);
+				if (!empty($post['approval_id'])) {
+					Master::Summon(['Notifier', 'activity', $post['approval_id']]);
+				}
 			}
 
 			*/
@@ -1999,10 +1998,11 @@ function attach_store_item($channel, $observer, $file) {
 
 	$post = item_store($arr);
 
-	$item_id = $post['item_id'];
-
-	if($item_id) {
-		Master::Summon(['Notifier', 'activity', $item_id]);
+	if ($post['success']) {
+		Master::Summon(['Notifier', 'activity', $post['item_id']]);
+		if (!empty($post['approval_id'])) {
+			Master::Summon(['Notifier', 'activity', $post['approval_id']]);
+		}
 	}
 
 }

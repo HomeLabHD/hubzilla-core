@@ -575,6 +575,7 @@ class Like extends Controller {
 		}
 
 
+/* Item sync is now done in item_store()
 		$r = q("select * from item where id = %d",
 			intval($post_id)
 		);
@@ -583,7 +584,7 @@ class Like extends Controller {
 			$sync_item = fetch_post_tags($r);
 			Libsync::build_sync_packet($profile_uid, ['item' => [encode_item($sync_item[0], true)]]);
 		}
-
+*/
 
 		if ($extended_like) {
 			$r = q("insert into likes (channel_id,liker,likee,iid,i_mid,verb,target_type,target_id,target) values (%d,'%s','%s',%d,'%s','%s','%s','%s','%s')",
@@ -614,7 +615,6 @@ class Like extends Controller {
 		if ($approval_id) {
 			Master::Summon(['Notifier', 'like', $approval_id]);
 		}
-
 
 		if ($interactive) {
 			notice(t('Action completed.') . EOL);

@@ -108,9 +108,12 @@ class Vote extends Controller {
 
 			if($x['success']) {
 				$itemid = $x['item_id'];
-				Master::Summon( [ 'Notifier', 'like', $itemid ] );
+				Master::Summon( ['Notifier', 'like', $itemid ] );
+				if (!empty($x['approval_id'])) {
+					Master::Summon(['Notifier', 'like', $x['approval_id']]);
+				}
 			}
-
+/*
 			$r = q("select * from item where id = %d",
 				intval($itemid)
 			);
@@ -119,6 +122,7 @@ class Vote extends Controller {
 				$sync_item = fetch_post_tags($r);
 				Libsync::build_sync_packet($channel['channel_id'], [ 'item' => [ encode_item($sync_item[0],true) ] ]);
 			}
+*/
 		}
 
 		$ret['success'] = true;

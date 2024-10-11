@@ -136,6 +136,7 @@ class Share extends \Zotlabs\Web\Controller {
 		$post = item_store($arr);
 
 		$post_id = $post['item_id'];
+		$approval_id = $post['approval_id'] ?? 0;
 
 		$arr['id'] = $post_id;
 
@@ -143,6 +144,7 @@ class Share extends \Zotlabs\Web\Controller {
 
 	//	info( t('Post repeated') . EOL);
 
+/*
 		$r = q("select * from item where id = %d",
 			intval($post_id)
 		);
@@ -151,8 +153,12 @@ class Share extends \Zotlabs\Web\Controller {
 			$sync_item = fetch_post_tags($r);
 			Libsync::build_sync_packet($channel['channel_id'], [ 'item' => [ encode_item($sync_item[0],true) ] ]);
 		}
+*/
 
 		Master::Summon([ 'Notifier', 'like', $post_id ]);
+		if ($approval_id) {
+			Master::Summon(['Notifier', 'like', $approval_id]);
+		}
 
 		killme();
 
