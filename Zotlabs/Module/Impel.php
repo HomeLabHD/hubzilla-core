@@ -164,7 +164,7 @@ class Impel extends \Zotlabs\Web\Controller {
 				$arr['id'] = $i[0]['id'];
 				// don't update if it has the same timestamp as the original
 				if($arr['edited'] > $i[0]['edited'])
-					$x = item_store_update($arr,$execflag);
+					$x = item_store_update($arr, $execflag , deliver: false, addAndSync: false);
 			}
 			else {
 				if(($i) && (intval($i[0]['item_deleted']))) {
@@ -175,7 +175,7 @@ class Impel extends \Zotlabs\Web\Controller {
 					);
 				}
 				else
-					$x = item_store($arr,$execflag);
+					$x = item_store($arr, $execflag, deliver: false, addAndSync: false);
 			}
 
 			if($x && $x['success']) {
