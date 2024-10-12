@@ -3397,12 +3397,13 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		$arr['comment_policy'] = map_scope(PermissionLimits::Get($channel['channel_id'],'post_comments'));
 
         $post = item_store($arr, deliver: false, addAndSync: false);
-		$post_id = $post['item_id'];
+		$post_id = $post['item_id'] ?? 0;
+		$approval_id = $post['approval_id'] ?? 0;
 
 		if ($post_id) {
 			Master::Summon([ 'Notifier','tgroup',$post_id ]);
-            if (!empty($post['approval_id'])) {
-                Master::Summon(['Notifier', 'tgroup', $post['approval_id']]);
+            if ($approval_id) {
+                Master::Summon(['Notifier', 'tgroup', $approval_id]);
             }
 		}
 
