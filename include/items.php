@@ -3313,10 +3313,14 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 			$post = item_store($arr);
 		}
 
-		$post_id = $post['item_id'];
+		$post_id = $post['item_id'] ?? 0;
+		$approval_id = $post['approval_id'] ?? 0;
 
 		if($post_id) {
 			Master::Summon([ 'Notifier','tgroup',$post_id ]);
+			if ($approval_id) {
+				Master::Summon(['Notifier', 'tgroup', $approval_id]);
+			}
 		}
 		return;
 	}
