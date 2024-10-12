@@ -3196,7 +3196,9 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 
 		}
 		else {
-			$arr['uuid'] = item_message_id();
+			// To prevent duplicates from possible clones of the forum/group,
+			// will create a v5 UUID of the source item mid.
+			$arr['uuid'] = uuid_from_url($item['mid']);
 			$arr['mid'] = z_root() . '/item/' . $arr['uuid'];
 			$arr['parent_mid'] = $arr['mid'];
 		}
