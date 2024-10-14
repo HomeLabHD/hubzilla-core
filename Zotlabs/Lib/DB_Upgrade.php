@@ -6,13 +6,7 @@ use Zotlabs\Lib\Config;
 
 class DB_Upgrade {
 
-	public $config_name = '';
-	public $func_prefix = '';
-
-	function __construct($db_revision) {
-
-		$this->config_name = 'db_version';
-		$this->func_prefix = '_';
+	public static function run(int $db_revision): void {
 
 		$build = Config::Get('system', 'db_version', 0);
 		if(! intval($build))

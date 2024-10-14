@@ -1545,7 +1545,7 @@ function check_config() {
 	if (!$syschan_exists)
 		create_sys_channel();
 
-	new DB_Upgrade(DB_UPDATE_VERSION);
+	DB_Upgrade::run(DB_UPDATE_VERSION);
 
 	plugins_sync();
 
