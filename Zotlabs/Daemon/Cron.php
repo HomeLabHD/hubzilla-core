@@ -178,9 +178,6 @@ class Cron {
 			}
 		}
 
-		require_once('include/attach.php');
-		attach_upgrade();
-
 		// once daily run birthday_updates and then expire in background
 
 		// FIXME: add birthday updates, both locally and for xprof for use

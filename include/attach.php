@@ -2933,41 +2933,6 @@ function attach_syspaths($channel_id,$attach_hash) {
 	return [ 'os_path' => $os_path, 'path' => $path ];
 }
 
-/**
- * in earlier releases we did not fill in os_path and display_path in the attach DB structure.
- * (It was not needed or used). Going forward we intend to make use of these fields.
- * A cron task checks for empty values (as older attachments may have arrived at our site
- * in a clone operation) and executes attach_syspaths() to generate these field values and correct
- * the attach table entry. The operation is limited to 100 DB entries at a time so as not to
- * overload the system in any cron run. Eventually it will catch up with old attach structures
- * and switch into maintenance mode to correct any that might arrive in clone packets from older
- * sites.
- */
-
-
-
-function attach_upgrade() {
-	$r = q("SELECT id, uid, hash FROM attach WHERE os_path = '' OR display_path = '' LIMIT 100");
-	if($r) {
-		foreach($r as $rv) {
-			$x = attach_syspaths($rv['uid'],$rv['hash']);
-			if($x) {
-				q("update attach set os_path = '%s', display_path = '%s' where id = %d",
-					dbesc($x['os_path']),
-					dbesc($x['path']),
-					intval($rv['id'])
-				);
-				q("update photo set os_path = '%s', display_path = '%s' where uid = %d and resource_id = '%s'",
-					dbesc($x['os_path']),
-					dbesc($x['path']),
-					intval($rv['uid']),
-					dbesc($rv['hash'])
-				);
-			}
-		}
-	}
-}
-
 
 /**
  * Chunked uploader for integration with the blueimp jquery-uploader
