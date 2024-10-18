@@ -525,7 +525,7 @@ function update_birthdays() {
 			$z = event_store_event($ev);
 
 			if ($z) {
-				$item_id = event_store_item($ev, $z);
+				event_store_item($ev, $z, false);
 				q("update abook set abook_dob = '%s' where abook_id = %d",
 					dbesc(intval($rr['abook_dob']) + 1 . substr($rr['abook_dob'], 4)),
 					intval($rr['abook_id'])

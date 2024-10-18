@@ -179,26 +179,14 @@ class Channel_calendar extends Controller {
 		if ($post_tags)
 			$datarray['term'] = $post_tags;
 
-		$item_id = event_store_item($datarray, $event);
+		$post = event_store_item($datarray, $event);
 
-		if ($item_id) {
-			$r = q("select * from item where id = %d",
-				intval($item_id)
-			);
-			if ($r) {
-				xchan_query($r);
-				$sync_item = fetch_post_tags($r);
-				$z         = q("select * from event where event_hash = '%s' and uid = %d limit 1",
-					dbesc($r[0]['resource_id']),
-					intval($channel['channel_id'])
-				);
-				if ($z) {
-					Libsync::build_sync_packet($channel['channel_id'], array('event_item' => array(encode_item($sync_item[0], true)), 'event' => $z));
-				}
-			}
+		if (!empty($post['item_id'])) {
+			Master::Summon(['Notifier', 'event', $post['item_id']]);
 		}
-
-		Master::Summon(array('Notifier', 'event', $item_id));
+		if (!empty($post['approval_id'])) {
+			Master::Summon(['Notifier', 'event', $post['approval_id']]);
+		}
 
 		killme();
 

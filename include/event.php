@@ -1070,7 +1070,7 @@ function event_import_ical($ical, $uid) {
 		logger('storing event: ' . print_r($ev,true), LOGGER_ALL);
 		$event = event_store_event($ev);
 		if($event) {
-			$item_id = event_store_item($ev,$event);
+			event_store_item($ev, $event, false);
 			return true;
 		}
 	}
@@ -1205,7 +1205,7 @@ function event_import_ical_task($ical, $uid) {
 		logger('storing event: ' . print_r($ev,true), LOGGER_ALL);
 		$event = event_store_event($ev);
 		if($event) {
-			$item_id = event_store_item($ev,$event);
+			event_store_item($ev, $event, false);
 			return true;
 		}
 	}
@@ -1214,8 +1214,7 @@ function event_import_ical_task($ical, $uid) {
 }
 
 
-
-function event_store_item($arr, $event) {
+function event_store_item($arr, $event, $deliver = true) {
 
 	require_once('include/datetime.php');
 	require_once('include/items.php');
@@ -1234,7 +1233,7 @@ function event_store_item($arr, $event) {
 	}
 
 
-	$item_arr = array();
+	$item_arr = [];
 	$prefix = '';
 //	$birthday = false;
 
@@ -1255,7 +1254,7 @@ function event_store_item($arr, $event) {
 		$item_arr['comment_policy'] = 'none';
 	}
 
-	$r = q("SELECT * FROM item WHERE resource_id = '%s' AND resource_type = 'event' and uid = %d LIMIT 1",
+	$r = q("SELECT * FROM item left join xchan on author_xchan = xchan_hash WHERE resource_id = '%s' AND resource_type = 'event' and uid = %d LIMIT 1",
 		dbesc($event['event_hash']),
 		intval($arr['uid'])
 	);
@@ -1292,51 +1291,21 @@ function event_store_item($arr, $event) {
 
 		$object = json_encode($x);
 
-		$private = (($arr['allow_cid'] || $arr['allow_gid'] || $arr['deny_cid'] || $arr['deny_gid']) ? 1 : 0);
+		$item_arr['id'] = $r[0]['id'];
+		$item_arr['uid'] = $arr['uid'];
+		$item_arr['obj'] = $object;
+		$item_arr['edited'] = $arr['edited'];
+		$item_arr['allow_cid'] = $arr['allow_cid'];
+		$item_arr['allow_gid'] = $arr['allow_gid'];
+		$item_arr['deny_cid'] = $arr['deny_cid'];
+		$item_arr['deny_gid'] = $arr['deny_gid'];
+		$item_arr['item_private'] = (($arr['allow_cid'] || $arr['allow_gid'] || $arr['deny_cid'] || $arr['deny_gid']) ? 1 : 0);
+		$item_arr['title'] = $arr['summary'];
+		$item_arr['sig'] = '';
+		$item_arr['body'] = $prefix . format_event_bbcode($arr);
+		$item_arr['term'] = $arr['term'];
 
-		/**
-		 * @FIXME can only update sig if we have the author's channel on this site
-		 * Until fixed, set it to nothing so it won't give us signature errors.
-		 */
-		$sig = '';
-
-		q("UPDATE item SET title = '%s', body = '%s', obj = '%s', allow_cid = '%s', allow_gid = '%s', deny_cid = '%s', deny_gid = '%s', edited = '%s', sig = '%s', item_flags = %d, item_private = %d, obj_type = '%s'  WHERE id = %d AND uid = %d",
-			dbesc($arr['summary']),
-			dbesc($prefix . format_event_bbcode($arr)),
-			dbesc($object),
-			dbesc($arr['allow_cid']),
-			dbesc($arr['allow_gid']),
-			dbesc($arr['deny_cid']),
-			dbesc($arr['deny_gid']),
-			dbesc($arr['edited']),
-			dbesc($sig),
-			intval($r[0]['item_flags']),
-			intval($private),
-			dbesc('Event'),
-			intval($r[0]['id']),
-			intval($arr['uid'])
-		);
-
-		q("delete from term where oid = %d and otype = %d",
-			intval($r[0]['id']),
-			intval(TERM_OBJ_POST)
-		);
-
-		if(($arr['term']) && (is_array($arr['term']))) {
-			foreach($arr['term'] as $t) {
-				q("insert into term (uid,oid,otype,ttype,term,url)
-					values(%d,%d,%d,%d,'%s','%s') ",
-					intval($arr['uid']),
-					intval($r[0]['id']),
-					intval(TERM_OBJ_POST),
-					intval($t['ttype']),
-					dbesc($t['term']),
-					dbesc($t['url'])
-				);
-			}
-		}
-
-		$item_id = $r[0]['id'];
+		$post = item_store_update($item_arr, deliver: $deliver);
 
 		/**
 		 * @hooks event_updated
@@ -1344,14 +1313,10 @@ function event_store_item($arr, $event) {
 		 */
 		call_hooks('event_updated', $event['id']);
 
-		return $item_id;
+		return $post;
 	} else {
 
-		$z = q("select * from channel where channel_id = %d limit 1",
-			intval($arr['uid'])
-		);
-
-		$private = (($arr['allow_cid'] || $arr['allow_gid'] || $arr['deny_cid'] || $arr['deny_gid']) ? 1 : 0);
+		$z = channelx_by_n($arr['uid']);
 
 		$item_wall = 0;
 		$item_origin = 0;
@@ -1361,7 +1326,7 @@ function event_store_item($arr, $event) {
 			$item_arr['id'] = $item['id'];
 		}
 		else {
-			$wall = (($z[0]['channel_hash'] == $event['event_xchan']) ? true : false);
+			$wall = (($z['channel_hash'] == $event['event_xchan']) ? true : false);
 			$item_thread_top = 1;
 			if($wall) {
 				$item_wall = 1;
@@ -1374,20 +1339,20 @@ function event_store_item($arr, $event) {
 			$arr['mid'] = z_root() . '/activity/' . $event['event_hash'];
 		}
 
-		$item_arr['aid']             = $z[0]['channel_account_id'];
+		$item_arr['aid']             = $z['channel_account_id'];
 		$item_arr['uid']             = $arr['uid'];
 		$item_arr['uuid']            = $arr['uuid'];
 		$item_arr['author_xchan']    = $arr['event_xchan'];
 		$item_arr['mid']             = $arr['mid'];
 		$item_arr['parent_mid']      = $arr['mid'];
-		$item_arr['owner_xchan']     = (($wall) ? $z[0]['channel_hash'] : $arr['event_xchan']);
+		$item_arr['owner_xchan']     = (($wall) ? $z['channel_hash'] : $arr['event_xchan']);
 		$item_arr['author_xchan']    = $arr['event_xchan'];
 		$item_arr['title']           = $arr['summary'];
 		$item_arr['allow_cid']       = $arr['allow_cid'];
 		$item_arr['allow_gid']       = $arr['allow_gid'];
 		$item_arr['deny_cid']        = $arr['deny_cid'];
 		$item_arr['deny_gid']        = $arr['deny_gid'];
-		$item_arr['item_private']    = $private;
+		$item_arr['item_private']    = (($arr['allow_cid'] || $arr['allow_gid'] || $arr['deny_cid'] || $arr['deny_gid']) ? 1 : 0);
 		$item_arr['verb']            = 'Invite';
 		$item_arr['item_wall']       = $item_wall;
 		$item_arr['item_origin']     = $item_origin;
@@ -1452,16 +1417,21 @@ function event_store_item($arr, $event) {
 			$item_arr['obj']  = json_encode($y);
 		}
 
+		$item_arr['target'] = [
+			'id' => str_replace('/item/', '/conversation/', $item_arr['parent_mid']),
+			'type' => 'Collection',
+			'attributedTo' => z_root() . '/channel/' . $z['channel_address'],
+		];
+		$item_arr['tgt_type'] = 'Collection';
+
 		// propagate the event resource_id so that posts containing it are easily searchable in downstream copies
 		// of the item which have not stored the actual event. Required for Diaspora event federation as Diaspora
 		// event_participation messages refer to the event resource_id as a parent, while out own event attendance
 		// activities refer to the item message_id as the parent.
 
-		set_iconfig($item_arr, 'system','event_id',$event['event_hash'],true);
+		set_iconfig($item_arr, 'system', 'event_id', $event['event_hash'], true);
 
-		$res = item_store($item_arr);
-
-		$item_id = $res['item_id'];
+		$post = item_store($item_arr, deliver: $deliver);
 
 		/**
 		 * @hooks event_created
@@ -1469,7 +1439,7 @@ function event_store_item($arr, $event) {
 		 */
 		call_hooks('event_created', $event['id']);
 
-		return $item_id;
+		return $post;
 	}
 }
 
