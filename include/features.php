@@ -170,9 +170,17 @@ function get_features($filtered = true, $level = (-1)) {
 			[
 				'star_posts',
 				t('Star Posts'),
-				t('Ability to mark special posts with a star indicator'),
+				t('Ability to mark conversations with a star'),
 				false,
 				Config::Get('feature_lock','star_posts'),
+			],
+
+			[
+				'filing',
+				t('File Posts'),
+				t('Ability to file posts'),
+				false,
+				Config::Get('feature_lock','filing'),
 			],
 
 			[

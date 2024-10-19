@@ -23,20 +23,35 @@ class Messages {
 
 		$_SESSION['messages_loadtime'] = datetime_convert();
 
+		$r = q("SELECT DISTINCT(term) FROM term WHERE uid = %d AND ttype = %d ORDER BY term",
+			intval(local_channel()),
+			intval(TERM_FILE)
+		);
+
+		if ($r) {
+			foreach($r as $rr) {
+				$file_tags[] = $rr['term'];
+			}
+		}
+
 		$tpl = get_markup_template('messages_widget.tpl');
 		$o = replace_macros($tpl, [
 			'$entries' => $page['entries'] ?? [],
 			'$offset' => $page['offset'] ?? 0,
 			'$feature_star' => feature_enabled(local_channel(), 'star_posts'),
+			'$feature_file' => feature_enabled(local_channel(), 'filing'),
+			'$file_tags' => $file_tags,
 			'$strings' => [
 				'messages_title' => t('Public and restricted messages'),
 				'direct_messages_title' => t('Direct messages'),
 				'starred_messages_title' => t('Starred messages'),
+				'filed_messages_title' => t('Filed messages'),
 				'notice_messages_title' => t('Notices'),
 				'loading' => t('Loading'),
 				'empty' => t('No messages'),
 				'unseen_count' => t('Unseen'),
-				'filter' => t('Filter by name or address')
+				'filter' => t('Filter by name or address'),
+				'file_filter' => t('Filter by file name')
 			]
 		]);
 
@@ -50,6 +65,7 @@ class Messages {
 		$offset = $options['offset'] ?? 0;
 		$type = $options['type'] ?? '';
 		$author = $options['author'] ?? '';
+		$file = $options['file'] ?? '';
 
 		if ($offset == -1) {
 			return;
@@ -67,8 +83,9 @@ class Messages {
 		$item_normal_c = str_replace('item.', 'c.', $item_normal);
 		$entries = [];
 		$limit = 30;
+		$order_sql = 'i.created DESC';
 		$dummy_order_sql = '';
-		$author_sql = '';
+		$filter_sql = '';
 		$loadtime = (($offset) ? $_SESSION['messages_loadtime'] : datetime_convert());
 		$vnotify = get_pconfig(local_channel(), 'system', 'vnotify', -1);
 
@@ -84,43 +101,55 @@ class Messages {
 			$vnotify_sql_i = " AND i.verb NOT IN ('Dislike', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 		}
 
-		if($author) {
-			$author_sql = " AND (i.owner_xchan = '" . protect_sprintf(dbesc($author)) . "') ";
+		if($type !== 'filed' && $author) {
+			$filter_sql = " AND (i.owner_xchan = '" . protect_sprintf(dbesc($author)) . "') ";
+		}
+
+		if($type === 'filed' && $file) {
+			$filed_filter_sql = " AND (term.term = '" . protect_sprintf(dbesc($file)) . "') ";
 		}
 
 		switch($type) {
 			case 'direct':
-				$type_sql = ' AND i.item_private = 2 ';
+				$type_sql = ' AND i.item_private = 2 AND i.item_thread_top = 1 ';
 				// $dummy_order_sql has no other meaning but to trick
 				// some mysql backends into using the right index.
 				$dummy_order_sql = ', i.received DESC ';
 				break;
 			case 'starred':
-				$type_sql = ' AND i.item_starred = 1 ';
+				$type_sql = ' AND i.item_starred = 1 AND i.item_thread_top = 1 ';
+				break;
+			case 'filed':
+				$type_sql = ' AND i.id IN (SELECT term.oid FROM term WHERE term.ttype = ' . TERM_FILE . ' AND term.uid = i.uid ' . $filed_filter_sql . ')';
 				break;
 			default:
-				$type_sql = ' AND i.item_private IN (0, 1) ';
+				$type_sql = ' AND i.item_private IN (0, 1) AND i.item_thread_top = 1 ';
 		}
 
 		$items = q("SELECT *,
 			(SELECT count(*) FROM item c WHERE c.uid = %d AND c.parent = i.parent AND c.item_unseen = 1 AND c.item_thread_top = 0 $item_normal_c $vnotify_sql_c) AS unseen_count
-			FROM item i WHERE i.uid = %d
+			FROM item i
+			WHERE i.uid = %d
 			AND i.created <= '%s'
 			$type_sql
-			AND i.item_thread_top = 1
-			$author_sql
+			$filter_sql
 			$item_normal_i
-			ORDER BY i.created DESC $dummy_order_sql
+			ORDER BY $order_sql $dummy_order_sql
 			LIMIT $limit OFFSET $offset",
 			intval(local_channel()),
 			intval(local_channel()),
 			dbescdate($loadtime)
 		);
 
+		if ($type === 'filed') {
+			$items = fetch_post_tags($items);
+		}
+
 		xchan_query($items, false);
 
 		$i = 0;
 		$entries = [];
+		$ids = [];
 
 		foreach($items as $item) {
 
@@ -147,6 +176,16 @@ class Messages {
 			}
 			elseif($item['verb'] === 'Announce' && isset($item['source'])) {
 				$info .= t('via') . ' ' . $item['source']['xchan_name'];
+			}
+
+			if ($type == 'filed') {
+				$info = '';
+				foreach ($item['term'] as $t) {
+					if ($t['ttype'] !== TERM_FILE) {
+						continue;
+					}
+					$info .= '<span class="badge rounded-pill bg-danger me-1"><i class="bi bi-folder"></i>&nbsp;' . $t['term'] . '</span>';
+				}
 			}
 
 			$summary = $item['title'];
