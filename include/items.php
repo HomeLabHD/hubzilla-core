@@ -5148,25 +5148,19 @@ function copy_of_pubitem($channel, $mid) {
 		return $item[0];
 	}
 
-
-	$r = q("select * from item where parent_mid = (select parent_mid from item where mid = '%s' and uid = %d ) order by id ",
+	$r = q("select * from item where parent_mid = (select parent_mid from item where mid = '%s' and uid = %d) and uid = %d order by id ",
 		dbesc($mid),
+		intval($syschan['channel_id']),
 		intval($syschan['channel_id'])
 	);
 
 	if($r) {
 		$items = fetch_post_tags($r,true);
 		foreach($items as $rv) {
-			$d = q("select id from item where mid = '%s' and uid = %d limit 1",
-				dbesc($rv['mid']),
-				intval($channel['channel_id'])
-			);
-			if($d) {
-				continue;
-			}
 
 			unset($rv['id']);
 			unset($rv['parent']);
+
 			$rv['aid'] = $channel['channel_account_id'];
 			$rv['uid'] = $channel['channel_id'];
 			$rv['item_wall'] = 0;
@@ -5180,6 +5174,7 @@ function copy_of_pubitem($channel, $mid) {
 
 		}
 	}
+
 	return $result;
 }
 
