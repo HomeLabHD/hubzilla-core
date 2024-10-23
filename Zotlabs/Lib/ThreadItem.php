@@ -187,7 +187,7 @@ class ThreadItem {
 			$drop = [ 'dropping' => true, 'delete' => t('Admin Delete') ];
 		}
 
-		$filer = ((($conv->get_profile_owner() == local_channel()) && (! array_key_exists('real_uid',$item))) ? t("Save to Folder") : false);
+		$filer = (((local_channel() && $conv->get_profile_owner() === local_channel()) || (local_channel() && App::$module === 'pubstream')) ? t("Save to Folder") : false);
 
 		$profile_avatar = $item['author']['xchan_photo_s'];
 		$profile_link   = chanlink_hash($item['author_xchan']);

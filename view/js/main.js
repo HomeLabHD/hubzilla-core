@@ -212,7 +212,7 @@ $(document).ready(function() {
 					prepareLiveUpdate(b64mid, notify_id);
 					$('.message').removeClass('active');
 					$('[data-b64mid="' + b64mid + '"].message').addClass('active');
-					$('[data-b64mid="' + b64mid + '"].message .badge').remove();
+					$('[data-b64mid="' + b64mid + '"].message .unseen_count').remove();
 				}
 			}
 		}

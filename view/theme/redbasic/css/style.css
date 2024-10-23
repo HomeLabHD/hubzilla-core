@@ -1363,12 +1363,16 @@ dl.bb-dl > dd > li {
 }
 
 .bootstrap-tagsinput .tag:before {
-	/* Copied from fa-asterisk, is there a better way to do it? */
-	font-family: ForkAwesome;
-	font-weight: normal;
-	font-style: normal;
-	text-decoration: inherit;
-	content:"\f069  ";
+	font-family: bootstrap-icons;
+	font-size: 0.5rem;
+	content: "\F151";
+	margin-right: .25rem;
+}
+
+.bootstrap-tagsinput .tag [data-role="remove"]:after {
+	font-family: bootstrap-icons;
+	font-size: 0.5rem;
+	content: "\F659";
 }
 
 /* Modified original CSS to match input in Redbasic */

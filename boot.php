@@ -1538,14 +1538,7 @@ function check_config() {
 
 	App::set_baseurl(z_root());
 
-	// Make sure each site has a system channel.  This is now created on install
-	// so we just need to keep this around a couple of weeks until the hubs that
-	// already exist have one
-	$syschan_exists = get_sys_channel();
-	if (!$syschan_exists)
-		create_sys_channel();
-
-	DB_Upgrade::run(DB_UPDATE_VERSION);
+	new DB_Upgrade(DB_UPDATE_VERSION);
 
 	plugins_sync();
 
