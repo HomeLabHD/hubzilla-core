@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Web;
 
+use Zotlabs\Lib\Text;
+
 class WebServer {
 
 	public function run() {
@@ -60,7 +62,7 @@ class WebServer {
 			\App::$query_string = strip_zids(\App::$query_string);
 			if(! local_channel()) {
 				if (!isset($_SESSION['my_address']) || $_SESSION['my_address'] != $_GET['zid']) {
-					$_SESSION['my_address'] = $_GET['zid'];
+					$_SESSION['my_address'] = Text::escape_tags($_GET['zid']);
 					$_SESSION['authenticated'] = 0;
 				}
 				if(!$_SESSION['authenticated']) {
