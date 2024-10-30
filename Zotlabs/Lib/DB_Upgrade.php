@@ -1,18 +1,35 @@
 <?php
+/**
+ * A class to handle database schema upgrades.
+ *
+ * SPDX-FileCopyrightText: 2024 Hubzilla Community
+ * SPDX-FileContributor: Harald Eilertsen
+ *
+ * SPDX-License-Identifier: MIT
+ */
 
 namespace Zotlabs\Lib;
 
 use Zotlabs\Lib\Config;
 
+/**
+ * Upgrade the database schema if necessary.
+ *
+ * Compares the currently active database schema version with the version
+ * required for this version of Hubzilla, and performs the upgrade if needed.
+ *
+ * If the difference consists of more than one revision of the schema, each of
+ * the intermediate upgrades are performed in turn.
+ */
 class DB_Upgrade {
 
-	public $config_name = '';
-	public $func_prefix = '';
-
-	function __construct($db_revision) {
-
-		$this->config_name = 'db_version';
-		$this->func_prefix = '_';
+	/**
+	 * Check the installed and required schema versions and perform the upgrade
+	 * if necessary.
+	 *
+	 * @param int $db_version	The required DB schema version.
+	 */
+	public static function run(int $db_revision): void {
 
 		$build = Config::Get('system', 'db_version', 0);
 		if(! intval($build))
