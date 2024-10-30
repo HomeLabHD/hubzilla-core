@@ -40,6 +40,7 @@ case $HZ_TEST_DB_TYPE in
 
 	mariadb | mysql )
 		db_type="mysql"
+		db_binary=$HZ_TEST_DB_TYPE
 		default_charset="utf8mb4"
 		root_user="root"
 		root_passwd="root"
@@ -90,11 +91,11 @@ else
 	echo -e "\n--------------"
 	echo "Client version:"
 	echo -e "--------------\n"
-	mysql --version
+	$db_binary --version
 
-	mysql -v -u $HZ_TEST_DB_ROOT_USER -p$HZ_TEST_DB_ROOT_PASS -Ns -e "SELECT VERSION();"
+	$db_binary -v -u $HZ_TEST_DB_ROOT_USER -p$HZ_TEST_DB_ROOT_PASS -Ns -e "SELECT VERSION();"
 
-	mysql -u $HZ_TEST_DB_ROOT_USER -p$HZ_TEST_DB_ROOT_PASS <<-EOSQL
+	$db_binary -u $HZ_TEST_DB_ROOT_USER -p$HZ_TEST_DB_ROOT_PASS <<-EOSQL
 		DROP DATABASE IF EXISTS $HZ_TEST_DB_NAME;
 		CREATE DATABASE $HZ_TEST_DB_NAME CHARACTER SET $HZ_TEST_DB_CHARSET;
 
@@ -107,7 +108,7 @@ else
 	echo -e "\n--------------"
 	echo "Importing schema..."
 	echo -e "--------------\n"
-	mysql -u $HZ_TEST_DB_USER -p$HZ_TEST_DB_PASS $HZ_TEST_DB_NAME < ./install/schema_mysql.sql
-	mysql -v -u $HZ_TEST_DB_ROOT_USER -p$HZ_TEST_DB_ROOT_PASS -Ns -e "show databases"
-	mysql -v -u $HZ_TEST_DB_USER -p$HZ_TEST_DB_PASS $HZ_TEST_DB_NAME -Ns -e "show tables"
+	$db_binary -u $HZ_TEST_DB_USER -p$HZ_TEST_DB_PASS $HZ_TEST_DB_NAME < ./install/schema_mysql.sql
+	$db_binary -v -u $HZ_TEST_DB_ROOT_USER -p$HZ_TEST_DB_ROOT_PASS -Ns -e "show databases"
+	$db_binary -v -u $HZ_TEST_DB_USER -p$HZ_TEST_DB_PASS $HZ_TEST_DB_NAME -Ns -e "show tables"
 fi
