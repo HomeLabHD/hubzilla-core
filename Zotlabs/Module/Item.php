@@ -1060,7 +1060,7 @@ class Item extends Controller {
 			$obj['id']            = $mid;
 			$obj['diaspora:guid'] = $uuid;
 			$obj['attributedTo']  = channel_url($channel);
-			$obj['published']     = $created;
+			$obj['published']     = datetime_convert('UTC', 'UTC', $created, ATOM_TIME);
 			$obj['name']          = $title;
 
 			$datarray['obj']      = $obj;
