@@ -8,6 +8,11 @@ class Account_edit {
 
 	function post() {
 
+		// Validate CSRF token
+		//
+		// We terminate with a 403 Forbidden status if the check fails.
+		check_form_security_token_ForbiddenOnErr('admin_account_edit', 'security');
+
 		$account_id = $_REQUEST['aid'];
 
 		if(! $account_id)
@@ -18,7 +23,7 @@ class Account_edit {
 		if($pass1 && $pass2 && ($pass1 === $pass2)) {
 			$salt = random_string(32);
 			$password_encoded = hash('whirlpool', $salt . $pass1);
-			$r = q("update account set account_salt = '%s', account_password = '%s', 
+			$r = q("update account set account_salt = '%s', account_password = '%s',
 				account_password_changed = '%s' where account_id = %d",
 				dbesc($salt),
 				dbesc($password_encoded),
@@ -34,7 +39,7 @@ class Account_edit {
 		$account_level = 5;
 		$account_language = trim($_REQUEST['account_language']);
 
-		$r = q("update account set account_service_class = '%s', account_level = %d, account_language = '%s' 
+		$r = q("update account set account_service_class = '%s', account_level = %d, account_language = '%s'
 			where account_id = %d",
 			dbesc($service_class),
 			intval($account_level),
@@ -62,8 +67,8 @@ class Account_edit {
 			return '';
 		}
 
-
 		$a = replace_macros(get_markup_template('admin_account_edit.tpl'), [
+			'$security' => get_form_security_token('admin_account_edit'),
 			'$account' => $x[0],
 			'$title' => t('Account Edit'),
 			'$pass1' => [ 'pass1', t('New Password'), ' ','' ],
