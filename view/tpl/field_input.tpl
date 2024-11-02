@@ -1,6 +1,6 @@
 	<div id="id_{{$field.0}}_wrapper" class="mb-3">
 		<label for="id_{{$field.0}}" id="label_{{$field.0}}">
-			{{$field.1}}{{if $field.4}}<sup class="required zuiqmid"> {{$field.4}}</sup>{{/if}}
+			{{$field.1}}{{if isset($field.4)}}<sup class="required zuiqmid"> {{$field.4}}</sup>{{/if}}
 		</label>
 		<input
 			class="form-control"
@@ -8,7 +8,7 @@
 			id="id_{{$field.0}}"
 			type="text"
 			value="{{$field.2|escape:'html':'UTF-8':FALSE}}"
-			{{if $field.5}}{{$field.5}}{{/if}}
+			{{if isset($field.5)}}{{$field.5}}{{/if}}
 			>
 		<small id="help_{{$field.0}}" class="form-text text-muted">
 			{{$field.3}}
