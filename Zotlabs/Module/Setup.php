@@ -263,7 +263,10 @@ class Setup extends \Zotlabs\Web\Controller {
 
 				$this->check_htaccess($checks);
 
-				$checkspassed = array_reduce($checks, "self::check_passed", true);
+				$checkspassed = array_reduce(
+					$checks,
+					"Zotlabs\Module\Setup::check_passed",
+					true);
 
 				$tpl = get_markup_template('install_checks.tpl');
 				$o .= replace_macros($tpl, array(
