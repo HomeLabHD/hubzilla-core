@@ -5,16 +5,9 @@ namespace Zotlabs\Web;
 
 class HttpMeta {
 
-	private $vars = null;
-	private $og   = null;
-
-	function __construct() {
-
-		$this->vars = [];
-		$this->og   = [];
-		$this->ogproperties = [];
-
-	}
+	private $vars = [];
+	private $og = [];
+	private $ogproperties = [];
 
 	//Set Meta Value
 	//   Mode:
