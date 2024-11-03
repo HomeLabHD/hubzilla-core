@@ -8,12 +8,16 @@
  * SPDX-License-Identifier: MIT
  */
 
+use PHPUnit\Framework\Attributes\Before;
+
 /**
  * Test class for testing the Helpindex widget.
  */
 class HelpindexTest extends \Zotlabs\Tests\Unit\Module\TestCase {
 
 	use \phpmock\phpunit\PHPMock;
+
+	private string $output;
 
 	/**
 	 * Define the stubs to make sure they work later in the test.
@@ -25,6 +29,12 @@ class HelpindexTest extends \Zotlabs\Tests\Unit\Module\TestCase {
 	public static function define_stubs(): void {
 		self::defineFunctionMock('Zotlabs\Lib\Traits', 'file_exists');
 		self::defineFunctionMock('Zotlabs\Widget', 'file_get_contents');
+	}
+
+	#[Before]
+	public function setup_state(): void {
+		// Make sure the output is cleared before running the test
+		$this->output = '';
 	}
 
 	public function test_loading_toc(): void {
