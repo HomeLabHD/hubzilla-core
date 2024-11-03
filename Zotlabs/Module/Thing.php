@@ -50,24 +50,28 @@ class Thing extends \Zotlabs\Web\Controller {
 
 		$channel    = \App::get_channel();
 
-		$term_hash = (($_REQUEST['term_hash']) ? $_REQUEST['term_hash'] : '');
+		$term_hash = (($_POST['term_hash']) ? $_POST['term_hash'] : '');
 
-		$name = escape_tags($_REQUEST['term']);
-		$verb = escape_tags($_REQUEST['verb']);
-		$activity = intval($_REQUEST['activity']);
-		$profile_guid = escape_tags($_REQUEST['profile_assign']);
-		$url = $_REQUEST['url'];
-		$photo = $_REQUEST['img'];
+		$name = escape_tags($_POST['term']);
+		$verb = escape_tags($_POST['verb']);
+		$activity = intval($_POST['activity']);
+		$profile_guid = escape_tags($_POST['profile_assign']);
+		$url = $_POST['url'];
+		$photo = $_POST['img'];
 
 		$hash = new_uuid();
 
 		$verbs = obj_verbs();
 
-		/**
-		 * verbs: [0] = first person singular, e.g. "I want", [1] = 3rd person singular, e.g. "Bill wants"
-		 * We use the first person form when creating an activity, but the third person for use in activities
-		 * @FIXME There is no accounting for verb gender for languages where this is significant. We may eventually
-		 * require obj_verbs() to provide full conjugations and specify which form to use in the $_REQUEST params to this module.
+		/*
+		 * verbs: [0] = first person singular, e.g. "I want", [1] = 3rd person
+		 * singular, e.g. "Bill wants" We use the first person form when
+		 * creating an activity, but the third person for use in activities
+		 *
+		 * @FIXME There is no accounting for verb gender for languages where
+		 * this is significant. We may eventually require obj_verbs() to
+		 * provide full conjugations and specify which form to use in the
+		 * $_POST params to this module.
 		 */
 
 		$translated_verb = $verbs[$verb][1];
@@ -100,7 +104,7 @@ class Thing extends \Zotlabs\Web\Controller {
 			return;
 
 		$acl = new \Zotlabs\Access\AccessList($channel);
-		$acl->set_from_array($_REQUEST);
+		$acl->set_from_array($_POST);
 
 		$x = $acl->get();
 
@@ -394,7 +398,7 @@ class Thing extends \Zotlabs\Web\Controller {
 			'$profile_lbl' => t('Select a profile'),
 			'$profile_select' => contact_profile_assign(''),
 			'$verb_lbl' => $channel['channel_name'],
-			'$activity' => array('activity',t('Post an activity'),((array_key_exists('activity',$_REQUEST)) ? $_REQUEST['activity'] : true),t('Only sends to viewers of the applicable profile')),
+			'$activity' => array('activity',t('Post an activity'),((array_key_exists('activity',$_GET)) ? $_GET['activity'] : true),t('Only sends to viewers of the applicable profile')),
 			'$verb_select' => obj_verb_selector(),
 			'$thing_lbl' => t('Name of thing e.g. something'),
 			'$url_lbl' => t('URL of thing (optional)'),
