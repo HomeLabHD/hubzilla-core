@@ -1,7 +1,7 @@
 <?php
 
-if(! function_exists("string_plural_select_nb_no")) {
-function string_plural_select_nb_no($n){
+if(! function_exists("string_plural_select_nb")) {
+function string_plural_select_nb($n){
 	return ($n != 1 ? 1 : 0);
 }}
 App::$rtl = 0;
@@ -1543,7 +1543,7 @@ App::$strings["Status:"] = "Status:";
 App::$strings["Homepage:"] = "Hjemmeside:";
 App::$strings["Hometown:"] = "Hjemby:";
 App::$strings["Online Now"] = "Online nå";
-App::$strings["This channel has not added a profile description yet"] = "";
+App::$strings["This channel has not added a profile description yet"] = "Denne kanalen har ikke lagt til en profilbeskrivelse enda";
 App::$strings["Change your profile photo"] = "";
 App::$strings["Trans"] = "";
 App::$strings["Full Name:"] = "Fullt navn:";
@@ -1854,13 +1854,13 @@ App::$strings["Registration on this hub is by invitation only."] = "";
 App::$strings["Register at another affiliated hub"] = "";
 App::$strings["Terms of Service"] = "Tjenesteavtale";
 App::$strings["I accept the %s for this website"] = "Jeg godtar %s for dette nettstedet";
-App::$strings["I am over %s years of age and accept the %s for this website"] = "";
+App::$strings["I am over %s years of age and accept the %s for this website"] = "Jeg er mer enn %s år gammel, og godtar %s for dette nettstedet";
 App::$strings["Your email address"] = "Din e-postadresse";
 App::$strings["Optional"] = "Valgfritt";
 App::$strings["Choose a password"] = "Velg et passord";
 App::$strings["Please re-enter your password"] = "Vennligst skriv ditt passord en gang til";
 App::$strings["Please enter your invitation code"] = "Vennligst skriv din invitasjonskode";
-App::$strings["Your name"] = "";
+App::$strings["Your name"] = "Navn";
 App::$strings["Real name is preferred"] = "";
 App::$strings["Choose a short nickname"] = "Velg et kort kallenavn";
 App::$strings["Your nickname will be used to create an easy to remember channel address"] = "";
@@ -2035,7 +2035,7 @@ App::$strings["Room not found"] = "Rommet ble ikke funnet";
 App::$strings["Leave Room"] = "Forlat rom";
 App::$strings["Delete Room"] = "Slett rom";
 App::$strings["I am away right now"] = "Jeg er borte akkurat nå";
-App::$strings["I am online"] = "Jeg er online";
+App::$strings["I am online"] = "Jeg er pålogget";
 App::$strings["Bookmark this room"] = "Bokmerk dette rommet";
 App::$strings["New Chatroom"] = "Nytt chatrom";
 App::$strings["Chatroom name"] = "Romnavn";
@@ -2845,10 +2845,10 @@ App::$strings["Upload Photos"] = "Last opp bilder";
 App::$strings["Enter an album name"] = "Skriv et albumnavn";
 App::$strings["or select an existing album (doubleclick)"] = "eller velg et eksisterende album (dobbeltklikk)";
 App::$strings["Create a status post for this upload"] = "Lag et statusinnlegg for denne opplastingen";
-App::$strings["Description (optional)"] = "";
+App::$strings["Description (optional)"] = "Beskrivelse (valgritt)";
 App::$strings["Show Newest First"] = "Vis nyeste først";
 App::$strings["Show Oldest First"] = "Vis eldste først";
-App::$strings["Add Photos"] = "";
+App::$strings["Add Photos"] = "Legg til bilder";
 App::$strings["Permission denied. Access to this item may be restricted."] = "Tillatelse avvist. Tilgang til dette elementet kan være begrenset.";
 App::$strings["Photo not available"] = "Bilde er utilgjengelig";
 App::$strings["Use as profile photo"] = "Bruk som profilbilde";
@@ -2985,7 +2985,7 @@ App::$strings["All users invitation limit exceeded."] = "";
 App::$strings["Invitation expires after"] = "";
 App::$strings["Invitation"] = "";
 App::$strings["Send invitations"] = "Send invitasjoner";
-App::$strings["Invitations I am using"] = "";
+App::$strings["Invitations I am using"] = "Invitasjoner jeg bruker";
 App::$strings["Invitations we are using"] = "";
 App::$strings["§ Note, the email(s) sent will be recorded in the system logs"] = "";
 App::$strings["Enter email addresses, one per line:"] = "Skriv e-postadresser, en per linje:";
@@ -3549,7 +3549,7 @@ App::$strings["Upload file"] = "Last opp fil";
 App::$strings["Drop files here to immediately upload"] = "";
 App::$strings["You can select files via the upload button or drop them right here or into an existing folder."] = "";
 App::$strings["Create an account to access services and applications"] = "";
-App::$strings["Email or nickname"] = "";
+App::$strings["Email or nickname"] = "Epost eller brukernavn";
 App::$strings["Password"] = "Passord";
 App::$strings["Remember me"] = "Husk meg";
 App::$strings["Forgot your password?"] = "Glemt passordet ditt?";
