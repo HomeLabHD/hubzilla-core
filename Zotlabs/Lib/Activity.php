@@ -504,15 +504,21 @@ class Activity {
 		$ret['diaspora:guid'] = $i['uuid'];
 
 		$images = [];
+		$audios = [];
+		$videos = [];
+
 		$has_images = preg_match_all('/\[[zi]mg(.*?)](.*?)\[/ism', $i['body'], $images, PREG_SET_ORDER);
+		$has_audios = preg_match_all('/\[zaudio](.*?)\[/ism', $i['body'], $audios, PREG_SET_ORDER);
+		$has_videos = preg_match_all('/\[zvideo](.*?)\[/ism', $i['body'], $videos, PREG_SET_ORDER);
 
 		// provide ocap access token for private media.
 		// set this for descendants even if the current item is not private
 		// because it may have been relayed from a private item.
 
 		$token = IConfig::Get($i, 'ocap', 'relay');
+		$matches_processed = [];
+
 		if ($token && $has_images) {
-			$matches_processed = [];
 			for ($n = 0; $n < count($images); $n++) {
 				$match = $images[$n];
 				if (str_starts_with($match[1], '=http') && str_contains($match[1], z_root() . '/photo/') && !in_array($match[1], $matches_processed)) {
@@ -523,6 +529,28 @@ class Activity {
 					$i['body'] = str_replace($match[2], $match[2] . '?token=' . $token, $i['body']);
 					$images[$n][2] = $match[2] . '?token=' . $token;
 					$matches_processed[] = $match[2];
+				}
+			}
+		}
+
+		if ($token && $has_audios) {
+			for ($n = 0; $n < count($audios); $n++) {
+				$match = $audios[$n];
+				if (str_contains($match[1], z_root() . '/attach/') && !in_array($match[1], $matches_processed)) {
+					$i['body'] = str_replace($match[1], $match[1] . '?token=' . $token, $i['body']);
+					$audios[$n][1] = $match[1] . '?token=' . $token;
+					$matches_processed[] = $match[1];
+				}
+			}
+		}
+
+		if ($token && $has_videos) {
+			for ($n = 0; $n < count($videos); $n++) {
+				$match = $videos[$n];
+				if (str_contains($match[1], z_root() . '/attach/') && !in_array($match[1], $matches_processed)) {
+					$i['body'] = str_replace($match[1], $match[1] . '?token=' . $token, $i['body']);
+					$videos[$n][1] = $match[1] . '?token=' . $token;
+					$matches_processed[] = $match[1];
 				}
 			}
 		}
@@ -733,6 +761,8 @@ class Activity {
 
 		$ret = [];
 
+		$token = IConfig::Get($item, 'ocap', 'relay');
+
 		if (!$iconfig && array_key_exists('attach', $item)) {
 			$atts = ((is_array($item['attach'])) ? $item['attach'] : json_decode($item['attach'], true));
 			if ($atts) {
@@ -741,11 +771,17 @@ class Activity {
 						continue;
 					}
 
-					if (isset($att['type']) && strpos($att['type'], 'image')) {
-						$ret[] = ['type' => 'Image', 'mediaType' => $att['type'], 'name' => $att['title'], 'url' => $att['href']];
+					if (str_starts_with($att['type'], 'image')) {
+						$ret[] = ['type' => 'Image', 'mediaType' => $att['type'], 'name' => $att['title'], 'url' => $att['href'] . (($token) ? '?token=' . $token : '')];
+					}
+					elseif (str_starts_with($att['type'], 'audio')) {
+						$ret[] = ['type' => 'Audio', 'mediaType' => $att['type'], 'name' => $att['title'], 'url' => $att['href'] . (($token) ? '?token=' . $token : '')];
+					}
+					elseif (str_starts_with($att['type'], 'video')) {
+						$ret[] = ['type' => 'Video', 'mediaType' => $att['type'], 'name' => $att['title'], 'url' => $att['href'] . (($token) ? '?token=' . $token : '')];
 					}
 					else {
-						$ret[] = ['type' => 'Link', 'mediaType' => $att['type'], 'name' => $att['title'], 'href' => $att['href']];
+						$ret[] = ['type' => 'Link', 'mediaType' => $att['type'], 'name' => $att['title'], 'href' => $att['href'] . (($token) ? '?token=' . $token : '')];
 					}
 				}
 			}

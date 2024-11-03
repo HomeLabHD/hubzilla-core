@@ -3106,7 +3106,7 @@ function pchan_to_chan($pchan) {
 }
 
 function channel_url($channel) {
-	return (($channel) ? z_root() . '/channel/' . $channel['channel_address'] : z_root());
+	return ((isset($channel['channel_address'])) ? z_root() . '/channel/' . $channel['channel_address'] : z_root());
 }
 
 function get_channel_hashes() {

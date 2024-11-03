@@ -5,6 +5,7 @@
 
 <form action="admin/account_edit/{{$account.account_id}}" method="post" >
 <input type="hidden" name="aid" value="{{$account.account_id}}" />
+<input type="hidden" name="security" value="{{$security}}">
 
 {{include file="field_password.tpl" field=$pass1}}
 {{include file="field_password.tpl" field=$pass2}}

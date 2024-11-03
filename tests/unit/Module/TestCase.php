@@ -10,6 +10,7 @@
 
 namespace Zotlabs\Tests\Unit\Module;
 
+use PHPUnit\Framework\Attributes\After;
 use Zotlabs\Tests\Unit\UnitTestCase;
 use App;
 
@@ -25,6 +26,31 @@ class TestCase extends UnitTestCase {
 	// Import PHPMock methods into this class
 	use \phpmock\phpunit\PHPMock;
 
+	#[After]
+	public function cleanup_stubs(): void {
+		$this->killme_stub = null;
+		$this->goaway_stub = null;
+	}
+
+	protected function do_request(string $method, string $uri, array $query = [], array $params = []): void {
+		$_GET['q'] = $uri;
+		$_GET = array_merge($_GET, $query);
+		$_POST = $params;
+
+		$_SERVER['REQUEST_METHOD'] = $method;
+		$_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
+		$_SERVER['QUERY_STRING'] = "q={$uri}";
+		// phpcs:disable Generic.PHP.DisallowRequestSuperglobal.Found
+		$_REQUEST = array_merge($_GET, $_POST);
+		// phpcs::enable
+
+		\App::init();
+		\App::$page['content'] = '';
+
+		$router = new \Zotlabs\Web\Router();
+		$router->Dispatch();
+	}
+
 	/**
 	 * Emulate a GET request.
 	 *
@@ -34,24 +60,21 @@ class TestCase extends UnitTestCase {
 	 *						as keys.
 	 */
 	protected function get(string $uri, array $query = []): void {
-		$_GET['q'] = $uri;
+		$this->do_request('GET', $uri, $query);
+	}
 
-		if (!empty($query)) {
-			$_GET = array_merge($_GET, $query);
-		}
-
-		$_SERVER['REQUEST_METHOD'] = 'GET';
-		$_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
-		$_SERVER['QUERY_STRING'] = "q={$uri}";
-		// phpcs:disable Generic.PHP.DisallowRequestSuperglobal.Found
-		$_REQUEST = $_GET;
-		// phpcs::enable
-
-		\App::init();
-		\App::$page['content'] = '';
-
-		$router = new \Zotlabs\Web\Router();
-		$router->Dispatch();
+	/**
+	 * Emulate a POST request.
+	 *
+	 * @param string $uri	The URI to request. Typically this will be the module
+	 *						name, followed by any req args separated by slashes.
+	 * @param array $query	Associative array of query args, with the parameters
+	 *						as keys.
+	 * @param array $params	Associative array of POST params, with the param names
+	 *						as keys.
+	 */
+	protected function post(string $uri, array $query = [], array $params = []): void {
+		$this->do_request('POST', $uri, $query, $params);
 	}
 
 	/**
@@ -100,8 +123,7 @@ class TestCase extends UnitTestCase {
 	 * @throws KillmeException
 	 */
 	protected function stub_killme(): void {
-		$killme_stub = $this->getFunctionMock('Zotlabs\Module', 'killme');
-		$killme_stub
+		$this->killme_stub = $this->getFunctionMock('Zotlabs\Module', 'killme')
 			->expects($this->once())
 			->willReturnCallback(
 				function () {
@@ -147,8 +169,7 @@ class TestCase extends UnitTestCase {
 	 * @throws RedirectException
 	 */
 	protected function stub_goaway(): void {
-		$goaway_stub = $this->getFunctionMock('Zotlabs\Module', 'goaway');
-		$goaway_stub
+		$this->goaway_stub = $this->getFunctionMock('Zotlabs\Module', 'goaway')
 			->expects($this->once())
 			->willReturnCallback(
 				function (string $uri) {
