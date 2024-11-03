@@ -47,7 +47,7 @@ require_once 'include/dba/dba_transaction.php';
  */
 class UnitTestCase extends TestCase {
 	protected array $fixtures = array();
-	protected ?\DbaTransaction $db_transacton = null;
+	protected ?\DbaTransaction $db_transaction = null;
 
 	/**
 	 * Connect to the test db, load fixtures and global config.
