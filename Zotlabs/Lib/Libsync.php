@@ -885,7 +885,7 @@ class Libsync {
 							dbesc($t)
 						);
 
-						q("update hubloc set hubloc_error = 1, hubloc_deleted = 1 where hubloc_url = '%s' and hubloc_sitekey != '%s'",
+						q("update hubloc set hubloc_error = 1, hubloc_deleted = 1 where hubloc_url = '%s' and hubloc_sitekey != '%s' and hubloc_network = 'zot6'",
 							dbesc($r[0]['hubloc_url']),
 							dbesc($r[0]['hubloc_sitekey'])
 						);
