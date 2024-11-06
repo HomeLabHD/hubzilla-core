@@ -55,9 +55,12 @@ class Thing extends \Zotlabs\Web\Controller {
 		$name = escape_tags($_POST['term']);
 		$verb = escape_tags($_POST['verb']);
 		$activity = intval($_POST['activity']);
-		$profile_guid = escape_tags($_POST['profile_assign']);
 		$url = $_POST['url'];
 		$photo = $_POST['img'];
+
+		$profile_guid = isset($_POST['profile_assign'])
+			? escape_tags($_POST['profile_assign'])
+			: null;
 
 		$hash = new_uuid();
 
