@@ -3,22 +3,22 @@
 # This file is distributed under the same license as the hubzilla package.
 # Mike Macgirvin, 2012
 # Haakon Meland Eriksen <haakon.eriksen@far.no>, 2015-2016.
-# SPDX-FileCopyrightText: 2022, 2023 Harald Eilertsen <haraldei@anduin.net>
+# SPDX-FileCopyrightText: 2022, 2023, 2024 Harald Eilertsen <haraldei@anduin.net>
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: 8.6RC1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-07-04 17:57+0000\n"
-"PO-Revision-Date: 2023-12-15 22:33+0100\n"
+"PO-Revision-Date: 2024-11-03 15:44+0100\n"
 "Last-Translator: Harald Eilertsen <haraldei@anduin.net>\n"
-"Language-Team: Norwegian Bokmal <l10n-no@lister.huftis.org>\n"
+"Language-Team: Norwegian Bokmål <l10n-no@lister.huftis.org>\n"
 "Language: nb_NO\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1 ? 1 : 0);\n"
-"X-Generator: Lokalize 23.08.4\n"
+"X-Generator: Lokalize 24.08.2\n"
 
 #: ../../view/theme/redbasic/php/config.php:15
 #: ../../addon/cart/submodules/orderoptions.php:335
@@ -7001,7 +7001,7 @@ msgstr "Online nå"
 
 #: ../../include/channel.php:1688
 msgid "This channel has not added a profile description yet"
-msgstr ""
+msgstr "Denne kanalen har ikke lagt til en profilbeskrivelse enda"
 
 #: ../../include/channel.php:1690
 msgid "Change your profile photo"
@@ -8348,7 +8348,7 @@ msgstr "Jeg godtar %s for dette nettstedet"
 #: ../../Zotlabs/Module/Register.php:486
 #, php-format
 msgid "I am over %s years of age and accept the %s for this website"
-msgstr ""
+msgstr "Jeg er mer enn %s år gammel, og godtar %s for dette nettstedet"
 
 #: ../../Zotlabs/Module/Register.php:496
 msgid "Your email address"
@@ -8373,7 +8373,7 @@ msgstr "Vennligst skriv din invitasjonskode"
 
 #: ../../Zotlabs/Module/Register.php:508
 msgid "Your name"
-msgstr ""
+msgstr "Navn"
 
 #: ../../Zotlabs/Module/Register.php:508
 msgid "Real name is preferred"
@@ -9250,7 +9250,7 @@ msgstr "Jeg er borte akkurat nå"
 
 #: ../../Zotlabs/Module/Chat.php:212
 msgid "I am online"
-msgstr "Jeg er online"
+msgstr "Jeg er pålogget"
 
 #: ../../Zotlabs/Module/Chat.php:214
 msgid "Bookmark this room"
@@ -12888,7 +12888,7 @@ msgstr "Lag et statusinnlegg for denne opplastingen"
 
 #: ../../Zotlabs/Module/Photos.php:668
 msgid "Description (optional)"
-msgstr ""
+msgstr "Beskrivelse (valgritt)"
 
 #: ../../Zotlabs/Module/Photos.php:756
 msgid "Show Newest First"
@@ -12900,7 +12900,7 @@ msgstr "Vis eldste først"
 
 #: ../../Zotlabs/Module/Photos.php:815 ../../Zotlabs/Module/Photos.php:1354
 msgid "Add Photos"
-msgstr ""
+msgstr "Legg til bilder"
 
 #: ../../Zotlabs/Module/Photos.php:863
 msgid "Permission denied. Access to this item may be restricted."
@@ -13492,7 +13492,7 @@ msgstr "Send invitasjoner"
 
 #: ../../Zotlabs/Module/Invite.php:548
 msgid "Invitations I am using"
-msgstr ""
+msgstr "Invitasjoner jeg bruker"
 
 #: ../../Zotlabs/Module/Invite.php:549
 msgid "Invitations we are using"
@@ -15932,7 +15932,7 @@ msgstr ""
 
 #: ../../boot.php:1740
 msgid "Email or nickname"
-msgstr ""
+msgstr "Epost eller brukernavn"
 
 #: ../../boot.php:1750
 msgid "Password"
@@ -16051,4 +16051,3 @@ msgstr "Cron/planlagte oppgaver kjører ikke."
 
 #~ msgid "Page owner information could not be retrieved."
 #~ msgstr "Informasjon om sideeier kunne ikke hentes."
-
