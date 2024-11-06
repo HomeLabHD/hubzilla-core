@@ -1178,20 +1178,27 @@ function justifyPhotosAjax(id) {
 }
 
 function dolike(ident, verb) {
-	$('#like-rotator-' + ident.toString()).show();
+	$('#like-rotator-' + ident).show();
 
-	if(typeof conv_mode == typeof undefined)
+	if (typeof conv_mode == typeof undefined) {
 		conv_mode = '';
+	}
 
-	if(typeof page_mode == typeof undefined)
+	if (typeof page_mode == typeof undefined) {
 		page_mode = '';
+	}
 
-	var reload = '';
-	if(module == 'photos')
+	let reload = 0;
+
+	if (module == 'photos') {
 		reload = 1;
+	}
 
-	$.get('like/' + ident.toString() + '?verb=' + verb + '&conv_mode=' + conv_mode + '&page_mode=' + page_mode + '&reload=' + reload, function (data) {
-		if(data.success) {
+
+	$.get('like/' + ident + '?verb=' + verb + '&conv_mode=' + conv_mode + '&page_mode=' + page_mode + '&reload=' + reload, function (data) {
+		if (data.success) {
+
+			close_modal();
 
 			// mod photos
 			if (data.reload) {
@@ -1213,10 +1220,9 @@ function dolike(ident, verb) {
 			$('#wall-item-ago-' + data.id + ' .autotime').timeago();
 			collapseHeight();
 			liking = 0;
-			// remove modal backdrop in case the update was triggered from a modal
-			$('.modal-backdrop').remove();
 		}
 	});
+
 	liking = 1;
 }
 
@@ -1332,26 +1338,28 @@ function dropItem(url, object, b64mid) {
 }
 
 function dosubthread(ident) {
-	$('#like-rotator-' + ident.toString()).show();
-	$.get('subthread/sub/' + ident.toString(), updateInit );
+	$('#like-rotator-' + ident).show();
+	$.get('subthread/sub/' + ident, updateInit );
 	liking = 1;
 }
 
 function dounsubthread(ident) {
-	$('#like-rotator-' + ident.toString()).show();
-	$.get('subthread/unsub/' + ident.toString(), updateInit );
+	$('#like-rotator-' + ident).show();
+	$.get('subthread/unsub/' + ident, updateInit );
 	liking = 1;
 }
 
-function moderate_approve(ident) {
-	$('#like-rotator-' + ident.toString()).show();
-	$.get('moderate/' + ident.toString() + '/approve', updateInit );
+function moderate_approve(ident, verb) {
+	$('#like-rotator-' + ident).show();
+	close_modal();
+	$.get('moderate/' + ident + '/approve', updateInit );
 	liking = 1;
 }
 
 function moderate_drop(ident) {
-	$('#like-rotator-' + ident.toString()).show();
-	$.get('moderate/' + ident.toString() + '/drop', $('#thread-wrapper-' + ident.toString()).fadeOut(function() { this.remove(); }));
+	$('#like-rotator-' + ident).show();
+	close_modal();
+	$.get('moderate/' + ident + '/drop', $('#thread-wrapper-' + ident).fadeOut(function() { this.remove(); }));
 	liking = 1;
 }
 
@@ -1722,4 +1730,12 @@ function toast(string, severity) {
 	}
 
 	toastInstance.show();
+}
+
+function close_modal() {
+	let modal = bootstrap.Modal.getInstance(document.querySelector('.modal.show'));
+
+	if (modal) {
+		modal.hide();
+	}
 }
