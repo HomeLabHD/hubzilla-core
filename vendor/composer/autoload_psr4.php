@@ -11,6 +11,7 @@ return array(
     'chillerlan\\Settings\\' => array($vendorDir . '/chillerlan/php-settings-container/src'),
     'chillerlan\\QRCode\\' => array($vendorDir . '/chillerlan/php-qrcode/src'),
     'Zotlabs\\' => array($baseDir . '/Zotlabs'),
+    'ZipStream\\' => array($vendorDir . '/maennchen/zipstream-php/src'),
     'Symfony\\Polyfill\\Php81\\' => array($vendorDir . '/symfony/polyfill-php81'),
     'StephenHill\\Benchmarks\\' => array($vendorDir . '/stephenhill/base58/benchmarks'),
     'StephenHill\\' => array($vendorDir . '/stephenhill/base58/src'),
