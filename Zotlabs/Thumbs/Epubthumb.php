@@ -2,7 +2,7 @@
 
 namespace Zotlabs\Thumbs;
 
-require_once 'library/epub-meta/epub.php';
+use SebLucas\EPubMeta\EPub;
 
 /**
  * @brief Thumbnail creation for epub files.
@@ -37,7 +37,7 @@ class Epubthumb {
 
 		$photo = false;
 
-		$ep = new \EPub($file);
+		$ep = new EPub($file);
 		$data = $ep->Cover();
 
 		if($data['found']) {
