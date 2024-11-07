@@ -357,6 +357,12 @@ $(document).ready(function() {
 		event_uri = resource.event_hash;
 		event_xchan = resource.event_xchan;
 
+		allday = resource.adjust ? 0 : 1;
+
+		if (allday) {
+			$('#id_dtstart_wrapper, #id_dtend_wrapper, #id_timezone_select_wrapper').hide();
+		}
+
 		$('#calendar_select').val('channel_calendar').attr('disabled', true);
 		$('#id_title').val(resource.summary);
 
