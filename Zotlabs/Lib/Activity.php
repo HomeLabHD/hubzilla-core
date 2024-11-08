@@ -1721,9 +1721,9 @@ class Activity {
 		}
 
 		if (in_array($observer, [$r[0]['author_xchan'], $r[0]['owner_xchan']])) {
-			drop_item($r[0]['id'], false, (($r[0]['item_wall']) ? DROPITEM_PHASE1 : DROPITEM_NORMAL));
+			drop_item($r[0]['id'], (($r[0]['item_wall']) ? DROPITEM_PHASE1 : DROPITEM_NORMAL), observer_hash: $observer);
 		} elseif (in_array($act->actor['id'], [$r[0]['author_xchan'], $r[0]['owner_xchan']])) {
-			drop_item($r[0]['id'], false, (($r[0]['item_wall']) ? DROPITEM_PHASE1 : DROPITEM_NORMAL));
+			drop_item($r[0]['id'], (($r[0]['item_wall']) ? DROPITEM_PHASE1 : DROPITEM_NORMAL));
 		}
 
 		sync_an_item($channel['channel_id'], $r[0]['id']);

@@ -998,7 +998,7 @@ function process_feed_tombstones($feed,$importer,$contact,$pass) {
 
 				if(! intval($item['item_deleted'])) {
 					logger('deleting item ' . $item['id'] . ' mid=' . $item['mid'], LOGGER_DEBUG);
-					drop_item($item['id'],false);
+					drop_item($item['id']);
 				}
 			}
 		}
@@ -1181,7 +1181,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 						&& $datarray['author_xchan'] === $r[0]['author_xchan']) {
 						if(! intval($r[0]['item_deleted'])) {
 							logger('deleting item ' . $r[0]['id'] . ' mid=' . $datarray['mid'], LOGGER_DEBUG);
-							drop_item($r[0]['id'],false);
+							drop_item($r[0]['id']);
 						}
 						continue;
 					}
@@ -1449,7 +1449,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 						&& isset($datarray['author_xchan']) && $datarray['author_xchan'] === $r[0]['author_xchan']) {
 						if(! intval($r[0]['item_deleted'])) {
 							logger('deleting item ' . $r[0]['id'] . ' mid=' . $datarray['mid'], LOGGER_DEBUG);
-							drop_item($r[0]['id'],false);
+							drop_item($r[0]['id']);
 						}
 						continue;
 					}

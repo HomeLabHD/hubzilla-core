@@ -1494,7 +1494,6 @@ class Item extends Controller {
 						$can_delete = true;
 				}
 
-
 				if (!($can_delete || $local_delete)) {
 					notice(t('Permission denied.') . EOL);
 					return;
@@ -1510,13 +1509,14 @@ class Item extends Controller {
 				}
 				else {
 					// complex deletion that needs to propagate and be performed in phases
-					drop_item($i[0]['id'], true, DROPITEM_PHASE1);
+					drop_item($i[0]['id'], DROPITEM_PHASE1);
 					$complex = true;
 				}
 
 				$r = q("select * from item where id = %d",
 					intval($i[0]['id'])
 				);
+
 				if ($r) {
 					xchan_query($r);
 					$sync_item = fetch_post_tags($r);
@@ -1525,6 +1525,9 @@ class Item extends Controller {
 
 				if ($complex) {
 					tag_deliver($i[0]['uid'], $i[0]['id']);
+					if (intval($i[0]['item_wall']) || $i[0]['mid'] !== $i[0]['parent_mid']) {
+						Master::Summon(['Notifier', 'drop', $dropped_item['id']]);
+					}
 				}
 
 			}

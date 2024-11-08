@@ -2423,21 +2423,20 @@ class Libzot {
 					);
 				}
 			} else {
-                if ($stored['id'] !== $stored['parent']) {
-                    q(
-                        "update item set commented = '%s', changed = '%s' where id = %d",
-                        dbesc(datetime_convert()),
-                        dbesc(datetime_convert()),
-                        intval($stored['parent'])
-                    );
-                }
-            }
+				if ($stored['id'] !== $stored['parent']) {
+					q("update item set commented = '%s', changed = '%s' where id = %d",
+						dbesc(datetime_convert()),
+						dbesc(datetime_convert()),
+						intval($stored['parent'])
+					);
+				}
+			}
 
 
 			// Use phased deletion to set the deleted flag, call both tag_deliver and the notifier to notify downstream channels
 			// and then clean up after ourselves with a cron job after several days to do the delete_item_lowlevel() (DROPITEM_PHASE2).
 
-			drop_item($post_id, false, DROPITEM_PHASE1);
+			drop_item($post_id, DROPITEM_PHASE1, uid: $uid);
 			tag_deliver($uid, $post_id);
 		}
 

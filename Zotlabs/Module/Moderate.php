@@ -74,7 +74,7 @@ class Moderate extends \Zotlabs\Web\Controller {
 					// let the sender know we received their comment but we don't permit spam here.
 					// Activity::send_rejection_activity(App::get_channel(), $item['author_xchan'], $item);
 
-					drop_item($post_id,false);
+					drop_item($post_id);
 					notice( t('Item deleted') . EOL);
 				}
 

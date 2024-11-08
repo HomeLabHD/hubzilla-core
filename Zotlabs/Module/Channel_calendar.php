@@ -458,13 +458,14 @@ class Channel_calendar extends Controller {
 							}
 							else {
 								// complex deletion that needs to propagate and be performed in phases
-								drop_item($i[0]['id'], true, DROPITEM_PHASE1);
+								drop_item($i[0]['id'], DROPITEM_PHASE1);
 								$complex = true;
 							}
 
 							$ii = q("select * from item where id = %d",
 								intval($i[0]['id'])
 							);
+
 							if ($ii) {
 								xchan_query($ii);
 								$sync_item = fetch_post_tags($ii);
@@ -473,6 +474,9 @@ class Channel_calendar extends Controller {
 
 							if ($complex) {
 								tag_deliver($i[0]['uid'], $i[0]['id']);
+								if (intval($i[0]['item_wall'])) {
+									Master::Summon(['Notifier', 'drop', $i[0]['id']]);
+								}
 							}
 						}
 					}

@@ -284,7 +284,7 @@ class Like extends Controller {
 						intval($ch[0]['channel_id'])
 					);
 					if ($r)
-						drop_item($r[0]['id'], false);
+						drop_item($r[0]['id']);
 					if ($interactive) {
 						notice(t('Previous action reversed.') . EOL);
 						return $o;
@@ -387,17 +387,20 @@ class Like extends Controller {
 				// already liked it. Drop that item.
 				require_once('include/items.php');
 				foreach ($r as $rr) {
-					drop_item($rr['id'], false, DROPITEM_PHASE1);
+					drop_item($rr['id'], DROPITEM_PHASE1);
+
 					// set the changed timestamp on the parent so we'll see the update without a page reload
 					q("update item set changed = '%s' where id = %d and uid = %d",
 						dbesc(datetime_convert()),
 						intval($rr['parent']),
 						intval($rr['uid'])
 					);
+
 					// Prior activity was a duplicate of the one we're submitting, just undo it;
 					// don't fall through and create another
-					if (activity_match($rr['verb'], $activity))
+					if (activity_match($rr['verb'], $activity)) {
 						$multi_undo = false;
+					}
 
 					$d = q("select * from item where id = %d",
 						intval($rr['id'])

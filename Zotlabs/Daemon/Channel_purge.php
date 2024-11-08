@@ -24,7 +24,7 @@ class Channel_purge {
 			);
 			if ($r) {
 				foreach ($r as $rv) {
-					drop_item($rv['id'], false);
+					drop_item($rv['id']);
 				}
 			}
 		} while ($r);

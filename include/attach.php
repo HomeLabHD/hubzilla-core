@@ -1606,8 +1606,7 @@ function attach_drop_photo($channel_id,$resource) {
 
 	if($x) {
 		$stage = (($x[0]['item_hidden']) ? DROPITEM_NORMAL : DROPITEM_PHASE1);
-		$interactive = (($x[0]['item_hidden']) ? false : true);
-		drop_item($x[0]['id'], $interactive, $stage);
+		drop_item($x[0]['id'], $stage);
 	}
 
 	$r = q("SELECT content FROM photo WHERE resource_id = '%s' AND uid = %d AND os_storage = 1",
@@ -1636,8 +1635,7 @@ function attach_drop_item($channel_id,$resource) {
 
 	if($x) {
 		$stage = (($x[0]['item_hidden']) ? DROPITEM_NORMAL : DROPITEM_PHASE1);
-		$interactive = (($x[0]['item_hidden']) ? false : true);
-		drop_item($x[0]['id'], $interactive, $stage);
+		drop_item($x[0]['id'], $stage);
 	}
 
 }
@@ -1918,8 +1916,7 @@ function attach_store_item($channel, $observer, $file) {
 		}
 
 		$stage = (($r[0]['item_hidden']) ? DROPITEM_NORMAL : DROPITEM_PHASE1);
-		$interactive = (($r[0]['item_hidden']) ? false : true);
-		drop_item($r[0]['id'], $interactive, $stage);
+		drop_item($r[0]['id'], $stage);
 
 	}
 

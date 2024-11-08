@@ -3206,8 +3206,8 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 
 			if ($r) {
 				if (intval($item['item_deleted'])) {
-					drop_item($r[0]['id'], false, DROPITEM_PHASE1);
-					Master::Summon([ 'Notifier', 'drop', $r[0]['id'] ]);
+					drop_item($r[0]['id'], DROPITEM_PHASE1, uid: $r[0]['uid']);
+					Master::Summon(['Notifier', 'drop' ,$r[0]['id']]);
 					return;
 				}
 				$arr['id'] = intval($r[0]['id']);
@@ -3345,8 +3345,8 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 
 		if ($edit) {
 			if (intval($item['item_deleted'])) {
-				drop_item($item['id'],false,DROPITEM_PHASE1);
-				Master::Summon([ 'Notifier','drop',$item['id'] ]);
+				drop_item($item['id'], DROPITEM_PHASE1, uid: $item['uid']);
+				Master::Summon(['Notifier', 'drop', $item['id']]);
 				return;
 			}
 			return;
@@ -3828,7 +3828,7 @@ function item_expire($uid,$days,$comment_days = 7) {
 
 		if ($r) {
 			foreach ($r as $item) {
-				drop_item($item['id'], false);
+				drop_item($item['id'], expire: true);
 			}
 		}
 
@@ -3841,24 +3841,11 @@ function retain_item($id) {
 	);
 }
 
-function drop_items($items,$interactive = false,$stage = DROPITEM_NORMAL) {
-	$uid = 0;
-
-	if(! local_channel() && ! remote_channel())
-		return;
-
-	if(count($items)) {
+function drop_items($items, $stage = DROPITEM_NORMAL, $force = false, $expire = false) {
+	if ($items) {
 		foreach($items as $item) {
-			$owner = drop_item($item,$interactive,$stage);
-			if($owner && ! $uid)
-				$uid = $owner;
+			drop_item($item, $stage, $force, expire: $expire);
 		}
-	}
-
-	// multiple threads may have been deleted, send an expire notification
-
-	if($uid) {
-		Master::Summon([ 'Notifier','expire',$uid ]);
 	}
 }
 
@@ -3872,7 +3859,7 @@ function drop_items($items,$interactive = false,$stage = DROPITEM_NORMAL) {
 // $stage = 1 => set deleted flag on the item and perform intial notifications
 // $stage = 2 => perform low level delete at a later stage
 
-function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL) {
+function drop_item($id, $stage = DROPITEM_NORMAL, $force = false, $uid = 0, $observer_hash = '', $expire = false, $recurse = false) {
 
 	// locate item to be deleted
 
@@ -3880,33 +3867,48 @@ function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL) {
 		intval($id)
 	);
 
-	if((! $r) || (intval($r[0]['item_deleted']) && ($stage === DROPITEM_NORMAL))) {
-		if(! $interactive)
-			return 0;
-		notice( t('Item not found.') . EOL);
-		//goaway(z_root() . '/' . $_SESSION['return_url']);
+	if(!$r || (intval($r[0]['item_deleted']) && $stage === DROPITEM_NORMAL)) {
+		return false;
 	}
 
 	$item = $r[0];
 
+	if(!$recurse) {
+		drop_related($item, $stage, $force, $uid, $observer_hash, $expire);
+	}
+
 	$ok_to_delete = false;
 
-	// system deletion
-	if(! $interactive)
-		$ok_to_delete = true;
-
 	// admin deletion
-	if(is_site_admin())
+	if(is_site_admin()) {
 		$ok_to_delete = true;
+	}
 
 	// owner deletion
-	if(local_channel() && local_channel() == $item['uid'])
+	if(local_channel() && local_channel() == $item['uid']) {
 		$ok_to_delete = true;
+	}
+
+	// remote delete when nobody is authenticated (called from Libzot)
+	if ($uid && intval($uid) === intval($item['uid'])) {
+		$ok_to_delete = true;
+	}
 
 	// author deletion
-	$observer = App::get_observer();
-	if($observer && $observer['xchan_hash'] && ($observer['xchan_hash'] === $item['author_xchan']))
+	if ($observer_hash) {
+		$observer = ['xchan_hash' => $observer_hash];
+	}
+	else {
+		$observer = App::get_observer();
+	}
+
+	if (isset($observer['xchan_hash']) && $observer['xchan_hash'] === $item['author_xchan']) {
 		$ok_to_delete = true;
+	}
+
+	if (isset($observer['xchan_hash']) && $observer['xchan_hash'] === $item['owner_xchan']) {
+		$ok_to_delete = true;
+	}
 
 	if($ok_to_delete) {
 
@@ -3919,9 +3921,9 @@ function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL) {
 
 		$arr = [
 				'item' => $item,
-				'interactive' => $interactive,
 				'stage' => $stage
 		];
+
 		/**
 		 * @hooks drop_item
 		 *   Called when an 'item' is removed.
@@ -3944,29 +3946,94 @@ function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL) {
 			delete_item_lowlevel($item, $stage);
 		}
 
-		if(! $interactive)
-			return 1;
-
-		// send the notification upstream/downstream as the case may be
-		// only send notifications to others if this is the owner's wall item.
-
-		// This isn't optimal. We somehow need to pass to this function whether or not
-		// to call the notifier, or we need to call the notifier from the calling function.
-		// We'll rely on the undocumented behaviour that DROPITEM_PHASE1 is (hopefully) only
-		// set if we know we're going to send delete notifications out to others.
-
-		if((intval($item['item_wall']) && ($stage != DROPITEM_PHASE2)) || ($stage == DROPITEM_PHASE1)) {
-			Master::Summon([ 'Notifier','drop',$notify_id ]);
-		}
-		//goaway(z_root() . '/' . $_SESSION['return_url']);
+		return true;
 	}
 	else {
-		if(! $interactive)
-			return 0;
-		notice( t('Permission denied.') . EOL);
-		//goaway(z_root() . '/' . $_SESSION['return_url']);
+		return false;
 	}
 }
+
+
+// If somebody deletes a 'Create' activity, find any associated 'Add/Collection'
+// activity and delete it. And vice versa.
+
+function drop_related($item, $stage = DROPITEM_NORMAL, $force = false, $uid = 0, $observer_hash = '', $expire = false, $recurse = false) {
+	$allRelated = q("select * from item where parent_mid = '%s' and uid = %d",
+		dbesc($item['parent_mid']),
+		intval($item['uid'])
+	);
+	if (! $allRelated) {
+		return;
+	}
+	if ($item['verb'] === 'Add' && $item['tgt_type'] === 'Collection') {
+		if (is_array($item['obj'])) {
+			$thisItem = $item['obj'];
+		}
+		else {
+			$thisItem = json_decode($item['obj'], true);
+		}
+		if (isset($thisItem['object']['id'])) {
+			$targetMid = $thisItem['object']['id'];
+		}
+		if (!$targetMid) {
+			return;
+		}
+		foreach ($allRelated as $related) {
+			if ($related['mid'] === $targetMid) {
+				drop_item($related['id'], $stage, $force, $uid, $observer_hash, $expire, recurse: true);
+				break;
+			}
+		}
+	}
+	else {
+		foreach ($allRelated as $related) {
+			if ($related['verb'] === 'Add' && str_contains($related['tgt_type'], 'Collection')) {
+				$thisItem = json_decode($related['obj'], true);
+				if (isset($thisItem['id']) && $thisItem['id'] === str_replace('/item/', '/activity/', $item['mid'])) {
+					drop_item($related['id'], $stage, $force, $uid, $observer_hash, $expire, recurse: true);
+					break;
+				}
+			}
+		}
+	}
+}
+
+
+function find_related($item) {
+	$allRelated = q("select * from item where parent_mid = '%s' and uid = %d",
+		dbesc($item['parent_mid']),
+		intval($item['uid'])
+	);
+	if (! $allRelated) {
+		return false;
+	}
+	if ($item['verb'] === 'Add' && $item['tgt_type'] === 'Collection') {
+		$thisItem = json_decode($item['obj'],true);
+		if (is_array($thisItem)) {
+			$targetMid = $thisItem['object']['id'];
+		}
+		if (!$targetMid) {
+			return false;
+		}
+		foreach ($allRelated as $related) {
+			if ($related['mid'] === $targetMid) {
+				return $related;
+			}
+		}
+	}
+	else {
+		foreach ($allRelated as $related) {
+			if ($related['verb'] === 'Add' && str_contains($related['tgt_type'], 'Collection')) {
+				$thisItem = json_decode($related['obj'], true);
+				if (isset($thisItem['object']['id']) && $thisItem['object']['id'] === $item['mid']) {
+					return $related;
+				}
+			}
+		}
+	}
+	return false;
+}
+
 
 /**
  * @warning This function does not check for permission and does not send
