@@ -102,6 +102,8 @@ $(document).ready(function() {
 			var dtstart = new Date(info.event._instance.range.start);
 			var dtend = new Date(info.event._instance.range.end);
 
+			allday = event.allDay;
+
 			if(event.extendedProps.plink) {
 				if(! $('#l2s').length)
 					$('#id_title_wrapper').prepend('<span id="l2s" class="float-end"></span>');
@@ -112,7 +114,7 @@ $(document).ready(function() {
 				$('#l2s').remove();
 			}
 
-			if(event.allDay) {
+			if (allday) {
 				$('#id_dtstart_wrapper, #id_dtend_wrapper, #id_timezone_select_wrapper').hide();
 			}
 			else {
@@ -354,6 +356,12 @@ $(document).ready(function() {
 		event_id = resource.id;
 		event_uri = resource.event_hash;
 		event_xchan = resource.event_xchan;
+
+		allday = resource.adjust ? 0 : 1;
+
+		if (allday) {
+			$('#id_dtstart_wrapper, #id_dtend_wrapper, #id_timezone_select_wrapper').hide();
+		}
 
 		$('#calendar_select').val('channel_calendar').attr('disabled', true);
 		$('#id_title').val(resource.summary);
