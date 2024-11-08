@@ -156,12 +156,12 @@ function store_doc_file($s) {
 	if($r) {
 		$item['id'] = $r[0]['id'];
 		$item['mid'] = $item['parent_mid'] = $r[0]['mid'];
-		$x = item_store_update($item);
+		$x = item_store_update($item, deliver: false, addAndSync: false);
 	}
 	else {
 		$item['uuid'] = item_message_id();
 		$item['mid'] = $item['parent_mid'] = z_root() . '/item/' . $item['uuid'];
-		$x = item_store($item);
+		$x = item_store($item, deliver: false, addAndSync: false);
 	}
 
 	return $x;

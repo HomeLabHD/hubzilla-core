@@ -3401,7 +3401,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		$approval_id = $post['approval_id'] ?? 0;
 
 		if ($post_id) {
-			Master::Summon([ 'Notifier','tgroup',$post_id ]);
+			Master::Summon(['Notifier', 'tgroup', $post_id]);
             if ($approval_id) {
                 Master::Summon(['Notifier', 'tgroup', $approval_id]);
             }

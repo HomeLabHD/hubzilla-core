@@ -541,14 +541,19 @@ function photo_upload($channel, $observer, $args) {
 		// linked item from leaking into the feed when somebody has a channel with read_stream restrictions.
 
 		$arr['public_policy'] = map_scope(PermissionLimits::Get($channel['channel_id'], 'view_stream'), true);
-		if ($arr['public_policy'])
+
+		if ($arr['public_policy']) {
 			$arr['item_private'] = 1;
+		}
 
 		$result  = item_store($arr, false, $deliver);
-		$item_id = $result['item_id'];
 
-		if ($visible && $deliver)
-			Zotlabs\Daemon\Master::Summon(['Notifier', 'wall-new', $item_id]);
+		if ($visible && $deliver) {
+			Master::Summon(['Notifier', 'wall-new', $result['item_id']]);
+			if (!empty($result['approval_id'])) {
+				Master::Summon(['Notifier', 'wall-new', $result['approval_id']]);
+			}
+		}
 	}
 
 	$ret['success']      = true;
@@ -911,7 +916,7 @@ function photos_create_item($channel, $creator_hash, $photo, $visible = false) {
 		. '[zmg]' . z_root() . '/photo/' . $photo['resource_id'] . '-' . $photo['imgscale'] . '[/zmg]'
 		. '[/zrl]';
 
-	$result  = item_store($arr);
+	$result  = item_store($arr, deliver: false, addAndSync: true);
 	$item_id = $result['item_id'];
 
 	return $item_id;

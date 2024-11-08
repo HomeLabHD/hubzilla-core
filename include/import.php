@@ -825,13 +825,13 @@ function import_items($channel, $items, $sync = false, $relocate = null) {
 				if($item['edited'] >= $r[0]['edited']) {
 					$item['id']  = $r[0]['id'];
 					$item['uid'] = $channel['channel_id'];
-					$item_result = item_store_update($item,$allow_code,$deliver);
+					$item_result = item_store_update($item, $allow_code, $deliver, addAndSync: false);
 				}
 			}
 			else {
 				$item['aid'] = $channel['channel_account_id'];
 				$item['uid'] = $channel['channel_id'];
-				$item_result = item_store($item,$allow_code,$deliver);
+				$item_result = item_store($item, $allow_code, $deliver, addAndSync: false);
 			}
 
 			// preserve conversations you've been involved in from being expired
@@ -1886,7 +1886,7 @@ function import_webpage_element($element, $channel, $type) {
 		$arr['id'] = $i[0]['id'];
 		// don't update if it has the same timestamp as the original
 		if($arr['edited'] > $i[0]['edited'])
-			$x = item_store_update($arr,$execflag);
+			$x = item_store_update($arr, $execflag, deliver: false, addAndSync: false);
 	}
 	else {
 		if(($i) && (intval($i[0]['item_deleted']))) {
@@ -1897,7 +1897,7 @@ function import_webpage_element($element, $channel, $type) {
 			);
 		}
 		else
-			$x = item_store($arr,$execflag);
+			$x = item_store($arr, $execflag, deliver: false, addAndSync: false);
 	}
 
 	if($x && $x['success']) {

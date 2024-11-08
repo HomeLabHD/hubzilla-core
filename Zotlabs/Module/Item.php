@@ -1271,6 +1271,7 @@ class Item extends Controller {
 				$this->add_listeners($datarray);
 			}
 
+			/* sync this is done in item_store_update()
 			if (!$parent) {
 				$r = q("select * from item where id = %d",
 					intval($post_id)
@@ -1281,9 +1282,14 @@ class Item extends Controller {
 					Libsync::build_sync_packet($profile_uid, ['item' => [encode_item($sync_item[0], true)]]);
 				}
 			}
-			if (!$nopush)
-				Master::Summon(['Notifier', 'edit_post', $post_id]);
+			*/
 
+			if (!$nopush) {
+				Master::Summon(['Notifier', 'edit_post', $post_id]);
+				if (intval($x['approval_id'])) {
+					Master::Summon(['Notifier', 'edit_post', $x['approval_id']]);
+				}
+			}
 
 			if ($api_source)
 				return ($x);
@@ -1387,6 +1393,7 @@ class Item extends Controller {
 			killme();
 		}
 
+		/* sync this is done in item_store_update()
 		if ($parent || $datarray['item_private'] == 1) {
 			$r = q("select * from item where id = %d",
 				intval($post_id)
@@ -1397,6 +1404,7 @@ class Item extends Controller {
 				Libsync::build_sync_packet($profile_uid, ['item' => [encode_item($sync_item[0], true)]]);
 			}
 		}
+		*/
 
 		$datarray['id']    = $post_id;
 		$datarray['llink'] = z_root() . '/display/' . $datarray['uuid'];
