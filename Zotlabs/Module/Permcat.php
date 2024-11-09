@@ -2,7 +2,7 @@
 
 namespace Zotlabs\Module;
 
-use \Zotlabs\Lib as Zlib;
+use Zotlabs\Lib as Zlib;
 
 class Permcat extends \Zotlabs\Web\Controller {
 

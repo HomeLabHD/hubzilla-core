@@ -3,8 +3,8 @@
 namespace Zotlabs\Module\Admin;
 
 use App;
-use \Zotlabs\Lib\Config;
-use \Michelf\MarkdownExtra;
+use Zotlabs\Lib\Config;
+use Michelf\MarkdownExtra;
 
 class Addons {
 

@@ -8,8 +8,8 @@ namespace Zotlabs\Module;
  * Module for accessing the DAV storage area from a DAV client.
  */
 
-use \Sabre\DAV as SDAV;
-use \Zotlabs\Storage;
+use Sabre\DAV as SDAV;
+use Zotlabs\Storage;
 
 // composer autoloader for SabreDAV
 require_once('vendor/autoload.php');
@@ -24,7 +24,7 @@ require_once('vendor/autoload.php');
 class Snap extends \Zotlabs\Web\Controller {
 
 	function init() {
-	
+
 		// workaround for HTTP-auth in CGI mode
 		if (x($_SERVER, 'REDIRECT_REMOTE_USER')) {
  			$userpass = base64_decode(substr($_SERVER["REDIRECT_REMOTE_USER"], 6)) ;
@@ -43,20 +43,20 @@ class Snap extends \Zotlabs\Web\Controller {
 				$_SERVER['PHP_AUTH_PW'] = $password;
 			}
 		}
-	
+
 		if (! is_dir('store'))
 			os_mkdir('store', STORAGE_DEFAULT_PERMISSIONS, false);
-	
+
 		$which = null;
 		if (argc() > 1)
 			$which = argv(1);
-	
+
 		$profile = 0;
-	
+
 		if($which)
 			profile_load( $which, $profile);
 		else
-			killme();	
+			killme();
 
 		if($_SERVER['PHP_AUTH_USER'] && $_SERVER['PHP_AUTH_USER'] !== $which)
 			killme();
@@ -68,7 +68,7 @@ class Snap extends \Zotlabs\Web\Controller {
 		}
 
 		if(! in_array(strtolower($_SERVER['REQUEST_METHOD']),['propfind','get','head']))
-			killme(); 
+			killme();
 
 		$auth = new \Zotlabs\Storage\BasicAuth();
 		$auth->setRealm(ucfirst(\Zotlabs\Lib\System::get_platform_name()) . 'WebDAV');
@@ -101,5 +101,5 @@ class Snap extends \Zotlabs\Web\Controller {
 		killme();
 
 	}
-	
+
 }

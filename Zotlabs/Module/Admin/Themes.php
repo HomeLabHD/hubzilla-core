@@ -2,7 +2,7 @@
 
 namespace Zotlabs\Module\Admin;
 
-use \Michelf\MarkdownExtra;
+use Michelf\MarkdownExtra;
 use Zotlabs\Lib\Config;
 
 /**
