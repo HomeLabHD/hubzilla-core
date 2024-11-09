@@ -1,8 +1,8 @@
 <?php
 namespace Zotlabs\Module;
 
-use \Zotlabs\Lib\PConfig;
-use \Zotlabs\Web\Controller;
+use Zotlabs\Lib\PConfig;
+use Zotlabs\Web\Controller;
 
 class Notify extends Controller {
 

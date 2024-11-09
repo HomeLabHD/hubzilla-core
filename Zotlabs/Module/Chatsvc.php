@@ -4,7 +4,7 @@ namespace Zotlabs\Module;
 
 require_once('include/security.php');
 
-use \Zotlabs\Lib as Zlib;
+use Zotlabs\Lib as Zlib;
 
 class Chatsvc extends \Zotlabs\Web\Controller {
 

@@ -2,7 +2,7 @@
 
 namespace Zotlabs\Module;
 
-use \Zotlabs\Lib as Zlib;
+use Zotlabs\Lib as Zlib;
 
 class Apporder extends \Zotlabs\Web\Controller {
 
@@ -25,7 +25,7 @@ class Apporder extends \Zotlabs\Web\Controller {
 					$syslist[] = Zlib\Apps::app_encode($li);
 				}
 			}
-		
+
 			Zlib\Apps::translate_system_apps($syslist);
 
 			usort($syslist,'Zotlabs\\Lib\\Apps::app_name_compare');

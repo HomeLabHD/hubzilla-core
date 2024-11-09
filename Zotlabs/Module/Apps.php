@@ -1,8 +1,8 @@
 <?php
 namespace Zotlabs\Module;
 
-use \Zotlabs\Lib\Config;
-use \Zotlabs\Lib as Zlib;
+use Zotlabs\Lib\Config;
+use Zotlabs\Lib as Zlib;
 
 class Apps extends \Zotlabs\Web\Controller {
 
