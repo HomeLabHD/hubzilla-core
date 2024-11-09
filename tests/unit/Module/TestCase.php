@@ -26,6 +26,9 @@ class TestCase extends UnitTestCase {
 	// Import PHPMock methods into this class
 	use \phpmock\phpunit\PHPMock;
 
+	protected $killme_stub;
+	protected $goaway_stub;
+
 	#[After]
 	public function cleanup_stubs(): void {
 		$this->killme_stub = null;
