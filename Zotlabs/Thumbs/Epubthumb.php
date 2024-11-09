@@ -2,31 +2,33 @@
 
 namespace Zotlabs\Thumbs;
 
-require_once 'library/epub-meta/epub.php';
+use SebLucas\EPubMeta\EPub;
+use GdImage;
 
 /**
- * @brief Thumbnail creation for epub files.
- *
+ * Thumbnail creation for epub files.
  */
 class Epubthumb {
 
 	/**
-	 * @brief Match for application/epub+zip.
+	 * Match for application/epub+zip.
 	 *
 	 * @param string $type MimeType
 	 * @return boolean
 	 */
-	function Match($type) {
-		return(($type === 'application/epub+zip') ? true : false );
+	function Match(string $type): bool {
+		return $type === 'application/epub+zip';
 	}
 
 	/**
-	 * @brief
+	 * Create the thumbnail if the Epub has a cover.
 	 *
 	 * @param array $attach
 	 * @param number $preview_style unused
 	 * @param number $height (optional) default 300
 	 * @param number $width (optional) default 300
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	function Thumb($attach, $preview_style, $height = 300, $width = 300) {
 
@@ -35,26 +37,33 @@ class Epubthumb {
 			return;
 		}
 
-		$photo = false;
+		$image = $this->getCover($file);
 
-		$ep = new \EPub($file);
-		$data = $ep->Cover();
-
-		if($data['found']) {
-			$photo = $data['data'];
-		}
-
-		if($photo) {
-			$image = imagecreatefromstring($photo);
-			$dest = imagecreatetruecolor($width, $height);
+		if ($image) {
 			$srcwidth = imagesx($image);
 			$srcheight = imagesy($image);
 
+			$dest = imagecreatetruecolor($width, $height);
 			imagealphablending($dest, false);
 			imagesavealpha($dest, true);
+
 			imagecopyresampled($dest, $image, 0, 0, 0, 0, $width, $height, $srcwidth, $srcheight);
+
+			imagejpeg($dest, "{$file}.thumb");
+
 			imagedestroy($image);
-			imagejpeg($dest, dbunescbin($attach['content']) . '.thumb');
+			imagedestroy($dest);
+		}
+	}
+
+	private function getCover(string $filename): GdImage|false {
+		$epub = new EPub($filename);
+		$cover = $epub->getCover();
+
+		if (! empty($cover)) {
+			return imagecreatefromstring($cover);
+		} else {
+			return false;
 		}
 	}
 }
