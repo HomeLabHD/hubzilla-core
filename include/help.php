@@ -1,6 +1,6 @@
 <?php
 
-use \Michelf\MarkdownExtra;
+use Michelf\MarkdownExtra;
 use CommerceGuys\Intl\Language\LanguageRepository;
 
 require_once('include/items.php');

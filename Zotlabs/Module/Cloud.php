@@ -8,10 +8,10 @@ namespace Zotlabs\Module;
  */
 
 use Sabre\DAV as SDAV;
-use \Zotlabs\Web\Controller;
-use \Zotlabs\Storage\BasicAuth;
-use \Zotlabs\Storage\Directory;
-use \Zotlabs\Storage\Browser;
+use Zotlabs\Web\Controller;
+use Zotlabs\Storage\BasicAuth;
+use Zotlabs\Storage\Directory;
+use Zotlabs\Storage\Browser;
 
 
 // composer autoloader for SabreDAV

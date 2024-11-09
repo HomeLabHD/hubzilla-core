@@ -2,7 +2,6 @@
 
 require_once('include/plugin.php');
 
-head_add_css('/library/tiptip/tipTip.css');
 head_add_css('/library/jRange/jquery.range.css');
 
 head_add_css('/view/css/conversation.css');
