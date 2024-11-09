@@ -544,7 +544,8 @@ class ThreadItem {
 			'moderate_delete' => t('Delete'),
 			'rtl' => in_array($item['lang'], rtl_languages()),
 			'reactions_allowed' => $reactions_allowed,
-			'reaction_str' => [t('Add yours'), t('Remove yours')]
+			'reaction_str' => [t('Add yours'), t('Remove yours')],
+			'is_contained' => $this->is_toplevel() && str_contains($item['tgt_type'], 'Collection')
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);
