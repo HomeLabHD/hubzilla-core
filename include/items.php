@@ -525,8 +525,6 @@ function post_activity_item($arr, $allow_code = false, $deliver = true, $channel
 
 	$post = item_store($arr, $allow_code, $deliver, $addAndSync);
 
-	hz_syslog('post_activity_item: ' . print_r($post['item_id'], true));
-
 	if (!$post['success']) {
 		return $ret;
 	}

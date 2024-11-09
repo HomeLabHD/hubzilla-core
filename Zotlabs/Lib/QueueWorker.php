@@ -284,7 +284,7 @@ class QueueWorker {
 
 				$jobs++;
 
-				hz_syslog("Workinfo: " . $workitem[0]['workerq_data'], LOGGER_DEBUG);
+				logger("Workinfo: " . $workitem[0]['workerq_data'], LOGGER_DEBUG);
 
 				$workinfo = json_decode($workitem[0]['workerq_data'], true);
 				$argv     = $workinfo['argv'];

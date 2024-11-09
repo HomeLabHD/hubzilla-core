@@ -431,9 +431,6 @@ class Notifier {
 			return;
 		}
 
-		hz_syslog(print_r(self::$encoded_item['type'], true));
-		hz_syslog(print_r(self::$recipients, true));
-
 		// logger('recipients: ' . print_r(self::$recipients,true), LOGGER_NORMAL, LOG_DEBUG);
 
 		if (!count(self::$env_recips)) {
@@ -591,10 +588,6 @@ class Notifier {
 		logger('notifier: will notify/deliver to these hubs: ' . print_r($hublist, true), LOGGER_DEBUG, LOG_DEBUG);
 
 		foreach ($dhubs as $hub) {
-
-			hz_syslog('notifier_hub: ' . $hub['hubloc_url'], LOGGER_DEBUG);
-			hz_syslog(print_r($target_item['id'], true));
-			hz_syslog(print_r($target_item['verb'], true));
 
 			if ($hub['hubloc_network'] !== 'zot6') {
 				$narr = [

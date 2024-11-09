@@ -29,9 +29,6 @@ function node2bbcodesub(&$doc, $oldnode, $attributes, $startbb, $endbb)
 
 	foreach ($list as $oldNode) {
 
-		if ($oldnode == 'li')
-			hz_syslog(print_r($oldNode,true));
-
 		$attr = array();
 		if ($oldNode->attributes->length)
 			foreach ($oldNode->attributes as $attribute)

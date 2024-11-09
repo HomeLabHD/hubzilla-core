@@ -1155,7 +1155,7 @@ class Libzot {
 				&& array_key_exists('actor', $AS->obj)
 				&& !empty($AS->tgt)) {
 
-				hz_syslog('relayed collection operation', LOGGER_DEBUG);
+				logger('relayed collection operation', LOGGER_DEBUG);
 				$is_collection_operation = true;
 
 				$original_id = $AS->id;
@@ -1329,11 +1329,6 @@ class Libzot {
 				logger('Activity recipients: ' . print_r($deliveries, true), LOGGER_DATA, LOG_DEBUG);
 
 				$relay = (($env['type'] === 'response') ? true : false);
-
-				if($is_collection_operation)
-					hz_syslog('col');
-				else
-					hz_syslog('not col');
 
 				$result = self::process_delivery($env['sender'], $AS, $item, $deliveries, $relay, false, $message_request, false, $is_collection_operation);
 
@@ -1861,12 +1856,6 @@ class Libzot {
 					continue;
 				}
 			}
-
-			if($is_collection_operation)
-				hz_syslog('col1');
-			else
-				hz_syslog('not col1');
-
 
 			// This is used to fetch allow/deny rules if either the sender
 			// or  owner is  a connection. post_is_importable() evaluates all of them
