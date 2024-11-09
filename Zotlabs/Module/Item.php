@@ -1475,7 +1475,7 @@ class Item extends Controller {
 
 			require_once('include/items.php');
 
-			$i = q("select id, uid, item_origin, author_xchan, owner_xchan, source_xchan, item_type from item where id = %d limit 1",
+			$i = q("select * from item where id = %d limit 1",
 				intval(argv(2))
 			);
 
@@ -1534,7 +1534,7 @@ class Item extends Controller {
 				if ($complex) {
 					tag_deliver($i[0]['uid'], $i[0]['id']);
 					if (intval($i[0]['item_wall']) || $i[0]['mid'] !== $i[0]['parent_mid']) {
-						Master::Summon(['Notifier', 'drop', $dropped_item['id']]);
+						Master::Summon(['Notifier', 'drop', $i[0]['id']]);
 					}
 				}
 

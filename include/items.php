@@ -3402,9 +3402,9 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 
 		if ($post_id) {
 			Master::Summon(['Notifier', 'tgroup', $post_id]);
-            if ($approval_id) {
-                Master::Summon(['Notifier', 'tgroup', $approval_id]);
-            }
+			if ($approval_id) {
+				Master::Summon(['Notifier', 'tgroup', $approval_id]);
+			}
 		}
 
 		q("update channel set channel_lastpost = '%s' where channel_id = %d",
