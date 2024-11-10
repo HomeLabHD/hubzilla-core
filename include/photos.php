@@ -406,7 +406,7 @@ function photo_upload($channel, $observer, $args) {
 		}
 	}
 
-	$attribution = (($visitor) ? $visitor : $channel['xchan_url']);
+	$attribution = (($visitor) ? $visitor : channel_url($channel));
 
 	//// Create item object
 	$object = [
@@ -457,7 +457,7 @@ function photo_upload($channel, $observer, $args) {
 				$target = [
 					'id' => str_replace('/item/', '/conversation/', $item['mid']),
 					'type' => 'Collection',
-					'attributedTo' => channel_url($channel),
+					'attributedTo' => $attribution,
 				];
 
 				$item['body']     = $summary;
@@ -466,10 +466,10 @@ function photo_upload($channel, $observer, $args) {
 
 				$object['id']            = $item['mid'];
 				$object['diaspora:guid'] = $item['uuid'];
-				$item['obj']             = json_encode($object);
+				$item['obj']             = $object;
 
 				$item['tgt_type'] = 'Collection';
-				$item['target']   = json_encode($target);
+				$item['target']   = $target;
 				if ($post_tags) {
 					$arr['term'] = $post_tags;
 				}
@@ -513,7 +513,7 @@ function photo_upload($channel, $observer, $args) {
 		$target = [
 			'id' => z_root() .  '/conversation/' . $uuid,
 			'type' => 'Collection',
-			'attributedTo' => channel_url($channel),
+			'attributedTo' => $attribution,
 		];
 
 		$arr = [
