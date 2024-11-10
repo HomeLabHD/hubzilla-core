@@ -40,15 +40,8 @@ require_once('include/conversation.php');
  */
 class Item extends Controller {
 
-	private string $item_id;
 
 	function init() {
-
-		$this->item_id = argv(1);
-
-		if (!$this->item_id) {
-			http_status_exit(404, 'Not found');
-		}
 
 		if (Libzot::is_zot_request()) {
 			$this->init_zot_request();
@@ -57,6 +50,7 @@ class Item extends Controller {
 		if (ActivityStreams::is_as_request()) {
 			$this->init_as_request();
 		}
+
 
 		if (argc() > 1 && argv(1) !== 'drop') {
 			$x = q("select uid, item_wall, llink, mid, uuid from item where mid = '%s' or mid = '%s' or uuid = '%s'",
@@ -1458,6 +1452,11 @@ class Item extends Controller {
 
 	private function init_zot_request() {
 
+		$item_id = argv(1);
+
+		if (!$item_id)
+			http_status_exit(404, 'Not found');
+
 		$portable_id = EMPTY_STR;
 
 		$item_normal_extra = sprintf(" and not verb in ('Follow', 'Ignore', '%s', '%s') ",
@@ -1472,7 +1471,7 @@ class Item extends Controller {
 		// do we have the item (at all)?
 
 		$r = q("select parent_mid from item where uuid = '%s' $item_normal limit 1",
-			dbesc($this->item_id)
+			dbesc($item_id)
 		);
 
 		if (!$r) {
@@ -1561,7 +1560,7 @@ class Item extends Controller {
 				dbesc($portable_id)
 			);
 			if (!$c) {
-				ThreadListener::store(z_root() . '/item/' . $this->item_id, $portable_id);
+				ThreadListener::store(z_root() . '/item/' . $item_id, $portable_id);
 			}
 		}
 
@@ -1569,6 +1568,10 @@ class Item extends Controller {
 	}
 
 	private function init_as_request() {
+
+		$item_id = argv(1);
+		if (!$item_id)
+			http_status_exit(404, 'Not found');
 
 		$portable_id = EMPTY_STR;
 
@@ -1585,7 +1588,7 @@ class Item extends Controller {
 		// add preferential bias to item owners (item_wall = 1)
 
 		$r = q("select * from item where uuid = '%s' $item_normal order by item_wall desc limit 1",
-			dbesc($this->item_id)
+			dbesc($item_id)
 		);
 
 		if (!$r) {
@@ -1634,7 +1637,7 @@ class Item extends Controller {
 				);
 				if ($t) {
 					$i = q("select id as item_id from item where uuid = '%s' and id = %d $item_normal limit 1",
-						dbesc($this->item_id),
+						dbesc($item_id),
 						intval($t[0]['iid'])
 					);
 				}
@@ -1669,7 +1672,7 @@ class Item extends Controller {
 				dbesc($portable_id)
 			);
 			if (!$c) {
-				ThreadListener::store(z_root() . '/item/' . $this->item_id, $portable_id);
+				ThreadListener::store(z_root() . '/item/' . $item_id, $portable_id);
 			}
 		}
 
