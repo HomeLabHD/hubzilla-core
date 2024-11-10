@@ -1918,6 +1918,10 @@ function attach_store_item($channel, $observer, $file) {
 		$stage = (($r[0]['item_hidden']) ? DROPITEM_NORMAL : DROPITEM_PHASE1);
 		drop_item($r[0]['id'], $stage);
 
+		if (empty($r[0]['item_hidden'])) {
+			Master::Summon(['Notifier', 'drop', $i[0]['id']]);
+		}
+
 	}
 
 	$filetype_parts = explode('/', $file['filetype']);
