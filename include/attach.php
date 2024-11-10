@@ -1941,6 +1941,12 @@ function attach_store_item($channel, $observer, $file) {
 
 	$mid = z_root() . '/item/' . $uuid;
 
+	$target = [
+		'id' => z_root() .  '/conversation/' . $uuid,
+		'type' => 'Collection',
+		'attributedTo' => channel_url($channel),
+	];
+
 	$arr = [];	// Initialize the array of parameters for the post
 	$arr['aid'] = $channel['channel_account_id'];
 	$arr['uuid'] = $uuid;
@@ -1961,6 +1967,8 @@ function attach_store_item($channel, $observer, $file) {
 	$arr['item_thread_top'] = 1;
 	$arr['item_private'] = (($file['allow_cid'] || $file['allow_gid'] || $file['deny_cid'] || $file['deny_gid']) ? 1 : 0);
 	$arr['verb'] = 'Create';
+	$arr['target'] = $target;
+	$arr['target_type'] = 'Collection';
 	$arr['obj_type'] = $type;
 	$arr['title'] = $file['filename'];
 
@@ -1978,7 +1986,7 @@ function attach_store_item($channel, $observer, $file) {
 	}
 
 	$body_str = sprintf((($type === 'Image') ? t('%s shared an %s with you') : t('%s shared a %s with you')), '[zrl=' . $observer['xchan_url'] . ']' . $observer['xchan_name'] . '[/zrl]', '[zrl=' . $path . ']' . (($type === 'Image') ? t('image') : t('file')) . '[/zrl]');
-	$arr['body'] .= $body_str;
+	$arr['body'] .= "\r\n" . $body_str;
 
 	$meta = [
 		'name' => $file['filename'],
