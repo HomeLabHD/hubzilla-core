@@ -11,7 +11,6 @@ namespace Zotlabs\Tests\Unit\Module;
 
 use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\{Before, After};
-use Zotlabs\Model\Account;
 
 class AdminAccountEditTest extends TestCase {
 
