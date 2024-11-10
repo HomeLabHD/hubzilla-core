@@ -3829,7 +3829,8 @@ class Activity {
 			])
 		);
 		if ($sourceItem) {
-			$item->setAllowCid($sourceItem['allow_cid'])
+			$item->setSourceXchan($sourceItem['source_xchan'])
+				->setAllowCid($sourceItem['allow_cid'])
 				->setAllowGid($sourceItem['allow_gid'])
 				->setDenyCid($sourceItem['deny_cid'])
 				->setDenyGid($sourceItem['deny_gid'])

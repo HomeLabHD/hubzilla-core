@@ -3122,10 +3122,10 @@ function i_am_mentioned($channel, $item, $check_groups = false) {
  */
 function start_delivery_chain($channel, $item, $item_id, $parent, $group = false, $edit = false) {
 
-    if ($item['author_xchan'] === $channel['channel_hash'] && in_array($item['verb'], ['Add', 'Remove'])) {
-        logger('delivery chain already started');
-        return;
-    }
+	if ($item['author_xchan'] === $channel['channel_hash'] && in_array($item['verb'], ['Add', 'Remove'])) {
+		logger('delivery chain already started');
+		return;
+	}
 
 	$sourced = check_item_source($channel['channel_id'],$item);
 
@@ -3173,7 +3173,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 				$item['thr_parent'] = $item['mid'];
 				$item['llink'] = z_root() . '/display/' . $item['uuid'];
 			}
-
+/*
 			$r = q("UPDATE item SET author_xchan = '%s', mid = '%s', parent_mid = '%s', thr_parent = '%s', llink = '%s' WHERE id = %d",
 				dbesc($item['author_xchan']),
 				dbesc($item['mid']),
@@ -3182,7 +3182,108 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 				dbesc($item['llink']),
 				intval($item_id)
 			);
+*/
 		}
+
+		hz_syslog('gothere');
+		// sourced
+
+		$private = (($channel['channel_allow_cid'] || $channel['channel_allow_gid']
+			|| $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 1 : 0);
+
+		$new_public_policy = map_scope(PermissionLimits::Get($channel['channel_id'],'view_stream'),true);
+
+		if((! $private) && $new_public_policy)
+			$private = 1;
+
+		$item_wall = 1;
+		$item_origin = (($item['item_deleted']) ? 0 : 1); // item_origin for deleted items is set to 0 in delete_imported_item() to prevent looping. In this case we probably should not set it back to 1 here.
+		$item_uplink = 0;
+		$item_nocomment = 0;
+
+		$flag_bits = $item['item_flags'];
+
+		// maintain the original source, which will be the original item owner and was stored in source_xchan
+		// when we created the delivery fork
+
+		if($parent) {
+			$r = q("update item set source_xchan = '%s' where id = %d",
+				dbesc($parent['source_xchan']),
+				intval($item_id)
+			);
+		}
+		else {
+			$item_uplink = (($item['item_rss']) ? 0 : 1); // Do not set item_uplink for rss items - we can not send anything to them.
+
+			// if this is an edit, item_store_update() will have already updated the item
+			// with the correct value for source_xchan (by ignoring it). We cannot set to owner_xchan
+			// in this case because owner_xchan will point to the parent of this chain
+			// and not the original sender.
+
+			if(!$edit) {
+				$r = q("update item set source_xchan = owner_xchan where id = %d",
+					intval($item_id)
+				);
+			}
+		}
+
+		// this will not work with item_store_update()
+
+		$r = q("update item set item_uplink = %d, item_nocomment = %d, item_flags = %d, owner_xchan = '%s', allow_cid = '%s', allow_gid = '%s',
+			deny_cid = '%s', deny_gid = '%s', item_private = %d, public_policy = '%s', comment_policy = '%s', title = '%s', body = '%s', item_wall = %d, item_origin = %d,
+			author_xchan = '%s', mid = '%s', parent_mid = '%s', thr_parent = '%s', llink = '%s' where id = %d",
+			intval($item_uplink),
+			intval($item_nocomment),
+			intval($flag_bits),
+			dbesc($channel['channel_hash']),
+			dbesc($channel['channel_allow_cid']),
+			dbesc($channel['channel_allow_gid']),
+			dbesc($channel['channel_deny_cid']),
+			dbesc($channel['channel_deny_gid']),
+			intval($private),
+			dbesc($new_public_policy),
+			dbesc(map_scope(PermissionLimits::Get($channel['channel_id'],'post_comments'))),
+			dbesc($item['title']),
+			dbesc($item['body']),
+			intval($item_wall),
+			intval($item_origin),
+			dbesc($item['author_xchan']),
+			dbesc($item['mid']),
+			dbesc($item['parent_mid']),
+			dbesc($item['thr_parent']),
+			dbesc($item['llink']),
+			intval($item_id)
+		);
+
+		if($r) {
+			$rr = q("select * from item where id = %d",
+				intval($item_id)
+			);
+
+			if ($rr) {
+
+				// this is hackish but since we can not use item_store_update() here,
+				// we will prepare a similar output to feed to addToCollectionAndSync()
+				$ret['success'] = 1;
+				$ret['item_id'] = $rr[0]['id'];
+				$ret['item'] = $rr[0];
+
+				$result = addToCollectionAndSync($ret);
+
+				Master::Summon(['Notifier', 'tgroup', $result['item_id']]);
+				if ($result['approval_id']) {
+					Master::Summon(['Notifier', 'tgroup', $result['approval_id']]);
+				}
+			}
+		}
+		else {
+			logger('start_delivery_chain: failed to update item');
+			// reset the source xchan to prevent loops
+			$r = q("update item set source_xchan = '' where id = %d",
+				intval($item_id)
+			);
+		}
+		return;
 	}
 
 	if ($group && (! $parent)) {
@@ -3287,8 +3388,15 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		}
 
 		$arr['title'] = $item['title'];
-		$arr['tgt_type'] = $item['tgt_type'];
-		$arr['target'] = $item['target'];
+//		$arr['tgt_type'] = $item['tgt_type'];
+//		$arr['target'] = $item['target'];
+
+		$arr['tgt_type'] = 'Collection';
+		$arr['target'] = [
+			'id' => str_replace('/item/', '/conversation/', $arr['parent_mid']),
+			'type' => 'Collection',
+			'attributedTo' => channel_url($channel['channel_address'])
+		];
 
 		$arr['term'] = $item['term'];
 
@@ -3350,7 +3458,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 			return;
 		}
 		else {
-			$arr['uuid'] = item_message_id();
+			$arr['uuid'] = uuid_from_url($item['mid']);
 			$arr['mid'] = z_root() . '/activity/' . $arr['uuid'];
 			$arr['parent_mid'] = $item['parent_mid'];
 			//IConfig::Set($arr,'activitypub','context', str_replace('/item/','/conversation/',$item['parent_mid']));
@@ -3396,14 +3504,10 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 
         $post = item_store($arr, deliver: false, addAndSync: false);
 		$post_id = $post['item_id'] ?? 0;
-		$approval_id = $post['approval_id'] ?? 0;
 
-		if ($post_id) {
-			Master::Summon(['Notifier', 'tgroup', $post_id]);
-			if ($approval_id) {
-				Master::Summon(['Notifier', 'tgroup', $approval_id]);
-			}
-		}
+        if ($post_id) {
+            Master::Summon(['Notifier', 'tgroup', $post_id]);
+        }
 
 		q("update channel set channel_lastpost = '%s' where channel_id = %d",
 			dbesc(datetime_convert()),
@@ -3413,81 +3517,6 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		return;
 	}
 
-
-	// Change this copy of the post to a forum head message and deliver to all the tgroup members
-	// also reset all the privacy bits to the forum default permissions
-
-	$private = (($channel['channel_allow_cid'] || $channel['channel_allow_gid']
-		|| $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 1 : 0);
-
-	$new_public_policy = map_scope(PermissionLimits::Get($channel['channel_id'],'view_stream'),true);
-
-	if((! $private) && $new_public_policy)
-		$private = 1;
-
-	$item_wall = 1;
-	$item_origin = (($item['item_deleted']) ? 0 : 1); // item_origin for deleted items is set to 0 in delete_imported_item() to prevent looping. In this case we probably should not set it back to 1 here.
-	$item_uplink = 0;
-	$item_nocomment = 0;
-
-	$flag_bits = $item['item_flags'];
-
-	// maintain the original source, which will be the original item owner and was stored in source_xchan
-	// when we created the delivery fork
-
-	if($parent) {
-		$r = q("update item set source_xchan = '%s' where id = %d",
-			dbesc($parent['source_xchan']),
-			intval($item_id)
-		);
-	}
-	else {
-		$item_uplink = (($item['item_rss']) ? 0 : 1); // Do not set item_uplink for rss items - we can not send anything to them.
-
-		// if this is an edit, item_store_update() will have already updated the item
-		// with the correct value for source_xchan (by ignoring it). We cannot set to owner_xchan
-		// in this case because owner_xchan will point to the parent of this chain
-		// and not the original sender.
-
-		if(! $edit) {
-			$r = q("update item set source_xchan = owner_xchan where id = %d",
-				intval($item_id)
-			);
-		}
-	}
-
-	$title = $item['title'];
-	$body  = $item['body'];
-
-	$r = q("update item set item_uplink = %d, item_nocomment = %d, item_flags = %d, owner_xchan = '%s', allow_cid = '%s', allow_gid = '%s',
-		deny_cid = '%s', deny_gid = '%s', item_private = %d, public_policy = '%s', comment_policy = '%s', title = '%s', body = '%s', item_wall = %d, item_origin = %d  where id = %d",
-		intval($item_uplink),
-		intval($item_nocomment),
-		intval($flag_bits),
-		dbesc($channel['channel_hash']),
-		dbesc($channel['channel_allow_cid']),
-		dbesc($channel['channel_allow_gid']),
-		dbesc($channel['channel_deny_cid']),
-		dbesc($channel['channel_deny_gid']),
-		intval($private),
-		dbesc($new_public_policy),
-		dbesc(map_scope(PermissionLimits::Get($channel['channel_id'],'post_comments'))),
-		dbesc($title),
-		dbesc($body),
-		intval($item_wall),
-		intval($item_origin),
-		intval($item_id)
-	);
-
-	if($r)
-		Master::Summon([ 'Notifier','tgroup',$item_id ]);
-	else {
-		logger('start_delivery_chain: failed to update item');
-		// reset the source xchan to prevent loops
-		$r = q("update item set source_xchan = '' where id = %d",
-			intval($item_id)
-		);
-	}
 }
 
 /**
