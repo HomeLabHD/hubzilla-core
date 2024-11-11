@@ -127,7 +127,7 @@
 												{{foreach $response.list as $liker}}
 												{{$liker}}
 												{{/foreach}}
-												</ul>
+											</ul>
 										</div>
 										<div class="modal-footer clear">
 											<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{{$item.modal_dismiss}}</button>
@@ -138,9 +138,7 @@
 							{{else}}
 							<div class="dropdown-menu">
 								{{if $item.reactions_allowed && !($verb === 'announce' && $item.my_responses.$verb)}} {{** undo announce is not yet supported **}}
-								<div class="dropdown-item">
-									<a href="#" class="text-reset" onclick="{{$response.button.onclick}}({{$item.id}},'{{$verb}}'); return false;">{{if $item.my_responses.$verb}}- {{$item.reaction_str.1}}{{else}}+ {{$item.reaction_str.0}}{{/if}}</a>
-								</div>
+								<a href="#" class="text-reset dropdown-item" onclick="{{$response.button.onclick}}({{$item.id}},'{{$verb}}'); return false;">{{if $item.my_responses.$verb}}- {{$item.reaction_str.1}}{{else}}+ {{$item.reaction_str.0}}{{/if}}</a>
 								<div class="dropdown-divider"></div>
 								{{/if}}
 								{{foreach $response.list as $liker}}{{$liker}}{{/foreach}}
