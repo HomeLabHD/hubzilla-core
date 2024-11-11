@@ -107,8 +107,7 @@ class Vote extends Controller {
 			retain_item($fetch[0]['id']);
 
 			if($x['success']) {
-				$itemid = $x['item_id'];
-				Master::Summon( ['Notifier', 'like', $itemid ] );
+				Master::Summon(['Notifier', 'like', $x['item_id']]);
 				if (!empty($x['approval_id'])) {
 					Master::Summon(['Notifier', 'like', $x['approval_id']]);
 				}

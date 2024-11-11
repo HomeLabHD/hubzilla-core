@@ -2021,129 +2021,149 @@ class Activity {
 
 	}
 
-	static function update_poll($item_id, $post) {
+	static function update_poll($pollItem, $response) {
 
-		$multi   = false;
-		$mid     = $post['mid'];
-		$content = $post['title'];
+		logger('updating poll');
 
-		if (!$item_id) {
+		$multi = false;
+
+
+		if (!$pollItem) {
+			logger('no item');
 			return false;
 		}
 
-		if (intval($post['item_blocked']) === ITEM_MODERATED) {
+		if (intval($pollItem['item_blocked']) === ITEM_MODERATED) {
+			logger('item blocked');
 			return false;
 		}
 
-		dbq("START TRANSACTION");
-
-		$item = q("SELECT * FROM item WHERE id = %d FOR UPDATE",
-			intval($item_id)
-		);
-
-		if (!$item) {
-			dbq("COMMIT");
+		$channel = channelx_by_n($pollItem['uid']);
+		if (!$channel) {
+			logger('no channel');
 			return false;
 		}
 
-		$item = $item[0];
-
-		$o = json_decode($item['obj'], true);
+		$o = json_decode($pollItem['obj'], true);
 		if ($o && array_key_exists('anyOf', $o)) {
 			$multi = true;
 		}
 
-		$r = q("select mid, title from item where parent_mid = '%s' and author_xchan = '%s'",
-			dbesc($item['mid']),
-			dbesc($post['author_xchan'])
-		);
+		if ($response) {
+			$mid = $response['mid'];
+			$content = trim($response['title']);
 
-		// prevent any duplicate votes by same author for oneOf and duplicate votes with same author and same answer for anyOf
 
-		if ($r) {
-			if ($multi) {
-				foreach ($r as $rv) {
-					if ($rv['title'] === $content && $rv['mid'] !== $mid) {
-						return false;
-					}
-				}
-			}
-			else {
-				foreach ($r as $rv) {
-					if ($rv['mid'] !== $mid) {
-						return false;
-					}
-				}
-			}
-		}
-
-		$answer_found = false;
-		$found        = false;
-		if ($multi) {
-			for ($c = 0; $c < count($o['anyOf']); $c++) {
-				if ($o['anyOf'][$c]['name'] === $content) {
-					$answer_found = true;
-					if (is_array($o['anyOf'][$c]['replies'])) {
-						foreach ($o['anyOf'][$c]['replies'] as $reply) {
-							if (is_array($reply) && array_key_exists('id', $reply) && $reply['id'] === $mid) {
-								$found = true;
-							}
-						}
-					}
-
-					if (!$found) {
-						$o['anyOf'][$c]['replies']['totalItems']++;
-						$o['anyOf'][$c]['replies']['items'][] = ['id' => $mid, 'type' => 'Note'];
-					}
-				}
-			}
-		}
-		else {
-			for ($c = 0; $c < count($o['oneOf']); $c++) {
-				if ($o['oneOf'][$c]['name'] === $content) {
-					$answer_found = true;
-					if (is_array($o['oneOf'][$c]['replies'])) {
-						foreach ($o['oneOf'][$c]['replies'] as $reply) {
-							if (is_array($reply) && array_key_exists('id', $reply) && $reply['id'] === $mid) {
-								$found = true;
-							}
-						}
-					}
-
-					if (!$found) {
-						$o['oneOf'][$c]['replies']['totalItems']++;
-						$o['oneOf'][$c]['replies']['items'][] = ['id' => $mid, 'type' => 'Note'];
-					}
-				}
-			}
-		}
-		logger('updated_poll: ' . print_r($o, true), LOGGER_DATA);
-		if ($answer_found && !$found) {
-			$u = q("update item set obj = '%s', edited = '%s' where id = %d",
-				dbesc(json_encode($o)),
-				dbesc(datetime_convert()),
-				intval($item['id'])
+			$r = q("select mid, title from item where parent_mid = '%s' and author_xchan = '%s' and mid != parent_mid ",
+				dbesc($pollItem['mid']),
+				dbesc($response['author_xchan'])
 			);
 
-			if ($u) {
-				dbq("COMMIT");
+			// prevent any duplicate votes by same author for oneOf and duplicate votes with same author and same answer for anyOf
 
+			if ($r) {
 				if ($multi) {
-					// wait some seconds for possible multiple answers to be processed
-					// before calling the notifier
-					sleep(3);
+					foreach ($r as $rv) {
+						if (trim($rv['title']) === $content && $rv['mid'] !== $mid) {
+							logger('already voted multi');
+							return false;
+						}
+					}
+				} else {
+					foreach ($r as $rv) {
+						if ($rv['mid'] !== $mid && $content) {
+							logger('already voted');
+							return false;
+						}
+					}
 				}
-
-				Master::Summon(['Notifier', 'wall-new', $item['id']]);
-				return true;
 			}
 
-			dbq("ROLLBACK");
+			$answer_found = false;
+			$foundPrevious = false;
+			if ($multi) {
+				for ($c = 0; $c < count($o['anyOf']); $c++) {
+					if (trim($o['anyOf'][$c]['name']) === $content) {
+						$answer_found = true;
+						if (is_array($o['anyOf'][$c]['replies'])) {
+							foreach ($o['anyOf'][$c]['replies'] as $reply) {
+								if (is_array($reply) && array_key_exists('id', $reply) && $reply['id'] === $mid) {
+									$foundPrevious = true;
+								}
+							}
+						}
 
+						if (!$foundPrevious) {
+							$o['anyOf'][$c]['replies']['totalItems']++;
+							$o['anyOf'][$c]['replies']['items'][] = ['id' => $mid, 'type' => 'Note'];
+						}
+					}
+				}
+			} else {
+				for ($c = 0; $c < count($o['oneOf']); $c++) {
+					if (trim($o['oneOf'][$c]['name']) === $content) {
+						$answer_found = true;
+						if (is_array($o['oneOf'][$c]['replies'])) {
+							foreach ($o['oneOf'][$c]['replies'] as $reply) {
+								if (is_array($reply) && array_key_exists('id', $reply) && $reply['id'] === $mid) {
+									$foundPrevious = true;
+								}
+							}
+						}
+
+						if (!$foundPrevious) {
+							$o['oneOf'][$c]['replies']['totalItems']++;
+							$o['oneOf'][$c]['replies']['items'][] = ['id' => $mid, 'type' => 'Note'];
+						}
+					}
+				}
+			}
+		}
+		if ($pollItem['comments_closed'] > NULL_DATE) {
+			if ($pollItem['comments_closed'] > datetime_convert()) {
+				$o['closed'] = datetime_convert('UTC', 'UTC', $pollItem['comments_closed'], ATOM_TIME);
+				// set this to force an update
+				$answer_found = true;
+			}
 		}
 
-		dbq("COMMIT");
-		return false;
+		logger('updated_poll: ' . print_r($o, true), LOGGER_DATA);
+
+		// A change was made locally
+		if ($response && $answer_found && !$foundPrevious) {
+			q("update item set obj = '%s', edited = '%s' where id = %d",
+				dbesc(json_encode($o)),
+				dbesc(datetime_convert()),
+				intval($pollItem['id'])
+			);
+		}
+
+		$i = q("select * from item where id = %d",
+			intval($pollItem['id'])
+		);
+
+		xchan_query($i, true);
+		$items = fetch_post_tags($i);
+
+		$pollItem = array_shift($items);
+		$pollItem['obj'] = json_decode($pollItem['obj'],true);
+		$pollItem['target'] = json_decode($pollItem['target'], true);
+		$pollItem['attach'] = json_decode($pollItem['attach'], true);
+
+		Master::Summon(['Notifier', 'edit_post', $pollItem['id']]);
+
+		$related = find_related($pollItem);
+		if ($related) {
+			// Update the object in the collection activity and the timestamp
+			$newObj = self::build_packet(self::encode_activity($pollItem), $channel);
+			$r = q("update item set obj = '%s', edited = '%s' where id = %d",
+				dbesc($newObj),
+				dbesc(datetime_convert()),
+				intval($related['id'])
+			);
+			Master::Summon(['Notifier', 'edit_post', $related['id']]);
+		}
+		return true;
 	}
 
 	static function decode_note($act) {

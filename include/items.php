@@ -1897,7 +1897,7 @@ function item_store($arr, $allow_exec = false, $deliver = true, $addAndSync = tr
 				$arr['item_private'] = 0;
 
 			if(in_array($arr['obj_type'], ['Note','Answer']) && $r[0]['obj_type'] === 'Question' && intval($r[0]['item_wall'])) {
-				Activity::update_poll($r[0]['id'], $arr);
+				Activity::update_poll($r[0], $arr);
 			}
 
 		}
@@ -4034,6 +4034,7 @@ function find_related($item) {
 	if (! $allRelated) {
 		return false;
 	}
+
 	if ($item['verb'] === 'Add' && $item['tgt_type'] === 'Collection') {
 		$thisItem = json_decode($item['obj'],true);
 		if (is_array($thisItem)) {
