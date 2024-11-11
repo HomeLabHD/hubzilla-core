@@ -1036,7 +1036,7 @@ class Activity {
 
 			$cnv = IConfig::Get($i['parent'], 'activitypub', 'context');
 			if (!$cnv) {
-				$cnv = $item['parent_mid'];
+				$cnv = $i['parent_mid'];
 			}
 		}
 
