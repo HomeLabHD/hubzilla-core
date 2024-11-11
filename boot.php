@@ -1538,7 +1538,7 @@ function check_config() {
 
 	App::set_baseurl(z_root());
 
-	new DB_Upgrade(DB_UPDATE_VERSION);
+	DB_Upgrade::run(DB_UPDATE_VERSION);
 
 	plugins_sync();
 
