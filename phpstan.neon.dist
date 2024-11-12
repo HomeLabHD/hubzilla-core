@@ -1,0 +1,9 @@
+parameters:
+	level: 0
+	paths:
+		- boot.php
+		- include
+		- util
+		- Zotlabs
+	scanDirectories:
+		- library
