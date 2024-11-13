@@ -2027,7 +2027,6 @@ class Activity {
 
 		$multi = false;
 
-
 		if (!$pollItem) {
 			logger('no item');
 			return false;
@@ -2044,7 +2043,27 @@ class Activity {
 			return false;
 		}
 
+		$relatedItem = find_related($pollItem);
+
+		$ids = (($relatedItem) ? $pollItem['id'] . ',' . $relatedItem['id'] : $pollItem['id']);
+
+		dbq("START TRANSACTION");
+		// Using the provided items as is will produce desastrous race conditions
+		// in case of multiple choice polls - hence:
+
+		$items = dbq("SELECT * FROM item WHERE id in ($ids) FOR UPDATE");
+
+		foreach ($items as $item) {
+			if ($item['id'] === $pollItem['id']) {
+				$pollItem = $item;
+			}
+			if (!empty($relatedItem['id']) && $item['id'] === $relatedItem['id']) {
+				$relatedItem = $item;
+			}
+		}
+
 		$o = json_decode($pollItem['obj'], true);
+
 		if ($o && array_key_exists('anyOf', $o)) {
 			$multi = true;
 		}
@@ -2052,7 +2071,6 @@ class Activity {
 		if ($response) {
 			$mid = $response['mid'];
 			$content = trim($response['title']);
-
 
 			$r = q("select mid, title from item where parent_mid = '%s' and author_xchan = '%s' and mid != parent_mid ",
 				dbesc($pollItem['mid']),
@@ -2085,6 +2103,8 @@ class Activity {
 				for ($c = 0; $c < count($o['anyOf']); $c++) {
 					if (trim($o['anyOf'][$c]['name']) === $content) {
 						$answer_found = true;
+
+
 						if (is_array($o['anyOf'][$c]['replies'])) {
 							foreach ($o['anyOf'][$c]['replies'] as $reply) {
 								if (is_array($reply) && array_key_exists('id', $reply) && $reply['id'] === $mid) {
@@ -2127,42 +2147,43 @@ class Activity {
 			}
 		}
 
-		logger('updated_poll: ' . print_r($o, true), LOGGER_DATA);
-
 		// A change was made locally
 		if ($response && $answer_found && !$foundPrevious) {
-			q("update item set obj = '%s', edited = '%s' where id = %d",
+
+			// update this copy
+			$i = [$pollItem];
+			xchan_query($i, true);
+			$i = fetch_post_tags($i);
+			$i[0]['obj'] = $o;
+
+			// create the new object
+			$newObj = self::build_packet(self::encode_activity($i[0]), $channel, true);
+
+			// and immediately update the db
+			$u = q("UPDATE item
+				SET obj = (
+					CASE
+					WHEN item.id = %d THEN '%s'
+					WHEN item.id = %d THEN '%s'
+					END
+				),
+				edited = '%s'
+				WHERE id IN ($ids)",
+				intval($pollItem['id']),
 				dbesc(json_encode($o)),
-				dbesc(datetime_convert()),
-				intval($pollItem['id'])
-			);
-		}
-
-		$i = q("select * from item where id = %d",
-			intval($pollItem['id'])
-		);
-
-		xchan_query($i, true);
-		$items = fetch_post_tags($i);
-
-		$pollItem = array_shift($items);
-		$pollItem['obj'] = json_decode($pollItem['obj'],true);
-		$pollItem['target'] = json_decode($pollItem['target'], true);
-		$pollItem['attach'] = json_decode($pollItem['attach'], true);
-
-		Master::Summon(['Notifier', 'edit_post', $pollItem['id']]);
-
-		$related = find_related($pollItem);
-		if ($related) {
-			// Update the object in the collection activity and the timestamp
-			$newObj = self::build_packet(self::encode_activity($pollItem), $channel);
-			$r = q("update item set obj = '%s', edited = '%s' where id = %d",
+				intval($relatedItem['id']),
 				dbesc($newObj),
-				dbesc(datetime_convert()),
-				intval($related['id'])
+				dbesc(datetime_convert())
 			);
-			Master::Summon(['Notifier', 'edit_post', $related['id']]);
+
+			dbq("COMMIT");
+
+			Master::Summon(['Notifier', 'edit_post', $pollItem['id'], $response['mid']]);
+			if (!empty($relatedItem['id'])) {
+				Master::Summon(['Notifier', 'edit_post', $relatedItem['id'], $response['mid']]);
+			}
 		}
+
 		return true;
 	}
 
