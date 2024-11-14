@@ -534,6 +534,7 @@ class Import extends Controller {
 		if ($api_path) {
 			$parsed = parse_url($api_path);
 			unset($parsed['path']);
+			unset($parsed['query']);
 
 			// store the import host so we can manually kick off item/file sync later in case anything did not work out
 			set_pconfig($channel['channel_id'], 'import', 'host', $parsed['host']);
@@ -551,7 +552,7 @@ class Import extends Controller {
 				$until = datetime_convert(date_default_timezone_get(), date_default_timezone_get(), 'now + 1 day');
 
 				//$poll_interval = Config::Get('system', 'poll_interval', 3);
-				$page          = 0;
+				$page = 0;
 
 				Master::Summon(['Content_importer', sprintf('%d', $page), $since, $until, $channel['channel_address'], urlencode($hz_server)]);
 				Master::Summon(['File_importer', sprintf('%d', $page), $channel['channel_address'], urlencode($hz_server)]);
