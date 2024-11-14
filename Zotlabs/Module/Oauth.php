@@ -103,7 +103,8 @@ class Oauth extends Controller {
 
 		if((argc() > 1) && (argv(1) === 'add')) {
 			$tpl = get_markup_template("oauth_edit.tpl");
-			$o .= replace_macros($tpl, array(
+
+			return replace_macros($tpl, array(
 				'$form_security_token' => get_form_security_token("oauth"),
 				'$title'	=> t('Add application'),
 				'$submit'	=> t('Submit'),
@@ -114,7 +115,6 @@ class Oauth extends Controller {
 				'$redirect'	=> array('redirect', t('Redirect'), '', t('Redirect URI - leave blank unless your application specifically requires this')),
 				'$icon'		=> array('icon', t('Icon url'), '', t('Optional')),
 			));
-			return $o;
 		}
 
 		if((argc() > 2) && (argv(1) === 'edit')) {
@@ -129,7 +129,7 @@ class Oauth extends Controller {
 			$app = $r[0];
 
 			$tpl = get_markup_template("oauth_edit.tpl");
-			$o .= replace_macros($tpl, array(
+			return replace_macros($tpl, array(
 				'$form_security_token' => get_form_security_token("oauth"),
 				'$title'	=> t('Add application'),
 				'$submit'	=> t('Update'),
@@ -140,7 +140,6 @@ class Oauth extends Controller {
 				'$redirect'	=> array('redirect', t('Redirect'), $app['redirect_uri'], ''),
 				'$icon'		=> array('icon', t('Icon url'), $app['icon'], ''),
 			));
-			return $o;
 		}
 
 		if((argc() > 2) && (argv(1) === 'delete')) {
@@ -163,7 +162,8 @@ class Oauth extends Controller {
 
 
 		$tpl = get_markup_template("oauth.tpl");
-		$o .= replace_macros($tpl, array(
+
+		return replace_macros($tpl, array(
 			'$form_security_token' => get_form_security_token("oauth"),
 			'$baseurl'	=> z_root(),
 			'$title'	=> t('Connected OAuth Apps'),
@@ -175,8 +175,6 @@ class Oauth extends Controller {
 			'$remove'	=> t('Remove authorization'),
 			'$apps'		=> $r,
 		));
-		return $o;
-
 	}
 
 }

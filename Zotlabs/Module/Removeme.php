@@ -54,7 +54,7 @@ class Removeme extends \Zotlabs\Web\Controller {
 		$_SESSION['remove_account_verify'] = $hash;
 
 		$tpl = get_markup_template('removeme.tpl');
-		$o .= replace_macros($tpl, array(
+		return replace_macros($tpl, array(
 			'$basedir' => z_root(),
 			'$hash'    => $hash,
 			'$title'   => t('Remove Channel'),
@@ -63,9 +63,5 @@ class Removeme extends \Zotlabs\Web\Controller {
 			// '$global'  => [ 'global', t('Remove this channel and all its clones from the network'), false, t('By default only the instance of the channel located on this hub will be removed from the network'),  [ t('No'),t('Yes') ] ],
 			'$submit'  => t('Remove Channel')
 		));
-
-		return $o;
-
 	}
-
 }

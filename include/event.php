@@ -235,7 +235,7 @@ function ical_wrapper($ev) {
 	if(! ((is_array($ev)) && count($ev)))
 		return '';
 
-	$o .= "BEGIN:VCALENDAR";
+	$o = "BEGIN:VCALENDAR";
 	$o .= "\r\nVERSION:2.0";
 	$o .= "\r\nMETHOD:PUBLISH";
 	$o .= "\r\nPRODID:-//" . Config::Get('system','sitename') . "//" . Zotlabs\Lib\System::get_platform_name() . "//" . strtoupper(App::$language). "\r\n";

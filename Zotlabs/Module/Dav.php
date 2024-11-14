@@ -9,6 +9,7 @@
 namespace Zotlabs\Module;
 
 use Sabre\DAV as SDAV;
+use Zotlabs\Lib\Libzot;
 use Zotlabs\Storage;
 use Zotlabs\Web\HTTPSig;
 

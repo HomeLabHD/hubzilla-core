@@ -371,7 +371,7 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 
 			$tpl = get_markup_template('cover_photo.tpl');
 
-			$o .= replace_macros($tpl,array(
+			$output = replace_macros($tpl,array(
 				'$user'                => \App::$channel['channel_address'],
 				'$info'                => t('Your cover photo may be visible to anybody on the internet'),
 				'$existing'            => get_cover_photo(local_channel(),'array',PHOTO_RES_COVER_850),
@@ -397,15 +397,15 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 
 			));
 
-			call_hooks('cover_photo_content_end', $o);
+			call_hooks('cover_photo_content_end', $output);
 
-			return $o;
+			return $output;
 		}
 		else {
 			$filename = \App::$data['imagecrop'] . '-3';
 			$resolution = 3;
 			$tpl = get_markup_template("cropcover.tpl");
-			$o .= replace_macros($tpl,array(
+			return replace_macros($tpl,array(
 				'$filename'            => $filename,
 				'$profile'             => intval($_REQUEST['profile']),
 				'$resource'            => \App::$data['imagecrop'] . '-3',
@@ -415,7 +415,6 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 				'$form_security_token' => get_form_security_token("cover_photo"),
 				'$done'                => t('Done Editing')
 			));
-			return $o;
 		}
 	}
 

@@ -406,6 +406,7 @@ class Enotify {
 	}
 
 	elseif (isset($params['type']) && $params['type'] === NOTIFY_TAGSHARE) {
+		$itemlink =  $params['link'];
 		$subject =	sprintf( t('[$Projectname:Notify] %s tagged your post') , $sender['xchan_name']);
 		$preamble = sprintf( t('%1$s tagged your post at %2$s'),$sender['xchan_name'], $sitename);
 		$epreamble = sprintf( t('%1$s tagged [zrl=%2$s]your post[/zrl]') ,
@@ -415,7 +416,6 @@ class Enotify {
 		$sitelink = t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf( $sitelink, $siteurl );
 		$hsitelink = sprintf( $sitelink, '<a href="' . $siteurl . '">' . $sitename . '</a>');
-		$itemlink =  $params['link'];
 	}
 
 	elseif (isset($params['type']) && $params['type'] === NOTIFY_INTRO) {
@@ -433,6 +433,7 @@ class Enotify {
 	}
 
 	elseif (isset($params['type']) && $params['type'] === NOTIFY_SUGGEST) {
+		$itemlink =  $params['link'];
 		$subject = sprintf( t('[$Projectname:Notify] Friend suggestion received'));
 		$preamble = sprintf( t('You\'ve received a friend suggestion from \'%1$s\' at %2$s'), $sender['xchan_name'], $sitename);
 		$epreamble = sprintf( t('You\'ve received [zrl=%1$s]a friend suggestion[/zrl] for %2$s from %3$s.'),
@@ -447,7 +448,6 @@ class Enotify {
 		$sitelink = t('Please visit %s to approve or reject the suggestion.');
 		$tsitelink = sprintf( $sitelink, $siteurl );
 		$hsitelink = sprintf( $sitelink, '<a href="' . $siteurl . '">' . $sitename . '</a>');
-		$itemlink =  $params['link'];
 	}
 
 	elseif (isset($params['type']) && $params['type'] === NOTIFY_CONFIRM) {

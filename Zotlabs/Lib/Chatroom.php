@@ -181,7 +181,7 @@ class Chatroom {
 	}
 
 
-	function leave($observer_xchan, $room_id, $client) {
+	public static function leave($observer_xchan, $room_id, $client) {
 		if(! $room_id || ! $observer_xchan)
 			return;
 

@@ -184,8 +184,8 @@ class Mitem extends \Zotlabs\Web\Controller {
 				'$nick'        => $which,
 				'$sys'         => \App::$is_sys
 			));
-	
-			$o .= replace_macros(get_markup_template('mitemlist.tpl'),array(
+
+			return replace_macros(get_markup_template('mitemlist.tpl'),array(
 				'$title'       => t('Menu:'),
 				'$create'      => $create,
 				'$nametitle'   => t('Link Name'),
@@ -204,29 +204,27 @@ class Mitem extends \Zotlabs\Web\Controller {
 				'$hintedit'    => t('Edit this menu item'),
 				'$nick'        => $which,
 			));
-	
-			return $o;
 		}
-	
-	
+
+
 		if(argc() > 3) {
 
 			if(intval(argv(3))) {
-	
+
 				$m = q("select * from menu_item where mitem_id = %d and mitem_channel_id = %d limit 1",
 					intval(argv(3)),
 					intval($owner)
 				);
-	
+
 				if(! $m) {
 					notice( t('Menu item not found.') . EOL);
 					goaway(z_root() . '/menu/'. $which . ((\App::$is_sys) ? '?f=&sys=1' : ''));
 				}
-	
+
 				$mitem = $m[0];
-	
+
 				$lockstate = (($mitem['allow_cid'] || $mitem['allow_gid'] || $mitem['deny_cid'] || $mitem['deny_gid']) ? 'lock' : 'unlock');
-	
+
 				if(argc() == 5 && argv(4) == 'drop') {
 					menu_sync_packet($owner,get_observer_hash(),$mitem['mitem_menu_id']);
 					$r = menu_del_item($mitem['mitem_menu_id'], $owner, intval(argv(3)));
@@ -235,12 +233,12 @@ class Mitem extends \Zotlabs\Web\Controller {
 						info( t('Menu item deleted.') . EOL);
 					else
 						notice( t('Menu item could not be deleted.'). EOL);
-	
+
 					goaway(z_root() . '/mitem/' . $which . '/' . $mitem['mitem_menu_id'] . ((\App::$is_sys) ? '?f=&sys=1' : ''));
 				}
-	
+
 				// edit menu item
-				$o = replace_macros(get_markup_template('mitemedit.tpl'), array(
+				return replace_macros(get_markup_template('mitemedit.tpl'), array(
 					'$header' => t('Edit Menu Element'),
 					'$menu_id' => \App::$data['menu']['menu_id'],
 					'$permissions' => t('Menu Item Permissions'),
@@ -261,10 +259,8 @@ class Mitem extends \Zotlabs\Web\Controller {
 					'$menu_names'  => $menu_names,
 					'$nick'  => $which
 				));
-	
-				return $o;
 			}
 		}
 	}
-	
+
 }

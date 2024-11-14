@@ -6,6 +6,8 @@ use Zotlabs\Lib\Config;
 
 class Site {
 
+	private string $eol;
+	private string $joo;
 
 	/**
 	 * @brief POST handler for Admin Site Page.
@@ -208,7 +210,6 @@ class Site {
 		//Config::Set('system','force_queue_threshold', $force_queue);
 
 		Config::Set('system','no_community_page', $no_community_page);
-		Config::Set('system','no_utf', $no_utf);
 
 		Config::Set('system','sse_enabled', $sse_enabled);
 

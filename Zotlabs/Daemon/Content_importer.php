@@ -38,7 +38,13 @@ class Content_importer {
 
 		$headers = HTTPSig::create_sig($headers,$channel['channel_prvkey'], channel_url($channel),true,'sha512');
 
-		$x = z_fetch_url($hz_server . '/api/z/1.0/item/export_page?f=&since=' . urlencode($since) . '&until=' . urlencode($until) . '&page=' . $page,false,$redirects,[ 'headers' => $headers ]);
+		$redirects = 0;
+		$x = z_fetch_url(
+			$hz_server . '/api/z/1.0/item/export_page?f=&since=' . urlencode($since) . '&until=' . urlencode($until) . '&page=' . $page,
+			false,
+			$redirects,
+			[ 'headers' => $headers ]
+		);
 
 		// logger('item fetch: ' . print_r($x,true));
 

@@ -7,7 +7,7 @@ class Authtest extends \Zotlabs\Web\Controller {
 
 
 		$auth_success = false;
-		$o .= '<h3>Magic-Auth Diagnostic</h3>';
+		$o = '<h3>Magic-Auth Diagnostic</h3>';
 
 		if(! local_channel()) {
 			notice( t('Permission denied.') . EOL);
@@ -27,7 +27,7 @@ class Authtest extends \Zotlabs\Web\Controller {
 
 			$_REQUEST['test'] = 1;
 			$mod = new Magic();
-			$x = $mod->init($a);
+			$x = $mod->init();
 
 			$o .= 'Local Setup returns: ' . print_r($x,true);
 
