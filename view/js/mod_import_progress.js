@@ -30,6 +30,9 @@ $(document).ready(function() {
 			$('#cprogress-bar').css('width', '0%');
 		}
 
+		$('#cprogress-completed span').html(data.ccompleted_str);
+
+
 		// files
 		if (typeof data.fprogress == 'number') {
 			$('#fprogress-label').html(data.fprogress + '%');
@@ -50,5 +53,8 @@ $(document).ready(function() {
 			$('#fprogress-label').html(data.fprogress);
 			$('#fprogress-bar').css('width', '0%');
 		}
+
+		$('#fprogress-completed span').html(data.fcompleted_str);
+
 	}
 });

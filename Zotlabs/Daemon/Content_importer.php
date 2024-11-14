@@ -47,9 +47,9 @@ class Content_importer {
 			killme();
 		}
 
-		$j = json_decode($x['body'],true);
+		$j = json_decode($x['body'], true);
 
-		if(! is_array($j['item']) || ! count($j['item'])) {
+		if($j && empty($j['item'])) {
 			PConfig::Set($channel['channel_id'], 'import', 'content_completed', 1);
 			return;
 		}

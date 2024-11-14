@@ -29,14 +29,14 @@ class Import_progress extends \Zotlabs\Web\Controller {
 		$c = PConfig::Get(local_channel(), 'import', 'content_progress');
 
 		if ($c) {
-			$total_cpages = floor(intval($c['items_total']) / intval($c['items_page']));
+			$total_cpages = round(intval($c['items_total']) / intval($c['items_page']));
 			if(!$total_cpages) {
-				$total_cpages = 1; // because of floor
+				$total_cpages = 1; // because of round
 			}
 
 			$cpage = $c['last_page'] + 1; // because page count start at 0
 
-			$cprogress = intval(floor((intval($cpage) * 100) / $total_cpages));
+			$cprogress = intval(round((intval($cpage) * 100) / $total_cpages));
 			$ccompleted_str = t('Item sync completed!');
 
 			if(argv(1) === 'resume_itemsync' && $cprogress < 100) {
@@ -50,6 +50,7 @@ class Import_progress extends \Zotlabs\Web\Controller {
 				if ($alive) {
 					$parsed = parse_url($alive);
 					unset($parsed['path']);
+					unset($parsed['query']);
 
 					$hz_server = unparse_url($parsed);
 					$since = datetime_convert(date_default_timezone_get(), date_default_timezone_get(), '0001-01-01 00:00');
@@ -79,14 +80,14 @@ class Import_progress extends \Zotlabs\Web\Controller {
 		$f = PConfig::Get(local_channel(), 'import', 'files_progress');
 
 		if ($f) {
-			$total_fpages = floor(intval($f['files_total']) / intval($f['files_page']));
+			$total_fpages = round(intval($f['files_total']) / intval($f['files_page']));
 			if(!$total_fpages) {
 				$total_fpages = 1;
 			}
 
 			$fpage = $f['last_page'] + 1;
 
-			$fprogress = intval(floor((intval($fpage) * 100) / $total_fpages));
+			$fprogress = intval(round((intval($fpage) * 100) / $total_fpages));
 			$fcompleted_str = t('File sync completed!');
 
 			if(argv(1) === 'resume_filesync' && $fprogress < 100) {
@@ -120,6 +121,7 @@ class Import_progress extends \Zotlabs\Web\Controller {
 			}
 
 			$fcompleted_str = t('File sync completed but no files were found!');
+
 		}
 
 		$fprogress_str = ((intval($fprogress)) ? $fprogress . '%' : $fprogress);
@@ -127,13 +129,15 @@ class Import_progress extends \Zotlabs\Web\Controller {
 		if(is_ajax()) {
 			$ret = [
 				'cprogress' => $cprogress,
-				'fprogress' => $fprogress
+				'ccompleted_str' => $ccompleted_str,
+				'fprogress' => $fprogress,
+				'fcompleted_str' => $fcompleted_str
 			];
 
 			json_return_and_die($ret);
 		}
 
-		$o = replace_macros(get_markup_template("import_progress.tpl"), [
+		return replace_macros(get_markup_template('import_progress.tpl'), [
 			'$chtitle_str' => t('Channel clone status'),
 			'$ctitle_str' => t('Item sync status'),
 			'$ftitle_str' => t('File sync status'),
@@ -147,8 +151,6 @@ class Import_progress extends \Zotlabs\Web\Controller {
 			'$resume_str' => t('Resume'),
 			'$resume_helper_str' => t('Only resume if sync stalled!')
 		]);
-
-		return $o;
 	}
 
 }
