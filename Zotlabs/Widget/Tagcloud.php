@@ -18,8 +18,7 @@ class Tagcloud {
 		$flags = 0;
 		$type = TERM_HASHTAG;
 
-		// @FIXME there exists no $authors variable
-		$r = tagadelic($uid, $count, $authors, $owner, $flags, 0, $type);
+		$r = tagadelic($uid, $count, '', '', $flags, 0, $type);
 
 		// @FIXME this should use a template
 

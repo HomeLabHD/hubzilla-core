@@ -103,7 +103,7 @@ class Portfolio {
 
 
 		$tpl = get_markup_template('photo_album_portfolio.tpl');
-		$o .= replace_macros($tpl, array(
+		return replace_macros($tpl, array(
 			'$photos' => $photos,
 			'$mode' => $mode,
 			'$count' => $count,
@@ -113,11 +113,7 @@ class Portfolio {
 			'$can_post' => false,
 			'$upload' => array(t('Upload'), z_root() . '/photos/' . \App::$profile['channel_address'] . '/upload/' . bin2hex($album)),
 			'$order' => false,
-			'$upload_form' => $upload_form,
-			'$usage' => $usage_message
 		));
-
-		return $o;
 	}
 }
 

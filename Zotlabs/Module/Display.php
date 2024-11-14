@@ -344,7 +344,12 @@ class Display extends Controller {
 					'$profile_page'  => xmlify(z_root() . '/display/' . gen_link_id($target_item['mid'])),
 				));
 
-				$x = [ 'xml' => $atom, 'channel' => $channel, 'observer_hash' => $observer_hash, 'params' => $params ];
+				$x = [
+					'xml' => $atom,
+					'channel' => $channel,
+					'observer_hash' => $observer_hash,
+					'params' => [],
+				];
 				call_hooks('atom_feed_top',$x);
 
 				$atom = $x['xml'];

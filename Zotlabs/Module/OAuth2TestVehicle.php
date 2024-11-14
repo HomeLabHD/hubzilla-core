@@ -31,8 +31,8 @@ class OAuth2TestVehicle extends \Zotlabs\Web\Controller {
 		$_SESSION['api_response'] = (x($_SESSION, 'api_response') ? $_SESSION['api_response'] : '');
 	}
 	function get() {
-		
-		$o .= replace_macros(get_markup_template('oauth2testvehicle.tpl'), array(
+
+		$output = replace_macros(get_markup_template('oauth2testvehicle.tpl'), array(
 			'$baseurl' => z_root(),
 			'$api_response' => $_SESSION['api_response'],
 			/*
@@ -97,8 +97,10 @@ class OAuth2TestVehicle extends \Zotlabs\Web\Controller {
 				)
 			)
 		));
+
 		$_SESSION['success'] = '';
-		return $o;
+
+		return $output;
 	}
 
 	function post() {

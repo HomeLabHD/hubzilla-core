@@ -6,6 +6,8 @@ namespace Zotlabs\Module;
  * @author		Fabio Comuni <fabrixxm@kirgroup.com>
  */
 
+use function Zotlabs\Render\template_escape;
+
 require_once('include/photo/photo_driver.php');
 
 /**

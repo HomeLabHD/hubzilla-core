@@ -100,7 +100,7 @@ class Account {
 		$attremail  = ((!strpos($email, '@')) ? 'disabled="disabled"' : '');
 
 		$tpl = get_markup_template("settings_account.tpl");
-		$o .= replace_macros($tpl, array(
+		return replace_macros($tpl, array(
 			'$form_security_token' => get_form_security_token("settings_account"),
 			'$title'            => t('Account Settings'),
 			'$origpass'         => array('origpass', t('Current Password'), ' ',''),
@@ -114,7 +114,5 @@ class Account {
 			'$removeaccount'    => t('Remove this account including all its channels'),
 			'$account_settings' => $account_settings
 		));
-		return $o;
 	}
-
 }

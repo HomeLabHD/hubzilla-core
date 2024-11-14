@@ -399,7 +399,6 @@ class Browser extends DAV\Browser\Plugin {
 				'$allow_gid' => ((isset($channel_acl['allow_gid'])) ? acl2json($channel_acl['allow_gid']) : ''),
 				'$deny_cid' => ((isset($channel_acl['deny_cid'])) ? acl2json($channel_acl['deny_cid']) : ''),
 				'$deny_gid' => ((isset($channel_acl['deny_gid'])) ? acl2json($channel_acl['deny_gid']) : ''),
-				'$is_owner' => $is_owner,
 				'$select_all_label' => t('Select All'),
 				'$bulk_actions_label' => t('Bulk Actions'),
 				'$adjust_permissions_label' => t('Adjust Permissions'),

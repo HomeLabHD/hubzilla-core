@@ -39,8 +39,6 @@ use Zotlabs\Lib as Zlib;
  *
  * @param string $family		The category of the configuration value
  *
- * @return Nothing
- *
  * @deprecated
  *		This function is deprecated, use Zotlabs\Lib\Config::Load
  *		instead.

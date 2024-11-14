@@ -183,9 +183,7 @@ class Page extends \Zotlabs\Web\Controller {
 		if($r[0]['mimetype'] === 'application/x-pdl')
 			\App::$page['pdl_content'] = true;
 
-		$o .= prepare_page($r[0]);
-		return $o;
-
+		return prepare_page($r[0]);
 	}
 
 }

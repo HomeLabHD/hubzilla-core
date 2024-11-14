@@ -1997,7 +1997,6 @@ function attach_store_item($channel, $observer, $file) {
 		'type' => $file['filetype'],
 		'size' => $file['filesize'],
 		'revision' => $file['revision'],
-		'size' => $file['filesize'],
 		'created' => $file['created'],
 		'edited' => $file['edited'],
 		'path' => $path

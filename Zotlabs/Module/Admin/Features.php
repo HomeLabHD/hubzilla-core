@@ -59,14 +59,13 @@ class Features {
 			}
 
 			$tpl = get_markup_template("admin_settings_features.tpl");
-			$o .= replace_macros($tpl, array(
+
+			return replace_macros($tpl, array(
 				'$form_security_token' => get_form_security_token("admin_manage_features"),
 				'$title'	=> t('Manage Additional Features'),
 				'$features' => $arr,
 				'$submit'   => t('Submit'),
 			));
-
-			return $o;
 		}
 	}
 

@@ -96,6 +96,8 @@ function validate_channelname($name) {
 
 	if (x($arr, 'message'))
 		return $arr['message'];
+
+	return null;
 }
 
 
@@ -2428,7 +2430,7 @@ function get_zcard($channel, $observer_hash = '', $args = array()) {
 		$cover = [ 'href' => z_root() . '/images/default_cover_photos/' . $default_cover . '/' . $cover_width . '.png' ];
 	}
 
-	$o .= replace_macros(get_markup_template('zcard.tpl'), array(
+	return replace_macros(get_markup_template('zcard.tpl'), array(
 		'$maxwidth' => $maxwidth,
 		'$scale' => $scale,
 		'$translate' => $translate,
@@ -2437,8 +2439,6 @@ function get_zcard($channel, $observer_hash = '', $args = array()) {
 		'$pphoto' => $pphoto,
 		'$zcard' => $zcard
 	));
-
-	return $o;
 }
 
 
@@ -2505,17 +2505,13 @@ function get_zcard_embed($channel, $observer_hash = '', $args = array()) {
 		$cover = [ 'href' => z_root() . '/images/default_cover_photos/' . $default_cover . '/' . $cover_width . '.png' ];
 	}
 
-	$o .= replace_macros(get_markup_template('zcard_embed.tpl'),array(
+	return replace_macros(get_markup_template('zcard_embed.tpl'),array(
 		'$maxwidth' => $maxwidth,
-		'$scale' => $scale,
-		'$translate' => $translate,
 		'$size' => $size,
 		'$cover' => $cover,
 		'$pphoto' => $pphoto,
 		'$zcard' => $zcard
 	));
-
-	return $o;
 }
 
 /**

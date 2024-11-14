@@ -264,6 +264,8 @@ function relative_date($posted_date, $format = null) {
 			return sprintf($format, $r, plural_dates($str,$r));
 		}
 	}
+
+	return $abs;
 }
 
 function plural_dates($k,$n) {

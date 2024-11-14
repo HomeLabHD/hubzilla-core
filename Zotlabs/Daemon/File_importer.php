@@ -38,7 +38,13 @@ class File_importer {
 		$headers = HTTPSig::create_sig($headers,$channel['channel_prvkey'],channel_url($channel),true,'sha512');
 
 		// TODO: implement total count
-		$x = z_fetch_url($hz_server . '/api/z/1.0/file/export_page?f=records=1&page=' . $page, false, $redirects, [ 'headers' => $headers ]);
+		$redirects = 0;
+		$x = z_fetch_url(
+			$hz_server . '/api/z/1.0/file/export_page?f=records=1&page=' . $page,
+			false,
+			$redirects,
+			[ 'headers' => $headers ]
+		);
 		// logger('file fetch: ' . print_r($x,true));
 
 		if(! $x['success']) {

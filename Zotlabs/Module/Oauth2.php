@@ -108,7 +108,8 @@ class Oauth2 extends Controller {
 
 		if((argc() > 1) && (argv(1) === 'add')) {
 			$tpl = get_markup_template("oauth2_edit.tpl");
-			$o .= replace_macros($tpl, array(
+
+			return replace_macros($tpl, array(
 				'$form_security_token' => get_form_security_token("oauth2"),
 				'$title'	=> t('Add OAuth2 application'),
 				'$submit'	=> t('Submit'),
@@ -119,7 +120,6 @@ class Oauth2 extends Controller {
 				'$grant'     => array('grant', t('Grant Types'), '', t('leave blank unless your application sepcifically requires this')),
 				'$scope'     => array('scope', t('Authorization scope'), '', t('leave blank unless your application sepcifically requires this')),
 			));
-			return $o;
 		}
 
 		if((argc() > 2) && (argv(1) === 'edit')) {
@@ -136,7 +136,7 @@ class Oauth2 extends Controller {
 			$app = $r[0];
 
 			$tpl = get_markup_template("oauth2_edit.tpl");
-			$o .= replace_macros($tpl, array(
+			return replace_macros($tpl, array(
 				'$form_security_token' => get_form_security_token("oauth2"),
 				'$title'	=> t('Add application'),
 				'$submit'	=> t('Update'),
@@ -147,7 +147,6 @@ class Oauth2 extends Controller {
 				'$grant'     => array('grant', t('Grant Types'), $app['grant_types'], t('leave blank unless your application specifically requires this')),
 				'$scope'     => array('scope', t('Authorization scope'), $app['scope'], t('leave blank unless your application specifically requires this')),
 			));
-			return $o;
 		}
 
 		if((argc() > 2) && (argv(1) === 'delete')) {
@@ -184,7 +183,8 @@ class Oauth2 extends Controller {
 		);
 
 		$tpl = get_markup_template("oauth2.tpl");
-		$o .= replace_macros($tpl, array(
+
+		return replace_macros($tpl, array(
 			'$form_security_token' => get_form_security_token("oauth2"),
 			'$baseurl'	=> z_root(),
 			'$title'	=> t('Connected OAuth2 Apps'),
@@ -196,8 +196,6 @@ class Oauth2 extends Controller {
 			'$remove'	=> t('Remove authorization'),
 			'$apps'		=> $r,
 		));
-		return $o;
-
 	}
 
 }
