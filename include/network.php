@@ -612,7 +612,7 @@ function validate_email(string $addr): bool {
 
 	$matches = array();
 	$result = preg_match(
-		'/^[A-Z0-9._%-]+@([A-Z0-9.-]+\.[A-Z0-9-]{2,})$/i',
+		'/^[A-Z0-9._%+-]+@([A-Z0-9.-]+\.[A-Z0-9-]{2,})$/i',
 	   	punify($addr),
 	   	$matches);
 

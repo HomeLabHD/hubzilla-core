@@ -60,7 +60,11 @@ class NetworkTest extends Zotlabs\Tests\Unit\UnitTestCase {
 			['some.email@example.cancerresearch', true],
 
 			// And internationalized TLD's
-			['some.email@example.شبكة', true]
+			['some.email@example.شبكة', true],
+
+			// Allow plus/minus addressing
+			['address+tag@example.com', true],
+			['address-tag@example.com', true],
 		];
 	}
 }
