@@ -2096,7 +2096,7 @@ class Libzot {
 
 				$raw_activity = $AS->data;
 
-				$AS = new ActivityStreams($raw_activity['object'], portable_id: $env['sender']);
+				$AS = new ActivityStreams($raw_activity['object']);
 
 				// Store the original activity id and type for later usage
 				$AS->meta['original_id'] = $original_id;

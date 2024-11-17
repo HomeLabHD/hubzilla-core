@@ -1,6 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
+use App;
 use Zotlabs\Lib\Libsync;
 
 require_once('include/security.php');
@@ -18,6 +19,7 @@ class Tagger extends \Zotlabs\Web\Controller {
 		}
 
 		$sys = get_sys_channel();
+		$channel = App::get_channel();
 
 		$observer_hash = get_observer_hash();
 		//strip html-tags
@@ -124,10 +126,6 @@ class Tagger extends \Zotlabs\Web\Controller {
 		// also check out x22d5 and x2317 and x0d6b and x0db8 and x24d0 and xff20 !!!
 
 		$termlink = html_entity_decode('&#x22d5;') . '[zrl=' . z_root() . '/search?tag=' . urlencode($clean_term) . ']'. $clean_term . '[/zrl]';
-
-		$channel = \App::get_channel();
-
-		$arr = array();
 
 		$arr['owner_xchan'] = $item['owner_xchan'];
 		$arr['author_xchan'] = $channel['channel_hash'];
