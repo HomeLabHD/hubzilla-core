@@ -647,7 +647,7 @@ function event_store_event($arr) {
 		else {
 			try {
 				$hash = Uuid::uuid4()->toString();
-			} catch (UnsatisfiedDependencyException $e) {
+			} catch (UnableToBuildUuidException $e) {
 				$hash = random_string(48);
 			}
 		}

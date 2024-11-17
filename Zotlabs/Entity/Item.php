@@ -488,24 +488,6 @@ class Item extends BaseObject
     /**
      * @return mixed
      */
-    public function getApproved()
-    {
-        return $this->approved;
-    }
-
-    /**
-     * @param mixed $approved
-     * @return Item
-     */
-    public function setApproved($approved)
-    {
-        $this->approved = $approved;
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getMimetype()
     {
         return $this->mimetype;
@@ -518,24 +500,6 @@ class Item extends BaseObject
     public function setMimetype($mimetype)
     {
         $this->mimetype = $mimetype;
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getReplyto()
-    {
-        return $this->replyto;
-    }
-
-    /**
-     * @param mixed $replyto
-     * @return Item
-     */
-    public function setReplyto($replyto)
-    {
-        $this->replyto = $replyto;
         return $this;
     }
 
