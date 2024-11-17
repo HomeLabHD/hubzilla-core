@@ -595,7 +595,7 @@ class Enotify {
 
 	// send email notification if notification preferences permit
 
-	require_once('bbcode.php');
+	require_once('include/bbcode.php');
 	if ((intval($recip['channel_notifyflags']) & intval($params['type'])) || $params['type'] == NOTIFY_SYSTEM) {
 
 		logger('notification: sending notification email');

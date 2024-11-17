@@ -108,6 +108,9 @@ class Api extends \Zotlabs\Web\Controller {
 
 		echo api_call();
 		killme();
+
+		// not reached
+		return;
 	}
 
 	function oauth_get_client($request){

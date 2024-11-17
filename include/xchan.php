@@ -217,6 +217,10 @@ function xchan_keychange_acl($table,$column,$oldxchan,$newxchan) {
 
 function xchan_change_key($oldx,$newx,$data) {
 
+	// TODO: this will need a refactor to eliminate duplicate keys
+	// E.G. item => [author_xchan, owner_xchan, source_kchan]
+	// Also: add a test!
+
 	$tables = [
 		'abook'        => 'abook_xchan',
 		'abconfig'     => 'xchan',
@@ -227,8 +231,6 @@ function xchan_change_key($oldx,$newx,$data) {
 		'item'         => 'owner_xchan',
 		'item'         => 'author_xchan',
 		'item'         => 'source_xchan',
-		'mail'         => 'from_xchan',
-		'mail'         => 'to_xchan',
 		'shares'       => 'share_xchan',
 		'source'       => 'src_channel_xchan',
 		'source'       => 'src_xchan',
