@@ -17,13 +17,24 @@ use App;
 class MagicTest extends TestCase {
 
 	public function test_init_with_no_args(): void {
-		// Since no parameters are passed, nothing will really be done.
-		// Neither the delegate nor the owa functionality will be invoked,
-		// but at the end the code will try to redirect to an empty
-		// URL.
+
+		// We expect the request to end with a status 400, as we do not
+		// pass any of the required params.
 		//
-		// This should probably return a 400 Invalid Request instead.
-		$this->expectRedirectTo('');
+		// To catch that, we have to mock the call to `http_status_exit`
+		// made by the code under test.
+		$this->getFunctionMock('Zotlabs\Module', 'http_status_exit')
+			->expects($this->once())			// Expect the function to be called only once!
+			->with(								// ... with the following two arguments
+				$this->identicalTo(400),
+				$this->identicalTo('Bad Request')
+			)
+			->willReturnCallback(function () {	// Run this function instead when called
+				throw new KillmeException;		// Throw an exception to terminate processing
+			});
+
+		// Tell the test system we excpect this exception to be thrown
+		$this->expectException(KillmeException::class);
 
 		$this->get('magic');
 	}
