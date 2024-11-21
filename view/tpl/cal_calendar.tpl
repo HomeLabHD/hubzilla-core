@@ -41,15 +41,17 @@ $(document).ready(function() {
 
 	if (fragment) {
 		switch (fragment.length) {
-		//	this might have performance issues
-		//	case 4:
-		//		view = 'multiMonthYear';
-		//		break;
 			case 7:
 				view = 'dayGridMonth';
 				break;
 			case 10:
-				view = 'timeGridDay';
+				view = 'timeGridWeek';
+				break;
+			case 11:
+				if (fragment[0] === '!') {
+					fragment = fragment.substring(1);
+					view = 'timeGridDay';
+				}
 				break;
 			default:
 				view = 'dayGridMonth';
