@@ -366,6 +366,9 @@ $(document).ready(function() {
 		$('#calendar_select').val('channel_calendar').attr('disabled', true);
 		$('#id_title').val(resource.summary);
 
+		calendar.changeView('timeGridDay', resource.dtstart);
+		$('#title').text(calendar.view.title);
+
 		// A hack to match with internal workings of fullcalendar.
 		// See https://fullcalendar.io/docs/timeZone#UTC-coercion
 		let start_d = new Date(resource.dtstart);
