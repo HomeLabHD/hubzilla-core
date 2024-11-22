@@ -75,6 +75,14 @@ class UnitTestCase extends TestCase {
 	}
 
 	/**
+	 * Initialize the global App properties.
+	 */
+	#[Before]
+	protected function init_app(): void {
+		\App::set_hostname('hubzilla.test');
+	}
+
+	/**
 	 * Roll back test database to it's original state, cleaning up
 	 * any changes from the test.
 	 *
