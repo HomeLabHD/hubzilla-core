@@ -2,7 +2,7 @@
 	<div class="jumbotron">
 		<h1>{{$title}}</h1>
 		<hr class="my-4">
-		<h2><i class="bi fa-heartbeat"></i>&nbsp; {{$pass}}</h2>
+		<h2><i class="bi bi-heart-pulse"></i>&nbsp; {{$pass}}</h2>
 	</div>
 	<form  action="{{$baseurl}}/index.php?q=setup" method="post">
 		<table class="table">
@@ -23,7 +23,7 @@
 		<button class="btn btn-success" type="submit"><i class="bi bi-check-lg"></i> {{$next}}</button>
 		{{else}}
 		<input type="hidden" name="pass" value="1">
-		<button class="btn btn-warning" type="submit"><i class="bi fa-refresh"></i> {{$reload}}</button>
+		<button class="btn btn-warning" type="submit"><i class="bi bi-arrow-clockwise"></i> {{$reload}}</button>
 		{{/if}}
 	</form>
 </div>
