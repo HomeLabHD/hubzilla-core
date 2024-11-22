@@ -1611,6 +1611,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Lib\\Libsync' => __DIR__ . '/../..' . '/Zotlabs/Lib/Libsync.php',
         'Zotlabs\\Lib\\Libzot' => __DIR__ . '/../..' . '/Zotlabs/Lib/Libzot.php',
         'Zotlabs\\Lib\\Libzotdir' => __DIR__ . '/../..' . '/Zotlabs/Lib/Libzotdir.php',
+        'Zotlabs\\Lib\\Mailer' => __DIR__ . '/../..' . '/Zotlabs/Lib/Mailer.php',
         'Zotlabs\\Lib\\MarkdownSoap' => __DIR__ . '/../..' . '/Zotlabs/Lib/MarkdownSoap.php',
         'Zotlabs\\Lib\\MessageFilter' => __DIR__ . '/../..' . '/Zotlabs/Lib/MessageFilter.php',
         'Zotlabs\\Lib\\Multibase' => __DIR__ . '/../..' . '/Zotlabs/Lib/Multibase.php',

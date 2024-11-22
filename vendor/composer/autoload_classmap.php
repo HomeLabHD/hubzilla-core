@@ -1359,6 +1359,7 @@ return array(
     'Zotlabs\\Lib\\Libsync' => $baseDir . '/Zotlabs/Lib/Libsync.php',
     'Zotlabs\\Lib\\Libzot' => $baseDir . '/Zotlabs/Lib/Libzot.php',
     'Zotlabs\\Lib\\Libzotdir' => $baseDir . '/Zotlabs/Lib/Libzotdir.php',
+    'Zotlabs\\Lib\\Mailer' => $baseDir . '/Zotlabs/Lib/Mailer.php',
     'Zotlabs\\Lib\\MarkdownSoap' => $baseDir . '/Zotlabs/Lib/MarkdownSoap.php',
     'Zotlabs\\Lib\\MessageFilter' => $baseDir . '/Zotlabs/Lib/MessageFilter.php',
     'Zotlabs\\Lib\\Multibase' => $baseDir . '/Zotlabs/Lib/Multibase.php',
