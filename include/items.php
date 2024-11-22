@@ -3185,9 +3185,6 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 */
 		}
 
-		hz_syslog('gothere');
-		// sourced
-
 		$private = (($channel['channel_allow_cid'] || $channel['channel_allow_gid']
 			|| $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 1 : 0);
 
