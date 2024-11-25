@@ -987,12 +987,13 @@ function format_css_if_exists($source) {
 		}
 	} else {
 		// It's a file from the theme
-		$path = theme_include($script);
+		$theme_include = theme_include($script);
+		$path = (($theme_include) ? '/' . $theme_include : '');
 	}
 
 	if($path) {
 		$qstring = ((parse_url($path, PHP_URL_QUERY)) ? '&' : '?') . 'v=' . STD_VERSION;
-		return '<link rel="stylesheet" href="' . $path_prefix .  '/' . $path . $qstring . '" type="text/css" media="' . $source[1] . '">' . "\r\n";
+		return '<link rel="stylesheet" href="' . $path_prefix . $path . $qstring . '" type="text/css" media="' . $source[1] . '">' . "\r\n";
 	}
 }
 
@@ -1059,11 +1060,12 @@ function format_js_if_exists($source) {
 	}
 	else {
 		// It's a file from the theme
-		$path = theme_include($source);
+		$theme_include = theme_include($source);
+		$path = (($theme_include) ? '/' . $theme_include : '');
 	}
 	if($path) {
 		$qstring = ((parse_url($path, PHP_URL_QUERY)) ? '&' : '?') . 'v=' . STD_VERSION;
-		return '<script src="' . $path_prefix . '/' . $path . $qstring . '" ></script>' . "\r\n" ;
+		return '<script src="' . $path_prefix . $path . $qstring . '"></script>' . "\r\n" ;
 	}
 }
 
