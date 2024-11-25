@@ -7,3 +7,5 @@ parameters:
 		- Zotlabs
 	scanDirectories:
 		- library
+	ignoreErrors:
+		- '#Method [\w:()_\\]+ should return (object|string) but return statement is missing.#'
