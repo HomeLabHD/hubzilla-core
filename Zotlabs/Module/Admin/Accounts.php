@@ -6,133 +6,33 @@ use Zotlabs\Lib\Config;
 
 class Accounts {
 
-	/**
-	 * @brief Handle POST actions on accounts admin page.
-	 *
-	 * This function is called when on the admin user/account page the form was
-	 * submitted to handle multiple operations at once. If one of the icons next
-	 * to an entry are pressed the function admin_page_accounts() will handle this.
-	 *
-	 */
 
 	const MYP = 	'ZAR';			// ZAR2x
 	const VERSION =	'2.0.0';
 
-	function post() {
+	/**
+	 * Handle POST actions on accounts admin page.
+	 */
+	public function post() {
 
-		$pending = ( x($_POST, 'pending') ? $_POST['pending'] : array() );
-		$users   = ( x($_POST, 'user')    ? $_POST['user']    : array() );
-		$blocked = ( x($_POST, 'blocked') ? $_POST['blocked'] : array() );
+		$pending = x($_POST, 'pending') ? $_POST['pending'] : array();
 
 		check_form_security_token_redirectOnErr('/admin/accounts', 'admin_accounts');
 
-		$isajax = is_ajax();
-		$rc = 0;
-
-		If (!is_site_admin()) {
-			if ($isajax) {
-				killme();
-				exit;
-			}
-			goaway(z_root() . '/');
-		}
-
-		if ($isajax) {
-			//$debug = print_r($_SESSION[self::MYP],true);
-			$zarop = (x($_POST['zardo']) && preg_match('/^[ad]{1,1}$/', $_POST['zardo']) )
-					 ? $_POST['zardo'] : '';
-			// zarat arrives with leading underscore _n
-			$zarat = (x($_POST['zarat']) && preg_match('/^_{1,1}[0-9]{1,6}$/', $_POST['zarat']) )
-					 ? substr($_POST['zarat'],1) : '';
-			$zarse = (x($_POST['zarse']) && preg_match('/^[0-9a-f]{8,8}$/', $_POST['zarse']) )
-					 ? hex2bin($_POST['zarse']) : '';
-
-			if ($zarop && $zarat >= 0 && $zarse && $zarse == $_SESSION[self::MYP]['h'][$zarat]) {
-
-				//
-				if ($zarop == 'd') {
-					$rd = q("UPDATE register SET reg_vital = 0 WHERE reg_id = %d AND SUBSTR(reg_hash,1,4) = '%s' ",
-						intval($_SESSION[self::MYP]['i'][$zarat]),
-						dbesc($_SESSION[self::MYP]['h'][$zarat])
-					);
-					$rc = '×';
-				}
-				elseif ($zarop == 'a') {
-					// approval, REGISTER_DENIED by user 0x0040, REGISTER_AGREED by user 0x0020 @Regate
-					$rd = q("UPDATE register SET reg_flags = (reg_flags & ~ 16), "
-						.	" reg_vital = (CASE (reg_flags & ~ 48) WHEN 0 THEN 0 ELSE 1 END) "
-						.	" WHERE reg_vital = 1 AND reg_id = %d AND SUBSTR(reg_hash,1,4) = '%s' ",
-						intval($_SESSION[self::MYP]['i'][$zarat]),
-						dbesc($_SESSION[self::MYP]['h'][$zarat])
-					);
-					$rc = 0;
-					$rs = q("SELECT * from register WHERE reg_id = %d ",
-							intval($_SESSION[self::MYP]['i'][$zarat])
-					);
-					if ($rs && ($rs[0]['reg_flags'] & ~ 48) == 0) {
-						// create account
-						$rc = 'ok'.$rs[0]['reg_id'];
-						$ac = create_account_from_register($rs[0]);
-						if ( $ac['success'] ) {
-							$rc .= '✔';
-
-							$auto_create  = Config::Get('system','auto_channel_create',1);
-
-							if($auto_create) {
-								$reonar = json_decode($rs[0]['reg_stuff'], true);
-								// prepare channel creation
-								if($reonar['chan.name'])
-									set_aconfig($ac['account']['account_id'], 'register', 'channel_name', $reonar['chan.name']);
-
-								if($reonar['chan.did1'])
-									set_aconfig($ac['account']['account_id'], 'register', 'channel_address', $reonar['chan.did1']);
-
-								$permissions_role  = Config::Get('system','default_permissions_role');
-								if($permissions_role)
-									set_aconfig($ac['account']['account_id'], 'register', 'permissions_role', $permissions_role);
-
-								// create channel
-								$new_channel = auto_channel_create($ac['account']['account_id']);
-
-								if($new_channel['success']) {
-									$rc .= ' c,ok' . $new_channel['channel']['channel_id'] . '✔';
-								}
-								else {
-									$rc .= ' c ×';
-								}
-							}
-
-
-						}
-					} else {
-						$rc='oh ×';
-					}
-				}
-				echo json_encode(array('re' => $zarop, 'at' => '_' . $zarat, 'rc' => $rc));
-			}
+		if (is_ajax()) {
+			$this->handle_ajax_request();
 			killme();
-			exit;
 		}
 
 		// change to switch structure?
 		// account block/unblock button was submitted
 		if (x($_POST, 'page_accounts_block')) {
-			for ($i = 0; $i < count($users); $i++) {
-				// if account is blocked remove blocked bit-flag, otherwise add blocked bit-flag
-				$op = ($blocked[$i]) ? '& ~' : '| ';
-				q("UPDATE account SET account_flags = (account_flags $op%d) WHERE account_id = %d",
-					intval(ACCOUNT_BLOCKED),
-					intval($users[$i])
-				);
-			}
-			notice( sprintf( tt("%s account blocked/unblocked", "%s account blocked/unblocked", count($users)), count($users)) );
+			$this->block_unblock_accounts();
 		}
+
 		// account delete button was submitted
 		if (x($_POST, 'page_accounts_delete')) {
-			foreach ($users as $uid){
-				account_remove($uid, true, false);
-			}
-			notice( sprintf( tt("%s account deleted", "%s accounts deleted", count($users)), count($users)) );
+			$this->delete_accounts();
 		}
 		// registration approved button was submitted
 		if (x($_POST, 'page_accounts_approve')) {
@@ -351,5 +251,143 @@ class Accounts {
 		return $o;
 	}
 
+	private function handle_ajax_request(): void {
+		//$debug = print_r($_SESSION[self::MYP],true);
+		$zarop = (x($_POST['zardo']) && preg_match('/^[ad]{1,1}$/', $_POST['zardo']) )
+			? $_POST['zardo'] : '';
+		// zarat arrives with leading underscore _n
+		$zarat = (x($_POST['zarat']) && preg_match('/^_{1,1}[0-9]{1,6}$/', $_POST['zarat']) )
+			? substr($_POST['zarat'],1) : '';
+		$zarse = (x($_POST['zarse']) && preg_match('/^[0-9a-f]{8,8}$/', $_POST['zarse']) )
+			? hex2bin($_POST['zarse']) : '';
+
+		if ($zarop && $zarat >= 0 && $zarse && $zarse == $_SESSION[self::MYP]['h'][$zarat]) {
+
+			//
+			if ($zarop == 'd') {
+				$rd = q("UPDATE register SET reg_vital = 0 WHERE reg_id = %d AND SUBSTR(reg_hash,1,4) = '%s' ",
+					intval($_SESSION[self::MYP]['i'][$zarat]),
+					dbesc($_SESSION[self::MYP]['h'][$zarat])
+				);
+				$rc = '×';
+			}
+			elseif ($zarop == 'a') {
+				// approval, REGISTER_DENIED by user 0x0040, REGISTER_AGREED by user 0x0020 @Regate
+				$rd = q("UPDATE register SET reg_flags = (reg_flags & ~ 16), "
+					.	" reg_vital = (CASE (reg_flags & ~ 48) WHEN 0 THEN 0 ELSE 1 END) "
+					.	" WHERE reg_vital = 1 AND reg_id = %d AND SUBSTR(reg_hash,1,4) = '%s' ",
+					intval($_SESSION[self::MYP]['i'][$zarat]),
+					dbesc($_SESSION[self::MYP]['h'][$zarat])
+				);
+				$rc = 0;
+				$rs = q("SELECT * from register WHERE reg_id = %d ",
+					intval($_SESSION[self::MYP]['i'][$zarat])
+				);
+				if ($rs && ($rs[0]['reg_flags'] & ~ 48) == 0) {
+					// create account
+					$rc = 'ok'.$rs[0]['reg_id'];
+					$ac = create_account_from_register($rs[0]);
+					if ( $ac['success'] ) {
+						$rc .= '✔';
+
+						$auto_create  = Config::Get('system','auto_channel_create',1);
+
+						if($auto_create) {
+							$reonar = json_decode($rs[0]['reg_stuff'], true);
+							// prepare channel creation
+							if($reonar['chan.name'])
+								set_aconfig($ac['account']['account_id'], 'register', 'channel_name', $reonar['chan.name']);
+
+							if($reonar['chan.did1'])
+								set_aconfig($ac['account']['account_id'], 'register', 'channel_address', $reonar['chan.did1']);
+
+							$permissions_role  = Config::Get('system','default_permissions_role');
+							if($permissions_role)
+								set_aconfig($ac['account']['account_id'], 'register', 'permissions_role', $permissions_role);
+
+							// create channel
+							$new_channel = auto_channel_create($ac['account']['account_id']);
+
+							if($new_channel['success']) {
+								$rc .= ' c,ok' . $new_channel['channel']['channel_id'] . '✔';
+							}
+							else {
+								$rc .= ' c ×';
+							}
+						}
+
+
+					}
+				} else {
+					$rc='oh ×';
+				}
+			}
+			echo json_encode(array('re' => $zarop, 'at' => '_' . $zarat, 'rc' => $rc));
+		}
+	}
+
+	/**
+	 * Block or unblock accounts given by the `user` and `blocked` POST params.
+	 *
+	 * The post params `user` and `blocked` must be present and arrays of equal
+	 * lengths. The `user` array should contain account id's or the accounts to
+	 * process, and the `blocked` array holds a corresponding boolean value to
+	 * indicate that the account at the same offset in the `user` array is or is
+	 * not blocked.
+	 *
+	 * An account that is _not_ blocked will be blocked, and accounts that _are_
+	 * blocked will be unblocked.
+	 *
+	 * @SuppressWarnings(PHPMD.ShortVariable)
+	 */
+	private function block_unblock_accounts(): void {
+		if (!isset($_POST['user']) || !isset($_POST['blocked'])) {
+			return;
+		}
+
+		$users = $_POST['user'];
+		$blocked = $_POST['blocked'];
+
+		if (!is_array($users) || !is_array($blocked)) {
+			return;
+		}
+
+		foreach($users as $i => $id) {
+			// if account is blocked remove blocked bit-flag, otherwise add blocked bit-flag
+			$op = $blocked[$i] ? '& ~' : '| ';
+
+			q("UPDATE account SET account_flags = (account_flags $op%d) WHERE account_id = %d",
+				intval(ACCOUNT_BLOCKED),
+				intval($id)
+			);
+		}
+
+		$count = count($users);
+		$fmt = tt("%s account blocked/unblocked", "%s account blocked/unblocked", $count);
+		notice(sprintf($fmt, $count));
+	}
+
+	/**
+	 * Delete multiple accounts given by the `user` POST param.
+	 */
+	private function delete_accounts(): void {
+		if (!isset($_POST['user'])) {
+			return;
+		}
+
+		$users = $_POST['user'];
+
+		if (!is_array($users)) {
+			return;
+		}
+
+		foreach ($users as $uid){
+			account_remove($uid, true, false);
+		}
+
+		$count = count($users);
+		$fmt = tt("%s account deleted", "%s accounts deleted", $count);
+		notice(sprintf($fmt, $count));
+	}
 }
 
