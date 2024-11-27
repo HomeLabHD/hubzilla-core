@@ -1,0 +1,20 @@
+---
+register:
+  -
+    reg_vital: 1
+    reg_flags: 0x10
+    reg_did2: 'verified@example.com'
+    reg_email: 'verified@example.com'
+    reg_hash: '123'
+    reg_uid: 45
+    reg_pass: 'verify'
+    reg_stuff: ''
+  -
+    reg_vital: 1
+    reg_flags: 0x11
+    reg_did2: 'unverified@example.com'
+    reg_email: 'unverified@example.com'
+    reg_hash: '666'
+    reg_uid: 46
+    reg_pass: 'verify'
+    reg_stuff: ''

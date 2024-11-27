@@ -11,3 +11,18 @@ account:
     account_language: "de"
     account_level: 5
     account_flags: 1
+  -
+    account_id: 44
+    account_email: "blocked@example.org"
+    account_level: 5
+    account_flags: 2
+  -
+    account_id: 45
+    account_email: "pending@example.org"
+    account_level: 5
+    account_flags: 0x10
+  -
+    account_id: 46
+    account_email: "unverified@example.org"
+    account_level: 5
+    account_flags: 0x11
