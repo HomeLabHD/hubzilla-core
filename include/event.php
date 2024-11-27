@@ -13,7 +13,7 @@ use Zotlabs\Lib\Libsync;
 use Zotlabs\Access\AccessList;
 
 use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
+use Ramsey\Uuid\Exception\UnableToBuildUuidException;
 
 
 require_once('include/bbcode.php');

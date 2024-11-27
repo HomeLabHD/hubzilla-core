@@ -311,7 +311,7 @@ function get_atom_author($feed, $item) {
 		$base = $rawactor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link'];
 		if($base && count($base)) {
 			foreach($base as $link) {
-				if($link['attribs']['']['rel'] === 'alternate' && (! $res['author_link']))
+				if($link['attribs']['']['rel'] === 'alternate' && (!$author['author_link']))
 					$author['author_link'] = unxmlify($link['attribs']['']['href']);
 				if(!x($author, 'author_photo') || ! $author['author_photo']) {
 					if($link['attribs']['']['rel'] === 'avatar' || $link['attribs']['']['rel'] === 'photo')
@@ -357,7 +357,7 @@ function get_atom_author($feed, $item) {
 
 			if($base && count($base)) {
 				foreach($base as $link) {
-					if($link['attribs']['']['rel'] === 'alternate' && (! $res['author_link']))
+					if($link['attribs']['']['rel'] === 'alternate' && (!$author['author_link']))
 						$author['author_link'] = unxmlify($link['attribs']['']['href']);
 					if(! (x($author,'author_photo'))) {
 						if($link['attribs']['']['rel'] === 'avatar' || $link['attribs']['']['rel'] === 'photo')

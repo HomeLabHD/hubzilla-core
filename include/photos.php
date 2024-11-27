@@ -580,7 +580,7 @@ function photo_upload($channel, $observer, $args) {
 	$ret['item']         = $arr;
 	$ret['body']         = $obj_body;
 	$ret['resource_id']  = $photo_hash;
-	$ret['photoitem_id'] = $item_id;
+	$ret['photoitem_id'] = $result['item_id'];
 
 	/**
 	 * @hooks photo_upload_end

@@ -1919,7 +1919,7 @@ function attach_store_item($channel, $observer, $file) {
 		drop_item($r[0]['id'], $stage);
 
 		if (empty($r[0]['item_hidden'])) {
-			Master::Summon(['Notifier', 'drop', $i[0]['id']]);
+			Master::Summon(['Notifier', 'drop', $r[0]['id']]);
 		}
 
 	}

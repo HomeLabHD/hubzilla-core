@@ -1489,11 +1489,11 @@ function do_delivery($deliveries, $force = false) {
 
 	$interval = Config::Get('queueworker', 'queue_interval', 500000);
 
-//	$deliveries_per_process = intval(Config::Get('system','delivery_batch_count'));
+	$deliveries_per_process = intval(Config::Get('system', 'delivery_batch_count'));
 
-	if($deliveries_per_process <= 0)
+	if($deliveries_per_process <= 0) {
 		$deliveries_per_process = 1;
-
+	}
 
 	$deliver = [];
 	foreach($deliveries as $d) {

@@ -3,7 +3,7 @@
         'name' => 'zotlabs/hubzilla',
         'pretty_version' => 'dev-9.4RC',
         'version' => 'dev-9.4RC',
-        'reference' => '67a9292aaa5246783b70ca3754b31924416d7f08',
+        'reference' => '9fa18a55579bf4eafc4484536ed29335cd98b2a9',
         'type' => 'application',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -367,7 +367,7 @@
         'zotlabs/hubzilla' => array(
             'pretty_version' => 'dev-9.4RC',
             'version' => 'dev-9.4RC',
-            'reference' => '67a9292aaa5246783b70ca3754b31924416d7f08',
+            'reference' => '9fa18a55579bf4eafc4484536ed29335cd98b2a9',
             'type' => 'application',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
