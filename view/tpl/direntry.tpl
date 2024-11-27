@@ -14,7 +14,7 @@
 			<a class="btn btn-success btn-sm" href="{{$entry.connect}}"><i class="bi bi-plus-lg connect-icon"></i> {{$entry.conn_label}}</a>
 			{{/if}}
 		</div>
-		<h3>{{if $entry.public_forum}}<i class="bi bi-chat-quote" title="{{$entry.forum_label}} @{{$entry.nickname}}+"></i>&nbsp;{{/if}}<a href='{{$entry.profile_link}}' >{{$entry.name}}</a>{{if $entry.online}}&nbsp;<i class="bi fa-asterisk online-now" title="{{$entry.online}}"></i>{{/if}}</h3>
+		<h3>{{if $entry.public_forum}}<i class="bi bi-chat-quote" title="{{$entry.forum_label}} @{{$entry.nickname}}+"></i>&nbsp;{{/if}}<a href='{{$entry.profile_link}}' >{{$entry.name}}</a>{{if $entry.online}}&nbsp;<i class="bi bi-asterisk online-now" title="{{$entry.online}}"></i>{{/if}}</h3>
 	</div>
 	<div class="section-content-tools-wrapper directory-collapse">
 		<div class="contact-photo-wrapper" id="directory-photo-wrapper-{{$entry.hash}}" >

@@ -1,5 +1,5 @@
 <div class="event-item-title">
-	<h3><i class="bi fa-calendar"></i>&nbsp;{{$title}}</h3>
+	<h3><i class="bi bi-calendar3"></i>&nbsp;{{$title}}</h3>
 </div>
 {{if $oneday && $allday}}
 <span class="dtstart">{{$dtstart_dt}}</span>
