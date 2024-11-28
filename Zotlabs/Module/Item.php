@@ -53,9 +53,7 @@ class Item extends Controller {
 
 
 		if (argc() > 1 && argv(1) !== 'drop') {
-			$x = q("select uid, item_wall, llink, mid, uuid from item where mid = '%s' or mid = '%s' or uuid = '%s'",
-				dbesc(z_root() . '/item/' . argv(1)),
-				dbesc(z_root() . '/activity/' . argv(1)),
+			$x = q("select uid, item_wall, llink, uuid from item where uuid = '%s'",
 				dbesc(argv(1))
 			);
 			if ($x) {
@@ -1245,8 +1243,6 @@ class Item extends Controller {
 			return;
 
 		if ((argc() == 3) && (argv(1) === 'drop') && intval(argv(2))) {
-
-			require_once('include/items.php');
 
 			$i = q("select * from item where id = %d limit 1",
 				intval(argv(2))
