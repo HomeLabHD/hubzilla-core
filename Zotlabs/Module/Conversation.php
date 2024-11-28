@@ -36,8 +36,7 @@ class Conversation extends Controller {
 
 			// do we have the item (at all)?
 
-			$r = q("select parent_mid from item where mid = '%s' or uuid = '%s' $item_normal order by item_wall desc limit 1",
-				dbesc(z_root() . '/item/' . $item_id),
+			$r = q("select parent_mid from item where uuid = '%s' $item_normal order by item_wall desc limit 1",
 				dbesc($item_id)
 			);
 

@@ -53,20 +53,21 @@ class Item extends Controller {
 
 
 		if (argc() > 1 && argv(1) !== 'drop') {
-			$x = q("select uid, item_wall, llink, uuid from item where uuid = '%s'",
+			$x = q("select uid, item_wall, llink, uuid from item where uuid = '%s' order by item_wall desc",
 				dbesc(argv(1))
 			);
+
 			if ($x) {
-				foreach ($x as $xv) {
-					if (intval($xv['item_wall'])) {
-						$c = channelx_by_n($xv['uid']);
-						if ($c) {
-							goaway(z_root() . '/channel/' . $c['channel_address'] . '?mid=' . $xv['uuid']);
-						}
+				if ($x[0]['item_wall']) {
+					$c = channelx_by_n($x[0]['uid']);
+					if ($c) {
+						goaway(z_root() . '/channel/' . $c['channel_address'] . '?mid=' . $x[0]['uuid']);
 					}
 				}
+
 				goaway($x[0]['llink']);
 			}
+
 			http_status_exit(404, 'Not found');
 		}
 
