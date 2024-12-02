@@ -388,7 +388,7 @@ class Notifier {
 					logger('normal (downstream) distribution', LOGGER_DEBUG);
 				}
 
-				if ($parent_item && $parent_item['item_private'] !== $target_item['item_private']) {
+				if (($parent_item && $parent_item['item_private'] !== $target_item['item_private']) || (intval($target_item['item_restrict']) & 1)) {
 					logger('conversation privacy mismatch - downstream delivery prevented');
 					return;
 				}

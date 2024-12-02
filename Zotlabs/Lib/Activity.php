@@ -3801,6 +3801,7 @@ class Activity {
 				->setDenyCid($sourceItem['deny_cid'])
 				->setDenyGid($sourceItem['deny_gid'])
 				->setPrivate($sourceItem['item_private'])
+				->setRestrict($sourceItem['item_restrict'])
 				->setNocomment($sourceItem['item_nocomment'])
 				->setCommentPolicy($sourceItem['comment_policy'])
 				->setPublicPolicy($sourceItem['public_policy'])
