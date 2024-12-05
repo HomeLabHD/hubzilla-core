@@ -36,7 +36,7 @@
 						<td class='channel_address'>{{$c.channel_address}}</td>
 						<td class="checkbox_bulkedit"><input type="checkbox" class="channels_ckbx p-1" id="id_channel_{{$c.channel_id}}" name="channel[]" value="{{$c.channel_id}}"/></td>
 						<td class="tools">
-							<a href="{{$baseurl}}/admin/channels/block/{{$c.channel_id}}?t={{$form_security_token}}" class="p-1 text-reset" title='{{if ($c.blocked)}}{{$unblock}}{{else}}{{$block}}{{/if}}'><i class='bi fa-ban admin-icons {{if ($c.blocked)}}text-danger{{/if}}'></i></a>
+							<a href="{{$baseurl}}/admin/channels/block/{{$c.channel_id}}?t={{$form_security_token}}" class="p-1 text-reset" title='{{if ($c.blocked)}}{{$unblock}}{{else}}{{$block}}{{/if}}'><i class='bi bi-ban admin-icons {{if ($c.blocked)}}text-danger{{/if}}'></i></a>
 						</td>
 						<td class="tools">
 							<a href="{{$baseurl}}/admin/channels/code/{{$c.channel_id}}?t={{$form_security_token}}" class="p-1 text-reset" title='{{if ($c.allowcode)}}{{$uncode}}{{else}}{{$code}}{{/if}}'><i class='bi bi-code admin-icons {{if ($c.allowcode)}}text-danger{{/if}}'></i></a>
