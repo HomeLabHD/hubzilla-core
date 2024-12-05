@@ -523,7 +523,7 @@ function getIconFromType(type) {
 		//Common file
 		'application/octet-stream': 'bi-file-earmark',
 		//Text
-		'text/plain': 'bi-earmark-text',
+		'text/plain': 'bi-file-earmark-text',
 		'text/markdown': 'bi-filetype-md',
 		'text/bbcode': 'bi-file-earmark-text',
 		'text/html': 'bi-filetype-html',
