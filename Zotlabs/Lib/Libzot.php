@@ -1663,15 +1663,6 @@ class Libzot {
 			if (intval($channel['channel_system']) && (!$arr['item_private']) && (!$relay)) {
 				$local_public = true;
 
-				$r = q("select xchan_selfcensored from xchan where xchan_hash = '%s' limit 1",
-					dbesc($sender)
-				);
-				// don't import sys channel posts from selfcensored authors
-				if ($r && (intval($r[0]['xchan_selfcensored']))) {
-					$local_public = false;
-					continue;
-				}
-
 				$incl = Config::Get('system','pubstream_incl');
 				$excl = Config::Get('system','pubstream_excl');
 
@@ -1679,6 +1670,17 @@ class Libzot {
 					$local_public = false;
 					continue;
 				}
+
+				$r = q("select xchan_selfcensored, xchan_censored from xchan where xchan_hash = '%s'",
+					dbesc($sender)
+				);
+
+				// don't import sys channel posts from selfcensored or censored authors
+				if ($r && ($r[0]['xchan_selfcensored'] || $r[0]['xchan_censored'])) {
+					$local_public = false;
+					continue;
+				}
+
 			}
 
 			$tag_delivery = tgroup_check($channel['channel_id'], $arr);
