@@ -519,42 +519,45 @@ function formatSizeUnits(bytes){
 
 // this is basically a js port of include/text.php getIconFromType() function
 function getIconFromType(type) {
-	var map = {
+	let map = {
 		//Common file
-		'application/octet-stream': 'fa-file-o',
+		'application/octet-stream': 'bi-file-earmark',
 		//Text
-		'text/plain': 'fa-file-text-o',
-		'application/msword': 'fa-file-word-o',
-		'application/pdf': 'fa-file-pdf-o',
-		'application/vnd.oasis.opendocument.text': 'fa-file-word-o',
-		'application/epub+zip': 'fa-book',
+		'text/plain': 'bi-earmark-text',
+		'text/markdown': 'bi-filetype-md',
+		'text/bbcode': 'bi-file-earmark-text',
+		'text/html': 'bi-filetype-html',
+		'application/msword': 'bi-file-earmark-word',
+		'application/pdf': 'bi-file-earmark-pdf',
+		'application/vnd.oasis.opendocument.text': 'bifile--earmark-text',
+		'application/epub+zip': 'bi-file-earmark-text',
 		//Spreadsheet
-		'application/vnd.oasis.opendocument.spreadsheet': 'fa-file-excel-o',
-		'application/vnd.ms-excel': 'fa-file-excel-o',
+		'application/vnd.oasis.opendocument.spreadsheet': 'bi-file-earmark-spreadsheet',
+		'application/vnd.ms-excel': 'bi-file-earmark-spreadsheet',
 		//Image
-		'image/jpeg': 'fa-picture-o',
-		'image/png': 'fa-picture-o',
-		'image/gif': 'fa-picture-o',
-		'image/svg+xml': 'fa-picture-o',
+		'image/jpeg': 'bi-file-earmark-image',
+		'image/png': 'bi-file-earmark-image',
+		'image/gif': 'bi-file-earmark-image',
+		'image/webp': 'bi-file-earmark-image',
+		'image/svg+xml': 'bi-filetype-svg',
 		//Archive
-		'application/zip': 'fa-file-archive-o',
-		'application/x-rar-compressed': 'fa-file-archive-o',
+		'application/zip': 'bi-file-earmark-zip',
+		'application/x-rar-compressed': 'bi-file-earmark-zip',
 		//Audio
-		'audio/mpeg': 'fa-file-audio-o',
-		'audio/mp3': 'fa-file-audio-o', //webkit browsers need that
-		'audio/wav': 'fa-file-audio-o',
-		'application/ogg': 'fa-file-audio-o',
-		'audio/ogg': 'fa-file-audio-o',
-		'audio/webm': 'fa-file-audio-o',
-		'audio/mp4': 'fa-file-audio-o',
+		'audio/mpeg': 'bi-file-earmark-music',
+		'audio/wav': 'bi-file-earmark-music',
+		'application/ogg': 'bi-file-earmark-music',
+		'audio/ogg': 'bi-file-earmark-music',
+		'audio/webm': 'bi-file-earmark-music',
+		'audio/mp4': 'bi-file-earmark-music',
 		//Video
-		'video/quicktime': 'fa-file-video-o',
-		'video/webm': 'fa-file-video-o',
-		'video/mp4': 'fa-file-video-o',
-		'video/x-matroska': 'fa-file-video-o'
+		'video/quicktime': 'bi-file-earmark-play',
+		'video/webm': 'bi-file-earmark-play',
+		'video/mp4': 'bi-file-earmark-play',
+		'video/x-matroska': 'bi-file-earmark-play'
 	};
 
-	var iconFromType = 'fa-file-o';
+	let iconFromType = 'bi-file-earmark';
 
 	if (type in map) {
 		iconFromType = map[type];
