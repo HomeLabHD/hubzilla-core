@@ -2306,6 +2306,8 @@ class Activity {
 
 		if ($s['mid'] === $s['parent_mid']) {
 			$s['item_thread_top'] = 1;
+			$s['item_nocomment'] = 0;
+			$s['comments_closed'] = NULL_DATE;
 
 			// it is a parent node - decode the comment policy info if present
 			if ($act->objprop('commentPolicy')) {
@@ -2313,7 +2315,7 @@ class Activity {
 				if ($until !== false) {
 					$s['comments_closed'] = datetime_convert('UTC', 'UTC', substr($act->obj['commentPolicy'], $until + 6));
 					if ($s['comments_closed'] < datetime_convert()) {
-						$s['nocomment'] = true;
+						$s['item_nocomment'] = 1;
 					}
 				}
 
@@ -3803,6 +3805,7 @@ class Activity {
 				->setPrivate($sourceItem['item_private'])
 				->setRestrict($sourceItem['item_restrict'])
 				->setNocomment($sourceItem['item_nocomment'])
+				->setCommentsClosed($sourceItem['comments_closed'])
 				->setType($sourceItem['item_type'])
 				->setCommentPolicy($sourceItem['comment_policy'])
 				->setPublicPolicy($sourceItem['public_policy'])
@@ -3810,6 +3813,7 @@ class Activity {
 		}
 		$result = post_activity_item($item->toArray(), deliver: $deliver, channel: $channel, observer: $channel, addAndSync: false);
 		logger('addToCollection: ' . print_r($result, true));
+
 		return $result;
 	}
 

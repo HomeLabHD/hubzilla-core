@@ -1294,6 +1294,7 @@ class Libzot {
 					$item['item_private'] = 1;
 				}
 
+/* This is already managed in Activity::decode_note()
 				if ($item['mid'] === $item['parent_mid']) {
 					if (is_array($AS->obj) && array_key_exists('commentPolicy', $AS->obj)) {
 						$p = strstr($AS->obj['commentPolicy'], 'until=');
@@ -1312,7 +1313,7 @@ class Libzot {
 						}
 					}
 				}
-
+*/
 				if (!empty($AS->meta['hubloc']) || $AS->sigok) {
 					$item['item_verified'] = true;
 				}

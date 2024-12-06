@@ -207,7 +207,6 @@ class Item extends Controller {
 
 
 		$expires = NULL_DATE;
-		$comments_closed = NULL_DATE;
 
 		$route          = '';
 		$parent_item    = null;
@@ -454,7 +453,7 @@ class Item extends Controller {
 			$title               = escape_tags(trim($_REQUEST['title']));
 			$summary             = escape_tags(trim($_REQUEST['summary']));
 			$body                = trim($_REQUEST['body']);
-			$item_flags          = $orig_post['item_flags'];
+			$item_flags           = $orig_post['item_flags'];
 			$item_origin         = $orig_post['item_origin'];
 			$item_unseen         = $orig_post['item_unseen'];
 			$item_starred        = $orig_post['item_starred'];
@@ -468,7 +467,7 @@ class Item extends Controller {
 			$item_mentionsme     = $orig_post['item_mentionsme'];
 			$item_nocomment      = $orig_post['item_nocomment'];
 			$item_obscured       = $orig_post['item_obscured'];
-			$item_verified       = $orig_post['item_verified'];
+			$item_verified        = $orig_post['item_verified'];
 			$item_retained       = $orig_post['item_retained'];
 			$item_rss            = $orig_post['item_rss'];
 			$item_deleted        = $orig_post['item_deleted'];
@@ -793,6 +792,7 @@ class Item extends Controller {
 		$item_origin    = (($origin) ? 1 : 0);
 		$item_consensus = (($consensus) ? 1 : 0);
 		$item_nocomment = (($nocomment) ? 1 : 0);
+		$comments_closed = (($nocomment) ? $comments_closed : NULL_DATE);
 
 		// determine if this is a wall post
 

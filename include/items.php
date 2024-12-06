@@ -1842,7 +1842,7 @@ function item_store($arr, $allow_exec = false, $deliver = true, $addAndSync = tr
 				);
 			}
 
-			if(comments_are_now_closed($r[0])) {
+			if(comments_are_now_closed($r[0]) && !in_array($arr['verb'], ['Add', 'Remove'])) {
 				logger('item_store: comments closed');
 				$ret['message'] = 'Comments closed.';
 				return $ret;
@@ -2230,7 +2230,7 @@ function item_store_update($arr, $allow_exec = false, $deliver = true, $addAndSy
 
 	$arr['revision']      = ((x($arr,'revision') && $arr['revision'] > 0)   ? intval($arr['revision']) : 0);
 
-	if(array_key_exists('comments_closed',$arr) && $arr['comments_closed'] > NULL_DATE)
+	if(array_key_exists('comments_closed',$arr))
 		$arr['comments_closed'] = datetime_convert('UTC','UTC',$arr['comments_closed']);
 	else
 		$arr['comments_closed'] = $orig[0]['comments_closed'];

@@ -169,7 +169,7 @@
 					</button>
 				{{if $feature_nocomment}}
 					<button type="button" id="profile-nocomment-wrapper" class="btn btn-outline-secondary btn-sm border-0" title="{{$nocommenttitle}}" onclick="toggleNoComment();return false;">
-						<i id="profile-nocomment" class="bi bi-chat-dots jot-icons"></i>
+						<i id="profile-nocomment" class="bi{{if $nocomment}} bi-chat{{else}} bi-chat-dots{{/if}} jot-icons"></i>
 					</button>
 				{{/if}}
 				{{if $custommoretoolsbuttons}}
@@ -210,7 +210,7 @@
 						{{/if}}
 						<a class="dropdown-item" href="#" onclick="initPoll(); return false"><i id="profile-poll" class="bi bi-bar-chart jot-icons"></i>&nbsp;{{$poll}}</a>
 						{{if $feature_nocomment}}
-						<a class="dropdown-item" href="#" onclick="toggleNoComment(); return false;"><i id="profile-nocomment-sub" class="bi bi-chat"></i>&nbsp;{{$nocommenttitlesub}}</a>
+						<a class="dropdown-item" href="#" onclick="toggleNoComment(); return false;"><i id="profile-nocomment-sub" class="bi{{if $nocomment}} bi-chat{{else}} bi-chat-dots{{/if}}"></i>&nbsp;{{$nocommenttitlesub}}</a>
 						{{/if}}
 						<hr />
 						{{$custommoretoolsdropdown}}
