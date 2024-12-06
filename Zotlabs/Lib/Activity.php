@@ -3803,6 +3803,7 @@ class Activity {
 				->setPrivate($sourceItem['item_private'])
 				->setRestrict($sourceItem['item_restrict'])
 				->setNocomment($sourceItem['item_nocomment'])
+				->setType($sourceItem['item_type'])
 				->setCommentPolicy($sourceItem['comment_policy'])
 				->setPublicPolicy($sourceItem['public_policy'])
 				->setPostopts($sourceItem['postopts']);
