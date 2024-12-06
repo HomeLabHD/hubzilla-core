@@ -2011,10 +2011,10 @@ class Libzot {
 
 			if ((is_array($stored)) && ($stored['id'] != $stored['parent'])
 				&& ($stored['author_xchan'] === $channel['channel_hash'])) {
-				retain_item($stored['item']['parent']);
+				retain_item($stored['parent']);
 			}
 
-			if ($relay && $item_id && $stored['item_blocked'] !== ITEM_MODERATED) {
+			if ($relay && $item_id && $stored['item_blocked'] !== ITEM_MODERATED && $stored['obj_type'] !== 'Answer') {
 				logger('Invoking relay');
 				Master::Summon(['Notifier', 'relay', intval($item_id)]);
 				if (!empty($approval) && $approval['item_id']) {

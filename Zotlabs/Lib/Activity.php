@@ -2081,6 +2081,9 @@ class Activity {
 			$i = fetch_post_tags($i);
 			$i[0]['obj'] = $o;
 
+			$edited = datetime_convert();
+			$i[0]['edited'] = $edited;
+
 			// create the new object
 			$newObj = self::build_packet(self::encode_activity($i[0]), $channel, true);
 
@@ -2098,7 +2101,7 @@ class Activity {
 				dbesc(json_encode($o)),
 				intval($relatedItem['id']),
 				dbesc($newObj),
-				dbesc(datetime_convert())
+				dbesc($edited)
 			);
 
 			dbq("COMMIT");
