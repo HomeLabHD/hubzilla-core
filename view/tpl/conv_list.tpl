@@ -26,9 +26,6 @@
 							{{if $item.location}}
 							{{$item.location}}
 							{{/if}}
-							{{if $item.delayed}}
-							<i class="bi bi-clock"></i>
-							{{/if}}
 							{{if $item.editedtime}}
 							<i class="bi bi-pencil" title="{{$item.editedtime}}"></i>
 							{{/if}}
@@ -39,6 +36,12 @@
 							{{/if}}
 							{{if $item.no_comment}}
 								<i class="bi bi-ban" title="{{$item.no_comment}}"></i>
+							{{/if}}
+							{{if $item.delayed}}
+							<i class="bi bi-clock" title="{{$item.delayed}}"></i>
+							{{/if}}
+							{{if $item.expiretime}}
+							<i class="bi bi-clock-history" title="{{$item.expiretime}}"></i>
 							{{/if}}
 							<small class="autotime" title="{{$item.isotime}}"><time class="dt-published" datetime="{{$item.isotime}}">{{$item.localtime}}</time>{{if $item.expiretime}}&nbsp;{{$item.expiretime}}{{/if}}</small>
 						</div>

@@ -268,6 +268,40 @@ function relative_date($posted_date, $format = null) {
 	return $abs;
 }
 
+
+function relative_time($timestamp) {
+	$timestamp = datetime_convert('UTC', date_default_timezone_get(), $timestamp);
+
+	$now = new DateTime();
+	$time = new DateTime($timestamp);
+
+	$interval = $now->diff($time);
+
+	$prefix = '';
+	$appendix = ' ' . t('ago');
+
+	if ($time > $now) {
+		$prefix = t('in') . ' ';
+		$appendix = '';
+	}
+
+	if ($interval->y > 0) {
+		return $prefix . $interval->y . ' ' . plural_dates('y', $interval->y) . $appendix;
+	} elseif ($interval->m > 0) {
+		return $prefix . $interval->m . ' ' . plural_dates('m', $interval->m) . $appendix;
+	} elseif ($interval->d > 0) {
+		return $prefix .  $interval->d . ' ' . plural_dates('d', $interval->d) . $appendix;
+	} elseif ($interval->h > 0) {
+		return $prefix . $interval->h . ' ' . plural_dates('h', $interval->h) . $appendix;
+	} elseif ($interval->i > 0) {
+		return $prefix . $interval->i . ' ' . plural_dates('i', $interval->i) . $appendix;
+	} elseif ($interval->s > 0) {
+		return $prefix . $interval->s . ' ' . plural_dates('s', $interval->s) . $appendix;
+	} else {
+		return t('now');
+	}
+}
+
 function plural_dates($k,$n) {
 
 	switch($k) {
