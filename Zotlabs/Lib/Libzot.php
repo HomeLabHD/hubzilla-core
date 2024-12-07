@@ -1227,7 +1227,6 @@ class Libzot {
 
 			logger('public post');
 
-
 			// Public post. look for any site members who are or may be accepting posts from this sender
 			// and who are allowed to see them based on the sender's permissions
 			// @fixme;
@@ -1294,26 +1293,6 @@ class Libzot {
 					$item['item_private'] = 1;
 				}
 
-/* This is already managed in Activity::decode_note()
-				if ($item['mid'] === $item['parent_mid']) {
-					if (is_array($AS->obj) && array_key_exists('commentPolicy', $AS->obj)) {
-						$p = strstr($AS->obj['commentPolicy'], 'until=');
-						if ($p !== false) {
-							$comments_closed_at = datetime_convert('UTC', 'UTC', substr($p, 6));
-							if ($comments_closed_at === $item['created']) {
-								$item['item_nocomment'] = 1;
-							}
-							else {
-								$item['comments_closed'] = $comments_closed_at;
-								$aritemr['comment_policy']  = trim(str_replace($p, '', $AS->obj['commentPolicy']));
-							}
-						}
-						else {
-							$item['comment_policy'] = $AS->obj['commentPolicy'];
-						}
-					}
-				}
-*/
 				if (!empty($AS->meta['hubloc']) || $AS->sigok) {
 					$item['item_verified'] = true;
 				}
