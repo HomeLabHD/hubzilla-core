@@ -233,45 +233,6 @@ class ThreadItem {
 			$my_responses[$v] = ((isset($conv_responses[$v][$item['mid'] . '-m'])) ? 1 : 0);
 		}
 
-/*
-
-		$like_count = ((x($conv_responses['like'],$item['mid'])) ? $conv_responses['like'][$item['mid']] : '');
-		$like_list = ((x($conv_responses['like'],$item['mid'])) ? $conv_responses['like'][$item['mid'] . '-l'] : '');
-		if (($like_list) && (count($like_list) > MAX_LIKERS)) {
-			$like_list_part = array_slice($like_list, 0, MAX_LIKERS);
-			array_push($like_list_part, '<a class="dropdown-item" href="#" data-toggle="modal" data-target="#likeModal-' . $this->get_id() . '"><b>' . t('View all') . '</b></a>');
-		} else {
-			$like_list_part = '';
-		}
-		$like_button_label = tt('Like','Likes',$like_count,'noun');
-
-		$repeat_count = ((x($conv_responses['announce'],$item['mid'])) ? $conv_responses['announce'][$item['mid']] : '');
-		$repeat_list = ((x($conv_responses['announce'],$item['mid'])) ? $conv_responses['announce'][$item['mid'] . '-l'] : '');
-		if (($repeat_list) && (count($repeat_list) > MAX_LIKERS)) {
-			$repeat_list_part = array_slice($repeat_list, 0, MAX_LIKERS);
-			array_push($repeat_list_part, '<a class="dropdown-item" href="#" data-toggle="modal" data-target="#repeatModal-' . $this->get_id() . '"><b>' . t('View all') . '</b></a>');
-		} else {
-			$repeat_list_part = '';
-		}
-		$repeat_button_label = tt('Repeat','Repeats',$repeat_count,'noun');
-
-		$showdislike = '';
-		if (feature_enabled($conv->get_profile_owner(),'dislike')) {
-			$dislike_count = ((x($conv_responses['dislike'],$item['mid'])) ? $conv_responses['dislike'][$item['mid']] : '');
-			$dislike_list = ((x($conv_responses['dislike'],$item['mid'])) ? $conv_responses['dislike'][$item['mid'] . '-l'] : '');
-			$dislike_button_label = tt('Dislike','Dislikes',$dislike_count,'noun');
-			if (($dislike_list) && (count($dislike_list) > MAX_LIKERS)) {
-				$dislike_list_part = array_slice($dislike_list, 0, MAX_LIKERS);
-				array_push($dislike_list_part, '<a class="dropdown-item" href="#" data-toggle="modal" data-target="#dislikeModal-' . $this->get_id() . '"><b>' . t('View all') . '</b></a>');
-			} else {
-				$dislike_list_part = '';
-			}
-
-			$showdislike = ((x($conv_responses['dislike'],$item['mid'])) ? format_like($conv_responses['dislike'][$item['mid']],$conv_responses['dislike'][$item['mid'] . '-l'],'dislike',$item['mid']) : '');
-		}
-
-		$showlike    = ((x($conv_responses['like'],$item['mid'])) ? format_like($conv_responses['like'][$item['mid']],$conv_responses['like'][$item['mid'] . '-l'],'like',$item['mid']) : '');
-*/
 
 		/*
 		 * We should avoid doing this all the time, but it depends on the conversation mode
@@ -845,7 +806,7 @@ class ThreadItem {
 			'$edatt' => t('Attach/Upload file'),
 			'$edurl' => t('Insert Link'),
 			'$edvideo' => t('Video'),
-			'$preview' => t('Preview'), // ((feature_enabled($conv->get_profile_owner(),'preview')) ? t('Preview') : ''),
+			'$preview' => t('Preview'),
 			'$can_upload' => (perm_is_allowed($conv->get_profile_owner(),get_observer_hash(),'write_storage') && $conv->is_uploadable()),
 			'$feature_encrypt' => ((feature_enabled($conv->get_profile_owner(),'content_encrypt')) ? true : false),
 			'$encrypt' => t('Encrypt text'),
@@ -866,7 +827,7 @@ class ThreadItem {
 	}
 
 	/**
-	 * Check if we are a wall to wall item and set the relevant properties
+	 * Check if we are a wall to wall or announce item and set the relevant properties
 	 */
 	protected function check_wall_to_wall() {
 		$conv = $this->get_conversation();
