@@ -415,7 +415,6 @@ class ThreadItem {
 			'template' => $this->get_template(),
 			'mode' => $mode,
 			'item_type' => intval($item['item_type']),
-			//'type' => implode("",array_slice(explode("/",$item['verb']),-1)),
 			'body' => $body['html'],
 			'tags' => $body['tags'],
 			'categories' => $body['categories'],
@@ -450,13 +449,12 @@ class ThreadItem {
 			'sparkle' => $sparkle,
 			'title' => $item['title'],
 			'title_tosource' => get_pconfig($conv->get_profile_owner(),'system','title_tosource'),
-			//'ago' => relative_date($item['created']),
 			'app' => $item['app'],
 			'str_app' => sprintf( t('from %s'), $item['app']),
 			'isotime' => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'c'),
-			'localtime' => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'r'),
-			'editedtime' => (($item['edited'] != $item['created']) ? sprintf( t('last edited: %s'), datetime_convert('UTC', date_default_timezone_get(), $item['edited'], 'r')) : ''),
-			'expiretime' => (($item['expires'] > NULL_DATE) ? sprintf( t('Expires: %s'), datetime_convert('UTC', date_default_timezone_get(), $item['expires'], 'r')):''),
+			'localtime' => datetime_convert('UTC', date_default_timezone_get(), $item['created']),
+			'editedtime' => (($item['edited'] != $item['created']) ? sprintf( t('Last edited %s'), datetime_convert('UTC', date_default_timezone_get(), $item['edited'])) : ''),
+			'expiretime' => (($item['expires'] > NULL_DATE) ? sprintf( t('Expires %s'), datetime_convert('UTC', date_default_timezone_get(), $item['expires'])) : ''),
 			'lock' => $lock,
 			'locktype' => $locktype,
 			'delayed' => $item['item_delayed'],
@@ -479,7 +477,7 @@ class ThreadItem {
 			'event' => $body['event'],
 			'has_tags' => $has_tags,
 			'reactions' => $this->reactions,
-// Item toolbar buttons
+			// Item toolbar buttons
 			'emojis'	=> (($this->is_toplevel() && $this->is_commentable() && $observer && feature_enabled($conv->get_profile_owner(),'emojis')) ? '1' : ''),
 			'like'      => $like,
 			'dislike'   => ((feature_enabled($conv->get_profile_owner(),'dislike')) ? $dislike : ''),
@@ -489,7 +487,7 @@ class ThreadItem {
 			'embed'     => $embed,
 			'rawmid'	=> $item['mid'],
 			'plink'     => get_plink($item),
-			'edpost'    => $edpost, // ((feature_enabled($conv->get_profile_owner(),'edit_posts')) ? $edpost : ''),
+			'edpost'    => $edpost,
 			'star'      => ((feature_enabled($conv->get_profile_owner(),'star_posts') && ($item['item_type'] == ITEM_TYPE_POST)) ? $star : ''),
 			'tagger'    => ((feature_enabled($conv->get_profile_owner(),'commtag')) ? $tagger : ''),
 			'filer'     => ((feature_enabled($conv->get_profile_owner(),'filing') && ($item['item_type'] == ITEM_TYPE_POST)) ? $filer : ''),
@@ -500,7 +498,7 @@ class ThreadItem {
 			'addtocal'  => (($has_event) ? t('Add to Calendar') : ''),
 			'drop'      => $drop,
 			'dropdown_extras' => $dropdown_extras,
-// end toolbar buttons
+			// end toolbar buttons
 			'unseen_comments' => $unseen_comments,
 			'comment_count' => $total_children,
 			'comment_count_txt' => $comment_count_txt,
@@ -508,30 +506,9 @@ class ThreadItem {
 			'markseen' => t('Mark all comments seen'),
 			'responses' => $responses,
 			'my_responses' => $my_responses,
-			/*
-			'like_count' => $like_count,
-			'like_list' => $like_list,
-			'like_list_part' => $like_list_part,
-			'like_button_label' => $like_button_label,
-			'like_modal_title' => t('Likes','noun'),
-
-			'repeat_count' => $repeat_count,
-			'repeat_list' => $repeat_list,
-			'repeat_list_part' => $repeat_list_part,
-			'repeat_button_label' => $repeat_button_label,
-			'repeat_modal_title' => t('Repeats','noun'),
-
-
-			'dislike_modal_title' => t('Dislikes','noun'),
-			'dislike_count' => ((feature_enabled($conv->get_profile_owner(),'dislike')) ? $dislike_count : ''),
-			'dislike_list' => ((feature_enabled($conv->get_profile_owner(),'dislike')) ? $dislike_list : ''),
-			'dislike_list_part' => ((feature_enabled($conv->get_profile_owner(),'dislike')) ? $dislike_list_part : ''),
-			'dislike_button_label' => ((feature_enabled($conv->get_profile_owner(),'dislike')) ? $dislike_button_label : ''),
-*/
 			'modal_dismiss' => t('Close'),
-		//	'showlike' => $showlike,
-		//	'showdislike' => $showdislike,
 			'comment' => ($item['item_delayed'] ? '' : $this->get_comment_box()),
+			'no_comment' => (($item['item_thread_top'] && $item['item_nocomment'])? t('Comments disabled') : ''),
 			'previewing' => ($conv->is_preview() ? true : false ),
 			'preview_lbl' => t('This is an unsaved preview'),
 			'wait' => t('Please wait'),
@@ -556,15 +533,7 @@ class ThreadItem {
 		$result['children'] = array();
 		$nb_children = count($children);
 
-		$visible_comments = Config::Get('system','expanded_comments');
-		if($visible_comments === false)
-			$visible_comments = 3;
-
-//		needed for scroll to comment from notification but needs more work
-//		as we do not want to open all comments unless there is actually an #item_xx anchor
-//		and the url fragment is not sent to the server.
-//		if(in_array(\App::$module,['display','update_display']))
-//			$visible_comments = 99999;
+		$visible_comments = Config::Get('system', 'expanded_comments', 3);
 
 		if(($this->get_display_mode() === 'normal') && ($nb_children > 0)) {
 			foreach($children as $child) {

@@ -36,14 +36,17 @@
 							<i class="bi bi-clock"></i>
 							{{/if}}
 							{{if $item.editedtime}}
-							<i class="bi bi-pencil"></i>
+							<i class="bi bi-pencil" title="{{$item.editedtime}}"></i>
 							{{/if}}
 							{{if $item.verified}}
 							<i class="bi bi-shield-check" title="{{$item.verified}}"></i>
 							{{elseif $item.forged}}
 							<i class="bi bi-shield-exclamation text-danger" title="{{$item.forged}}"></i>
 							{{/if}}
-							<small class="autotime" title="{{$item.isotime}}"><time class="dt-published" datetime="{{$item.isotime}}">{{$item.localtime}}</time>{{if $item.editedtime}}&nbsp;{{$item.editedtime}}{{/if}}{{if $item.expiretime}}&nbsp;{{$item.expiretime}}{{/if}}</small>
+							{{if $item.no_comment}}
+								<i class="bi bi-ban" title="{{$item.no_comment}}"></i>
+							{{/if}}
+							<small class="autotime" title="{{$item.isotime}}"><time class="dt-published" datetime="{{$item.isotime}}">{{$item.localtime}}</time>{{if $item.expiretime}}&nbsp;{{$item.expiretime}}{{/if}}</small>
 						</div>
 						{{if $item.thr_parent_uuid}}
 						<a href="javascript:doscroll('{{$item.thr_parent_uuid}}',{{$item.parent}});" class="ms-3" title="{{$item.top_hint}}"><i class="bi bi-chevron-double-up"></i></a>
