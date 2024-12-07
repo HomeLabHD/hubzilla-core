@@ -268,12 +268,15 @@ function relative_date($posted_date, $format = null) {
 	return $abs;
 }
 
-
-function relative_time($timestamp) {
-	$timestamp = datetime_convert('UTC', date_default_timezone_get(), $timestamp);
-
-	$now = new DateTime();
-	$time = new DateTime($timestamp);
+/**
+ * @brief Returns a relative time string like 3 seconds ago.
+ * @param string $posted_date (UTC)
+ * @param DateTime $now (optional)
+ * @return string with relative time
+ */
+function relative_time($timestamp, $now = new DateTime()) {
+	$localtime = datetime_convert('UTC', date_default_timezone_get(), $timestamp);
+	$time = new DateTime($localtime);
 
 	$interval = $now->diff($time);
 
