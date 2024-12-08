@@ -100,7 +100,6 @@ class Item extends Controller {
 		$item_deleted = false;
 		$item_hidden = false;
 		$item_unpublished = false;
-		$item_delayed = false;
 		$item_pending_remove = false;
 		$item_blocked = false;
 
@@ -178,6 +177,7 @@ class Item extends Controller {
 		$categories    = ((x($_REQUEST, 'category')) ? escape_tags($_REQUEST['category']) : '');
 		$webpage       = ((x($_REQUEST, 'webpage')) ? intval($_REQUEST['webpage']) : 0);
 		$item_obscured = ((x($_REQUEST, 'obscured')) ? intval($_REQUEST['obscured']) : 0);
+		$item_delayed  = ((x($_REQUEST, 'delayed')) ? intval($_REQUEST['delayed']) : 0);
 		$pagetitle     = ((x($_REQUEST, 'pagetitle')) ? escape_tags($_REQUEST['pagetitle']) : '');
 		$layout_mid    = ((x($_REQUEST, 'layout_mid')) ? escape_tags($_REQUEST['layout_mid']) : '');
 		$plink         = ((x($_REQUEST, 'permalink')) ? escape_tags($_REQUEST['permalink']) : '');

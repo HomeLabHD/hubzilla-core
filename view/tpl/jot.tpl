@@ -13,6 +13,7 @@
 		{{if $parent}}
 		<input type="hidden" name="parent" value="{{$parent}}" />
 		{{/if}}
+		<input type="hidden" id="jot-delayed" name="delayed" value="0" />
 		<input type="hidden" name="obj_type" value="{{$ptyp}}" />
 		<input type="hidden" name="profile_uid" value="{{$profile_uid}}" />
 		<input type="hidden" name="return" value="{{$return_path}}" />

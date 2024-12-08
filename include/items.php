@@ -1791,16 +1791,6 @@ function item_store($arr, $allow_exec = false, $deliver = true, $addAndSync = tr
 	if((! array_key_exists('item_nocomment',$arr)) && ($arr['comment_policy'] == 'none'))
 		$arr['item_nocomment'] = 1;
 
-	// handle time travelers
-	// Allow a bit of fudge in case somebody just has a slightly slow/fast clock
-
-	$d1 = new DateTime('now +10 minutes', new DateTimeZone('UTC'));
-	$d2 = new DateTime($arr['created'] . '+00:00');
-
-	if($d2 > $d1) {
-		$arr['item_delayed'] = 1;
-	}
-
 	if(empty($arr['llink'])) {
 		$arr['llink'] = z_root() . '/display/' . $arr['uuid'];
 	}

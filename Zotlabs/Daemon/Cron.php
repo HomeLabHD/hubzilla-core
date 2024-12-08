@@ -147,37 +147,29 @@ class Cron {
 		// (time travel posts). Restrict to items that have come of age in the last
 		// couple of days to limit the query to something reasonable.
 
-		$r = q("select id from item where item_delayed = 1 and created <= %s  and created > '%s' ",
+		$r = q("select * from item where item_delayed = 1 and created <= %s  and created > '%s' ",
 			db_utcnow(),
 			dbesc(datetime_convert('UTC', 'UTC', 'now - 2 days'))
 		);
-		if ($r) {
-			foreach ($r as $rr) {
-				$x = q("update item set item_delayed = 0 where id = %d",
-					intval($rr['id'])
-				);
-				if ($x) {
-					$z = q("select * from item where id = %d",
-						intval($rr['id'])
-					);
-					if ($z) {
-						xchan_query($z);
-						$sync_item = fetch_post_tags($z);
-						Libsync::build_sync_packet($sync_item[0]['uid'],
-							[
-								'item' => [encode_item($sync_item[0], true)]
-							]
-						);
-					}
-					Master::Summon(array('Notifier', 'wall-new', $rr['id']));
 
-					if ($interval) {
-						usleep($interval);
+		if ($r) {
+			xchan_query($r);
+			$items = fetch_post_tags($r);
+			foreach ($items as $item) {
+				$item['item_delayed'] = 0;
+				$post = item_store_update($item);
+
+				if($post['success']) {
+					Master::Summon(['Notifier', 'wall-new', $post['item_id']]);
+					if (!empty($post['approval_id'])) {
+						Master::Summon(['Notifier', 'wall-new', $post['approval_id']]);
 					}
 				}
-			}
-		}
-
+				if ($interval) {
+					usleep($interval);
+				}
+            }
+        }
 		// once daily run birthday_updates and then expire in background
 
 		// FIXME: add birthday updates, both locally and for xprof for use
