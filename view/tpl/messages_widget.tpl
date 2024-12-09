@@ -137,8 +137,15 @@
 			get_messages_page();
 		});
 
-		$("#messages-file").on('change', function(data) {
-			file = $("#messages-file").val();
+		$('#messages-file').on('input', function(e) {
+			file = e.currentTarget.value;
+
+			let datalist = document.getElementById('data_filetags');
+			let options = [...datalist.options].map(option => option.value);
+
+			if (!options.includes(file)) {
+				return;
+			}
 
 			$('#messages-container .message').remove();
 			$('#messages-file-container').addClass('active sticky-top');
@@ -154,6 +161,7 @@
 			$("#messages-file").attr('placeholder', '{{$strings.file_filter}}');
 
 			$('#messages-author-container').removeClass('active sticky-top');
+			$('#messages-file-container').removeClass('active sticky-top');
 			$('#messages-author-input-clear').addClass('d-none');
 			$('#messages-container .message').remove();
 			author = '';
