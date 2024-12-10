@@ -3810,8 +3810,6 @@ class Activity {
 			->setObjType($object['type'])
 			->setParentMid(str_replace('/conversation/','/item/', $target))
 			->setThrParent(str_replace('/conversation/','/item/', $target))
-		//	->setApproved($object['object']['id'] ?? '')
-		//	->setReplyto(z_root() . '/channel/' . $channel['channel_address'])
 			->setTgtType('Collection')
 			->setTarget([
 				'id' => str_replace('/item/','/conversation/', $target),
@@ -3827,8 +3825,10 @@ class Activity {
 				->setDenyGid($sourceItem['deny_gid'])
 				->setPrivate($sourceItem['item_private'])
 				->setRestrict($sourceItem['item_restrict'])
-			//	->setNocomment($sourceItem['item_nocomment'])
-			//	->setCommentsClosed($sourceItem['comments_closed'])
+				->setHidden($sourceItem['item_hidden'])
+				->setDelayed($sourceItem['item_delayed'])
+				->setUnpublished($sourceItem['item_unpublished'])
+				->setBlocked($sourceItem['item_blocked'])
 				->setType($sourceItem['item_type'])
 				->setCommentPolicy($sourceItem['comment_policy'])
 				->setPublicPolicy($sourceItem['public_policy'])

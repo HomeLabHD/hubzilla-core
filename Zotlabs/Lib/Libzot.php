@@ -1994,7 +1994,7 @@ class Libzot {
 				retain_item($stored['parent']);
 			}
 
-			if ($relay && $item_id/* && $stored['item_blocked'] !== ITEM_MODERATED && $stored['obj_type'] !== 'Answer'*/) {
+			if ($relay && $item_id && item_forwardable($stored)) {
 				logger('Invoking relay');
 				Master::Summon(['Notifier', 'relay', intval($item_id)]);
 				if (!empty($approval) && $approval['item_id']) {

@@ -241,11 +241,6 @@ class Notifier {
 
 			$target_item = $r[0];
 
-			if (in_array($target_item['author']['xchan_network'], ['rss', 'anon', 'token'])) {
-				logger('notifier: target item author is not a fetchable actor', LOGGER_DEBUG);
-				return;
-			}
-
 			if (intval($target_item['item_deleted'])) {
 				logger('notifier: target item ITEM_DELETED', LOGGER_DEBUG);
 			}
@@ -268,22 +263,9 @@ class Notifier {
 
 			}
 
-			// Check for non published items, but allow an exclusion for transmitting hidden file activities
-
-			if (intval($target_item['item_unpublished']) || intval($target_item['item_delayed']) ||
-				intval($target_item['item_blocked']) || intval($target_item['item_hidden'])) {
-				logger('notifier: target item not published, so not forwardable', LOGGER_DEBUG);
-				return;
-			}
-
-			// follow/unfollow is for internal use only
-			if (in_array($target_item['verb'], ['Follow', 'Ignore', ACTIVITY_FOLLOW, ACTIVITY_UNFOLLOW])) {
-				logger('not fowarding follow/unfollow note activity');
-				return;
-			}
-
-			if (strpos($target_item['postopts'], 'nodeliver') !== false) {
-				logger('notifier: target item is undeliverable', LOGGER_DEBUG);
+			if (!item_forwardable($target_item)) {
+				//hz_syslog(print_r($target_item,true));
+				logger('notifier: target item not forwardable', LOGGER_DEBUG);
 				return;
 			}
 

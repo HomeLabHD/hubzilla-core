@@ -258,6 +258,25 @@ function item_normal() {
 	return $sql;
 }
 
+function item_forwardable($item) {
+	if (intval($item['item_unpublished']) ||
+		intval($item['item_delayed']) ||
+		intval($item['item_blocked']) ||
+		intval($item['item_hidden']) ||
+		intval($item['item_restrict']) || // this might change in the future
+		// internal follow/unfollow thread
+		in_array($item['verb'], ['Follow', 'Ignore', ACTIVITY_FOLLOW, ACTIVITY_UNFOLLOW]) ||
+		str_contains($item['postopts'], 'nodeliver') ||
+		// actor not fetchable
+		(isset($item['author']['xchan_network']) && in_array($item['author']['xchan_network'], ['rss', 'anon', 'token']))
+
+	) {
+		return false;
+	}
+
+	return true;
+}
+
 function item_normal_search() {
 	return " and item.item_hidden = 0 and item.item_type in (0,3,6,7) and item.item_deleted = 0
 		and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_pending_remove = 0
