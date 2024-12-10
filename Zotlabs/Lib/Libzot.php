@@ -1148,7 +1148,7 @@ class Libzot {
 			$AS = new ActivityStreams($data);
 
 			// process add/remove from collection separately, as it requires a target.
-			// use the raw object, as it will not include actor expansion
+			// use the data object, as it will not include actor expansion
 			if (in_array($AS->type, ['Add', 'Remove'])
 				&& is_array($AS->obj)
 				&& array_key_exists('object', $AS->obj)
@@ -1722,6 +1722,7 @@ class Libzot {
 					// If this is a poll response, convert the obj_type to our (internal-only) "Answer" type
 					if (in_array($arr['obj_type'], ['Note', ACTIVITY_OBJ_COMMENT]) && $arr['title'] && (!$arr['body'])) {
 						$arr['obj_type'] = 'Answer';
+						$arr['item_hidden'] = 1;
 					}
 				}
 
@@ -1993,7 +1994,7 @@ class Libzot {
 				retain_item($stored['parent']);
 			}
 
-			if ($relay && $item_id && $stored['item_blocked'] !== ITEM_MODERATED && $stored['obj_type'] !== 'Answer') {
+			if ($relay && $item_id/* && $stored['item_blocked'] !== ITEM_MODERATED && $stored['obj_type'] !== 'Answer'*/) {
 				logger('Invoking relay');
 				Master::Summon(['Notifier', 'relay', intval($item_id)]);
 				if (!empty($approval) && $approval['item_id']) {

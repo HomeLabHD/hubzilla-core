@@ -2685,6 +2685,7 @@ class Activity {
 			}
 		}
 
+
 		if (!$ap_rawmsg && array_key_exists('signed', $raw_arr)) {
 			// zap
 			$ap_rawmsg = json_encode($act->data, JSON_UNESCAPED_SLASHES);
@@ -2718,8 +2719,7 @@ class Activity {
 		return $hookinfo['s'];
 
 	}
-
-	static function store($channel, $observer_hash, $act, $item, $fetch_parents = true, $force = false) {
+	static function store($channel, $observer_hash, $act, $item, $fetch_parents = true, $force = false, $is_collection_operation = false) {
 		$is_sys_channel = is_sys_channel($channel['channel_id']);
 		$is_child_node  = false;
 		$parent = null;
@@ -2750,6 +2750,8 @@ class Activity {
 		}
 
 		$allowed = false;
+		$relay = false;
+
 		$permit_mentions = intval(PConfig::Get($channel['channel_id'], 'system','permit_all_mentions') && i_am_mentioned($channel, $item));
 
 		if ($is_child_node) {
@@ -2776,13 +2778,22 @@ class Activity {
 				return;
 			}
 
+			$relay = $channel['channel_hash'] === $parent[0]['owner_xchan'];
+
+			if (str_contains($parent[0]['tgt_type'], 'Collection') && !$relay && !$isCollectionOperation) {
+				logger('not a collection activity');
+				return;
+			}
+
 			if ($parent[0]['obj_type'] === 'Question') {
 				if (in_array($item['obj_type'], ['Note', ACTIVITY_OBJ_COMMENT]) && $item['title'] && (!$item['body'])) {
 					$item['obj_type'] = 'Answer';
+					$item['item_hidden'] = 1;
 				}
 			}
 
 			if ($parent[0]['item_wall']) {
+
 				// set the owner to the owner of the parent
 				$item['owner_xchan'] = $parent[0]['owner_xchan'];
 
@@ -3037,17 +3048,48 @@ class Activity {
 			dbesc($item['mid']),
 			intval($item['uid'])
 		);
+
 		if ($r) {
 			if ($item['edited'] > $r[0]['edited']) {
 				$item['id'] = $r[0]['id'];
-				$x          = item_store_update($item);
+				$x = item_store_update($item, deliver: false);
 			}
 			else {
 				return;
 			}
 		}
 		else {
-			$x = item_store($item);
+			$x = item_store($item, deliver: false, addAndSync: false);
+		}
+
+		if ($x['success']) {
+
+			if ($relay && $channel['channel_hash'] === $x['item']['owner_xchan'] && $x['item']['verb'] !== 'Add' && !$isCollectionOperation) {
+				$approval = Activity::addToCollection($channel, $act->data, $x['item']['parent_mid'], $x['item'], deliver: false);
+			}
+
+			if (check_item_source($channel['channel_id'], $x['item']) && in_array($x['item']['obj_type'], ['Event', ACTIVITY_OBJ_EVENT])) {
+				event_addtocal($x['item_id'], $channel['channel_id']);
+			}
+
+			tag_deliver($channel['channel_id'], $x['item_id']);
+
+			if ($relay && $is_child_node) {
+				// We are the owner of this conversation, so send all received comments back downstream
+				Master::Summon(['Notifier', 'comment-import', $x['item_id']]);
+				if (!empty($approval['item_id'])) {
+					Master::Summon(['Notifier', 'comment-import', $approval['item_id']]);
+				}
+			}
+
+			$r = q("select * from item where id = %d limit 1",
+				intval($x['item_id'])
+			);
+
+			if ($r) {
+				send_status_notifications($x['item_id'], $r[0]);
+			}
+			sync_an_item($channel['channel_id'], $x['item_id']);
 		}
 
 		if ($fetch_parents && $parent && !intval($parent[0]['item_private'])) {
@@ -3074,28 +3116,6 @@ class Activity {
 				}
 			}
 		}
-
-		if ($x['success']) {
-
-			if (check_item_source($channel['channel_id'], $x['item']) && in_array($x['item']['obj_type'], ['Event', ACTIVITY_OBJ_EVENT])) {
-				event_addtocal($x['item_id'], $channel['channel_id']);
-			}
-
-			if ($is_child_node) {
-				if ($item['owner_xchan'] === $channel['channel_hash']) {
-					// We are the owner of this conversation, so send all received comments back downstream
-					Master::Summon(['Notifier', 'comment-import', $x['item_id']]);
-				}
-				$r = q("select * from item where id = %d limit 1",
-					intval($x['item_id'])
-				);
-				if ($r) {
-					send_status_notifications($x['item_id'], $r[0]);
-				}
-			}
-			sync_an_item($channel['channel_id'], $x['item_id']);
-		}
-
 	}
 
 	/**
