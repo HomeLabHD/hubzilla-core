@@ -206,7 +206,7 @@ function update_chats(chats) {
             chat_issue_notification(item.name + ':\n' + item.text, 'Hubzilla Chat');
 		}
 		$('#chatLineHolder').append(newNode);
-		$(".autotime").timeago();
+		updateRelativeTime('.autotime');
 
 		var elem = document.getElementById('chatTopBar');
 		elem.scrollTop = elem.scrollHeight;

@@ -1271,7 +1271,8 @@ class App {
 					'$zid'             => get_my_address(),
 					'$channel_id'      => self::$profile['uid'] ?? 0,
 					'$auto_save_draft' => ((isset(self::$profile['uid']) && feature_enabled(self::$profile['uid'], 'auto_save_draft')) ? "true" : "false"),
-					'$module'          => App::$module
+					'$module'          => App::$module,
+					'$lang'            => App::$language
 				]
 			) . ((isset(self::$page['htmlhead'])) ? self::$page['htmlhead'] : '');
 

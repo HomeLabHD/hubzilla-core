@@ -25,6 +25,7 @@ var savedTitle = '';
 var followUpPageLoad = false;
 var window_needs_alert = true;
 var expanded_items = [];
+var updateTimeout = [];
 
 var page_cache = {};
 
@@ -57,28 +58,6 @@ if ('serviceWorker' in navigator) {
 $.ajaxSetup({cache: false});
 
 var tf = new Function('n', 's', 'var k = s.split("/")['+aStr['plural_func']+']; return (k ? k : s);');
-
-jQuery.timeago.settings.strings = {
-	prefixAgo     : aStr['t01'],
-	prefixFromNow : aStr['t02'],
-	suffixAgo     : aStr['t03'],
-	suffixFromNow : aStr['t04'],
-	seconds       : aStr['t05'],
-	minute        : aStr['t06'],
-	minutes       : function(value){return tf(value, aStr['t07']);},
-	hour          : aStr['t08'],
-	hours         : function(value){return tf(value, aStr['t09']);},
-	day           : aStr['t10'],
-	days          : function(value){return tf(value, aStr['t11']);},
-	month         : aStr['t12'],
-	months        : function(value){return tf(value, aStr['t13']);},
-	year          : aStr['t14'],
-	years         : function(value){return tf(value, aStr['t15']);},
-	wordSeparator : aStr['t16'],
-	numbers       : aStr['t17'],
-};
-
-jQuery.timeago.settings.allowFuture = true;
 
 $(document).ready(function() {
 
@@ -514,14 +493,12 @@ function viewsrc(id) {
 
 function showHideComments(id) {
 	if($('#collapsed-comments-' + id).is(':visible')) {
-		$('#collapsed-comments-' + id + ' .autotime').timeago('dispose');
 		$('#collapsed-comments-' + id).hide();
 		$('#hide-comments-label-' + id).html(aStr.showmore);
 		$('#hide-comments-total-' + id).show();
 		$('#hide-comments-icon-' + id).toggleClass('bi-chevron-down bi-chevron-up');
 
 	} else {
-		$('#collapsed-comments-' + id + ' .autotime').timeago();
 		$('#collapsed-comments-' + id).show();
 		$('#hide-comments-label-' + id).html(aStr.showfewer);
 		$('#hide-comments-total-' + id).hide();
@@ -718,8 +695,6 @@ function updateConvItems(mode,data) {
 			}
 
 			// trigger the autotime function on all newly created content
-			$("> .wall-item-outside-wrapper .autotime, > .thread-wrapper .autotime",this).timeago();
-			$("> .shared_header .autotime",this).timeago();
 
 			if((mode === 'append' || mode === 'replace') && (loadingPage)) {
 				loadingPage = false;
@@ -818,6 +793,59 @@ function updateConvItems(mode,data) {
 
 	followUpPageLoad = true;
 
+	updateRelativeTime('.autotime');
+
+}
+
+function updateRelativeTime(selector) {
+	// Get all elements with the given selector
+	const timeElements = document.querySelectorAll(selector);
+	if (timeElements.length === 0) return;
+
+	// Default time style and map for supported options
+	const styleMap = ['narrow', 'short', 'long'];
+	const style = styleMap.find(s => selector.includes(s)) || 'long';
+
+	// Create an instance of RelativeTimeFormat
+	const rtf = new Intl.RelativeTimeFormat(lang, {
+		localeMatcher: 'best fit', // 'best fit' or 'lookup'
+		numeric: 'always', // 'always' or 'auto'
+		style: style // 'long', 'short', or 'narrow'
+	});
+
+	const now = Date.now(); // Get the current time only once
+
+	// Helper function to calculate the time difference in appropriate units
+	function getRelativeTime(diffInSeconds) {
+		const isFuture = diffInSeconds > 0;
+		const absDiffInSeconds = Math.abs(diffInSeconds);
+
+		if (absDiffInSeconds < 60) return { value: absDiffInSeconds, unit: 'second' };
+		if (absDiffInSeconds < 3600) return { value: Math.floor(absDiffInSeconds / 60), unit: 'minute' };
+		if (absDiffInSeconds < 86400) return { value: Math.floor(absDiffInSeconds / 3600), unit: 'hour' };
+		if (absDiffInSeconds < 2592000) return { value: Math.floor(absDiffInSeconds / 86400), unit: 'day' };
+		if (absDiffInSeconds < 31536000) return { value: Math.floor(absDiffInSeconds / 2592000), unit: 'month' };
+		return { value: Math.floor(absDiffInSeconds / 31536000), unit: 'year' };
+	}
+
+	// Process each element
+	timeElements.forEach(element => {
+		const timestamp = new Date(element.title).getTime();
+		if (isNaN(timestamp)) return; // Skip invalid timestamps
+
+		const diffInSeconds = Math.floor((timestamp - now) / 1000); // Time difference in seconds
+		const { value, unit } = getRelativeTime(diffInSeconds);
+
+		// Format the relative time and set it as the element's text
+		const formattedTime = rtf.format(diffInSeconds > 0 ? value : -value, unit);
+		element.textContent = formattedTime;
+	});
+
+	// Avoid duplicate timeout registrations for the same selector
+	if (!updateTimeout.includes(selector)) {
+		updateTimeout.push(selector);
+		setTimeout(() => updateRelativeTime(selector), 60000); // Re-run the update every 60 seconds
+	}
 }
 
 function scrollToItem() {
@@ -834,7 +862,6 @@ function scrollToItem() {
 		if($(this).data('b64mids').indexOf(submid) > -1 && !$(this).hasClass('toplevel_item')) {
 			if($('.collapsed-comments').length) {
 				var scrolltoid = $('.collapsed-comments').attr('id').substring(19);
-				$('#collapsed-comments-' + scrolltoid + ' .autotime').timeago();
 				$('#collapsed-comments-' + scrolltoid).show();
 				$('#hide-comments-label-' + scrolltoid).html(aStr.showfewer);
 				$('#hide-comments-total-' + scrolltoid).hide();
@@ -1155,7 +1182,7 @@ function pageUpdate() {
 		scroll_next = false;
 		updatePageItems(update_mode,data);
 		$("#page-spinner").hide();
-		$(".autotime").timeago();
+		updateRelativeTime('.autotime');
 		in_progress = false;
 	});
 }
@@ -1216,7 +1243,7 @@ function dolike(ident, verb) {
 				$('#thread-wrapper-' + data.orig_id).replaceWith(data.html);
 			}
 
-			$('#wall-item-ago-' + data.id + ' .autotime').timeago();
+			updateRelativeTime('.autotime');
 			collapseHeight();
 			liking = 0;
 		}
@@ -1457,7 +1484,7 @@ function post_comment(id) {
 				$("#comment-edit-preview-" + id).hide();
 				$("#comment-edit-text-" + id).val('').blur().attr('placeholder', aStr.comment);
 				$('#wall-item-comment-wrapper-' + id).before(data.html);
-				$('#wall-item-ago-' + data.id + ' .autotime').timeago();
+				updateRelativeTime('.autotime');
 				$('body').css('cursor', 'unset');
 				collapseHeight();
 				commentBusy = false;
@@ -1487,7 +1514,7 @@ function preview_comment(id) {
 		function(data) {
 			if(data.preview) {
 				$("#comment-edit-preview-" + id).html(data.preview);
-				$("#comment-edit-preview-" + id + " .autotime").timeago();
+				updateRelativeTime('.autotime');
 				$("#comment-edit-preview-" + id + " a").click(function() { return false; });
 			}
 		},
@@ -1517,7 +1544,7 @@ function preview_post() {
 		function(data) {
 			if(data.preview) {
 				$("#jot-preview-content").html(data.preview);
-				$("#jot-preview-content .autotime").timeago();
+				updateRelativeTime('.autotime');
 				$("#jot-preview-content" + " a").click(function() { return false; });
 			}
 		},

@@ -40,7 +40,7 @@
 							{7}
 							<strong title="{4}">{4}</strong>
 						</div>
-						<small class="messages-timeago opacity-75" title="{1}"></small>
+						<small class="autotime-narrow opacity-75" title="{1}"></small>
 					</div>
 					<div class="text-truncate">
 						<small class="opacity-75" title="{5}">{5}</small>
@@ -82,7 +82,7 @@
 							{{$e.icon}}
 							<strong title="{{$e.author_name}}">{{$e.author_name}}</strong>
 						</div>
-						<small class="messages-timeago opacity-75" title="{{$e.created}}"></small>
+						<small class="autotime-narrow opacity-75" title="{{$e.created}}"></small>
 					</div>
 					<div class="text-truncate">
 						<small class="opacity-75" title="{{$e.author_addr}}">{{$e.author_addr}}</small>
@@ -116,7 +116,8 @@
 	let file;
 
 	$(document).ready(function () {
-		$('.messages-timeago').timeago();
+		updateRelativeTime('.autotime-narrow');
+
 		if (bParam_mid) {
 			$('.message[data-b64mid=\'' + bParam_mid + '\']').addClass('active');
 		}
@@ -251,7 +252,7 @@
 				$('.message[data-b64mid=\'' + bParam_mid + '\']').addClass('active');
 			}
 			$('#messages-loading').hide();
-			$('.messages-timeago').timeago();
+			updateRelativeTime('.autotime-narrow');
 
 		});
 

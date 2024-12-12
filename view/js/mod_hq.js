@@ -1,6 +1,5 @@
 $(document).ready(function() {
-
-	$('.autotime').timeago();
+	updateRelativeTime('.autotime');
 
 	if (bParam_mid) {
 		src = 'hq';

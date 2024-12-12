@@ -214,5 +214,5 @@
 </script>
 {{/if}}
 <script>
-	$(".pinned-item .autotime").timeago();
+	updateRelativeTime('.autotime');
 </script>

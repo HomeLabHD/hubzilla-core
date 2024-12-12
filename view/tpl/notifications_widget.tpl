@@ -401,8 +401,6 @@
 			}).appendTo('#nav-' + notifyType + '-menu');
 		}
 
-		$("#nav-" + notifyType + "-menu .notifications-autotime").timeago();
-
 		if($('#tt-' + notifyType + '-only').hasClass('active'))
 			$('#nav-' + notifyType + '-menu [data-thread_top=false]').addClass('tt-filter-active');
 
@@ -421,6 +419,8 @@
 				});
 			}
 		}
+
+		updateRelativeTime('.autotime-narrow');
 	}
 
 	function sse_updateNotifications(type, mid) {
@@ -552,7 +552,7 @@
 					<div class="text-truncate pe-1">
 						<strong title="{2} - {3}">{2}</strong>
 					</div>
-					<small class="notifications-autotime opacity-75" title="{5}"></small>
+					<small class="autotime-narrow opacity-75" title="{5}"></small>
 				</div>
 				<div class="text-truncate">{4}</div>
 			</div>
