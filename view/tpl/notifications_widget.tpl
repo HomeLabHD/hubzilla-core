@@ -487,7 +487,6 @@
 		}
 	}
 
-
 	function sse_handleNotificationsItems(notifyType, data, replace, followup) {
 
 		// Get the template, adjust based on the notification type
@@ -544,7 +543,8 @@
 		}
 
 		// Filter thread_top notifications if the filter is active
-		if (document.getElementById('tt-' + notifyType + '-only').classList.contains('active')) {
+		let filterThreadTop = document.getElementById('cn-' + notifyType + '-input');
+		if (filterThreadTop && filterThreadTop.classList.contains('active')) {
 			let notifications = notify_menu.querySelectorAll('[data-thread_top="false"]');
 			notifications.forEach(notification => notification.classList.add('tt-filter-active'));
 		}

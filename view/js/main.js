@@ -209,20 +209,21 @@ $(document).ready(function() {
 
 	updateInit();
 
-	var e = document.getElementById('content-complete');
-	if(e)
+	if (document.getElementById('content-complete')) {
 		pageHasMoreContent = false;
+	}
 
-	$(document).on('hz:updateConvItems', function(event) {
-		if(!bParam_mid)
+	document.addEventListener('hz:updateConvItems', function(e) {
+		if (!bParam_mid) {
 			cache_next_page();
+		}
 	});
 
-	$(document).on('hz:handleNetworkNotificationsItems', function(e, obj) {
+	document.addEventListener('hz:handleNetworkNotificationsItems', function(e) {
 		push_notification(
-			obj.name,
-			$('<p>' + obj.message + '</p>').text(),
-			obj.b64mid
+			e.detail.name,
+			$('<p>' + e.detail.message + '</p>').text(),
+			e.detail.b64mid
 		);
 	});
 });
@@ -684,6 +685,16 @@ function updateConvItems(mode, data) {
                 existingElem.replaceWith(elem);
             }
 
+			// DOMParser will prevent scripts from execution for security reasons.
+			// We remove all scripts but possibly injected some from
+			// addons like for example gallery later.
+			// TODO: make the script run from the addon itself.
+			let scripts = elem.querySelectorAll('script');
+			scripts.forEach(script => {
+				let scriptContent = script.textContent || script.innerText;
+				eval(scriptContent);  // Execute the script
+			});
+
             // set the comment state to the state we discovered earlier
             if (isVisible) {
                 showHideComments(itmId);
@@ -736,8 +747,6 @@ function updateConvItems(mode, data) {
     if (followUpPageLoad) {
         document.dispatchEvent(new Event('hz:sse_bs_counts'));
     } else {
-		console.log('got here0');
-
         document.dispatchEvent(new Event('hz:sse_bs_init'));
     }
 
