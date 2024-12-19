@@ -22,7 +22,6 @@ class Sse_bs extends Controller {
 	public static $xchans;
 
 	function init() {
-
 		self::$uid = local_channel();
 		self::$ob_hash = get_observer_hash();
 		self::$sse_id = false;
@@ -43,8 +42,9 @@ class Sse_bs extends Controller {
 		self::$offset = 0;
 		self::$xchans = '';
 
-		if(isset($_REQUEST['sse_rmids']))
-			self::mark_read($_REQUEST['sse_rmids']);
+		if (isset($_REQUEST['sse_rmids'])) {
+			self::mark_read(explode(',', $_REQUEST['sse_rmids']));
+		}
 
 		if(!empty($_REQUEST['nquery']) && $_REQUEST['nquery'] !== '%') {
 			$nquery = $_REQUEST['nquery'];

@@ -207,10 +207,9 @@ class Sse extends Controller {
 
 			if ($result) {
 				XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
-				json_return_and_die($result);
 			}
 
-			killme();
+			json_return_and_die($result);
 
 		}
 

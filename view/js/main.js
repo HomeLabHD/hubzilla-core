@@ -626,175 +626,182 @@ function updatePageItems(mode, data) {
 	collapseHeight();
 }
 
+function updateConvItems(mode, data) {
+    let scroll_position = window.scrollY;
+    let b64mids = [];
 
-function updateConvItems(mode,data) {
-	let scroll_position = $(window).scrollTop();
-	let b64mids = [];
+    // Parse the data string into a DOM object
+    let parser = new DOMParser();
+    let doc = parser.parseFromString(data, 'text/html');
 
-	if(mode !== 'update')
-		$(document).trigger('hz:updateConvItems');
+    if (mode !== 'update') {
+        document.dispatchEvent(new Event('hz:updateConvItems'));
+    }
 
-	if(mode === 'update' || mode === 'replace') {
-		prev = 'threads-begin';
-	}
-	if(mode === 'append') {
-		next = 'threads-end';
-	}
+    let prev, next;
+    if (mode === 'update' || mode === 'replace') {
+        prev = document.getElementById('threads-begin');
+    }
+    if (mode === 'append') {
+        next = document.getElementById('threads-end');
+    }
 
-	$('.thread-wrapper', data).each(function() {
-		if(this.classList.contains('toplevel_item')) {
-			let ident = this.id;
-			let convId = ident.replace('thread-wrapper-','');
-			let commentWrap = $('#'+ident+' .collapsed-comments').attr('id');
+    doc.querySelectorAll('.thread-wrapper').forEach(function (elem) {
+        if (elem.classList.contains('toplevel_item')) {
+            let ident = elem.id;
+            let convId = ident.replace('thread-wrapper-', '');
+            let commentWrap = elem.querySelector('.collapsed-comments')?.id;
 
-			let itmId = 0;
-			let isVisible = false;
+            let itmId = 0;
+            let isVisible = false;
 
-			// figure out the comment state
-			if(typeof commentWrap !== 'undefined')
-				itmId = commentWrap.replace('collapsed-comments-','');
+            // figure out the comment state
+            if (commentWrap !== undefined) {
+                itmId = commentWrap.replace('collapsed-comments-', '');
+            }
 
-			if($('#collapsed-comments-'+itmId).is(':visible'))
-				isVisible = true;
+            let collapsedComment = document.getElementById('collapsed-comments-' + itmId);
+            if (collapsedComment && collapsedComment.style.display !== 'none') {
+                isVisible = true;
+            }
 
-			// insert the content according to the mode and first_page
-			// and whether or not the content exists already (overwrite it)
+            // insert the content according to the mode and first_page
+            // and whether or not the content exists already (overwrite it)
+            let existingElem = document.getElementById(ident);
+            if (!existingElem) {
+                if ((mode === 'update' || mode === 'replace') && profile_page == 1) {
+                    if (prev) {
+                        prev.after(elem);
+                        prev = elem;
+                    }
+                }
+                if (mode === 'append') {
+                    if (next) {
+                        next.before(elem);
+                    }
+                }
+            } else {
+                existingElem.replaceWith(elem);
+            }
 
-			if($('#' + ident).length == 0) {
-				if((mode === 'update' || mode === 'replace') && profile_page == 1) {
-						$('#' + prev).after($(this));
-					prev = ident;
-				}
-				if(mode === 'append') {
-					$('#' + next).before($(this));
-				}
-			}
-			else {
-				$('#' + ident).replaceWith($(this));
-			}
+            // set the comment state to the state we discovered earlier
+            if (isVisible) {
+                showHideComments(itmId);
+            }
 
-			// set the comment state to the state we discovered earlier
+            let commentBody = localStorage.getItem("comment_body-" + convId);
+            if (commentBody) {
+                let commentElm = document.getElementById('comment-edit-text-' + convId);
+                if (auto_save_draft && commentElm) {
+                    if (commentElm.value === '') {
+                        let commentForm = document.getElementById('comment-edit-form-' + convId);
+                        if (commentForm) {
+                            commentForm.style.display = 'block';
+                        }
+                        commentElm.classList.add("expanded");
+                        openMenu("comment-tools-" + convId);
+                        commentElm.value = commentBody;
+                    }
+                } else {
+                    localStorage.removeItem("comment_body-" + convId);
+                }
+            }
 
-			if(isVisible)
-				showHideComments(itmId);
+            if ((mode === 'append' || mode === 'replace') && loadingPage) {
+                loadingPage = false;
+            }
 
-			let commentBody = localStorage.getItem("comment_body-" + convId);
+            // if single thread view and the item has a title, display it in the title bar
+            if (mode === 'replace') {
+                if (window.location.search.includes("mid=") || window.location.pathname.includes("display")) {
+                    let titleElem = document.querySelector(".wall-item-title");
+                    if (titleElem) {
+                        let title = titleElem.textContent.trim();
+                        if (title) {
+                            savedTitle = title + ' ' + savedTitle;
+                            document.title = title;
+                        }
+                    }
+                }
+            }
+        }
 
-			if(commentBody) {
-				var commentElm = $('#comment-edit-text-' + convId);
-				if(auto_save_draft) {
-					if($(commentElm).val() === '') {
-						$('#comment-edit-form-' + convId).show();
-						$(commentElm).addClass("expanded");
-						openMenu("comment-tools-" + convId);
-						$(commentElm).val(commentBody);
-					}
-				} else {
-					localStorage.removeItem("comment_body-" + convId);
-				}
-			}
+        b64mids.push(...JSON.parse(elem.dataset.b64mids));
+    });
 
-			// trigger the autotime function on all newly created content
+	document.dispatchEvent(new CustomEvent('hz:sse_setNotificationsStatus', { detail: b64mids }));
 
-			if((mode === 'append' || mode === 'replace') && (loadingPage)) {
-				loadingPage = false;
-			}
+    window.scrollTo(0, scroll_position);
 
-			// if single thread view and  the item has a title, display it in the title bar
+    if (followUpPageLoad) {
+        document.dispatchEvent(new Event('hz:sse_bs_counts'));
+    } else {
+		console.log('got here0');
 
-			if(mode === 'replace') {
-				if (window.location.search.indexOf("mid=") != -1 || window.location.pathname.indexOf("display") != -1) {
-					let title = $(".wall-item-title").text();
-					title.replace(/^\s+/, '');
-					title.replace(/\s+$/, '');
-					if (title) {
-						savedTitle = title + " " + savedTitle;
-						document.title = title;
-					}
-				}
-			}
-		}
+        document.dispatchEvent(new Event('hz:sse_bs_init'));
+    }
 
-		$(this).data('b64mids').forEach((b64mid) => {
-			b64mids.push(b64mid);
-		});
+    if (commentBusy) {
+        commentBusy = false;
+        document.body.style.cursor = 'auto';
+    }
 
-	});
+    // Setup to determine if the media player is playing. This affects some content loading decisions.
+    ['playing', 'pause'].forEach(event => {
+        document.querySelectorAll('video, audio').forEach(media => {
+            media.removeEventListener(event, mediaHandler);
+            media.addEventListener(event, mediaHandler);
+        });
+    });
 
-	$(document).trigger('hz:sse_setNotificationsStatus', [b64mids]);
+    function mediaHandler(event) {
+        mediaPlaying = event.type === 'playing';
+    }
 
-	$(window).scrollTop(scroll_position);
+    if (!preloadImages) {
+        imagesLoaded(document.querySelectorAll('.wall-item-body, .wall-photo-item'), function () {
+            collapseHeight();
+            if (bParam_mid && mode === 'replace') {
+                scrollToItem();
+            }
+        });
+    } else {
+        collapseHeight();
+        if (bParam_mid && mode === 'replace') {
+            scrollToItem();
+        }
+    }
 
-	if(followUpPageLoad) {
-		$(document).trigger('hz:sse_bs_counts');
-	}
-	else {
-		$(document).trigger('hz:sse_bs_init');
-	}
+    // reset rotators and cursors we may have set before reaching this place
+    let pageSpinner = document.getElementById("page-spinner");
+    if (pageSpinner) {
+        pageSpinner.style.display = 'none';
+    }
+    let profileJotTextLoading = document.getElementById("profile-jot-text-loading");
+    if (profileJotTextLoading) {
+        profileJotTextLoading.style.display = 'none';
+    }
 
-	if(commentBusy) {
-		commentBusy = false;
-		$('body').css('cursor', 'auto');
-	}
+    followUpPageLoad = true;
 
-	// Setup to determine if the media player is playing. This affects
-	// some content loading decisions.
+    updateRelativeTime('.autotime');
+}
 
-	$('video').off('playing');
-	$('video').off('pause');
-	$('audio').off('playing');
-	$('audio').off('pause');
+// Helper function for images loaded
+function imagesLoaded(elements, callback) {
+    let loaded = 0;
+    let count = elements.length;
 
-	$('video').on('playing', function() {
-		mediaPlaying = true;
-	});
-	$('video').on('pause', function() {
-		mediaPlaying = false;
-	});
-	$('audio').on('playing', function() {
-		mediaPlaying = true;
-	});
-	$('audio').on('pause', function() {
-		mediaPlaying = false;
-	});
-
-	if(! preloadImages) {
-		$('.wall-item-body, .wall-photo-item').imagesLoaded()
-		.always( function( instance ) {
-			//console.log('all images loaded');
-			collapseHeight();
-
-			if(bParam_mid && mode === 'replace')
-				scrollToItem();
-
-		})
-		.done( function( instance ) {
-			//console.log('all images successfully loaded');
-		})
-		.fail( function() {
-			//console.log('all images loaded, at least one is broken');
-		})
-		.progress( function( instance, image ) {
-			//var result = image.isLoaded ? 'loaded' : 'broken';
-			//console.log( 'image is ' + result + ' for ' + image.img.src );
-		});
-	}
-	else {
-		collapseHeight();
-
-		if(bParam_mid && mode === 'replace')
-			scrollToItem();
-	}
-
-	// reset rotators and cursors we may have set before reaching this place
-
-	$("#page-spinner").hide();
-	$("#profile-jot-text-loading").hide();
-
-	followUpPageLoad = true;
-
-	updateRelativeTime('.autotime');
-
+    elements.forEach(element => {
+        let img = new Image();
+        img.onload = img.onerror = function () {
+            loaded++;
+            if (loaded === count) {
+                callback();
+            }
+        };
+        img.src = element.src;
+    });
 }
 
 function updateRelativeTime(selector) {
@@ -934,7 +941,7 @@ function updateInit() {
 		liveUpdate();
 	}
 	else {
-		$(document).trigger('hz:sse_bs_init');
+		document.dispatchEvent(new Event('hz:sse_bs_init'));
 	}
 
 	if($('#live-photos').length || $('#live-cards').length || $('#live-articles').length ) {
