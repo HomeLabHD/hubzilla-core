@@ -796,9 +796,9 @@ function imagesLoaded(elements, callback) {
 
     // Helper function to extract img elements from an HTML string
     function extractImagesFromHtml(htmlString) {
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = htmlString;
-        return Array.from(tempDiv.getElementsByTagName('img'));
+		let tempDiv = document.createElement('div');
+		tempDiv.innerHTML = htmlString;
+		return tempDiv.querySelectorAll('.wall-item-body img, .wall-photo-item img');
     }
 
     // If the elements is an HTML string, convert it to img elements
@@ -833,9 +833,9 @@ function imagesLoaded(elements, callback) {
         img.onload = img.onerror = function () {
             loaded++;
 			document.getElementById('image_counter').innerHTML = Math.round((loaded * 100) / count) + '%';
-
             if (loaded === count) {
                 callback();
+				document.getElementById('image_counter').innerHTML = '';
             }
         };
 
@@ -896,28 +896,45 @@ function updateRelativeTime(selector) {
 }
 
 function scrollToItem() {
-	// auto-scroll to a particular comment in a thread (designated by mid) when in single-thread mode
+    // auto-scroll to a particular comment in a thread (designated by mid) when in single-thread mode
 
-	if(justifiedGalleryActive)
-		return;
+    if (justifiedGalleryActive) return;
 
-	let submid = ((bParam_mid.length) ? bParam_mid : 'abcdefg');
-	//var encoded = ((submid.substr(0,4) == 'b64.') ? true : false);
-	//var submid_encoded = ((encoded) ? submid : window.btoa(submid));
+    let submid = ((bParam_mid.length) ? bParam_mid : 'abcdefg');
 
-	$('.thread-wrapper').filter(function() {
-		if($(this).data('b64mids').indexOf(submid) > -1 && !$(this).hasClass('toplevel_item')) {
-			if($('.collapsed-comments').length) {
-				var scrolltoid = $('.collapsed-comments').attr('id').substring(19);
-				$('#collapsed-comments-' + scrolltoid).show();
-				$('#hide-comments-label-' + scrolltoid).html(aStr.showfewer);
-				$('#hide-comments-total-' + scrolltoid).hide();
-			}
-			$('html, body').animate({ scrollTop: $(this).offset().top - $('nav').outerHeight(true) }, 'slow');
-			$(this).addClass('item-highlight');
-		}
-	});
+    // Select all thread wrappers
+    let threadWrappers = document.querySelectorAll('.thread-wrapper');
 
+    threadWrappers.forEach(thread => {
+        // Get the 'data-b64mids' attribute and check if it contains submid
+        let b64mids = thread.dataset.b64mids;
+
+        if (b64mids && b64mids.includes(submid) && !thread.classList.contains('toplevel_item')) {
+
+            // Handle collapsed comments if any
+            let collapsedComments = document.querySelectorAll('.collapsed-comments');
+            if (collapsedComments.length) {
+                let scrolltoid = collapsedComments[0].id.substring(19);
+                let collapsedComment = document.getElementById('collapsed-comments-' + scrolltoid);
+                let hideCommentsLabel = document.getElementById('hide-comments-label-' + scrolltoid);
+                let hideCommentsTotal = document.getElementById('hide-comments-total-' + scrolltoid);
+
+                if (collapsedComment) collapsedComment.style.display = 'block';
+                if (hideCommentsLabel) hideCommentsLabel.innerHTML = aStr.showfewer;
+                if (hideCommentsTotal) hideCommentsTotal.style.display = 'none';
+            }
+
+            // Scroll to the target element
+            let navHeight = document.querySelector('nav') ? document.querySelector('nav').offsetHeight : 0;
+            window.scrollTo({
+                top: thread.offsetTop - navHeight,
+                behavior: 'smooth'
+            });
+
+            // Add highlight class
+            thread.classList.add('item-highlight');
+        }
+    });
 }
 
 function collapseHeight() {

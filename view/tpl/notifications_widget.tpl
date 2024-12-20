@@ -587,14 +587,7 @@
 		let notification = document.querySelector(`#nav-${type}-menu .notification[data-b64mid='${mid}']`);
 
 		if (notification) {
-			// Fade out the notification by adjusting its opacity
-			notification.style.transition = 'opacity 0.5s';
-			notification.style.opacity = 0;
-
-			// After the transition ends, remove the notification element from the DOM
-			notification.addEventListener('transitionend', function () {
-				notification.remove();
-			});
+			notification.remove();
 		}
 	}
 
