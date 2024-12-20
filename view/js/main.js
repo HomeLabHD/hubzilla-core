@@ -794,6 +794,7 @@ function imagesLoaded(elements, callback) {
 	let totalImages = 0;
 	let timeoutId;
 	let timeout = 10000;
+	let processed = [];
 
 	// Helper function to extract img elements from an HTML string
 	function extractImagesFromHtml(htmlString) {
@@ -802,12 +803,19 @@ function imagesLoaded(elements, callback) {
 		return tempDiv.querySelectorAll('.wall-item-body img, .wall-photo-item img');
 	}
 
-	function checkComplete() {
+	function checkComplete(src) {
+		// Track processed images to not count images multiple times if load event is emited from multiple sources
+		if (processed.includes(src)) {
+			return;
+		}
+
+		processed.push(src);
+		loadedCount++;
 		document.getElementById('image_counter').innerHTML = Math.round((loadedCount * 100) / totalImages) + '%';
 		if (loadedCount === totalImages) {
+			document.getElementById('image_counter').innerHTML = '';
 			clearTimeout(timeoutId);
 			callback();
-			document.getElementById('image_counter').innerHTML = '';
 		}
 	}
 
@@ -842,25 +850,23 @@ function imagesLoaded(elements, callback) {
 	totalImages = images.length;
 
 	images.forEach((img) => {
+		// Otherwise it will not load until visible
+		img.loading = 'eager';
 
-		img.loading = 'eager'; // Otherwise it will not load until visible
 		if (img.complete && img.naturalHeight !== 0) {
 			// Image is already loaded successfully
-			loadedCount++;
 			//console.log(`Image cached: ${img.src}`);
-			checkComplete();
+			checkComplete(img.src);
 		} else {
 			// Add event listeners for load and error events
 			img.addEventListener('load', () => {
 				//console.log(`Image loaded: ${img.src}`);
-				loadedCount++;
-				checkComplete();
+				checkComplete(img.src);
 			});
 
 			img.addEventListener('error', () => {
 				console.log(`Image failed to load: ${img.src}`);
-				loadedCount++;
-				checkComplete();
+				checkComplete(img.src);
 			});
 		}
 	});
