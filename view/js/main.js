@@ -628,62 +628,62 @@ function updatePageItems(mode, data) {
 }
 
 function updateConvItems(mode, data) {
-    let scroll_position = window.scrollY;
-    let b64mids = [];
+	let scroll_position = window.scrollY;
+	let b64mids = [];
 
-    // Parse the data string into a DOM object
-    let parser = new DOMParser();
-    let doc = parser.parseFromString(data, 'text/html');
+	// Parse the data string into a DOM object
+	let parser = new DOMParser();
+	let doc = parser.parseFromString(data, 'text/html');
 
-    if (mode !== 'update') {
-        document.dispatchEvent(new Event('hz:updateConvItems'));
-    }
+	if (mode !== 'update') {
+		document.dispatchEvent(new Event('hz:updateConvItems'));
+	}
 
-    let prev, next;
-    if (mode === 'update' || mode === 'replace') {
-        prev = document.getElementById('threads-begin');
-    }
-    if (mode === 'append') {
-        next = document.getElementById('threads-end');
-    }
+	let prev, next;
+	if (mode === 'update' || mode === 'replace') {
+		prev = document.getElementById('threads-begin');
+	}
+	if (mode === 'append') {
+		next = document.getElementById('threads-end');
+	}
 
-    doc.querySelectorAll('.thread-wrapper').forEach(function (elem) {
-        if (elem.classList.contains('toplevel_item')) {
-            let ident = elem.id;
-            let convId = ident.replace('thread-wrapper-', '');
-            let commentWrap = elem.querySelector('.collapsed-comments')?.id;
+	doc.querySelectorAll('.thread-wrapper').forEach(function (elem) {
+		if (elem.classList.contains('toplevel_item')) {
+			let ident = elem.id;
+			let convId = ident.replace('thread-wrapper-', '');
+			let commentWrap = elem.querySelector('.collapsed-comments')?.id;
 
-            let itmId = 0;
-            let isVisible = false;
+			let itmId = 0;
+			let isVisible = false;
 
-            // figure out the comment state
-            if (commentWrap !== undefined) {
-                itmId = commentWrap.replace('collapsed-comments-', '');
-            }
+			// figure out the comment state
+			if (commentWrap !== undefined) {
+				itmId = commentWrap.replace('collapsed-comments-', '');
+			}
 
-            let collapsedComment = document.getElementById('collapsed-comments-' + itmId);
-            if (collapsedComment && collapsedComment.style.display !== 'none') {
-                isVisible = true;
-            }
+			let collapsedComment = document.getElementById('collapsed-comments-' + itmId);
+			if (collapsedComment && collapsedComment.style.display !== 'none') {
+				isVisible = true;
+			}
 
-            // insert the content according to the mode and first_page
-            // and whether or not the content exists already (overwrite it)
-            let existingElem = document.getElementById(ident);
-            if (!existingElem) {
-                if ((mode === 'update' || mode === 'replace') && profile_page == 1) {
-                    if (prev) {
-                        prev.after(elem);
-                        prev = elem;
-                    }
-                }
-                if (mode === 'append') {
-                    if (next) {
-                        next.before(elem);
-                    }
-                }
-            } else {
-                existingElem.replaceWith(elem);
-            }
+			// insert the content according to the mode and first_page
+			// and whether or not the content exists already (overwrite it)
+			let existingElem = document.getElementById(ident);
+			if (!existingElem) {
+				if ((mode === 'update' || mode === 'replace') && profile_page == 1) {
+					if (prev) {
+						prev.after(elem);
+						prev = elem;
+					}
+				}
+				if (mode === 'append') {
+					if (next) {
+						next.before(elem);
+					}
+				}
+			} else {
+				existingElem.replaceWith(elem);
+			}
 
 			// DOMParser will prevent scripts from execution for security reasons.
 			// We remove all scripts but possibly injected some from
@@ -695,154 +695,177 @@ function updateConvItems(mode, data) {
 				eval(scriptContent);  // Execute the script
 			});
 
-            // set the comment state to the state we discovered earlier
-            if (isVisible) {
-                showHideComments(itmId);
-            }
+			// set the comment state to the state we discovered earlier
+			if (isVisible) {
+				showHideComments(itmId);
+			}
 
-            let commentBody = localStorage.getItem("comment_body-" + convId);
-            if (commentBody) {
-                let commentElm = document.getElementById('comment-edit-text-' + convId);
-                if (auto_save_draft && commentElm) {
-                    if (commentElm.value === '') {
-                        let commentForm = document.getElementById('comment-edit-form-' + convId);
-                        if (commentForm) {
-                            commentForm.style.display = 'block';
-                        }
-                        commentElm.classList.add("expanded");
-                        openMenu("comment-tools-" + convId);
-                        commentElm.value = commentBody;
-                    }
-                } else {
-                    localStorage.removeItem("comment_body-" + convId);
-                }
-            }
+			let commentBody = localStorage.getItem("comment_body-" + convId);
+			if (commentBody) {
+				let commentElm = document.getElementById('comment-edit-text-' + convId);
+				if (auto_save_draft && commentElm) {
+					if (commentElm.value === '') {
+						let commentForm = document.getElementById('comment-edit-form-' + convId);
+						if (commentForm) {
+							commentForm.style.display = 'block';
+						}
+						commentElm.classList.add("expanded");
+						openMenu("comment-tools-" + convId);
+						commentElm.value = commentBody;
+					}
+				} else {
+					localStorage.removeItem("comment_body-" + convId);
+				}
+			}
 
-            if ((mode === 'append' || mode === 'replace') && loadingPage) {
-                loadingPage = false;
-            }
+			if ((mode === 'append' || mode === 'replace') && loadingPage) {
+				loadingPage = false;
+			}
 
-            // if single thread view and the item has a title, display it in the title bar
-            if (mode === 'replace') {
-                if (window.location.search.includes("mid=") || window.location.pathname.includes("display")) {
-                    let titleElem = document.querySelector(".wall-item-title");
-                    if (titleElem) {
-                        let title = titleElem.textContent.trim();
-                        if (title) {
-                            savedTitle = title + ' ' + savedTitle;
-                            document.title = title;
-                        }
-                    }
-                }
-            }
-        }
+			// if single thread view and the item has a title, display it in the title bar
+			if (mode === 'replace') {
+				if (window.location.search.includes("mid=") || window.location.pathname.includes("display")) {
+					let titleElem = document.querySelector(".wall-item-title");
+					if (titleElem) {
+						let title = titleElem.textContent.trim();
+						if (title) {
+							savedTitle = title + ' ' + savedTitle;
+							document.title = title;
+						}
+					}
+				}
+			}
+		}
 
-        b64mids.push(...JSON.parse(elem.dataset.b64mids));
-    });
+		b64mids.push(...JSON.parse(elem.dataset.b64mids));
+	});
 
 	document.dispatchEvent(new CustomEvent('hz:sse_setNotificationsStatus', { detail: b64mids }));
 
-    window.scrollTo(0, scroll_position);
+	window.scrollTo(0, scroll_position);
 
-    if (followUpPageLoad) {
-        document.dispatchEvent(new Event('hz:sse_bs_counts'));
-    } else {
-        document.dispatchEvent(new Event('hz:sse_bs_init'));
-    }
+	if (followUpPageLoad) {
+		document.dispatchEvent(new Event('hz:sse_bs_counts'));
+	} else {
+		document.dispatchEvent(new Event('hz:sse_bs_init'));
+	}
 
-    if (commentBusy) {
-        commentBusy = false;
-        document.body.style.cursor = 'auto';
-    }
+	if (commentBusy) {
+		commentBusy = false;
+		document.body.style.cursor = 'auto';
+	}
 
-    // Setup to determine if the media player is playing. This affects some content loading decisions.
-    ['playing', 'pause'].forEach(event => {
-        document.querySelectorAll('video, audio').forEach(media => {
-            media.removeEventListener(event, mediaHandler);
-            media.addEventListener(event, mediaHandler);
-        });
-    });
+	// Setup to determine if the media player is playing. This affects some content loading decisions.
+	['playing', 'pause'].forEach(event => {
+		document.querySelectorAll('video, audio').forEach(media => {
+			media.removeEventListener(event, mediaHandler);
+			media.addEventListener(event, mediaHandler);
+		});
+	});
 
-    function mediaHandler(event) {
-        mediaPlaying = event.type === 'playing';
-    }
+	function mediaHandler(event) {
+		mediaPlaying = event.type === 'playing';
+	}
 
-    imagesLoaded(document.querySelectorAll('.wall-item-body img, .wall-photo-item img'), function () {
-        collapseHeight();
-        if (bParam_mid && mode === 'replace') {
-            scrollToItem();
-        }
-    });
+	imagesLoaded(document.querySelectorAll('.wall-item-body img, .wall-photo-item img'), function () {
+		collapseHeight();
+		if (bParam_mid && mode === 'replace') {
+			scrollToItem();
+		}
+	});
 
-    // reset rotators and cursors we may have set before reaching this place
-    let pageSpinner = document.getElementById("page-spinner");
-    if (pageSpinner) {
-        pageSpinner.style.display = 'none';
-    }
-    let profileJotTextLoading = document.getElementById("profile-jot-text-loading");
-    if (profileJotTextLoading) {
-        profileJotTextLoading.style.display = 'none';
-    }
+	// reset rotators and cursors we may have set before reaching this place
+	let pageSpinner = document.getElementById("page-spinner");
+	if (pageSpinner) {
+		pageSpinner.style.display = 'none';
+	}
+	let profileJotTextLoading = document.getElementById("profile-jot-text-loading");
+	if (profileJotTextLoading) {
+		profileJotTextLoading.style.display = 'none';
+	}
 
-    followUpPageLoad = true;
+	followUpPageLoad = true;
 
-    updateRelativeTime('.autotime');
+	updateRelativeTime('.autotime');
 }
 
-// Helper function for images loaded
 function imagesLoaded(elements, callback) {
-    let loaded = 0;
-    let count = 0;
+	let loadedCount = 0;
+	let totalImages = 0;
+	let timeoutId;
+	let timeout = 10000;
 
-    // Helper function to extract img elements from an HTML string
-    function extractImagesFromHtml(htmlString) {
+	// Helper function to extract img elements from an HTML string
+	function extractImagesFromHtml(htmlString) {
 		let tempDiv = document.createElement('div');
 		tempDiv.innerHTML = htmlString;
 		return tempDiv.querySelectorAll('.wall-item-body img, .wall-photo-item img');
-    }
+	}
 
-    // If the elements is an HTML string, convert it to img elements
-    if (typeof elements === 'string') {
-        elements = extractImagesFromHtml(elements);
-    }
+	function checkComplete() {
+		document.getElementById('image_counter').innerHTML = Math.round((loadedCount * 100) / totalImages) + '%';
+		if (loadedCount === totalImages) {
+			clearTimeout(timeoutId);
+			callback();
+			document.getElementById('image_counter').innerHTML = '';
+		}
+	}
 
-    // If elements is not a valid array-like object, or is empty, exit early
-    if (!elements || elements.length === 0) {
-        callback(); // No images to load, immediately call the callback
-        return;
-    }
+	// If the elements is an HTML string, convert it to img elements
+	if (typeof elements === 'string') {
+		elements = extractImagesFromHtml(elements);
+	}
 
-    // Filter out only img elements from the list
-    const images = Array.from(elements).filter(element => {
-        return element.tagName && element.tagName.toLowerCase() === 'img' && element.src;
-    });
+	// If elements is not a valid array-like object, or is empty, exit early
+	if (!elements || elements.length === 0) {
+		callback(); // No images to load, immediately call the callback
+		return;
+	}
 
-    // If no images are found, call the callback immediately
-    if (images.length === 0) {
-        callback();
-        return;
-    }
+	// Filter out only img elements from the list
+	let images = Array.from(elements).filter(element => {
+		return element.tagName && element.tagName.toLowerCase() === 'img' && element.src;
+	});
 
-    count = images.length;
+	// If no images are found, call the callback immediately
+	if (images.length === 0) {
+		callback();
+		return;
+	}
 
-    // Process each image element
-    images.forEach(element => {
-        let img = new Image();
+	// Set timeout
+	timeoutId = setTimeout(() => {
+		console.warn(`Image loading timed out after ${timeout}ms`);
+		callback(false);
+	}, timeout);
 
-        // Handle both loading and error events
-        img.onload = img.onerror = function () {
-            loaded++;
-			document.getElementById('image_counter').innerHTML = Math.round((loaded * 100) / count) + '%';
-            if (loaded === count) {
-                callback();
-				document.getElementById('image_counter').innerHTML = '';
-            }
-        };
+	totalImages = images.length;
 
-        // Set the source to the image's src attribute
-        img.src = element.src;
-    });
+	images.forEach((img) => {
+
+		img.loading = 'eager'; // Otherwise it will not load until visible
+		if (img.complete && img.naturalHeight !== 0) {
+			// Image is already loaded successfully
+			loadedCount++;
+			//console.log(`Image cached: ${img.src}`);
+			checkComplete();
+		} else {
+			// Add event listeners for load and error events
+			img.addEventListener('load', () => {
+				//console.log(`Image loaded: ${img.src}`);
+				loadedCount++;
+				checkComplete();
+			});
+
+			img.addEventListener('error', () => {
+				console.log(`Image failed to load: ${img.src}`);
+				loadedCount++;
+				checkComplete();
+			});
+		}
+	});
 }
+
 
 function updateRelativeTime(selector) {
 	// Get all elements with the given selector

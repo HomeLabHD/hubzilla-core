@@ -466,7 +466,7 @@
 					updateElement.textContent = count >= 100 ? '99+' : count;
 				}
 			} else {
-				updateElement.textContent = '0';
+				if (updateElement) updateElement.textContent = '0';
 				if (subElement) subElement.classList.remove('show');
 				if (buttonElement) {
 					buttonElement.style.display = 'none'; // Fade-out effect replaced by display none
