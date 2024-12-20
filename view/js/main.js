@@ -767,19 +767,12 @@ function updateConvItems(mode, data) {
         mediaPlaying = event.type === 'playing';
     }
 
-    if (!preloadImages) {
-        imagesLoaded(document.querySelectorAll('.wall-item-body, .wall-photo-item'), function () {
-            collapseHeight();
-            if (bParam_mid && mode === 'replace') {
-                scrollToItem();
-            }
-        });
-    } else {
+    imagesLoaded(document.querySelectorAll('.wall-item-body img, .wall-photo-item img'), function () {
         collapseHeight();
         if (bParam_mid && mode === 'replace') {
             scrollToItem();
         }
-    }
+    });
 
     // reset rotators and cursors we may have set before reaching this place
     let pageSpinner = document.getElementById("page-spinner");
@@ -799,16 +792,54 @@ function updateConvItems(mode, data) {
 // Helper function for images loaded
 function imagesLoaded(elements, callback) {
     let loaded = 0;
-    let count = elements.length;
+    let count = 0;
 
-    elements.forEach(element => {
+    // Helper function to extract img elements from an HTML string
+    function extractImagesFromHtml(htmlString) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = htmlString;
+        return Array.from(tempDiv.getElementsByTagName('img'));
+    }
+
+    // If the elements is an HTML string, convert it to img elements
+    if (typeof elements === 'string') {
+        elements = extractImagesFromHtml(elements);
+    }
+
+    // If elements is not a valid array-like object, or is empty, exit early
+    if (!elements || elements.length === 0) {
+        callback(); // No images to load, immediately call the callback
+        return;
+    }
+
+    // Filter out only img elements from the list
+    const images = Array.from(elements).filter(element => {
+        return element.tagName && element.tagName.toLowerCase() === 'img' && element.src;
+    });
+
+    // If no images are found, call the callback immediately
+    if (images.length === 0) {
+        callback();
+        return;
+    }
+
+    count = images.length;
+
+    // Process each image element
+    images.forEach(element => {
         let img = new Image();
+
+        // Handle both loading and error events
         img.onload = img.onerror = function () {
             loaded++;
+			document.getElementById('image_counter').innerHTML = Math.round((loaded * 100) / count) + '%';
+
             if (loaded === count) {
                 callback();
             }
         };
+
+        // Set the source to the image's src attribute
         img.src = element.src;
     });
 }
@@ -1076,10 +1107,7 @@ function liveUpdate(notify_id) {
 
 		if(update_mode === 'update' || preloadImages) {
 			console.log('LOADING images...');
-			$('.wall-item-body, .wall-photo-item',data).imagesLoaded()
-			.always( function( instance ) {
-				//console.log('all images loaded');
-
+			imagesLoaded(data, function () {
 				var iready = new Date();
 				console.log('IMAGES ready in: ' + (iready - dready)/1000 + ' seconds.');
 
@@ -1088,23 +1116,7 @@ function liveUpdate(notify_id) {
 				updateConvItems(update_mode,data);
 
 				in_progress = false;
-				$('#image_counter').html('');
-
-				// remove modal backdrop in case the update was triggered from a modal
-				$('.modal-backdrop').remove();
-			})
-			.done( function( instance ) {
-				//console.log('all images successfully loaded');
-			})
-			.fail( function() {
-				//console.log('all images loaded, at least one is broken');
-			})
-			.progress( function( instance, image ) {
-				$('#image_counter').html(Math.floor((instance.progressedCount*100)/instance.images.length) + '%');
-				//var result = image.isLoaded ? 'loaded' : 'broken';
-				//console.log( 'image is ' + result + ' for ' + image.img.src );
 			});
-
 		}
 		else {
 			page_load = false;
@@ -1146,9 +1158,8 @@ function cache_next_page() {
 
 		console.log('cached: ' + update_url);
 
-		$('.wall-item-body, .wall-photo-item', data).imagesLoaded()
-		.always( function( instance ) {
-			console.log('page_cache images loaded:');
+		imagesLoaded(data, function () {
+			console.log('page_cache: images loaded');
 
 			page_cache.data = data;
 			page_cache.page = bParam_page;
@@ -1156,19 +1167,7 @@ function cache_next_page() {
 
 			bParam_page--;
 			page_load = false;
-		})
-		.done( function( instance ) {
-			console.log('success');
-		})
-		.fail( function() {
-			console.log('at least one is broken');
-		})
-		.progress( function( instance, image ) {
-			//console.log(instance.progressedCount + '/' + instance.images.length);
-			//var result = image.isLoaded ? 'loaded' : 'broken';
-			//console.log( 'image is ' + result + ' for ' + image.img.src );
 		});
-
 	});
 
 }

@@ -183,6 +183,111 @@
 			});
 		});
 
+		{{foreach $notifications as $notification}}
+		{{if $notification.filter}}
+
+		document.querySelectorAll('#tt-{{$notification.type}}-only').forEach(function (element) {
+			element.addEventListener('click', function(e) {
+
+				let element = e.target.closest('div');
+				let menu = document.querySelector('#nav-{{$notification.type}}-menu');
+				let notifications = menu.querySelectorAll('.notification[data-thread_top="false"]');
+
+				// Function to check if an element is visible
+				function isVisible(el) {
+					return el.offsetWidth > 0 && el.offsetHeight > 0;
+				}
+
+				if (element.classList.contains('active') && element.classList.contains('sticky-top')) {
+					notifications.forEach(function(notification) {
+						notification.classList.remove('tt-filter-active');
+					});
+					element.classList.remove('active', 'sticky-top');
+				} else {
+					notifications.forEach(function(notification) {
+						notification.classList.add('tt-filter-active');
+					});
+					element.classList.add('active', 'sticky-top');
+
+					// Count the visible notifications
+					let visibleNotifications = Array.from(menu.querySelectorAll('.notification')).filter(isVisible).length;
+
+					// Load more notifications if the visible count is low
+					if (sse_type && sse_offset !== -1 && visibleNotifications < 15) {
+						sse_bs_notifications(sse_type, false, true);
+					}
+				}
+
+			});
+		});
+
+		document.querySelectorAll('#cn-{{$notification.type}}-input-clear').forEach(function (element) {
+			element.addEventListener('click', function(e) {
+				let input = document.getElementById('cn-{{$notification.type}}-input');
+				input.value = '';
+
+				// Remove 'active' and 'sticky-top' classes to the 'only' element
+				let onlyElement = document.getElementById('cn-{{$notification.type}}-only');
+				onlyElement.classList.remove('active', 'sticky-top');
+
+				// Add 'd-none' class from the clear button
+				let clearButton = document.getElementById('cn-{{$notification.type}}-input-clear');
+				clearButton.classList.add('d-none');
+
+				// Remove the 'cn-filter-active' class from all notifications
+				let notifications = document.querySelectorAll("#nav-{{$notification.type}}-menu .notification");
+				notifications.forEach(function(notification) {
+					notification.classList.remove('cn-filter-active');
+				});
+			});
+		});
+
+		document.querySelectorAll('#cn-{{$notification.type}}-input').forEach(function (element) {
+			element.addEventListener('input', function(e) {
+				let input = e.target;
+				let val = input.value.toString().toLowerCase();
+
+				// Check if there is input value
+				if (val) {
+					// Remove '%' if it's at the beginning of the input value
+					val = val.indexOf('%') === 0 ? val.substring(1) : val;
+
+					// Add 'active' and 'sticky-top' classes to the 'only' element
+					let onlyElement = document.getElementById('cn-{{$notification.type}}-only');
+					onlyElement.classList.add('active', 'sticky-top');
+
+					// Remove 'd-none' class from the clear button
+					let clearButton = document.getElementById('cn-{{$notification.type}}-input-clear');
+					clearButton.classList.remove('d-none');
+				} else {
+					// Remove 'active' and 'sticky-top' classes from the 'only' element
+					let onlyElement = document.getElementById('cn-{{$notification.type}}-only');
+					onlyElement.classList.remove('active', 'sticky-top');
+
+					// Add 'd-none' class to the clear button
+					let clearButton = document.getElementById('cn-{{$notification.type}}-input-clear');
+					clearButton.classList.add('d-none');
+				}
+
+				// Loop through each notification and apply filter logic
+				let notifications = document.querySelectorAll("#nav-{{$notification.type}}-menu .notification");
+				notifications.forEach(function(el) {
+					let cn = el.dataset.contact_name.toString().toLowerCase();
+					let ca = el.dataset.contact_addr.toString().toLowerCase();
+
+					// Check if the contact name or address matches the input value
+					if (cn.indexOf(val) === -1 && ca.indexOf(val) === -1) {
+						el.classList.add('cn-filter-active');
+					} else {
+						el.classList.remove('cn-filter-active');
+					}
+				});
+			});
+		});
+
+		{{/if}}
+		{{/foreach}}
+
 	});
 
 	document.addEventListener('hz:sse_setNotificationsStatus', function(e) {
@@ -197,108 +302,6 @@
 		sse_bs_counts();
 	});
 
-
-	{{foreach $notifications as $notification}}
-	{{if $notification.filter}}
-	document.addEventListener('click', function(e) {
-		if (e.target.closest('div').matches('#tt-{{$notification.type}}-only')) {
-			let element = e.target.closest('div');
-			let menu = document.querySelector('#nav-{{$notification.type}}-menu');
-			let notifications = menu.querySelectorAll('.notification[data-thread_top="false"]');
-
-			// Function to check if an element is visible
-			function isVisible(el) {
-				return el.offsetWidth > 0 && el.offsetHeight > 0;
-			}
-
-			if (element.classList.contains('active') && element.classList.contains('sticky-top')) {
-				notifications.forEach(function(notification) {
-					notification.classList.remove('tt-filter-active');
-				});
-				element.classList.remove('active', 'sticky-top');
-			} else {
-				notifications.forEach(function(notification) {
-					notification.classList.add('tt-filter-active');
-				});
-				element.classList.add('active', 'sticky-top');
-
-				// Count the visible notifications
-				let visibleNotifications = Array.from(menu.querySelectorAll('.notification')).filter(isVisible).length;
-
-				// Load more notifications if the visible count is low
-				if (sse_type && sse_offset !== -1 && visibleNotifications < 15) {
-					sse_bs_notifications(sse_type, false, true);
-				}
-			}
-		}
-
-		if (e.target.closest('div').matches('#cn-{{$notification.type}}-input-clear')) {
-			// Clear the input value
-			let input = document.querySelector('#cn-{{$notification.type}}-input');
-			input.value = '';
-
-			// Remove the 'active' and 'sticky-top' classes from the clear button
-			let clearButton = e.target;
-			clearButton.classList.remove('active', 'sticky-top');
-
-			// Remove the 'cn-filter-active' class from all notifications
-			let notifications = document.querySelectorAll("#nav-{{$notification.type}}-menu .notification");
-			notifications.forEach(function(notification) {
-				notification.classList.remove('cn-filter-active');
-			});
-
-			// Add the 'd-none' class to hide the clear button
-			clearButton.classList.add('d-none');
-		}
-
-	});
-
-	document.addEventListener('input', function(e) {
-		// Check if the input element matches the selector
-		if (e.target.matches('#cn-{{$notification.type}}-input')) {
-			let input = e.target;
-			let val = input.value.toString().toLowerCase();
-
-			// Check if there is input value
-			if (val) {
-				// Remove '%' if it's at the beginning of the input value
-				val = val.indexOf('%') === 0 ? val.substring(1) : val;
-
-				// Add 'active' and 'sticky-top' classes to the 'only' element
-				let onlyElement = document.getElementById('cn-{{$notification.type}}-only');
-				onlyElement.classList.add('active', 'sticky-top');
-
-				// Remove 'd-none' class from the clear button
-				let clearButton = document.getElementById('cn-{{$notification.type}}-input-clear');
-				clearButton.classList.remove('d-none');
-			} else {
-				// Remove 'active' and 'sticky-top' classes from the 'only' element
-				let onlyElement = document.getElementById('cn-{{$notification.type}}-only');
-				onlyElement.classList.remove('active', 'sticky-top');
-
-				// Add 'd-none' class to the clear button
-				let clearButton = document.getElementById('cn-{{$notification.type}}-input-clear');
-				clearButton.classList.add('d-none');
-			}
-
-			// Loop through each notification and apply filter logic
-			let notifications = document.querySelectorAll("#nav-{{$notification.type}}-menu .notification");
-			notifications.forEach(function(el) {
-				let cn = el.dataset.contact_name.toString().toLowerCase();
-				let ca = el.dataset.contact_addr.toString().toLowerCase();
-
-				// Check if the contact name or address matches the input value
-				if (cn.indexOf(val) === -1 && ca.indexOf(val) === -1) {
-					el.classList.add('cn-filter-active');
-				} else {
-					el.classList.remove('cn-filter-active');
-				}
-			});
-		}
-	});
-
-	{{/if}}
-	{{/foreach}}
 
 	function sse_bs_init() {
 		// Check if 'notification_open' exists in sessionStorage or if sse_type is defined
@@ -557,8 +560,8 @@
 				if (filter.indexOf('%') === 0) filter = filter.substring(1);  // Remove the percent if it exists
 				let notifications = notify_menu.querySelectorAll('.notification');
 				notifications.forEach(notification => {
-					let cn = notification.dataset.contactName.toString().toLowerCase();
-					let ca = notification.dataset.contactAddr.toString().toLowerCase();
+					let cn = notification.dataset.contact_name.toString().toLowerCase();
+					let ca = notification.dataset.contact_addr.toString().toLowerCase();
 					if (cn.indexOf(filter) === -1 && ca.indexOf(filter) === -1) {
 						notification.classList.add('cn-filter-active');
 					} else {
