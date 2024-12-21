@@ -473,7 +473,6 @@ class Sse_bs extends Controller {
 		if ($notifications) {
 			$items = q("SELECT * FROM item
 				WHERE true $uids
-				AND created <= '%s'
 				AND obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
 				AND author_xchan != '%s'
 				AND created > '%s'
@@ -482,7 +481,6 @@ class Sse_bs extends Controller {
 				$sql_extra2
 				$sql_extra3
 				ORDER BY created DESC LIMIT $limit OFFSET $offset",
-				dbescdate($_SESSION['sse_loadtime']),
 				dbesc(self::$ob_hash),
 				dbescdate($_SESSION['last_login_date'] ?? $_SESSION['static_loadtime'])
 			);
