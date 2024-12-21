@@ -1,4 +1,5 @@
-Hubzilla 10.0 (???)
+Hubzilla 10.0 (2024-12-21)
+	- Port updateConvItem() and notifications widget to vanilla javascript
 	- Remove jquery.timeago.js in favor of a native js implementation
 	- Introduce item_forwardable() a function to check if an item should be frowarded
 	- Always set item_delayed flag if we use a custom created date
