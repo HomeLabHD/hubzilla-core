@@ -34,7 +34,7 @@ class Manage {
 
 		$tpl = get_markup_template("settings_module.tpl");
 
-		$o .= replace_macros($tpl, array(
+		return replace_macros($tpl, array(
 			'$rpath' => escape_url($rpath),
 			'$action_url' => 'settings/' . $module,
 			'$form_security_token' => get_form_security_token('settings_' . $module),
@@ -42,8 +42,5 @@ class Manage {
 			'$features'  => process_module_features_get(local_channel(), $features),
 			'$submit'    => t('Submit')
 		));
-
-		return $o;
 	}
-
 }

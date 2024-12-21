@@ -264,6 +264,45 @@ function relative_date($posted_date, $format = null) {
 			return sprintf($format, $r, plural_dates($str,$r));
 		}
 	}
+
+	return $abs;
+}
+
+/**
+ * @brief Returns a relative time string like 3 seconds ago.
+ * @param string $posted_date (UTC)
+ * @param DateTime $now (optional)
+ * @return string with relative time
+ */
+function relative_time($timestamp, $now = new DateTime()) {
+	$localtime = datetime_convert('UTC', date_default_timezone_get(), $timestamp);
+	$time = new DateTime($localtime);
+
+	$interval = $now->diff($time);
+
+	$prefix = '';
+	$appendix = ' ' . t('ago');
+
+	if ($time > $now) {
+		$prefix = t('in') . ' ';
+		$appendix = '';
+	}
+
+	if ($interval->y > 0) {
+		return $prefix . $interval->y . ' ' . plural_dates('y', $interval->y) . $appendix;
+	} elseif ($interval->m > 0) {
+		return $prefix . $interval->m . ' ' . plural_dates('m', $interval->m) . $appendix;
+	} elseif ($interval->d > 0) {
+		return $prefix .  $interval->d . ' ' . plural_dates('d', $interval->d) . $appendix;
+	} elseif ($interval->h > 0) {
+		return $prefix . $interval->h . ' ' . plural_dates('h', $interval->h) . $appendix;
+	} elseif ($interval->i > 0) {
+		return $prefix . $interval->i . ' ' . plural_dates('i', $interval->i) . $appendix;
+	} elseif ($interval->s > 0) {
+		return $prefix . $interval->s . ' ' . plural_dates('s', $interval->s) . $appendix;
+	} else {
+		return t('now');
+	}
 }
 
 function plural_dates($k,$n) {
@@ -525,7 +564,7 @@ function update_birthdays() {
 			$z = event_store_event($ev);
 
 			if ($z) {
-				$item_id = event_store_item($ev, $z);
+				event_store_item($ev, $z, false);
 				q("update abook set abook_dob = '%s' where abook_id = %d",
 					dbesc(intval($rr['abook_dob']) + 1 . substr($rr['abook_dob'], 4)),
 					intval($rr['abook_id'])

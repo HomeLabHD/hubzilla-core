@@ -44,253 +44,30 @@ class Item extends Controller {
 	function init() {
 
 		if (Libzot::is_zot_request()) {
-
-			$item_id = argv(1);
-
-			if (!$item_id)
-				http_status_exit(404, 'Not found');
-
-			$portable_id = EMPTY_STR;
-
-			$item_normal_extra = sprintf(" and not verb in ('Follow', 'Ignore', '%s', '%s') ",
-				dbesc(ACTIVITY_FOLLOW),
-				dbesc(ACTIVITY_UNFOLLOW)
-			);
-
-			$item_normal = " and item.item_hidden = 0 and item.item_type = 0 and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_blocked = 0 $item_normal_extra ";
-
-			$i = null;
-
-			// do we have the item (at all)?
-
-			$r = q("select parent_mid from item where uuid = '%s' $item_normal limit 1",
-				dbesc($item_id)
-			);
-
-			if (!$r) {
-				http_status_exit(404, 'Not found');
-			}
-
-			// process an authenticated fetch
-
-			$sigdata = HTTPSig::verify(($_SERVER['REQUEST_METHOD'] === 'POST') ? file_get_contents('php://input') : EMPTY_STR);
-			if ($sigdata['portable_id'] && $sigdata['header_valid']) {
-				$portable_id = $sigdata['portable_id'];
-				if (!check_channelallowed($portable_id)) {
-					http_status_exit(403, 'Permission denied');
-				}
-				if (!check_siteallowed($sigdata['signer'])) {
-					http_status_exit(403, 'Permission denied');
-				}
-				observer_auth($portable_id);
-
-				$i = q("select id as item_id, uid from item where mid = '%s' $item_normal and owner_xchan = '%s' limit 1",
-					dbesc($r[0]['parent_mid']),
-					dbesc($portable_id)
-				);
-			}
-			elseif (Config::get('system', 'require_authenticated_fetch', false)) {
-				http_status_exit(403, 'Permission denied');
-			}
-
-			// if we don't have a parent id belonging to the signer see if we can obtain one as a visitor that we have permission to access
-			// with a bias towards those items owned by channels on this site (item_wall = 1)
-
-			$sql_extra = item_permissions_sql(0);
-
-			if (!$i) {
-				$i = q("select id as item_id, uid, item_private from item where mid = '%s' $item_normal $sql_extra order by item_wall desc limit 1",
-					dbesc($r[0]['parent_mid'])
-				);
-			}
-
-			if (!$i) {
-				http_status_exit(403, 'Forbidden');
-			}
-
-			$chan = channelx_by_n($i[0]['uid']);
-
-			if (!$chan) {
-				http_status_exit(404, 'Not found');
-			}
-
-			if (!perm_is_allowed($chan['channel_id'], get_observer_hash(), 'view_stream')) {
-				http_status_exit(403, 'Forbidden');
-			}
-
-			$parents_str = ids_to_querystr($i, 'item_id');
-
-			// We won't need to check for privacy mismatches if the verified observer is also owner
-			$parent_item_private = ((isset($i[0]['item_private'])) ? " and item_private = " . intval($i[0]['item_private']) . " " : '');
-
-			$total = q("SELECT count(*) AS count FROM item WHERE parent = %d $parent_item_private $item_normal ",
-				intval($parents_str)
-			);
-
-			App::set_pager_total($total[0]['count']);
-			App::set_pager_itemspage(30);
-
-			if (App::$pager['total'] > App::$pager['itemspage']) {
-				// let mod conversation handle this request
-				App::$query_string = str_replace('item', 'conversation', App::$query_string);
-				$i = Activity::paged_collection_init(App::$pager['total'], App::$query_string);
-				as_return_and_die($i ,$chan);
-			}
-			else {
-				$items = q("SELECT item.*, item.id AS item_id FROM item WHERE item.parent = %d $parent_item_private $item_normal ORDER BY item.id",
-					intval($parents_str)
-				);
-
-				xchan_query($items, true);
-				$items = fetch_post_tags($items, true);
-
-				$i = Activity::encode_item_collection($items, App::$query_string, 'OrderedCollection', App::$pager['total']);
-			}
-
-			if ($portable_id && (!intval($items[0]['item_private']))) {
-				$c = q("select abook_id from abook where abook_channel = %d and abook_xchan = '%s'",
-					intval($items[0]['uid']),
-					dbesc($portable_id)
-				);
-				if (!$c) {
-					ThreadListener::store(z_root() . '/item/' . $item_id, $portable_id);
-				}
-			}
-
-			as_return_and_die($i ,$chan);
+			$this->init_zot_request();
 		}
 
 		if (ActivityStreams::is_as_request()) {
-
-			$item_id = argv(1);
-			if (!$item_id)
-				http_status_exit(404, 'Not found');
-
-			$portable_id = EMPTY_STR;
-
-			$item_normal_extra = sprintf(" and not verb in ('Follow', 'Ignore', '%s', '%s') ",
-				dbesc(ACTIVITY_FOLLOW),
-				dbesc(ACTIVITY_UNFOLLOW)
-			);
-
-			$item_normal = " and item.item_hidden = 0 and item.item_type = 0 and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_blocked = 0 $item_normal_extra ";
-
-			$i = null;
-
-			// do we have the item (at all)?
-			// add preferential bias to item owners (item_wall = 1)
-
-			$r = q("select * from item where uuid = '%s' $item_normal order by item_wall desc limit 1",
-				dbesc($item_id)
-			);
-
-			if (!$r) {
-				http_status_exit(404, 'Not found');
-			}
-
-			// process an authenticated fetch
-
-			$sigdata = HTTPSig::verify(EMPTY_STR);
-			if ($sigdata['portable_id'] && $sigdata['header_valid']) {
-				$portable_id = $sigdata['portable_id'];
-				if (!check_channelallowed($portable_id)) {
-					http_status_exit(403, 'Permission denied');
-				}
-				if (!check_siteallowed($sigdata['signer'])) {
-					http_status_exit(403, 'Permission denied');
-				}
-				observer_auth($portable_id);
-
-				$i = q("select id as item_id from item where mid = '%s' $item_normal and owner_xchan = '%s' limit 1 ",
-					dbesc($r[0]['parent_mid']),
-					dbesc($portable_id)
-				);
-			}
-			elseif (Config::get('system', 'require_authenticated_fetch', false)) {
-				http_status_exit(403, 'Permission denied');
-			}
-
-			// if we don't have a parent id belonging to the signer see if we can obtain one as a visitor that we have permission to access
-			// with a bias towards those items owned by channels on this site (item_wall = 1)
-
-			$sql_extra = item_permissions_sql(0);
-
-			if (!$i) {
-				$i = q("select id as item_id from item where mid = '%s' $item_normal $sql_extra order by item_wall desc limit 1",
-					dbesc($r[0]['parent_mid'])
-				);
-			}
-
-			$bear = Activity::token_from_request();
-			if ($bear) {
-				logger('bear: ' . $bear, LOGGER_DEBUG);
-				if (!$i) {
-					$t = q("select * from iconfig where cat = 'ocap' and k = 'relay' and v = '%s'",
-						dbesc($bear)
-					);
-					if ($t) {
-						$i = q("select id as item_id from item where uuid = '%s' and id = %d $item_normal limit 1",
-							dbesc($item_id),
-							intval($t[0]['iid'])
-						);
-					}
-				}
-			}
-
-			if (!$i) {
-				http_status_exit(403, 'Forbidden');
-			}
-
-			// If we get to this point we have determined we can access the original in $r (fetched much further above), so use it.
-
-			xchan_query($r, true);
-			$items = fetch_post_tags($r, false);
-
-			$chan = channelx_by_n($items[0]['uid']);
-
-			if (!$chan)
-				http_status_exit(404, 'Not found');
-
-			if (!perm_is_allowed($chan['channel_id'], get_observer_hash(), 'view_stream'))
-				http_status_exit(403, 'Forbidden');
-
-			$i = Activity::encode_item($items[0]);
-
-			if (!$i)
-				http_status_exit(404, 'Not found');
-
-			if ($portable_id && (!intval($items[0]['item_private']))) {
-				$c = q("select abook_id from abook where abook_channel = %d and abook_xchan = '%s'",
-					intval($items[0]['uid']),
-					dbesc($portable_id)
-				);
-				if (!$c) {
-					ThreadListener::store(z_root() . '/item/' . $item_id, $portable_id);
-				}
-			}
-
-			as_return_and_die($i ,$chan);
-
+			$this->init_as_request();
 		}
 
 
 		if (argc() > 1 && argv(1) !== 'drop') {
-			$x = q("select uid, item_wall, llink, mid, uuid from item where mid = '%s' or mid = '%s' or uuid = '%s'",
-				dbesc(z_root() . '/item/' . argv(1)),
-				dbesc(z_root() . '/activity/' . argv(1)),
+			$x = q("select uid, item_wall, llink, uuid from item where uuid = '%s' order by item_wall desc",
 				dbesc(argv(1))
 			);
+
 			if ($x) {
-				foreach ($x as $xv) {
-					if (intval($xv['item_wall'])) {
-						$c = channelx_by_n($xv['uid']);
-						if ($c) {
-							goaway(z_root() . '/channel/' . $c['channel_address'] . '?mid=' . $xv['uuid']);
-						}
+				if ($x[0]['item_wall']) {
+					$c = channelx_by_n($x[0]['uid']);
+					if ($c) {
+						goaway(z_root() . '/channel/' . $c['channel_address'] . '?mid=' . $x[0]['uuid']);
 					}
 				}
+
 				goaway($x[0]['llink']);
 			}
+
 			http_status_exit(404, 'Not found');
 		}
 
@@ -323,7 +100,6 @@ class Item extends Controller {
 		$item_deleted = false;
 		$item_hidden = false;
 		$item_unpublished = false;
-		$item_delayed = false;
 		$item_pending_remove = false;
 		$item_blocked = false;
 
@@ -401,6 +177,7 @@ class Item extends Controller {
 		$categories    = ((x($_REQUEST, 'category')) ? escape_tags($_REQUEST['category']) : '');
 		$webpage       = ((x($_REQUEST, 'webpage')) ? intval($_REQUEST['webpage']) : 0);
 		$item_obscured = ((x($_REQUEST, 'obscured')) ? intval($_REQUEST['obscured']) : 0);
+		$item_delayed  = ((x($_REQUEST, 'delayed')) ? intval($_REQUEST['delayed']) : 0);
 		$pagetitle     = ((x($_REQUEST, 'pagetitle')) ? escape_tags($_REQUEST['pagetitle']) : '');
 		$layout_mid    = ((x($_REQUEST, 'layout_mid')) ? escape_tags($_REQUEST['layout_mid']) : '');
 		$plink         = ((x($_REQUEST, 'permalink')) ? escape_tags($_REQUEST['permalink']) : '');
@@ -430,7 +207,6 @@ class Item extends Controller {
 
 
 		$expires = NULL_DATE;
-		$comments_closed = NULL_DATE;
 
 		$route          = '';
 		$parent_item    = null;
@@ -677,7 +453,7 @@ class Item extends Controller {
 			$title               = escape_tags(trim($_REQUEST['title']));
 			$summary             = escape_tags(trim($_REQUEST['summary']));
 			$body                = trim($_REQUEST['body']);
-			$item_flags          = $orig_post['item_flags'];
+			$item_flags           = $orig_post['item_flags'];
 			$item_origin         = $orig_post['item_origin'];
 			$item_unseen         = $orig_post['item_unseen'];
 			$item_starred        = $orig_post['item_starred'];
@@ -691,7 +467,7 @@ class Item extends Controller {
 			$item_mentionsme     = $orig_post['item_mentionsme'];
 			$item_nocomment      = $orig_post['item_nocomment'];
 			$item_obscured       = $orig_post['item_obscured'];
-			$item_verified       = $orig_post['item_verified'];
+			$item_verified        = $orig_post['item_verified'];
 			$item_retained       = $orig_post['item_retained'];
 			$item_rss            = $orig_post['item_rss'];
 			$item_deleted        = $orig_post['item_deleted'];
@@ -1016,6 +792,7 @@ class Item extends Controller {
 		$item_origin    = (($origin) ? 1 : 0);
 		$item_consensus = (($consensus) ? 1 : 0);
 		$item_nocomment = (($nocomment) ? 1 : 0);
+		$comments_closed = (($nocomment) ? $comments_closed : NULL_DATE);
 
 		// determine if this is a wall post
 
@@ -1029,17 +806,43 @@ class Item extends Controller {
 		}
 
 
-		if ($moderated)
+		if ($moderated) {
 			$item_blocked = ITEM_MODERATED;
+		}
 
 
-		if (!strlen($verb))
+		if (!strlen($verb)) {
 			$verb = 'Create';
+		}
 
 		$notify_type = (($parent) ? 'comment-new' : 'wall-new');
 
 		$uuid = $uuid ?? $message_id ?? item_message_id();
 		$mid = $mid ?? z_root() . '/item/' . $uuid;
+
+
+        // Set the conversation target.
+        if (empty($owner_hash)) {
+            $owner_hash = $owner_xchan['xchan_hash'];
+        }
+
+        if ($owner_hash === $channel['channel_hash']) {
+            $attributedTo = z_root() . '/channel/' . $channel['channel_address'];
+
+            $conversation = isset($parent_item) ? $parent_item['mid'] : $mid;
+            $datarray['target'] = [
+                'id' => str_replace('/item/', '/conversation/', $conversation),
+                'type' => 'Collection',
+                'attributedTo' => $attributedTo,
+            ];
+            $datarray['tgt_type'] = 'Collection';
+        }
+        elseif (!empty($parent_item['target'])) {
+            $datarray['target'] = $parent_item['target'];
+            $datarray['tgt_type'] = $parent_item['tgt_type'];
+        }
+
+
 
 		if ($is_poll) {
 			$poll = [
@@ -1245,6 +1048,7 @@ class Item extends Controller {
 				$this->add_listeners($datarray);
 			}
 
+			/* sync this is done in item_store_update()
 			if (!$parent) {
 				$r = q("select * from item where id = %d",
 					intval($post_id)
@@ -1255,9 +1059,14 @@ class Item extends Controller {
 					Libsync::build_sync_packet($profile_uid, ['item' => [encode_item($sync_item[0], true)]]);
 				}
 			}
-			if (!$nopush)
-				Master::Summon(['Notifier', 'edit_post', $post_id]);
+			*/
 
+			if (!$nopush) {
+				Master::Summon(['Notifier', 'edit_post', $post_id]);
+				if (intval($x['approval_id'])) {
+					Master::Summon(['Notifier', 'edit_post', $x['approval_id']]);
+				}
+			}
 
 			if ($api_source)
 				return ($x);
@@ -1281,6 +1090,7 @@ class Item extends Controller {
 		}
 
 		$post_id = $post['item_id'];
+		$approval_id = $post['approval_id'] ?? 0;
 
 		$datarray = $post['item'];
 
@@ -1355,6 +1165,7 @@ class Item extends Controller {
 			killme();
 		}
 
+		/* sync this is done in item_store_update()
 		if ($parent || $datarray['item_private'] == 1) {
 			$r = q("select * from item where id = %d",
 				intval($post_id)
@@ -1365,6 +1176,7 @@ class Item extends Controller {
 				Libsync::build_sync_packet($profile_uid, ['item' => [encode_item($sync_item[0], true)]]);
 			}
 		}
+		*/
 
 		$datarray['id']    = $post_id;
 		$datarray['llink'] = z_root() . '/display/' . $datarray['uuid'];
@@ -1375,8 +1187,12 @@ class Item extends Controller {
 			$nopush = false;
 		}
 
-		if (!$nopush)
+		if (!$nopush) {
 			Master::Summon(['Notifier', $notify_type, $post_id]);
+			if ($approval_id) {
+				Master::Summon(['Notifier', $notify_type, $approval_id]);
+			}
+		}
 
 		logger('post_complete');
 
@@ -1429,9 +1245,7 @@ class Item extends Controller {
 
 		if ((argc() == 3) && (argv(1) === 'drop') && intval(argv(2))) {
 
-			require_once('include/items.php');
-
-			$i = q("select id, uid, item_origin, author_xchan, owner_xchan, source_xchan, item_type from item where id = %d limit 1",
+			$i = q("select * from item where id = %d limit 1",
 				intval(argv(2))
 			);
 
@@ -1458,7 +1272,6 @@ class Item extends Controller {
 						$can_delete = true;
 				}
 
-
 				if (!($can_delete || $local_delete)) {
 					notice(t('Permission denied.') . EOL);
 					return;
@@ -1474,13 +1287,14 @@ class Item extends Controller {
 				}
 				else {
 					// complex deletion that needs to propagate and be performed in phases
-					drop_item($i[0]['id'], true, DROPITEM_PHASE1);
+					drop_item($i[0]['id'], DROPITEM_PHASE1);
 					$complex = true;
 				}
 
 				$r = q("select * from item where id = %d",
 					intval($i[0]['id'])
 				);
+
 				if ($r) {
 					xchan_query($r);
 					$sync_item = fetch_post_tags($r);
@@ -1489,6 +1303,9 @@ class Item extends Controller {
 
 				if ($complex) {
 					tag_deliver($i[0]['uid'], $i[0]['id']);
+					if (intval($i[0]['item_wall']) || $i[0]['mid'] !== $i[0]['parent_mid']) {
+						Master::Summon(['Notifier', 'drop', $i[0]['id']]);
+					}
 				}
 
 			}
@@ -1672,5 +1489,234 @@ class Item extends Controller {
 		}
 	}
 
+	private function init_zot_request() {
+
+		$item_id = argv(1);
+
+		if (!$item_id)
+			http_status_exit(404, 'Not found');
+
+		$portable_id = EMPTY_STR;
+
+		$item_normal_extra = sprintf(" and not verb in ('Follow', 'Ignore', '%s', '%s') ",
+			dbesc(ACTIVITY_FOLLOW),
+			dbesc(ACTIVITY_UNFOLLOW)
+		);
+
+		$item_normal = " and item.item_hidden = 0 and item.item_type = 0 and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_blocked = 0 $item_normal_extra ";
+
+		$i = null;
+
+		// do we have the item (at all)?
+
+		$r = q("select parent_mid from item where uuid = '%s' $item_normal limit 1",
+			dbesc($item_id)
+		);
+
+		if (!$r) {
+			http_status_exit(404, 'Not found');
+		}
+
+		// process an authenticated fetch
+
+		$sigdata = HTTPSig::verify(($_SERVER['REQUEST_METHOD'] === 'POST') ? file_get_contents('php://input') : EMPTY_STR);
+		if ($sigdata['portable_id'] && $sigdata['header_valid']) {
+			$portable_id = $sigdata['portable_id'];
+			if (!check_channelallowed($portable_id)) {
+				http_status_exit(403, 'Permission denied');
+			}
+			if (!check_siteallowed($sigdata['signer'])) {
+				http_status_exit(403, 'Permission denied');
+			}
+			observer_auth($portable_id);
+
+			$i = q("select id as item_id, uid from item where mid = '%s' $item_normal and owner_xchan = '%s' limit 1",
+				dbesc($r[0]['parent_mid']),
+				dbesc($portable_id)
+			);
+		}
+		elseif (Config::get('system', 'require_authenticated_fetch', false)) {
+			http_status_exit(403, 'Permission denied');
+		}
+
+		// if we don't have a parent id belonging to the signer see if we can obtain one as a visitor that we have permission to access
+		// with a bias towards those items owned by channels on this site (item_wall = 1)
+
+		$sql_extra = item_permissions_sql(0);
+
+		if (!$i) {
+			$i = q("select id as item_id, uid, item_private from item where mid = '%s' $item_normal $sql_extra order by item_wall desc limit 1",
+				dbesc($r[0]['parent_mid'])
+			);
+		}
+
+		if (!$i) {
+			http_status_exit(403, 'Forbidden');
+		}
+
+		$chan = channelx_by_n($i[0]['uid']);
+
+		if (!$chan) {
+			http_status_exit(404, 'Not found');
+		}
+
+		if (!perm_is_allowed($chan['channel_id'], get_observer_hash(), 'view_stream')) {
+			http_status_exit(403, 'Forbidden');
+		}
+
+		$parents_str = ids_to_querystr($i, 'item_id');
+
+		// We won't need to check for privacy mismatches if the verified observer is also owner
+		$parent_item_private = ((isset($i[0]['item_private'])) ? " and item_private = " . intval($i[0]['item_private']) . " " : '');
+
+		$total = q("SELECT count(*) AS count FROM item WHERE parent = %d $parent_item_private $item_normal ",
+			intval($parents_str)
+		);
+
+		App::set_pager_total($total[0]['count']);
+		App::set_pager_itemspage(30);
+
+		if (App::$pager['total'] > App::$pager['itemspage']) {
+			// let mod conversation handle this request
+			App::$query_string = str_replace('item', 'conversation', App::$query_string);
+			$i = Activity::paged_collection_init(App::$pager['total'], App::$query_string);
+			as_return_and_die($i ,$chan);
+		}
+		else {
+			$items = q("SELECT item.*, item.id AS item_id FROM item WHERE item.parent = %d $parent_item_private $item_normal ORDER BY item.id",
+				intval($parents_str)
+			);
+
+			xchan_query($items, true);
+			$items = fetch_post_tags($items, true);
+
+			$i = Activity::encode_item_collection($items, App::$query_string, 'OrderedCollection', App::$pager['total']);
+		}
+
+		if ($portable_id && (!intval($items[0]['item_private']))) {
+			$c = q("select abook_id from abook where abook_channel = %d and abook_xchan = '%s'",
+				intval($items[0]['uid']),
+				dbesc($portable_id)
+			);
+			if (!$c) {
+				ThreadListener::store(z_root() . '/item/' . $item_id, $portable_id);
+			}
+		}
+
+		as_return_and_die($i ,$chan);
+	}
+
+	private function init_as_request() {
+
+		$item_id = argv(1);
+		if (!$item_id)
+			http_status_exit(404, 'Not found');
+
+		$portable_id = EMPTY_STR;
+
+		$item_normal_extra = sprintf(" and not verb in ('Follow', 'Ignore', '%s', '%s') ",
+			dbesc(ACTIVITY_FOLLOW),
+			dbesc(ACTIVITY_UNFOLLOW)
+		);
+
+		$item_normal = " and item.item_hidden = 0 and item.item_type = 0 and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_blocked = 0 $item_normal_extra ";
+
+		$i = null;
+
+		// do we have the item (at all)?
+		// add preferential bias to item owners (item_wall = 1)
+
+		$r = q("select * from item where uuid = '%s' $item_normal order by item_wall desc limit 1",
+			dbesc($item_id)
+		);
+
+		if (!$r) {
+			http_status_exit(404, 'Not found');
+		}
+
+		// process an authenticated fetch
+
+		$sigdata = HTTPSig::verify(EMPTY_STR);
+		if ($sigdata['portable_id'] && $sigdata['header_valid']) {
+			$portable_id = $sigdata['portable_id'];
+			if (!check_channelallowed($portable_id)) {
+				http_status_exit(403, 'Permission denied');
+			}
+			if (!check_siteallowed($sigdata['signer'])) {
+				http_status_exit(403, 'Permission denied');
+			}
+			observer_auth($portable_id);
+
+			$i = q("select id as item_id from item where mid = '%s' $item_normal and owner_xchan = '%s' limit 1 ",
+				dbesc($r[0]['parent_mid']),
+				dbesc($portable_id)
+			);
+		}
+		elseif (Config::get('system', 'require_authenticated_fetch', false)) {
+			http_status_exit(403, 'Permission denied');
+		}
+
+		// if we don't have a parent id belonging to the signer see if we can obtain one as a visitor that we have permission to access
+		// with a bias towards those items owned by channels on this site (item_wall = 1)
+
+		$sql_extra = item_permissions_sql(0);
+
+		if (!$i) {
+			$i = q("select id as item_id from item where mid = '%s' $item_normal $sql_extra order by item_wall desc limit 1",
+				dbesc($r[0]['parent_mid'])
+			);
+		}
+
+		$bear = Activity::token_from_request();
+		if ($bear) {
+			logger('bear: ' . $bear, LOGGER_DEBUG);
+			if (!$i) {
+				$t = q("select * from iconfig where cat = 'ocap' and k = 'relay' and v = '%s'",
+					dbesc($bear)
+				);
+				if ($t) {
+					$i = q("select id as item_id from item where uuid = '%s' and id = %d $item_normal limit 1",
+						dbesc($item_id),
+						intval($t[0]['iid'])
+					);
+				}
+			}
+		}
+
+		if (!$i) {
+			http_status_exit(403, 'Forbidden');
+		}
+
+		// If we get to this point we have determined we can access the original in $r (fetched much further above), so use it.
+
+		xchan_query($r, true);
+		$items = fetch_post_tags($r, false);
+
+		$chan = channelx_by_n($items[0]['uid']);
+
+		if (!$chan)
+			http_status_exit(404, 'Not found');
+
+		if (!perm_is_allowed($chan['channel_id'], get_observer_hash(), 'view_stream'))
+			http_status_exit(403, 'Forbidden');
+
+		$i = Activity::encode_item($items[0]);
+
+		if (!$i)
+			http_status_exit(404, 'Not found');
+
+		if ($portable_id && (!intval($items[0]['item_private']))) {
+			$c = q("select abook_id from abook where abook_channel = %d and abook_xchan = '%s'",
+				intval($items[0]['uid']),
+				dbesc($portable_id)
+			);
+			if (!$c) {
+				ThreadListener::store(z_root() . '/item/' . $item_id, $portable_id);
+			}
+		}
+
+		as_return_and_die($i ,$chan);
+
+	}
 
 }

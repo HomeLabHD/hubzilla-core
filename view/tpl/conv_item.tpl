@@ -4,7 +4,7 @@
 </div>
 <div id="collapsed-comments-{{$item.id}}" class="collapsed-comments" style="display: none;">
 {{/if}}
-	<div id="thread-wrapper-{{$item.id}}" class="thread-wrapper{{if $item.toplevel}} {{$item.toplevel}} generic-content-wrapper h-entry {{else}} u-comment h-cite{{/if}} clearfix" data-b64mids='{{$item.mids}}'>
+	<div id="thread-wrapper-{{$item.id}}" class="thread-wrapper{{if $item.toplevel}} {{$item.toplevel}} generic-content-wrapper h-entry {{else}} u-comment h-cite{{/if}} clearfix{{if $item.is_contained}} is-contained{{/if}}{{if $item.is_new && !$item.event && !$item.photo && !$item.title && !$item.is_comment}} is-new{{/if}}" data-b64mids='{{$item.mids}}'>
 		<a name="item_{{$item.id}}" ></a>
 		<div class="wall-item-outside-wrapper{{if $item.is_comment}} comment{{/if}}{{if $item.previewing}} preview{{/if}}" id="wall-item-outside-wrapper-{{$item.id}}" >
 			<div class="rounded wall-item-content-wrapper{{if $item.is_comment}} comment{{/if}}" id="wall-item-content-wrapper-{{$item.id}}">
@@ -26,24 +26,30 @@
 				<hr class="m-0">
 				{{/if}}
 				{{/if}}
-				<div class="p-2 wall-item-head{{if !$item.title && !$item.event && !$item.photo}} rounded-top{{/if}}{{if $item.is_new && !$item.event && !$item.is_comment}} wall-item-head-new{{/if}} clearfix">
+				<div class="p-2 wall-item-head{{if !$item.title && !$item.event && !$item.photo}} rounded-top{{/if}} clearfix">
 					<div class="lh-sm text-end float-end">
 						<div class="wall-item-ago opacity-75" id="wall-item-ago-{{$item.id}}">
 							{{if $item.location}}
 							{{$item.location}}
 							{{/if}}
-							{{if $item.delayed}}
-							<i class="bi bi-clock"></i>
-							{{/if}}
 							{{if $item.editedtime}}
-							<i class="bi bi-pencil"></i>
+							<i class="bi bi-pencil" title="{{$item.editedtime}}"></i>
 							{{/if}}
 							{{if $item.verified}}
 							<i class="bi bi-shield-check" title="{{$item.verified}}"></i>
 							{{elseif $item.forged}}
 							<i class="bi bi-shield-exclamation text-danger" title="{{$item.forged}}"></i>
 							{{/if}}
-							<small class="autotime" title="{{$item.isotime}}"><time class="dt-published" datetime="{{$item.isotime}}">{{$item.localtime}}</time>{{if $item.editedtime}}&nbsp;{{$item.editedtime}}{{/if}}{{if $item.expiretime}}&nbsp;{{$item.expiretime}}{{/if}}</small>
+							{{if $item.no_comment}}
+								<i class="bi bi-ban" title="{{$item.no_comment}}"></i>
+							{{/if}}
+							{{if $item.delayed}}
+							<i class="bi bi-clock" title="{{$item.delayed}}"></i>
+							{{/if}}
+							{{if $item.expiretime}}
+							<i class="bi bi-clock-history" title="{{$item.expiretime}}"></i>
+							{{/if}}
+							<small class="autotime" title="{{$item.isotime}}"><time class="dt-published" datetime="{{$item.isotime}}">{{$item.localtime}}</time>{{if $item.expiretime}}&nbsp;{{$item.expiretime}}{{/if}}</small>
 						</div>
 						{{if $item.thr_parent_uuid}}
 						<a href="javascript:doscroll('{{$item.thr_parent_uuid}}',{{$item.parent}});" class="ms-3" title="{{$item.top_hint}}"><i class="bi bi-chevron-double-up"></i></a>
@@ -255,7 +261,7 @@
 		{{/foreach}}
 		{{/if}}
 		{{if $item.comment}}
-		<div id="wall-item-comment-wrapper-{{$item.id}}" class="p-2 wall-item-comment-wrapper{{if $item.children}} wall-item-comment-wrapper-wc{{/if}}" >
+		<div id="wall-item-comment-wrapper-{{$item.id}}" class="p-2 rounded wall-item-comment-wrapper{{if $item.children}} wall-item-comment-wrapper-wc{{/if}}">
 			{{$item.comment}}
 		</div>
 		{{/if}}

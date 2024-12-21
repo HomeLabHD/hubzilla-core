@@ -339,7 +339,7 @@ class Thing extends \Zotlabs\Web\Controller {
 				return '';
 			}
 
-			$o .= replace_macros(get_markup_template('thing_edit.tpl'),array(
+			return replace_macros(get_markup_template('thing_edit.tpl'),array(
 				'$thing_hdr' => t('Edit Thing'),
 				'$multiprof' => feature_enabled(local_channel(),'multi_profiles'),
 				'$profile_lbl' => t('Select a profile'),
@@ -363,8 +363,6 @@ class Thing extends \Zotlabs\Web\Controller {
 				'$lockstate' => $lockstate,
 				'$submit' => t('Submit')
 			));
-
-			return $o;
 		}
 
 		if(argc() == 3 && argv(1) === 'drop') {
@@ -392,10 +390,10 @@ class Thing extends \Zotlabs\Web\Controller {
 
 			Libsync::build_sync_packet(0,array('obj' => $r));
 
-			return $o;
+			return '';
 		}
 
-		$o .= replace_macros(get_markup_template('thing_input.tpl'),array(
+		return replace_macros(get_markup_template('thing_input.tpl'),array(
 			'$thing_hdr' => t('Add Thing to your Profile'),
 			'$multiprof' => feature_enabled(local_channel(),'multi_profiles'),
 			'$profile_lbl' => t('Select a profile'),
@@ -415,8 +413,5 @@ class Thing extends \Zotlabs\Web\Controller {
 			'$lockstate' => $lockstate,
 			'$submit' => t('Submit')
 		));
-
-		return $o;
 	}
-
 }

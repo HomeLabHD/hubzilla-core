@@ -1145,7 +1145,7 @@ function chanlink_cid($d) {
 
 function magiclink_url($observer,$myaddr,$url) {
 	return (($observer)
-		? z_root() . '/magic?f=&owa=1&bdest=' . bin2hex($url) . '&addr=' . $myaddr
+		? z_root() . '/magic?owa=1&bdest=' . bin2hex($url) . '&addr=' . $myaddr
 		: $url
 	);
 }
@@ -1579,15 +1579,13 @@ function theme_attachments(&$item) {
 
 			$title = t('Size') . ' ' . (isset($r['length']) ? userReadableSize($r['length']) : t('unknown'));
 
-			$revision = $r['revision'] ?? '';
-
 			require_once('include/channel.php');
 
 			if (isset($r['href'])) {
 				if(is_foreigner($item['author_xchan']))
 					$url = $r['href'];
 				else
-					$url = z_root() . '/magic?f=&owa=1&hash=' . $item['author_xchan'] . '&bdest=' . bin2hex($r['href'] . '/' . $revision);
+					$url = z_root() . '/magic?owa=1&bdest=' . bin2hex($r['href']);
 			}
 
 			if (isset($label) && isset($url) && isset($icon) && isset($title)) {
@@ -3208,7 +3206,7 @@ function getIconFromType($type) {
 		//Common file
 		'application/octet-stream' => 'bi-file-earmark',
 		//Text
-		'text/plain' => 'bi-earmark-text',
+		'text/plain' => 'bi-file-earmark-text',
 		'text/markdown' => 'bi-filetype-md',
 		'text/bbcode' => 'bi-file-earmark-text',
 		'text/html' => 'bi-filetype-html',

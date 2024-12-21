@@ -90,7 +90,7 @@
 		<div class="section-content-warning-wrapper">{{$info}}</div>
 		{{/if}}
 		{{if $existing}}
-		<img class="cover-photo-review" style="max-width: 100%;" src="{{$existing.url}}" alt="{{t('Cover Photo')}}" />
+		<img class="cover-photo-review" style="max-width: 100%;" src="{{$existing.url}}" alt="Cover Photo" />
 		{{/if}}
 		<form enctype="multipart/form-data" action="cover_photo" method="post">
 		<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>

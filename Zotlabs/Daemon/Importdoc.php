@@ -18,9 +18,13 @@ class Importdoc {
 	static public function update_docs_dir($s) {
 		$f = basename($s);
 		$d = dirname($s);
-		if ($s === 'doc/html')
+
+		if ($s === 'doc/html') {
 			return;
+		}
+
 		$files = glob("$d/$f");
+
 		if ($files) {
 			foreach ($files as $fi) {
 				if ($fi === 'doc/html') {
@@ -35,6 +39,18 @@ class Importdoc {
 						store_doc_file($fi);
 					}
 				}
+			}
+		}
+
+		// remove old files that weren't updated (indicates they were most likely deleted).
+		$i = q("select * from item where item_type = 5 and edited < %s - %s",
+			db_utcnow(),
+			db_quoteinterval('14 DAY', true)
+		);
+
+		if ($i) {
+			foreach ($i as $iv) {
+				drop_item($iv['id'], DROPITEM_NORMAL, true);
 			}
 		}
 	}

@@ -49,29 +49,6 @@ function js_strings() {
 		'months'        => tt('%d months', '%d months', '%d'),
 		'years'         => tt('%d years', '%d years', '%d'),
 
-		// get plural function code
-		'plural_func'   => tf(),
-
-		'$t01' => ((t('timeago.prefixAgo') == 'timeago.prefixAgo') ? '' : ((t('timeago.prefixAgo') == 'NONE') ? '' : t('timeago.prefixAgo'))),
-		'$t02' => ((t('timeago.prefixFromNow') == 'timeago.prefixFromNow') ? '' : ((t('timeago.prefixFromNow') == 'NONE') ? '' : t('timeago.prefixFromNow'))),
-		'$t03' => ((t('timeago.suffixAgo') == 'timeago.suffixAgo') ? 'ago' : ((t('timeago.suffixAgo') == 'NONE') ? '' : t('timeago.suffixAgo'))),
-		'$t04' => ((t('timeago.suffixFromNow') == 'timeago.suffixFromNow') ? 'from now' : ((t('timeago.suffixFromNow') == 'NONE') ? '' : t('timeago.suffixFromNow'))),
-
-		// translatable main strings for jquery.timeago
-		'$t05' => t('less than a minute'),
-		'$t06' => t('about a minute'),
-		'$t07' => ta('%d minutes'),
-		'$t08' => t('about an hour'),
-		'$t09' => ta('about %d hours'),
-		'$t10' => t('a day'),
-		'$t11' => ta('%d days'),
-		'$t12' => t('about a month'),
-		'$t13' => ta('%d months'),
-		'$t14' => t('about a year'),
-		'$t15' => ta('%d years'),
-		'$t16' => t(' '), // wordSeparator
-		'$t17' => ((t('timeago.numbers') != 'timeago.numbers') ? t('timeago.numbers') : '[]'),
-
 		'$January' => t('January'),
 		'$February' => t('February'),
 		'$March' => t('March'),

@@ -1,0 +1,11 @@
+parameters:
+	level: 0
+	paths:
+		- boot.php
+		- include
+		- util
+		- Zotlabs
+	scanDirectories:
+		- library
+	ignoreErrors:
+		- '#Method [\w:()_\\]+ should return (object|string) but return statement is missing.#'

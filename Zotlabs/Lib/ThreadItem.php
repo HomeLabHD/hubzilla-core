@@ -187,7 +187,7 @@ class ThreadItem {
 			$drop = [ 'dropping' => true, 'delete' => t('Admin Delete') ];
 		}
 
-		$filer = ((($conv->get_profile_owner() == local_channel()) && (! array_key_exists('real_uid',$item))) ? t("Save to Folder") : false);
+		$filer = (((local_channel() && $conv->get_profile_owner() === local_channel()) || (local_channel() && App::$module === 'pubstream')) ? t("Save to Folder") : false);
 
 		$profile_avatar = $item['author']['xchan_photo_s'];
 		$profile_link   = chanlink_hash($item['author_xchan']);
@@ -233,45 +233,6 @@ class ThreadItem {
 			$my_responses[$v] = ((isset($conv_responses[$v][$item['mid'] . '-m'])) ? 1 : 0);
 		}
 
-/*
-
-		$like_count = ((x($conv_responses['like'],$item['mid'])) ? $conv_responses['like'][$item['mid']] : '');
-		$like_list = ((x($conv_responses['like'],$item['mid'])) ? $conv_responses['like'][$item['mid'] . '-l'] : '');
-		if (($like_list) && (count($like_list) > MAX_LIKERS)) {
-			$like_list_part = array_slice($like_list, 0, MAX_LIKERS);
-			array_push($like_list_part, '<a class="dropdown-item" href="#" data-toggle="modal" data-target="#likeModal-' . $this->get_id() . '"><b>' . t('View all') . '</b></a>');
-		} else {
-			$like_list_part = '';
-		}
-		$like_button_label = tt('Like','Likes',$like_count,'noun');
-
-		$repeat_count = ((x($conv_responses['announce'],$item['mid'])) ? $conv_responses['announce'][$item['mid']] : '');
-		$repeat_list = ((x($conv_responses['announce'],$item['mid'])) ? $conv_responses['announce'][$item['mid'] . '-l'] : '');
-		if (($repeat_list) && (count($repeat_list) > MAX_LIKERS)) {
-			$repeat_list_part = array_slice($repeat_list, 0, MAX_LIKERS);
-			array_push($repeat_list_part, '<a class="dropdown-item" href="#" data-toggle="modal" data-target="#repeatModal-' . $this->get_id() . '"><b>' . t('View all') . '</b></a>');
-		} else {
-			$repeat_list_part = '';
-		}
-		$repeat_button_label = tt('Repeat','Repeats',$repeat_count,'noun');
-
-		$showdislike = '';
-		if (feature_enabled($conv->get_profile_owner(),'dislike')) {
-			$dislike_count = ((x($conv_responses['dislike'],$item['mid'])) ? $conv_responses['dislike'][$item['mid']] : '');
-			$dislike_list = ((x($conv_responses['dislike'],$item['mid'])) ? $conv_responses['dislike'][$item['mid'] . '-l'] : '');
-			$dislike_button_label = tt('Dislike','Dislikes',$dislike_count,'noun');
-			if (($dislike_list) && (count($dislike_list) > MAX_LIKERS)) {
-				$dislike_list_part = array_slice($dislike_list, 0, MAX_LIKERS);
-				array_push($dislike_list_part, '<a class="dropdown-item" href="#" data-toggle="modal" data-target="#dislikeModal-' . $this->get_id() . '"><b>' . t('View all') . '</b></a>');
-			} else {
-				$dislike_list_part = '';
-			}
-
-			$showdislike = ((x($conv_responses['dislike'],$item['mid'])) ? format_like($conv_responses['dislike'][$item['mid']],$conv_responses['dislike'][$item['mid'] . '-l'],'dislike',$item['mid']) : '');
-		}
-
-		$showlike    = ((x($conv_responses['like'],$item['mid'])) ? format_like($conv_responses['like'][$item['mid']],$conv_responses['like'][$item['mid'] . '-l'],'like',$item['mid']) : '');
-*/
 
 		/*
 		 * We should avoid doing this all the time, but it depends on the conversation mode
@@ -415,7 +376,6 @@ class ThreadItem {
 			'template' => $this->get_template(),
 			'mode' => $mode,
 			'item_type' => intval($item['item_type']),
-			//'type' => implode("",array_slice(explode("/",$item['verb']),-1)),
 			'body' => $body['html'],
 			'tags' => $body['tags'],
 			'categories' => $body['categories'],
@@ -450,16 +410,15 @@ class ThreadItem {
 			'sparkle' => $sparkle,
 			'title' => $item['title'],
 			'title_tosource' => get_pconfig($conv->get_profile_owner(),'system','title_tosource'),
-			//'ago' => relative_date($item['created']),
 			'app' => $item['app'],
 			'str_app' => sprintf( t('from %s'), $item['app']),
 			'isotime' => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'c'),
-			'localtime' => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'r'),
-			'editedtime' => (($item['edited'] != $item['created']) ? sprintf( t('last edited: %s'), datetime_convert('UTC', date_default_timezone_get(), $item['edited'], 'r')) : ''),
-			'expiretime' => (($item['expires'] > NULL_DATE) ? sprintf( t('Expires: %s'), datetime_convert('UTC', date_default_timezone_get(), $item['expires'], 'r')):''),
+			'localtime' => datetime_convert('UTC', date_default_timezone_get(), $item['created']),
+			'editedtime' => (($item['edited'] != $item['created']) ? sprintf(t('Last edited %s'), relative_time($item['edited'])) : ''),
+			'expiretime' => (($item['expires'] > NULL_DATE) ? sprintf(t('Expires %s'), relative_time($item['expires'])) : ''),
 			'lock' => $lock,
 			'locktype' => $locktype,
-			'delayed' => $item['item_delayed'],
+			'delayed' => (($item['item_delayed']) ? sprintf(t('Published %s'), relative_time($item['created'])) : ''),
 			'privacy_warning' => $privacy_warning,
 			'verified' => $verified,
 			'unverified' => $unverified,
@@ -479,7 +438,7 @@ class ThreadItem {
 			'event' => $body['event'],
 			'has_tags' => $has_tags,
 			'reactions' => $this->reactions,
-// Item toolbar buttons
+			// Item toolbar buttons
 			'emojis'	=> (($this->is_toplevel() && $this->is_commentable() && $observer && feature_enabled($conv->get_profile_owner(),'emojis')) ? '1' : ''),
 			'like'      => $like,
 			'dislike'   => ((feature_enabled($conv->get_profile_owner(),'dislike')) ? $dislike : ''),
@@ -489,7 +448,7 @@ class ThreadItem {
 			'embed'     => $embed,
 			'rawmid'	=> $item['mid'],
 			'plink'     => get_plink($item),
-			'edpost'    => $edpost, // ((feature_enabled($conv->get_profile_owner(),'edit_posts')) ? $edpost : ''),
+			'edpost'    => $edpost,
 			'star'      => ((feature_enabled($conv->get_profile_owner(),'star_posts') && ($item['item_type'] == ITEM_TYPE_POST)) ? $star : ''),
 			'tagger'    => ((feature_enabled($conv->get_profile_owner(),'commtag')) ? $tagger : ''),
 			'filer'     => ((feature_enabled($conv->get_profile_owner(),'filing') && ($item['item_type'] == ITEM_TYPE_POST)) ? $filer : ''),
@@ -500,7 +459,7 @@ class ThreadItem {
 			'addtocal'  => (($has_event) ? t('Add to Calendar') : ''),
 			'drop'      => $drop,
 			'dropdown_extras' => $dropdown_extras,
-// end toolbar buttons
+			// end toolbar buttons
 			'unseen_comments' => $unseen_comments,
 			'comment_count' => $total_children,
 			'comment_count_txt' => $comment_count_txt,
@@ -508,30 +467,9 @@ class ThreadItem {
 			'markseen' => t('Mark all comments seen'),
 			'responses' => $responses,
 			'my_responses' => $my_responses,
-			/*
-			'like_count' => $like_count,
-			'like_list' => $like_list,
-			'like_list_part' => $like_list_part,
-			'like_button_label' => $like_button_label,
-			'like_modal_title' => t('Likes','noun'),
-
-			'repeat_count' => $repeat_count,
-			'repeat_list' => $repeat_list,
-			'repeat_list_part' => $repeat_list_part,
-			'repeat_button_label' => $repeat_button_label,
-			'repeat_modal_title' => t('Repeats','noun'),
-
-
-			'dislike_modal_title' => t('Dislikes','noun'),
-			'dislike_count' => ((feature_enabled($conv->get_profile_owner(),'dislike')) ? $dislike_count : ''),
-			'dislike_list' => ((feature_enabled($conv->get_profile_owner(),'dislike')) ? $dislike_list : ''),
-			'dislike_list_part' => ((feature_enabled($conv->get_profile_owner(),'dislike')) ? $dislike_list_part : ''),
-			'dislike_button_label' => ((feature_enabled($conv->get_profile_owner(),'dislike')) ? $dislike_button_label : ''),
-*/
 			'modal_dismiss' => t('Close'),
-		//	'showlike' => $showlike,
-		//	'showdislike' => $showdislike,
 			'comment' => ($item['item_delayed'] ? '' : $this->get_comment_box()),
+			'no_comment' => (($item['item_thread_top'] && $item['item_nocomment'])? t('Comments disabled') : ''),
 			'previewing' => ($conv->is_preview() ? true : false ),
 			'preview_lbl' => t('This is an unsaved preview'),
 			'wait' => t('Please wait'),
@@ -544,7 +482,8 @@ class ThreadItem {
 			'moderate_delete' => t('Delete'),
 			'rtl' => in_array($item['lang'], rtl_languages()),
 			'reactions_allowed' => $reactions_allowed,
-			'reaction_str' => [t('Add yours'), t('Remove yours')]
+			'reaction_str' => [t('Add yours'), t('Remove yours')],
+			'is_contained' => $this->is_toplevel() && str_contains($item['tgt_type'], 'Collection')
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);
@@ -555,15 +494,7 @@ class ThreadItem {
 		$result['children'] = array();
 		$nb_children = count($children);
 
-		$visible_comments = Config::Get('system','expanded_comments');
-		if($visible_comments === false)
-			$visible_comments = 3;
-
-//		needed for scroll to comment from notification but needs more work
-//		as we do not want to open all comments unless there is actually an #item_xx anchor
-//		and the url fragment is not sent to the server.
-//		if(in_array(\App::$module,['display','update_display']))
-//			$visible_comments = 99999;
+		$visible_comments = Config::Get('system', 'expanded_comments', 3);
 
 		if(($this->get_display_mode() === 'normal') && ($nb_children > 0)) {
 			foreach($children as $child) {
@@ -875,7 +806,7 @@ class ThreadItem {
 			'$edatt' => t('Attach/Upload file'),
 			'$edurl' => t('Insert Link'),
 			'$edvideo' => t('Video'),
-			'$preview' => t('Preview'), // ((feature_enabled($conv->get_profile_owner(),'preview')) ? t('Preview') : ''),
+			'$preview' => t('Preview'),
 			'$can_upload' => (perm_is_allowed($conv->get_profile_owner(),get_observer_hash(),'write_storage') && $conv->is_uploadable()),
 			'$feature_encrypt' => ((feature_enabled($conv->get_profile_owner(),'content_encrypt')) ? true : false),
 			'$encrypt' => t('Encrypt text'),
@@ -896,7 +827,7 @@ class ThreadItem {
 	}
 
 	/**
-	 * Check if we are a wall to wall item and set the relevant properties
+	 * Check if we are a wall to wall or announce item and set the relevant properties
 	 */
 	protected function check_wall_to_wall() {
 		$conv = $this->get_conversation();

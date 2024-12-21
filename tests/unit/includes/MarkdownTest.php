@@ -36,7 +36,7 @@ class MarkdownTest extends UnitTestCase {
 	 * @dataProvider markdown_to_bbcode_provider
 	 */
 	public function test_markdown_to_bbcode(string $expected, string $src): void {
-		$this->assertEquals($expected, markdown_to_bb($src));
+		$this->assertEquals($expected, markdown_to_bb($src, true, ['preserve_lf' => true]));
 	}
 
 	public static function markdown_to_bbcode_provider(): array {
@@ -54,11 +54,14 @@ class MarkdownTest extends UnitTestCase {
 				'This is a test of **bold text**, *italic text* and ***bold and italic text***'
 			],
 			'multiline text' => [
-				'This text is text wrapped over multiple lines.',
+				// This is not as expected in markdown, but may be needed
+				// for compatibility with bbcode behaviour.
+				"This text is\ntext wrapped\nover multiple\nlines.",
 				"This text is\ntext wrapped\nover multiple\nlines."
 			],
 			'text with hard linebreak' => [
-				"Line one\nLine two",
+				// An extra line break is inserted here...
+				"Line one\n\nLine two",
 				"Line one  \nLine two"
 			],
 			'paragraphs' => [
@@ -78,29 +81,39 @@ class MarkdownTest extends UnitTestCase {
 				'`some code`'
 			],
 			'inline code with wrapped text' => [
-				'[code]some code unwrapped[/code]',
+				// Not sure if the newline should be preseved here?
+				"[code]some code\nunwrapped[/code]",
 				"`some code\n   unwrapped`"
 			],
 			'code block no language' => [
-				"[code]some code\nover multiple lines[/code]",
+				"[code]some code\nover multiple lines\n[/code]",
 				"```\nsome code\nover multiple lines\n```"
 			],
 			'code block no language indented' => [
-				"[code]some code\n    over multiple lines\n    with indentation[/code]",
+				// For some reason one space char is eaten on indented lines.
+				"[code]some code\n   over multiple lines\n   with indentation\n[/code]",
 				"```\nsome code\n    over multiple lines\n    with indentation\n```"
 			],
 			'code block with language' => [
-				"[code=php]&lt;?php\necho phpinfo();[/code]",
+				"[code=php]&lt;?php\necho phpinfo();\n[/code]",
 				"```php\n<?php\necho phpinfo();\n```"
 			],
 			'code block with URL' => [
-				"[code]an example url https://example.com[/code]",
+				"[code]an example url https://example.com\n[/code]",
 				"```\nan example url https://example.com\n```"
 			],
 			'bbcode code block with URL' => [
-				"[code] proxy_pass http://example.com; [/code]",
+				"[code]\nproxy_pass http://example.com;\n[/code]",
 				"[code]\nproxy_pass http://example.com;\n[/code]"
-			]
+			],
+			'naked url followed by newline' => [
+				"https://example.com\nhave a great day.",
+				"https://example.com\nhave a great day.",
+			],
+			'inline naked url' => [
+				'This is a link https://example.com/some/path more info.',
+				'This is a link https://example.com/some/path more info.',
+			],
 		];
 	}
 

@@ -199,6 +199,7 @@ var activeCommentText = '';
 		$('#created-modal-OKButton').on('click', function() {
 			reply=$('#created-date').val();
 			if(reply && reply.length) {
+				$('#jot-delayed').val(1);
 				$('#jot-created').val(reply);
 				$('#createdModal').modal('hide');
 			}

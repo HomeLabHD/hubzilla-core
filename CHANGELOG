@@ -1,3 +1,42 @@
+Hubzilla 10.0 (2024-12-21)
+	- Port updateConvItem() and notifications widget to vanilla javascript
+	- Remove jquery.timeago.js in favor of a native js implementation
+	- Introduce item_forwardable() a function to check if an item should be frowarded
+	- Always set item_delayed flag if we use a custom created date
+	- Add indicators to items in case they are delayed, have an expiration time or commenting is disabled
+	- Introduce relative_time() a new function to calculate the relative time
+	- Refactor mod admin/accounts
+	- Toggle aside if a notification or message is clicked
+	- Add Mailer class to replace z_mail()
+	- Provide a possibility to link to a specific day or month in mod cal via URL fragment e.g. #2024-12-24
+	- Refactor mod magic
+	- Introduce conversation containers a.k.a. FEP-171b
+	- Refactor mod item
+	- Refactor Thumbs\Epubthumb to adapt to new version of EPub meta lib
+	- Remove unused libraries
+	- Bring filed items to mod hq
+
+	Bugfixes
+	- Fix comments on/off toggle
+	- Fix various missing icons after transition from fork-awesome
+	- Fix performance issue in mod pubstream
+	- Fix mails with + in local part rejected
+	- Fix % calculation in mod import_progress
+	- Fix query vars not unset when constructing the server address
+	- Fix can_comment_on_post() logic after introduction of repeats
+	- Fix xchan_query() not including deleted hublocs
+	- Fix allday variable not set when clicking an event or a resource is provided
+
+	Addons
+	- Introduce conversation containers a.k.a. FEP-171b
+	- Cards: fix comments on/off state
+	- Articles: fix comments on/off state
+	- Pubcrawl: fix encoding of stored raw message
+	- Gallery fix zoom icon toggle
+	- Pubcrawl: fix follow to non primary hub location
+	- Pubcrawl: rewrite id host to local host instead of primary host
+
+
 Hubzilla 9.4.4 (2024-11-06)
 	- Update Norwegian translations
 	- Fix error adding things when multiple profiles not enabled

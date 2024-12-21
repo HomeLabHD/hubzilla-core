@@ -25,6 +25,7 @@ var savedTitle = '';
 var followUpPageLoad = false;
 var window_needs_alert = true;
 var expanded_items = [];
+var updateTimeout = [];
 
 var page_cache = {};
 
@@ -58,37 +59,13 @@ $.ajaxSetup({cache: false});
 
 var tf = new Function('n', 's', 'var k = s.split("/")['+aStr['plural_func']+']; return (k ? k : s);');
 
-jQuery.timeago.settings.strings = {
-	prefixAgo     : aStr['t01'],
-	prefixFromNow : aStr['t02'],
-	suffixAgo     : aStr['t03'],
-	suffixFromNow : aStr['t04'],
-	seconds       : aStr['t05'],
-	minute        : aStr['t06'],
-	minutes       : function(value){return tf(value, aStr['t07']);},
-	hour          : aStr['t08'],
-	hours         : function(value){return tf(value, aStr['t09']);},
-	day           : aStr['t10'],
-	days          : function(value){return tf(value, aStr['t11']);},
-	month         : aStr['t12'],
-	months        : function(value){return tf(value, aStr['t13']);},
-	year          : aStr['t14'],
-	years         : function(value){return tf(value, aStr['t15']);},
-	wordSeparator : aStr['t16'],
-	numbers       : aStr['t17'],
-};
-
-jQuery.timeago.settings.allowFuture = true;
-
 $(document).ready(function() {
 
 	$(document).on('click focus', '.comment-edit-form', handle_comment_form);
 	$(document).on('click', '.conversation-settings-link', getConversationSettings);
 	$(document).on('click', '#settings_module_ajax_submit', postConversationSettings);
 
-	$(document).on('click', '#expand-aside',  function() {
-		toggleAside();
-	});
+	$(document).on('click', '#expand-aside', toggleAside);
 
 	$(document).on('click focus', '.comment-edit-form  textarea', function(e) {
 		if(! this.autocomplete_handled) {
@@ -175,14 +152,19 @@ $(document).ready(function() {
 		let singlethread_modules = ['display', 'hq'];
 		let redirect_modules = ['display', 'notify'];
 
-		if(! b64mid && ! notify_id)
+		if (!b64mid && !notify_id) {
 			return;
+		}
 
-		if(localUser && redirect_modules.indexOf(path) !== -1) {
+		if (document.querySelector('main').classList.contains('region_1-on')) {
+			toggleAside();
+		}
+
+		if (localUser && redirect_modules.indexOf(path) !== -1) {
 			path = 'hq';
 		}
 
-		if(notify_id) {
+		if (notify_id) {
 			$.ajax({
 				type: 'post',
 				url: 'notify',
@@ -198,21 +180,17 @@ $(document).ready(function() {
 			window.location.href = path + '/' + b64mid;
 		}
 		else {
-
 			if (singlethread_modules.indexOf(module) !== -1) {
 				history.pushState(stateObj, '', module + '/' + b64mid);
-
 			}
 
 			if (b64mid) {
-
 				e.preventDefault();
-
-				if(! page_load) {
+				if (!page_load) {
 					prepareLiveUpdate(b64mid, notify_id);
 					$('.message').removeClass('active');
 					$('[data-b64mid="' + b64mid + '"].message').addClass('active');
-					$('[data-b64mid="' + b64mid + '"].message .badge').remove();
+					$('[data-b64mid="' + b64mid + '"].message .unseen_count').remove();
 				}
 			}
 		}
@@ -231,20 +209,21 @@ $(document).ready(function() {
 
 	updateInit();
 
-	var e = document.getElementById('content-complete');
-	if(e)
+	if (document.getElementById('content-complete')) {
 		pageHasMoreContent = false;
+	}
 
-	$(document).on('hz:updateConvItems', function(event) {
-		if(!bParam_mid)
+	document.addEventListener('hz:updateConvItems', function(e) {
+		if (!bParam_mid) {
 			cache_next_page();
+		}
 	});
 
-	$(document).on('hz:handleNetworkNotificationsItems', function(e, obj) {
+	document.addEventListener('hz:handleNetworkNotificationsItems', function(e) {
 		push_notification(
-			obj.name,
-			$('<p>' + obj.message + '</p>').text(),
-			obj.b64mid
+			e.detail.name,
+			$('<p>' + e.detail.message + '</p>').text(),
+			e.detail.b64mid
 		);
 	});
 });
@@ -515,14 +494,12 @@ function viewsrc(id) {
 
 function showHideComments(id) {
 	if($('#collapsed-comments-' + id).is(':visible')) {
-		$('#collapsed-comments-' + id + ' .autotime').timeago('dispose');
 		$('#collapsed-comments-' + id).hide();
 		$('#hide-comments-label-' + id).html(aStr.showmore);
 		$('#hide-comments-total-' + id).show();
 		$('#hide-comments-icon-' + id).toggleClass('bi-chevron-down bi-chevron-up');
 
 	} else {
-		$('#collapsed-comments-' + id + ' .autotime').timeago();
 		$('#collapsed-comments-' + id).show();
 		$('#hide-comments-label-' + id).html(aStr.showfewer);
 		$('#hide-comments-total-' + id).hide();
@@ -650,201 +627,345 @@ function updatePageItems(mode, data) {
 	collapseHeight();
 }
 
-
-function updateConvItems(mode,data) {
-	let scroll_position = $(window).scrollTop();
+function updateConvItems(mode, data) {
+	let scroll_position = window.scrollY;
 	let b64mids = [];
 
-	if(mode !== 'update')
-		$(document).trigger('hz:updateConvItems');
+	// Parse the data string into a DOM object
+	let parser = new DOMParser();
+	let doc = parser.parseFromString(data, 'text/html');
 
-	if(mode === 'update' || mode === 'replace') {
-		prev = 'threads-begin';
-	}
-	if(mode === 'append') {
-		next = 'threads-end';
+	if (mode !== 'update') {
+		document.dispatchEvent(new Event('hz:updateConvItems'));
 	}
 
-	$('.thread-wrapper', data).each(function() {
-		if(this.classList.contains('toplevel_item')) {
-			let ident = this.id;
-			let convId = ident.replace('thread-wrapper-','');
-			let commentWrap = $('#'+ident+' .collapsed-comments').attr('id');
+	let prev, next;
+	if (mode === 'update' || mode === 'replace') {
+		prev = document.getElementById('threads-begin');
+	}
+	if (mode === 'append') {
+		next = document.getElementById('threads-end');
+	}
+
+	doc.querySelectorAll('.thread-wrapper').forEach(function (elem) {
+		if (elem.classList.contains('toplevel_item')) {
+			let ident = elem.id;
+			let convId = ident.replace('thread-wrapper-', '');
+			let commentWrap = elem.querySelector('.collapsed-comments')?.id;
 
 			let itmId = 0;
 			let isVisible = false;
 
 			// figure out the comment state
-			if(typeof commentWrap !== 'undefined')
-				itmId = commentWrap.replace('collapsed-comments-','');
+			if (commentWrap !== undefined) {
+				itmId = commentWrap.replace('collapsed-comments-', '');
+			}
 
-			if($('#collapsed-comments-'+itmId).is(':visible'))
+			let collapsedComment = document.getElementById('collapsed-comments-' + itmId);
+			if (collapsedComment && collapsedComment.style.display !== 'none') {
 				isVisible = true;
+			}
 
 			// insert the content according to the mode and first_page
 			// and whether or not the content exists already (overwrite it)
+			let existingElem = document.getElementById(ident);
+			if (!existingElem) {
+				if ((mode === 'update' || mode === 'replace') && profile_page == 1) {
+					if (prev) {
+						prev.after(elem);
+						prev = elem;
+					}
+				}
+				if (mode === 'append') {
+					if (next) {
+						next.before(elem);
+					}
+				}
+			} else {
+				existingElem.replaceWith(elem);
+			}
 
-			if($('#' + ident).length == 0) {
-				if((mode === 'update' || mode === 'replace') && profile_page == 1) {
-						$('#' + prev).after($(this));
-					prev = ident;
-				}
-				if(mode === 'append') {
-					$('#' + next).before($(this));
-				}
-			}
-			else {
-				$('#' + ident).replaceWith($(this));
-			}
+			// DOMParser will prevent scripts from execution for security reasons.
+			// We remove all scripts but possibly injected some from
+			// addons like for example gallery later.
+			// TODO: make the script run from the addon itself.
+			let scripts = elem.querySelectorAll('script');
+			scripts.forEach(script => {
+				let scriptContent = script.textContent || script.innerText;
+				eval(scriptContent);  // Execute the script
+			});
 
 			// set the comment state to the state we discovered earlier
-
-			if(isVisible)
+			if (isVisible) {
 				showHideComments(itmId);
+			}
 
 			let commentBody = localStorage.getItem("comment_body-" + convId);
-
-			if(commentBody) {
-				var commentElm = $('#comment-edit-text-' + convId);
-				if(auto_save_draft) {
-					if($(commentElm).val() === '') {
-						$('#comment-edit-form-' + convId).show();
-						$(commentElm).addClass("expanded");
+			if (commentBody) {
+				let commentElm = document.getElementById('comment-edit-text-' + convId);
+				if (auto_save_draft && commentElm) {
+					if (commentElm.value === '') {
+						let commentForm = document.getElementById('comment-edit-form-' + convId);
+						if (commentForm) {
+							commentForm.style.display = 'block';
+						}
+						commentElm.classList.add("expanded");
 						openMenu("comment-tools-" + convId);
-						$(commentElm).val(commentBody);
+						commentElm.value = commentBody;
 					}
 				} else {
 					localStorage.removeItem("comment_body-" + convId);
 				}
 			}
 
-			// trigger the autotime function on all newly created content
-			$("> .wall-item-outside-wrapper .autotime, > .thread-wrapper .autotime",this).timeago();
-			$("> .shared_header .autotime",this).timeago();
-
-			if((mode === 'append' || mode === 'replace') && (loadingPage)) {
+			if ((mode === 'append' || mode === 'replace') && loadingPage) {
 				loadingPage = false;
 			}
 
-			// if single thread view and  the item has a title, display it in the title bar
-
-			if(mode === 'replace') {
-				if (window.location.search.indexOf("mid=") != -1 || window.location.pathname.indexOf("display") != -1) {
-					let title = $(".wall-item-title").text();
-					title.replace(/^\s+/, '');
-					title.replace(/\s+$/, '');
-					if (title) {
-						savedTitle = title + " " + savedTitle;
-						document.title = title;
+			// if single thread view and the item has a title, display it in the title bar
+			if (mode === 'replace') {
+				if (window.location.search.includes("mid=") || window.location.pathname.includes("display")) {
+					let titleElem = document.querySelector(".wall-item-title");
+					if (titleElem) {
+						let title = titleElem.textContent.trim();
+						if (title) {
+							savedTitle = title + ' ' + savedTitle;
+							document.title = title;
+						}
 					}
 				}
 			}
 		}
 
-		$(this).data('b64mids').forEach((b64mid) => {
-			b64mids.push(b64mid);
-		});
-
+		b64mids.push(...JSON.parse(elem.dataset.b64mids));
 	});
 
-	$(document).trigger('hz:sse_setNotificationsStatus', [b64mids]);
+	document.dispatchEvent(new CustomEvent('hz:sse_setNotificationsStatus', { detail: b64mids }));
 
-	$(window).scrollTop(scroll_position);
+	window.scrollTo(0, scroll_position);
 
-	if(followUpPageLoad) {
-		$(document).trigger('hz:sse_bs_counts');
+	if (followUpPageLoad) {
+		document.dispatchEvent(new Event('hz:sse_bs_counts'));
+	} else {
+		document.dispatchEvent(new Event('hz:sse_bs_init'));
 	}
-	else {
-		$(document).trigger('hz:sse_bs_init');
-	}
 
-	if(commentBusy) {
+	if (commentBusy) {
 		commentBusy = false;
-		$('body').css('cursor', 'auto');
+		document.body.style.cursor = 'auto';
 	}
 
-	// Setup to determine if the media player is playing. This affects
-	// some content loading decisions.
-
-	$('video').off('playing');
-	$('video').off('pause');
-	$('audio').off('playing');
-	$('audio').off('pause');
-
-	$('video').on('playing', function() {
-		mediaPlaying = true;
-	});
-	$('video').on('pause', function() {
-		mediaPlaying = false;
-	});
-	$('audio').on('playing', function() {
-		mediaPlaying = true;
-	});
-	$('audio').on('pause', function() {
-		mediaPlaying = false;
-	});
-
-	if(! preloadImages) {
-		$('.wall-item-body, .wall-photo-item').imagesLoaded()
-		.always( function( instance ) {
-			//console.log('all images loaded');
-			collapseHeight();
-
-			if(bParam_mid && mode === 'replace')
-				scrollToItem();
-
-		})
-		.done( function( instance ) {
-			//console.log('all images successfully loaded');
-		})
-		.fail( function() {
-			//console.log('all images loaded, at least one is broken');
-		})
-		.progress( function( instance, image ) {
-			//var result = image.isLoaded ? 'loaded' : 'broken';
-			//console.log( 'image is ' + result + ' for ' + image.img.src );
+	// Setup to determine if the media player is playing. This affects some content loading decisions.
+	['playing', 'pause'].forEach(event => {
+		document.querySelectorAll('video, audio').forEach(media => {
+			media.removeEventListener(event, mediaHandler);
+			media.addEventListener(event, mediaHandler);
 		});
+	});
+
+	function mediaHandler(event) {
+		mediaPlaying = event.type === 'playing';
 	}
-	else {
+
+	imagesLoaded(document.querySelectorAll('.wall-item-body img, .wall-photo-item img'), function () {
 		collapseHeight();
-
-		if(bParam_mid && mode === 'replace')
+		if (bParam_mid && mode === 'replace') {
 			scrollToItem();
-	}
-
-	// reset rotators and cursors we may have set before reaching this place
-
-	$("#page-spinner").hide();
-	$("#profile-jot-text-loading").hide();
-
-	followUpPageLoad = true;
-
-}
-
-function scrollToItem() {
-	// auto-scroll to a particular comment in a thread (designated by mid) when in single-thread mode
-
-	if(justifiedGalleryActive)
-		return;
-
-	let submid = ((bParam_mid.length) ? bParam_mid : 'abcdefg');
-	//var encoded = ((submid.substr(0,4) == 'b64.') ? true : false);
-	//var submid_encoded = ((encoded) ? submid : window.btoa(submid));
-
-	$('.thread-wrapper').filter(function() {
-		if($(this).data('b64mids').indexOf(submid) > -1 && !$(this).hasClass('toplevel_item')) {
-			if($('.collapsed-comments').length) {
-				var scrolltoid = $('.collapsed-comments').attr('id').substring(19);
-				$('#collapsed-comments-' + scrolltoid + ' .autotime').timeago();
-				$('#collapsed-comments-' + scrolltoid).show();
-				$('#hide-comments-label-' + scrolltoid).html(aStr.showfewer);
-				$('#hide-comments-total-' + scrolltoid).hide();
-			}
-			$('html, body').animate({ scrollTop: $(this).offset().top - $('nav').outerHeight(true) }, 'slow');
-			$(this).addClass('item-highlight');
 		}
 	});
 
+	// reset rotators and cursors we may have set before reaching this place
+	let pageSpinner = document.getElementById("page-spinner");
+	if (pageSpinner) {
+		pageSpinner.style.display = 'none';
+	}
+	let profileJotTextLoading = document.getElementById("profile-jot-text-loading");
+	if (profileJotTextLoading) {
+		profileJotTextLoading.style.display = 'none';
+	}
+
+	followUpPageLoad = true;
+
+	updateRelativeTime('.autotime');
+}
+
+function imagesLoaded(elements, callback) {
+	let loadedCount = 0;
+	let totalImages = 0;
+	let timeoutId;
+	let timeout = 10000;
+	let processed = [];
+
+	// Helper function to extract img elements from an HTML string
+	function extractImagesFromHtml(htmlString) {
+		let tempDiv = document.createElement('div');
+		tempDiv.innerHTML = htmlString;
+		return tempDiv.querySelectorAll('.wall-item-body img, .wall-photo-item img');
+	}
+
+	function checkComplete(src) {
+		// Track processed images to not count images multiple times if load event is emited from multiple sources
+		if (processed.includes(src)) {
+			return;
+		}
+
+		processed.push(src);
+		loadedCount++;
+
+		document.getElementById('image_counter').innerHTML = Math.round((loadedCount * 100) / totalImages) + '%';
+		if (loadedCount === totalImages) {
+			document.getElementById('image_counter').innerHTML = '';
+			clearTimeout(timeoutId);
+			callback();
+		}
+	}
+
+	// If the elements is an HTML string, convert it to img elements
+	if (typeof elements === 'string') {
+		elements = extractImagesFromHtml(elements);
+	}
+
+	// If elements is not a valid array-like object, or is empty, exit early
+	if (!elements || elements.length === 0) {
+		callback(); // No images to load, immediately call the callback
+		return;
+	}
+
+	let images = Array.from(elements)
+		.filter(element => element.tagName && element.tagName.toLowerCase() === 'img' && element.src)
+		.filter((element, index, self) =>
+			index === self.findIndex(e => e.src === element.src)
+		);
+
+	// If no images are found, call the callback immediately
+	if (images.length === 0) {
+		callback();
+		return;
+	}
+
+	// Set timeout
+	timeoutId = setTimeout(() => {
+		console.warn(`Image loading timed out after ${timeout}ms`);
+		callback(false);
+	}, timeout);
+
+	totalImages = images.length;
+
+	images.forEach((img) => {
+		// Otherwise it will not load until visible
+		img.loading = 'eager';
+
+		if (img.complete && img.naturalHeight !== 0) {
+			// Image is already loaded successfully
+			//console.log(`Image cached: ${img.src}`);
+			checkComplete(img.src);
+		} else {
+			// Add event listeners for load and error events
+			img.addEventListener('load', () => {
+				//console.log(`Image loaded: ${img.src}`);
+				checkComplete(img.src);
+			});
+
+			img.addEventListener('error', () => {
+				console.log(`Image failed to load: ${img.src}`);
+				checkComplete(img.src);
+			});
+		}
+	});
+}
+
+
+function updateRelativeTime(selector) {
+	// Get all elements with the given selector
+	const timeElements = document.querySelectorAll(selector);
+	if (timeElements.length === 0) return;
+
+	// Default time style and map for supported options
+	const styleMap = ['narrow', 'short', 'long'];
+	const style = styleMap.find(s => selector.includes(s)) || 'long';
+
+	// Create an instance of RelativeTimeFormat
+	const rtf = new Intl.RelativeTimeFormat(lang, {
+		localeMatcher: 'best fit', // 'best fit' or 'lookup'
+		numeric: 'always', // 'always' or 'auto'
+		style: style // 'long', 'short', or 'narrow'
+	});
+
+	const now = Date.now(); // Get the current time only once
+
+	// Helper function to calculate the time difference in appropriate units
+	function getRelativeTime(diffInSeconds) {
+		const isFuture = diffInSeconds > 0;
+		const absDiffInSeconds = Math.abs(diffInSeconds);
+
+		if (absDiffInSeconds < 60) return { value: absDiffInSeconds, unit: 'second' };
+		if (absDiffInSeconds < 3600) return { value: Math.floor(absDiffInSeconds / 60), unit: 'minute' };
+		if (absDiffInSeconds < 86400) return { value: Math.floor(absDiffInSeconds / 3600), unit: 'hour' };
+		if (absDiffInSeconds < 2592000) return { value: Math.floor(absDiffInSeconds / 86400), unit: 'day' };
+		if (absDiffInSeconds < 31536000) return { value: Math.floor(absDiffInSeconds / 2592000), unit: 'month' };
+		return { value: Math.floor(absDiffInSeconds / 31536000), unit: 'year' };
+	}
+
+	// Process each element
+	timeElements.forEach(element => {
+		const timestamp = new Date(element.title).getTime();
+		if (isNaN(timestamp)) return; // Skip invalid timestamps
+
+		const diffInSeconds = Math.floor((timestamp - now) / 1000); // Time difference in seconds
+		const { value, unit } = getRelativeTime(diffInSeconds);
+
+		// Format the relative time and set it as the element's text
+		const formattedTime = rtf.format(diffInSeconds > 0 ? value : -value, unit);
+		element.textContent = formattedTime;
+	});
+
+	// Avoid duplicate timeout registrations for the same selector
+	if (!updateTimeout.includes(selector)) {
+		updateTimeout.push(selector);
+		setTimeout(() => updateRelativeTime(selector), 60000); // Re-run the update every 60 seconds
+	}
+}
+
+function scrollToItem() {
+    // auto-scroll to a particular comment in a thread (designated by mid) when in single-thread mode
+
+    if (justifiedGalleryActive) return;
+
+    let submid = ((bParam_mid.length) ? bParam_mid : 'abcdefg');
+
+    // Select all thread wrappers
+    let threadWrappers = document.querySelectorAll('.thread-wrapper');
+
+    threadWrappers.forEach(thread => {
+        // Get the 'data-b64mids' attribute and check if it contains submid
+        let b64mids = thread.dataset.b64mids;
+
+        if (b64mids && b64mids.includes(submid) && !thread.classList.contains('toplevel_item')) {
+
+            // Handle collapsed comments if any
+            let collapsedComments = document.querySelectorAll('.collapsed-comments');
+            if (collapsedComments.length) {
+                let scrolltoid = collapsedComments[0].id.substring(19);
+                let collapsedComment = document.getElementById('collapsed-comments-' + scrolltoid);
+                let hideCommentsLabel = document.getElementById('hide-comments-label-' + scrolltoid);
+                let hideCommentsTotal = document.getElementById('hide-comments-total-' + scrolltoid);
+
+                if (collapsedComment) collapsedComment.style.display = 'block';
+                if (hideCommentsLabel) hideCommentsLabel.innerHTML = aStr.showfewer;
+                if (hideCommentsTotal) hideCommentsTotal.style.display = 'none';
+            }
+
+            // Scroll to the target element
+            let navHeight = document.querySelector('nav') ? document.querySelector('nav').offsetHeight : 0;
+            window.scrollTo({
+                top: thread.offsetTop - navHeight,
+                behavior: 'smooth'
+            });
+
+            // Add highlight class
+            thread.classList.add('item-highlight');
+        }
+    });
 }
 
 function collapseHeight() {
@@ -908,7 +1029,7 @@ function updateInit() {
 		liveUpdate();
 	}
 	else {
-		$(document).trigger('hz:sse_bs_init');
+		document.dispatchEvent(new Event('hz:sse_bs_init'));
 	}
 
 	if($('#live-photos').length || $('#live-cards').length || $('#live-articles').length ) {
@@ -1034,10 +1155,7 @@ function liveUpdate(notify_id) {
 
 		if(update_mode === 'update' || preloadImages) {
 			console.log('LOADING images...');
-			$('.wall-item-body, .wall-photo-item',data).imagesLoaded()
-			.always( function( instance ) {
-				//console.log('all images loaded');
-
+			imagesLoaded(data, function () {
 				var iready = new Date();
 				console.log('IMAGES ready in: ' + (iready - dready)/1000 + ' seconds.');
 
@@ -1046,23 +1164,7 @@ function liveUpdate(notify_id) {
 				updateConvItems(update_mode,data);
 
 				in_progress = false;
-				$('#image_counter').html('');
-
-				// remove modal backdrop in case the update was triggered from a modal
-				$('.modal-backdrop').remove();
-			})
-			.done( function( instance ) {
-				//console.log('all images successfully loaded');
-			})
-			.fail( function() {
-				//console.log('all images loaded, at least one is broken');
-			})
-			.progress( function( instance, image ) {
-				$('#image_counter').html(Math.floor((instance.progressedCount*100)/instance.images.length) + '%');
-				//var result = image.isLoaded ? 'loaded' : 'broken';
-				//console.log( 'image is ' + result + ' for ' + image.img.src );
 			});
-
 		}
 		else {
 			page_load = false;
@@ -1104,9 +1206,8 @@ function cache_next_page() {
 
 		console.log('cached: ' + update_url);
 
-		$('.wall-item-body, .wall-photo-item', data).imagesLoaded()
-		.always( function( instance ) {
-			console.log('page_cache images loaded:');
+		imagesLoaded(data, function () {
+			console.log('page_cache: images loaded');
 
 			page_cache.data = data;
 			page_cache.page = bParam_page;
@@ -1114,19 +1215,7 @@ function cache_next_page() {
 
 			bParam_page--;
 			page_load = false;
-		})
-		.done( function( instance ) {
-			console.log('success');
-		})
-		.fail( function() {
-			console.log('at least one is broken');
-		})
-		.progress( function( instance, image ) {
-			//console.log(instance.progressedCount + '/' + instance.images.length);
-			//var result = image.isLoaded ? 'loaded' : 'broken';
-			//console.log( 'image is ' + result + ' for ' + image.img.src );
 		});
-
 	});
 
 }
@@ -1156,7 +1245,7 @@ function pageUpdate() {
 		scroll_next = false;
 		updatePageItems(update_mode,data);
 		$("#page-spinner").hide();
-		$(".autotime").timeago();
+		updateRelativeTime('.autotime');
 		in_progress = false;
 	});
 }
@@ -1217,7 +1306,7 @@ function dolike(ident, verb) {
 				$('#thread-wrapper-' + data.orig_id).replaceWith(data.html);
 			}
 
-			$('#wall-item-ago-' + data.id + ' .autotime').timeago();
+			updateRelativeTime('.autotime');
 			collapseHeight();
 			liking = 0;
 		}
@@ -1458,7 +1547,7 @@ function post_comment(id) {
 				$("#comment-edit-preview-" + id).hide();
 				$("#comment-edit-text-" + id).val('').blur().attr('placeholder', aStr.comment);
 				$('#wall-item-comment-wrapper-' + id).before(data.html);
-				$('#wall-item-ago-' + data.id + ' .autotime').timeago();
+				updateRelativeTime('.autotime');
 				$('body').css('cursor', 'unset');
 				collapseHeight();
 				commentBusy = false;
@@ -1488,7 +1577,7 @@ function preview_comment(id) {
 		function(data) {
 			if(data.preview) {
 				$("#comment-edit-preview-" + id).html(data.preview);
-				$("#comment-edit-preview-" + id + " .autotime").timeago();
+				updateRelativeTime('.autotime');
 				$("#comment-edit-preview-" + id + " a").click(function() { return false; });
 			}
 		},
@@ -1518,7 +1607,7 @@ function preview_post() {
 		function(data) {
 			if(data.preview) {
 				$("#jot-preview-content").html(data.preview);
-				$("#jot-preview-content .autotime").timeago();
+				updateRelativeTime('.autotime');
 				$("#jot-preview-content" + " a").click(function() { return false; });
 			}
 		},

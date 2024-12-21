@@ -408,7 +408,7 @@ function get_all_api_perms($uid,$api) {
 
 	$arr = array(
 		'channel_id'    => $uid,
-		'observer_hash' => $observer_xchan,
+		'observer_hash' => null, //$observer_xchan,
 		'permissions'   => $ret);
 
 	call_hooks('get_all_api_perms',$arr);
@@ -422,7 +422,7 @@ function api_perm_is_allowed($uid,$api,$permission) {
 
 	$arr = array(
 		'channel_id'    => $uid,
-		'observer_hash' => $observer_xchan,
+		'observer_hash' => null, //$observer_xchan,
 		'permission'    => $permission,
 		'result'        => false
 	);

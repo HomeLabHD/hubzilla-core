@@ -1134,6 +1134,7 @@ class Libzot {
 		}
 
 		$message_request = false;
+		$is_collection_operation = false;
 
 
 		$has_data = array_key_exists('data', $env) && $env['data'];
@@ -1141,26 +1142,37 @@ class Libzot {
 
 		$AS = null;
 
+
 		if ($env['encoding'] === 'activitystreams') {
 
 			$AS = new ActivityStreams($data);
-			if (!$AS->is_valid()) {
-				logger('Activity rejected: ' . print_r($data, true));
-				return;
-			}
 
+			// process add/remove from collection separately, as it requires a target.
+			// use the data object, as it will not include actor expansion
 			if (in_array($AS->type, ['Add', 'Remove'])
 				&& is_array($AS->obj)
 				&& array_key_exists('object', $AS->obj)
 				&& array_key_exists('actor', $AS->obj)
 				&& !empty($AS->tgt)) {
 
-				logger('unsupported collection operation', LOGGER_DEBUG);
-				return;
+				logger('relayed collection operation', LOGGER_DEBUG);
+				$is_collection_operation = true;
+
+				$original_id = $AS->id;
+				$original_type = $AS->type;
+
+				$raw_activity = $AS->data;
+
+				$AS = new ActivityStreams($raw_activity['object'], portable_id: $env['sender']);
+
+				// Store the original activity id and type for later usage
+				$AS->meta['original_id'] = $original_id;
+				$AS->meta['original_type'] = $original_type;
 			}
 
 			if (is_array($AS->obj)) {
 				$item = Activity::decode_note($AS);
+
 				if (!$item) {
 					logger('Could not decode activity: ' . print_r($AS, true));
 					return;
@@ -1168,6 +1180,11 @@ class Libzot {
 			}
 			else {
 				$item = [];
+			}
+
+			if (!$AS->is_valid()) {
+				logger('Activity rejected: ' . print_r($data, true));
+				return;
 			}
 
 			logger($AS->debug(), LOGGER_DATA);
@@ -1209,7 +1226,6 @@ class Libzot {
 		else {
 
 			logger('public post');
-
 
 			// Public post. look for any site members who are or may be accepting posts from this sender
 			// and who are allowed to see them based on the sender's permissions
@@ -1277,25 +1293,6 @@ class Libzot {
 					$item['item_private'] = 1;
 				}
 
-				if ($item['mid'] === $item['parent_mid']) {
-					if (is_array($AS->obj) && array_key_exists('commentPolicy', $AS->obj)) {
-						$p = strstr($AS->obj['commentPolicy'], 'until=');
-						if ($p !== false) {
-							$comments_closed_at = datetime_convert('UTC', 'UTC', substr($p, 6));
-							if ($comments_closed_at === $item['created']) {
-								$item['item_nocomment'] = 1;
-							}
-							else {
-								$item['comments_closed'] = $comments_closed_at;
-								$aritemr['comment_policy']  = trim(str_replace($p, '', $AS->obj['commentPolicy']));
-							}
-						}
-						else {
-							$item['comment_policy'] = $AS->obj['commentPolicy'];
-						}
-					}
-				}
-
 				if (!empty($AS->meta['hubloc']) || $AS->sigok) {
 					$item['item_verified'] = true;
 				}
@@ -1313,7 +1310,7 @@ class Libzot {
 
 				$relay = (($env['type'] === 'response') ? true : false);
 
-				$result = self::process_delivery($env['sender'], $AS, $item, $deliveries, $relay, false, $message_request);
+				$result = self::process_delivery($env['sender'], $AS, $item, $deliveries, $relay, false, $message_request, false, $is_collection_operation);
 
 				Activity::init_background_fetch($env['sender']);
 			}
@@ -1529,7 +1526,7 @@ class Libzot {
 	 * @return array
 	 */
 
-	static function process_delivery($sender, $act, $arr, $deliveries, $relay, $public = false, $request = false, $force = false) {
+	static function process_delivery($sender, $act, $arr, $deliveries, $relay, $public = false, $request = false, $force = false, $is_collection_operation = false) {
 		$result = [];
 
 		// We've validated the sender. Now make sure that the sender is the owner or author
@@ -1556,6 +1553,14 @@ class Libzot {
 			}
 
 			$DR->set_name($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
+
+			$conversation_operation = $is_collection_operation && isset($arr['target']['attributedTo']);
+
+			if (str_contains($arr['tgt_type'], 'Collection') && !$relay && !$conversation_operation) {
+				$DR->update('not a collection activity');
+				$result[] = $DR->get();
+				continue;
+			}
 
 			if (($act) && ($act->obj) && (!is_array($act->obj))) {
 				// The initial object fetch failed using the sys channel credentials.
@@ -1589,6 +1594,8 @@ class Libzot {
 			 * They have already been relayed at the origin location.
 			 *
 			 */
+
+
 
 			if ($sender === $channel['channel_hash'] && $arr['author_xchan'] === $channel['channel_hash'] && !str_starts_with($arr['mid'], z_root())) {
 				$DR->update('self delivery ignored');
@@ -1636,15 +1643,6 @@ class Libzot {
 			if (intval($channel['channel_system']) && (!$arr['item_private']) && (!$relay)) {
 				$local_public = true;
 
-				$r = q("select xchan_selfcensored from xchan where xchan_hash = '%s' limit 1",
-					dbesc($sender)
-				);
-				// don't import sys channel posts from selfcensored authors
-				if ($r && (intval($r[0]['xchan_selfcensored']))) {
-					$local_public = false;
-					continue;
-				}
-
 				$incl = Config::Get('system','pubstream_incl');
 				$excl = Config::Get('system','pubstream_excl');
 
@@ -1652,6 +1650,17 @@ class Libzot {
 					$local_public = false;
 					continue;
 				}
+
+				$r = q("select xchan_selfcensored, xchan_censored from xchan where xchan_hash = '%s'",
+					dbesc($sender)
+				);
+
+				// don't import sys channel posts from selfcensored or censored authors
+				if ($r && ($r[0]['xchan_selfcensored'] || $r[0]['xchan_censored'])) {
+					$local_public = false;
+					continue;
+				}
+
 			}
 
 			$tag_delivery = tgroup_check($channel['channel_id'], $arr);
@@ -1713,6 +1722,7 @@ class Libzot {
 					// If this is a poll response, convert the obj_type to our (internal-only) "Answer" type
 					if (in_array($arr['obj_type'], ['Note', ACTIVITY_OBJ_COMMENT]) && $arr['title'] && (!$arr['body'])) {
 						$arr['obj_type'] = 'Answer';
+						$arr['item_hidden'] = 1;
 					}
 				}
 
@@ -1838,11 +1848,19 @@ class Libzot {
 				dbesc($arr['author_xchan'])
 			);
 
-			// reactions such as like and dislike could	have an	mid with /activity/ in it.
+			// If we import an add/remove activity ($is_collection_operation) we strip off the
+			// add/remove part and only process the object.
+			// When looking up the item to pass it to the notifier for relay, we need to look up
+			// the original (stripped off) message id which we stored in $act->meta.
+
+			$sql_mid = (($is_collection_operation && $relay && $channel['channel_hash'] === $arr['owner_xchan']) ? $act->meta['original_id'] : $arr['mid']);
+
+			// Reactions such as like and dislike could	have an	mid with /activity/ in it.
 			// Check for both forms in order to prevent duplicates.
-			$r = q("select * from item where mid in ('%s','%s') and uid = %d limit 1",
-				dbesc($arr['mid']),
-				dbesc(str_replace(z_root() . '/activity/', z_root() . '/item/', $arr['mid'])),
+
+			$r = q("select * from item where mid in ('%s', '%s') and uid = %d limit 1",
+				dbesc($sql_mid),
+				dbesc(reverse_activity_mid($sql_mid)),
 				intval($channel['channel_id'])
 			);
 
@@ -1871,20 +1889,28 @@ class Libzot {
 						$DR->update('update ignored');
 						$result[] = $DR->get();
 					}
+
+					if ($relay && $channel['channel_hash'] === $item_result['item']['owner_xchan'] && $item_result['item']['verb'] !== 'Add' && !$is_collection_operation) {
+						$approval = Activity::addToCollection($channel, $act->data, $item_result['item']['parent_mid'], $item_result['item'], deliver: false);
+					}
+
 				}
 				else {
 					$DR->update('update ignored');
 					$result[] = $DR->get();
 
-					// We need this line to ensure wall-to-wall comments are relayed (by falling through to the relay bit),
+					// We need this line to ensure wall-to-wall comments and add/remove activities are relayed (by falling through to the relay bit),
 					// and at the same time not relay any other relayable posts more than once, because to do so is very wasteful.
 					if (!intval($r[0]['item_origin']))
 						continue;
 				}
+
+
 			}
 			else {
 				$arr['aid'] = $channel['channel_account_id'];
 				$arr['uid'] = $channel['channel_id'];
+
 
 				// if it's a sourced post, call the post_local hooks as if it were
 				// posted locally so that crosspost connectors will be triggered.
@@ -1914,9 +1940,14 @@ class Libzot {
 				}
 
 				if (post_is_importable($arr['uid'], $arr, $abook)) {
-					$item_result = item_store($arr);
+					$item_result = item_store($arr, addAndSync: false);
+
 					if ($item_result['success']) {
 						$item_id = $item_result['item_id'];
+
+						if ($relay && $channel['channel_hash'] === $item_result['item']['owner_xchan'] && $item_result['item']['verb'] !== 'Add' && !$is_collection_operation) {
+							$approval = Activity::addToCollection($channel, $act->data, $item_result['item']['parent_mid'], $item_result['item'], deliver: false);
+						}
 
 						if ($item_source && in_array($item_result['item']['obj_type'], ['Event', ACTIVITY_OBJ_EVENT])) {
 							event_addtocal($item_id, $channel['channel_id']);
@@ -1960,12 +1991,16 @@ class Libzot {
 
 			if ((is_array($stored)) && ($stored['id'] != $stored['parent'])
 				&& ($stored['author_xchan'] === $channel['channel_hash'])) {
-				retain_item($stored['item']['parent']);
+				retain_item($stored['parent']);
 			}
 
-			if ($relay && $item_id && $stored['item_blocked'] !== ITEM_MODERATED) {
+			if ($relay && $item_id && item_forwardable($stored)) {
 				logger('Invoking relay');
 				Master::Summon(['Notifier', 'relay', intval($item_id)]);
+				if (!empty($approval) && $approval['item_id']) {
+					Master::Summon(['Notifier', 'relay', intval($approval['item_id'])]);
+				}
+
 				$DR->addto_update('relayed');
 				$result[] = $DR->get();
 			}
@@ -2019,12 +2054,7 @@ class Libzot {
 
 			$AS = new ActivityStreams($activity);
 
-			if (!$AS->is_valid()) {
-				logger('Fetched activity rejected: ' . print_r($activity, true));
-				continue;
-			}
-
-			if ($AS->type === 'Announce' && is_array($AS->obj)
+			if ($AS->is_valid() && $AS->type === 'Announce' && is_array($AS->obj)
 				&& array_key_exists('object', $AS->obj) && array_key_exists('actor', $AS->obj)) {
 				// This is a relayed/forwarded Activity (as opposed to a shared/boosted object)
 				// Reparse the encapsulated Activity and use that instead
@@ -2032,14 +2062,33 @@ class Libzot {
 				$AS = new ActivityStreams($AS->obj);
 			}
 
+			// process add/remove from collection separately, as it requires a target.
+			// use the raw object, as it will not include actor expansion
 			if (in_array($AS->type, ['Add', 'Remove'])
 				&& is_array($AS->obj)
 				&& array_key_exists('object', $AS->obj)
 				&& array_key_exists('actor', $AS->obj)
 				&& !empty($AS->tgt)) {
 
-				logger('unsupported collection operation', LOGGER_DEBUG);
-				return;
+				logger('relayed collection operation', LOGGER_DEBUG);
+
+				$is_collection_operation = true;
+
+				$original_id = $AS->id;
+				$original_type = $AS->type;
+
+				$raw_activity = $AS->data;
+
+				$AS = new ActivityStreams($raw_activity['object']);
+
+				// Store the original activity id and type for later usage
+				$AS->meta['original_id'] = $original_id;
+				$AS->meta['original_type'] = $original_type;
+			}
+
+			if (!$AS->is_valid()) {
+				logger('Fetched activity rejected: ' . print_r($activity, true));
+				continue;
 			}
 
 			// logger($AS->debug());
@@ -2230,7 +2279,7 @@ class Libzot {
 		}
 
 
-		$x = item_store_update($item);
+		$x = item_store_update($item, addAndSync: false);
 
 		// If we're updating an event that we've saved locally, we store the item info first
 		// because event_addtocal will parse the body to get the 'new' event details
@@ -2346,21 +2395,20 @@ class Libzot {
 					);
 				}
 			} else {
-                if ($stored['id'] !== $stored['parent']) {
-                    q(
-                        "update item set commented = '%s', changed = '%s' where id = %d",
-                        dbesc(datetime_convert()),
-                        dbesc(datetime_convert()),
-                        intval($stored['parent'])
-                    );
-                }
-            }
+				if ($stored['id'] !== $stored['parent']) {
+					q("update item set commented = '%s', changed = '%s' where id = %d",
+						dbesc(datetime_convert()),
+						dbesc(datetime_convert()),
+						intval($stored['parent'])
+					);
+				}
+			}
 
 
 			// Use phased deletion to set the deleted flag, call both tag_deliver and the notifier to notify downstream channels
 			// and then clean up after ourselves with a cron job after several days to do the delete_item_lowlevel() (DROPITEM_PHASE2).
 
-			drop_item($post_id, false, DROPITEM_PHASE1);
+			drop_item($post_id, DROPITEM_PHASE1, uid: $uid);
 			tag_deliver($uid, $post_id);
 		}
 

@@ -258,6 +258,25 @@ function item_normal() {
 	return $sql;
 }
 
+function item_forwardable($item) {
+	if (intval($item['item_unpublished']) ||
+		intval($item['item_delayed']) ||
+		intval($item['item_blocked']) ||
+		intval($item['item_hidden']) ||
+		intval($item['item_restrict']) || // this might change in the future
+		// internal follow/unfollow thread
+		in_array($item['verb'], ['Follow', 'Ignore', ACTIVITY_FOLLOW, ACTIVITY_UNFOLLOW]) ||
+		str_contains($item['postopts'], 'nodeliver') ||
+		// actor not fetchable
+		(isset($item['author']['xchan_network']) && in_array($item['author']['xchan_network'], ['rss', 'anon', 'token']))
+
+	) {
+		return false;
+	}
+
+	return true;
+}
+
 function item_normal_search() {
 	return " and item.item_hidden = 0 and item.item_type in (0,3,6,7) and item.item_deleted = 0
 		and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_pending_remove = 0
@@ -361,7 +380,7 @@ function can_comment_on_post($observer_xchan, $item) {
 		case 'specific':
 		case 'contacts':
 		case '':
-			if(local_channel() && get_abconfig(local_channel(), (($item['verb'] === ACTIVITY_SHARE) ? $item['source_xchan'] : $item['owner_xchan']), 'their_perms', 'post_comments')) {
+			if(local_channel() && get_abconfig(local_channel(), $item['owner_xchan'], 'their_perms', 'post_comments')) {
 				return true;
 			}
 			if(intval($item['item_wall']) && perm_is_allowed($item['uid'],$observer_xchan,'post_comments')) {
@@ -431,8 +450,9 @@ function add_source_route($iid, $hash) {
  *  * \e boolean \b success true or false
  *  * \e array \b activity the resulting activity if successful
  */
-function post_activity_item($arr, $allow_code = false, $deliver = true) {
 
+
+function post_activity_item($arr, $allow_code = false, $deliver = true, $channel = null, $observer = null, $addAndSync = true) {
 	$ret = array('success' => false);
 
 	$is_comment = false;
@@ -446,8 +466,13 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 	if(! array_key_exists('item_thread_top',$arr) && (! $is_comment))
 		$arr['item_thread_top'] = 1;
 
-	$channel  = App::get_channel();
-	$observer = App::get_observer();
+	if (!$channel) {
+		$channel = App::get_channel();
+	}
+
+	if (!$observer) {
+		$observer = App::get_observer();
+	}
 
 	$arr['aid'] = ((x($arr,'aid')) ? $arr['aid'] : $channel['channel_account_id']);
 	$arr['uid'] = ((x($arr,'uid')) ? $arr['uid'] : $channel['channel_id']);
@@ -493,6 +518,14 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 		$arr['plink'] = $arr['mid'];
 	}
 
+	if (!$arr['target']) {
+		$arr['target'] = [
+			'id' => str_replace('/item/', '/conversation/', $arr['parent_mid']),
+			'type' => 'Collection',
+			'attributedTo' => z_root() . '/channel/' . $channel['channel_address'],
+		];
+		$arr['tgt_type'] = 'Collection';
+	}
 
 	// for the benefit of plugins, we will behave as if this is an API call rather than a normal online post
 
@@ -509,29 +542,30 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 		return $ret;
 	}
 
-	$post = item_store($arr,$allow_code,$deliver);
+	$post = item_store($arr, $allow_code, $deliver, $addAndSync);
 
-	if($post['success']) {
-		$post_id = $post['item_id'];
-		$ret['success'] = true;
-		$ret['item_id'] = $post_id;
-		$ret['activity'] = $post['item'];
-
-		/**
-		 * @hooks post_local_end
-		 *   Called after a local post operation has completed.
-		 *   * \e array - the item returned from item_store()
-		 */
-		call_hooks('post_local_end', $ret['activity']);
-	}
-	else
+	if (!$post['success']) {
 		return $ret;
+	}
+
+	$post_id = $post['item_id'];
+	$ret['success'] = true;
+	$ret['item_id'] = $post_id;
+	$ret['activity'] = $post['item'];
+
+	/**
+	 * @hooks post_local_end
+	 *   Called after a local post operation has completed.
+	 *   * \e array - the item returned from item_store()
+	 */
+	call_hooks('post_local_end', $ret['activity']);
 
 	if($post_id && $deliver) {
-		Master::Summon(['Notifier','activity', $post_id]);
+		Master::Summon(['Notifier', 'activity', $post_id]);
+		if (!empty($post['approval_id'])) {
+			Master::Summon(['Notifier', 'activity', $post['approval_id']]);
+		}
 	}
-
-	$ret['success'] = true;
 
 	return $ret;
 }
@@ -1594,7 +1628,7 @@ function item_json_encapsulate($arr, $k)  {
  *   * \e boolean \b success
  *   * \e int \b item_id
  */
-function item_store($arr, $allow_exec = false, $deliver = true) {
+function item_store($arr, $allow_exec = false, $deliver = true, $addAndSync = true) {
 
 	$d = [
 			'item' => $arr,
@@ -1776,16 +1810,6 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 	if((! array_key_exists('item_nocomment',$arr)) && ($arr['comment_policy'] == 'none'))
 		$arr['item_nocomment'] = 1;
 
-	// handle time travelers
-	// Allow a bit of fudge in case somebody just has a slightly slow/fast clock
-
-	$d1 = new DateTime('now +10 minutes', new DateTimeZone('UTC'));
-	$d2 = new DateTime($arr['created'] . '+00:00');
-
-	if($d2 > $d1) {
-		$arr['item_delayed'] = 1;
-	}
-
 	if(empty($arr['llink'])) {
 		$arr['llink'] = z_root() . '/display/' . $arr['uuid'];
 	}
@@ -1827,7 +1851,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 				);
 			}
 
-			if(comments_are_now_closed($r[0])) {
+			if(comments_are_now_closed($r[0]) && !in_array($arr['verb'], ['Add', 'Remove'])) {
 				logger('item_store: comments closed');
 				$ret['message'] = 'Comments closed.';
 				return $ret;
@@ -1882,7 +1906,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 				$arr['item_private'] = 0;
 
 			if(in_array($arr['obj_type'], ['Note','Answer']) && $r[0]['obj_type'] === 'Question' && intval($r[0]['item_wall'])) {
-				Activity::update_poll($r[0]['id'], $arr);
+				Activity::update_poll($r[0], $arr);
 			}
 
 		}
@@ -2052,6 +2076,13 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 		Master::Summon([ 'Cache_embeds', $current_post ]);
 	}
 
+	$ret['success'] = true;
+	$ret['item_id'] = $current_post;
+
+	if ($addAndSync) {
+		$ret = addToCollectionAndSync($ret);
+	}
+
 	// If _creating_ a deleted item, don't propagate it further or send out notifications.
 	// We need to store the item details just in case the delete came in before the original post,
 	// so that we have an item in the DB that's marked deleted and won't store a fresh post
@@ -2061,9 +2092,6 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 		send_status_notifications($current_post,$arr);
 		tag_deliver($arr['uid'],$current_post);
 	}
-
-	$ret['success'] = true;
-	$ret['item_id'] = $current_post;
 
 	return $ret;
 }
@@ -2077,7 +2105,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
  * @param boolean $deliver (optional) default true
  * @return array
  */
-function item_store_update($arr, $allow_exec = false, $deliver = true) {
+function item_store_update($arr, $allow_exec = false, $deliver = true, $addAndSync = true) {
 
 	$d = [
 			'item' => $arr,
@@ -2211,7 +2239,7 @@ function item_store_update($arr, $allow_exec = false, $deliver = true) {
 
 	$arr['revision']      = ((x($arr,'revision') && $arr['revision'] > 0)   ? intval($arr['revision']) : 0);
 
-	if(array_key_exists('comments_closed',$arr) && $arr['comments_closed'] > NULL_DATE)
+	if(array_key_exists('comments_closed',$arr))
 		$arr['comments_closed'] = datetime_convert('UTC','UTC',$arr['comments_closed']);
 	else
 		$arr['comments_closed'] = $orig[0]['comments_closed'];
@@ -2390,16 +2418,18 @@ function item_store_update($arr, $allow_exec = false, $deliver = true) {
 		Master::Summon([ 'Cache_embeds', $orig_post_id ]);
 	}
 
-
-
-
-	if($deliver) {
-		send_status_notifications($orig_post_id,$arr);
-		tag_deliver($uid,$orig_post_id);
-	}
-
 	$ret['success'] = true;
 	$ret['item_id'] = $orig_post_id;
+
+	if ($addAndSync) {
+		$ret = addToCollectionAndSync($ret);
+	}
+
+	if($deliver) {
+        // don't send notify_comment for edits
+        // send_status_notifications($orig_post_id,$arr);
+		tag_deliver($uid,$orig_post_id);
+	}
 
 	return $ret;
 }
@@ -3101,6 +3131,11 @@ function i_am_mentioned($channel, $item, $check_groups = false) {
  */
 function start_delivery_chain($channel, $item, $item_id, $parent, $group = false, $edit = false) {
 
+	if ($item['author_xchan'] === $channel['channel_hash'] && in_array($item['verb'], ['Add', 'Remove'])) {
+		logger('delivery chain already started');
+		return;
+	}
+
 	$sourced = check_item_source($channel['channel_id'],$item);
 
 	if($sourced) {
@@ -3147,7 +3182,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 				$item['thr_parent'] = $item['mid'];
 				$item['llink'] = z_root() . '/display/' . $item['uuid'];
 			}
-
+/*
 			$r = q("UPDATE item SET author_xchan = '%s', mid = '%s', parent_mid = '%s', thr_parent = '%s', llink = '%s' WHERE id = %d",
 				dbesc($item['author_xchan']),
 				dbesc($item['mid']),
@@ -3156,7 +3191,105 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 				dbesc($item['llink']),
 				intval($item_id)
 			);
+*/
 		}
+
+		$private = (($channel['channel_allow_cid'] || $channel['channel_allow_gid']
+			|| $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 1 : 0);
+
+		$new_public_policy = map_scope(PermissionLimits::Get($channel['channel_id'],'view_stream'),true);
+
+		if((! $private) && $new_public_policy)
+			$private = 1;
+
+		$item_wall = 1;
+		$item_origin = (($item['item_deleted']) ? 0 : 1); // item_origin for deleted items is set to 0 in delete_imported_item() to prevent looping. In this case we probably should not set it back to 1 here.
+		$item_uplink = 0;
+		$item_nocomment = 0;
+
+		$flag_bits = $item['item_flags'];
+
+		// maintain the original source, which will be the original item owner and was stored in source_xchan
+		// when we created the delivery fork
+
+		if($parent) {
+			$r = q("update item set source_xchan = '%s' where id = %d",
+				dbesc($parent['source_xchan']),
+				intval($item_id)
+			);
+		}
+		else {
+			$item_uplink = (($item['item_rss']) ? 0 : 1); // Do not set item_uplink for rss items - we can not send anything to them.
+
+			// if this is an edit, item_store_update() will have already updated the item
+			// with the correct value for source_xchan (by ignoring it). We cannot set to owner_xchan
+			// in this case because owner_xchan will point to the parent of this chain
+			// and not the original sender.
+
+			if(!$edit) {
+				$r = q("update item set source_xchan = owner_xchan where id = %d",
+					intval($item_id)
+				);
+			}
+		}
+
+		// this will not work with item_store_update()
+
+		$r = q("update item set item_uplink = %d, item_nocomment = %d, item_flags = %d, owner_xchan = '%s', allow_cid = '%s', allow_gid = '%s',
+			deny_cid = '%s', deny_gid = '%s', item_private = %d, public_policy = '%s', comment_policy = '%s', title = '%s', body = '%s', item_wall = %d, item_origin = %d,
+			author_xchan = '%s', mid = '%s', parent_mid = '%s', thr_parent = '%s', llink = '%s' where id = %d",
+			intval($item_uplink),
+			intval($item_nocomment),
+			intval($flag_bits),
+			dbesc($channel['channel_hash']),
+			dbesc($channel['channel_allow_cid']),
+			dbesc($channel['channel_allow_gid']),
+			dbesc($channel['channel_deny_cid']),
+			dbesc($channel['channel_deny_gid']),
+			intval($private),
+			dbesc($new_public_policy),
+			dbesc(map_scope(PermissionLimits::Get($channel['channel_id'],'post_comments'))),
+			dbesc($item['title']),
+			dbesc($item['body']),
+			intval($item_wall),
+			intval($item_origin),
+			dbesc($item['author_xchan']),
+			dbesc($item['mid']),
+			dbesc($item['parent_mid']),
+			dbesc($item['thr_parent']),
+			dbesc($item['llink']),
+			intval($item_id)
+		);
+
+		if($r) {
+			$rr = q("select * from item where id = %d",
+				intval($item_id)
+			);
+
+			if ($rr) {
+
+				// this is hackish but since we can not use item_store_update() here,
+				// we will prepare a similar output to feed to addToCollectionAndSync()
+				$ret['success'] = 1;
+				$ret['item_id'] = $rr[0]['id'];
+				$ret['item'] = $rr[0];
+
+				$result = addToCollectionAndSync($ret);
+
+				Master::Summon(['Notifier', 'tgroup', $result['item_id']]);
+				if ($result['approval_id']) {
+					Master::Summon(['Notifier', 'tgroup', $result['approval_id']]);
+				}
+			}
+		}
+		else {
+			logger('start_delivery_chain: failed to update item');
+			// reset the source xchan to prevent loops
+			$r = q("update item set source_xchan = '' where id = %d",
+				intval($item_id)
+			);
+		}
+		return;
 	}
 
 	if ($group && (! $parent)) {
@@ -3178,8 +3311,8 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 
 			if ($r) {
 				if (intval($item['item_deleted'])) {
-					drop_item($r[0]['id'], false, DROPITEM_PHASE1);
-					Master::Summon([ 'Notifier', 'drop', $r[0]['id'] ]);
+					drop_item($r[0]['id'], DROPITEM_PHASE1, uid: $r[0]['uid']);
+					Master::Summon(['Notifier', 'drop' ,$r[0]['id']]);
 					return;
 				}
 				$arr['id'] = intval($r[0]['id']);
@@ -3261,8 +3394,15 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		}
 
 		$arr['title'] = $item['title'];
-		$arr['tgt_type'] = $item['tgt_type'];
-		$arr['target'] = $item['target'];
+//		$arr['tgt_type'] = $item['tgt_type'];
+//		$arr['target'] = $item['target'];
+
+		$arr['tgt_type'] = 'Collection';
+		$arr['target'] = [
+			'id' => str_replace('/item/', '/conversation/', $arr['parent_mid']),
+			'type' => 'Collection',
+			'attributedTo' => channel_url($channel['channel_address'])
+		];
 
 		$arr['term'] = $item['term'];
 
@@ -3285,10 +3425,14 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 			$post = item_store($arr);
 		}
 
-		$post_id = $post['item_id'];
+		$post_id = $post['item_id'] ?? 0;
+		$approval_id = $post['approval_id'] ?? 0;
 
 		if($post_id) {
 			Master::Summon([ 'Notifier','tgroup',$post_id ]);
+			if ($approval_id) {
+				Master::Summon(['Notifier', 'tgroup', $approval_id]);
+			}
 		}
 		return;
 	}
@@ -3313,14 +3457,14 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 
 		if ($edit) {
 			if (intval($item['item_deleted'])) {
-				drop_item($item['id'],false,DROPITEM_PHASE1);
-				Master::Summon([ 'Notifier','drop',$item['id'] ]);
+				drop_item($item['id'], DROPITEM_PHASE1, uid: $item['uid']);
+				Master::Summon(['Notifier', 'drop', $item['id']]);
 				return;
 			}
 			return;
 		}
 		else {
-			$arr['uuid'] = item_message_id();
+			$arr['uuid'] = uuid_from_url($item['mid']);
 			$arr['mid'] = z_root() . '/activity/' . $arr['uuid'];
 			$arr['parent_mid'] = $item['parent_mid'];
 			//IConfig::Set($arr,'activitypub','context', str_replace('/item/','/conversation/',$item['parent_mid']));
@@ -3364,12 +3508,12 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		$arr['deny_gid']  = $channel['channel_deny_gid'];
 		$arr['comment_policy'] = map_scope(PermissionLimits::Get($channel['channel_id'],'post_comments'));
 
-		$post = item_store($arr);
-		$post_id = $post['item_id'];
+        $post = item_store($arr, deliver: false, addAndSync: false);
+		$post_id = $post['item_id'] ?? 0;
 
-		if ($post_id) {
-			Master::Summon([ 'Notifier','tgroup',$post_id ]);
-		}
+        if ($post_id) {
+            Master::Summon(['Notifier', 'tgroup', $post_id]);
+        }
 
 		q("update channel set channel_lastpost = '%s' where channel_id = %d",
 			dbesc(datetime_convert()),
@@ -3379,81 +3523,6 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		return;
 	}
 
-
-	// Change this copy of the post to a forum head message and deliver to all the tgroup members
-	// also reset all the privacy bits to the forum default permissions
-
-	$private = (($channel['channel_allow_cid'] || $channel['channel_allow_gid']
-		|| $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 1 : 0);
-
-	$new_public_policy = map_scope(PermissionLimits::Get($channel['channel_id'],'view_stream'),true);
-
-	if((! $private) && $new_public_policy)
-		$private = 1;
-
-	$item_wall = 1;
-	$item_origin = (($item['item_deleted']) ? 0 : 1); // item_origin for deleted items is set to 0 in delete_imported_item() to prevent looping. In this case we probably should not set it back to 1 here.
-	$item_uplink = 0;
-	$item_nocomment = 0;
-
-	$flag_bits = $item['item_flags'];
-
-	// maintain the original source, which will be the original item owner and was stored in source_xchan
-	// when we created the delivery fork
-
-	if($parent) {
-		$r = q("update item set source_xchan = '%s' where id = %d",
-			dbesc($parent['source_xchan']),
-			intval($item_id)
-		);
-	}
-	else {
-		$item_uplink = (($item['item_rss']) ? 0 : 1); // Do not set item_uplink for rss items - we can not send anything to them.
-
-		// if this is an edit, item_store_update() will have already updated the item
-		// with the correct value for source_xchan (by ignoring it). We cannot set to owner_xchan
-		// in this case because owner_xchan will point to the parent of this chain
-		// and not the original sender.
-
-		if(! $edit) {
-			$r = q("update item set source_xchan = owner_xchan where id = %d",
-				intval($item_id)
-			);
-		}
-	}
-
-	$title = $item['title'];
-	$body  = $item['body'];
-
-	$r = q("update item set item_uplink = %d, item_nocomment = %d, item_flags = %d, owner_xchan = '%s', allow_cid = '%s', allow_gid = '%s',
-		deny_cid = '%s', deny_gid = '%s', item_private = %d, public_policy = '%s', comment_policy = '%s', title = '%s', body = '%s', item_wall = %d, item_origin = %d  where id = %d",
-		intval($item_uplink),
-		intval($item_nocomment),
-		intval($flag_bits),
-		dbesc($channel['channel_hash']),
-		dbesc($channel['channel_allow_cid']),
-		dbesc($channel['channel_allow_gid']),
-		dbesc($channel['channel_deny_cid']),
-		dbesc($channel['channel_deny_gid']),
-		intval($private),
-		dbesc($new_public_policy),
-		dbesc(map_scope(PermissionLimits::Get($channel['channel_id'],'post_comments'))),
-		dbesc($title),
-		dbesc($body),
-		intval($item_wall),
-		intval($item_origin),
-		intval($item_id)
-	);
-
-	if($r)
-		Master::Summon([ 'Notifier','tgroup',$item_id ]);
-	else {
-		logger('start_delivery_chain: failed to update item');
-		// reset the source xchan to prevent loops
-		$r = q("update item set source_xchan = '' where id = %d",
-			intval($item_id)
-		);
-	}
 }
 
 /**
@@ -3792,7 +3861,7 @@ function item_expire($uid,$days,$comment_days = 7) {
 
 		if ($r) {
 			foreach ($r as $item) {
-				drop_item($item['id'], false);
+				drop_item($item['id'], expire: true);
 			}
 		}
 
@@ -3805,24 +3874,11 @@ function retain_item($id) {
 	);
 }
 
-function drop_items($items,$interactive = false,$stage = DROPITEM_NORMAL) {
-	$uid = 0;
-
-	if(! local_channel() && ! remote_channel())
-		return;
-
-	if(count($items)) {
+function drop_items($items, $stage = DROPITEM_NORMAL, $force = false, $expire = false) {
+	if ($items) {
 		foreach($items as $item) {
-			$owner = drop_item($item,$interactive,$stage);
-			if($owner && ! $uid)
-				$uid = $owner;
+			drop_item($item, $stage, $force, expire: $expire);
 		}
-	}
-
-	// multiple threads may have been deleted, send an expire notification
-
-	if($uid) {
-		Master::Summon([ 'Notifier','expire',$uid ]);
 	}
 }
 
@@ -3836,7 +3892,7 @@ function drop_items($items,$interactive = false,$stage = DROPITEM_NORMAL) {
 // $stage = 1 => set deleted flag on the item and perform intial notifications
 // $stage = 2 => perform low level delete at a later stage
 
-function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL) {
+function drop_item($id, $stage = DROPITEM_NORMAL, $force = false, $uid = 0, $observer_hash = '', $expire = false, $recurse = false) {
 
 	// locate item to be deleted
 
@@ -3844,33 +3900,48 @@ function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL) {
 		intval($id)
 	);
 
-	if((! $r) || (intval($r[0]['item_deleted']) && ($stage === DROPITEM_NORMAL))) {
-		if(! $interactive)
-			return 0;
-		notice( t('Item not found.') . EOL);
-		//goaway(z_root() . '/' . $_SESSION['return_url']);
+	if(!$r || (intval($r[0]['item_deleted']) && $stage === DROPITEM_NORMAL)) {
+		return false;
 	}
 
 	$item = $r[0];
 
+	if(!$recurse) {
+		drop_related($item, $stage, $force, $uid, $observer_hash, $expire);
+	}
+
 	$ok_to_delete = false;
 
-	// system deletion
-	if(! $interactive)
-		$ok_to_delete = true;
-
 	// admin deletion
-	if(is_site_admin())
+	if(is_site_admin()) {
 		$ok_to_delete = true;
+	}
 
 	// owner deletion
-	if(local_channel() && local_channel() == $item['uid'])
+	if(local_channel() && local_channel() == $item['uid']) {
 		$ok_to_delete = true;
+	}
+
+	// remote delete when nobody is authenticated (called from Libzot)
+	if ($uid && intval($uid) === intval($item['uid'])) {
+		$ok_to_delete = true;
+	}
 
 	// author deletion
-	$observer = App::get_observer();
-	if($observer && $observer['xchan_hash'] && ($observer['xchan_hash'] === $item['author_xchan']))
+	if ($observer_hash) {
+		$observer = ['xchan_hash' => $observer_hash];
+	}
+	else {
+		$observer = App::get_observer();
+	}
+
+	if (isset($observer['xchan_hash']) && $observer['xchan_hash'] === $item['author_xchan']) {
 		$ok_to_delete = true;
+	}
+
+	if (isset($observer['xchan_hash']) && $observer['xchan_hash'] === $item['owner_xchan']) {
+		$ok_to_delete = true;
+	}
 
 	if($ok_to_delete) {
 
@@ -3883,9 +3954,9 @@ function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL) {
 
 		$arr = [
 				'item' => $item,
-				'interactive' => $interactive,
 				'stage' => $stage
 		];
+
 		/**
 		 * @hooks drop_item
 		 *   Called when an 'item' is removed.
@@ -3908,29 +3979,94 @@ function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL) {
 			delete_item_lowlevel($item, $stage);
 		}
 
-		if(! $interactive)
-			return 1;
-
-		// send the notification upstream/downstream as the case may be
-		// only send notifications to others if this is the owner's wall item.
-
-		// This isn't optimal. We somehow need to pass to this function whether or not
-		// to call the notifier, or we need to call the notifier from the calling function.
-		// We'll rely on the undocumented behaviour that DROPITEM_PHASE1 is (hopefully) only
-		// set if we know we're going to send delete notifications out to others.
-
-		if((intval($item['item_wall']) && ($stage != DROPITEM_PHASE2)) || ($stage == DROPITEM_PHASE1)) {
-			Master::Summon([ 'Notifier','drop',$notify_id ]);
-		}
-		//goaway(z_root() . '/' . $_SESSION['return_url']);
+		return true;
 	}
 	else {
-		if(! $interactive)
-			return 0;
-		notice( t('Permission denied.') . EOL);
-		//goaway(z_root() . '/' . $_SESSION['return_url']);
+		return false;
 	}
 }
+
+
+// If somebody deletes a 'Create' activity, find any associated 'Add/Collection'
+// activity and delete it. And vice versa.
+
+function drop_related($item, $stage = DROPITEM_NORMAL, $force = false, $uid = 0, $observer_hash = '', $expire = false, $recurse = false) {
+	$allRelated = q("select * from item where parent_mid = '%s' and uid = %d",
+		dbesc($item['parent_mid']),
+		intval($item['uid'])
+	);
+	if (! $allRelated) {
+		return;
+	}
+	if ($item['verb'] === 'Add' && $item['tgt_type'] === 'Collection') {
+		if (is_array($item['obj'])) {
+			$thisItem = $item['obj'];
+		}
+		else {
+			$thisItem = json_decode($item['obj'], true);
+		}
+		if (isset($thisItem['object']['id'])) {
+			$targetMid = $thisItem['object']['id'];
+		}
+		if (!$targetMid) {
+			return;
+		}
+		foreach ($allRelated as $related) {
+			if ($related['mid'] === $targetMid) {
+				drop_item($related['id'], $stage, $force, $uid, $observer_hash, $expire, recurse: true);
+				break;
+			}
+		}
+	}
+	else {
+		foreach ($allRelated as $related) {
+			if ($related['verb'] === 'Add' && str_contains($related['tgt_type'], 'Collection')) {
+				$thisItem = json_decode($related['obj'], true);
+				if (isset($thisItem['id']) && $thisItem['id'] === str_replace('/item/', '/activity/', $item['mid'])) {
+					drop_item($related['id'], $stage, $force, $uid, $observer_hash, $expire, recurse: true);
+					break;
+				}
+			}
+		}
+	}
+}
+
+
+function find_related($item) {
+	$allRelated = q("select * from item where parent_mid = '%s' and uid = %d",
+		dbesc($item['parent_mid']),
+		intval($item['uid'])
+	);
+	if (! $allRelated) {
+		return false;
+	}
+	if ($item['verb'] === 'Add' && $item['tgt_type'] === 'Collection') {
+		$thisItem = json_decode($item['obj'],true);
+		if (is_array($thisItem)) {
+			$targetMid = $thisItem['object']['id'];
+		}
+		if (!$targetMid) {
+			return false;
+		}
+		foreach ($allRelated as $related) {
+			if ($related['mid'] === $targetMid) {
+				return $related;
+			}
+		}
+	}
+	else {
+		foreach ($allRelated as $related) {
+			if ($related['verb'] === 'Add' && str_contains($related['tgt_type'], 'Collection')) {
+				$thisItem = json_decode($related['obj'], true);
+				if (isset($thisItem['object']['id']) && $thisItem['object']['id'] === $item['mid']) {
+					return $related;
+				}
+			}
+		}
+	}
+	return false;
+}
+
 
 /**
  * @warning This function does not check for permission and does not send
@@ -5094,7 +5230,7 @@ function fix_attached_permissions($uid, $body, $str_contact_allow, $str_group_al
  * which will allow you to interact with it.
  */
 
-function copy_of_pubitem($channel,$mid) {
+function copy_of_pubitem($channel, $mid) {
 
 	$result = null;
 	$syschan = get_sys_channel();
@@ -5130,9 +5266,10 @@ function copy_of_pubitem($channel,$mid) {
 			$rv['item_wall'] = 0;
 			$rv['item_origin'] = 0;
 
-			$x = item_store($rv);
+            $x = item_store($rv, deliver: false, addAndSync: false);
 			if($x['item_id'] && $x['item']['mid'] === $mid) {
 				$result = $x['item'];
+				sync_an_item($channel['channel_id'], $x['item_id']);
 			}
 
 		}
@@ -5140,3 +5277,69 @@ function copy_of_pubitem($channel,$mid) {
 
 	return $result;
 }
+
+function addToCollectionAndSync($ret) {
+	if (!$ret['success']) {
+		return $ret;
+	}
+
+	$channel = channelx_by_n($ret['item']['uid']);
+	if ($channel && $channel['channel_hash'] === $ret['item']['owner_xchan']) {
+		$items = [$ret['item']];
+
+		if ((int)$items[0]['item_blocked'] === ITEM_MODERATED
+			|| (int)$items[0]['item_unpublished'] || (int)$items[0]['item_delayed'])  {
+			return $ret;
+		}
+
+		xchan_query($items);
+		$items = fetch_post_tags($items);
+		$sync_items = [];
+		$sync_items[] = encode_item($items[0], true);
+
+		if (!in_array($ret['item']['verb'], ['Add', 'Remove'])) {
+
+			$new_obj = Activity::build_packet(Activity::encode_activity($items[0]), $channel, false);
+			$approval = Activity::addToCollection($channel, $new_obj, $ret['item']['parent_mid'], $ret['item'], deliver: false);
+
+			if ($approval['success']) {
+				$ret['approval_id'] = $approval['item_id'];
+				$ret['approval'] = $approval['activity'];
+				$add_items = [$approval['activity']];
+				xchan_query($add_items);
+				$add_items = fetch_post_tags($add_items);
+				$sync_items[] = encode_item($add_items[0], true);
+			}
+		}
+
+		$resource_type = $ret['item']['resource_type'];
+
+		if ($resource_type === 'event') {
+			$z = q("select * from event where event_hash = '%s' and uid = %d limit 1",
+				dbesc($ret['item']['resource_id']),
+				intval($channel['channel_id'])
+			);
+
+			if ($z) {
+				Libsync::build_sync_packet($channel['channel_id'], ['event_item' => $sync_items, 'event' => $z]);
+			}
+		}
+		elseif ($resource_type === 'photo') {
+			// reserved for future use, currently handled in the photo upload workflow
+		}
+		else {
+			Libsync::build_sync_packet($ret['item']['uid'], ['item' => $sync_items]);
+		}
+	}
+
+	return $ret;
+}
+
+function reverse_activity_mid($string) {
+	return str_replace(z_root() . '/activity/', z_root() . '/item/', $string);
+}
+
+function set_activity_mid($string) {
+	return str_replace(z_root() . '/item/', z_root() . '/activity/', $string);
+}
+

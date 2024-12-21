@@ -1,8 +1,9 @@
 <script>
-var calendar;
-
 $(document).ready(function() {
-	var calendarEl = document.getElementById('calendar');
+	let calendarEl = document.getElementById('calendar');
+	let fragment = window.location.hash.substring(1);
+	let view;
+
 	calendar = new FullCalendar.Calendar(calendarEl, {
 
 		eventSources: [ {{$sources}} ],
@@ -37,6 +38,26 @@ $(document).ready(function() {
 	});
 
 	calendar.render();
+
+	if (fragment) {
+		switch (fragment.length) {
+			case 7:
+				view = 'dayGridMonth';
+				break;
+			case 10:
+				view = 'timeGridWeek';
+				break;
+			case 11:
+				if (fragment[0] === '!') {
+					fragment = fragment.substring(1);
+					view = 'timeGridDay';
+				}
+				break;
+			default:
+				view = 'dayGridMonth';
+		}
+		calendar.changeView(view, fragment);
+	}
 
 	$('#title').text(calendar.view.title);
 

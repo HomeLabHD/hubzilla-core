@@ -284,7 +284,7 @@ class Like extends Controller {
 						intval($ch[0]['channel_id'])
 					);
 					if ($r)
-						drop_item($r[0]['id'], false);
+						drop_item($r[0]['id']);
 					if ($interactive) {
 						notice(t('Previous action reversed.') . EOL);
 						return $o;
@@ -387,17 +387,20 @@ class Like extends Controller {
 				// already liked it. Drop that item.
 				require_once('include/items.php');
 				foreach ($r as $rr) {
-					drop_item($rr['id'], false, DROPITEM_PHASE1);
+					drop_item($rr['id'], DROPITEM_PHASE1);
+
 					// set the changed timestamp on the parent so we'll see the update without a page reload
 					q("update item set changed = '%s' where id = %d and uid = %d",
 						dbesc(datetime_convert()),
 						intval($rr['parent']),
 						intval($rr['uid'])
 					);
+
 					// Prior activity was a duplicate of the one we're submitting, just undo it;
 					// don't fall through and create another
-					if (activity_match($rr['verb'], $activity))
+					if (activity_match($rr['verb'], $activity)) {
 						$multi_undo = false;
+					}
 
 					$d = q("select * from item where id = %d",
 						intval($rr['id'])
@@ -559,6 +562,7 @@ class Like extends Controller {
 
 		$post    = item_store($arr);
 		$post_id = $post['item_id'];
+		$approval_id = $post['approval_id'] ?? 0;
 
 		// save the conversation from expiration
 
@@ -574,6 +578,7 @@ class Like extends Controller {
 		}
 
 
+/* Item sync is now done in item_store()
 		$r = q("select * from item where id = %d",
 			intval($post_id)
 		);
@@ -582,7 +587,7 @@ class Like extends Controller {
 			$sync_item = fetch_post_tags($r);
 			Libsync::build_sync_packet($profile_uid, ['item' => [encode_item($sync_item[0], true)]]);
 		}
-
+*/
 
 		if ($extended_like) {
 			$r = q("insert into likes (channel_id,liker,likee,iid,i_mid,verb,target_type,target_id,target) values (%d,'%s','%s',%d,'%s','%s','%s','%s','%s')",
@@ -609,7 +614,10 @@ class Like extends Controller {
 
 		}
 
-		Master::Summon(array('Notifier', 'like', $post_id));
+		Master::Summon(['Notifier', 'like', $post_id]);
+		if ($approval_id) {
+			Master::Summon(['Notifier', 'like', $approval_id]);
+		}
 
 		if ($interactive) {
 			notice(t('Action completed.') . EOL);

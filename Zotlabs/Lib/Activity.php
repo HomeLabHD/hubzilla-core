@@ -8,6 +8,7 @@ use Zotlabs\Access\PermissionRoles;
 use Zotlabs\Access\Permissions;
 use Zotlabs\Daemon\Master;
 use Zotlabs\Web\HTTPSig;
+use Zotlabs\Entity\Item;
 
 require_once('include/event.php');
 require_once('include/html2plain.php');
@@ -598,6 +599,25 @@ class Activity {
 
 		if ($i['mid'] !== $i['parent_mid']) {
 			$ret['inReplyTo'] = ((strpos($i['thr_parent'], 'http') === 0) ? $i['thr_parent'] : z_root() . '/item/' . urlencode($i['thr_parent']));
+
+			$cnv = IConfig::Get($i['parent'], 'activitypub', 'context');
+			if (!$cnv) {
+				$cnv = $i['parent_mid'];
+			}
+		}
+
+		if (empty($cnv)) {
+			$cnv = IConfig::Get($i, 'activitypub', 'context');
+			if (!$cnv) {
+				$cnv = $i['parent_mid'];
+			}
+		}
+
+		if (!empty($cnv)) {
+			if (is_string($cnv) && str_starts_with($cnv, z_root())) {
+				$cnv = str_replace(['/item/', '/activity/'], ['/conversation/', '/conversation/'], $cnv);
+			}
+			$ret['context'] = $cnv;
 		}
 
 		if ($i['mimetype'] === 'text/bbcode') {
@@ -617,6 +637,12 @@ class Activity {
 
 		$t = self::encode_taxonomy($i);
 		if ($t) {
+			foreach($t as $tag) {
+				if (strcasecmp($tag['name'], '#nsfw') === 0 || strcasecmp($tag['name'], '#sensitive') === 0) {
+					$ret['sensitive'] = true;
+				}
+			}
+
 			$ret['tag'] = $t;
 		}
 
@@ -624,7 +650,20 @@ class Activity {
 		if ($a) {
 			$ret['attachment'] = $a;
 		}
-
+/*
+		if ($i['target']) {
+			if (is_string($i['target'])) {
+				$tmp = json_decode($i['target'], true);
+				if ($tmp !== null) {
+					$i['target'] = $tmp;
+				}
+			}
+			$tgt = self::encode_object($i['target']);
+			if ($tgt) {
+				$ret['target'] = $tgt;
+			}
+		}
+*/
 		if (intval($i['item_private']) === 0) {
 			$ret['to'] = [ACTIVITY_PUBLIC_INBOX];
 		}
@@ -843,12 +882,32 @@ class Activity {
 		$ret['type'] = self::activity_mapper($i['verb']);
 
 		if ((isset($i['item_deleted']) && intval($i['item_deleted'])) && !$recurse) {
-			$is_response = false;
 
-			if (ActivityStreams::is_response_activity($ret['type'])) {
+			if ($i['verb'] === 'Add' && str_contains($i['tgt_type'], 'Collection')) {
+				$ret['id'] = str_replace('/item/', '/activity/', $i['mid']) . '#Remove';
+				$ret['type'] = 'Remove';
+				if (is_string($i['obj'])) {
+					$obj = json_decode($i['obj'], true);
+				}
+				elseif(is_array($i['obj'])) {
+					$obj = $i['obj'];
+				}
+				if (isset($obj['id'])) {
+					$ret['object'] = $obj['id'];
+				}
+				else {
+					$ret['object'] = str_replace('/item/', '/activity/', $i['mid']);
+				}
+				$ret['target'] = is_array($i['target']) ? $i['target'] : json_decode($i['target'], true);
+
+				return $ret;
+			}
+
+			$is_response = ActivityStreams::is_response_activity($ret['type']);
+
+			if ($is_response) {
 				$ret['type'] = 'Undo';
 				$fragment    = 'undo';
-				$is_response = true;
 			}
 			else {
 				$ret['type'] = 'Delete';
@@ -971,9 +1030,28 @@ class Activity {
 			// inReplyTo needs to be set in the activity for followup actions (Like, Dislike, Announce, etc.),
 			// but *not* for comments and RSVPs, where it should only be present in the object
 
-			if (!in_array($ret['type'], ['Create', 'Update', 'Accept', 'Reject', 'TentativeAccept', 'TentativeReject'])) {
+			if (!in_array($ret['type'], ['Create', 'Update', 'Add', 'Remove', 'Accept', 'Reject', 'TentativeAccept', 'TentativeReject'])) {
 				$ret['inReplyTo'] = ((strpos($i['thr_parent'], 'http') === 0) ? $i['thr_parent'] : z_root() . '/item/' . urlencode($i['thr_parent']));
 			}
+
+			$cnv = IConfig::Get($i['parent'], 'activitypub', 'context');
+			if (!$cnv) {
+				$cnv = $i['parent_mid'];
+			}
+		}
+
+		if (empty($cnv)) {
+			$cnv = IConfig::Get($i, 'activitypub', 'context');
+			if (!$cnv) {
+				$cnv = $i['parent_mid'];
+			}
+		}
+
+		if (!empty($cnv)) {
+			if (is_string($cnv) && str_starts_with($cnv, z_root())) {
+				$cnv = str_replace(['/item/', '/activity/'], ['/conversation/', '/conversation/'], $cnv);
+			}
+			$ret['context'] = $cnv;
 		}
 
 		$actor = self::encode_person($i['author'], false);
@@ -1046,6 +1124,7 @@ class Activity {
 		call_hooks('encode_activity', $hookinfo);
 
 		return $hookinfo['encoded'];
+
 	}
 
 	// Returns an array of URLS for any mention tags found in the item array $i.
@@ -1287,81 +1366,6 @@ class Activity {
 		logger('Unmapped activity: ' . $verb);
 		return 'Create';
 		//	return false;
-	}
-
-	static function activity_decode_mapper($verb) {
-
-		$acts = [
-			'http://activitystrea.ms/schema/1.0/post'           => 'Create',
-		//	'http://activitystrea.ms/schema/1.0/share'          => 'Announce',
-			'http://activitystrea.ms/schema/1.0/update'         => 'Update',
-			'http://activitystrea.ms/schema/1.0/like'           => 'Like',
-			'http://activitystrea.ms/schema/1.0/favorite'       => 'Like',
-			'http://purl.org/zot/activity/dislike'              => 'Dislike',
-		//	'http://activitystrea.ms/schema/1.0/tag'            => 'Add',
-			'http://activitystrea.ms/schema/1.0/follow'         => 'Follow',
-			'http://activitystrea.ms/schema/1.0/unfollow'       => 'Unfollow',
-			'http://activitystrea.ms/schema/1.0/stop-following' => 'Unfollow',
-			'http://purl.org/zot/activity/attendyes'            => 'Accept',
-			'http://purl.org/zot/activity/attendno'             => 'Reject',
-			'http://purl.org/zot/activity/attendmaybe'          => 'TentativeAccept',
-			'Announce'                                          => 'Announce',
-			'Invite'                                            => 'Invite',
-			'Delete'                                            => 'Delete',
-			'Undo'                                              => 'Undo',
-			'Add'                                               => 'Add',
-			'Remove'                                            => 'Remove'
-		];
-
-		call_hooks('activity_decode_mapper', $acts);
-
-		foreach ($acts as $k => $v) {
-			if ($verb === $v) {
-				return $k;
-			}
-		}
-
-		logger('Unmapped activity: ' . $verb);
-		return 'Create';
-
-	}
-
-	static function activity_obj_decode_mapper($obj) {
-
-		$objs = [
-			'http://activitystrea.ms/schema/1.0/note'          => 'Note',
-			'http://activitystrea.ms/schema/1.0/note'          => 'Article',
-			'http://activitystrea.ms/schema/1.0/comment'       => 'Note',
-			'http://activitystrea.ms/schema/1.0/person'        => 'Person',
-			'http://purl.org/zot/activity/profile'             => 'Profile',
-			'http://activitystrea.ms/schema/1.0/photo'         => 'Image',
-			'http://activitystrea.ms/schema/1.0/profile-photo' => 'Icon',
-			'http://activitystrea.ms/schema/1.0/event'         => 'Event',
-			'http://purl.org/zot/activity/location'            => 'Place',
-			'http://purl.org/zot/activity/chessgame'           => 'Game',
-			'http://purl.org/zot/activity/tagterm'             => 'zot:Tag',
-			'http://purl.org/zot/activity/thing'               => 'Object',
-			'http://purl.org/zot/activity/file'                => 'zot:File',
-			'http://purl.org/zot/activity/mood'                => 'zot:Mood',
-			'Invite'                                           => 'Invite',
-			'Question'                                         => 'Question',
-			'Document'                                         => 'Document',
-			'Audio'                                            => 'Audio',
-			'Video'                                            => 'Video',
-			'Delete'                                           => 'Delete',
-			'Undo'                                             => 'Undo'
-		];
-
-		call_hooks('activity_obj_decode_mapper', $objs);
-
-		foreach ($objs as $k => $v) {
-			if ($obj === $v) {
-				return $k;
-			}
-		}
-
-		logger('Unmapped activity object: ' . $obj);
-		return 'Note';
 	}
 
 	static function activity_obj_mapper($obj) {
@@ -1642,9 +1646,9 @@ class Activity {
 		}
 
 		if (in_array($observer, [$r[0]['author_xchan'], $r[0]['owner_xchan']])) {
-			drop_item($r[0]['id'], false, (($r[0]['item_wall']) ? DROPITEM_PHASE1 : DROPITEM_NORMAL));
+			drop_item($r[0]['id'], (($r[0]['item_wall']) ? DROPITEM_PHASE1 : DROPITEM_NORMAL), observer_hash: $observer);
 		} elseif (in_array($act->actor['id'], [$r[0]['author_xchan'], $r[0]['owner_xchan']])) {
-			drop_item($r[0]['id'], false, (($r[0]['item_wall']) ? DROPITEM_PHASE1 : DROPITEM_NORMAL));
+			drop_item($r[0]['id'], (($r[0]['item_wall']) ? DROPITEM_PHASE1 : DROPITEM_NORMAL));
 		}
 
 		sync_an_item($channel['channel_id'], $r[0]['id']);
@@ -1942,129 +1946,173 @@ class Activity {
 
 	}
 
-	static function update_poll($item_id, $post) {
+	static function update_poll($pollItem, $response) {
 
-		$multi   = false;
-		$mid     = $post['mid'];
-		$content = $post['title'];
+		logger('updating poll');
 
-		if (!$item_id) {
+		$multi = false;
+
+		if (!$pollItem) {
+			logger('no item');
 			return false;
 		}
 
-		if (intval($post['item_blocked']) === ITEM_MODERATED) {
+		if (intval($pollItem['item_blocked']) === ITEM_MODERATED) {
+			logger('item blocked');
 			return false;
 		}
+
+		$channel = channelx_by_n($pollItem['uid']);
+		if (!$channel) {
+			logger('no channel');
+			return false;
+		}
+
+		$relatedItem = find_related($pollItem);
+
+		$ids = (($relatedItem) ? $pollItem['id'] . ',' . $relatedItem['id'] : $pollItem['id']);
 
 		dbq("START TRANSACTION");
+		// Using the provided items as is will produce desastrous race conditions
+		// in case of multiple choice polls - hence:
 
-		$item = q("SELECT * FROM item WHERE id = %d FOR UPDATE",
-			intval($item_id)
-		);
+		$items = dbq("SELECT * FROM item WHERE id in ($ids) FOR UPDATE");
 
-		if (!$item) {
-			dbq("COMMIT");
-			return false;
+		foreach ($items as $item) {
+			if ($item['id'] === $pollItem['id']) {
+				$pollItem = $item;
+			}
+			if (!empty($relatedItem['id']) && $item['id'] === $relatedItem['id']) {
+				$relatedItem = $item;
+			}
 		}
 
-		$item = $item[0];
+		$o = json_decode($pollItem['obj'], true);
 
-		$o = json_decode($item['obj'], true);
 		if ($o && array_key_exists('anyOf', $o)) {
 			$multi = true;
 		}
 
-		$r = q("select mid, title from item where parent_mid = '%s' and author_xchan = '%s'",
-			dbesc($item['mid']),
-			dbesc($post['author_xchan'])
-		);
+		if ($response) {
+			$mid = $response['mid'];
+			$content = trim($response['title']);
 
-		// prevent any duplicate votes by same author for oneOf and duplicate votes with same author and same answer for anyOf
-
-		if ($r) {
-			if ($multi) {
-				foreach ($r as $rv) {
-					if ($rv['title'] === $content && $rv['mid'] !== $mid) {
-						return false;
-					}
-				}
-			}
-			else {
-				foreach ($r as $rv) {
-					if ($rv['mid'] !== $mid) {
-						return false;
-					}
-				}
-			}
-		}
-
-		$answer_found = false;
-		$found        = false;
-		if ($multi) {
-			for ($c = 0; $c < count($o['anyOf']); $c++) {
-				if ($o['anyOf'][$c]['name'] === $content) {
-					$answer_found = true;
-					if (is_array($o['anyOf'][$c]['replies'])) {
-						foreach ($o['anyOf'][$c]['replies'] as $reply) {
-							if (is_array($reply) && array_key_exists('id', $reply) && $reply['id'] === $mid) {
-								$found = true;
-							}
-						}
-					}
-
-					if (!$found) {
-						$o['anyOf'][$c]['replies']['totalItems']++;
-						$o['anyOf'][$c]['replies']['items'][] = ['id' => $mid, 'type' => 'Note'];
-					}
-				}
-			}
-		}
-		else {
-			for ($c = 0; $c < count($o['oneOf']); $c++) {
-				if ($o['oneOf'][$c]['name'] === $content) {
-					$answer_found = true;
-					if (is_array($o['oneOf'][$c]['replies'])) {
-						foreach ($o['oneOf'][$c]['replies'] as $reply) {
-							if (is_array($reply) && array_key_exists('id', $reply) && $reply['id'] === $mid) {
-								$found = true;
-							}
-						}
-					}
-
-					if (!$found) {
-						$o['oneOf'][$c]['replies']['totalItems']++;
-						$o['oneOf'][$c]['replies']['items'][] = ['id' => $mid, 'type' => 'Note'];
-					}
-				}
-			}
-		}
-		logger('updated_poll: ' . print_r($o, true), LOGGER_DATA);
-		if ($answer_found && !$found) {
-			$u = q("update item set obj = '%s', edited = '%s' where id = %d",
-				dbesc(json_encode($o)),
-				dbesc(datetime_convert()),
-				intval($item['id'])
+			$r = q("select mid, title from item where parent_mid = '%s' and author_xchan = '%s' and mid != parent_mid ",
+				dbesc($pollItem['mid']),
+				dbesc($response['author_xchan'])
 			);
 
-			if ($u) {
-				dbq("COMMIT");
+			// prevent any duplicate votes by same author for oneOf and duplicate votes with same author and same answer for anyOf
 
+			if ($r) {
 				if ($multi) {
-					// wait some seconds for possible multiple answers to be processed
-					// before calling the notifier
-					sleep(3);
+					foreach ($r as $rv) {
+						if (trim($rv['title']) === $content && $rv['mid'] !== $mid) {
+							logger('already voted multi');
+							return false;
+						}
+					}
+				} else {
+					foreach ($r as $rv) {
+						if ($rv['mid'] !== $mid && $content) {
+							logger('already voted');
+							return false;
+						}
+					}
 				}
-
-				Master::Summon(['Notifier', 'wall-new', $item['id']]);
-				return true;
 			}
 
-			dbq("ROLLBACK");
+			$answer_found = false;
+			$foundPrevious = false;
+			if ($multi) {
+				for ($c = 0; $c < count($o['anyOf']); $c++) {
+					if (trim($o['anyOf'][$c]['name']) === $content) {
+						$answer_found = true;
 
+
+						if (is_array($o['anyOf'][$c]['replies'])) {
+							foreach ($o['anyOf'][$c]['replies'] as $reply) {
+								if (is_array($reply) && array_key_exists('id', $reply) && $reply['id'] === $mid) {
+									$foundPrevious = true;
+								}
+							}
+						}
+
+						if (!$foundPrevious) {
+							$o['anyOf'][$c]['replies']['totalItems']++;
+							$o['anyOf'][$c]['replies']['items'][] = ['id' => $mid, 'type' => 'Note'];
+						}
+					}
+				}
+			} else {
+				for ($c = 0; $c < count($o['oneOf']); $c++) {
+					if (trim($o['oneOf'][$c]['name']) === $content) {
+						$answer_found = true;
+						if (is_array($o['oneOf'][$c]['replies'])) {
+							foreach ($o['oneOf'][$c]['replies'] as $reply) {
+								if (is_array($reply) && array_key_exists('id', $reply) && $reply['id'] === $mid) {
+									$foundPrevious = true;
+								}
+							}
+						}
+
+						if (!$foundPrevious) {
+							$o['oneOf'][$c]['replies']['totalItems']++;
+							$o['oneOf'][$c]['replies']['items'][] = ['id' => $mid, 'type' => 'Note'];
+						}
+					}
+				}
+			}
+		}
+		if ($pollItem['comments_closed'] > NULL_DATE) {
+			if ($pollItem['comments_closed'] > datetime_convert()) {
+				$o['closed'] = datetime_convert('UTC', 'UTC', $pollItem['comments_closed'], ATOM_TIME);
+				// set this to force an update
+				$answer_found = true;
+			}
 		}
 
-		dbq("COMMIT");
-		return false;
+		// A change was made locally
+		if ($response && $answer_found && !$foundPrevious) {
+
+			// update this copy
+			$i = [$pollItem];
+			xchan_query($i, true);
+			$i = fetch_post_tags($i);
+			$i[0]['obj'] = $o;
+
+			$edited = datetime_convert();
+			$i[0]['edited'] = $edited;
+
+			// create the new object
+			$newObj = self::build_packet(self::encode_activity($i[0]), $channel, true);
+
+			// and immediately update the db
+			$u = q("UPDATE item
+				SET obj = (
+					CASE
+					WHEN item.id = %d THEN '%s'
+					WHEN item.id = %d THEN '%s'
+					END
+				),
+				edited = '%s'
+				WHERE id IN ($ids)",
+				intval($pollItem['id']),
+				dbesc(json_encode($o)),
+				intval($relatedItem['id']),
+				dbesc($newObj),
+				dbesc($edited)
+			);
+
+			dbq("COMMIT");
+
+			Master::Summon(['Notifier', 'edit_post', $pollItem['id'], $response['mid']]);
+			if (!empty($relatedItem['id'])) {
+				Master::Summon(['Notifier', 'edit_post', $relatedItem['id'], $response['mid']]);
+			}
+		}
+
+		return true;
 	}
 
 	static function decode_note($act) {
@@ -2261,6 +2309,8 @@ class Activity {
 
 		if ($s['mid'] === $s['parent_mid']) {
 			$s['item_thread_top'] = 1;
+			$s['item_nocomment'] = 0;
+			$s['comments_closed'] = NULL_DATE;
 
 			// it is a parent node - decode the comment policy info if present
 			if ($act->objprop('commentPolicy')) {
@@ -2268,7 +2318,7 @@ class Activity {
 				if ($until !== false) {
 					$s['comments_closed'] = datetime_convert('UTC', 'UTC', substr($act->obj['commentPolicy'], $until + 6));
 					if ($s['comments_closed'] < datetime_convert()) {
-						$s['nocomment'] = true;
+						$s['item_nocomment'] = 1;
 					}
 				}
 
@@ -2318,6 +2368,16 @@ class Activity {
 
 		if (array_path_exists('actor/id', $s['obj'])) {
 			$s['obj']['actor'] = $s['obj']['actor']['id'];
+		}
+
+		if (is_array($act->tgt) && $act->tgt) {
+			if (array_key_exists('type', $act->tgt)) {
+				$s['tgt_type'] = self::activity_obj_mapper($act->tgt['type']);
+			}
+			// We shouldn't need to store collection contents which could be large. We will often only require the meta-data
+			if (isset($s['tgt_type']) && str_contains($s['tgt_type'], 'Collection')) {
+				$s['target'] = ['id' => $act->tgt['id'], 'type' => $s['tgt_type'], 'attributedTo' => $act->tgt['attributedTo'] ?? $act->tgt['actor']];
+			}
 		}
 
 		$generator = $act->get_property_obj('generator');
@@ -2625,6 +2685,7 @@ class Activity {
 			}
 		}
 
+
 		if (!$ap_rawmsg && array_key_exists('signed', $raw_arr)) {
 			// zap
 			$ap_rawmsg = json_encode($act->data, JSON_UNESCAPED_SLASHES);
@@ -2658,8 +2719,7 @@ class Activity {
 		return $hookinfo['s'];
 
 	}
-
-	static function store($channel, $observer_hash, $act, $item, $fetch_parents = true, $force = false) {
+	static function store($channel, $observer_hash, $act, $item, $fetch_parents = true, $force = false, $is_collection_operation = false) {
 		$is_sys_channel = is_sys_channel($channel['channel_id']);
 		$is_child_node  = false;
 		$parent = null;
@@ -2690,6 +2750,8 @@ class Activity {
 		}
 
 		$allowed = false;
+		$relay = false;
+
 		$permit_mentions = intval(PConfig::Get($channel['channel_id'], 'system','permit_all_mentions') && i_am_mentioned($channel, $item));
 
 		if ($is_child_node) {
@@ -2716,13 +2778,22 @@ class Activity {
 				return;
 			}
 
+			$relay = $channel['channel_hash'] === $parent[0]['owner_xchan'];
+
+			if (str_contains($parent[0]['tgt_type'], 'Collection') && !$relay && !$isCollectionOperation) {
+				logger('not a collection activity');
+				return;
+			}
+
 			if ($parent[0]['obj_type'] === 'Question') {
 				if (in_array($item['obj_type'], ['Note', ACTIVITY_OBJ_COMMENT]) && $item['title'] && (!$item['body'])) {
 					$item['obj_type'] = 'Answer';
+					$item['item_hidden'] = 1;
 				}
 			}
 
 			if ($parent[0]['item_wall']) {
+
 				// set the owner to the owner of the parent
 				$item['owner_xchan'] = $parent[0]['owner_xchan'];
 
@@ -2903,6 +2974,10 @@ class Activity {
 		// This isn't perfect but the best we can do for now.
 		$item['comment_policy'] = ((isset($act->data['commentPolicy'])) ? $act->data['commentPolicy'] : 'authenticated');
 
+		if (!empty($act->obj['context'])) {
+			IConfig::Set($item, 'activitypub', 'context', $act->obj['context'], 1);
+		}
+
 		IConfig::Set($item, 'activitypub', 'recips', $act->raw_recips);
 
 		if (intval($act->sigok)) {
@@ -2973,17 +3048,48 @@ class Activity {
 			dbesc($item['mid']),
 			intval($item['uid'])
 		);
+
 		if ($r) {
 			if ($item['edited'] > $r[0]['edited']) {
 				$item['id'] = $r[0]['id'];
-				$x          = item_store_update($item);
+				$x = item_store_update($item, deliver: false);
 			}
 			else {
 				return;
 			}
 		}
 		else {
-			$x = item_store($item);
+			$x = item_store($item, deliver: false, addAndSync: false);
+		}
+
+		if ($x['success']) {
+
+			if ($relay && $channel['channel_hash'] === $x['item']['owner_xchan'] && $x['item']['verb'] !== 'Add' && !$isCollectionOperation) {
+				$approval = Activity::addToCollection($channel, $act->data, $x['item']['parent_mid'], $x['item'], deliver: false);
+			}
+
+			if (check_item_source($channel['channel_id'], $x['item']) && in_array($x['item']['obj_type'], ['Event', ACTIVITY_OBJ_EVENT])) {
+				event_addtocal($x['item_id'], $channel['channel_id']);
+			}
+
+			tag_deliver($channel['channel_id'], $x['item_id']);
+
+			if ($relay && $is_child_node) {
+				// We are the owner of this conversation, so send all received comments back downstream
+				Master::Summon(['Notifier', 'comment-import', $x['item_id']]);
+				if (!empty($approval['item_id'])) {
+					Master::Summon(['Notifier', 'comment-import', $approval['item_id']]);
+				}
+			}
+
+			$r = q("select * from item where id = %d limit 1",
+				intval($x['item_id'])
+			);
+
+			if ($r) {
+				send_status_notifications($x['item_id'], $r[0]);
+			}
+			sync_an_item($channel['channel_id'], $x['item_id']);
 		}
 
 		if ($fetch_parents && $parent && !intval($parent[0]['item_private'])) {
@@ -3010,28 +3116,6 @@ class Activity {
 				}
 			}
 		}
-
-		if ($x['success']) {
-
-			if (check_item_source($channel['channel_id'], $x['item']) && in_array($x['item']['obj_type'], ['Event', ACTIVITY_OBJ_EVENT])) {
-				event_addtocal($x['item_id'], $channel['channel_id']);
-			}
-
-			if ($is_child_node) {
-				if ($item['owner_xchan'] === $channel['channel_hash']) {
-					// We are the owner of this conversation, so send all received comments back downstream
-					Master::Summon(['Notifier', 'comment-import', $x['item_id']]);
-				}
-				$r = q("select * from item where id = %d limit 1",
-					intval($x['item_id'])
-				);
-				if ($r) {
-					send_status_notifications($x['item_id'], $r[0]);
-				}
-			}
-			sync_an_item($channel['channel_id'], $x['item_id']);
-		}
-
 	}
 
 	/**
@@ -3723,5 +3807,76 @@ class Activity {
 		}
 	}
 
+	public static function addToCollection($channel, $object, $target, $sourceItem = null, $deliver = true) {
+		if (!isset($channel['xchan_hash'])) {
+			$channel = channelx_by_hash($channel['channel_hash']);
+		}
+
+		$item = ((new Item())
+			->setUid($channel['channel_id'])
+			->setVerb('Add')
+			->setAuthorXchan($channel['channel_hash'])
+			->setOwnerXchan($channel['channel_hash'])
+			->setObj($object)
+			->setObjType($object['type'])
+			->setParentMid(str_replace('/conversation/','/item/', $target))
+			->setThrParent(str_replace('/conversation/','/item/', $target))
+			->setTgtType('Collection')
+			->setTarget([
+				'id' => str_replace('/item/','/conversation/', $target),
+				'type' => 'Collection',
+				'attributedTo' => z_root() . '/channel/' . $channel['channel_address'],
+			])
+		);
+		if ($sourceItem) {
+			$item->setSourceXchan($sourceItem['source_xchan'])
+				->setAllowCid($sourceItem['allow_cid'])
+				->setAllowGid($sourceItem['allow_gid'])
+				->setDenyCid($sourceItem['deny_cid'])
+				->setDenyGid($sourceItem['deny_gid'])
+				->setPrivate($sourceItem['item_private'])
+				->setRestrict($sourceItem['item_restrict'])
+				->setHidden($sourceItem['item_hidden'])
+				->setDelayed($sourceItem['item_delayed'])
+				->setUnpublished($sourceItem['item_unpublished'])
+				->setBlocked($sourceItem['item_blocked'])
+				->setType($sourceItem['item_type'])
+				->setCommentPolicy($sourceItem['comment_policy'])
+				->setPublicPolicy($sourceItem['public_policy'])
+				->setPostopts($sourceItem['postopts']);
+		}
+		$result = post_activity_item($item->toArray(), deliver: $deliver, channel: $channel, observer: $channel, addAndSync: false);
+		logger('addToCollection: ' . print_r($result, true));
+
+		return $result;
+	}
+
+	public static function removeFromCollection($channel, $object, $target, $deliver = true) {
+		if (!isset($channel['xchan_hash'])) {
+			$channel = channelx_by_hash($channel['channel_hash']);
+		}
+
+		$item = ((new Item())
+			->setUid($channel['channel_id'])
+			->setVerb('Remove')
+			->setAuthorXchan($channel['channel_hash'])
+			->setOwnerXchan($channel['channel_hash'])
+			->setObj($object)
+			->setObjType($object['type'])
+			->setParentMid(str_replace('/conversation/','/item/', $target))
+			->setThrParent(str_replace('/conversation/','/item/', $target))
+			->setReplyto(z_root() . '/channel/' . $channel['channel_address'])
+			->setTgtType('Collection')
+			->setTarget([
+				'id' => str_replace('/item/','/conversation/', $target),
+				'type' => 'Collection',
+				'attributedTo' => z_root() . '/channel/' . $channel['channel_address']
+			])
+		);
+
+		$result = post_activity_item($item->toArray(), deliver: $deliver, channel: $channel, observer: $channel, addAndSync: false);
+		logger('removeFromCollection: ' . print_r($result, true));
+		return $result;
+	}
 
 }

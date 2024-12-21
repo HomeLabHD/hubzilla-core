@@ -1122,7 +1122,7 @@ class Photos extends \Zotlabs\Web\Controller {
 
 					if(is_array($like_list) && (count($like_list) > MAX_LIKERS)) {
 						$like_list_part = array_slice($like_list, 0, MAX_LIKERS);
-						array_push($like_list_part, '<a href="#" data-toggle="modal" data-target="#likeModal-' . $this->get_id() . '"><b>' . t('View all') . '</b></a>');
+						array_push($like_list_part, '<a href="#" data-bs-toggle="modal" data-bs-target="#likeModal-' . $link_item['id'] . '"><b>' . t('View all') . '</b></a>');
 					} else {
 						$like_list_part = '';
 					}
@@ -1134,7 +1134,7 @@ class Photos extends \Zotlabs\Web\Controller {
 						$dislike_button_label = tt('Dislike','Dislikes',$dislike_count,'noun');
 						if (is_array($dislike_list) && (count($dislike_list) > MAX_LIKERS)) {
 							$dislike_list_part = array_slice($dislike_list, 0, MAX_LIKERS);
-							array_push($dislike_list_part, '<a href="#" data-toggle="modal" data-target="#dislikeModal-' . $this->get_id() . '"><b>' . t('View all') . '</b></a>');
+							array_push($dislike_list_part, '<a href="#" data-bs-toggle="modal" data-bs-target="#dislikeModal-' . $link_item['id'] . '"><b>' . t('View all') . '</b></a>');
 						} else {
 							$dislike_list_part = '';
 						}

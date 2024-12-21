@@ -66,7 +66,7 @@ require_once('include/security.php');
 
 
 define('PLATFORM_NAME', 'hubzilla');
-define('STD_VERSION', '9.4.4');
+define('STD_VERSION', '10.0');
 define('ZOT_REVISION', '6.0');
 
 define('DB_UPDATE_VERSION', 1263);
@@ -1271,7 +1271,8 @@ class App {
 					'$zid'             => get_my_address(),
 					'$channel_id'      => self::$profile['uid'] ?? 0,
 					'$auto_save_draft' => ((isset(self::$profile['uid']) && feature_enabled(self::$profile['uid'], 'auto_save_draft')) ? "true" : "false"),
-					'$module'          => App::$module
+					'$module'          => App::$module,
+					'$lang'            => App::$language
 				]
 			) . ((isset(self::$page['htmlhead'])) ? self::$page['htmlhead'] : '');
 
@@ -1538,14 +1539,7 @@ function check_config() {
 
 	App::set_baseurl(z_root());
 
-	// Make sure each site has a system channel.  This is now created on install
-	// so we just need to keep this around a couple of weeks until the hubs that
-	// already exist have one
-	$syschan_exists = get_sys_channel();
-	if (!$syschan_exists)
-		create_sys_channel();
-
-	new DB_Upgrade(DB_UPDATE_VERSION);
+	DB_Upgrade::run(DB_UPDATE_VERSION);
 
 	plugins_sync();
 

@@ -241,11 +241,6 @@ class Notifier {
 
 			$target_item = $r[0];
 
-			if (in_array($target_item['author']['xchan_network'], ['rss', 'anon', 'token'])) {
-				logger('notifier: target item author is not a fetchable actor', LOGGER_DEBUG);
-				return;
-			}
-
 			if (intval($target_item['item_deleted'])) {
 				logger('notifier: target item ITEM_DELETED', LOGGER_DEBUG);
 			}
@@ -268,22 +263,9 @@ class Notifier {
 
 			}
 
-			// Check for non published items, but allow an exclusion for transmitting hidden file activities
-
-			if (intval($target_item['item_unpublished']) || intval($target_item['item_delayed']) ||
-				intval($target_item['item_blocked']) || intval($target_item['item_hidden'])) {
-				logger('notifier: target item not published, so not forwardable', LOGGER_DEBUG);
-				return;
-			}
-
-			// follow/unfollow is for internal use only
-			if (in_array($target_item['verb'], ['Follow', 'Ignore', ACTIVITY_FOLLOW, ACTIVITY_UNFOLLOW])) {
-				logger('not fowarding follow/unfollow note activity');
-				return;
-			}
-
-			if (strpos($target_item['postopts'], 'nodeliver') !== false) {
-				logger('notifier: target item is undeliverable', LOGGER_DEBUG);
+			if (!item_forwardable($target_item)) {
+				//hz_syslog(print_r($target_item,true));
+				logger('notifier: target item not forwardable', LOGGER_DEBUG);
 				return;
 			}
 
@@ -299,7 +281,7 @@ class Notifier {
 				return;
 			}
 
-			if ($target_item['verb'] === ACTIVITY_SHARE) {
+			if (in_array($target_item['verb'], [ACTIVITY_SHARE])) {
 				// Provide correct representation across the wire. Internally this is treated as a comment.
 				$target_item['parent_mid'] = $target_item['thr_parent'] = $target_item['mid'];
 			}
@@ -374,7 +356,6 @@ class Notifier {
 
 			if (($relay_to_owner || $uplink) && ($cmd !== 'relay')) {
 				logger('notifier: followup relay', LOGGER_DEBUG);
-				// If the Parent item is an Announce the real owner is the parent author
 				$sendto            = (($uplink) ? $parent_item['source_xchan'] : $parent_item['owner_xchan']);
 				self::$recipients  = [$sendto];
 				self::$private     = true;
@@ -389,7 +370,7 @@ class Notifier {
 					logger('normal (downstream) distribution', LOGGER_DEBUG);
 				}
 
-				if ($parent_item && $parent_item['item_private'] !== $target_item['item_private']) {
+				if (($parent_item && $parent_item['item_private'] !== $target_item['item_private']) || (intval($target_item['item_restrict']) & 1)) {
 					logger('conversation privacy mismatch - downstream delivery prevented');
 					return;
 				}
@@ -588,8 +569,6 @@ class Notifier {
 		logger('notifier: will notify/deliver to these hubs: ' . print_r($hublist, true), LOGGER_DEBUG, LOG_DEBUG);
 
 		foreach ($dhubs as $hub) {
-
-			logger('notifier_hub: ' . $hub['hubloc_url'], LOGGER_DEBUG);
 
 			if ($hub['hubloc_network'] !== 'zot6') {
 				$narr = [

@@ -86,6 +86,7 @@ class Editpost extends \Zotlabs\Web\Controller {
 			'bbco_autocomplete'=> 'bbcode',
 			'return_path' => 'hq',
 			'button' => t('Submit'),
+			'disable_comments' => (($itm[0]['item_thread_top']) ? false : true),
 			'hide_voting' => true,
 			'hide_future' => true,
 			'hide_location' => true,

@@ -96,10 +96,6 @@
 
 /* conv_item */
 
-.wall-item-head-new {
-	border-top: 0.2rem solid var(--bs-primary);
-}
-
 .wall-item-wrapper {
 	margin-left: .75rem;
 }

@@ -10,12 +10,12 @@
 				</div>
 				<button class="btn btn-success btn-sm" onclick="openClose('form');">{{$new_event.1}}</button>
 				<div class="btn-group">
-					<button class="btn btn-outline-secondary btn-sm" onclick="changeView('prev', false);" title="{{$prev}}"><i class="bi fa-backward"></i></button>
-					<button id="today-btn" class="btn btn-outline-secondary btn-sm" onclick="changeView('today', false);" title="{{$today}}"><div id="events-spinner" class="spinner s"></div><i class="bi fa-bullseye" style="display: none; width: 1rem;"></i></button>
-					<button class="btn btn-outline-secondary btn-sm" onclick="changeView('next', false);" title="{{$next}}"><i class="bi fa-forward"></i></button>
+					<button class="btn btn-outline-secondary btn-sm" onclick="changeView('prev', false);" title="{{$prev}}"><i class="bi bi-rewind-fill"></i></button>
+					<button id="today-btn" class="btn btn-outline-secondary btn-sm" onclick="changeView('today', false);" title="{{$today}}"><div id="events-spinner" class="spinner s"></div><i class="bi bi-bullseye" style="display: none; width: 1rem;"></i></button>
+					<button class="btn btn-outline-secondary btn-sm" onclick="changeView('next', false);" title="{{$next}}"><i class="bi bi-fast-forward-fill"></i></button>
 				</div>
-				<button id="fullscreen-btn" type="button" class="btn btn-outline-secondary btn-sm" onclick="makeFullScreen();"><i class="bi fa-expand"></i></button>
-				<button id="inline-btn" type="button" class="btn btn-outline-secondary btn-sm" onclick="makeFullScreen(false);"><i class="bi fa-compress"></i></button>
+				<button id="fullscreen-btn" type="button" class="btn btn-outline-secondary btn-sm" onclick="makeFullScreen();"><i class="bi bi-arrows-angle-expand"></i></button>
+				<button id="inline-btn" type="button" class="btn btn-outline-secondary btn-sm" onclick="makeFullScreen(false);"><i class="bi bi-arrows-angle-contract"></i></button>
 			</div>
 		</div>
 		<h2 id="title"></h2>

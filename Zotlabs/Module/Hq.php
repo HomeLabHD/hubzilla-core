@@ -230,6 +230,7 @@ class Hq extends \Zotlabs\Web\Controller {
 		$options['offset'] = $_REQUEST['offset'] ?? 0;
 		$options['type'] = $_REQUEST['type'] ?? '';
 		$options['author'] = ((isset($_REQUEST['author'])) ? urldecode($_REQUEST['author']) : '');
+		$options['file'] = ((isset($_REQUEST['file'])) ? urldecode($_REQUEST['file']) : '');
 
 		$ret = Messages::get_messages_page($options);
 

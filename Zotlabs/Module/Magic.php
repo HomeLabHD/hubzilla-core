@@ -11,37 +11,43 @@ class Magic extends Controller {
 
 	function init() {
 
-		$ret =  [
-			'success' => false,
-			'url'     => '',
-			'message' => ''
-		];
-
 		logger('mod_magic: invoked', LOGGER_DEBUG);
 
-		logger('args: ' . print_r($_REQUEST,true),LOGGER_DATA);
+		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+			$data = $_POST;
+		} elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
+			$data = $_GET;
+		} else {
+			http_status_exit(405, 'Method Not Allowed');
+		}
 
-		$addr     = ((x($_REQUEST,'addr'))     ? $_REQUEST['addr']         : '');
-		$bdest    = ((x($_REQUEST,'bdest'))    ? $_REQUEST['bdest']        : '');
-		$dest     = ((x($_REQUEST,'dest'))     ? $_REQUEST['dest']         : '');
-		$rev      = ((x($_REQUEST,'rev'))      ? intval($_REQUEST['rev'])  : 0);
-		$owa      = ((x($_REQUEST,'owa'))      ? intval($_REQUEST['owa'])  : 0);
-		$delegate = ((x($_REQUEST,'delegate')) ? $_REQUEST['delegate']     : '');
+		logger('request method: ' . print_r($_SERVER['REQUEST_METHOD'], true), LOGGER_DATA);
+		logger('args: ' . print_r($data, true), LOGGER_DATA);
+
+		$bdest    = $data['bdest'] ?? '';
+		$owa      = $data['owa'] ?? 0;
+		$delegate = $data['delegate'] ?? '';
 
 		// bdest is preferred as it is hex-encoded and can survive url rewrite and argument parsing
 
-		if ($bdest) {
-			$dest = hex2bin($bdest);
+		if (!$bdest) {
+			http_status_exit(400, 'Bad Request');
 		}
 
+		$dest = hex2bin($bdest);
 		$parsed = parse_url($dest);
 
-		if (! $parsed) {
-			goaway($dest);
+		if (!$parsed) {
+			http_status_exit(400, 'Bad Request');
 		}
 
-		$basepath = $parsed['scheme'] . '://' . $parsed['host'] . (isset($parsed['port']) ? ':' . $parsed['port'] : '');
-		$owapath = SConfig::get($basepath,'system','openwebauth', $basepath . '/owa');
+		$basepath = unparse_url(array_filter(
+			$parsed,
+			fn (string $key) => in_array($key, ['scheme', 'host', 'port']),
+			ARRAY_FILTER_USE_KEY
+		));
+
+		$owapath = SConfig::get($basepath, 'system', 'openwebauth', $basepath . '/owa');
 
 		// This is ready-made for a plugin that provides a blacklist or "ask me" before blindly authenticating.
 		// By default, we'll proceed without asking.
@@ -53,12 +59,14 @@ class Magic extends Controller {
 		];
 
 		call_hooks('magic_auth',$arr);
+
 		$dest = $arr['destination'];
-		if (! $arr['proceed']) {
+
+		if (!$arr['proceed']) {
 			goaway($dest);
 		}
 
-		if((get_observer_hash()) && (stripos($dest,z_root()) === 0)) {
+		if (get_observer_hash() && str_starts_with($dest, z_root())) {
 
 			// We are already authenticated on this site and a registered observer.
 			// First check if this is a delegate request on the local system and process accordingly.
@@ -106,29 +114,32 @@ class Magic extends Controller {
 				$headers['Content-Type'] = 'application/x-zot+json' ;
 				$headers['X-Open-Web-Auth'] = random_string();
 				$headers['Host'] = $parsed['host'];
-				$headers['(request-target)'] = 'get ' . '/owa';
+				$headers['(request-target)'] = 'get /owa';
 
 				$headers = HTTPSig::create_sig($headers,$channel['channel_prvkey'], channel_url($channel),true,'sha512');
 				$redirects = 0;
+
 				$x = z_fetch_url($owapath, false, $redirects, ['headers' => $headers]);
 
 				logger('owa fetch returned: ' . print_r($x,true),LOGGER_DATA);
+
 				if ($x['success']) {
 					$j = json_decode($x['body'],true);
 					if ($j['success'] && $j['encrypted_token']) {
 						// decrypt the token using our private key
 						$token = '';
-						openssl_private_decrypt(base64url_decode($j['encrypted_token']),$token,$channel['channel_prvkey']);
+						openssl_private_decrypt(base64url_decode($j['encrypted_token']), $token, $channel['channel_prvkey']);
 						$x = strpbrk($dest,'?&');
 						// redirect using the encrypted token which will be exchanged for an authenticated session
-						$args = (($x) ? '&owt=' . $token : '?f=&owt=' . $token) . (($delegate) ? '&delegate=1' : '');
+						$args = (($x) ? '&owt=' . $token : '?owt=' . $token) . (($delegate) ? '&delegate=1' : '');
 						goaway($dest . $args);
 					}
 				}
 			}
 		}
 
-		goaway($dest);
+		killme();
+
 	}
 
 }

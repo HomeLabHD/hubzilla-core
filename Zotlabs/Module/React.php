@@ -91,6 +91,9 @@ class React extends Controller {
 		if ($x['success']) {
 			$nid = $x['item_id'];
 			Master::Summon(['Notifier', 'like', $nid]);
+			if (!empty($x['approval_id'])) {
+				Master::Summon(['Notifier', 'like', $x['approval_id']]);
+			}
 		}
 	}
 

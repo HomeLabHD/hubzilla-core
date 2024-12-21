@@ -2,6 +2,7 @@
 
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\Config;
+use Zotlabs\Lib\Mailer;
 use Zotlabs\Lib\Zotfinger;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Queue;
@@ -612,7 +613,7 @@ function validate_email(string $addr): bool {
 
 	$matches = array();
 	$result = preg_match(
-		'/^[A-Z0-9._%-]+@([A-Z0-9.-]+\.[A-Z0-9-]{2,})$/i',
+		'/^[A-Z0-9._%+-]+@([A-Z0-9.-]+\.[A-Z0-9-]{2,})$/i',
 	   	punify($addr),
 	   	$matches);
 
@@ -1488,11 +1489,11 @@ function do_delivery($deliveries, $force = false) {
 
 	$interval = Config::Get('queueworker', 'queue_interval', 500000);
 
-	$deliveries_per_process = intval(Config::Get('system','delivery_batch_count'));
+	$deliveries_per_process = intval(Config::Get('system', 'delivery_batch_count'));
 
-	if($deliveries_per_process <= 0)
+	if($deliveries_per_process <= 0) {
 		$deliveries_per_process = 1;
-
+	}
 
 	$deliver = [];
 	foreach($deliveries as $d) {
@@ -1813,54 +1814,9 @@ function network_to_name($s) {
  */
 function z_mail($params) {
 
-	if(! $params['fromEmail']) {
-		$params['fromEmail'] = Config::Get('system','from_email');
-		if(! $params['fromEmail'])
-			$params['fromEmail'] = 'Administrator' . '@' . App::get_hostname();
-	}
-	if(! $params['fromName']) {
-		$params['fromName'] = Config::Get('system','from_email_name');
-		if(! $params['fromName'])
-			$params['fromName'] = Zotlabs\Lib\System::get_site_name();
-	}
-	if(! $params['replyTo']) {
-		$params['replyTo'] = Config::Get('system','reply_address');
-		if(! $params['replyTo'])
-			$params['replyTo'] = 'noreply' . '@' . App::get_hostname();
-	}
-
-	$params['sent']   = false;
-	$params['result'] = false;
-
-	/**
-	 * @hooks email_send
-	 *   * \e params @see z_mail()
-	 */
-	call_hooks('email_send', $params);
-
-	if($params['sent']) {
-		logger('notification: z_mail returns ' . (($params['result']) ? 'success' : 'failure'), LOGGER_DEBUG);
-		return $params['result'];
-	}
-
-	$fromName = email_header_encode(html_entity_decode($params['fromName'],ENT_QUOTES,'UTF-8'),'UTF-8');
-	$messageSubject = email_header_encode(html_entity_decode($params['messageSubject'],ENT_QUOTES,'UTF-8'),'UTF-8');
-
-	$messageHeader =
-		$params['additionalMailHeader'] .
-		"From: $fromName <{$params['fromEmail']}>" . PHP_EOL .
-		"Reply-To: $fromName <{$params['replyTo']}>" . PHP_EOL .
-		"Content-Type: text/plain; charset=UTF-8";
-
-	// send the message
-	$res = mail(
-		$params['toEmail'],								// send to address
-		$messageSubject,								// subject
-		$params['textVersion'],
-		$messageHeader									// message headers
-	);
-	logger('notification: z_mail returns ' . (($res) ? 'success' : 'failure'), LOGGER_DEBUG);
-	return $res;
+	// Delegate the call to the Mailer class.
+	$mailer = new Mailer($params);
+	return $mailer->deliver();
 }
 
 

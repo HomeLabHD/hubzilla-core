@@ -22,7 +22,6 @@ class Sse_bs extends Controller {
 	public static $xchans;
 
 	function init() {
-
 		self::$uid = local_channel();
 		self::$ob_hash = get_observer_hash();
 		self::$sse_id = false;
@@ -43,8 +42,9 @@ class Sse_bs extends Controller {
 		self::$offset = 0;
 		self::$xchans = '';
 
-		if(isset($_REQUEST['sse_rmids']))
-			self::mark_read($_REQUEST['sse_rmids']);
+		if (isset($_REQUEST['sse_rmids'])) {
+			self::mark_read(explode(',', $_REQUEST['sse_rmids']));
+		}
 
 		if(!empty($_REQUEST['nquery']) && $_REQUEST['nquery'] !== '%') {
 			$nquery = $_REQUEST['nquery'];
@@ -502,13 +502,15 @@ class Sse_bs extends Controller {
 			}
 		}
 
-		$r = q("SELECT id FROM item
+		$r = q("SELECT id, body FROM item
 			WHERE true $uids
+			AND created <= '%s'
 			AND created > '%s'
 			$item_normal
 			$sql_extra
 			$sql_extra3
 			AND author_xchan != '%s' LIMIT 100",
+			dbescdate($_SESSION['sse_loadtime']),
 			dbescdate($_SESSION['last_login_date'] ?? $_SESSION['static_loadtime']),
 			dbesc(self::$ob_hash)
 		);

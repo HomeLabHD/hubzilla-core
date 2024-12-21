@@ -9,7 +9,7 @@ class Authorize extends \Zotlabs\Web\Controller {
 	function get() {
 		if (! local_channel()) {
 			return login();
-		} 
+		}
 		else {
 
 			$name = $_REQUEST['client_name'];
@@ -25,7 +25,7 @@ class Authorize extends \Zotlabs\Web\Controller {
 
 			$link = (($app['url']) ? '<a style="float: none;" href="' . $app['url'] . '">' . $app['name'] . '</a> ' : $app['name']);
 
-			$o .= replace_macros(get_markup_template('oauth_authorize.tpl'), [
+			return replace_macros(get_markup_template('oauth_authorize.tpl'), [
 				'$title'        => t('Authorize'),
 				'$authorize'    => sprintf( t('Do you authorize the app %s to access your channel data?'), $link ),
 				'$app'          => $app,
@@ -35,7 +35,6 @@ class Authorize extends \Zotlabs\Web\Controller {
 				'$redirect_uri' => (x($_REQUEST, 'redirect_uri') ? $_REQUEST['redirect_uri'] : ''),
 				'$state'        => (x($_REQUEST, 'state') ? $_REQUEST['state'] : ''),
 			]);
-			return $o;
 		}
 	}
 
@@ -50,7 +49,7 @@ class Authorize extends \Zotlabs\Web\Controller {
 		// TODO: The automatic client registration protocol below should adhere more
 		// closely to "OAuth 2.0 Dynamic Client Registration Protocol" defined
 		// at https://tools.ietf.org/html/rfc7591
-		
+
 		// If no client_id was provided, generate a new one.
 		if (x($_POST, 'client_id')) {
 			$client_id = $_POST['client_id'];
@@ -67,7 +66,7 @@ class Authorize extends \Zotlabs\Web\Controller {
 		$request = \OAuth2\Request::createFromGlobals();
 		$response = new \OAuth2\Response();
 
-		// Note, "sub" field must match type and content. $user_id is used to populate - make sure it's a string. 
+		// Note, "sub" field must match type and content. $user_id is used to populate - make sure it's a string.
 		$channel = channelx_by_n(local_channel());
 		$user_id = $channel['channel_id'];
 

@@ -81,7 +81,7 @@ class Channel_home {
 
 		$tpl = get_markup_template("settings_module.tpl");
 
-		$o .= replace_macros($tpl, array(
+		return replace_macros($tpl, array(
 			'$rpath' => escape_url($rpath),
 			'$action_url' => 'settings/' . $module,
 			'$form_security_token' => get_form_security_token('settings_' . $module),
@@ -90,8 +90,5 @@ class Channel_home {
 			'$extra_settings_html' => $extra_settings_html,
 			'$submit'    => t('Submit')
 		));
-
-		return $o;
 	}
-
 }

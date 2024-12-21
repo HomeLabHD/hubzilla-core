@@ -613,59 +613,45 @@ function send_register_success_email($email,$password) {
 }
 
 /**
- * @brief Allows a user registration.
+ * Mark a pending registration as approved, and notify the account
+ * holder by email.
  *
- * @param string $hash
- * @return array|boolean
+ * @param string $hash		The registration hash of the entry to approve
+ *
+ * @return bool
  */
-function account_allow($hash) {
-
-	$ret = array('success' => false);
+function account_allow(string $hash): bool {
 
 	$register = q("SELECT * FROM register WHERE reg_hash = '%s' LIMIT 1",
 		dbesc($hash)
 	);
 
-	if(! $register)
-		return $ret;
+	if (! $register) {
+		logger(
+			"Entry with hash '{$hash}' was not found in the register table.",
+			LOGGER_NORMAL,
+			LOG_ERR
+		);
+		return false;
+	}
 
-	$account = q("SELECT * FROM account WHERE account_id = %d LIMIT 1",
-		intval($register[0]['reg_uid'])
-	);
+	$account = get_account_by_id($register[0]['reg_uid']);
 
-	// a register entry without account assigned to
-	if(! $account)
-		return $ret;
+	if (! $account) {
+		logger(
+			"Account '{$register[0]['reg_uid']}' mentioned by registration hash '{$hash}' was not found.",
+			LOGGER_NORMAL,
+			LOG_ERR
+		);
+		return false;
+	}
 
-	// [hilmar ->
+	$transaction = new DbaTransaction(DBA::$dba);
 
-	q("START TRANSACTION");
-	//q("DELETE FROM register WHERE reg_hash = '%s'",
-	//	dbesc($register[0]['reg_hash'])
-	//);
 	$r1 = q("UPDATE register SET reg_vital = 0 WHERE reg_hash = '%s'",
 		dbesc($register[0]['reg_hash'])
 	);
 
-	/* instead of ...
-
-	// unblock
-	q("UPDATE account SET    account_flags = (account_flags & ~%d) "
-		.			" WHERE (account_flags & %d)>0 AND account_id = %d",
-		intval(ACCOUNT_BLOCKED),
-		intval(ACCOUNT_BLOCKED),
-		intval($register[0]['reg_uid'])
-	);
-
-	// unpend
-	q("UPDATE account SET    account_flags = (account_flags & ~%d) "
-		. 			" WHERE (account_flags & %d)>0 AND account_id = %d",
-		intval(ACCOUNT_PENDING),
-		intval(ACCOUNT_PENDING),
-		intval($register[0]['reg_uid'])
-	);
-
-	*/
 	// together unblock and unpend
 	$r2 = q("UPDATE account SET account_flags = %d WHERE account_id = %d",
 		intval($account['account_flags']
@@ -674,9 +660,7 @@ function account_allow($hash) {
 	);
 
 	if($r1 && $r2) {
-		q("COMMIT");
-
-		// <- hilmar]
+		$transaction->commit();
 
 		push_lang($register[0]['reg_lang']);
 
@@ -684,35 +668,35 @@ function account_allow($hash) {
 		$email_msg = replace_macros($email_tpl, array(
 				'$sitename' => Config::Get('system','sitename'),
 				'$siteurl' =>  z_root(),
-				'$username' => $account[0]['account_email'],
-				'$email' => $account[0]['account_email'],
+				'$username' => $account['account_email'],
+				'$email' => $account['account_email'],
 				'$password' => '',
-				'$uid' => $account[0]['account_id']
+				'$uid' => $account['account_id']
 		));
 
 		$res = z_mail(
 			[
-			'toEmail' => $account[0]['account_email'],
+			'toEmail' => $account['account_email'],
 			'messageSubject' => sprintf( t('Registration details for %s'), Config::Get('system','sitename')),
 			'textVersion' => $email_msg,
 			]
 		);
 
-		pop_lang();
-
-		if(Config::Get('system', 'auto_channel_create', 1))
-			auto_channel_create($register[0]['uid']);
-
-		if ($res) {
-			info( t('Account approved.') . EOL );
-			return true;
+		if (! $res) {
+			info(t("Sending account approval email to {$account['email']} failed..."));
 		}
 
-	// [hilmar ->
-	} else {
-		q("ROLLBACK");
+		pop_lang();
+
+		if(Config::Get('system', 'auto_channel_create', 1)) {
+			auto_channel_create($register[0]['reg_uid']);
+		}
+
+		info( t('Account approved.') . EOL );
+		return true;
 	}
-	// <- hilmar]
+
+	return false;
 }
 
 

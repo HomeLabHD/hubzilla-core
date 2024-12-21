@@ -2,7 +2,7 @@
 
 namespace Zotlabs\Module;
 
-use Zorlabs\Lib\Config;
+use Zotlabs\Lib\Config;
 
 class Go extends \Zotlabs\Web\Controller {
 
@@ -19,7 +19,7 @@ class Go extends \Zotlabs\Web\Controller {
 
 	function get() {
 		if(! local_channel()) {
-			notify( t('This page is available only to site members') . EOL);
+			notice( t('This page is available only to site members') . EOL);
 		}
 
 		$channel = \App::get_channel();

@@ -63,7 +63,7 @@ class Webpages extends Controller {
 		switch ($_SESSION['action']) {
         case 'import':
 						$_SESSION['action'] = null;
-						$o .= replace_macros(get_markup_template('webpage_import.tpl'), array(
+						return replace_macros(get_markup_template('webpage_import.tpl'), array(
 							'$title'    => t('Import Webpage Elements'),
 							'$importbtn' => t('Import selected'),
 							'$action' => 'import',
@@ -71,7 +71,6 @@ class Webpages extends Controller {
 							'$layouts' => $_SESSION['layouts'],
 							'$blocks' => $_SESSION['blocks'],
 						));
-						return $o;
 
         case 'importselected':
 						$_SESSION['action'] = null;
@@ -87,7 +86,7 @@ class Webpages extends Controller {
 						$pages = get_webpage_elements($channel, 'pages');
 						$layouts = get_webpage_elements($channel, 'layouts');
 						$blocks = get_webpage_elements($channel, 'blocks');
-						$o .= replace_macros(get_markup_template('webpage_export_list.tpl'), array(
+						$o = replace_macros(get_markup_template('webpage_export_list.tpl'), array(
 							'$title'    => t('Export Webpage Elements'),
 							'$exportbtn' => t('Export selected'),
 							'$action' => $_SESSION['export'],	// value should be 'zipfile' or 'cloud'

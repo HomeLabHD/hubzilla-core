@@ -1,7 +1,7 @@
-	<div id="thread-wrapper-{{$item.id}}" class="thread-wrapper{{if $item.toplevel}} {{$item.toplevel}} generic-content-wrapper h-entry {{else}} u-comment h-cite {{/if}}" data-b64mids='{{$item.mids}}'>
+	<div id="thread-wrapper-{{$item.id}}" class="thread-wrapper{{if $item.toplevel}} {{$item.toplevel}} generic-content-wrapper h-entry {{else}} u-comment h-cite{{/if}} clearfix{{if $item.is_contained}} is-contained{{/if}}{{if $item.is_new && !$item.event && !$item.title && !$item.is_comment}} is-new{{/if}}" data-b64mids='{{$item.mids}}'>
 		<a name="item_{{$item.id}}" ></a>
 		<div class="wall-item-outside-wrapper{{if $item.is_comment}} comment{{/if}}{{if $item.previewing}} preview{{/if}}" id="wall-item-outside-wrapper-{{$item.id}}" >
-			<div class="clearfix wall-item-content-wrapper{{if $item.is_comment}} comment{{/if}}" id="wall-item-content-wrapper-{{$item.id}}">
+			<div class="rounded clearfix wall-item-content-wrapper{{if $item.is_comment}} comment{{/if}}" id="wall-item-content-wrapper-{{$item.id}}">
 				{{if $item.photo}}
 				<div class="wall-photo-item" id="wall-photo-item-{{$item.id}}">
 					{{$item.photo}}
@@ -26,18 +26,24 @@
 							{{if $item.location}}
 							{{$item.location}}
 							{{/if}}
-							{{if $item.delayed}}
-							<i class="bi bi-clock"></i>
-							{{/if}}
 							{{if $item.editedtime}}
-							<i class="bi bi-pencil"></i>
+							<i class="bi bi-pencil" title="{{$item.editedtime}}"></i>
 							{{/if}}
 							{{if $item.verified}}
 							<i class="bi bi-shield-check" title="{{$item.verified}}"></i>
 							{{elseif $item.forged}}
 							<i class="bi bi-shield-exclamation text-danger" title="{{$item.forged}}"></i>
 							{{/if}}
-							<small class="autotime" title="{{$item.isotime}}"><time class="dt-published" datetime="{{$item.isotime}}">{{$item.localtime}}</time>{{if $item.editedtime}}&nbsp;{{$item.editedtime}}{{/if}}{{if $item.expiretime}}&nbsp;{{$item.expiretime}}{{/if}}</small>
+							{{if $item.no_comment}}
+								<i class="bi bi-ban" title="{{$item.no_comment}}"></i>
+							{{/if}}
+							{{if $item.delayed}}
+							<i class="bi bi-clock" title="{{$item.delayed}}"></i>
+							{{/if}}
+							{{if $item.expiretime}}
+							<i class="bi bi-clock-history" title="{{$item.expiretime}}"></i>
+							{{/if}}
+							<small class="autotime" title="{{$item.isotime}}"><time class="dt-published" datetime="{{$item.isotime}}">{{$item.localtime}}</time>{{if $item.expiretime}}&nbsp;{{$item.expiretime}}{{/if}}</small>
 						</div>
 						{{if $item.pinned}}
 						<div class="wall-item-pinned" title="{{$item.pinned}}" id="wall-item-pinned-{{$item.id}}"><i class="bi bi-pin-fill"></i></div>

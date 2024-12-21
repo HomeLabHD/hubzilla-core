@@ -5,7 +5,7 @@
 				{{if $addon.1|substr:0:1 === '<'}}
 				{{$addon.1}}
 				{{else}}
-				<i class="bi fa-gear"></i> {{$addon.1}}
+				<i class="bi bi-gear"></i> {{$addon.1}}
 				{{/if}}
 			</a>
 		</h3>

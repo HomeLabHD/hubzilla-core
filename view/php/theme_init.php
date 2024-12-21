@@ -2,7 +2,6 @@
 
 require_once('include/plugin.php');
 
-head_add_css('/library/tiptip/tipTip.css');
 head_add_css('/library/jRange/jquery.range.css');
 
 head_add_css('/view/css/conversation.css');
@@ -20,7 +19,6 @@ head_add_js('/library/sprintf.js/dist/sprintf.min.js');
 head_add_js('/library/textcomplete/textcomplete.min.js');
 head_add_js('autocomplete.js');
 
-head_add_js('/library/jquery.timeago.js');
 head_add_js('/library/readmore.js/readmore.js');
 
 head_add_js('/library/sjcl/sjcl.js');
@@ -36,7 +34,6 @@ head_add_js('/library/colorbox/jquery.colorbox-min.js');
 head_add_js('/library/jquery.AreYouSure/jquery.are-you-sure.js');
 head_add_js('/library/tableofcontents/jquery.toc.js');
 head_add_js('/library/Sortable/Sortable.min.js');
-head_add_js('/vendor/desandro/imagesloaded/imagesloaded.pkgd.min.js');
 
 /**
  * Those who require this feature will know what to do with it.

@@ -90,12 +90,7 @@ class Search_ac extends \Zotlabs\Web\Controller {
 			'items'	=> $results,
 		);
 		echo json_encode($o);
-	
-		logger('search_ac: ' . print_r($x,true),LOGGER_DATA,LOG_INFO);
-	
+
 		killme();
 	}
-	
-	
-	
 }

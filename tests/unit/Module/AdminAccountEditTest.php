@@ -11,9 +11,17 @@ namespace Zotlabs\Tests\Unit\Module;
 
 use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\{Before, After};
-use Zotlabs\Model\Account;
 
 class AdminAccountEditTest extends TestCase {
+
+	private $stub_is_site_admin;
+	private $stub_info;
+	private $stub_notice;
+	private $stub_check_security;
+	private $stub_get_form_security_token;
+
+	private array $info;
+	private array $notice;
 
 	#[Before]
 	public function setup_mocks(): void {

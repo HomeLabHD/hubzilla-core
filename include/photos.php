@@ -7,6 +7,7 @@
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\Config;
+use Zotlabs\Daemon\Master;
 
 require_once('include/permissions.php');
 require_once('include/items.php');
@@ -405,7 +406,7 @@ function photo_upload($channel, $observer, $args) {
 		}
 	}
 
-	$attribution = (($visitor) ? $visitor : $channel['xchan_url']);
+	$attribution = (($visitor) ? $visitor : channel_url($channel));
 
 	//// Create item object
 	$object = [
@@ -438,13 +439,13 @@ function photo_upload($channel, $observer, $args) {
 	else {
 		$object['to'] = Activity::map_acl(array_merge($ac, ['item_private' => 1 - intval($public)]));
 	}
-
+/*
 	$target = [
 		'type' => 'orderedCollection',
 		'name' => ((strlen($album)) ? $album : '/'),
 		'id'   => z_root() . '/album/' . $channel['channel_address'] . ((isset($args['directory']['hash'])) ? '/' . $args['directory']['hash'] : EMPTY_STR)
 	];
-
+*/
 	// Create item container
 	if (isset($args['item'])) {
 		foreach ($args['item'] as $i) {
@@ -453,6 +454,11 @@ function photo_upload($channel, $observer, $args) {
 			$force = false;
 
 			if ($item['mid'] === $item['parent_mid']) {
+				$target = [
+					'id' => str_replace('/item/', '/conversation/', $item['mid']),
+					'type' => 'Collection',
+					'attributedTo' => $attribution,
+				];
 
 				$item['body']     = $summary;
 				$item['mimetype'] = 'text/bbcode';
@@ -460,10 +466,10 @@ function photo_upload($channel, $observer, $args) {
 
 				$object['id']            = $item['mid'];
 				$object['diaspora:guid'] = $item['uuid'];
-				$item['obj']             = json_encode($object);
+				$item['obj']             = $object;
 
-				$item['tgt_type'] = 'orderedCollection';
-				$item['target']   = json_encode($target);
+				$item['tgt_type'] = 'Collection';
+				$item['target']   = $target;
 				if ($post_tags) {
 					$arr['term'] = $post_tags;
 				}
@@ -477,15 +483,23 @@ function photo_upload($channel, $observer, $args) {
 				if (($item['edited'] > $r[0]['edited']) || $force) {
 					$item['id']  = $r[0]['id'];
 					$item['uid'] = $channel['channel_id'];
-					item_store_update($item, false, $deliver);
+					$result = item_store_update($item, deliver: $deliver);
 					continue;
 				}
 			}
 			else {
 				$item['aid'] = $channel['channel_account_id'];
 				$item['uid'] = $channel['channel_id'];
-				item_store($item, false, $deliver);
+				$result = item_store($item, deliver: $deliver);
 			}
+
+			if ($result['success'] && $visible && $deliver) {
+				Master::Summon(['Notifier', 'wall-new', $result['item_id']]);
+				if (!empty($result['approval_id'])) {
+					Master::Summon(['Notifier', 'wall-new', $result['approval_id']]);
+				}
+			}
+
 		}
 	}
 	else {
@@ -495,6 +509,12 @@ function photo_upload($channel, $observer, $args) {
 
 		$object['id']            = $mid;
 		$object['diaspora:guid'] = $uuid;
+
+		$target = [
+			'id' => z_root() .  '/conversation/' . $uuid,
+			'type' => 'Collection',
+			'attributedTo' => $attribution,
+		];
 
 		$arr = [
 			'aid'             => $account_id,
@@ -514,9 +534,9 @@ function photo_upload($channel, $observer, $args) {
 			'deny_gid'        => $ac['deny_gid'],
 			'verb'            => 'Create',
 			'obj_type'        => 'Image',
-			'obj'             => json_encode($object),
-			'tgt_type'        => 'orderedCollection',
-			'target'          => json_encode($target),
+			'obj'             => $object,
+			'tgt_type'        => 'Collection',
+			'target'          => $target,
 			'item_wall'       => $visible,
 			'item_origin'     => 1,
 			'item_thread_top' => 1,
@@ -541,21 +561,26 @@ function photo_upload($channel, $observer, $args) {
 		// linked item from leaking into the feed when somebody has a channel with read_stream restrictions.
 
 		$arr['public_policy'] = map_scope(PermissionLimits::Get($channel['channel_id'], 'view_stream'), true);
-		if ($arr['public_policy'])
+
+		if ($arr['public_policy']) {
 			$arr['item_private'] = 1;
+		}
 
-		$result  = item_store($arr, false, $deliver);
-		$item_id = $result['item_id'];
+		$result = item_store($arr, deliver: $deliver);
 
-		if ($visible && $deliver)
-			Zotlabs\Daemon\Master::Summon(['Notifier', 'wall-new', $item_id]);
+		if ($result['success'] && $visible && $deliver) {
+			Master::Summon(['Notifier', 'wall-new', $result['item_id']]);
+			if (!empty($result['approval_id'])) {
+				Master::Summon(['Notifier', 'wall-new', $result['approval_id']]);
+			}
+		}
 	}
 
 	$ret['success']      = true;
 	$ret['item']         = $arr;
 	$ret['body']         = $obj_body;
 	$ret['resource_id']  = $photo_hash;
-	$ret['photoitem_id'] = $item_id;
+	$ret['photoitem_id'] = $result['item_id'];
 
 	/**
 	 * @hooks photo_upload_end
@@ -911,7 +936,7 @@ function photos_create_item($channel, $creator_hash, $photo, $visible = false) {
 		. '[zmg]' . z_root() . '/photo/' . $photo['resource_id'] . '-' . $photo['imgscale'] . '[/zmg]'
 		. '[/zrl]';
 
-	$result  = item_store($arr);
+	$result  = item_store($arr, deliver: false, addAndSync: true);
 	$item_id = $result['item_id'];
 
 	return $item_id;

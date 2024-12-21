@@ -38,17 +38,14 @@ class Features {
 				$arr[$fname][1][] = array('feature_' . $f[0],$f[1],((intval(feature_enabled(local_channel(),$f[0]))) ? "1" : ''),$f[2],array(t('Off'),t('On')));
 			}
 		}
-			
+
 		$tpl = get_markup_template("settings_features.tpl");
-		$o .= replace_macros($tpl, array(
+		return replace_macros($tpl, array(
 			'$form_security_token' => get_form_security_token("settings_features"),
 			'$title'	 => t('Additional Features'),
 			'$features'  => $arr,
 			'$baseurl'   => z_root(),
 			'$submit'    => t('Submit'),
 		));
-	
-		return $o;
 	}
-
 }

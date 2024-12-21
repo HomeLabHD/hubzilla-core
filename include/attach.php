@@ -1606,8 +1606,7 @@ function attach_drop_photo($channel_id,$resource) {
 
 	if($x) {
 		$stage = (($x[0]['item_hidden']) ? DROPITEM_NORMAL : DROPITEM_PHASE1);
-		$interactive = (($x[0]['item_hidden']) ? false : true);
-		drop_item($x[0]['id'], $interactive, $stage);
+		drop_item($x[0]['id'], $stage);
 	}
 
 	$r = q("SELECT content FROM photo WHERE resource_id = '%s' AND uid = %d AND os_storage = 1",
@@ -1636,8 +1635,7 @@ function attach_drop_item($channel_id,$resource) {
 
 	if($x) {
 		$stage = (($x[0]['item_hidden']) ? DROPITEM_NORMAL : DROPITEM_PHASE1);
-		$interactive = (($x[0]['item_hidden']) ? false : true);
-		drop_item($x[0]['id'], $interactive, $stage);
+		drop_item($x[0]['id'], $stage);
 	}
 
 }
@@ -1855,8 +1853,6 @@ function pipe_streams($in, $out, $bufsize = 16384) {
 }
 
 function attach_store_item($channel, $observer, $file) {
-
-
 	if(is_string($file)) {
 		$r = q("SELECT * FROM attach WHERE uid = %d AND hash = '%s' LIMIT 1",
 			intval($channel['channel_id']),
@@ -1906,10 +1902,11 @@ function attach_store_item($channel, $observer, $file) {
 
 			$post = item_store($arr);
 
-			$item_id = $post['item_id'];
-
-			if($item_id) {
-				Master::Summon(['Notifier', 'activity', $item_id]);
+			if ($post['success']) {
+				Master::Summon(['Notifier', 'activity', $post['item_id']]);
+				if (!empty($post['approval_id'])) {
+					Master::Summon(['Notifier', 'activity', $post['approval_id']]);
+				}
 			}
 
 			*/
@@ -1919,8 +1916,11 @@ function attach_store_item($channel, $observer, $file) {
 		}
 
 		$stage = (($r[0]['item_hidden']) ? DROPITEM_NORMAL : DROPITEM_PHASE1);
-		$interactive = (($r[0]['item_hidden']) ? false : true);
-		drop_item($r[0]['id'], $interactive, $stage);
+		drop_item($r[0]['id'], $stage);
+
+		if (empty($r[0]['item_hidden'])) {
+			Master::Summon(['Notifier', 'drop', $r[0]['id']]);
+		}
 
 	}
 
@@ -1945,6 +1945,12 @@ function attach_store_item($channel, $observer, $file) {
 
 	$mid = z_root() . '/item/' . $uuid;
 
+	$target = [
+		'id' => z_root() .  '/conversation/' . $uuid,
+		'type' => 'Collection',
+		'attributedTo' => channel_url($channel),
+	];
+
 	$arr = [];	// Initialize the array of parameters for the post
 	$arr['aid'] = $channel['channel_account_id'];
 	$arr['uuid'] = $uuid;
@@ -1965,6 +1971,8 @@ function attach_store_item($channel, $observer, $file) {
 	$arr['item_thread_top'] = 1;
 	$arr['item_private'] = (($file['allow_cid'] || $file['allow_gid'] || $file['deny_cid'] || $file['deny_gid']) ? 1 : 0);
 	$arr['verb'] = 'Create';
+	$arr['target'] = $target;
+	$arr['target_type'] = 'Collection';
 	$arr['obj_type'] = $type;
 	$arr['title'] = $file['filename'];
 
@@ -1982,14 +1990,13 @@ function attach_store_item($channel, $observer, $file) {
 	}
 
 	$body_str = sprintf((($type === 'Image') ? t('%s shared an %s with you') : t('%s shared a %s with you')), '[zrl=' . $observer['xchan_url'] . ']' . $observer['xchan_name'] . '[/zrl]', '[zrl=' . $path . ']' . (($type === 'Image') ? t('image') : t('file')) . '[/zrl]');
-	$arr['body'] .= $body_str;
+	$arr['body'] .= "\r\n" . $body_str;
 
 	$meta = [
 		'name' => $file['filename'],
 		'type' => $file['filetype'],
 		'size' => $file['filesize'],
 		'revision' => $file['revision'],
-		'size' => $file['filesize'],
 		'created' => $file['created'],
 		'edited' => $file['edited'],
 		'path' => $path
@@ -1999,10 +2006,11 @@ function attach_store_item($channel, $observer, $file) {
 
 	$post = item_store($arr);
 
-	$item_id = $post['item_id'];
-
-	if($item_id) {
-		Master::Summon(['Notifier', 'activity', $item_id]);
+	if ($post['success']) {
+		Master::Summon(['Notifier', 'activity', $post['item_id']]);
+		if (!empty($post['approval_id'])) {
+			Master::Summon(['Notifier', 'activity', $post['approval_id']]);
+		}
 	}
 
 }
@@ -2931,41 +2939,6 @@ function attach_syspaths($channel_id,$attach_hash) {
 	while($attach_hash);
 
 	return [ 'os_path' => $os_path, 'path' => $path ];
-}
-
-/**
- * in earlier releases we did not fill in os_path and display_path in the attach DB structure.
- * (It was not needed or used). Going forward we intend to make use of these fields.
- * A cron task checks for empty values (as older attachments may have arrived at our site
- * in a clone operation) and executes attach_syspaths() to generate these field values and correct
- * the attach table entry. The operation is limited to 100 DB entries at a time so as not to
- * overload the system in any cron run. Eventually it will catch up with old attach structures
- * and switch into maintenance mode to correct any that might arrive in clone packets from older
- * sites.
- */
-
-
-
-function attach_upgrade() {
-	$r = q("SELECT id, uid, hash FROM attach WHERE os_path = '' OR display_path = '' LIMIT 100");
-	if($r) {
-		foreach($r as $rv) {
-			$x = attach_syspaths($rv['uid'],$rv['hash']);
-			if($x) {
-				q("update attach set os_path = '%s', display_path = '%s' where id = %d",
-					dbesc($x['os_path']),
-					dbesc($x['path']),
-					intval($rv['id'])
-				);
-				q("update photo set os_path = '%s', display_path = '%s' where uid = %d and resource_id = '%s'",
-					dbesc($x['os_path']),
-					dbesc($x['path']),
-					intval($rv['uid']),
-					dbesc($rv['hash'])
-				);
-			}
-		}
-	}
 }
 
 
