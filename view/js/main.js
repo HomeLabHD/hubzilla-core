@@ -811,6 +811,7 @@ function imagesLoaded(elements, callback) {
 
 		processed.push(src);
 		loadedCount++;
+
 		document.getElementById('image_counter').innerHTML = Math.round((loadedCount * 100) / totalImages) + '%';
 		if (loadedCount === totalImages) {
 			document.getElementById('image_counter').innerHTML = '';
@@ -830,10 +831,11 @@ function imagesLoaded(elements, callback) {
 		return;
 	}
 
-	// Filter out only img elements from the list
-	let images = Array.from(elements).filter(element => {
-		return element.tagName && element.tagName.toLowerCase() === 'img' && element.src;
-	});
+	let images = Array.from(elements)
+		.filter(element => element.tagName && element.tagName.toLowerCase() === 'img' && element.src)
+		.filter((element, index, self) =>
+			index === self.findIndex(e => e.src === element.src)
+		);
 
 	// If no images are found, call the callback immediately
 	if (images.length === 0) {
