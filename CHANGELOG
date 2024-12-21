@@ -14,6 +14,7 @@ Hubzilla 10.0 (2024-12-21)
 	- Refactor mod item
 	- Refactor Thumbs\Epubthumb to adapt to new version of EPub meta lib
 	- Remove unused libraries
+	- Bring filed items to mod hq
 
 	Bugfixes
 	- Fix comments on/off toggle
