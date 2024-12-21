@@ -7,9 +7,9 @@
 	var sse_fallback_interval;
 	var sse_sys_only = {{$sys_only}};
 
-	$(document).ready(function() {
+	document.addEventListener("DOMContentLoaded", function() {
 		let notificationsWrapper = document.getElementById('notifications_wrapper');
-		let notificationsParent = notificationsWrapper.parentElement.id;
+		let notificationsParent = notificationsWrapper ? notificationsWrapper.parentElement.id : null;
 		let notificationsBtn = document.querySelector('.notifications-btn');
 
 		// Event listener for notifications button
