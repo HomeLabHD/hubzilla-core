@@ -3174,30 +3174,19 @@ class Activity {
 			}
 
 			$a = new ActivityStreams($n);
-
-			logger($a->debug(), LOGGER_DATA);
-
-			if (!$a->is_valid()) {
-				logger('not a valid activity');
-				break;
-			}
-
-			if (in_array($a->type, ['Add', 'Remove'])
-				&& is_array($a->obj)
-				&& array_key_exists('object', $a->obj)
-				&& array_key_exists('actor', $a->obj)
-				&& !empty($a->tgt)) {
-
-				logger('unsupported collection operation', LOGGER_DEBUG);
-				return;
-			}
-
 			if ($a->type === 'Announce' && is_array($a->obj)
 				&& array_key_exists('object', $a->obj) && array_key_exists('actor', $a->obj)) {
 				// This is a relayed/forwarded Activity (as opposed to a shared/boosted object)
 				// Reparse the encapsulated Activity and use that instead
 				logger('relayed activity', LOGGER_DEBUG);
 				$a = new ActivityStreams($a->obj);
+			}
+
+			logger($a->debug(), LOGGER_DATA);
+
+			if (!$a->is_valid()) {
+				logger('not a valid activity');
+				break;
 			}
 
 			$item = Activity::decode_note($a);
