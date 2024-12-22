@@ -793,48 +793,51 @@ function imagesLoaded(elements, callback) {
 	let loadedCount = 0;
 	let totalImages = 0;
 	let timeoutId;
-	let timeout = 10000;
-	let processed = [];
+	const timeout = 10000;
+	const processed = new Set(); // Use a Set for efficient lookup
 
 	// Helper function to extract img elements from an HTML string
 	function extractImagesFromHtml(htmlString) {
-		let tempDiv = document.createElement('div');
+		const tempDiv = document.createElement('div');
 		tempDiv.innerHTML = htmlString;
 		return tempDiv.querySelectorAll('.wall-item-body img, .wall-photo-item img');
 	}
 
 	function checkComplete(src) {
-		// Track processed images to not count images multiple times if load event is emited from multiple sources
-		if (processed.includes(src)) {
-			return;
-		}
+		// Skip processing if image has already been processed
+		if (processed.has(src)) return;
 
-		processed.push(src);
+		processed.add(src);
 		loadedCount++;
 
-		document.getElementById('image_counter').innerHTML = Math.round((loadedCount * 100) / totalImages) + '%';
+		// Update progress
+		const progress = Math.round((loadedCount * 100) / totalImages);
+		document.getElementById('image_counter').innerText = `${progress}%`;
+
+		// If all images are loaded, trigger the callback
 		if (loadedCount === totalImages) {
-			document.getElementById('image_counter').innerHTML = '';
+			document.getElementById('image_counter').innerText = '';
 			clearTimeout(timeoutId);
 			callback();
 		}
 	}
 
-	// If the elements is an HTML string, convert it to img elements
+	// Convert HTML string to img elements if necessary
 	if (typeof elements === 'string') {
 		elements = extractImagesFromHtml(elements);
 	}
 
-	// If elements is not a valid array-like object, or is empty, exit early
+	// Exit early if there are no images to load
 	if (!elements || elements.length === 0) {
-		callback(); // No images to load, immediately call the callback
+		callback();
 		return;
 	}
 
-	let images = Array.from(elements)
-		.filter(element => element.tagName && element.tagName.toLowerCase() === 'img' && element.src)
+	// Filter valid image elements (only img with src attribute)
+	const images = Array.from(elements)
+		.filter((element) => element.tagName.toLowerCase() === 'img' && element.src)
 		.filter((element, index, self) =>
-			index === self.findIndex(e => e.src === element.src)
+			index === self.findIndex(e => e.src === element.src) // Avoid duplicates
 		);
 
 	// If no images are found, call the callback immediately
@@ -843,29 +846,24 @@ function imagesLoaded(elements, callback) {
 		return;
 	}
 
-	// Set timeout
+	totalImages = images.length;
+
+	// Set timeout for the loading process
 	timeoutId = setTimeout(() => {
 		console.warn(`Image loading timed out after ${timeout}ms`);
 		callback(false);
 	}, timeout);
 
-	totalImages = images.length;
-
+	// Iterate through images to add load and error event listeners
 	images.forEach((img) => {
-		// Otherwise it will not load until visible
-		img.loading = 'eager';
+		img.loading = 'eager'; // Preload the image
 
-		if (img.complete && img.naturalHeight !== 0) {
-			// Image is already loaded successfully
-			//console.log(`Image cached: ${img.src}`);
+		if (img.complete && img.naturalHeight > 0) {
+			// Image is already loaded, handle immediately
 			checkComplete(img.src);
 		} else {
 			// Add event listeners for load and error events
-			img.addEventListener('load', () => {
-				//console.log(`Image loaded: ${img.src}`);
-				checkComplete(img.src);
-			});
-
+			img.addEventListener('load', () => checkComplete(img.src));
 			img.addEventListener('error', () => {
 				console.log(`Image failed to load: ${img.src}`);
 				checkComplete(img.src);
@@ -873,7 +871,6 @@ function imagesLoaded(elements, callback) {
 		}
 	});
 }
-
 
 function updateRelativeTime(selector) {
 	// Get all elements with the given selector
