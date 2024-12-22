@@ -43,7 +43,7 @@ class Importdoc {
 		}
 
 		// remove old files that weren't updated (indicates they were most likely deleted).
-		$i = q("select * from item where item_type = 5 and edited < %s - %s",
+		$i = q("select * from item where item_type = 5 and edited < %s - INTERVAL %s",
 			db_utcnow(),
 			db_quoteinterval('14 DAY', true)
 		);
