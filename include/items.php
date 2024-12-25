@@ -3861,7 +3861,7 @@ function item_expire($uid,$days,$comment_days = 7) {
 
 		if ($r) {
 			foreach ($r as $item) {
-				drop_item($item['id'], expire: true);
+				drop_item($item['id'], uid: $uid);
 			}
 		}
 
