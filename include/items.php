@@ -3922,7 +3922,7 @@ function drop_item($id, $stage = DROPITEM_NORMAL, $force = false, $uid = 0, $obs
 		$ok_to_delete = true;
 	}
 
-	// remote delete when nobody is authenticated (called from Libzot)
+	// remote delete when nobody is authenticated (called from Libzot and Daemons)
 	if ($uid && intval($uid) === intval($item['uid'])) {
 		$ok_to_delete = true;
 	}
