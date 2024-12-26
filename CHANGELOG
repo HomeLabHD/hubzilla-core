@@ -1,3 +1,14 @@
+Hubzilla 10.0.3 (2024-12-26)
+	- Fix regression in Daemon/Channel_purge which could cause a possible infinite loop
+	- Fix regression in Daemon/Expire which could cause a infinite loop
+
+
+Hubzilla 10.0.2 (2024-12-25)
+	- Hotfix comment out Daemon/Expire
+	- Fix zid parameter allowed to override an existing remote login
+	- Slightly improved imagesLoaded()
+
+
 Hubzilla 10.0.1 (2024-12-22)
 	- Revert removing of openid library
 	- Fix SQL query in Daemon/Importdoc
