@@ -23,13 +23,13 @@ class Expire {
 
 		// perform final cleanup on previously delete items
 
-		$r = q("select id from item where item_deleted = 1 and item_pending_remove = 0 and changed < %s - INTERVAL %s",
+		$r = q("select id, uid from item where item_deleted = 1 and item_pending_remove = 0 and changed < %s - INTERVAL %s",
 			db_utcnow(),
 			db_quoteinterval('10 DAY')
 		);
 		if ($r) {
 			foreach ($r as $rr) {
-				drop_item($rr['id'], DROPITEM_PHASE2);
+				drop_item($rr['id'], DROPITEM_PHASE2, uid: $rr['uid']);
 			}
 		}
 

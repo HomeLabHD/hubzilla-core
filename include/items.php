@@ -3861,7 +3861,7 @@ function item_expire($uid,$days,$comment_days = 7) {
 
 		if ($r) {
 			foreach ($r as $item) {
-				drop_item($item['id'], expire: true);
+				drop_item($item['id'], uid: $uid);
 			}
 		}
 
@@ -3922,7 +3922,7 @@ function drop_item($id, $stage = DROPITEM_NORMAL, $force = false, $uid = 0, $obs
 		$ok_to_delete = true;
 	}
 
-	// remote delete when nobody is authenticated (called from Libzot)
+	// remote delete when nobody is authenticated (called from Libzot and Daemons)
 	if ($uid && intval($uid) === intval($item['uid'])) {
 		$ok_to_delete = true;
 	}

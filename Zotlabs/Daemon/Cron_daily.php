@@ -95,7 +95,7 @@ class Cron_daily {
 		// expire any expired accounts
 		downgrade_accounts();
 
-	//	Master::Summon(array('Expire'));
+		Master::Summon(array('Expire'));
 		Master::Summon(array('Cli_suggest'));
 
 		remove_obsolete_hublocs();
