@@ -1,3 +1,6 @@
+Hubzilla 10.0.4 (2024-12-26)
+	- Fix missing argument name
+
 Hubzilla 10.0.3 (2024-12-26)
 	- Fix regression in Daemon/Channel_purge which could cause a possible infinite loop
 	- Fix regression in Daemon/Expire which could cause a infinite loop
