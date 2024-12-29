@@ -1,5 +1,10 @@
+Hubzilla 10.0.5 (2024-12-29)
+	- Fix another instance of drop_item() not having permission to drop items
+
+
 Hubzilla 10.0.4 (2024-12-26)
 	- Fix missing argument name
+
 
 Hubzilla 10.0.3 (2024-12-26)
 	- Fix regression in Daemon/Channel_purge which could cause a possible infinite loop
