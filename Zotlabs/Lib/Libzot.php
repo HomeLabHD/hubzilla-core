@@ -655,6 +655,11 @@ class Libzot {
 			return $ret;
 		}
 
+		if (empty($arr['primary_location']['address'])) {
+			logger('Empty primary location address: ' . print_r($arr, true), LOGGER_DEBUG);
+			return $ret;
+		}
+
 		/**
 		 * @hooks import_xchan
 		 *   Called when processing the result of zot_finger() to store the result
