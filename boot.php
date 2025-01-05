@@ -66,7 +66,7 @@ require_once('include/security.php');
 
 
 define('PLATFORM_NAME', 'hubzilla');
-define('STD_VERSION', '10.0.5');
+define('STD_VERSION', '10.0.6');
 define('ZOT_REVISION', '6.0');
 
 define('DB_UPDATE_VERSION', 1263);
