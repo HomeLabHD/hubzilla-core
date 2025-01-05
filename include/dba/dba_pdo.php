@@ -75,7 +75,7 @@ class dba_pdo extends dba_driver {
 
 		$result = null;
 		$this->error = '';
-		$select = ((stripos($sql, 'select') === 0) ? true : false);
+		$select = stripos($sql, 'select') === 0 || stripos($sql, 'returning ') > 0;
 
 		try {
 			$result = $this->db->query($sql, PDO::FETCH_ASSOC);
@@ -114,6 +114,69 @@ class dba_pdo extends dba_driver {
 
 		return (($this->error) ? false : $r);
 	}
+
+	/**
+	 * Insert a row into a table.
+	 *
+	 * The `$data` argument is an array of key/value pairs of the columns to
+	 * insert, where the key is the column name. Values are automatically
+	 * escaped if needed, and should be provided unescaped to this function.
+	 *
+	 * @note it is the callers responsibility to ensure that only valid
+	 * column names are passed as keys in the array.
+	 *
+	 * The inserted row will be returned.
+	 *
+	 * @param string $table		The table to insert the row into.
+	 * @param array $data		The data to insert as an array of column name => value pairs.
+	 * @param string $idcol		The column name for the primary key of the table. We need to
+	 *                          specify this since we don't have a consistent naming of primary
+	 *                          id for tables.
+	 *
+	 * @return array|bool	The complete record as read back from the database, or false if we
+	 *                      could not fetch it.
+	 */
+	public function insert(string $table, array $data, string $idcol): array|bool {
+		$keys = array_keys($data);
+		$values = array_map(
+			fn ($v) => is_numeric($v) ? $v : "'" . dbesc($v) . "'",
+			array_values($data)
+		);
+
+		$res = $this->q("INSERT INTO {$table} ("
+			. implode(', ', $keys) . ') VALUES ('
+			. implode(', ', $values) . ')'
+		);
+
+		if (is_a($res, PDOStatement::class)) {
+			//
+			// Calling PDO::lastInsertId should be safe here.
+			// The last inserted id is kept for each connection, so we're not risking
+			// a race condition wrt inserts by other requests that happen simultaneously.
+			//
+			$id = $this->db->lastInsertId($table);
+
+			$res = $this->q("SELECT * FROM {$table} WHERE {$idcol} = {$id}");
+
+			if (is_a($res, PDOStatement::class)) {
+				db_logger('dba_pdo: PDOStatement returned, did not expect that.');
+				return false;
+			}
+		} elseif ($res === null) {
+			// While `q` should never return null, that's exactly what it
+			// does when the insert fails. Let's turn it to a false instead.
+			$res = false;
+		}
+
+		if (is_array($res)) {
+			// Since we should never have more than one result, unwrap the array
+			// so we only have the resulting row.
+			$res = $res[0];
+		}
+
+		return $res;
+	}
+
 
 	function escape($str) {
 		if($this->db && $this->connected) {
