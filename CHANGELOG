@@ -1,3 +1,9 @@
+Hubzilla 10.0.6 (2025-01-05)
+	- Fix entries where primary location data is not complete not dismissed early
+	- Fix query to cleanup outdated doc entries called multiple times
+	- Fix query to cleanup outdated doc entries
+
+
 Hubzilla 10.0.5 (2024-12-29)
 	- Fix another instance of drop_item() not having permission to drop items
 
