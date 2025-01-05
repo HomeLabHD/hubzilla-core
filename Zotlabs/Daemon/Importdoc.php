@@ -11,6 +11,18 @@ class Importdoc {
 
 		self::update_docs_dir('doc/*');
 
+		// remove old files that weren't updated (indicates they were most likely deleted).
+		$i = q("select id, uid from item where item_type = 5 and edited < %s - INTERVAL %s",
+			db_utcnow(),
+			db_quoteinterval('14 DAY')
+		);
+
+		if ($i) {
+			foreach ($i as $iv) {
+				drop_item($iv['id'], uid: $iv['uid']);
+			}
+		}
+
 		return;
 
 	}
@@ -39,18 +51,6 @@ class Importdoc {
 						store_doc_file($fi);
 					}
 				}
-			}
-		}
-
-		// remove old files that weren't updated (indicates they were most likely deleted).
-		$i = q("select id, uid from item where item_type = 5 and edited < %s - INTERVAL %s",
-			db_utcnow(),
-			db_quoteinterval('14 DAY')
-		);
-
-		if ($i) {
-			foreach ($i as $iv) {
-				drop_item($iv['id'], uid: $iv['uid']);
 			}
 		}
 	}
