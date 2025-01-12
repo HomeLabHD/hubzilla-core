@@ -21,7 +21,11 @@ class DbaPdoTest extends UnitTestCase
 	public function testInsertingRowWithRturningClauseReturnsInsertedRow(): void
 	{
 		$driver = DBA::$dba->db->getAttribute(PDO::ATTR_DRIVER_NAME);
-		if ($driver === 'mysql') {
+		$version = DBA::$dba->db->getAttribute(PDO::ATTR_SERVER_VERSION);
+
+		// MySQL does not support the `returning` clause, so we skip the test
+		// for that DB backend.
+		if ($driver === 'mysql' && stripos($version, 'mariadb') === false) {
 			$this->markTestSkipped("RETURNING clause not supported for {$driver}");
 		}
 
