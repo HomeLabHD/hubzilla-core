@@ -73,7 +73,7 @@ class dba_pdo extends dba_driver {
 			}
 		}
 
-		$result = null;
+		$result = false;
 		$this->error = '';
 		$select = stripos($sql, 'select') === 0 || stripos($sql, 'returning ') > 0;
 
@@ -162,10 +162,6 @@ class dba_pdo extends dba_driver {
 				db_logger('dba_pdo: PDOStatement returned, did not expect that.');
 				return false;
 			}
-		} elseif ($res === null) {
-			// While `q` should never return null, that's exactly what it
-			// does when the insert fails. Let's turn it to a false instead.
-			$res = false;
 		}
 
 		if (is_array($res)) {
