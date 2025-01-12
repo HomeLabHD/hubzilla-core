@@ -146,10 +146,19 @@ class dba_pdo extends dba_driver {
 			array_values($data)
 		);
 
-		$res = $this->q("INSERT INTO {$table} ("
+		$query = "INSERT INTO {$table} ("
 			. implode(', ', $keys) . ') VALUES ('
-			. implode(', ', $values) . ')'
-		);
+			. implode(', ', $values) . ')';
+
+		// MySQL is the only supported DB that don't support the returning
+		// clause. Since the driver type is 'mysql' also for MariaDB, we need
+		// to check the actual server version to be sure we only exclude actual
+		// MySQL systems.
+		if ($this->driver_dbtype !== 'mysql' || stripos($this->server_version, 'mariadb') !== false) {
+			$query .= ' RETURNING *';
+		}
+
+		$res = $this->q($query);
 
 		if (is_a($res, PDOStatement::class)) {
 			//
