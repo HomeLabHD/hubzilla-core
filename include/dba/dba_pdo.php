@@ -10,6 +10,8 @@ class dba_pdo extends dba_driver {
 
 	public $driver_dbtype = null;
 
+	private string $server_version = '';
+
 	/**
 	 * {@inheritDoc}
 	 * @see dba_driver::connect()
@@ -37,6 +39,7 @@ class dba_pdo extends dba_driver {
 		try {
 			$this->db = new PDO($dsn,$user,$pass);
 			$this->db->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
+			$this->server_version = $this->db->getAttribute(PDO::ATTR_SERVER_VERSION);
 		}
 		catch(PDOException $e) {
 			if(file_exists('dbfail.out')) {
