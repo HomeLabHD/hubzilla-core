@@ -1796,7 +1796,7 @@ function toggleAside() {
 }
 
 function toast(string, severity) {
-	let id = btoa(string);
+	let id = bin2hex(string);
 	let container = document.getElementById('toast-container');
 	let toast = document.getElementById(id);
 
