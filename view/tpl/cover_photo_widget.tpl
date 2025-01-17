@@ -1,103 +1,124 @@
 <script>
-	var aside_padding_top;
-	var section_padding_top;
-	var coverSlid = false;
-	var hide_cover = Boolean({{$hide_cover}});
-	var cover_height;
+	let asidePaddingTop;
+	let sectionPaddingTop;
+	let coverSlid = false;
+	const hideCover = Boolean({{$hide_cover}});
+	let coverHeight;
 
-	$(document).ready(function() {
-		if(! $('#cover-photo').length)
-			return;
+	document.addEventListener('DOMContentLoaded', function() {
+		const coverPhoto = document.getElementById('cover-photo');
+		if (!coverPhoto) return;
 
-		if($(window).width() < 755) {
-			$('#cover-photo').remove();
+		// If screen width is smaller than 755px, remove the cover photo
+		if (window.innerWidth < 755) {
+			coverPhoto.remove();
 			coverSlid = true;
 			return;
 		}
 
-		$('#cover-photo').removeClass('d-none');
-		cover_height = Math.ceil($(window).width()/2.75862069);
-		$('#cover-photo').css('height', cover_height + 'px');
+		// Otherwise, set up the cover photo's size
+		coverPhoto.classList.remove('d-none');
+		coverHeight = Math.ceil(window.innerWidth / 2.75862069);
+		coverPhoto.style.height = `${coverHeight}px`;
 		datasrc2src('#cover-photo > img');
 
-		$(document).on('click mouseup keyup', slideUpCover);
+		// Bind events for hiding the cover
+		document.addEventListener('click', slideUpCover);
+		document.addEventListener('mouseup', slideUpCover);
+		document.addEventListener('keyup', slideUpCover);
 
-		if(hide_cover) {
-			hideCover();
-		}
-		else if(!hide_cover && !coverSlid)  {
+		// Hide the cover if required
+		if (hideCover) {
+			hideCoverFunction();
+		} else if (!coverSlid) {
 			coverVisibleActions();
 		}
+
+		// Throttle scroll event
+		let lastScrollTop = 0;
+		const scrollThreshold = 100;
+		window.addEventListener('scroll', function() {
+			const scrollTop = window.scrollY;
+			if (Math.abs(scrollTop - lastScrollTop) < scrollThreshold) {
+				return;
+			}
+			lastScrollTop = scrollTop;
+			handleScroll(scrollTop);
+		});
+
+		// Adjust cover photo on resize
+		window.addEventListener('resize', function() {
+			if (!coverPhoto) return;
+
+			coverHeight = Math.ceil(window.innerWidth / 2.75862069);
+			coverPhoto.style.height = `${coverHeight}px`;
+
+			if (window.innerWidth < 755) {
+				coverPhoto.remove();
+				coverHiddenActions();
+				coverSlid = true;
+			}
+		});
 	});
 
-	$(window).scroll(function () {
-		if(! $('#cover-photo').length) {
-			return;
-		}
+	// Scroll event handling
+	function handleScroll(scrollTop) {
+		const coverPhoto = document.getElementById('cover-photo');
+		if (!coverPhoto) return;
 
-		if($(window).scrollTop() >= cover_height) {
+		if (scrollTop >= coverHeight) {
 			coverHiddenActions();
 			coverSlid = true;
-		}
-		else if ($(window).scrollTop() < cover_height){
-			if(coverSlid) {
-				$(window).scrollTop(cover_height);
-				setTimeout(function(){ coverSlid = false; }, 1000);
+		} else if (scrollTop < coverHeight) {
+			if (coverSlid) {
+				document.body.style.overflow = 'hidden'; // Disable scrolling
+				window.scrollTo(0, coverHeight);
+				setTimeout(function() {
+					coverSlid = false;
+					document.body.style.overflow = 'auto'; // Enable scrolling
+				}, 500);
+			} else {
+				coverVisibleActions();
 			}
-			else {
-				if($(window).scrollTop() < cover_height) {
-					coverVisibleActions();
-				}
-			}
-		}
-		if($('main').css('opacity') < 1) {
-			$('main').css('opacity', ($(window).scrollTop()/cover_height).toFixed(1));
-		}
-	});
-
-	$(window).resize(function () {
-		if(! $('#cover-photo').length) {
-			return;
 		}
 
-		cover_height = Math.ceil($(window).width()/2.75862069);
-		$('#cover-photo').css('height', cover_height + 'px');
-		if($(window).width() < 755) {
-			$('#cover-photo').remove();
-			coverHiddenActions();
-			coverSlid = true;
+		// Fade effect for main content opacity
+		const mainElement = document.querySelector('main');
+		if (mainElement && parseFloat(getComputedStyle(mainElement).opacity) < 1) {
+			mainElement.style.opacity = (scrollTop / coverHeight).toFixed(1);
 		}
+	}
 
-	});
-
+	// Functions to handle showing/hiding the cover
 	function slideUpCover() {
-		if(coverSlid) {
-			return;
-		}
-		$('html, body').animate({scrollTop: cover_height + 'px'}, 'fast');
-		return;
+		if (coverSlid) return;
+		window.scrollTo({
+			top: coverHeight,
+			behavior: 'smooth'
+		});
 	}
 
-	function hideCover() {
-		if(coverSlid) {
-			return;
-		}
-		window.scrollTo(0, cover_height);
-		return;
+	function hideCoverFunction() {
+		if (coverSlid) return;
+		window.scrollTo(0, coverHeight);
 	}
 
+	// Actions when the cover is visible
 	function coverVisibleActions() {
-		$('body').css('cursor', 'n-resize');
-		$('.navbar').removeClass('fixed-top');
-		//$('main').css('margin-top', - $('nav').outerHeight(true) + 'px');
-		$('main').css('opacity', 0);
+		document.body.style.cursor = 'n-resize';
+		const navbar = document.querySelector('.navbar');
+		if (navbar) navbar.classList.remove('fixed-top');
+		const mainElement = document.querySelector('main');
+		if (mainElement) mainElement.style.opacity = 0;
 	}
 
+	// Actions when the cover is hidden
 	function coverHiddenActions() {
-		$('body').css('cursor', '');
-		$('.navbar').addClass('fixed-top');
-		//$('main').css('margin-top', '');
-		$('main').css('opacity', 1);
+		document.body.style.cursor = '';
+		const navbar = document.querySelector('.navbar');
+		if (navbar) navbar.classList.add('fixed-top');
+		const mainElement = document.querySelector('main');
+		if (mainElement) mainElement.style.opacity = 1;
 	}
 </script>
 
