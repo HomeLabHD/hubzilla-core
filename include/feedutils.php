@@ -1173,12 +1173,16 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 					intval($importer['channel_id'])
 				);
 
-
 				// Update content if 'updated' changes
 
-				if($r) {
-					if(activity_match($datarray['verb'], ['Delete', ACTIVITY_DELETE])
-						&& $datarray['author_xchan'] === $r[0]['author_xchan']) {
+				if ($r) {
+					// Check ownership
+					if ($datarray['author_xchan'] !== $r[0]['author_xchan']) {
+						logger('stored item author is not imported item author', LOGGER_DEBUG);
+						continue;
+					}
+
+					if (activity_match($datarray['verb'], ['Delete', ACTIVITY_DELETE])) {
 						if(! intval($r[0]['item_deleted'])) {
 							logger('deleting item ' . $r[0]['id'] . ' mid=' . $datarray['mid'], LOGGER_DEBUG);
 							drop_item($r[0]['id']);
@@ -1444,12 +1448,17 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 
 				// Update content if 'updated' changes
 
-				if($r) {
-					if(isset($datarray['verb']) && activity_match($datarray['verb'], ['Delete', ACTIVITY_DELETE])
-						&& isset($datarray['author_xchan']) && $datarray['author_xchan'] === $r[0]['author_xchan']) {
+				if ($r) {
+					// Check ownership
+					if ($datarray['author_xchan'] !== $r[0]['author_xchan']) {
+						logger('stored item author is not imported item author', LOGGER_DEBUG);
+						continue;
+					}
+
+					if (isset($datarray['verb']) && activity_match($datarray['verb'], ['Delete', ACTIVITY_DELETE])) {
 						if(! intval($r[0]['item_deleted'])) {
 							logger('deleting item ' . $r[0]['id'] . ' mid=' . $datarray['mid'], LOGGER_DEBUG);
-							drop_item($r[0]['id']);
+							drop_item($r[0]['id'], uid: $importer['channel_id']);
 						}
 						continue;
 					}

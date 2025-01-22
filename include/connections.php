@@ -513,7 +513,7 @@ function remove_abook_items($channel_id, $xchan_hash) {
 			continue;
 		}
 
-		drop_item($rr['id']);
+		drop_item($rr['id'], uid: $channel_id);
 	}
 }
 
