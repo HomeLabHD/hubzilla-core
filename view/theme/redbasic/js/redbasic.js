@@ -135,10 +135,8 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    document.querySelectorAll('input[data-role=cat-tagsinput]').forEach(function (input) {
-        input.addEventListener('change', function () {
-            input.classList.add('badge', 'rounded-pill', 'bg-warning', 'text-dark');
-        });
+    $("input[data-role=cat-tagsinput]").tagsinput({
+        tagClass: 'badge rounded-pill bg-warning text-dark'
     });
 
     document.querySelectorAll('a.disabled').forEach(function (link) {
