@@ -18,7 +18,7 @@
 
 		// Otherwise, set up the cover photo's size
 		coverPhoto.classList.remove('d-none');
-		coverHeight = Math.ceil(window.innerWidth / 2.75862069);
+		coverHeight = Math.round(window.innerWidth / 2.75862069);
 		coverPhoto.style.height = `${coverHeight}px`;
 		datasrc2src('#cover-photo > img');
 
@@ -50,7 +50,7 @@
 		window.addEventListener('resize', function() {
 			if (!coverPhoto) return;
 
-			coverHeight = Math.ceil(window.innerWidth / 2.75862069);
+			coverHeight = Math.round(window.innerWidth / 2.75862069);
 			coverPhoto.style.height = `${coverHeight}px`;
 
 			if (window.innerWidth < 755) {
