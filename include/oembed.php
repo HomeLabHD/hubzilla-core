@@ -143,6 +143,10 @@ function oembed_fetch_url($embedurl){
 
 	$furl = ((local_channel() && $zrl) ? zid($embedurl) : $embedurl);
 
+	if (empty($furl)) {
+		return;
+	}
+
 	if($action !== 'block' && (! Config::Get('system','oembed_cache_disable'))) {
 		$txt = Cache::get('[' . App::$videowidth . '] ' . $furl);
 	}
