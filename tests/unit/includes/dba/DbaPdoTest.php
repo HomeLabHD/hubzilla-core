@@ -95,7 +95,7 @@ class DbaPdoTest extends UnitTestCase
 	public function testUpdateRow(): void
 	{
 		// Let's fetch a row from the config table
-		$res = q('SELECT * FROM config WHERE cat = "system" AND k = "baseurl"');
+		$res = q("SELECT * FROM config WHERE cat = 'system' AND k = 'baseurl'");
 
 		$this->assertIsArray($res);
 		$this->assertIsArray($res[0]);
@@ -113,7 +113,7 @@ class DbaPdoTest extends UnitTestCase
 		$this->assertTrue($updated);
 
 		// Verify that the record was updated
-		$updated_res = q('SELECT * FROM config WHERE cat = "system" AND k = "baseurl"');
+		$updated_res = q("SELECT * FROM config WHERE cat = 'system' AND k = 'baseurl'");
 		$this->assertIsArray($updated_res);
 
 		$updated_row = $updated_res[0];
