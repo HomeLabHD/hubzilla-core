@@ -20,14 +20,9 @@ class DbaPdoTest extends UnitTestCase
 {
 	public function testInsertingRowWithRturningClauseReturnsInsertedRow(): void
 	{
-		$driver = DBA::$dba->db->getAttribute(PDO::ATTR_DRIVER_NAME);
-		$version = DBA::$dba->db->getAttribute(PDO::ATTR_SERVER_VERSION);
-
 		// MySQL does not support the `returning` clause, so we skip the test
 		// for that DB backend.
-		if ($driver === 'mysql' && stripos($version, 'mariadb') === false) {
-			$this->markTestSkipped("RETURNING clause not supported for {$driver}");
-		}
+		$this->skipIfMySQL();
 
 		// Let's manually insert a row in the config table.
 		// This is just because it's a conventient table to test
@@ -95,5 +90,51 @@ class DbaPdoTest extends UnitTestCase
 				'k',
 			],
 		];
+	}
+
+	public function testUpdateRow(): void
+	{
+		// Let's fetch a row from the config table
+		$res = q('SELECT * FROM config WHERE cat = "system" AND k = "baseurl"');
+
+		$this->assertIsArray($res);
+		$this->assertIsArray($res[0]);
+
+		$row = $res[0];
+
+		// Update the baseurl
+		$updated = DBA::$dba->update(
+			'config',
+			[ 'v' => 'https://some.other_site.test/' ],
+			'id',
+			$row['id']
+		);
+
+		$this->assertTrue($updated);
+
+		// Verify that the record was updated
+		$updated_res = q('SELECT * FROM config WHERE cat = "system" AND k = "baseurl"');
+		$this->assertIsArray($updated_res);
+
+		$updated_row = $updated_res[0];
+
+		$this->assertIsArray($updated_row);
+		$this->assertEquals($row['id'], $updated_row['id']);
+		$this->assertEquals('system', $updated_row['cat']);
+		$this->assertEquals('baseurl', $updated_row['k']);
+		$this->assertEquals('https://some.other_site.test/', $updated_row['v']);
+	}
+
+	/**
+	 * Mark the test as skipped if the current db is MySQL.
+	 */
+	private function skipIfMySQL(): void {
+		$driver = DBA::$dba->db->getAttribute(PDO::ATTR_DRIVER_NAME);
+		$version = DBA::$dba->db->getAttribute(PDO::ATTR_SERVER_VERSION);
+
+		if ($driver === 'mysql' && stripos($version, 'mariadb') === false) {
+			$this->markTestSkipped("RETURNING clause not supported for {$driver}");
+		}
+
 	}
 }

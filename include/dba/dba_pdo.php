@@ -185,6 +185,43 @@ class dba_pdo extends dba_driver {
 		return $res;
 	}
 
+	/**
+	 * Update an existing row in a table.
+	 *
+	 * The `$data` argument is an array of key/value pairs of the columns to
+	 * update, where the key is the column name. Values are automatically
+	 * escaped if needed, and should be provided unescaped to this function.
+	 *
+	 * @note it is the callers responsibility to ensure that only valid
+	 * column names are passed as keys in the array.
+	 *
+	 * The row to be updated is identified by `$idcol` and `$idval` as the
+	 * column name and value respectively. This should normally be the unique
+	 * id column of the table, but can in theory be any column with a unique
+	 * value that identifies a specific row.
+	 *
+	 * @param string $table		The table to update.
+	 * @param array $data		The columns to update as key => value pairs.
+	 * @param string $idcol		The name of the id column to check $idval against.
+	 * @param mixed $idval		The id of the row to update.
+	 *
+	 * @return bool		True if the update succeeded, false otherwise.
+	 */
+	public function update(string $table, array $data, string $idcol, mixed $idval): bool {
+		$set_statements = [];
+
+		foreach ($data as $k => $v) {
+			$set_statements[] = "set {$k}=" . (is_numeric($v) ? $v : "'" . dbesc($v) . "'");
+		}
+
+		$query = "UPDATE {$table} "
+			. implode(', ', $set_statements)
+			. " WHERE {$idcol} = {$idval}";
+
+		$res = $this->q($query);
+
+		return is_a($res, PDOStatement::class);
+	}
 
 	function escape($str) {
 		if($this->db && $this->connected) {
