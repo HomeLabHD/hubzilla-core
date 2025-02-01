@@ -116,6 +116,9 @@
 					<button type="button" id="main-editor-code" class="btn btn-outline-secondary btn-sm border-0" title="{{$code}}" onclick="inserteditortag('code', 'profile-jot-text'); return false;">
 						<i class="bi bi-code jot-icons"></i>
 					</button>
+					<button type="button" id="main-editor-bold" class="btn btn-outline-secondary btn-sm border-0" title="highlight" onclick="inserteditortag('mark', 'profile-jot-text'); return false;">
+						<i class="bi bi-highlighter jot-icons"></i>
+					</button>
 				</div>
 				{{/if}}
 				{{if $visitor}}
