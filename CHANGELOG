@@ -1,3 +1,14 @@
+Hubzilla 10.0.8 (2025-02-01)
+	- Fix duplicating terms/iconfig in addToCollectionAndSync()
+	- Refactor Daemon/Importdoc for better SQL performance when looking up outdated entries
+	- Tweak SQL in mod sse_bs for possible performance improvements
+	- Fix PHP warnings
+	- Do not run post_local hook on add activities in pubcrawl addon
+	- Do not run post_local hook on add activities in diaspora addon
+	- Remove old rawmsg/fields before storing new rawmsg in pubcrawl addon
+	- Fix retractions in diaspora addon
+
+
 Hubzilla 10.0.7 (2025-01-22)
 	- Fix ownership check in consume_feed()
 	- Fix toast() if notification contains non-ascii characters
