@@ -5293,7 +5293,8 @@ function addToCollectionAndSync($ret) {
 		}
 
 		xchan_query($items);
-		$items = fetch_post_tags($items);
+		// TODO: fetch_post_tags() will add term and iconfig twice if called twice and it looks like they are already added here
+		// $items = fetch_post_tags($items);
 		$sync_items = [];
 		$sync_items[] = encode_item($items[0], true);
 
