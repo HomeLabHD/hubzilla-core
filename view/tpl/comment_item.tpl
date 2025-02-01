@@ -37,6 +37,9 @@
 							<button class="btn btn-outline-secondary btn-sm border-0" title="{{$edcode}}" onclick="insertbbcomment('{{$comment}}','code', {{$id}}); return false;">
 								<i class="bi bi-code comment-icon"></i>
 							</button>
+						<button class="btn btn-outline-secondary btn-sm border-0" title="highlight" onclick="insertbbcomment('{{$comment}}','mark', {{$id}}); return false;">
+								<i class="bi bi-highlighter comment-icon"></i>
+							</button>
 						</div>
 						<div class="btn-group me-2">
 							{{if $can_upload}}
