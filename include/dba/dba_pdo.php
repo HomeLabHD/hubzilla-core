@@ -10,6 +10,8 @@ class dba_pdo extends dba_driver {
 
 	public $driver_dbtype = null;
 
+	private string $server_version = '';
+
 	/**
 	 * {@inheritDoc}
 	 * @see dba_driver::connect()
@@ -37,6 +39,7 @@ class dba_pdo extends dba_driver {
 		try {
 			$this->db = new PDO($dsn,$user,$pass);
 			$this->db->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
+			$this->server_version = $this->db->getAttribute(PDO::ATTR_SERVER_VERSION);
 		}
 		catch(PDOException $e) {
 			if(file_exists('dbfail.out')) {
@@ -73,9 +76,9 @@ class dba_pdo extends dba_driver {
 			}
 		}
 
-		$result = null;
+		$result = false;
 		$this->error = '';
-		$select = ((stripos($sql, 'select') === 0) ? true : false);
+		$select = stripos($sql, 'select') === 0 || stripos($sql, 'returning ') > 0;
 
 		try {
 			$result = $this->db->query($sql, PDO::FETCH_ASSOC);
@@ -113,6 +116,111 @@ class dba_pdo extends dba_driver {
 		}
 
 		return (($this->error) ? false : $r);
+	}
+
+	/**
+	 * Insert a row into a table.
+	 *
+	 * The `$data` argument is an array of key/value pairs of the columns to
+	 * insert, where the key is the column name. Values are automatically
+	 * escaped if needed, and should be provided unescaped to this function.
+	 *
+	 * @note it is the callers responsibility to ensure that only valid
+	 * column names are passed as keys in the array.
+	 *
+	 * The inserted row will be returned.
+	 *
+	 * @param string $table		The table to insert the row into.
+	 * @param array $data		The data to insert as an array of column name => value pairs.
+	 * @param string $idcol		The column name for the primary key of the table. We need to
+	 *                          specify this since we don't have a consistent naming of primary
+	 *                          id for tables.
+	 *
+	 * @return array|bool	The complete record as read back from the database, or false if we
+	 *                      could not fetch it.
+	 */
+	public function insert(string $table, array $data, string $idcol): array|bool {
+		$keys = array_keys($data);
+		$values = array_map(
+			fn ($v) => is_numeric($v) ? $v : "'" . dbesc($v) . "'",
+			array_values($data)
+		);
+
+		$query = "INSERT INTO {$table} ("
+			. implode(', ', $keys) . ') VALUES ('
+			. implode(', ', $values) . ')';
+
+		// MySQL is the only supported DB that don't support the returning
+		// clause. Since the driver type is 'mysql' also for MariaDB, we need
+		// to check the actual server version to be sure we only exclude actual
+		// MySQL systems.
+		if ($this->driver_dbtype !== 'mysql' || stripos($this->server_version, 'mariadb') !== false) {
+			$query .= ' RETURNING *';
+		}
+
+		$res = $this->q($query);
+
+		if (is_a($res, PDOStatement::class)) {
+			//
+			// Calling PDO::lastInsertId should be safe here.
+			// The last inserted id is kept for each connection, so we're not risking
+			// a race condition wrt inserts by other requests that happen simultaneously.
+			//
+			$id = $this->db->lastInsertId($table);
+
+			$res = $this->q("SELECT * FROM {$table} WHERE {$idcol} = {$id}");
+
+			if (is_a($res, PDOStatement::class)) {
+				db_logger('dba_pdo: PDOStatement returned, did not expect that.');
+				return false;
+			}
+		}
+
+		if (is_array($res)) {
+			// Since we should never have more than one result, unwrap the array
+			// so we only have the resulting row.
+			$res = $res[0];
+		}
+
+		return $res;
+	}
+
+	/**
+	 * Update an existing row in a table.
+	 *
+	 * The `$data` argument is an array of key/value pairs of the columns to
+	 * update, where the key is the column name. Values are automatically
+	 * escaped if needed, and should be provided unescaped to this function.
+	 *
+	 * @note it is the callers responsibility to ensure that only valid
+	 * column names are passed as keys in the array.
+	 *
+	 * The row to be updated is identified by `$idcol` and `$idval` as the
+	 * column name and value respectively. This should normally be the unique
+	 * id column of the table, but can in theory be any column with a unique
+	 * value that identifies a specific row.
+	 *
+	 * @param string $table		The table to update.
+	 * @param array $data		The columns to update as key => value pairs.
+	 * @param string $idcol		The name of the id column to check $idval against.
+	 * @param mixed $idval		The id of the row to update.
+	 *
+	 * @return bool		True if the update succeeded, false otherwise.
+	 */
+	public function update(string $table, array $data, string $idcol, mixed $idval): bool {
+		$set_statements = [];
+
+		foreach ($data as $k => $v) {
+			$set_statements[] = "set {$k}=" . (is_numeric($v) ? $v : "'" . dbesc($v) . "'");
+		}
+
+		$query = "UPDATE {$table} "
+			. implode(', ', $set_statements)
+			. " WHERE {$idcol} = {$idval}";
+
+		$res = $this->q($query);
+
+		return is_a($res, PDOStatement::class);
 	}
 
 	function escape($str) {
