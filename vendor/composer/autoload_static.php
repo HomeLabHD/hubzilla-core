@@ -37,7 +37,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Z' => 
         array (
             'Zotlabs\\' => 8,
-            'ZipStream\\' => 10,
         ),
         'S' => 
         array (
@@ -98,8 +97,8 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
     public static $prefixDirsPsr4 = array (
         'voku\\' => 
         array (
-            0 => __DIR__ . '/..' . '/voku/portable-ascii/src/voku',
-            1 => __DIR__ . '/..' . '/voku/stop-words/src/voku',
+            0 => __DIR__ . '/..' . '/voku/stop-words/src/voku',
+            1 => __DIR__ . '/..' . '/voku/portable-ascii/src/voku',
         ),
         'phpseclib\\' => 
         array (
@@ -116,10 +115,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\' => 
         array (
             0 => __DIR__ . '/../..' . '/Zotlabs',
-        ),
-        'ZipStream\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/maennchen/zipstream-php/src',
         ),
         'Symfony\\Polyfill\\Php81\\' => 
         array (
@@ -1216,22 +1211,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'ScssPhp\\ScssPhp\\ValueConverter' => __DIR__ . '/..' . '/scssphp/scssphp/src/ValueConverter.php',
         'ScssPhp\\ScssPhp\\Version' => __DIR__ . '/..' . '/scssphp/scssphp/src/Version.php',
         'ScssPhp\\ScssPhp\\Warn' => __DIR__ . '/..' . '/scssphp/scssphp/src/Warn.php',
-        'SebLucas\\EPubMeta\\App\\Handler' => __DIR__ . '/..' . '/mikespub/php-epub-meta/src/App/Handler.php',
-        'SebLucas\\EPubMeta\\App\\Util' => __DIR__ . '/..' . '/mikespub/php-epub-meta/src/App/Util.php',
-        'SebLucas\\EPubMeta\\Contents\\Nav' => __DIR__ . '/..' . '/mikespub/php-epub-meta/src/Contents/Nav.php',
-        'SebLucas\\EPubMeta\\Contents\\NavPoint' => __DIR__ . '/..' . '/mikespub/php-epub-meta/src/Contents/NavPoint.php',
-        'SebLucas\\EPubMeta\\Contents\\NavPointList' => __DIR__ . '/..' . '/mikespub/php-epub-meta/src/Contents/NavPointList.php',
-        'SebLucas\\EPubMeta\\Contents\\Spine' => __DIR__ . '/..' . '/mikespub/php-epub-meta/src/Contents/Spine.php',
-        'SebLucas\\EPubMeta\\Contents\\Toc' => __DIR__ . '/..' . '/mikespub/php-epub-meta/src/Contents/Toc.php',
-        'SebLucas\\EPubMeta\\Data\\Item' => __DIR__ . '/..' . '/mikespub/php-epub-meta/src/Data/Item.php',
-        'SebLucas\\EPubMeta\\Data\\Manifest' => __DIR__ . '/..' . '/mikespub/php-epub-meta/src/Data/Manifest.php',
-        'SebLucas\\EPubMeta\\Dom\\Element' => __DIR__ . '/..' . '/mikespub/php-epub-meta/src/Dom/Element.php',
-        'SebLucas\\EPubMeta\\Dom\\XPath' => __DIR__ . '/..' . '/mikespub/php-epub-meta/src/Dom/XPath.php',
-        'SebLucas\\EPubMeta\\EPub' => __DIR__ . '/..' . '/mikespub/php-epub-meta/src/EPub.php',
-        'SebLucas\\EPubMeta\\Other' => __DIR__ . '/..' . '/mikespub/php-epub-meta/src/Other.php',
-        'SebLucas\\EPubMeta\\Tools\\HtmlTools' => __DIR__ . '/..' . '/mikespub/php-epub-meta/src/Tools/HtmlTools.php',
-        'SebLucas\\EPubMeta\\Tools\\ZipEdit' => __DIR__ . '/..' . '/mikespub/php-epub-meta/src/Tools/ZipEdit.php',
-        'SebLucas\\EPubMeta\\Tools\\ZipFile' => __DIR__ . '/..' . '/mikespub/php-epub-meta/src/Tools/ZipFile.php',
         'SimplePie' => __DIR__ . '/..' . '/simplepie/simplepie/library/SimplePie.php',
         'SimplePie\\Author' => __DIR__ . '/..' . '/simplepie/simplepie/src/Author.php',
         'SimplePie\\Cache' => __DIR__ . '/..' . '/simplepie/simplepie/src/Cache.php',
@@ -1490,33 +1469,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Text_LanguageDetect_Parser' => __DIR__ . '/..' . '/pear/text_languagedetect/Text/LanguageDetect/Parser.php',
         'URLify' => __DIR__ . '/..' . '/jbroadway/urlify/URLify.php',
         'UploadHandler' => __DIR__ . '/..' . '/blueimp/jquery-file-upload/server/php/UploadHandler.php',
-        'ZipStream\\CentralDirectoryFileHeader' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/CentralDirectoryFileHeader.php',
-        'ZipStream\\CompressionMethod' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/CompressionMethod.php',
-        'ZipStream\\DataDescriptor' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/DataDescriptor.php',
-        'ZipStream\\EndOfCentralDirectory' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/EndOfCentralDirectory.php',
-        'ZipStream\\Exception' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/Exception.php',
-        'ZipStream\\Exception\\DosTimeOverflowException' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/Exception/DosTimeOverflowException.php',
-        'ZipStream\\Exception\\FileNotFoundException' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/Exception/FileNotFoundException.php',
-        'ZipStream\\Exception\\FileNotReadableException' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/Exception/FileNotReadableException.php',
-        'ZipStream\\Exception\\FileSizeIncorrectException' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/Exception/FileSizeIncorrectException.php',
-        'ZipStream\\Exception\\OverflowException' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/Exception/OverflowException.php',
-        'ZipStream\\Exception\\ResourceActionException' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/Exception/ResourceActionException.php',
-        'ZipStream\\Exception\\SimulationFileUnknownException' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/Exception/SimulationFileUnknownException.php',
-        'ZipStream\\Exception\\StreamNotReadableException' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/Exception/StreamNotReadableException.php',
-        'ZipStream\\Exception\\StreamNotSeekableException' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/Exception/StreamNotSeekableException.php',
-        'ZipStream\\File' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/File.php',
-        'ZipStream\\GeneralPurposeBitFlag' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/GeneralPurposeBitFlag.php',
-        'ZipStream\\LocalFileHeader' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/LocalFileHeader.php',
-        'ZipStream\\OperationMode' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/OperationMode.php',
-        'ZipStream\\PackField' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/PackField.php',
-        'ZipStream\\Time' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/Time.php',
-        'ZipStream\\Version' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/Version.php',
-        'ZipStream\\Zip64\\DataDescriptor' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/Zip64/DataDescriptor.php',
-        'ZipStream\\Zip64\\EndOfCentralDirectory' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/Zip64/EndOfCentralDirectory.php',
-        'ZipStream\\Zip64\\EndOfCentralDirectoryLocator' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/Zip64/EndOfCentralDirectoryLocator.php',
-        'ZipStream\\Zip64\\ExtendedInformationExtraField' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/Zip64/ExtendedInformationExtraField.php',
-        'ZipStream\\ZipStream' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/ZipStream.php',
-        'ZipStream\\Zs\\ExtendedInformationExtraField' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/Zs/ExtendedInformationExtraField.php',
         'Zotlabs\\Access\\AccessList' => __DIR__ . '/../..' . '/Zotlabs/Access/AccessList.php',
         'Zotlabs\\Access\\PermissionLimits' => __DIR__ . '/../..' . '/Zotlabs/Access/PermissionLimits.php',
         'Zotlabs\\Access\\PermissionRoles' => __DIR__ . '/../..' . '/Zotlabs/Access/PermissionRoles.php',
