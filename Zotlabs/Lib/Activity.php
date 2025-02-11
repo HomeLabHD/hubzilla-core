@@ -616,6 +616,7 @@ class Activity {
 		if (!empty($cnv)) {
 			if (is_string($cnv) && str_starts_with($cnv, z_root())) {
 				$cnv = str_replace(['/item/', '/activity/'], ['/conversation/', '/conversation/'], $cnv);
+				$ret['contextHistory'] = $cnv;
 			}
 			$ret['context'] = $cnv;
 		}
@@ -1050,6 +1051,7 @@ class Activity {
 		if (!empty($cnv)) {
 			if (is_string($cnv) && str_starts_with($cnv, z_root())) {
 				$cnv = str_replace(['/item/', '/activity/'], ['/conversation/', '/conversation/'], $cnv);
+				$ret['contextHistory'] = $cnv;
 			}
 			$ret['context'] = $cnv;
 		}
@@ -3694,6 +3696,8 @@ class Activity {
 
 		return [
 			'zot'              => z_root() . '/apschema#',
+
+			'contextHistory'   => 'https://w3id.org/fep/171b/contextHistory',
 			'schema'           => 'http://schema.org#',
 			'ostatus'          => 'http://ostatus.org#',
 			'diaspora'         => 'https://diasporafoundation.org/ns/',
@@ -3717,7 +3721,6 @@ class Activity {
 
 			'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
 			'Hashtag'          => 'as:Hashtag'
-
 		];
 
 	}
