@@ -1503,7 +1503,7 @@ class Item extends Controller {
 			dbesc(ACTIVITY_UNFOLLOW)
 		);
 
-		$item_normal = " and item.item_hidden = 0 and item.item_type = 0 and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_blocked = 0 $item_normal_extra ";
+		$item_normal = " and item.item_hidden = 0 and item.item_type = 0 and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_blocked = 0 and item.item_uplink = 0 $item_normal_extra ";
 
 		$i = null;
 
@@ -1619,7 +1619,7 @@ class Item extends Controller {
 			dbesc(ACTIVITY_UNFOLLOW)
 		);
 
-		$item_normal = " and item.item_hidden = 0 and item.item_type = 0 and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_blocked = 0 $item_normal_extra ";
+		$item_normal = " and item.item_hidden = 0 and item.item_type = 0 and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_blocked = 0 and item.item_uplink = 0 $item_normal_extra ";
 
 		$i = null;
 
