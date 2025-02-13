@@ -106,7 +106,7 @@
 	// Actions when the cover is visible
 	function coverVisibleActions() {
 		document.body.style.cursor = 'n-resize';
-		const navbar = document.querySelector('.navbar');
+		const navbar = document.getElementById('navbar-top');
 		if (navbar) navbar.classList.remove('fixed-top');
 		const mainElement = document.querySelector('main');
 		if (mainElement) mainElement.style.opacity = 0;
@@ -115,7 +115,7 @@
 	// Actions when the cover is hidden
 	function coverHiddenActions() {
 		document.body.style.cursor = '';
-		const navbar = document.querySelector('.navbar');
+		const navbar = document.getElementById('navbar-top');
 		if (navbar) navbar.classList.add('fixed-top');
 		const mainElement = document.querySelector('main');
 		if (mainElement) mainElement.style.opacity = 1;
