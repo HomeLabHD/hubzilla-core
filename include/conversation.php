@@ -1255,6 +1255,7 @@ function hz_status_editor($x, $popup = false) {
 		'$writefiles' => $writefiles,
 		'$bold' => t('Bold'),
 		'$italic' => t('Italic'),
+		'$highlighter' => t('Highlight selected text'),
 		'$underline' => t('Underline'),
 		'$quote' => t('Quote'),
 		'$code' => t('Code'),
