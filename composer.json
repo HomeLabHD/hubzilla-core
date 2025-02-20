@@ -43,7 +43,7 @@
         "pear/text_languagedetect": "^1.0",
         "commerceguys/intl": "~1.1.0",
         "lukasreschke/id3parser": "^0.0.3",
-        "smarty/smarty": "^4.1",
+        "smarty/smarty": "^5.4",
         "ramsey/uuid": "^4.1",
         "twbs/bootstrap": "^5.3",
         "blueimp/jquery-file-upload": "^10.3",
