@@ -2976,7 +2976,10 @@ class Activity {
 		// This isn't perfect but the best we can do for now.
 		$item['comment_policy'] = ((isset($act->data['commentPolicy'])) ? $act->data['commentPolicy'] : 'authenticated');
 
-		if (!empty($act->obj['context'])) {
+		if (!empty($act->obj['contextHistory'])) {
+			IConfig::Set($item, 'activitypub', 'context', $act->obj['contextHistory'], 1);
+		}
+		elseif (!empty($act->obj['context'])) {
 			IConfig::Set($item, 'activitypub', 'context', $act->obj['context'], 1);
 		}
 
