@@ -104,14 +104,6 @@ vendor/phpunit/
 vendor/psr/container/
 vendor/sebastian/
 vendor/squizlabs/
-vendor/symfony/config/
-vendor/symfony/dependency-injection/
-vendor/symfony/deprecation-contracts/
-vendor/symfony/filesystem/
-vendor/symfony/polyfill-ctype/
-vendor/symfony/polyfill-mbstring/
-vendor/symfony/polyfill-php80/
-vendor/symfony/service-contracts/
 vendor/theseer/
 # /info is a directory containing site-specific HTML documents
 /info/
