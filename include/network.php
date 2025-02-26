@@ -2104,7 +2104,7 @@ function get_request_string($url) {
  * Reconstructs a URL from its parsed components.
  *
  * This function takes a parsed URL as an associative array and reconstructs
- * the URL based on the specified components (scheme, host, port, user, path, query, fragment).
+ * the URL based on the specified components (scheme, host, port, user, pass, path, query, fragment).
  * You can specify which components should be included in the final URL by passing the optional
  * `$parts` array. The function will return the complete URL string formed by combining
  * only the parts that exist in both the parsed URL and the `$parts` array.
@@ -2115,7 +2115,7 @@ function get_request_string($url) {
  *
  * @param array $parts An optional array that specifies which components of the URL
  *                     should be included in the final string. Defaults to:
- *                     ['scheme', 'host', 'port', 'user', 'path', 'query', 'fragment'].
+ *                     ['scheme', 'host', 'port', 'user', 'pass', 'path', 'query', 'fragment'].
  *                     If any of the components are not required, they can be omitted from the array.
  *
  * @return string The reconstructed URL as a string.
