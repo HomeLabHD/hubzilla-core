@@ -383,6 +383,7 @@ class Item extends Controller {
 		$r = q("select * from xchan where xchan_hash = '%s' limit 1",
 			dbesc($channel['channel_hash'])
 		);
+
 		if ($r && count($r)) {
 			$owner_xchan = $r[0];
 		}
@@ -486,6 +487,7 @@ class Item extends Controller {
 			$thr_parent          = $orig_post['thr_parent'];
 			$parent_mid          = $orig_post['parent_mid'];
 			$plink               = $orig_post['plink'];
+			$owner_hash          = $orig_post['owner_xchan'];
 		}
 		else {
 			if (!$walltowall) {
@@ -821,28 +823,26 @@ class Item extends Controller {
 		$mid = $mid ?? z_root() . '/item/' . $uuid;
 
 
-        // Set the conversation target.
-        if (empty($owner_hash)) {
-            $owner_hash = $owner_xchan['xchan_hash'];
-        }
+		if (empty($owner_hash)) {
+			$owner_hash = $owner_xchan['xchan_hash'];
+		}
 
-        if ($owner_hash === $channel['channel_hash']) {
-            $attributedTo = z_root() . '/channel/' . $channel['channel_address'];
+		// Set the conversation target.
+		if ($owner_hash === $channel['channel_hash']) {
+			$attributedTo = z_root() . '/channel/' . $channel['channel_address'];
 
-            $conversation = isset($parent_item) ? $parent_item['mid'] : $mid;
-            $datarray['target'] = [
-                'id' => str_replace('/item/', '/conversation/', $conversation),
-                'type' => 'Collection',
-                'attributedTo' => $attributedTo,
-            ];
-            $datarray['tgt_type'] = 'Collection';
-        }
-        elseif (!empty($parent_item['target'])) {
-            $datarray['target'] = $parent_item['target'];
-            $datarray['tgt_type'] = $parent_item['tgt_type'];
-        }
-
-
+			$conversation = isset($parent_item) ? $parent_item['mid'] : $mid;
+			$datarray['target'] = [
+				'id' => str_replace('/item/', '/conversation/', $conversation),
+				'type' => 'Collection',
+				'attributedTo' => $attributedTo,
+			];
+			$datarray['tgt_type'] = 'Collection';
+		}
+		elseif (!empty($parent_item['target'])) {
+			$datarray['target'] = $parent_item['target'];
+			$datarray['tgt_type'] = $parent_item['tgt_type'];
+		}
 
 		if ($is_poll) {
 			$poll = [
