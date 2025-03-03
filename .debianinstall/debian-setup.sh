@@ -150,7 +150,7 @@ function install_sendmail {
 function install_php {
     # openssl and mbstring are included in libapache2-mod-php
     print_info "installing php..."
-    nocheck_install "libapache2-mod-php php php-pear php-curl php-gd php-mbstring php-xml php-zip"
+    nocheck_install "libapache2-mod-php php php-pear php-curl php-gd php-mbstring php-xml php-zip php-intl php-bcmath"
     phpversion=$(php -v|grep --only-matching --perl-regexp "(PHP )\d+\.\\d+\.\\d+"|cut -c 5-7)
     sed -i "s/^upload_max_filesize =.*/upload_max_filesize = 100M/g" /etc/php/$phpversion/apache2/php.ini
     sed -i "s/^post_max_size =.*/post_max_size = 100M/g" /etc/php/$phpversion/apache2/php.ini
@@ -256,12 +256,18 @@ function create_zotserver_db {
     then
         Q1="CREATE DATABASE IF NOT EXISTS $db_name;"
         Q2="GRANT USAGE ON *.* TO $db_user@localhost IDENTIFIED BY '$db_pass';"
-        Q3="GRANT ALL PRIVILEGES ON $name.* to $db_user@localhost identified by '$db_pass';"
+        Q3="GRANT ALL PRIVILEGES ON $db_name.* to $db_user@localhost identified by '$db_pass';"
         Q4="FLUSH PRIVILEGES;"
         SQL="${Q1}${Q2}${Q3}${Q4}"
         mysql -uroot -p$mysqlpass -e "$SQL"
     else
         echo "database $db_name does exist already"
+        Q1="CREATE DATABASE IF NOT EXISTS $db_name;"
+        Q2="GRANT USAGE ON *.* TO $db_user@localhost IDENTIFIED BY '$db_pass';"
+        Q3="GRANT ALL PRIVILEGES ON $db_name.* to $db_user@localhost identified by '$db_pass';"
+        Q4="FLUSH PRIVILEGES;"
+        SQL="${Q1}${Q2}${Q3}${Q4}"
+        mysql -uroot -p$mysqlpass -e "$SQL"
     fi
 }
 
