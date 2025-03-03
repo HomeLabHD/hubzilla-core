@@ -93,9 +93,8 @@ freedns_key=
 # If left empty, both your database and user will be named after your zot instance (hubzilla, zap or misty)
 # Use custom name, at least fo the database, if you plan to run more than one hub/instance on the same server
 #
-zotserver_db_name=
-zotserver_db_user=
-zotserver_db_pass=$db_pass
+db_name=hubzilla
+db_user=hubzilla
 # 
 #
 # Password for package mysql-server
