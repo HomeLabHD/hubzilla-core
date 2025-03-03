@@ -802,7 +802,7 @@ class Activity {
 
 		$ret = [];
 
-		if (isset($item['attachment'])) {
+		if (isset($item['attachment']) && is_array($item['attachment'])) {
 			$ptr = $item['attachment'];
 			if (!array_key_exists(0, $ptr)) {
 				$ptr = [$ptr];
