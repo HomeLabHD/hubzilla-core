@@ -2002,7 +2002,7 @@ function format_poll($item,$s,$opts) {
 				$message .= t('Poll has ended');
 			}
 			else {
-				$message .= sprintf(t('Poll ends in %s'), '<span class="autotime" title="' . $t . '"></span>');
+				$message .= sprintf(t('Poll ends %s'), '<span class="autotime" title="' . $t . '"></span>');
 			}
 		}
 
