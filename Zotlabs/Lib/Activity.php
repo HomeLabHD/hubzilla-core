@@ -1718,9 +1718,9 @@ class Activity {
 			return;
 		}
 
-		$name = $person_obj['name'] ?? '';
+		$name = ((isset($person_obj['name'])) ? escape_tags($person_obj['name']) : '');
 		if (!$name) {
-			$name = $person_obj['preferredUsername'] ?? '';
+			$name = ((isset($person_obj['preferredUsername'])) ? escape_tags($person_obj['preferredUsername']) : '');
 		}
 		if (!$name) {
 			$name = t('Unknown');
@@ -1729,13 +1729,11 @@ class Activity {
 		$webfinger_addr = ((isset($person_obj['webfinger'])) ? str_replace('acct:', '', $person_obj['webfinger']) : '');
 		$hostname = '';
 		$baseurl  = '';
-		$site_url = '';
 
 		$m = parse_url($url);
 		if ($m) {
-			$hostname = $m['host'];
-			$baseurl  = $m['scheme'] . '://' . $m['host'] . ((isset($m['port'])) ? ':' . $m['port'] : '');
-			$site_url = $m['scheme'] . '://' . $m['host'];
+			$hostname = unparse_url($m, ['host']);
+			$baseurl  = unparse_url($m, ['scheme', 'host', 'port']);
 		}
 
 		if (!$webfinger_addr && !empty($person_obj['preferredUsername']) && $hostname) {
@@ -1837,7 +1835,7 @@ class Activity {
 
 			q("UPDATE site SET site_update = '%s', site_dead = 0 WHERE site_url = '%s'",
 				dbesc(datetime_convert()),
-				dbesc($site_url)
+				dbesc($baseurl)
 			);
 
 			// update existing xchan record
