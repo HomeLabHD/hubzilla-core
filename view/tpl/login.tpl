@@ -5,7 +5,7 @@
 		{{include file="field_password.tpl" field=$lpassword}}
 		{{include file="field_checkbox.tpl" field=$remember_me}}
 		<button type="submit" name="submit" class="btn btn-primary">{{$login}}</button>
-		{{if $lostlink}}<a href="lostpass" title="{{$lostpass}}" class="lost-pass-link">{{$lostlink}}</a>{{/if}}
+		{{if $lostlink}}<a href="lostpass" title="{{$lostpass}}" class="lost-pass-link float-end">{{$lostlink}}</a>{{/if}}
 		<hr>
 		<a href="rmagic" class="btn btn-outline-success">{{$remote_login}}</a>
 		{{if $register}}<a href="{{$register.link}}" title="{{$register.title}}" class="register-link float-end">{{$register.desc}}</a>{{/if}}
