@@ -3841,7 +3841,7 @@ function featured_sort($a,$b) {
 
 
 function unpunify($s) {
-	if (function_exists('idn_to_utf8') && isset($s)) {
+	if (function_exists('idn_to_utf8') && !empty($s)) {
 		return idn_to_utf8($s);
 	}
 	return $s;
@@ -3849,7 +3849,7 @@ function unpunify($s) {
 
 
 function punify($s) {
-	if (function_exists('idn_to_ascii') && isset($s)) {
+	if (function_exists('idn_to_ascii') && !empty($s)) {
 		return idn_to_ascii($s);
 	}
 	return $s;
