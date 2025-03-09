@@ -1,4 +1,6 @@
 Hubzilla 10.2 (2025-??-??)
+	- Print an error message if OWA fails
+	- Remove possible leading @ before processing webfinger address
 	- Updated debian install script
 	- Calculate observer.baseurl from xchan_url instead of xchan_connurl
 	- Refactor unparse_url() to allow return of a custom field set only and add tests
