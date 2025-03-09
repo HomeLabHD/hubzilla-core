@@ -30,7 +30,7 @@ class Connect {
 		}
 
 		// Remove a possible leading @
-		if (!str_starts_with($url, '@')) {
+		if (str_starts_with($url, '@')) {
 			$url = ltrim($url, '@');
 		}
 
