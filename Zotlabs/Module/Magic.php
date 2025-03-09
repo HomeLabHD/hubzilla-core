@@ -134,6 +134,15 @@ class Magic extends Controller {
 						$args = (($x) ? '&owt=' . $token : '?owt=' . $token) . (($delegate) ? '&delegate=1' : '');
 						goaway($dest . $args);
 					}
+					else {
+						$o = '<h1>OWA ERROR</h1>';
+						if (!empty($j['message'])) {
+							$o .= '<h2>' . $j['message'] . '</h2>';
+						}
+						$o .= '<a href=' . $dest . '>' . $dest . '</a>';
+
+						echo $o;
+					}
 				}
 			}
 		}
