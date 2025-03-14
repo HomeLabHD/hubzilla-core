@@ -1,4 +1,5 @@
 Hubzilla 10.2 (2025-??-??)
+	- Allow to send signed requests from the zot_probe tool
 	- Print an error message if OWA fails
 	- Remove possible leading @ before processing webfinger address
 	- Updated debian install script
