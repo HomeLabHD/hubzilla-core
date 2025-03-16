@@ -246,16 +246,10 @@ function stickyScroll(sticky, stickyTop, container, topOffset, bottomOffset) {
 function makeFullScreen(full) {
     if (typeof full === 'undefined' || full === true) {
         document.querySelector('main').classList.add('fullscreen');
-        document.querySelector('header').style.display = 'none';
-        document.querySelector('nav').style.display = 'none';
-        document.querySelector('aside').style.display = 'none';
         document.getElementById('fullscreen-btn').style.display = 'none';
-        document.getElementById('inline-btn').style.display = 'block';
+        document.getElementById('inline-btn').style.display = 'inline-block';
     } else {
         document.querySelector('main').classList.remove('fullscreen');
-        document.querySelector('header').style.display = '';
-        document.querySelector('nav').style.display = '';
-        document.querySelector('aside').style.display = '';
         document.getElementById('fullscreen-btn').style.display = '';
         document.getElementById('inline-btn').style.display = 'none';
     }
