@@ -1126,9 +1126,11 @@ function parseIdentityAwareHTML($Text) {
 	if ($observer) {
 		$s1 = '<span class="bb_observer" title="' . t('Different viewers will see this text differently') . '">';
 		$s2 = '</span>';
-		$obsBaseURL = $observer['xchan_connurl'];
-		$obsBaseURL = preg_replace("/\/poco\/.*$/", '', $obsBaseURL);
-		$Text = str_replace('[observer.baseurl]', $obsBaseURL, $Text);
+
+		$parsed = parse_url($observer['xchan_url']);
+		$observer_base_url = unparse_url($parsed, ['scheme', 'host', 'port']);
+
+		$Text = str_replace('[observer.baseurl]', $observer_base_url, $Text);
 		$Text = str_replace('[observer.url]',$observer['xchan_url'], $Text);
 		$Text = str_replace('[observer.name]',$s1 . $observer['xchan_name'] . $s2, $Text);
 		$Text = str_replace('[observer.address]',$s1 . $observer['xchan_addr'] . $s2, $Text);
@@ -1311,9 +1313,11 @@ function bbcode($text, $options = []) {
 	if ($observer) {
 		$s1 = '<span class="bb_observer" title="' . t('Different viewers will see this text differently') . '">';
 		$s2 = '</span>';
-		$obsBaseURL = $observer['xchan_connurl'];
-		$obsBaseURL = preg_replace("/\/poco\/.*$/", '', $obsBaseURL);
-		$text = str_replace('[observer.baseurl]', $obsBaseURL, $text);
+
+		$parsed = parse_url($observer['xchan_url']);
+		$observer_base_url = unparse_url($parsed, ['scheme', 'host', 'port']);
+
+		$text = str_replace('[observer.baseurl]', $observer_base_url, $text);
 		$text = str_replace('[observer.url]',$observer['xchan_url'], $text);
 		$text = str_replace('[observer.name]',$s1 . $observer['xchan_name'] . $s2, $text);
 		$text = str_replace('[observer.address]',$s1 . $observer['xchan_addr'] . $s2, $text);

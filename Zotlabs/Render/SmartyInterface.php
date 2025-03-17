@@ -2,7 +2,7 @@
 
 namespace Zotlabs\Render;
 
-use Smarty;
+use Smarty\Smarty;
 use App;
 
 class SmartyInterface extends Smarty {
@@ -26,13 +26,13 @@ class SmartyInterface extends Smarty {
 		$this->setTemplateDir($template_dirs);
 
 		$basecompiledir = App::$config['system']['smarty3_folder'];
-        
+
 		$this->setCompileDir($basecompiledir.'/compiled/');
 		$this->setConfigDir($basecompiledir.'/config/');
 		$this->setCacheDir($basecompiledir.'/cache/');
 
-		$this->left_delimiter = App::get_template_ldelim('smarty3');
-		$this->right_delimiter = App::get_template_rdelim('smarty3');
+		$this->setLeftDelimiter(App::get_template_ldelim('smarty3'));
+		$this->setRightDelimiter(App::get_template_rdelim('smarty3'));
 
 		// Don't report errors so verbosely
 		$this->error_reporting = E_ALL & ~E_WARNING & ~E_NOTICE;

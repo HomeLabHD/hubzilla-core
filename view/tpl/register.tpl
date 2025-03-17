@@ -39,7 +39,7 @@
 				{{include file="field_input.tpl" field=$name}}
 			</div>
 			<div class="position-relative">
-				<div id="nick-hub" class="position-absolute" style="top: 2.3rem; right: 0.75rem;"><span class="text-muted">{{$nickhub}}</span></div>
+				<div id="nick-hub" class="position-absolute" style="top: 2rem; right: 0.75rem;"><span class="text-muted">{{$nickhub}}</span></div>
 				<div id="nick-spinner" class="spinner-wrapper position-absolute" style="top: 2.5rem; right: 0.75rem;"><div class="spinner s"></div></div>
 				{{include file="field_input.tpl" field=$nickname}}
 			</div>

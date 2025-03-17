@@ -150,6 +150,9 @@ function clean_query_string($s = '') {
  */
 
 function drop_query_params($s, $p) {
+
+		$s = unescape_tags($s);
+
 		$parsed = parse_url($s);
 		$query = '';
 		$query_args = null;
@@ -172,7 +175,7 @@ function drop_query_params($s, $p) {
 			$parsed['query'] = $query;
 		}
 
-		return unparse_url($parsed);
+		return escape_tags(unparse_url($parsed));
 }
 
 

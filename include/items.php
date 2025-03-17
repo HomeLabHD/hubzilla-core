@@ -3181,17 +3181,13 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 				$item['parent_mid'] = $item['mid'];
 				$item['thr_parent'] = $item['mid'];
 				$item['llink'] = z_root() . '/display/' . $item['uuid'];
+				$item['target'] = [
+					'id' => str_replace('/item/', '/conversation/', $item['mid']),
+					'type' => 'Collection',
+					'attributedTo' => z_root() . '/channel/' . $channel['channel_address']
+				];
+				$item['tgt_type'] = 'Collection';
 			}
-/*
-			$r = q("UPDATE item SET author_xchan = '%s', mid = '%s', parent_mid = '%s', thr_parent = '%s', llink = '%s' WHERE id = %d",
-				dbesc($item['author_xchan']),
-				dbesc($item['mid']),
-				dbesc($item['parent_mid']),
-				dbesc($item['thr_parent']),
-				dbesc($item['llink']),
-				intval($item_id)
-			);
-*/
 		}
 
 		$private = (($channel['channel_allow_cid'] || $channel['channel_allow_gid']
@@ -3237,7 +3233,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 
 		$r = q("update item set item_uplink = %d, item_nocomment = %d, item_flags = %d, owner_xchan = '%s', allow_cid = '%s', allow_gid = '%s',
 			deny_cid = '%s', deny_gid = '%s', item_private = %d, public_policy = '%s', comment_policy = '%s', title = '%s', body = '%s', item_wall = %d, item_origin = %d,
-			author_xchan = '%s', mid = '%s', parent_mid = '%s', thr_parent = '%s', llink = '%s' where id = %d",
+			author_xchan = '%s', mid = '%s', parent_mid = '%s', thr_parent = '%s', llink = '%s', target = '%s', tgt_type = '%s' where id = %d",
 			intval($item_uplink),
 			intval($item_nocomment),
 			intval($flag_bits),
@@ -3258,6 +3254,8 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 			dbesc($item['parent_mid']),
 			dbesc($item['thr_parent']),
 			dbesc($item['llink']),
+			dbesc(json_encode($item['target'])),
+			dbesc($item['tgt_type']),
 			intval($item_id)
 		);
 
@@ -3330,8 +3328,10 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		}
 		else {
 			// To prevent duplicates from possible clones of the forum/group,
-			// will create a v5 UUID of the source item mid.
-			$arr['uuid'] = uuid_from_url($item['mid']);
+			// we will create a v5 UUID of the source item mid.
+			// Add some extra entropy to prevent duplicate UUIDs with items where we already
+			// created an UUID from the mid (activities which do not provide an UUID field).
+			$arr['uuid'] = uuid_from_url($item['mid'] . '#group_item');
 			$arr['mid'] = z_root() . '/item/' . $arr['uuid'];
 			$arr['parent_mid'] = $arr['mid'];
 		}

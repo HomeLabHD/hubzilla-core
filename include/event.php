@@ -102,7 +102,15 @@ function format_event_obj($jobject) {
 	if (is_array($object) && (array_key_exists('summary', $object) || array_key_exists('name', $object))) {
 
 		$dtend = ((array_key_exists('endTime', $object)) ? $object['endTime'] : NULL_DATE);
-		$title = ((isset($object['summary']) && $object['summary']) ? zidify_links(smilies(bbcode($object['summary']))) : $object['name']);
+
+		$title = $object['name'] ?? '';
+		$content = html2bbcode($object['content']);
+
+		if (strpos($object['source']['content'], '[/event-description]') !== false) {
+			$bbdescription = [];
+			preg_match("/\[event\-description\](.*?)\[\/event\-description\]/ism", $object['source']['content'], $bbdescription);
+			$content = $bbdescription[1];
+		}
 
 		// mobilizon sets a timezone in the object
 		// we will assume that events with an timezone should be adjusted
@@ -146,15 +154,8 @@ function format_event_obj($jobject) {
 			'$event_tz'      => ['label' => t('Timezone'), 'value' => (($tz === date_default_timezone_get()) ? '' : $tz)]
 		));
 
-
-		$description = [];
-
-		if (strpos($object['source']['content'], '[/event-description]') !== false) {
-			preg_match("/\[event\-description\](.*?)\[\/event\-description\]/ism", $object['source']['content'], $description);
-		}
-
 		$event['content'] = replace_macros(get_markup_template('event_item_content.tpl'), array(
-			'$description'    => ((isset($description[1]))? zidify_links(smilies(bbcode($description[1]))) : EMPTY_STR),
+			'$description'    => zidify_links(smilies(bbcode($content, ['tryoembed' => false]))),
 			'$location_label' => t('Location:'),
 			'$location'   => ((array_path_exists('location/name', $object)) ? zidify_links(smilies(bbcode($object['location']['name']))) : EMPTY_STR)
 		));

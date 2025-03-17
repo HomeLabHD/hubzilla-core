@@ -43,7 +43,7 @@
         "pear/text_languagedetect": "^1.0",
         "commerceguys/intl": "~1.1.0",
         "lukasreschke/id3parser": "^0.0.3",
-        "smarty/smarty": "^4.1",
+        "smarty/smarty": "^5.4",
         "ramsey/uuid": "^4.1",
         "twbs/bootstrap": "^5.3",
         "blueimp/jquery-file-upload": "^10.3",
@@ -56,8 +56,7 @@
         "stephenhill/base58": "^1.1",
         "mmccook/php-json-canonicalization-scheme": "^1.0",
         "scssphp/scssphp": "^1.12",
-        "twbs/bootstrap-icons": "^1.11",
-        "mikespub/php-epub-meta": "^2.3"
+        "twbs/bootstrap-icons": "^1.11"
     },
     "require-dev": {
         "ext-yaml": "*",
@@ -75,6 +74,11 @@
             "Zotlabs\\": "Zotlabs/"
         }
     },
+	"autoload-dev": {
+		"psr-4": {
+			"Zotlabs\\Tests\\Unit\\": "tests/unit/"
+		}
+	},
     "minimum-stability": "stable",
     "config": {
         "notify-on-install": false,

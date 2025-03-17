@@ -30,7 +30,7 @@ class Conversation extends Controller {
 				dbesc(ACTIVITY_UNFOLLOW)
 			);
 
-			$item_normal = " and item.item_hidden = 0 and item.item_type = 0 and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_blocked = 0 $item_normal_extra ";
+			$item_normal = " and item.item_hidden = 0 and item.item_type = 0 and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_blocked = 0 and item.item_uplink = 0 $item_normal_extra ";
 
 			$i = null;
 
@@ -83,9 +83,9 @@ class Conversation extends Controller {
 			// if we don't have a parent id belonging to the signer see if we can obtain one as a visitor that we have permission to access
 			// with a bias towards those items owned by channels on this site (item_wall = 1)
 
-			$sql_extra = item_permissions_sql(0);
-
 			if (!$i) {
+				$sql_extra = item_permissions_sql(0);
+
 				$i = q("select id as item_id from item where mid = '%s' $item_normal $sql_extra order by item_wall desc limit 1",
 					dbesc($r[0]['parent_mid'])
 				);

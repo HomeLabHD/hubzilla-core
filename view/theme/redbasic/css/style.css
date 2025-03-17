@@ -1252,17 +1252,23 @@ a .drop-icons:hover {
 }
 
 main.fullscreen {
+	position: fixed;
+	top: 0px;
 	left: 0px;
-	width: 100%;
+	width: 100vw;
 	height: 100vh;
-	max-width: none;
+	z-index: 1020;
+	overflow: auto;
 }
 
 main.fullscreen .generic-content-wrapper {
-	position: absolute;
-	width: 100%;
+	position: fixed;
 	top: 0px;
 	left: 0px;
+	width: 100vw;
+	height: 100vh;
+	z-index: 1020;
+	overflow: auto;
 	border-radius: 0px;
 	border-width: 0px;
 }

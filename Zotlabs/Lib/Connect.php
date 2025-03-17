@@ -24,8 +24,14 @@ class Connect {
 
 		$uid = $channel['channel_id'];
 
-		if (strpos($url,'@') === false && strpos($url,'/') === false) {
+		// If we get just a channel name and it is not an URL turn it into a local webbie
+		if (!str_contains($url, '@') && strpos($url,'/') === false) {
 			$url = $url . '@' . App::get_hostname();
+		}
+
+		// Remove a possible leading @
+		if (str_starts_with($url, '@')) {
+			$url = ltrim($url, '@');
 		}
 
 		$result = [ 'success' => false, 'message' => '' ];

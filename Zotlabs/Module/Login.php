@@ -10,7 +10,16 @@ class Login extends \Zotlabs\Web\Controller {
 		if(remote_channel() && $_SESSION['atoken'])
 			goaway(z_root());
 
-		return login(true);
+		$o = '<div class="generic-content-wrapper">';
+		$o .= '<div class="section-title-wrapper">';
+		$o .= '<h2 class="">' . t('Login') . '</h2>';
+		$o .= '</div>';
+		$o .= '<div class="section-content-wrapper">';
+		$o .= login(true);
+		$o .= '</div>';
+		$o .= '</div>';
+
+		return $o;
 	}
 
 }

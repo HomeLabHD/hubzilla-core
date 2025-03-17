@@ -799,6 +799,7 @@ class ThreadItem {
 			'$submit' => t('Submit'),
 			'$edbold' => t('Bold'),
 			'$editalic' => t('Italic'),
+			'$edhighlighter' => t('Highlight selected text'),
 			'$eduline' => t('Underline'),
 			'$edquote' => t('Quote'),
 			'$edcode' => t('Code'),

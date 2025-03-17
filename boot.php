@@ -66,7 +66,7 @@ require_once('include/security.php');
 
 
 define('PLATFORM_NAME', 'hubzilla');
-define('STD_VERSION', '10.0.8');
+define('STD_VERSION', '10.2');
 define('ZOT_REVISION', '6.0');
 
 define('DB_UPDATE_VERSION', 1263);
@@ -1270,7 +1270,7 @@ class App {
 					'$js_strings'      => js_strings(),
 					'$zid'             => get_my_address(),
 					'$channel_id'      => self::$profile['uid'] ?? 0,
-					'$auto_save_draft' => ((isset(self::$profile['uid']) && feature_enabled(self::$profile['uid'], 'auto_save_draft')) ? "true" : "false"),
+					'$auto_save_draft' => ((isset(self::$profile_uid) && feature_enabled(self::$profile_uid, 'auto_save_draft')) ? "true" : "false"),
 					'$module'          => App::$module,
 					'$lang'            => App::$language
 				]
