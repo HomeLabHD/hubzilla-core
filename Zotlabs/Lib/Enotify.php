@@ -213,28 +213,36 @@ class Enotify {
 		//$possess_desc = str_replace('<!item_type!>',$possess_desc);
 
 		// "a post"
-		$dest_str = sprintf(t('%1$s %2$s [zrl=%3$s]a %4$s[/zrl]'),
+		$dest_str = sprintf(
+			t('%1$s %2$s [zrl=%3$s]a %4$s[/zrl]'),
 			'[zrl=' . $sender['xchan_url'] . ']' . $sender['xchan_name'] . '[/zrl]',
 			$action,
 			$itemlink,
-			$item_post_type);
+			$item_post_type
+		);
 
 		// "George Bull's post"
-		if($p)
-			$dest_str = sprintf(t('%1$s %2$s [zrl=%3$s]%4$s\'s %5$s[/zrl]'),
+		if($p) {
+			$dest_str = sprintf(
+				t('%1$s %2$s [zrl=%3$s]%4$s\'s %5$s[/zrl]'),
 				'[zrl=' . $sender['xchan_url'] . ']' . $sender['xchan_name'] . '[/zrl]',
 				$action,
 				$itemlink,
-				$p[0]['author']['xchan_name'],
-				$item_post_type);
+				$parent_item['author']['xchan_name'],
+				$item_post_type
+			);
+		}
 
 		// "your post"
-		if($p[0]['owner']['xchan_name'] == $p[0]['author']['xchan_name'] && intval($p[0]['item_wall']))
-			$dest_str = sprintf(t('%1$s %2$s [zrl=%3$s]your %4$s[/zrl]'),
+		if ($parent_item['owner']['xchan_hash'] === $recip['channel_hash'] && intval($parent_item['item_wall'])) {
+			$dest_str = sprintf(
+				t('%1$s %2$s [zrl=%3$s]your %4$s[/zrl]'),
 				'[zrl=' . $sender['xchan_url'] . ']' . $sender['xchan_name'] . '[/zrl]',
 				$action,
 				$itemlink,
-				$item_post_type);
+				$item_post_type
+			);
+		}
 
 		// Some mail softwares relies on subject field for threading.
 		// So, we cannot have different subjects for notifications of the same thread.
@@ -308,7 +316,6 @@ class Enotify {
 		$item_post_type = item_post_type($p[0]);
 //		$private = $p[0]['item_private'];
 		$parent_id = $p[0]['id'];
-
 		$parent_item = $p[0];
 
 		//$verb = ((activity_match($params['item']['verb'], ACTIVITY_DISLIKE)) ? t('disliked') : t('liked'));
@@ -321,13 +328,14 @@ class Enotify {
 			$verb = (($moderated) ? t('requested to dislike') : t('disliked'));
 
 		// "your post"
-		if($p[0]['owner']['xchan_name'] === $p[0]['author']['xchan_name'] && intval($p[0]['item_wall']))
+		if ($parent_item['author']['xchan_hash'] === $recip['channel_hash']) {
 			$dest_str = sprintf(t('%1$s %2$s [zrl=%3$s]your %4$s[/zrl]'),
 				'[zrl=' . $sender['xchan_url'] . ']' . $sender['xchan_name'] . '[/zrl]',
 				$verb,
 				$itemlink,
 				$item_post_type
 			);
+		}
 		else {
 			pop_lang();
 			return;
