@@ -1236,7 +1236,7 @@ class App {
 		self::$meta->set('generator', Zotlabs\Lib\System::get_platform_name());
 		self::$meta->set('theme-color', $theme_color);
 
-		head_add_link(['rel' => 'shortcut icon', 'href' => head_get_icon()]);
+		head_add_link(['rel' => 'shortcut icon', 'href' => static::head_get_icon()]);
 		head_add_link(['rel' => 'apple-touch-icon', 'href' => '/images/app/hz-192.png']);
 
 
@@ -1359,14 +1359,28 @@ class App {
 		return self::$rdelim[$engine];
 	}
 
+	/**
+	 * Sets the shortcut icon to be used for the current page.
+	 *
+	 * @param string $icon	A URL to the image to use for the
+	 *		shortcut icon.
+	 */
 	public static function head_set_icon($icon) {
 		self::$data['pageicon'] = $icon;
 	}
 
+	/**
+	 * Get the shortcut icon as an absolute URL.
+	 *
+	 * @return string	The absolute URL of the current shortcur icon.
+	 */
 	public static function head_get_icon() {
 		$icon = self::$data['pageicon'];
-		if (!strpos($icon, '://'))
+
+		if (strpos($icon, '://') === false) {
 			$icon = z_root() . $icon;
+		}
+
 		return $icon;
 	}
 
@@ -2533,20 +2547,6 @@ function head_set_icon($icon) {
 
 	App::$data['pageicon'] = $icon;
 
-}
-
-/**
- * @brief Get the pageicon.
- *
- * @return string absolut path to pageicon
- */
-function head_get_icon() {
-
-	$icon = App::$data['pageicon'];
-	if (!strpos($icon, '://'))
-		$icon = z_root() . $icon;
-
-	return $icon;
 }
 
 /**
