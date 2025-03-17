@@ -1,4 +1,4 @@
-Hubzilla 10.2 (2025-??-??)
+Hubzilla 10.2 (2025-03-17)
 	- Allow to send signed requests from the zot_probe tool
 	- Print an error message if OWA fails
 	- Remove possible leading @ before processing webfinger address
