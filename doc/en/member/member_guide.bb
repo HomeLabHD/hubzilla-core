@@ -904,6 +904,12 @@ WebDAV using Windows 7 graphical user interface wizard:
 
 [h4]Cloud Desktop Clients - Linux[/h4]
 
+Nautilus
+1. Click on "Network".
+2. In the textfield type davs://my-hub.org/dav/[observer=1][observer.webname][/observer][observer=0]nickname[/observer]
+3. Press "Connect".
+4. User name is [observer=1][observer.webname][/observer][observer=0]your channels nickname[/observer]
+
 [h5]Mount as a filesystem[/h5]
 
 [b]Mounting As A Filesystem[/b]
