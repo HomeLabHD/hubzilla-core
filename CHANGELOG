@@ -23,6 +23,8 @@ Hubzilla 10.2 (2025-??-??)
 	- Add  security policy SECURITY.md
 
 	Bugfixes
+	- Fix notifications for likes on our comments
+	- Fix fullscreen view
 	- Fix boxy scheme text alignment for comments
 	- Fix poll date string to match with the autotime string
 	- Fix owner hash not set correctly when editing a post/comment
