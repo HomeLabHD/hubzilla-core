@@ -207,7 +207,7 @@ class Sse_bs extends Controller {
 				$item_normal
 				$sql_extra
 				$sql_extra2
-				ORDER BY created DESC, received DESC LIMIT $limit OFFSET $offset",
+				ORDER BY created DESC LIMIT $limit OFFSET $offset",
 				intval(self::$uid),
 				dbescdate($_SESSION['sse_loadtime']),
 				dbesc(self::$ob_hash)
@@ -290,7 +290,7 @@ class Sse_bs extends Controller {
 				$item_normal
 				$sql_extra
 				$sql_extra2
-				ORDER BY created DESC, received DESC LIMIT $limit OFFSET $offset",
+				ORDER BY created DESC LIMIT $limit OFFSET $offset",
 				intval(self::$uid),
 				dbescdate($_SESSION['sse_loadtime']),
 				dbesc(self::$ob_hash)
@@ -373,7 +373,7 @@ class Sse_bs extends Controller {
 				$item_normal
 				$sql_extra
 				$sql_extra2
-				ORDER BY created DESC, received DESC LIMIT $limit OFFSET $offset",
+				ORDER BY created DESC LIMIT $limit OFFSET $offset",
 				intval(self::$uid),
 				dbescdate($_SESSION['sse_loadtime']),
 				dbesc(self::$ob_hash)
@@ -481,7 +481,7 @@ class Sse_bs extends Controller {
 				$sql_extra
 				$sql_extra2
 				$sql_extra3
-				ORDER BY created DESC, received DESC LIMIT $limit OFFSET $offset",
+				ORDER BY created DESC LIMIT $limit OFFSET $offset",
 				dbescdate($_SESSION['sse_loadtime']),
 				dbesc(self::$ob_hash),
 				dbescdate($_SESSION['last_login_date'] ?? $_SESSION['static_loadtime'])
@@ -679,7 +679,7 @@ class Sse_bs extends Controller {
 			AND author_xchan != '%s'
 			AND item_unseen = 1
 			$item_normal
-			ORDER BY created DESC, received DESC",
+			ORDER BY created DESC",
 			dbesc(ACTIVITY_POST),
 			intval(self::$uid),
 			dbesc(self::$ob_hash)
