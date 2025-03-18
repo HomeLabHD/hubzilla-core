@@ -1,3 +1,8 @@
+Hubzilla 10.2.1 (2025-03-18)
+	- Fix OWA in cases where Signature is in the REDIRECT_REMOTE_USER field
+	- Fix query in mod sse_bs
+
+
 Hubzilla 10.2 (2025-03-17)
 	- Allow to send signed requests from the zot_probe tool
 	- Print an error message if OWA fails
