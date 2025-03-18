@@ -27,6 +27,8 @@ class Owa extends Controller {
 			$this->error('Missing or invalid authorization header.');
 		}
 
+		$_SERVER['HTTP_AUTHORIZATION'] = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_REMOTE_USER'];
+
 		$sigblock = HTTPSig::parse_sigheader($_SERVER['HTTP_AUTHORIZATION']);
 		if ($sigblock) {
 			$keyId = $sigblock['keyId'];
