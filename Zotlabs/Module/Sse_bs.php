@@ -614,10 +614,11 @@ class Sse_bs extends Controller {
 				*/
 
 				$r = q("select count(*) as total from item
-					where uid = %d and ( owner_xchan = '%s' OR author_xchan = '%s' $p_sql ) and verb != 'Announce' and item_unseen = 1 $sql_extra $item_normal",
+					where uid = %d and ( owner_xchan = '%s' OR author_xchan = '%s' $p_sql ) and author_xchan != '%s' and verb != 'Announce' and item_unseen = 1 $sql_extra $item_normal",
 					intval(self::$uid),
 					dbesc($forums[$x]['xchan_hash']),
-					dbesc($forums[$x]['xchan_hash'])
+					dbesc($forums[$x]['xchan_hash']),
+					dbesc(self::$ob_hash)
 				);
 
 
