@@ -60,3 +60,8 @@
 .upload-progress-bar {
 	padding: 0px !important;
 }
+
+/* Disable browser rotating image based on EXIF metadata */
+img {
+	image-orientation: none;
+}
