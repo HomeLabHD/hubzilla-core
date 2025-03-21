@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('menu-btn').addEventListener('click', function () {
         let navCollapse = document.getElementById('navbar-collapse-1');
-        if (navCollapse.length && navCollapse.classList.contains('show')) {
+        if (navCollapse && navCollapse.classList.contains('show')) {
             navCollapse.classList.remove('show');
         }
     });
@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function () {
             e.preventDefault();
             e.stopPropagation();
             let navCollapse = document.getElementById('navbar-collapse-2');
-            if (navCollapse.length && navCollapse.classList.contains('show')) {
+            if (navCollapse && navCollapse.classList.contains('show')) {
                 navCollapse.classList.remove('show');
             }
         });
