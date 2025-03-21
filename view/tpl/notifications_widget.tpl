@@ -613,12 +613,11 @@
 
 		// Update notification button icon based on the primary notification availability
 		let notificationIcon = document.querySelector('.notifications-btn-icon');
-		if (primary_available) {
-			notificationIcon.classList.remove('bi-exclamation-circle');
-			notificationIcon.classList.add('bi-exclamation-triangle');
-		} else {
-			notificationIcon.classList.remove('bi-exclamation-triangle');
-			notificationIcon.classList.add('bi-exclamation-circle');
+
+		if (notificationIcon) {
+			let iconClass = primary_available ? 'bi-exclamation-triangle' : 'bi-exclamation-circle';
+			let iconToRemove = primary_available ? 'bi-exclamation-circle' : 'bi-exclamation-triangle';
+			notificationIcon.classList.replace(iconToRemove, iconClass);
 		}
 
 		// Update visibility of notification button and sections
