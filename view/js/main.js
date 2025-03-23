@@ -493,18 +493,19 @@ function viewsrc(id) {
 }
 
 function showHideComments(id) {
-	if($('#collapsed-comments-' + id).is(':visible')) {
-		$('#collapsed-comments-' + id).hide();
-		$('#hide-comments-label-' + id).html(aStr.showmore);
-		$('#hide-comments-total-' + id).show();
-		$('#hide-comments-icon-' + id).toggleClass('bi-chevron-down bi-chevron-up');
+	let collapsedComments = document.getElementById('collapsed-comments-' + id);
+	let hideCommentsLabel = document.getElementById('hide-comments-label-' + id);
+	let hideCommentsTotal = document.getElementById('hide-comments-total-' + id);
+	let hideCommentsIcon = document.getElementById('hide-comments-icon-' + id);
+	let isCollapsed = collapsedComments.style.display === 'none';
 
-	} else {
-		$('#collapsed-comments-' + id).show();
-		$('#hide-comments-label-' + id).html(aStr.showfewer);
-		$('#hide-comments-total-' + id).hide();
-		$('#hide-comments-icon-' + id).toggleClass('bi-chevron-down bi-chevron-up');
-	}
+	collapsedComments.style.display = isCollapsed ? '' : 'none';
+	hideCommentsLabel.textContent = isCollapsed ? aStr.showfewer : aStr.showmore;
+	hideCommentsTotal.style.display = isCollapsed ? 'none' : '';
+
+	let oldClass = isCollapsed ? 'bi-chevron-down' : 'bi-chevron-up';
+	let newClass = isCollapsed ? 'bi-chevron-up' : 'bi-chevron-down';
+	hideCommentsIcon.classList.replace(oldClass, newClass);
 }
 
 function openClose(theID, display) {
