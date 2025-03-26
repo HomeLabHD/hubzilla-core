@@ -1,6 +1,4 @@
 <script>
-	let asidePaddingTop;
-	let sectionPaddingTop;
 	let coverSlid = false;
 	const hideCover = Boolean({{$hide_cover}});
 	let coverHeight;
@@ -10,7 +8,7 @@
 		if (!coverPhoto) return;
 
 		// If screen width is smaller than 755px, remove the cover photo
-		if (window.innerWidth < 755) {
+		if (document.body.clientWidth < 755) {
 			coverPhoto.remove();
 			coverSlid = true;
 			return;
@@ -18,7 +16,7 @@
 
 		// Otherwise, set up the cover photo's size
 		coverPhoto.classList.remove('d-none');
-		coverHeight = Math.round(window.innerWidth / 2.75862069);
+		coverHeight = document.body.clientWidth / 2.75862069;
 		coverPhoto.style.height = `${coverHeight}px`;
 		datasrc2src('#cover-photo > img');
 
@@ -50,10 +48,10 @@
 		window.addEventListener('resize', function() {
 			if (!coverPhoto) return;
 
-			coverHeight = Math.round(window.innerWidth / 2.75862069);
+			coverHeight = document.body.clientWidth / 2.75862069;
 			coverPhoto.style.height = `${coverHeight}px`;
 
-			if (window.innerWidth < 755) {
+			if (document.body.clientWidth < 755) {
 				coverPhoto.remove();
 				coverHiddenActions();
 				coverSlid = true;
@@ -73,6 +71,7 @@
 			if (coverSlid) {
 				document.body.style.overflow = 'hidden'; // Disable scrolling
 				window.scrollTo(0, coverHeight);
+
 				setTimeout(function() {
 					coverSlid = false;
 					document.body.style.overflow = 'auto'; // Enable scrolling
