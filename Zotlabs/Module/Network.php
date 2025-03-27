@@ -278,19 +278,8 @@ class Network extends \Zotlabs\Web\Controller {
 						$likes_sql = " AND verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 
 					// This is for nouveau view public forum cid queries (if a forum notification is clicked)
-					//$p = q("SELECT oid AS parent FROM term WHERE uid = %d AND ttype = %d AND term = '%s'",
-						//intval(local_channel()),
-						//intval(TERM_FORUM),
-						//dbesc($cid_r[0]['xchan_name'])
-					//);
 
-					//$p_str = ids_to_querystr($p, 'parent');
-
-					$p_sql = '';
-					//if($p_str)
-						//$p_sql = " OR item.parent IN ( $p_str ) ";
-
-					$sql_extra = " AND ( owner_xchan = '" . protect_sprintf(dbesc($cid_r[0]['abook_xchan'])) . "' OR owner_xchan = '" . protect_sprintf(dbesc($cid_r[0]['abook_xchan'])) . "' $p_sql ) AND item_unseen = 1 $likes_sql ";
+					$sql_extra = " AND owner_xchan = '" . protect_sprintf(dbesc($cid_r[0]['abook_xchan'])) . "' AND item_unseen = 1 $likes_sql ";
 				}
 				else {
 					// This is for threaded view cid queries (e.g. if a forum is selected from the forum filter)
@@ -472,7 +461,7 @@ class Network extends \Zotlabs\Web\Controller {
 
 		if($nouveau && $load) {
 			// "New Item View" - show all items unthreaded in reverse created date order
-			$items = dbq("SELECT item.*, item.id AS item_id, created FROM item
+			$items = dbq("SELECT item.*, item.id AS item_id FROM item
 				left join abook on ( item.owner_xchan = abook.abook_xchan $abook_uids )
 				$net_query
 				WHERE true $uids $item_normal
