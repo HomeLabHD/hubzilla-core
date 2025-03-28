@@ -602,25 +602,14 @@ class Sse_bs extends Controller {
 			$i = 0;
 
 			for($x = 0; $x < $fcount; $x ++) {
-				/*
-				$p = q("SELECT oid AS parent FROM term WHERE uid = %d AND ttype = %d AND term = '%s'",
-					intval(self::$uid),
-					intval(TERM_FORUM),
-					dbesc($forums[$x]['xchan_name'])
-				);
-
-				$p_str = ids_to_querystr($p, 'parent');
-				$p_sql = (($p_str) ? "OR parent IN ( $p_str )" : '');
-				*/
 
 				$r = q("select count(*) as total from item
-					where uid = %d and ( owner_xchan = '%s' OR author_xchan = '%s' $p_sql ) and author_xchan != '%s' and verb != 'Announce' and item_unseen = 1 $sql_extra $item_normal",
+					where uid = %d and (owner_xchan = '%s' or author_xchan = '%s') and author_xchan != '%s' and verb != 'Announce' and item_unseen = 1 $sql_extra $item_normal",
 					intval(self::$uid),
 					dbesc($forums[$x]['xchan_hash']),
 					dbesc($forums[$x]['xchan_hash']),
 					dbesc(self::$ob_hash)
 				);
-
 
 				if($r[0]['total']) {
 
