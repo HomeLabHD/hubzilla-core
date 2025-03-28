@@ -942,36 +942,8 @@ class Activity {
 
 		}
 
-		if ($ret['type'] === 'emojiReaction') {
-			// There may not be an object for these items for legacy reasons - it should be the conversation parent.
-			$p = q("select * from item where mid = '%s' and uid = %d",
-				dbesc($i['parent_mid']),
-				intval($i['uid'])
-			);
-			if ($p) {
-				xchan_query($p, true);
-				$p        = fetch_post_tags($p);
-				$i['obj'] = self::encode_item($p[0]);
-
-				// convert to zot6 emoji reaction encoding which uses the target object to indicate the
-				// specific emoji instead of overloading the verb or type.
-
-				$im = explode('#', $i['verb']);
-				if ($im && count($im) > 1)
-					$emoji = $im[1];
-				if (preg_match("/\[img(.*?)\](.*?)\[\/img\]/ism", $i['body'], $match)) {
-					$ln = $match[2];
-				}
-
-				$i['tgt_type'] = 'Image';
-
-				$i['target'] = [
-					'type' => 'Image',
-					'name' => $emoji,
-					'url'  => (($ln) ? $ln : z_root() . '/images/emoji/' . $emoji . '.png')
-				];
-
-			}
+		if ($ret['type'] === 'EmojiReact') {
+			$ret['content'] = $i['body'];
 		}
 
 		if (strpos($i['mid'], z_root() . '/item/') !== false) {
@@ -986,15 +958,15 @@ class Activity {
 
 		$ret['diaspora:guid'] = $i['uuid'];
 
-		if (isset($i['title']) && $i['title'])
-			$ret['name'] = html2plain(bbcode($i['title'], ['cache' => true]));
+		if (!empty($i['title']))
+			$ret['name'] = html2plain(bbcode($i['title']));
 
-		if (isset($i['summary']) && $i['summary'])
-			$ret['summary'] = bbcode($i['summary'], ['cache' => true]);
+		if (!empty($i['summary']))
+			$ret['summary'] = bbcode($i['summary']);
 
 		if ($ret['type'] === 'Announce') {
 			$tmp            = preg_replace('/\[share(.*?)\[\/share\]/ism', EMPTY_STR, $i['body']);
-			$ret['content'] = bbcode($tmp, ['cache' => true]);
+			$ret['content'] = bbcode($tmp);
 			$ret['source']  = [
 				'content'   => $i['body'],
 				'mediaType' => 'text/bbcode'
@@ -1010,7 +982,7 @@ class Activity {
 			}
 		}
 
-		if (isset($i['app']) && $i['app']) {
+		if (!empty($i['app'])) {
 			$ret['generator'] = ['type' => 'Application', 'name' => $i['app']];
 		}
 		if (!empty($i['location']) || !empty($i['coord'])) {
@@ -1062,7 +1034,7 @@ class Activity {
 		else
 			return [];
 
-		if (isset($i['obj']) && $i['obj']) {
+		if (!empty($i['obj'])) {
 			if (!is_array($i['obj'])) {
 				$i['obj'] = json_decode($i['obj'], true);
 			}
@@ -1090,7 +1062,7 @@ class Activity {
 			$ret['type'] = 'Invite';
 		}
 
-		if (isset($i['target']) && $i['target']) {
+		if (!empty($i['target'])) {
 			if (!is_array($i['target'])) {
 				$i['target'] = json_decode($i['target'], true);
 			}
@@ -1116,7 +1088,6 @@ class Activity {
 		if (intval($i['item_private']) === 0) {
 			$ret['to'] = [ACTIVITY_PUBLIC_INBOX];
 		}
-
 
 		$hookinfo = [
 			'item' => $i,
@@ -2278,11 +2249,6 @@ class Activity {
 
 			if ($act->type === 'Announce') {
 				$content['content'] = sprintf(t('&#x1f501; Repeated %1$s\'s %2$s'), $mention, $act->obj['type']);
-			}
-
-			// TODO: Deprecated
-			if ($act->type === 'emojiReaction') {
-				$content['content'] = (($act->tgt && $act->tgt['type'] === 'Image') ? '[img=32x32]' . $act->tgt['url'] . '[/img]' : '&#x' . $act->tgt['name'] . ';');
 			}
 
 			if (in_array($act->type, ['EmojiReact'])) {
