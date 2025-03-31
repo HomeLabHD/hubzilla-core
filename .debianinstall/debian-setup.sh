@@ -307,7 +307,7 @@ function install_run_selfhost {
         # https://carol.selfhost.de/update?username=123456&password=supersafe
         #
         # the prefered way
-        wget --output-document=$selfhostdir/$selfhostscript http://jonaspasche.de/selfhost-updater
+        wget --output-document=$selfhostdir/$selfhostscript https://jonaspasche.de/selfhost-updater
         echo "router" > $selfhostdir/device
         echo "$selfhost_user" > $selfhostdir/user
         echo "$selfhost_pass" > $selfhostdir/pass
