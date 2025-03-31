@@ -34,14 +34,14 @@ if you look for more choices. The main differences are:
 Hardware
 
 + internet connection and router at home
-+ computer connected to your router (a Raspberry 3 will do for very small Hubs)
++ computer connected to your router (a Raspberry 4 will do for very small Hubs)
 
 Software
 
-+ fresh installation of Debian 12 (bookworm)
++ fresh installation of Debian 12 (bookworm) or Raspberry Pi OS
 + router with open ports 80 and 443 for your web server
 
-You can of course run the script on a VPS or any distant server as long as the above sotfware requirements are satisfied.
+You can of course run the script on a VPS or any distant server as long as the above software requirements are satisfied.
 
 ## How to run the script
 
@@ -99,7 +99,7 @@ The script is known to work without adjustments with
 
 + Hardware
   - standard PC with Debian 12 (bookworm)
-  - Raspberry 4 with Raspbian, Debian 12 (TODO: needs confirmation after swich to Debian12)
+  - Raspberry 5 with Raspberry Pi OS, Debian 12
   - for tesing purposes: under localhost inside a virtual machine, [KVM](https://wiki.debian.org/KVM)
 + DynDNS
   - selfHOST.de
@@ -148,6 +148,4 @@ It is recommended to run the Raspi without graphical frontend (X-Server). Use...
     sudo raspi-config
 
 to boot the Rapsi to the client console.
-
-DO NOT FORGET TO CHANGE THE DEFAULT PASSWORD FOR USER PI!
 
