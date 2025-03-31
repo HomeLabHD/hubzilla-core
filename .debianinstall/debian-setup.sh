@@ -386,7 +386,7 @@ function install_letsencrypt {
     then
         die "Failed to install let's encrypt: 'le_email' is empty in $configfile"
     fi
-    nocheck_install "certbot python-certbot-apache"
+    nocheck_install "certbot python3-certbot-apache"
     print_info "run certbot ..."
     certbot --apache -w $install_path -d $le_domain -m $le_email --agree-tos --non-interactive --redirect --hsts --uir
     service apache2 restart
