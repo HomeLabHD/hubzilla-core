@@ -80,6 +80,11 @@ Switch the verification off
 
     util/config system verify_email 0
 
+Check if updates from the repository do work
+
+    util/udall
+
+
 ## What the script will do for you...
 
 + install everything required by your hubzilla instance, basically a web server (Apache), PHP, a database (MySQL), certbot,...
