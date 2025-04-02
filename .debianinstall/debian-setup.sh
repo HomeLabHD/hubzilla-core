@@ -441,7 +441,7 @@ function configure_cron_daily {
     echo "echo \" \"" >> /var/www/$cron_job
     echo "echo \"\$(date) - stopping apache and mysql...\"" >> /var/www/$cron_job
     echo "service apache2 stop" >> /var/www/$cron_job
-    echo "/etc/init.d/mysql stop # to avoid inconsistencies" >> /var/www/$cron_job
+    echo "systemctl stop  mysql.service # to avoid inconsistencies" >> /var/www/$cron_job
     echo "#" >> /var/www/$cron_job
     echo "echo \"\$(date) - renew certificate...\"" >> /var/www/$cron_job
     echo "certbot renew --noninteractive" >> /var/www/$cron_job
