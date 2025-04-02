@@ -3181,11 +3181,11 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 				$item['parent_mid'] = $item['mid'];
 				$item['thr_parent'] = $item['mid'];
 				$item['llink'] = z_root() . '/display/' . $item['uuid'];
-				$item['target'] = [
+				$item['target'] = json_encode([
 					'id' => str_replace('/item/', '/conversation/', $item['mid']),
 					'type' => 'Collection',
 					'attributedTo' => z_root() . '/channel/' . $channel['channel_address']
-				];
+				]);
 				$item['tgt_type'] = 'Collection';
 			}
 		}
@@ -3254,7 +3254,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 			dbesc($item['parent_mid']),
 			dbesc($item['thr_parent']),
 			dbesc($item['llink']),
-			dbesc(json_encode($item['target'])),
+			dbesc($item['target']),
 			dbesc($item['tgt_type']),
 			intval($item_id)
 		);
@@ -5299,8 +5299,13 @@ function addToCollectionAndSync($ret) {
 		$sync_items[] = encode_item($items[0], true);
 
 		if (!in_array($ret['item']['verb'], ['Add', 'Remove'])) {
+			$activity = Activity::encode_activity($items[0]);
 
-			$new_obj = Activity::build_packet(Activity::encode_activity($items[0]), $channel, false);
+			if (!$activity) {
+				return $ret;
+			}
+
+			$new_obj = Activity::build_packet($activity, $channel, false);
 			$approval = Activity::addToCollection($channel, $new_obj, $ret['item']['parent_mid'], $ret['item'], deliver: false);
 
 			if ($approval['success']) {
