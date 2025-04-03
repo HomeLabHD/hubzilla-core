@@ -1285,7 +1285,8 @@ function get_emojis() {
 		'smiling_face_with_horns' => ['shortname' => ':smiling_face_with_horns:', 'filepath' => 'images/emoji/smiling_face_with_horns.png'],
 		'winking_face_with_tongue' => ['shortname' => ':winking_face_with_tongue:', 'filepath' => 'images/emoji/winking_face_with_tongue.png'],
 
-		'facepalm' => ['shortname' => ':facepalm:', 'filepath' => 'images/emoticons/smiley-facepalm.gif']
+		'facepalm' => ['shortname' => ':facepalm:', 'filepath' => 'images/emoticons/smiley-facepalm.gif'],
+		'hubzilla' => ['shortname' => ':hubzilla:', 'filepath' => 'images/hubzilla.svg']
 	];
 
 	call_hooks('get_emojis', $emojis);
@@ -1407,7 +1408,6 @@ function list_smilies($default_only = false) {
  * @return string
  */
 function smilies($s, $sample = false, $terms = []) {
-
 	if(intval(Config::Get('system', 'no_smilies'))
 		|| (local_channel() && intval(get_pconfig(local_channel(), 'system', 'no_smilies'))))
 		return $s;
@@ -1427,7 +1427,7 @@ function smilies($s, $sample = false, $terms = []) {
 				foreach($terms as $term) {
 					// some platforms provide the term without :
 					$term['term'] = ':' . trim($term['term'], ':') . ':';
-					if ($term['ttype'] === TERM_EMOJI && $term['term'] === $mtch) {
+					if (intval($term['ttype']) === TERM_EMOJI && $term['term'] === $mtch) {
 						$emoji['filepath'] = $term['imgurl'];
 						$emoji['shortname'] = $term['term'];
 					}
