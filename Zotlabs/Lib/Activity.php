@@ -1073,12 +1073,10 @@ class Activity {
 				return [];
 		}
 
-/* this should not be needed
 		$t = self::encode_taxonomy($i);
 		if ($t) {
 			$ret['tag'] = $t;
 		}
-*/
 
 		$a = self::encode_attachment($i, true);
 		if ($a) {
