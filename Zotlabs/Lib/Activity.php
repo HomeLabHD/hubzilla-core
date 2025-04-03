@@ -2213,9 +2213,9 @@ class Activity {
 				$s['edited'] = datetime_convert('UTC', 'UTC', $act->data['updated']);
 			}
 
-			$obj_actor = $act->objprop('actor') ?: $act->get_actor('attributedTo', $act->obj);
+			$obj_actor = is_array($act->objprop('actor')) ? $act->objprop('actor') : $act->get_actor('attributedTo', $act->obj);
 
-			if (!isset($obj_actor['id'])) {
+			if (empty($obj_actor['id'])) {
 				return false;
 			}
 
@@ -2252,6 +2252,7 @@ class Activity {
 			}
 
 			if (in_array($act->type, ['EmojiReact'])) {
+
 				// Pleroma reactions
 				$t = trim(self::get_textfield($act->data, 'content'));
 
