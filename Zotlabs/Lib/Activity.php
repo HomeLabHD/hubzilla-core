@@ -2995,7 +2995,7 @@ class Activity {
 				}
 			}
 		}
-
+/*
 		if (isset($item['term']) && !PConfig::Get($channel['channel_id'], 'system', 'no_smilies')) {
 			foreach ($item['term'] as $t) {
 				if ($t['ttype'] === TERM_EMOJI) {
@@ -3009,6 +3009,7 @@ class Activity {
 				}
 			}
 		}
+*/
 
 		// TODO: not implemented
 		// self::rewrite_mentions($item);

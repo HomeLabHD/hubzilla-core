@@ -1406,27 +1406,35 @@ function list_smilies($default_only = false) {
  * @param boolean $sample (optional) default false
  * @return string
  */
-function smilies($s, $sample = false) {
+function smilies($s, $sample = false, $terms = []) {
 
 	if(intval(Config::Get('system', 'no_smilies'))
 		|| (local_channel() && intval(get_pconfig(local_channel(), 'system', 'no_smilies'))))
 		return $s;
 
-
 	$s = preg_replace_callback('{<(pre|code)>.*?</\1>}ism', 'smile_shield', $s);
 	$s = preg_replace_callback('/<[a-z]+ .*?>/ism', 'smile_shield', $s);
 
 	if (preg_match_all('/(\:(\w|\+|\-)+\:)(?=|[\!\.\?]|$)/', $s, $match)) {
+
 		// emoji shortcodes
 		$emojis = get_emojis();
 		foreach ($match[0] as $mtch) {
 			$name = trim($mtch, ':');
+			$emoji = $emojis[$name] ?? [];
 
-			if (!isset($emojis[$name])) {
-				continue;
+			if (!$emoji && !empty($terms)) {
+				foreach($terms as $term) {
+					if ($term['ttype'] === TERM_EMOJI && $term['term'] === $mtch) {
+						$emoji['filepath'] = $term['imgurl'];
+						$emoji['shortname'] = $term['term'];
+					}
+				}
 			}
 
-			$emoji = $emojis[$name];
+			if (!$emoji) {
+				continue;
+			}
 
 			$class = 'emoji';
 			if (is_solo_string($mtch, $s)) {
@@ -1793,7 +1801,7 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 			$s .= prepare_text('[summary]' . $item['summary'] . '[/summary]' . $item['body'],$item['mimetype'],$opts);
 		}
 		else {
-			$s .= prepare_text($item['body'],$item['mimetype'], $opts);
+			$s .= prepare_text($item['body'],$item['mimetype'], $opts, $item['term']);
 		}
 	}
 
@@ -2039,8 +2047,7 @@ function format_poll($item,$s,$opts) {
  * @return string
  *  The parsed $text as prepared HTML.
  */
-function prepare_text($text, $content_type = 'text/bbcode', $opts = false) {
-
+function prepare_text($text, $content_type = 'text/bbcode', $opts = false, $terms = []) {
 	switch($content_type) {
 		case 'text/plain':
 			$s = escape_tags($text);
@@ -2086,7 +2093,7 @@ function prepare_text($text, $content_type = 'text/bbcode', $opts = false) {
 					$s = bbcode($text, ((is_array($opts)) ? $opts : [] ));
 				}
 				else {
-					$s = smilies(bbcode($text, ((is_array($opts)) ? $opts : [] )));
+					$s = smilies(bbcode($text, ((is_array($opts)) ? $opts : [] )), terms: $terms);
 				}
 			}
 
