@@ -1427,7 +1427,7 @@ function smilies($s, $sample = false, $terms = []) {
 				foreach($terms as $term) {
 					if ($term['ttype'] === TERM_EMOJI && $term['term'] === $mtch) {
 						$emoji['filepath'] = $term['imgurl'];
-						$emoji['shortname'] = $term['term'];
+						$emoji['shortname'] = $name;
 					}
 				}
 			}
