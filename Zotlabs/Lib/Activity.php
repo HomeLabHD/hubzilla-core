@@ -695,7 +695,7 @@ class Activity {
 				if (is_array($t) && !array_key_exists('type', $t))
 					$t['type'] = 'Hashtag';
 
-				if (is_array($t) && (array_key_exists('href', $t) || array_key_exists('id', $t)) && array_key_exists('name', $t)) {
+				if (is_array($t) && (array_key_exists('href', $t) || array_key_exists('id', $t) || isset($t['icon']['url'])) && array_key_exists('name', $t)) {
 					switch ($t['type']) {
 						case 'Hashtag':
 							$ret[] = ['ttype' => TERM_HASHTAG, 'url' => $t['href'], 'term' => escape_tags((substr($t['name'], 0, 1) === '#') ? substr($t['name'], 1) : $t['name'])];
@@ -710,7 +710,7 @@ class Activity {
 							break;
 
 						case 'Emoji':
-							$ret[] = ['ttype' => TERM_EMOJI, 'url' => $t['id'], 'term' => escape_tags($t['name']), 'imgurl' => $t['icon']['url']];
+							$ret[] = ['ttype' => TERM_EMOJI, 'url' => $t['id'] ?? $t['icon']['url'], 'term' => escape_tags($t['name']), 'imgurl' => $t['icon']['url']];
 							break;
 
 						default:
