@@ -1425,9 +1425,11 @@ function smilies($s, $sample = false, $terms = []) {
 
 			if (!$emoji && !empty($terms)) {
 				foreach($terms as $term) {
+					// some platforms provide the term without :
+					$term['term'] = ':' . trim($term['term'], ':') . ':';
 					if ($term['ttype'] === TERM_EMOJI && $term['term'] === $mtch) {
 						$emoji['filepath'] = $term['imgurl'];
-						$emoji['shortname'] = $name;
+						$emoji['shortname'] = $term['term'];
 					}
 				}
 			}
@@ -1801,7 +1803,7 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 			$s .= prepare_text('[summary]' . $item['summary'] . '[/summary]' . $item['body'],$item['mimetype'],$opts);
 		}
 		else {
-			$s .= prepare_text($item['body'],$item['mimetype'], $opts, $item['term']);
+			$s .= prepare_text($item['body'],$item['mimetype'], $opts, $item['term'] ?? []);
 		}
 	}
 
