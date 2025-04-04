@@ -1,54 +1,54 @@
-<script language="javascript" type="text/javascript">
-
-var editor = false;
-var plaintext = '{{$editselect}}';
-var pretext = '{{$pretext}}';
-
-function initEditor(cb){
-	if(editor == false){
-		$("#profile-jot-text-loading").show();
-		$("#profile-jot-tools").removeClass('d-none');
-		{{$geotag}}
-		if(plaintext == 'none') {
-			$("#profile-jot-text-loading").hide();
-			$(".jothidden").show();
-			$("#profile-jot-text").addClass('jot-expanded');
-			{{if $bbco_autocomplete}}
-			$("#profile-jot-text").bbco_autocomplete('{{$bbco_autocomplete}}'); // autocomplete bbcode
-			{{/if}}
-			{{if $editor_autocomplete}}
-			if(typeof channelId === 'undefined')
-				$("#profile-jot-text").editor_autocomplete(baseurl+"/acl");
-			else
-				$("#profile-jot-text").editor_autocomplete(baseurl+"/acl",[channelId]); // Also gives suggestions from current channel's connections
-			{{/if}}
-			editor = true;
-			if (typeof cb!="undefined") cb();
-			if(pretext.length)
-				addeditortext(pretext);
-			return;
-		}
-			editor = true;
-	} else {
-		if (typeof cb!="undefined") cb();
-	}
-}
-
-function enableOnUser(){
-	if(editor)
-		return;
-
-	initEditor();
-}
-</script>
-
 <script src="vendor/blueimp/jquery-file-upload/js/vendor/jquery.ui.widget.js"></script>
 <script src="vendor/blueimp/jquery-file-upload/js/jquery.iframe-transport.js"></script>
 <script src="vendor/blueimp/jquery-file-upload/js/jquery.fileupload.js"></script>
 
 <script>
+
+	var editor = false;
+	var plaintext = '{{$editselect}}';
+	var pretext = '{{$pretext}}';
+
 	var activeCommentID = 0;
 	var activeCommentText = '';
+
+	var postSaveTimer = null;
+
+	function initEditor(cb){
+		if(editor == false){
+			$("#profile-jot-text-loading").show();
+			$("#profile-jot-tools").removeClass('d-none');
+			{{$geotag}}
+			if(plaintext == 'none') {
+				$("#profile-jot-text-loading").hide();
+				$(".jothidden").show();
+				$("#profile-jot-text").addClass('jot-expanded');
+				{{if $bbco_autocomplete}}
+				$("#profile-jot-text").bbco_autocomplete('{{$bbco_autocomplete}}'); // autocomplete bbcode
+				{{/if}}
+				{{if $editor_autocomplete}}
+				if(typeof channelId === 'undefined')
+					$("#profile-jot-text").editor_autocomplete(baseurl+"/acl");
+				else
+					$("#profile-jot-text").editor_autocomplete(baseurl+"/acl",[channelId]); // Also gives suggestions from current channel's connections
+				{{/if}}
+				editor = true;
+				if (typeof cb!="undefined") cb();
+				if(pretext.length)
+					addeditortext(pretext);
+				return;
+			}
+				editor = true;
+		} else {
+			if (typeof cb!="undefined") cb();
+		}
+	}
+
+	function enableOnUser(){
+		if(editor)
+			return;
+
+		initEditor();
+	}
 
 	$(document).ready(function() {
 
@@ -605,28 +605,21 @@ function enableOnUser(){
 		$(this).closest('.jot-poll-option').remove();
 	}
 
-</script>
 
-<script>
-$( document ).on( "click", ".wall-item-delete-link,.page-delete-link,.layout-delete-link,.block-delete-link", function(e) {
-	var link = $(this).attr("href"); // "get" the intended link in a var
+	$( document ).on( "click", ".wall-item-delete-link,.page-delete-link,.layout-delete-link,.block-delete-link", function(e) {
+		var link = $(this).attr("href"); // "get" the intended link in a var
 
-	if (typeof(eval($.fn.modal)) === 'function'){
-		e.preventDefault();
-		bootbox.confirm("<h4>{{$confirmdelete}}</h4>",function(result) {
-			if (result) {
-				document.location.href = link;
-			}
-		});
-	} else {
-		return confirm("{{$confirmdelete}}");
-	}
-});
-</script>
-
-
-<script>
-	var postSaveTimer = null;
+		if (typeof(eval($.fn.modal)) === 'function'){
+			e.preventDefault();
+			bootbox.confirm("<h4>{{$confirmdelete}}</h4>",function(result) {
+				if (result) {
+					document.location.href = link;
+				}
+			});
+		} else {
+			return confirm("{{$confirmdelete}}");
+		}
+	});
 
 	function postSaveChanges(action) {
 		if({{$auto_save_draft}}) {
@@ -666,7 +659,6 @@ $( document ).on( "click", ".wall-item-delete-link,.page-delete-link,.layout-del
 	}
 
 	$(document).ready(function() {
-
 		var cleaned = false;
 
 		if({{$auto_save_draft}}) {

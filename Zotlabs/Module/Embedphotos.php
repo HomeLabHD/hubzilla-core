@@ -77,7 +77,7 @@ class Embedphotos extends \Zotlabs\Web\Controller {
 				$ext = EMPTY_STR;
 
 			$output = '[zrl=' . z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $resource . ']' .
-				'[zmg=' . z_root() . '/photo/' . $resource . '-' . $resolution .  $ext . ']' . $filename . '[/zmg][/zrl]';
+				'[zmg=' . z_root() . '/photo/' . $resource . '-' . $resolution .  $ext . ']' . $filename . '[/zmg][/zrl]' . "\r\n";
 
 			return $output;
 		}
