@@ -47,8 +47,8 @@ function enableOnUser(){
 <script src="vendor/blueimp/jquery-file-upload/js/jquery.fileupload.js"></script>
 
 <script>
-var activeCommentID = 0;
-var activeCommentText = '';
+	var activeCommentID = 0;
+	var activeCommentText = '';
 
 	$(document).ready(function() {
 
@@ -418,8 +418,14 @@ var activeCommentText = '';
 		modalBodyAlbumDialog.replaceWith(modalBodyAlbumDialog.cloneNode(true)); // This effectively removes all event listeners
 
 		// Show the modal
-		const modal = new bootstrap.Modal(document.getElementById('embedPhotoModal'));
+		const modalEl = document.getElementById('embedPhotoModal');
+		const modal = new bootstrap.Modal(modalEl);
 		modal.show();
+
+		// Reset activeCommentID when the modal is closed
+		modalEl.addEventListener('hide.bs.modal', event => {
+			activeCommentID = 0;
+		});
 	};
 
 	const choosePhotoFromAlbum = (album) => {
@@ -487,7 +493,6 @@ var activeCommentText = '';
 		});
 	};
 
-
 	const getPhotoAlbumList = () => {
 		fetch('embedphotos/albumlist', {
 			method: 'POST',
@@ -520,8 +525,40 @@ var activeCommentText = '';
 		});
 	};
 
+	function addeditortext(data) {
+		if(plaintext == 'none') {
+			var currentText = $("#profile-jot-text").val();
+			$("#profile-jot-text").val(currentText + data);
+		}
+	}
 
-    //
+	// Add text to active comment region if set, otherwise add to main editor
+	function addActiveEditorText(data) {
+		if (activeCommentID) {
+			const textarea = document.getElementById('comment-edit-text-' + activeCommentID);
+
+			if (textarea) {
+				let currentText = textarea.value;
+
+				// Clear the textarea if it matches the active comment text
+				if (currentText === activeCommentText) {
+					currentText = '';
+				}
+
+				textarea.classList.add('expanded');
+				openMenu('comment-tools-' + activeCommentID);
+				textarea.value = currentText + data;
+				textarea.focus();
+				textarea.click();
+				preview_comment(activeCommentID);
+			}
+		} else {
+			addeditortext(data);
+			preview_post();
+		}
+	}
+
+
     // initialize drag-drop
     function DragDropUploadInit() {
 
