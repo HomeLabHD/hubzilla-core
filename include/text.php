@@ -1286,7 +1286,7 @@ function get_emojis() {
 		'winking_face_with_tongue' => ['shortname' => ':winking_face_with_tongue:', 'filepath' => 'images/emoji/winking_face_with_tongue.png'],
 
 		'facepalm' => ['shortname' => ':facepalm:', 'filepath' => 'images/emoticons/smiley-facepalm.gif'],
-		'hubzilla' => ['shortname' => ':hubzilla:', 'filepath' => 'images/hubzilla.svg']
+		'hubzilla' => ['shortname' => ':hubzilla:', 'filepath' => 'images/hubzilla.png']
 	];
 
 	call_hooks('get_emojis', $emojis);
