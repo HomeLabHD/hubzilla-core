@@ -403,86 +403,123 @@ var activeCommentText = '';
 	}
 
 
-    var initializeEmbedPhotoDialog = function () {
-        $('.embed-photo-selected-photo').each(function (index) {
-            $(this).removeClass('embed-photo-selected-photo');
-        });
-        getPhotoAlbumList();
-        $('#embedPhotoModalBodyAlbumDialog').off('click');
-        $('#embedPhotoModal').modal('show');
-    };
+	const initializeEmbedPhotoDialog = () => {
+		// Remove the 'embed-photo-selected-photo' class from all selected photos
+		const selectedPhotos = document.querySelectorAll('.embed-photo-selected-photo');
+		selectedPhotos.forEach(photo => {
+			photo.classList.remove('embed-photo-selected-photo');
+		});
 
-    var choosePhotoFromAlbum = function (album) {
-        $.post("embedphotos/album", {name: album},
-            function(data) {
-                if (data['status']) {
-                    $('#embedPhotoModalLabel').html("{{$modalchooseimages}}");
-                    $('#embedPhotoModalBodyAlbumDialog').html('\
-                            <div><div class="nav nav-pills flex-column">\n\
-                                <li class="nav-item"><a class="nav-link" href="#" onclick="initializeEmbedPhotoDialog();return false;">\n\
-                                    <i class="bi bi-chevron-left"></i>&nbsp\n\
-                                    {{$modaldiffalbum}}\n\
-                                    </a>\n\
-                                </li>\n\
-                            </div><br></div>')
-                    $('#embedPhotoModalBodyAlbumDialog').append(data['content']);
-                    $('#embedPhotoModalBodyAlbumDialog').click(function (evt) {
-                        evt.preventDefault();
-                        var image = document.getElementById(evt.target.id);
-                        if (typeof($(image).parent()[0]) !== 'undefined') {
-                            var imageparent = document.getElementById($(image).parent()[0].id);
-                            $(imageparent).toggleClass('embed-photo-selected-photo');
-                            var href = $(imageparent).attr('href');
-                            $.post(
-				"embedphotos/photolink",
-				{href: href},
-                                function(ddata) {
-                                    if (ddata['status']) {
-                                        addeditortext(ddata['photolink']);
-										preview_post();
-                                    } else {
-                                        window.console.log("{{$modalerrorlink}}" + ':' + ddata['errormsg']);
-                                    }
-                                    return false;
-                                },
-				'json'
-			    );
-                        }
-                    });
-                    $('#embedPhotoModalBodyAlbumListDialog').addClass('d-none');
-                    $('#embedPhotoModalBodyAlbumDialog').removeClass('d-none');
-                } else {
-                    window.console.log("{{$modalerroralbum}} " + JSON.stringify(album) + ':' + data['errormsg']);
-                }
-                return false;
-            },
-        'json');
-    };
+		// Fetch the photo album list
+		getPhotoAlbumList();
 
-    var getPhotoAlbumList = function () {
-        $.post("embedphotos/albumlist", {},
-            function(data) {
-                if (data['status']) {
-                    var albums = data['albumlist']; //JSON.parse(data['albumlist']);
-                    $('#embedPhotoModalLabel').html("{{$modalchoosealbum}}");
-                    $('#embedPhotoModalBodyAlbumList').html('<ul class="nav nav-pills flex-column"></ul>');
-                    for(var i=0; i<albums.length; i++) {
-                        var albumName = albums[i].text;
-			var jsAlbumName = albums[i].jstext;
-			var albumLink = '<li class="nav-item">';
-			albumLink += '<a class="nav-link" href="#" onclick="choosePhotoFromAlbum(\'' + jsAlbumName + '\'); return false;">' + albumName + '</a>';
-                        albumLink += '</li>';
-                        $('#embedPhotoModalBodyAlbumList').find('ul').append(albumLink);
-                    }
-                    $('#embedPhotoModalBodyAlbumDialog').addClass('d-none');
-                    $('#embedPhotoModalBodyAlbumListDialog').removeClass('d-none');
-                } else {
-                    window.console.log("{{$modalerrorlist}}" + ':' + data['errormsg']);
-                }
-                return false;
-            },
-        'json');
-    };
+		// Remove any existing click event listeners on the modal body
+		const modalBodyAlbumDialog = document.getElementById('embedPhotoModalBodyAlbumDialog');
+		modalBodyAlbumDialog.replaceWith(modalBodyAlbumDialog.cloneNode(true)); // This effectively removes all event listeners
+
+		// Show the modal
+		const modal = new bootstrap.Modal(document.getElementById('embedPhotoModal'));
+		modal.show();
+	};
+
+	const choosePhotoFromAlbum = (album) => {
+
+		const params = new URLSearchParams();
+		params.append('name', album);
+
+		fetch('embedphotos/album', {
+			method: 'POST',
+			body: params
+		})
+		.then(response => response.json())
+		.then(data => {
+			if (data.status) {
+
+				const modalLabel = document.getElementById('embedPhotoModalLabel');
+				const modalBody = document.getElementById('embedPhotoModalBodyAlbumDialog');
+
+				modalLabel.innerHTML = '{{$modalchooseimages}}';
+				modalBody.innerHTML = '<div><div class="nav nav-pills flex-column"><li class="nav-item"><a class="nav-link" href="#" onclick="initializeEmbedPhotoDialog(); return false;"><i class="bi bi-chevron-left"></i>&nbsp;{{$modaldiffalbum}}</a></li></div><br></div>';
+				modalBody.innerHTML += data.content;
+
+				// Make sure the loaded script is executed
+				const scripts = modalBody.querySelectorAll('script');
+				scripts.forEach(script => {
+					const scriptContent = script.textContent || script.innerText;
+					eval(scriptContent);  // Execute the script
+				});
+
+				modalBody.addEventListener('click', (evt) => {
+					evt.preventDefault();
+					const image = document.getElementById(evt.target.id);
+					if (image && image.parentElement) {
+						const imageParent = image.parentElement;
+						imageParent.classList.toggle('embed-photo-selected-photo');
+						const href = imageParent.getAttribute('href');
+
+						const params = new URLSearchParams();
+						params.append('href', href);
+
+						fetch('embedphotos/photolink', {
+							method: 'POST',
+							body: params
+						})
+						.then(response => response.json())
+						.then(ddata => {
+							if (ddata.status) {
+								addActiveEditorText(ddata.photolink);
+								preview_post();
+							} else {
+								console.error("{{$modalerrorlink}}: " + ddata.errormsg);
+							}
+						});
+					}
+				});
+
+				document.getElementById('embedPhotoModalBodyAlbumListDialog').classList.add('d-none');
+				modalBody.classList.remove('d-none');
+			} else {
+				console.error("{{$modalerroralbum}} " + JSON.stringify(album) + ': ' + data.errormsg);
+			}
+		})
+		.catch(error => {
+			console.error("Error fetching album:", error);
+		});
+	};
+
+
+	const getPhotoAlbumList = () => {
+		fetch('embedphotos/albumlist', {
+			method: 'POST',
+		})
+		.then(response => response.json())
+		.then(data => {
+			if (data.status) {
+				const albums = data.albumlist;
+				const modalLabel = document.getElementById('embedPhotoModalLabel');
+				const modalBodyList = document.getElementById('embedPhotoModalBodyAlbumList');
+
+				modalLabel.innerHTML = '{{$modalchoosealbum}}';
+				modalBodyList.innerHTML = '<ul class="nav nav-pills flex-column"></ul>';
+
+				albums.forEach(album => {
+					const albumName = album.text;
+					const jsAlbumName = album.jstext;
+					const albumLink = '<li class="nav-item"><a class="nav-link" href="#" onclick="choosePhotoFromAlbum(\'' + jsAlbumName + '\'); return false;">' + albumName + '</a></li>';
+					modalBodyList.querySelector('ul').innerHTML += albumLink;
+				});
+
+				document.getElementById('embedPhotoModalBodyAlbumDialog').classList.add('d-none');
+				document.getElementById('embedPhotoModalBodyAlbumListDialog').classList.remove('d-none');
+			} else {
+				console.error("{{$modalerrorlist}}: " + data.errormsg);
+			}
+		})
+		.catch(error => {
+			console.error("Error fetching album list:", error);
+		});
+	};
+
 
     //
     // initialize drag-drop

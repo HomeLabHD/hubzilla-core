@@ -37,14 +37,17 @@
 							<button class="btn btn-outline-secondary btn-sm border-0" title="{{$edcode}}" onclick="insertbbcomment('{{$comment}}','code', {{$id}}); return false;">
 								<i class="bi bi-code comment-icon"></i>
 							</button>
-						<button class="btn btn-outline-secondary btn-sm border-0" title="{{$edhighlighter}}" onclick="insertbbcomment('{{$comment}}','mark', {{$id}}); return false;">
+							<button class="btn btn-outline-secondary btn-sm border-0" title="{{$edhighlighter}}" onclick="insertbbcomment('{{$comment}}','mark', {{$id}}); return false;">
 								<i class="bi bi-highlighter comment-icon"></i>
 							</button>
 						</div>
 						<div class="btn-group me-2">
 							{{if $can_upload}}
-							<button class="btn btn-outline-secondary btn-sm border-0" title="{{$edatt}}" onclick="insertCommentAttach('{{$comment}}',{{$id}}); return false;">
+							<button class="btn btn-outline-secondary btn-sm border-0" title="{{$edatt}}" onclick="insertCommentAttach('{{$comment}}', {{$id}}); return false;">
 								<i class="bi bi-paperclip comment-icon"></i>
+							</button>
+							<button title="{{$edimg}}" class="btn btn-outline-secondary btn-sm border-0" onclick="insertCommentEmbed('{{$comment}}', {{$id}}); return false;">
+								<i class="bi bi-file-image comment-icon"></i>
 							</button>
 							{{/if}}
 							<button class="btn btn-outline-secondary btn-sm border-0" title="{{$edurl}}" onclick="insertCommentURL('{{$comment}}',{{$id}}); return false;">

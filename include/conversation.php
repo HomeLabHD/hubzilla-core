@@ -1104,11 +1104,9 @@ function status_editor($x, $popup = false, $module='') {
 
 function hz_status_editor($x, $popup = false) {
 
-	$o = '';
-
 	$c = channelx_by_n($x['profile_uid']);
 	if($c && $c['channel_moved'])
-		return $o;
+		return;
 
 	$webpage   = ((x($x,'webpage')) ? $x['webpage'] : '');
 	$plaintext = true;
@@ -1327,17 +1325,13 @@ function hz_status_editor($x, $popup = false) {
 		'$customjotheaders' => '',
 		'$custommoretoolsdropdown' => '',
 		'$custommoretoolsbuttons' => '',
-		'$customsubmitright' => []
+		'$customsubmitright' => [],
+		'$popup' => $popup
 	];
 
 	call_hooks('jot_tpl_filter',$tplmacros);
 
-	$o .= replace_macros($tpl, $tplmacros);
-	if ($popup === true) {
-		$o = '<div id="jot-popup" style="display:none">' . $o . '</div>';
-	}
-
-	return $o;
+	return replace_macros($tpl, $tplmacros);
 }
 
 
