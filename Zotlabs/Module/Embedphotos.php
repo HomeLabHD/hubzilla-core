@@ -55,13 +55,15 @@ class Embedphotos extends \Zotlabs\Web\Controller {
 		$output = EMPTY_STR;
 		if($channel) {
 			$resolution = ((feature_enabled($channel['channel_id'],'large_photos')) ? 1 : 2);
-			$r = q("select mimetype, height, width from photo where resource_id = '%s' and $resolution = %d and uid = %d limit 1",
+			$r = q("select mimetype, filename from photo where resource_id = '%s' and $resolution = %d and uid = %d limit 1",
 				dbesc($resource),
 				intval($resolution),
 				intval($channel['channel_id'])
 			);
 			if(! $r)
 				return $output;
+
+			$filename = $r[0]['filename'];
 
 			if($r[0]['mimetype'] === 'image/jpeg')
 				$ext = '.jpg';
@@ -75,7 +77,7 @@ class Embedphotos extends \Zotlabs\Web\Controller {
 				$ext = EMPTY_STR;
 
 			$output = '[zrl=' . z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $resource . ']' .
-				'[zmg=' . $r[0]['width'] . 'x' . $r[0]['height'] . ']' . z_root() . '/photo/' . $resource . '-' . $resolution .  $ext . '[/zmg][/zrl]';
+				'[zmg=' . z_root() . '/photo/' . $resource . '-' . $resolution .  $ext . ']' . $filename . '[/zmg][/zrl]';
 
 			return $output;
 		}
