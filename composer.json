@@ -50,7 +50,7 @@
         "desandro/imagesloaded": "^4.1",
         "phpseclib/phpseclib": "^2.0.47",
         "jbroadway/urlify": "^1.2",
-        "chillerlan/php-qrcode": "^4.3",
+        "chillerlan/php-qrcode": "^5.0.3",
         "spomky-labs/otphp": "^11.1",
         "patrickschur/language-detection": "^5.3",
         "stephenhill/base58": "^1.1",
