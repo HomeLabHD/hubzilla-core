@@ -15,48 +15,47 @@ class CurrencyRepository implements CurrencyRepositoryInterface
      *
      * @var string
      */
-    protected $defaultLocale;
+    protected string $defaultLocale;
 
     /**
      * The fallback locale.
      *
      * @var string
      */
-    protected $fallbackLocale;
+    protected string $fallbackLocale;
 
     /**
      * The path where per-locale definitions are stored.
      *
      * @var string
      */
-    protected $definitionPath;
+    protected string $definitionPath;
 
     /**
      * Per-locale currency definitions.
      *
      * @var array
      */
-    protected $definitions = [];
+    protected array $definitions = [];
 
     /**
      * The available locales.
      *
      * @var array
      */
-    protected $availableLocales = [
-        'af', 'ar', 'as', 'ast', 'az', 'be', 'bg', 'bn', 'bn-IN', 'brx', 'bs',
-        'bs-Cyrl', 'ca', 'ce', 'cs', 'cv', 'cy', 'da', 'de', 'de-CH', 'dz',
-        'el', 'en', 'en-001', 'en-AU', 'en-CA', 'en-GG', 'en-IM', 'en-JE',
-        'en-MV', 'es', 'es-419', 'es-CL', 'es-GT', 'es-MX', 'es-US', 'es-VE',
-        'et', 'eu', 'fa', 'fa-AF', 'fi', 'fil', 'fr', 'fr-CA', 'ga', 'gd', 'gl',
-        'gsw', 'gu', 'he', 'hi', 'hi-Latn', 'hr', 'hu', 'hy', 'id', 'is', 'it',
-        'ja', 'ka', 'kk', 'km', 'ko', 'kok', 'ks', 'ky', 'lb', 'lo', 'lt', 'lv',
-        'mg', 'mk', 'ml', 'mn', 'mr', 'ms', 'my', 'ne', 'nl', 'nn', 'no', 'pa',
-        'pl', 'ps', 'pt', 'pt-PT', 'rn', 'ro', 'ru', 'sd', 'si', 'sk', 'sl',
-        'so', 'sq', 'sr', 'sr-Cyrl-BA', 'sr-Latn', 'sr-Latn-BA', 'sv', 'sw',
-        'sw-CD', 'sw-KE', 'ta', 'te', 'th', 'tk', 'tr', 'uk', 'ur', 'ur-IN',
-        'uz', 'uz-Cyrl', 'vi', 'yue', 'yue-Hans', 'zh', 'zh-Hans-HK', 'zh-Hant',
-        'zh-Hant-HK'
+    protected array $availableLocales = [
+        'af', 'am', 'ar', 'as', 'az', 'be', 'bg', 'bn', 'bn-IN', 'bs', 'ca',
+        'chr', 'cs', 'cy', 'da', 'de', 'de-CH', 'dsb', 'el', 'el-polyton', 'en',
+        'en-001', 'en-AU', 'en-CA', 'en-GG', 'en-IM', 'en-JE', 'es', 'es-419',
+        'es-CL', 'es-GT', 'es-MX', 'es-US', 'es-VE', 'et', 'eu', 'fa', 'fa-AF',
+        'fi', 'fil', 'fr', 'fr-CA', 'ga', 'gd', 'gl', 'gu', 'he', 'hi',
+        'hi-Latn', 'hr', 'hsb', 'hu', 'hy', 'id', 'ig', 'is', 'it', 'ja', 'ka',
+        'kk', 'km', 'ko', 'kok', 'ky', 'lo', 'lt', 'lv', 'mk', 'mn', 'mr', 'ms',
+        'my', 'ne', 'nl', 'nn', 'no', 'or', 'pa', 'pl', 'ps', 'pt', 'pt-PT',
+        'ro', 'ru', 'si', 'sk', 'sl', 'so', 'sq', 'sr', 'sr-Cyrl-BA', 'sr-Latn',
+        'sr-Latn-BA', 'sv', 'sw', 'sw-CD', 'sw-KE', 'ta', 'te', 'th', 'tk', 'tr',
+        'uk', 'ur', 'ur-IN', 'uz', 'vi', 'yue', 'yue-Hans', 'zh', 'zh-Hans-HK',
+        'zh-Hant', 'zh-Hant-HK', 'zu',
     ];
 
     /**
@@ -64,20 +63,20 @@ class CurrencyRepository implements CurrencyRepositoryInterface
      *
      * @param string $defaultLocale  The default locale. Defaults to 'en'.
      * @param string $fallbackLocale The fallback locale. Defaults to 'en'.
-     * @param string $definitionPath The path to the currency definitions.
+     * @param string|null $definitionPath The path to the currency definitions.
      *                               Defaults to 'resources/currency'.
      */
-    public function __construct($defaultLocale = 'en', $fallbackLocale = 'en', $definitionPath = null)
+    public function __construct(string $defaultLocale = 'en', string $fallbackLocale = 'en', string $definitionPath = null)
     {
         $this->defaultLocale = $defaultLocale;
         $this->fallbackLocale = $fallbackLocale;
-        $this->definitionPath = $definitionPath ? $definitionPath : __DIR__ . '/../../resources/currency/';
+        $this->definitionPath = $definitionPath ?: __DIR__ . '/../../resources/currency/';
     }
 
     /**
      * {@inheritdoc}
      */
-    public function get($currencyCode, $locale = null)
+    public function get(string $currencyCode, string $locale = null): Currency
     {
         $currencyCode = strtoupper($currencyCode);
         $baseDefinitions = $this->getBaseDefinitions();
@@ -100,7 +99,7 @@ class CurrencyRepository implements CurrencyRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getAll($locale = null)
+    public function getAll(string $locale = null): array
     {
         $locale = $locale ?: $this->defaultLocale;
         $locale = Locale::resolve($this->availableLocales, $locale, $this->fallbackLocale);
@@ -122,7 +121,7 @@ class CurrencyRepository implements CurrencyRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getList($locale = null)
+    public function getList(string $locale = null): array
     {
         $locale = $locale ?: $this->defaultLocale;
         $locale = Locale::resolve($this->availableLocales, $locale, $this->fallbackLocale);
@@ -142,7 +141,7 @@ class CurrencyRepository implements CurrencyRepositoryInterface
      *
      * @return array
      */
-    protected function loadDefinitions($locale)
+    protected function loadDefinitions(string $locale): array
     {
         if (!isset($this->definitions[$locale])) {
             $filename = $this->definitionPath . $locale . '.json';
@@ -163,7 +162,7 @@ class CurrencyRepository implements CurrencyRepositoryInterface
      *   - The numeric code.
      *   - The fraction digits.
      */
-    protected function getBaseDefinitions()
+    protected function getBaseDefinitions(): array
     {
         return [
             'AED' => ['784', 2],
@@ -289,7 +288,6 @@ class CurrencyRepository implements CurrencyRepositoryInterface
             'SGD' => ['702', 2],
             'SHP' => ['654', 2],
             'SLE' => ['925', 2],
-            'SLL' => ['694', 0],
             'SOS' => ['706', 0],
             'SRD' => ['968', 2],
             'SSP' => ['728', 2],
@@ -324,6 +322,7 @@ class CurrencyRepository implements CurrencyRepositoryInterface
             'YER' => ['886', 0],
             'ZAR' => ['710', 2],
             'ZMW' => ['967', 2],
+            'ZWG' => ['924', 2],
             'ZWL' => ['932', 2],
         ];
     }

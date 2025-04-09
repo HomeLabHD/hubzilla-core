@@ -15,9 +15,6 @@
 	"ETB": {
 		"name": "birr etíop"
 	},
-	"VED": {
-		"name": "Bolívar Soberano"
-	},
 	"VES": {
 		"name": "bolívar veneçolà"
 	},
@@ -258,7 +255,7 @@
 	"HNL": {
 		"name": "lempira"
 	},
-	"SLL": {
+	"SLE": {
 		"name": "leone de Sierra Leone"
 	},
 	"MDL": {
@@ -436,9 +433,6 @@
 	"PKR": {
 		"name": "rupia pakistanesa"
 	},
-	"SLE": {
-		"name": "Sierra Leonean Leone"
-	},
 	"PEN": {
 		"name": "sol"
 	},
@@ -462,9 +456,6 @@
 	},
 	"MNT": {
 		"name": "tögrög mongol"
-	},
-	"UYW": {
-		"name": "Uruguayan Nominal Wage Index Unit"
 	},
 	"VUV": {
 		"name": "vatu de Vanuatu"

@@ -56,9 +56,6 @@
 	"BYN": {
 		"name": "bieloruský rubeľ"
 	},
-	"VED": {
-		"name": "Bolívar Soberano"
-	},
 	"BOB": {
 		"name": "bolívijské boliviano"
 	},
@@ -373,9 +370,6 @@
 		"name": "seychelská rupia"
 	},
 	"SLE": {
-		"name": "Sierra Leonean Leone"
-	},
-	"SLL": {
 		"name": "sierraleonský leone"
 	},
 	"SGD": {
@@ -453,9 +447,6 @@
 	},
 	"UYU": {
 		"name": "uruguajské peso"
-	},
-	"UYW": {
-		"name": "Uruguayan Nominal Wage Index Unit"
 	},
 	"UZS": {
 		"name": "uzbecký sum"

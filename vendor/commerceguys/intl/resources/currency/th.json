@@ -441,7 +441,7 @@
 	"TRY": {
 		"name": "ลีราตุรกี"
 	},
-	"SLL": {
+	"SLE": {
 		"name": "ลีโอนเซียร์ราลีโอน"
 	},
 	"ALL": {
@@ -487,14 +487,5 @@
 	},
 	"UAH": {
 		"name": "ฮรีฟเนียยูเครน"
-	},
-	"VED": {
-		"name": "Bolívar Soberano"
-	},
-	"SLE": {
-		"name": "Sierra Leonean Leone"
-	},
-	"UYW": {
-		"name": "Uruguayan Nominal Wage Index Unit"
 	}
 }

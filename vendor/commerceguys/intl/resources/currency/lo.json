@@ -135,7 +135,7 @@
 	"SCR": {
 		"name": "ເຊ​ເຊວ​ລອຍ​ສ໌ ຣູ​ປີ"
 	},
-	"SLL": {
+	"SLE": {
 		"name": "ເຊຍ​ນາ ​ເລໂອ​ນຽນ ເລ​ໂອນ"
 	},
 	"SHP": {
@@ -488,14 +488,5 @@
 	},
 	"HTG": {
 		"name": "ໄຮ​ຕຽນ ກົວ​ເດ"
-	},
-	"VED": {
-		"name": "Bolívar Soberano"
-	},
-	"SLE": {
-		"name": "Sierra Leonean Leone"
-	},
-	"UYW": {
-		"name": "Uruguayan Nominal Wage Index Unit"
 	}
 }
