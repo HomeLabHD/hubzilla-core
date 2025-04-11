@@ -2435,7 +2435,7 @@ class Activity {
 					}
 				}
 
-				$tag = (($poster) ? '[video poster=&quot;' . $poster . '&quot;]' : '[video]' );
+				$tag = (($poster) ? '[video poster=&apos;' . $poster . '&apos;]' : '[video]' );
 				$ptr = null;
 
 				if ($act->objprop('url')) {
