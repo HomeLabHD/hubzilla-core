@@ -34,11 +34,13 @@ class Zot6Handler implements IHandler {
 
 		logger('notify received from ' . $hub['hubloc_url']);
 
-		$x = Libzot::fetch($data, $hub);
-		$ret['delivery_report'] = $x;
+		$x = Libzot::fetch($data);
 
+		if ($x) {
+			$ret['delivery_report'] = $x;
+			$ret['success'] = true;
+		}
 
-		$ret['success'] = true;
 		return $ret;
 	}
 
