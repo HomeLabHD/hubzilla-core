@@ -1,3 +1,7 @@
+Hubzilla 10.2.3 (2025-04-11)
+	- Fix bogus merge from 10.2.2 release
+
+
 Hubzilla 10.2.2 (2025-04-11)
 	- Cleanup deprecated forum queries, improved performance
 	- Fix zot6 handler returning success allthough Libzot::fetch() did not return anything useful
