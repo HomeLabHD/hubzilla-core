@@ -307,7 +307,7 @@ function install_run_selfhost {
         # https://carol.selfhost.de/update?username=123456&password=supersafe
         #
         # the prefered way
-        wget --output-document=$selfhostdir/$selfhostscript http://jonaspasche.de/selfhost-updater
+        wget --output-document=$selfhostdir/$selfhostscript https://jonaspasche.de/selfhost-updater
         echo "router" > $selfhostdir/device
         echo "$selfhost_user" > $selfhostdir/user
         echo "$selfhost_pass" > $selfhostdir/pass
@@ -386,7 +386,7 @@ function install_letsencrypt {
     then
         die "Failed to install let's encrypt: 'le_email' is empty in $configfile"
     fi
-    nocheck_install "certbot python-certbot-apache"
+    nocheck_install "certbot python3-certbot-apache"
     print_info "run certbot ..."
     certbot --apache -w $install_path -d $le_domain -m $le_email --agree-tos --non-interactive --redirect --hsts --uir
     service apache2 restart
@@ -441,7 +441,7 @@ function configure_cron_daily {
     echo "echo \" \"" >> /var/www/$cron_job
     echo "echo \"\$(date) - stopping apache and mysql...\"" >> /var/www/$cron_job
     echo "service apache2 stop" >> /var/www/$cron_job
-    echo "/etc/init.d/mysql stop # to avoid inconsistencies" >> /var/www/$cron_job
+    echo "systemctl stop  mysql.service # to avoid inconsistencies" >> /var/www/$cron_job
     echo "#" >> /var/www/$cron_job
     echo "echo \"\$(date) - renew certificate...\"" >> /var/www/$cron_job
     echo "certbot renew --noninteractive" >> /var/www/$cron_job
