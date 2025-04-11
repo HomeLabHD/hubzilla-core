@@ -59,7 +59,7 @@ before_script:
     - echo "USE $MYSQL_DATABASE; SHOW TABLES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host="$DB_HOST" "$MYSQL_DATABASE"
     # Run the actual tests
     - touch dbfail.out
-    - vendor/bin/phpunit --configuration tests/phpunit.xml --no-progress --stop-on-error --coverage-text --colors=never --log-junit tests/results/junit.xml || exit_code=$?
+    - vendor/bin/phpunit -d memory_limit=256M --configuration tests/phpunit.xml --no-progress --stop-on-error --coverage-text --colors=never --log-junit tests/results/junit.xml || exit_code=$?
     - if [ $exit_code -ne 0 ]; then echo "Test barfed!"; cat dbfail.out; exit $exit_code; fi
   coverage: '/^\s*Lines:\s*\d+.\d+\%/'
 
@@ -84,7 +84,7 @@ before_script:
     - psql -h "postgres" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "\dt;"
     # Run the actual tests
     - touch dbfail.out
-    - vendor/bin/phpunit --configuration tests/phpunit.xml --no-progress --stop-on-error --coverage-text --colors=never --log-junit tests/results/junit.xml || exit_code=$?
+    - vendor/bin/phpunit -d memory_limit=256M --configuration tests/phpunit.xml --no-progress --stop-on-error --coverage-text --colors=never --log-junit tests/results/junit.xml || exit_code=$?
     - if [ $exit_code -ne 0 ]; then echo "Test barfed!"; cat dbfail.out; exit $exit_code; fi
   coverage: '/^\s*Lines:\s*\d+.\d+\%/'
 
