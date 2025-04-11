@@ -3334,6 +3334,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 			$arr['uuid'] = uuid_from_url($item['mid'] . '#group_item');
 			$arr['mid'] = z_root() . '/item/' . $arr['uuid'];
 			$arr['parent_mid'] = $arr['mid'];
+			$arr['plink'] = $arr['mid'];
 		}
 
 		$arr['aid'] = $channel['channel_account_id'];
