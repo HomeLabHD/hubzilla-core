@@ -607,7 +607,8 @@ class Sse_bs extends Controller {
 					where uid = %d and (owner_xchan = '%s' or author_xchan = '%s') and author_xchan != '%s' and verb != 'Announce' and item_unseen = 1 $sql_extra $item_normal",
 					intval(self::$uid),
 					dbesc($forums[$x]['xchan_hash']),
-					dbesc($forums[$x]['xchan_hash'])
+					dbesc($forums[$x]['xchan_hash']),
+					dbesc(self::$ob_hash)
 				);
 
 				if($r[0]['total']) {
