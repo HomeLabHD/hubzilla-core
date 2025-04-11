@@ -323,7 +323,13 @@ class Notifier {
 				self::$encoded_item = json_decode($m, true);
 			}
 			else {
-				self::$encoded_item = Activity::build_packet(Activity::encode_activity($target_item), self::$channel, false);
+				$activity = Activity::encode_activity($target_item);
+
+				if (!$activity) {
+					return;
+				}
+
+				self::$encoded_item = Activity::build_packet($activity, self::$channel, false);
 			}
 
 			logger('target_item: ' . print_r($target_item, true), LOGGER_DEBUG);
