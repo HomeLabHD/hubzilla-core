@@ -1,4 +1,5 @@
-.comment .wall-item-body {
+.comment .wall-item-body,
+.comment .wall-item-tools-left {
 	padding-left: 3.4rem;
 }
 
