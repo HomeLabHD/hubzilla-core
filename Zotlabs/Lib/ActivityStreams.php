@@ -529,8 +529,8 @@ class ActivityStreams {
 
 	public function checkEddsaSignature() {
 		$signer = $this->get_property_obj('verificationMethod', $this->sig);
-
 		$parseUrl = parse_url($signer);
+		$publicKey = null;
 
 		if (isset($parseUrl['fragment'])) {
 			if (str_starts_with($parseUrl['fragment'], 'z6Mk')) {
