@@ -3831,9 +3831,9 @@ class Activity {
 			return $act->id;
 		}
 
-		return $act->objprop('id')
+		return $act->objprop('id', null)
 			?? (is_string($act->obj) ? $act->obj : null)
-			?? $act->obj['data']['id']
+			?? $act->obj['data']['id'] // pleroma fetched item?
 			?? '';
 	}
 
