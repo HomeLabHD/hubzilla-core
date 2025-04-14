@@ -165,7 +165,7 @@ class Activity {
 		}
 		else {
 			logger('fetch failed: ' . $url);
-			logger($x['body']);
+			logger(print_r($x, true), LOGGER_DEBUG);
 		}
 
 
@@ -3845,10 +3845,14 @@ class Activity {
 	public static function getUUID($act): string
 	{
 		if (ActivityStreams::is_response_activity($act->type)) {
-			return $act->data['uuid'] ?? $act->data['diaspora:guid'] ?? '';
+			return $act->data['uuid']
+				?? $act->data['diaspora:guid']
+				?? '';
 		}
 
-		return $act->objprop('uuid') ?? $act->objprop('diaspora:guid') ?? '';
+		return $act->objprop('uuid')
+			?? $act->objprop('diaspora:guid')
+			?? '';
 	}
 
 }
