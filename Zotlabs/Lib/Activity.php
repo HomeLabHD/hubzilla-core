@@ -3850,8 +3850,8 @@ class Activity {
 				?? '';
 		}
 
-		return $act->objprop('uuid')
-			?? $act->objprop('diaspora:guid')
+		return $act->objprop('uuid', null)
+			?? $act->objprop('diaspora:guid', null)
 			?? '';
 	}
 
