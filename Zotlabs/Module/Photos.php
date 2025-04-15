@@ -965,7 +965,6 @@ class Photos extends \Zotlabs\Web\Controller {
 			$map = null;
 
 			if($linked_items) {
-
 				xchan_query($linked_items);
 				$linked_items = fetch_post_tags($linked_items,true);
 
@@ -1217,12 +1216,17 @@ class Photos extends \Zotlabs\Web\Controller {
 			$like_e = $like;
 			$dislike_e = $dislike;
 			$paginate = paginate();
+			$responses = [];
 
-			$response_verbs = array('like');
-			if(feature_enabled($owner_uid,'dislike'))
-				$response_verbs[] = 'dislike';
+			if ($linkitem) {
+				$response_verbs = ['like'];
 
-			$responses = get_responses($conv_responses,$response_verbs,'',$link_item);
+				if(feature_enabled($owner_uid,'dislike')) {
+					$response_verbs[] = 'dislike';
+				}
+
+				$responses = get_responses($conv_responses,$response_verbs,'',$link_item);
+			}
 
 			$hookdata = [
 				'onclick' => '$.colorbox({href: \'' . $photo['href'] . '\'}); return false;',
