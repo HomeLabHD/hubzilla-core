@@ -3833,7 +3833,7 @@ class Activity {
 
 		return $act->objprop('id', null)
 			?? (is_string($act->obj) ? $act->obj : null)
-			?? $act->obj['data']['id'] // pleroma fetched item?
+		//	?? $act->obj['data']['id'] // pleroma fetched like?
 			?? '';
 	}
 
