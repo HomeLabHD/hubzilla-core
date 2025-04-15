@@ -241,7 +241,7 @@
 	"LAK": {
 		"name": "лаосский кип"
 	},
-	"SLL": {
+	"SLE": {
 		"name": "леоне"
 	},
 	"LRD": {
@@ -490,14 +490,5 @@
 	"JPY": {
 		"name": "японская иена",
 		"symbol": "¥"
-	},
-	"VED": {
-		"name": "Bolívar Soberano"
-	},
-	"SLE": {
-		"name": "Sierra Leonean Leone"
-	},
-	"UYW": {
-		"name": "Uruguayan Nominal Wage Index Unit"
 	}
 }

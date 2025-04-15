@@ -250,7 +250,7 @@
 	"SHP": {
 		"name": "سینٹ ہیلینا پاؤنڈ"
 	},
-	"SLL": {
+	"SLE": {
 		"name": "سیئرا لیونین لیون"
 	},
 	"SYP": {
@@ -479,23 +479,8 @@
 	"UGX": {
 		"name": "یوگانڈا شلنگ"
 	},
-	"VED": {
-		"name": "Bolívar Soberano"
-	},
 	"XPF": {
 		"name": "CFP فرانک",
 		"symbol": "CFPF"
-	},
-	"SVC": {
-		"name": "Salvadoran Colón"
-	},
-	"SLE": {
-		"name": "Sierra Leonean Leone"
-	},
-	"UYW": {
-		"name": "Uruguayan Nominal Wage Index Unit"
-	},
-	"ZWL": {
-		"name": "Zimbabwean Dollar (2009)"
 	}
 }

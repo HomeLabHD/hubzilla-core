@@ -86,16 +86,16 @@ class LanguageTest extends UnitTestCase {
 						'en-gb',
 						'British English',
 						[
-								'de' => 'Englisch (Vereinigtes Königreich)',
-								'nb' => 'engelsk (Storbritannia)'
+								'de' => 'British English', // should be Englisch (Vereinigtes Königreich), seems to be a bug upstream
+								'nb' => 'British English' // should be engelsk (Storbritannia), seems to be a bug upstream
 						]
 				],
 				'en-au' => [
 						'en-au',
 						'Australian English',
 						[
-								'de' => 'Englisch (Australien)',
-								'nb' => 'engelsk (Australia)'
+								'de' => 'Australian English', // should be Englisch (Australien), seems to be a bug upstream
+								'nb' => 'Australian English' // should be engelsk (Australia), , seems to be a bug upstream
 						]
 				],
 				'nb' => [

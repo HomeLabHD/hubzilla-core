@@ -1402,6 +1402,9 @@ function bbcode($text, $options = []) {
 	if (strpos($text,'[b]') !== false) {
 		$text = preg_replace("(\[b\](.*?)\[\/b\])ism", '<strong>$1</strong>', $text);
 	}
+	if (strpos($text,'[strong]') !== false) {
+		$text = preg_replace("(\[strong\](.*?)\[\/strong\])ism", '<strong>$1</strong>', $text);
+	}
 	// Check for Italics text
 	if (strpos($text,'[i]') !== false) {
 		$text = preg_replace("(\[i\](.*?)\[\/i\])ism", '<em>$1</em>', $text);

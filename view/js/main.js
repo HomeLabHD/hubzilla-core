@@ -447,16 +447,18 @@ function inserteditortag(BBcode, id) {
 }
 
 function insertCommentAttach(comment,id) {
-
 	activeCommentID = id;
 	activeCommentText = comment;
-
 	$('body').css('cursor', 'wait');
-
 	$('#invisible-comment-upload').trigger('click');
-
 	return false;
+}
 
+function insertCommentEmbed(comment,id) {
+	activeCommentID = id;
+	activeCommentText = comment;
+	initializeEmbedPhotoDialog();
+	return false;
 }
 
 function insertCommentURL(comment, id) {
@@ -1725,13 +1727,6 @@ $(window).scroll(function () {
 function loadText(textRegion,data) {
 	var currentText = $(textRegion).val();
 	$(textRegion).val(currentText + data);
-}
-
-function addeditortext(data) {
-	if(plaintext == 'none') {
-		var currentText = $("#profile-jot-text").val();
-		$("#profile-jot-text").val(currentText + data);
-	}
 }
 
 function makeid(length) {

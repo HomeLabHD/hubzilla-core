@@ -885,18 +885,12 @@ class Item extends Controller {
 		if ($parent_item)
 			$parent_mid = $parent_item['mid'];
 
-
 		// Fallback so that we always have a thr_parent
 
 		if (!$thr_parent)
 			$thr_parent = $mid;
 
-
 		$item_thread_top = ((!$parent) ? 1 : 0);
-
-		if ((!$plink) && ($item_thread_top)) {
-			$plink = $mid;
-		}
 
 		if (isset($datarray['obj']) && $datarray['obj']) {
 			$datarray['obj']['id'] = $mid;
@@ -960,7 +954,7 @@ class Item extends Controller {
 		$datarray['public_policy']       = $public_policy;
 		$datarray['comment_policy']      = map_scope($comment_policy);
 		$datarray['term']                = array_unique($post_tags, SORT_REGULAR);
-		$datarray['plink']               = $plink;
+		$datarray['plink']               = $plink ?? $mid;
 		$datarray['route']               = $route;
 
 		// A specific ACL over-rides public_policy completely

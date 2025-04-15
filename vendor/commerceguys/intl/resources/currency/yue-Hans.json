@@ -356,7 +356,7 @@
 	"SHP": {
 		"name": "圣赫勒拿镑"
 	},
-	"SLL": {
+	"SLE": {
 		"name": "狮子山利昂"
 	},
 	"SZL": {
@@ -486,14 +486,5 @@
 	},
 	"CLP": {
 		"name": "智利披索"
-	},
-	"VED": {
-		"name": "Bolívar Soberano"
-	},
-	"SLE": {
-		"name": "Sierra Leonean Leone"
-	},
-	"UYW": {
-		"name": "Uruguayan Nominal Wage Index Unit"
 	}
 }

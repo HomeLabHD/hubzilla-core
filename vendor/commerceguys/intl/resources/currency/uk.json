@@ -240,7 +240,7 @@
 	"LAK": {
 		"name": "лаоський кіп"
 	},
-	"SLL": {
+	"SLE": {
 		"name": "леоне Сьєрра-Леоне"
 	},
 	"LSL": {
@@ -471,14 +471,5 @@
 	"JPY": {
 		"name": "японська єна",
 		"symbol": "¥"
-	},
-	"VED": {
-		"name": "Bolívar Soberano"
-	},
-	"SLE": {
-		"name": "Sierra Leonean Leone"
-	},
-	"UYW": {
-		"name": "Uruguayan Nominal Wage Index Unit"
 	}
 }

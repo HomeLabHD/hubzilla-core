@@ -52,9 +52,6 @@
 	"BTN": {
 		"name": "bhutansk ngultrum"
 	},
-	"VED": {
-		"name": "Bolívar Soberano"
-	},
 	"BOB": {
 		"name": "boliviansk boliviano"
 	},
@@ -390,9 +387,6 @@
 		"name": "seychellisk rupee"
 	},
 	"SLE": {
-		"name": "Sierra Leonean Leone"
-	},
-	"SLL": {
 		"name": "sierraleonsk leone"
 	},
 	"SGD": {
@@ -465,9 +459,6 @@
 	},
 	"HUF": {
 		"name": "ungarsk forint"
-	},
-	"UYW": {
-		"name": "Uruguayan Nominal Wage Index Unit"
 	},
 	"UYU": {
 		"name": "uruguayansk peso"

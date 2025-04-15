@@ -165,7 +165,7 @@ class Activity {
 		}
 		else {
 			logger('fetch failed: ' . $url);
-			logger($x['body']);
+			logger(print_r($x, true), LOGGER_DEBUG);
 		}
 
 
@@ -695,7 +695,7 @@ class Activity {
 				if (is_array($t) && !array_key_exists('type', $t))
 					$t['type'] = 'Hashtag';
 
-				if (is_array($t) && (array_key_exists('href', $t) || array_key_exists('id', $t)) && array_key_exists('name', $t)) {
+				if (is_array($t) && (array_key_exists('href', $t) || array_key_exists('id', $t) || isset($t['icon']['url'])) && array_key_exists('name', $t)) {
 					switch ($t['type']) {
 						case 'Hashtag':
 							$ret[] = ['ttype' => TERM_HASHTAG, 'url' => $t['href'], 'term' => escape_tags((substr($t['name'], 0, 1) === '#') ? substr($t['name'], 1) : $t['name'])];
@@ -710,7 +710,7 @@ class Activity {
 							break;
 
 						case 'Emoji':
-							$ret[] = ['ttype' => TERM_EMOJI, 'url' => $t['id'], 'term' => escape_tags($t['name']), 'imgurl' => $t['icon']['url']];
+							$ret[] = ['ttype' => TERM_EMOJI, 'url' => $t['id'] ?? $t['icon']['url'], 'term' => escape_tags($t['name']), 'imgurl' => $t['icon']['url']];
 							break;
 
 						default:
@@ -1073,12 +1073,10 @@ class Activity {
 				return [];
 		}
 
-/* this should not be needed
 		$t = self::encode_taxonomy($i);
 		if ($t) {
 			$ret['tag'] = $t;
 		}
-*/
 
 		$a = self::encode_attachment($i, true);
 		if ($a) {
@@ -2119,34 +2117,24 @@ class Activity {
 		$s['owner_xchan']  = $act->actor['id'];
 		$s['author_xchan'] = $act->actor['id'];
 
-		$content = [];
-
-		if (is_array($act->obj)) {
-			$content = self::get_content($act->obj);
-		}
-
-		$s['mid'] = $act->objprop('id');
-
-		if (!$s['mid'] && is_string($act->obj)) {
-			$s['mid'] = $act->obj;
-		}
-
-		// pleroma fetched activities
-		if (!$s['mid'] && isset($act->obj['data']['id'])) {
-			$s['mid'] = $act->obj['data']['id'];
-		}
-
-		if ($act->objprop('type') === 'Profile') {
-			$s['mid'] = $act->id;
-		}
+		$s['mid'] = self::getMessageID($act);
 
 		if (!$s['mid']) {
 			return false;
 		}
 
-		// Friendica sends the diaspora guid in a nonstandard field via AP
-		// If no uuid is provided we will create an uuid v5 from the mid
-		$s['uuid'] = (($act->objprop('diaspora:guid')) ?: uuid_from_url($s['mid']));
+		$s['uuid'] = self::getUUID($act);
+
+		if (!$s['uuid']) {
+			// If we have not found anything useful, create an uuid v5 from the mid
+			$s['uuid'] = uuid_from_url($s['mid']);
+		}
+
+		$content = [];
+
+		if (is_array($act->obj)) {
+			$content = self::get_content($act->obj);
+		}
 
 		$s['parent_mid'] = $act->parent_id;
 
@@ -2186,23 +2174,8 @@ class Activity {
 
 			$response_activity = true;
 
-			$s['mid'] = $act->id;
-			$s['uuid'] = ((!empty($act->data['diaspora:guid'])) ? $act->data['diaspora:guid'] : uuid_from_url($s['mid']));
-
 			$s['parent_mid'] = $act->objprop('id') ?: $act->obj;
 
-/*
-			if ($act->objprop('inReplyTo')) {
-				$s['parent_mid'] = $act->objprop('inReplyTo');
-			}
-
-			$s['thr_parent'] = $act->objprop('id') ?: $act->obj;
-
-			if (empty($s['parent_mid']) || empty($s['thr_parent'])) {
-				logger('response activity without parent_mid or thr_parent');
-				return;
-			}
-*/
 			// over-ride the object timestamp with the activity
 
 			if (isset($act->data['published'])) {
@@ -2213,9 +2186,9 @@ class Activity {
 				$s['edited'] = datetime_convert('UTC', 'UTC', $act->data['updated']);
 			}
 
-			$obj_actor = $act->objprop('actor') ?: $act->get_actor('attributedTo', $act->obj);
+			$obj_actor = is_array($act->objprop('actor')) ? $act->objprop('actor') : $act->get_actor('attributedTo', $act->obj);
 
-			if (!isset($obj_actor['id'])) {
+			if (empty($obj_actor['id'])) {
 				return false;
 			}
 
@@ -2252,6 +2225,7 @@ class Activity {
 			}
 
 			if (in_array($act->type, ['EmojiReact'])) {
+
 				// Pleroma reactions
 				$t = trim(self::get_textfield($act->data, 'content'));
 
@@ -2304,6 +2278,11 @@ class Activity {
 		$s['title']   = (($response_activity) ? EMPTY_STR : self::bb_content($content, 'name'));
 		$s['summary'] = self::bb_content($content, 'summary');
 		$s['body']    = ((self::bb_content($content, 'bbcode') && (!$response_activity)) ? self::bb_content($content, 'bbcode') : self::bb_content($content, 'content'));
+
+		// peertube quirks
+		if ($act->objprop('mediaType') === 'text/markdown') {
+			$s['body'] = markdown_to_bb($act->objprop('content'));
+		}
 
 		if ($act->objprop('quoteUrl')) {
 			$quote_bbcode = self::get_quote_bbcode($act->obj['quoteUrl']);
@@ -2436,7 +2415,8 @@ class Activity {
 					}
 				}
 
-				$tag = (($poster) ? '[video poster=&quot;' . $poster . '&quot;]' : '[video]' );
+				$tag = (($poster) ? '[video poster=\'' . $poster . '\']' : '[video]' );
+
 				$ptr = null;
 
 				if ($act->objprop('url')) {
@@ -2995,7 +2975,7 @@ class Activity {
 				}
 			}
 		}
-
+/*
 		if (isset($item['term']) && !PConfig::Get($channel['channel_id'], 'system', 'no_smilies')) {
 			foreach ($item['term'] as $t) {
 				if ($t['ttype'] === TERM_EMOJI) {
@@ -3009,6 +2989,7 @@ class Activity {
 				}
 			}
 		}
+*/
 
 		// TODO: not implemented
 		// self::rewrite_mentions($item);
@@ -3836,6 +3817,41 @@ class Activity {
 		$result = post_activity_item($item->toArray(), deliver: $deliver, channel: $channel, observer: $channel, addAndSync: false);
 		logger('removeFromCollection: ' . print_r($result, true));
 		return $result;
+	}
+
+
+	/**
+	 * @brief Retrieves message ID from activity object.
+	 * @param object $act Activity object
+	 * @return string Message ID or empty string if not found
+	 */
+	public static function getMessageID($act): string
+	{
+		if (ActivityStreams::is_response_activity($act->type) || $act->objprop('type') === 'Profile') {
+			return $act->id;
+		}
+
+		return $act->objprop('id', null)
+			?? (is_string($act->obj) ? $act->obj : null)
+			?? '';
+	}
+
+	/**
+	 * @brief Retrieves the UUID from an activity object.
+	 * @param object $act Activity object
+	 * @return string UUID or empty string if not found
+	 */
+	public static function getUUID($act): string
+	{
+		if (ActivityStreams::is_response_activity($act->type)) {
+			return $act->data['uuid']
+				?? $act->data['diaspora:guid']
+				?? '';
+		}
+
+		return $act->objprop('uuid', null)
+			?? $act->objprop('diaspora:guid', null)
+			?? '';
 	}
 
 }

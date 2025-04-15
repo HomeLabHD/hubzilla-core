@@ -323,7 +323,13 @@ class Notifier {
 				self::$encoded_item = json_decode($m, true);
 			}
 			else {
-				self::$encoded_item = Activity::build_packet(Activity::encode_activity($target_item), self::$channel, false);
+				$activity = Activity::encode_activity($target_item);
+
+				if (!$activity) {
+					return;
+				}
+
+				self::$encoded_item = Activity::build_packet($activity, self::$channel, false);
 			}
 
 			logger('target_item: ' . print_r($target_item, true), LOGGER_DEBUG);
@@ -339,6 +345,10 @@ class Notifier {
 			// the hostname in the message_id and provides a second (fallback) opinion.
 
 			$relay_to_owner = (!$top_level_post && intval($target_item['item_origin']) && comment_local_origin($target_item));
+
+			if (self::$channel['channel_hash'] === $target_item['owner_xchan']) {
+				$relay_to_owner = false;
+			}
 
 			// $cmd === 'relay' indicates the owner is sending it to the original recipients
 			// don't allow the item in the relay command to relay to owner under any circumstances, it will loop

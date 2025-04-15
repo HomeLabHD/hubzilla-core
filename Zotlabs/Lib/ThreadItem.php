@@ -803,7 +803,7 @@ class ThreadItem {
 			'$eduline' => t('Underline'),
 			'$edquote' => t('Quote'),
 			'$edcode' => t('Code'),
-			'$edimg' => t('Image'),
+			'$edimg' => t('Embed (existing) photo from your photo albums'),
 			'$edatt' => t('Attach/Upload file'),
 			'$edurl' => t('Insert Link'),
 			'$edvideo' => t('Video'),

@@ -57,9 +57,6 @@
 	"BGN": {
 		"name": "bolgarski lev"
 	},
-	"VED": {
-		"name": "Bolívar Soberano"
-	},
 	"BOB": {
 		"name": "bolivijski boliviano"
 	},
@@ -80,14 +77,6 @@
 	},
 	"BTN": {
 		"name": "butanski ngultrum"
-	},
-	"XAF": {
-		"name": "CFA frank BEAC",
-		"symbol": "FCFA"
-	},
-	"XPF": {
-		"name": "CFP frank",
-		"symbol": "CFPF"
 	},
 	"CZK": {
 		"name": "češka krona"
@@ -131,6 +120,10 @@
 	},
 	"PHP": {
 		"name": "filipinski peso"
+	},
+	"XPF": {
+		"name": "frank CFP",
+		"symbol": "CFPF"
 	},
 	"SHP": {
 		"name": "funt Sv. Helene"
@@ -390,11 +383,8 @@
 	"KPW": {
 		"name": "severnokorejski von"
 	},
-	"SLL": {
-		"name": "sieraleonski leone"
-	},
 	"SLE": {
-		"name": "Sierra Leonean Leone"
+		"name": "sieraleonski leone"
 	},
 	"SGD": {
 		"name": "singapurski dolar"
@@ -410,6 +400,10 @@
 	},
 	"RSD": {
 		"name": "srbski dinar"
+	},
+	"XAF": {
+		"name": "srednjeafriški frank CFA",
+		"symbol": "FCFA"
 	},
 	"SDG": {
 		"name": "sudanski funt"
@@ -452,9 +446,6 @@
 	},
 	"UAH": {
 		"name": "ukrajinska grivna"
-	},
-	"UYW": {
-		"name": "Uruguayan Nominal Wage Index Unit"
 	},
 	"UYU": {
 		"name": "urugvajski peso"

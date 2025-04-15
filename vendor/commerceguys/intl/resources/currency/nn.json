@@ -21,7 +21,7 @@
 		"name": "armenske dram"
 	},
 	"AWG": {
-		"name": "arubiske floriner"
+		"name": "arubiske florinar"
 	},
 	"AZN": {
 		"name": "aserbajdsjanske manat"
@@ -52,9 +52,6 @@
 	},
 	"BTN": {
 		"name": "bhutanske ngultrum"
-	},
-	"VED": {
-		"name": "Bolívar Soberano"
 	},
 	"BOB": {
 		"name": "bolivianske boliviano"
@@ -160,7 +157,7 @@
 		"name": "indiske rupiar"
 	},
 	"IDR": {
-		"name": "indonesiske rupiar"
+		"name": "indonesiske rupiahar"
 	},
 	"IQD": {
 		"name": "irakiske dinarar"
@@ -304,11 +301,11 @@
 		"name": "norske kroner",
 		"symbol": "kr"
 	},
+	"BYN": {
+		"name": "nye belarusiske rublar"
+	},
 	"ILS": {
 		"name": "nye israelske sheklar"
-	},
-	"BYN": {
-		"name": "nye kviterussiske rublar"
 	},
 	"TWD": {
 		"name": "nye taiwanske dollar"
@@ -377,10 +374,7 @@
 		"name": "seychelliske rupiar"
 	},
 	"SLE": {
-		"name": "Sierra Leonean Leone"
-	},
-	"SLL": {
-		"name": "sierraleonske leone"
+		"name": "sierraleonske leonar"
 	},
 	"SGD": {
 		"name": "singaporske dollar"
@@ -440,7 +434,7 @@
 		"name": "turkmenske manat"
 	},
 	"TRY": {
-		"name": "tyrkiske lire"
+		"name": "tyrkiske lira"
 	},
 	"UGX": {
 		"name": "ugandiske shilling"
@@ -450,9 +444,6 @@
 	},
 	"HUF": {
 		"name": "ungarske forintar"
-	},
-	"UYW": {
-		"name": "Uruguayan Nominal Wage Index Unit"
 	},
 	"UYU": {
 		"name": "uruguayanske pesos"

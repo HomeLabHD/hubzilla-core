@@ -1169,10 +1169,6 @@ class Libzot {
 				$raw_activity = $AS->data;
 
 				$AS = new ActivityStreams($raw_activity['object'], portable_id: $env['sender']);
-
-				// Store the original activity id and type for later usage
-				$AS->meta['original_id'] = $original_id;
-				$AS->meta['original_type'] = $original_type;
 			}
 
 			if (is_array($AS->obj)) {
@@ -1853,19 +1849,12 @@ class Libzot {
 				dbesc($arr['author_xchan'])
 			);
 
-			// If we import an add/remove activity ($is_collection_operation) we strip off the
-			// add/remove part and only process the object.
-			// When looking up the item to pass it to the notifier for relay, we need to look up
-			// the original (stripped off) message id which we stored in $act->meta.
-
-			$sql_mid = (($is_collection_operation && $relay && $channel['channel_hash'] === $arr['owner_xchan']) ? $act->meta['original_id'] : $arr['mid']);
-
 			// Reactions such as like and dislike could	have an	mid with /activity/ in it.
 			// Check for both forms in order to prevent duplicates.
 
 			$r = q("select * from item where mid in ('%s', '%s') and uid = %d limit 1",
-				dbesc($sql_mid),
-				dbesc(reverse_activity_mid($sql_mid)),
+				dbesc($arr['mid']),
+				dbesc(reverse_activity_mid($arr['mid'])),
 				intval($channel['channel_id'])
 			);
 

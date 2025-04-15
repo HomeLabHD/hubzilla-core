@@ -1272,23 +1272,37 @@ function sslify($s) {
 function get_emojis() {
 	$emojis = [
 		// Reactions (emojitwo emojis)
-		'astonished_face' => ['shortname' => ':astonished_face:', 'filepath' => 'images/emoji/astonished_face.png'],
-		'bottle_with_popping_cork' => ['shortname' => ':bottle_with_popping_cork:', 'filepath' => 'images/emoji/bottle_with_popping_cork.png'],
-		'clapping_hands' => ['shortname' => ':clapping_hands:', 'filepath' => 'images/emoji/clapping_hands.png'],
-		'disappointed_face' => ['shortname' => ':disappointed_face:', 'filepath' => 'images/emoji/disappointed_face.png'],
-		'grinning_face' => ['shortname' => ':grinning_face:', 'filepath' => 'images/emoji/grinning_face.png'],
-		'kiss_mark' => ['shortname' => ':kiss_mark:', 'filepath' => 'images/emoji/kiss_mark.png'],
-		'red_heart' => ['shortname' => ':red_heart:', 'filepath' => 'images/emoji/red_heart.png'],
-		'sleeping_face' => ['shortname' => ':sleeping_face:', 'filepath' => 'images/emoji/sleeping_face.png'],
-		'slightly_smiling_face' => ['shortname' => ':slightly_smiling_face:', 'filepath' => 'images/emoji/slightly_smiling_face.png'],
-		'smiling_face_with_halo' => ['shortname' => ':smiling_face_with_halo:', 'filepath' => 'images/emoji/smiling_face_with_halo.png'],
-		'smiling_face_with_horns' => ['shortname' => ':smiling_face_with_horns:', 'filepath' => 'images/emoji/smiling_face_with_horns.png'],
-		'winking_face_with_tongue' => ['shortname' => ':winking_face_with_tongue:', 'filepath' => 'images/emoji/winking_face_with_tongue.png'],
+		'astonished_face' => ['shortname' => ':astonished_face:', 'filepath' => 'images/emoji/emojitwo/astonished_face.png'],
+		'bottle_with_popping_cork' => ['shortname' => ':bottle_with_popping_cork:', 'filepath' => 'images/emoji/emojitwo/bottle_with_popping_cork.png'],
+		'clapping_hands' => ['shortname' => ':clapping_hands:', 'filepath' => 'images/emoji/emojitwo/clapping_hands.png'],
+		'disappointed_face' => ['shortname' => ':disappointed_face:', 'filepath' => 'images/emoji/emojitwo/disappointed_face.png'],
+		'grinning_face' => ['shortname' => ':grinning_face:', 'filepath' => 'images/emoji/emojitwo/grinning_face.png'],
+		'kiss_mark' => ['shortname' => ':kiss_mark:', 'filepath' => 'images/emoji/emojitwo/kiss_mark.png'],
+		'red_heart' => ['shortname' => ':red_heart:', 'filepath' => 'images/emoji/emojitwo/red_heart.png'],
+		'sleeping_face' => ['shortname' => ':sleeping_face:', 'filepath' => 'images/emoji/emojitwo/sleeping_face.png'],
+		'slightly_smiling_face' => ['shortname' => ':slightly_smiling_face:', 'filepath' => 'images/emoji/emojitwo/slightly_smiling_face.png'],
+		'smiling_face_with_halo' => ['shortname' => ':smiling_face_with_halo:', 'filepath' => 'images/emoji/emojitwo/smiling_face_with_halo.png'],
+		'smiling_face_with_horns' => ['shortname' => ':smiling_face_with_horns:', 'filepath' => 'images/emoji/emojitwo/smiling_face_with_horns.png'],
+		'winking_face_with_tongue' => ['shortname' => ':winking_face_with_tongue:', 'filepath' => 'images/emoji/emojitwo/winking_face_with_tongue.png'],
 
-		'facepalm' => ['shortname' => ':facepalm:', 'filepath' => 'images/emoticons/smiley-facepalm.gif']
+		// Hubzilla custom
+		'facepalm' => ['shortname' => ':facepalm:', 'filepath' => 'images/emoji/hubzilla/smiley-facepalm.gif'],
+		'hubzilla' => ['shortname' => ':hubzilla:', 'filepath' => 'images/emoji/hubzilla/hubzilla.png']
 	];
 
+	// Provided by addon
 	call_hooks('get_emojis', $emojis);
+
+	// Custom site emojis
+	$custom_json_path = 'images/emoji/custom/custom_emojis.json';
+	if (file_exists($custom_json_path)) {
+		$custom_json = file_get_contents($custom_json_path);
+		$custom_arr = json_decode($custom_json, true);
+
+		if ($custom_arr) {
+			$emojis = array_merge($emojis, $custom_arr);
+		}
+	}
 
 	return $emojis;
 }
@@ -1406,27 +1420,36 @@ function list_smilies($default_only = false) {
  * @param boolean $sample (optional) default false
  * @return string
  */
-function smilies($s, $sample = false) {
-
+function smilies($s, $sample = false, $terms = []) {
 	if(intval(Config::Get('system', 'no_smilies'))
 		|| (local_channel() && intval(get_pconfig(local_channel(), 'system', 'no_smilies'))))
 		return $s;
-
 
 	$s = preg_replace_callback('{<(pre|code)>.*?</\1>}ism', 'smile_shield', $s);
 	$s = preg_replace_callback('/<[a-z]+ .*?>/ism', 'smile_shield', $s);
 
 	if (preg_match_all('/(\:(\w|\+|\-)+\:)(?=|[\!\.\?]|$)/', $s, $match)) {
+
 		// emoji shortcodes
 		$emojis = get_emojis();
 		foreach ($match[0] as $mtch) {
 			$name = trim($mtch, ':');
+			$emoji = $emojis[$name] ?? [];
 
-			if (!isset($emojis[$name])) {
-				continue;
+			if (!$emoji && !empty($terms)) {
+				foreach($terms as $term) {
+					// some platforms provide the term without :
+					$term['term'] = ':' . trim($term['term'], ':') . ':';
+					if (intval($term['ttype']) === TERM_EMOJI && $term['term'] === $mtch) {
+						$emoji['filepath'] = $term['imgurl'];
+						$emoji['shortname'] = $term['term'];
+					}
+				}
 			}
 
-			$emoji = $emojis[$name];
+			if (!$emoji) {
+				continue;
+			}
 
 			$class = 'emoji';
 			if (is_solo_string($mtch, $s)) {
@@ -1793,7 +1816,7 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 			$s .= prepare_text('[summary]' . $item['summary'] . '[/summary]' . $item['body'],$item['mimetype'],$opts);
 		}
 		else {
-			$s .= prepare_text($item['body'],$item['mimetype'], $opts);
+			$s .= prepare_text($item['body'],$item['mimetype'], $opts, $item['term'] ?? []);
 		}
 	}
 
@@ -2039,8 +2062,7 @@ function format_poll($item,$s,$opts) {
  * @return string
  *  The parsed $text as prepared HTML.
  */
-function prepare_text($text, $content_type = 'text/bbcode', $opts = false) {
-
+function prepare_text($text, $content_type = 'text/bbcode', $opts = false, $terms = []) {
 	switch($content_type) {
 		case 'text/plain':
 			$s = escape_tags($text);
@@ -2086,7 +2108,7 @@ function prepare_text($text, $content_type = 'text/bbcode', $opts = false) {
 					$s = bbcode($text, ((is_array($opts)) ? $opts : [] ));
 				}
 				else {
-					$s = smilies(bbcode($text, ((is_array($opts)) ? $opts : [] )));
+					$s = smilies(bbcode($text, ((is_array($opts)) ? $opts : [] )), terms: $terms);
 				}
 			}
 
