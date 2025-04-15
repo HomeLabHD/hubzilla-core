@@ -561,7 +561,6 @@ class Photos extends \Zotlabs\Web\Controller {
 		$like = null;
 		$dislike = null;
 
-
 		$owner_uid = \App::$data['channel']['channel_id'];
 		$owner_aid = \App::$data['channel']['channel_account_id'];
 
@@ -1104,9 +1103,6 @@ class Photos extends \Zotlabs\Web\Controller {
 
 				$alike = array();
 				$dlike = array();
-
-				$like = '';
-				$dislike = '';
 
 				$conv_responses = array(
 					'like' => array('title' => t('Likes','title')),'dislike' => array('title' => t('Dislikes','title')),
