@@ -308,10 +308,19 @@ function install_run_selfhost {
         # https://carol.selfhost.de/update?username=123456&password=supersafe
         #
         # the prefered way
-        wget --output-document=$selfhostdir/$selfhostscript https://jonaspasche.de/selfhost-updater
-        echo "router" > $selfhostdir/device
-        echo "$selfhost_user" > $selfhostdir/user
-        echo "$selfhost_pass" > $selfhostdir/pass
+        if [ ! -f $selfhostdir/$selfhostscript ]
+        then
+            wget --output-document=$selfhostdir/$selfhostscript https://jonaspasche.de/selfhost-updater
+            if [ ! -s $selfhostdir/$selfhostscript ]
+            then
+                die "Failed to download selfHOST file for dynDNS"
+            fi
+            echo "router" > $selfhostdir/device
+            echo "$selfhost_user" > $selfhostdir/user
+            echo "$selfhost_pass" > $selfhostdir/pass
+            print_info "Wrote file to update dynamic IP. File: $selfhostdir/$selfhostscript"
+        fi
+        print_info "executing $selfhostdir/$selfhostscript update..."
         bash $selfhostdir/$selfhostscript update
     fi
 }
