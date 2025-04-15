@@ -557,6 +557,9 @@ class Photos extends \Zotlabs\Web\Controller {
 
 		$can_post       = false;
 		$visitor        = 0;
+		$link_item = null;
+		$like = null;
+		$dislike = null;
 
 
 		$owner_uid = \App::$data['channel']['channel_id'];
@@ -963,7 +966,6 @@ class Photos extends \Zotlabs\Web\Controller {
 			);
 
 			$map = null;
-			$link_item = null;
 
 			if($linked_items) {
 				xchan_query($linked_items);
