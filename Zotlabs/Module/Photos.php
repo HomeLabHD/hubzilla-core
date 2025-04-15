@@ -963,6 +963,7 @@ class Photos extends \Zotlabs\Web\Controller {
 			);
 
 			$map = null;
+			$link_item = null;
 
 			if($linked_items) {
 				xchan_query($linked_items);
