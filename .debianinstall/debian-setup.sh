@@ -160,8 +160,8 @@ function install_composer {
     print_info "We check if Composer is already downloaded"
     if [ ! -f /usr/local/bin/composer ]
     then
-        EXPECTED_CHECKSUM="$(php -r 'copy("https://composer.github.io/installer.sig", "php://stdout");')"
-        php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+        EXPECTED_CHECKSUM="`wget -qO- https://composer.github.io/installer.sig`"
+        wget https://getcomposer.org/installer -O composer-setup.php
         ACTUAL_CHECKSUM="$(php -r "echo hash_file('sha384', 'composer-setup.php');")"
         if [ "$EXPECTED_CHECKSUM" != "$ACTUAL_CHECKSUM" ]
         then
@@ -171,6 +171,7 @@ function install_composer {
         fi
         php composer-setup.php --quiet
         RESULT=$?
+        composer --version
         rm composer-setup.php
         # exit $RESULT
         # We install Composer globally
@@ -181,7 +182,7 @@ function install_composer {
     fi
     cd $install_path
     export COMPOSER_ALLOW_SUPERUSER=1;
-    /usr/local/bin/composer install --no-dev
+    /usr/local/bin/composer install --no-dev --quiet
     /usr/local/bin/composer show
     export COMPOSER_ALLOW_SUPERUSER=0;
 }
