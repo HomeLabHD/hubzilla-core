@@ -876,7 +876,7 @@ CREATE TABLE IF NOT EXISTS `photo` (
   `title` char(191) NOT NULL DEFAULT '',
   `description` text NOT NULL,
   `album` char(191) NOT NULL DEFAULT '',
-  `filename` char(191) NOT NULL DEFAULT '',
+  `filename` text NOT NULL,
   `mimetype` char(128) NOT NULL DEFAULT 'image/jpeg',
   `height` smallint(6) NOT NULL DEFAULT 0 ,
   `width` smallint(6) NOT NULL DEFAULT 0 ,
