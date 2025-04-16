@@ -1217,7 +1217,7 @@ class Photos extends \Zotlabs\Web\Controller {
 			$paginate = paginate();
 			$responses = [];
 
-			if ($linkitem) {
+			if ($link_item) {
 				$response_verbs = ['like'];
 
 				if(feature_enabled($owner_uid,'dislike')) {
