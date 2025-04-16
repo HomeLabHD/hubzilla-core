@@ -10,7 +10,7 @@ class Wall_attach extends \Zotlabs\Web\Controller {
 
 	function init() {
 		logger('request_method: ' . $_SERVER['REQUEST_METHOD'],LOGGER_DATA,LOG_INFO);
-		logger('wall_attach: ' . print_r($_REQUEST,true),LOGGER_DEBUG,LOG_INFO);
+		logger('wall_attach: ' . print_r($_POST,true),LOGGER_DEBUG,LOG_INFO);
 		logger('wall_attach files: ' . print_r($_FILES,true),LOGGER_DEBUG,LOG_INFO);
 		// for testing without actually storing anything
 		//		http_status_exit(200,'OK');
@@ -23,7 +23,7 @@ class Wall_attach extends \Zotlabs\Web\Controller {
 
 		$result = [];
 
-		if($_REQUEST['api_source'] && array_key_exists('media',$_FILES)) {
+		if($_POST['api_source'] && array_key_exists('media',$_FILES)) {
 			$using_api = true;
 		}
 
