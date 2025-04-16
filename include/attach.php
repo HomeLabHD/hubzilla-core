@@ -796,6 +796,12 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 		}
 	}
 
+	if (strlen($filename) > MAX_FILENAME_LENGTH) {
+		logger('filename too long');
+		$ret['message'] = t('Filename too long');
+		return $ret;
+	}
+
 	if(! $hash)
 		$hash = new_uuid();
 
@@ -1182,6 +1188,12 @@ function attach_mkdir($channel, $observer_hash, $arr = null) {
 
 	if(isset($arr['filename']) && !strlen($arr['filename'])) {
 		$ret['message'] = t('Empty pathname');
+		return $ret;
+	}
+
+	if(strlen($arr['filename']) > MAX_FOLDER_LENGTH) {
+		logger('pathname too long');
+		$ret['message'] = t('Pathname too long');
 		return $ret;
 	}
 
@@ -2589,6 +2601,11 @@ function attach_move($channel_id, $resource_id, $new_folder_hash, $newname = '',
 		}
 	}
 
+	if (strlen($filename) > MAX_FILENAME_LENGTH) {
+		logger('filename too long');
+		$ret['message'] = t('Filename too long');
+		return $ret;
+	}
 
 	q("update attach set content = '%s', folder = '%s', filename = '%s', edited = '%s' where id = %d",
 		dbescbin($newstorepath),

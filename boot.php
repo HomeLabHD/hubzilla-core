@@ -175,6 +175,13 @@ if (!defined('STORAGE_DEFAULT_PERMISSIONS')) {
  */
 define('MAX_IMAGE_LENGTH', -1);
 
+/**
+ * Those are the current limits we can store in the DB
+ */
+
+define('MAX_FILENAME_LENGTH', 191);
+define('MAX_FOLDER_LENGTH', 64);
+
 
 /**
  * log levels

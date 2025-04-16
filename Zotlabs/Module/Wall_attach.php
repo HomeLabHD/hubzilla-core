@@ -98,8 +98,8 @@ class Wall_attach extends \Zotlabs\Web\Controller {
 
 		$r = attach_store($channel, get_observer_hash(), '', $data);
 
-		if(! $r['success']) {
-			notice( $r['message'] . EOL);
+		if (!$r['success']) {
+			notice($r['message'] . EOL);
 			killme();
 		}
 

@@ -16,9 +16,9 @@ class File_upload extends \Zotlabs\Web\Controller {
 
 		$channel = (($_REQUEST['channick']) ? channelx_by_nick($_REQUEST['channick']) : null);
 
-		if(! $channel) {
+		if (!$channel) {
 			logger('channel not found');
-			killme();
+			is_ajax() ? killme() : goaway(z_root() . '/' . $_REQUEST['return_url']);
 		}
 
 		$_REQUEST['source'] = 'file_upload';
@@ -37,13 +37,16 @@ class File_upload extends \Zotlabs\Web\Controller {
 
 		if(isset($_REQUEST['filename']) && strlen($_REQUEST['filename'])) {
 			$r = attach_mkdir($channel, get_observer_hash(), $_REQUEST);
-			if($r['success']) {
-				$hash = $r['data']['hash'];
-				$sync = attach_export_data($channel,$hash);
-				if($sync) {
-					Libsync::build_sync_packet($channel['channel_id'],array('file' => array($sync)));
-				}
-				goaway(z_root() . '/' . $_REQUEST['return_url']);
+
+			if (!$r['success']) {
+				notice($r['message'] . EOL);
+				is_ajax() ? killme() : goaway(z_root() . '/' . $_REQUEST['return_url']);
+			}
+
+			$hash = $r['data']['hash'];
+			$sync = attach_export_data($channel,$hash);
+			if ($sync) {
+				Libsync::build_sync_packet($channel['channel_id'], ['file' => [$sync]]);
 			}
 		}
 		else {
@@ -90,19 +93,21 @@ class File_upload extends \Zotlabs\Web\Controller {
 				}
 			}
 
-			$r = attach_store($channel, get_observer_hash(), '', $_REQUEST);
-			if($r['success']) {
-				$sync = attach_export_data($channel,$r['data']['hash']);
-				if($sync)
-					Libsync::build_sync_packet($channel['channel_id'],array('file' => array($sync)));
 
+
+			$r = attach_store($channel, get_observer_hash(), '', $_REQUEST);
+			if (!$r['success']) {
+				notice($r['message'] . EOL);
+				is_ajax() ? killme() : goaway(z_root() . '/' . $_REQUEST['return_url']);
+			}
+
+			$sync = attach_export_data($channel,$r['data']['hash']);
+			if ($sync) {
+				Libsync::build_sync_packet($channel['channel_id'], ['file' => [$sync]]);
 			}
 		}
 
-		if(is_ajax())
-			killme();
-
-		goaway(z_root() . '/' . $_REQUEST['return_url']);
+		is_ajax() ? killme() : goaway(z_root() . '/' . $_REQUEST['return_url']);
 
 	}
 
