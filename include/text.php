@@ -1611,7 +1611,7 @@ function theme_attachments(&$item) {
 					$url = z_root() . '/magic?owa=1&bdest=' . bin2hex($r['href']);
 			}
 
-			if (isset($label) && isset($url) && isset($icon) && isset($title)) {
+			if (isset($label, $url, $icon, $title)) {
 				array_unshift($attaches, ['label' => $label, 'url' => $url, 'icon' => $icon, 'title' => $title]);
 			}
 		}
@@ -3232,6 +3232,7 @@ function getIconFromType($type) {
 		'text/markdown' => 'bi-filetype-md',
 		'text/bbcode' => 'bi-file-earmark-text',
 		'text/html' => 'bi-filetype-html',
+		'text/uri-list' => 'bi-box-arrow-up-right',
 		'application/msword' => 'bi-file-earmark-word',
 		'application/pdf' => 'bi-file-earmark-pdf',
 		'application/vnd.oasis.opendocument.text' => 'bifile--earmark-text',
