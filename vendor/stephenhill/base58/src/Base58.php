@@ -29,8 +29,8 @@ class Base58
      * @since v1.1.0 Added the optional $service argument.
      */
     public function __construct(
-        $alphabet = null,
-        ServiceInterface $service = null
+        string|null $alphabet = null,
+        ServiceInterface|null $service = null
     ) {
         // Handle null alphabet
         if (is_null($alphabet) === true) {
