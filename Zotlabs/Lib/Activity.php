@@ -853,6 +853,8 @@ class Activity {
 					$entry['type'] = $att['mediaType'];
 				} elseif (array_key_exists('type', $att) && $att['type'] === 'Image') {
 					$entry['type'] = 'image/jpeg';
+				} elseif (array_key_exists('type', $att) && $att['type'] === 'Link') {
+					$entry['type'] = 'text/uri-list';
 				}
 				if (array_key_exists('name', $att) && $att['name']) {
 					$entry['name'] = html2plain(purify_html($att['name']), 256);
@@ -3833,7 +3835,6 @@ class Activity {
 
 		return $act->objprop('id', null)
 			?? (is_string($act->obj) ? $act->obj : null)
-		//	?? $act->obj['data']['id'] // pleroma fetched like?
 			?? '';
 	}
 

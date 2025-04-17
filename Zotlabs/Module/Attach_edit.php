@@ -133,6 +133,11 @@ class Attach_edit extends Controller {
 				}
 				$x = attach_move($channel_id, $resource, $newfolder, (($single) ? $newfilename : ''));
 
+				if (!$x['success']) {
+					notice($x['message'] . EOL);
+					goaway($return_path);
+				}
+
 				$actions_done .= 'move,';
 
 			}

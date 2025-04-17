@@ -11,39 +11,42 @@ require_once('include/photos.php');
 class File_upload extends \Zotlabs\Web\Controller {
 
 	function post() {
-		logger('file upload: ' . print_r($_REQUEST,true));
+		logger('file upload: ' . print_r($_POST,true));
 		logger('file upload: ' . print_r($_FILES,true));
 
-		$channel = (($_REQUEST['channick']) ? channelx_by_nick($_REQUEST['channick']) : null);
+		$channel = (($_POST['channick']) ? channelx_by_nick($_POST['channick']) : null);
 
-		if(! $channel) {
+		if (!$channel) {
 			logger('channel not found');
-			killme();
+			is_ajax() ? killme() : goaway(z_root() . '/' . $_POST['return_url']);
 		}
 
-		$_REQUEST['source'] = 'file_upload';
+		$_POST['source'] = 'file_upload';
 
 		if($channel['channel_id'] != local_channel()) {
-			$_REQUEST['contact_allow'] = expand_acl($channel['channel_allow_cid']);
-			$_REQUEST['group_allow']   = expand_acl($channel['channel_allow_gid']);
-			$_REQUEST['contact_deny']  = expand_acl($channel['channel_deny_cid']);
-			$_REQUEST['group_deny']    = expand_acl($channel['channel_deny_gid']);
+			$_POST['contact_allow'] = expand_acl($channel['channel_allow_cid']);
+			$_POST['group_allow']   = expand_acl($channel['channel_allow_gid']);
+			$_POST['contact_deny']  = expand_acl($channel['channel_deny_cid']);
+			$_POST['group_deny']    = expand_acl($channel['channel_deny_gid']);
 		}
 
-		$_REQUEST['allow_cid'] = ((isset($_REQUEST['contact_allow'])) ? perms2str($_REQUEST['contact_allow']) : '');
-		$_REQUEST['allow_gid'] = ((isset($_REQUEST['group_allow'])) ? perms2str($_REQUEST['group_allow']) : '');
-		$_REQUEST['deny_cid']  = ((isset($_REQUEST['contact_deny'])) ? perms2str($_REQUEST['contact_deny']) : '');
-		$_REQUEST['deny_gid']  = ((isset($_REQUEST['group_deny'])) ? perms2str($_REQUEST['group_deny']) : '');
+		$_POST['allow_cid'] = ((isset($_POST['contact_allow'])) ? perms2str($_POST['contact_allow']) : '');
+		$_POST['allow_gid'] = ((isset($_POST['group_allow'])) ? perms2str($_POST['group_allow']) : '');
+		$_POST['deny_cid']  = ((isset($_POST['contact_deny'])) ? perms2str($_POST['contact_deny']) : '');
+		$_POST['deny_gid']  = ((isset($_POST['group_deny'])) ? perms2str($_POST['group_deny']) : '');
 
-		if(isset($_REQUEST['filename']) && strlen($_REQUEST['filename'])) {
-			$r = attach_mkdir($channel, get_observer_hash(), $_REQUEST);
-			if($r['success']) {
-				$hash = $r['data']['hash'];
-				$sync = attach_export_data($channel,$hash);
-				if($sync) {
-					Libsync::build_sync_packet($channel['channel_id'],array('file' => array($sync)));
-				}
-				goaway(z_root() . '/' . $_REQUEST['return_url']);
+		if(isset($_POST['filename']) && strlen($_POST['filename'])) {
+			$r = attach_mkdir($channel, get_observer_hash(), $_POST);
+
+			if (!$r['success']) {
+				notice($r['message'] . EOL);
+				is_ajax() ? killme() : goaway(z_root() . '/' . $_POST['return_url']);
+			}
+
+			$hash = $r['data']['hash'];
+			$sync = attach_export_data($channel,$hash);
+			if ($sync) {
+				Libsync::build_sync_packet($channel['channel_id'], ['file' => [$sync]]);
 			}
 		}
 		else {
@@ -90,19 +93,21 @@ class File_upload extends \Zotlabs\Web\Controller {
 				}
 			}
 
-			$r = attach_store($channel, get_observer_hash(), '', $_REQUEST);
-			if($r['success']) {
-				$sync = attach_export_data($channel,$r['data']['hash']);
-				if($sync)
-					Libsync::build_sync_packet($channel['channel_id'],array('file' => array($sync)));
 
+
+			$r = attach_store($channel, get_observer_hash(), '', $_POST);
+			if (!$r['success']) {
+				notice($r['message'] . EOL);
+				is_ajax() ? killme() : goaway(z_root() . '/' . $_POST['return_url']);
+			}
+
+			$sync = attach_export_data($channel,$r['data']['hash']);
+			if ($sync) {
+				Libsync::build_sync_packet($channel['channel_id'], ['file' => [$sync]]);
 			}
 		}
 
-		if(is_ajax())
-			killme();
-
-		goaway(z_root() . '/' . $_REQUEST['return_url']);
+		is_ajax() ? killme() : goaway(z_root() . '/' . $_POST['return_url']);
 
 	}
 
