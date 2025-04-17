@@ -46,7 +46,7 @@ class ActivityTest extends UnitTestCase {
 	 *
 	 * @dataProvider get_mid_and_uuid_provider
 	 */
-	public function test_get_mid_and_uuid(string $payload, $mid, $uuid): void {
+	public function test_get_mid_and_uuid(string $payload, string $mid, string $uuid): void {
 
 
 		//

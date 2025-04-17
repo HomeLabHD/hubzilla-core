@@ -124,9 +124,7 @@ class MessageFilter {
 
 
 	/**
-	 * @brief Test for Conditional Execution conditions. Shamelessly ripped off from Code/Render/Comanche
-	 *
-	 * This is extensible. The first version of variable testing supports tests of the forms:
+	 * Evaluate a conditional expression with support for AND (&&) and OR (||) operators.
 	 *
 	 * - ?foo ~= baz which will check if item.foo contains the string 'baz';
 	 * - ?foo == baz which will check if item.foo is the string 'baz';
@@ -143,103 +141,109 @@ class MessageFilter {
      *
 	 * The values 0, '', an empty array, and an unset value will all evaluate to false.
 	 *
-	 * @param string $s
-	 * @param array $item
-	 * @return bool
+	 * @param  string $s    The condition string to evaluate.
+	 * @param  array  $item The associative array providing variable values.
+	 * @return bool         True if the condition is met, false otherwise.
 	 */
 
-	public static function test_condition($s,$item) {
+	public static function test_condition($s, $item) {
+		$s = trim($s);
 
+		// Handle OR (||)
+		// Split on '||' not inside quotes
+		$or_parts = preg_split('/\s*\|\|\s*/', $s);
+		if (count($or_parts) > 1) {
+			foreach ($or_parts as $part) {
+				if (self::test_condition($part, $item)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		// Handle AND (&&)
+		// Split on '&&' not inside quotes
+		$and_parts = preg_split('/\s*\&\&\s*/', $s);
+		if (count($and_parts) > 1) {
+			foreach ($and_parts as $part) {
+				if (!self::test_condition($part, $item)) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		// Basic checks
+
+		// Contains substring (case-insensitive)
 		if (preg_match('/(.*?)\s\~\=\s(.*?)$/', $s, $matches)) {
-			$x = ((array_key_exists(trim($matches[1]),$item)) ? $item[trim($matches[1])] : EMPTY_STR);
-			if (stripos($x, trim($matches[2])) !== false) {
-				return true;
-			}
-			return false;
+			$x = ((array_key_exists(trim($matches[1]), $item)) ? $item[trim($matches[1])] : EMPTY_STR);
+			return (stripos($x, trim($matches[2])) !== false);
 		}
 
+		// Equality
 		if (preg_match('/(.*?)\s\=\=\s(.*?)$/', $s, $matches)) {
-			$x = ((array_key_exists(trim($matches[1]),$item)) ? $item[trim($matches[1])] : EMPTY_STR);
-			if ($x == trim($matches[2])) {
-				return true;
-			}
-			return false;
+			$x = ((array_key_exists(trim($matches[1]), $item)) ? $item[trim($matches[1])] : EMPTY_STR);
+			return ($x == trim($matches[2]));
 		}
 
+		// Inequality
 		if (preg_match('/(.*?)\s\!\=\s(.*?)$/', $s, $matches)) {
-			$x = ((array_key_exists(trim($matches[1]),$item)) ? $item[trim($matches[1])] : EMPTY_STR);
-			if ($x != trim($matches[2])) {
-				return true;
-			}
-			return false;
+			$x = ((array_key_exists(trim($matches[1]), $item)) ? $item[trim($matches[1])] : EMPTY_STR);
+			return ($x != trim($matches[2]));
 		}
 
+		// Greater than or equal
 		if (preg_match('/(.*?)\s\>\=\s(.*?)$/', $s, $matches)) {
-			$x = ((array_key_exists(trim($matches[1]),$item)) ? $item[trim($matches[1])] : EMPTY_STR);
-			if ($x >= trim($matches[2])) {
-				return true;
-			}
-			return false;
+			$x = ((array_key_exists(trim($matches[1]), $item)) ? $item[trim($matches[1])] : EMPTY_STR);
+			return ($x >= trim($matches[2]));
 		}
 
+		// Less than or equal
 		if (preg_match('/(.*?)\s\<\=\s(.*?)$/', $s, $matches)) {
-			$x = ((array_key_exists(trim($matches[1]),$item)) ? $item[trim($matches[1])] : EMPTY_STR);
-			if ($x <= trim($matches[2])) {
-				return true;
-			}
-			return false;
+			$x = ((array_key_exists(trim($matches[1]), $item)) ? $item[trim($matches[1])] : EMPTY_STR);
+			return ($x <= trim($matches[2]));
 		}
 
+		// Greater than
 		if (preg_match('/(.*?)\s\>\s(.*?)$/', $s, $matches)) {
-			$x = ((array_key_exists(trim($matches[1]),$item)) ? $item[trim($matches[1])] : EMPTY_STR);
-			if ($x > trim($matches[2])) {
-				return true;
-			}
-			return false;
+			$x = ((array_key_exists(trim($matches[1]), $item)) ? $item[trim($matches[1])] : EMPTY_STR);
+			return ($x > trim($matches[2]));
 		}
 
-		if (preg_match('/(.*?)\s\>\s(.*?)$/', $s, $matches)) {
-			$x = ((array_key_exists(trim($matches[1]),$item)) ? $item[trim($matches[1])] : EMPTY_STR);
-			if ($x < trim($matches[2])) {
-				return true;
-			}
-			return false;
+		// Less than
+		if (preg_match('/(.*?)\s\<\s(.*?)$/', $s, $matches)) {
+			$x = ((array_key_exists(trim($matches[1]), $item)) ? $item[trim($matches[1])] : EMPTY_STR);
+			return ($x < trim($matches[2]));
 		}
 
-		if (preg_match('/[\$](.*?)\s\{\}\s(.*?)$/', $s, $matches)) {
-			$x = ((array_key_exists(trim($matches[1]),$item)) ? $item[trim($matches[1])] : EMPTY_STR);
-			if (is_array($x) && in_array(trim($matches[2]), $x)) {
-				return true;
-			}
-			return false;
+		// Array contains value
+		if (preg_match('/(.*?)\s\{\}\s(.*?)$/', $s, $matches)) {
+			$x = ((array_key_exists(trim($matches[1]), $item)) ? $item[trim($matches[1])] : EMPTY_STR);
+			return (is_array($x) && in_array(trim($matches[2]), $x));
 		}
 
+		// Array contains key
 		if (preg_match('/(.*?)\s\{\*\}\s(.*?)$/', $s, $matches)) {
-			$x = ((array_key_exists(trim($matches[1]),$item)) ? $item[trim($matches[1])] : EMPTY_STR);
-			if (is_array($x) && array_key_exists(trim($matches[2]), $x)) {
-				return true;
-			}
-			return false;
+			$x = ((array_key_exists(trim($matches[1]), $item)) ? $item[trim($matches[1])] : EMPTY_STR);
+			return (is_array($x) && array_key_exists(trim($matches[2]), $x));
 		}
 
-		// Ordering of this check (for falsiness) with relation to the following one (check for truthiness) is important.
+		// Falsy check
 		if (preg_match('/\!(.*?)$/', $s, $matches)) {
-			$x = ((array_key_exists(trim($matches[1]),$item)) ? $item[trim($matches[1])] : EMPTY_STR);
-			if (!$x) {
-				return true;
-			}
-			return false;
+			$x = ((array_key_exists(trim($matches[1]), $item)) ? $item[trim($matches[1])] : EMPTY_STR);
+			return !$x;
 		}
 
+		// Truthy check (default)
 		if (preg_match('/(.*?)$/', $s, $matches)) {
-			$x = ((array_key_exists(trim($matches[1]),$item)) ? $item[trim($matches[1])] : EMPTY_STR);
-			if ($x) {
-				return true;
-			}
-			return false;
+			$x = ((array_key_exists(trim($matches[1]), $item)) ? $item[trim($matches[1])] : EMPTY_STR);
+			return (bool)$x;
 		}
 
+		// If no conditions matched, return false
 		return false;
 	}
+
 
 }
