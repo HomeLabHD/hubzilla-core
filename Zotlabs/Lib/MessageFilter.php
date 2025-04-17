@@ -154,7 +154,7 @@ class MessageFilter {
 		$or_parts = preg_split('/\s*\|\|\s*/', $s);
 		if (count($or_parts) > 1) {
 			foreach ($or_parts as $part) {
-				if (self::test_condition($part, $item)) {
+				if (self::test_condition(ltrim($part, '?+'), $item)) {
 					return true;
 				}
 			}
@@ -166,7 +166,7 @@ class MessageFilter {
 		$and_parts = preg_split('/\s*\&\&\s*/', $s);
 		if (count($and_parts) > 1) {
 			foreach ($and_parts as $part) {
-				if (!self::test_condition($part, $item)) {
+				if (!self::test_condition(ltrim($part, '?+'), $item)) {
 					return false;
 				}
 			}
