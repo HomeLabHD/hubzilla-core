@@ -12,12 +12,13 @@ class MessageFilter {
 		$text = html2plain(($item['title']) ? $item['title'] . ' ' . $text : $text);
 
 		$lang = null;
-
 		if ((strpos($incl, 'lang=') !== false) || (strpos($excl, 'lang=') !== false) || (strpos($incl, 'lang!=') !== false) || (strpos($excl, 'lang!=') !== false)) {
 			$lang = detect_language($text);
 		}
 
 		$tags = ((isset($item['term']) && is_array($item['term']) && count($item['term'])) ? $item['term'] : false);
+
+		$until = null;
 
 		// exclude always has priority
 
@@ -41,7 +42,13 @@ class MessageFilter {
 						return false;
 					}
 				}
-                elseif (substr($word, 0, 1) === '#' && $tags) {
+				elseif (str_starts_with($word, 'until=')) {
+					$until = strtotime(trim(substr($word, 6)));
+					if ($until < strtotime($item['created'])) {
+						return false;
+					}
+				}
+				elseif (substr($word, 0, 1) === '#' && $tags) {
 					foreach ($tags as $t) {
 						if ((($t['ttype'] == TERM_HASHTAG) || ($t['ttype'] == TERM_COMMUNITYTAG)) && (($t['term'] === substr($word, 1)) || (substr($word, 1) === '*'))) {
 							return false;
@@ -89,7 +96,13 @@ class MessageFilter {
 						return true;
 					}
 				}
-                elseif (substr($word, 0, 1) === '#' && $tags) {
+				elseif (str_starts_with($word, 'until=')) {
+					$until = strtotime(trim(substr($word, 6)));
+					if ($until < strtotime($item['created'])) {
+						return true;
+					}
+				}
+				elseif (substr($word, 0, 1) === '#' && $tags) {
 					foreach ($tags as $t) {
 						if ((($t['ttype'] == TERM_HASHTAG) || ($t['ttype'] == TERM_COMMUNITYTAG)) && (($t['term'] === substr($word, 1)) || (substr($word, 1) === '*'))) {
 							return true;

@@ -30,7 +30,8 @@ class MessageFilterTest extends UnitTestCase {
 				'sensitive' => false
 			],
 			'item_private' => 0,
-			'item_thread_top' => 1
+			'item_thread_top' => 1,
+			'created' => '2025-04-18 20:50:00'
 		];
 
 		$this->assertEquals($result, MessageFilter::evaluate($item, $incl, $excl));
@@ -72,6 +73,26 @@ class MessageFilterTest extends UnitTestCase {
 				'',
 				'lang=de',
 				true
+			],
+			'until=2025-04-18 20:49:00 in excl' => [
+				'',
+				'until=2025-04-18 20:49:00',
+				false
+			],
+			'until=2025-04-18 20:51:00 in excl' => [
+				'',
+				'until=2025-04-18 20:51:00',
+				true
+			],
+			'until=2025-04-18 20:49:00 in incl' => [
+				'until=2025-04-18 20:49:00',
+				'',
+				true
+			],
+			'until=2025-04-18 20:51:00 in incl' => [
+				'until=2025-04-18 20:51:00',
+				'',
+				false
 			],
 			'hashtag in incl' => [
 				'#grasshopper',
