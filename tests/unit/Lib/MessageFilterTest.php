@@ -77,22 +77,22 @@ class MessageFilterTest extends UnitTestCase {
 			'until=2025-04-18 20:49:00 in excl' => [
 				'',
 				'until=2025-04-18 20:49:00',
-				false
+				true
 			],
 			'until=2025-04-18 20:51:00 in excl' => [
 				'',
 				'until=2025-04-18 20:51:00',
-				true
+				false
 			],
 			'until=2025-04-18 20:49:00 in incl' => [
 				'until=2025-04-18 20:49:00',
 				'',
-				true
+				false
 			],
 			'until=2025-04-18 20:51:00 in incl' => [
 				'until=2025-04-18 20:51:00',
 				'',
-				false
+				true
 			],
 			'hashtag in incl' => [
 				'#grasshopper',
