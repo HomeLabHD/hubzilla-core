@@ -12,6 +12,9 @@ class MessageFilterTest extends UnitTestCase {
 	 * @dataProvider evaluate_provider
 	 */
 	public function test_evaluate(string $incl, string $excl, bool $result) : void {
+		// This is for simpler handling of the timestamps
+		date_default_timezone_set('UTC');
+
 		$item = [
 			'title' => '',
 			'body' => "A grasshopper spent the summer hopping about in the sun and singing to his heart's content. One day, an ant went hurrying by, looking very hot and weary.\r\n#story #grasshopper #ant",

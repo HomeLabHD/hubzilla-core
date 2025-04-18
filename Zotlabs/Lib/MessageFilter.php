@@ -44,7 +44,7 @@ class MessageFilter {
 				}
 				elseif (str_starts_with($word, 'until=')) {
 					$until = strtotime(trim(substr($word, 6)));
-					if ($until > strtotime($item['created'])) {
+					if ($until > strtotime($item['created'] . ' UTC')) {
 						return false;
 					}
 				}
@@ -98,7 +98,7 @@ class MessageFilter {
 				}
 				elseif (str_starts_with($word, 'until=')) {
 					$until = strtotime(trim(substr($word, 6)));
-					if ($until > strtotime($item['created'])) {
+					if ($until > strtotime($item['created'] . ' UTC')) {
 						return true;
 					}
 				}
