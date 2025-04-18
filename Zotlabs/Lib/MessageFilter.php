@@ -229,6 +229,7 @@ class MessageFilter {
 			return (is_array($x) && array_key_exists(trim($matches[2]), $x));
 		}
 
+		// Ordering of this check (for falsiness) with relation to the following one (check for truthiness) is important.
 		// Falsy check
 		if (preg_match('/\!(.*?)$/', $s, $matches)) {
 			$x = ((array_key_exists(trim($matches[1]), $item)) ? $item[trim($matches[1])] : EMPTY_STR);
