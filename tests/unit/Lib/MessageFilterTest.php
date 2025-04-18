@@ -23,7 +23,11 @@ class MessageFilterTest extends UnitTestCase {
 			'verb' => 'Create',
 			'obj_type' => 'Note',
 			'obj' => [
-
+				'type' => 'Note',
+				'attributedTo' => 'https://example.com/users/test',
+				'summary' => null,
+				'content' => "A grasshopper spent the summer hopping about in the sun and singing to his heart's content. One day, an ant went hurrying by, looking very hot and weary.\r\n#story #grasshopper #ant",
+				'sensitive' => false
 			],
 			'item_private' => 0,
 			'item_thread_top' => 1
@@ -43,6 +47,11 @@ class MessageFilterTest extends UnitTestCase {
 				'',
 				'summer',
 				false
+			],
+			'body contains word hopper (starting with a space) in excl using regex' => [
+				'',
+				'/ hopper/',
+				true
 			],
 			'lang=en in incl' => [
 				'lang=en',
@@ -77,6 +86,11 @@ class MessageFilterTest extends UnitTestCase {
 			'any hashtag in excl' => [
 				'',
 				'#*',
+				false
+			],
+			'item.body contains substring hopper in excl' => [
+				'',
+				'?body ~= hopper',
 				false
 			],
 			'item.verb == Announce in excl' => [
@@ -132,6 +146,36 @@ class MessageFilterTest extends UnitTestCase {
 			'item.item_private < 1 and item.item_thread_top = 0 in excl' => [
 				'',
 				"?item_private < 1 && ?item_thread_top == 0",
+				true
+			],
+			'combined item.verb = Create, item.item_private < 1 and item.item_thread_top = 0 in excl' => [
+				'',
+				"?verb == Create\r\n?item_private < 1 && ?item_thread_top == 1",
+				false
+			],
+			'item.obj contains value Note in incl' => [
+				'?obj {} Note',
+				'',
+				true
+			],
+			'item.obj contains key type in incl' => [
+				'?obj {*} type',
+				'',
+				true
+			],
+			'obj.type = Note in incl' => [
+				'?+type == Note',
+				'',
+				true
+			],
+			'obj.sensitive = true in incl' => [
+				'?+sensitive',
+				'',
+				false
+			],
+			'obj.sensitive != false in incl' => [
+				'?+!sensitive',
+				'',
 				true
 			],
 		];
