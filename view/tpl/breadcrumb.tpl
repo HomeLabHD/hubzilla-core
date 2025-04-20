@@ -1,5 +1,5 @@
 <nav aria-label="breadcrumb">
-	<ol class="breadcrumb bg-transparent p-2">
+	<ol class="breadcrumb bg-transparent section-content-wrapper">
 		{{foreach $breadcrumbs as $breadcrumb}}
 		{{if $breadcrumb@last}}
 		<li class="breadcrumb-item active h3 pt-3 pb-3" aria-current="page">{{$breadcrumb.name}}</li>
