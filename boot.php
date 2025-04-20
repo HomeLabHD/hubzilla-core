@@ -887,6 +887,8 @@ class App {
 	 * App constructor.
 	 */
 	public static function init() {
+
+
 		// we'll reset this after we read our config file
 		date_default_timezone_set('UTC');
 
@@ -927,22 +929,14 @@ class App {
 				self::$path = $path;
 		}
 
-		if ((x($_SERVER, 'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'], 0, 2) === "q=") {
-			self::$query_string = str_replace(['<', '>'], ['&lt;', '&gt;'], substr($_SERVER['QUERY_STRING'], 2));
-
-			// removing trailing / - maybe a nginx problem
-			if (substr(self::$query_string, 0, 1) == "/")
-				self::$query_string = substr(self::$query_string, 1);
-
-      // trim trailing '&' if no extra args are present
-      self::$query_string = rtrim(self::$query_string, '&');
-
-			// change the first & to ?
-			self::$query_string = preg_replace('/&/', '?', self::$query_string, 1);
+		if (!empty($_SERVER['REQUEST_URI'])) {
+			self::$query_string = str_replace(['<', '>'], ['&lt;', '&gt;'], $_SERVER['REQUEST_URI']);
+			self::$query_string = ltrim(self::$query_string, '/');
 		}
 
-		if (x($_GET, 'q'))
+		if (!empty($_GET['q'])) {
 			self::$cmd = escape_tags(trim($_GET['q'], '/\\'));
+		}
 
 		// Serve raw files from the file system in certain cases.
 		$filext = pathinfo(self::$cmd, PATHINFO_EXTENSION);
