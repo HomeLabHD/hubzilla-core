@@ -887,8 +887,6 @@ class App {
 	 * App constructor.
 	 */
 	public static function init() {
-
-
 		// we'll reset this after we read our config file
 		date_default_timezone_set('UTC');
 
