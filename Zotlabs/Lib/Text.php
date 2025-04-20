@@ -21,4 +21,13 @@ class Text {
 		return htmlspecialchars($string, ENT_COMPAT, 'UTF-8', false);
 	}
 
+	public static function rawurlencode_parts(string $string): string {
+		if (!$string) {
+			return EMPTY_STR;
+		}
+
+		return implode('/', array_map('rawurlencode', explode('/', $string)));
+	}
+
+
 }

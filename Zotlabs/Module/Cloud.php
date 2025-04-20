@@ -7,6 +7,7 @@ namespace Zotlabs\Module;
  * Module for accessing the DAV storage area.
  */
 
+use App;
 use Sabre\DAV as SDAV;
 use Zotlabs\Web\Controller;
 use Zotlabs\Storage\BasicAuth;
@@ -32,6 +33,15 @@ class Cloud extends Controller {
 	 */
 	function init() {
 
+		// TODO: why is this required?
+		// if we arrived at this path with any query parameters in the url, build a clean url without
+		// them and redirect.
+
+		$parsed = parse_url(App::$query_string);
+		if (!empty($parsed['query'])) {
+			goaway(z_root() . '/' . $parsed['path']);
+		}
+
 		if (! is_dir('store'))
 			os_mkdir('store', STORAGE_DEFAULT_PERMISSIONS, false);
 
@@ -44,15 +54,13 @@ class Cloud extends Controller {
 		if ($which)
 			profile_load( $which, $profile);
 
-
-
 		$auth = new BasicAuth();
 
 		$ob_hash = get_observer_hash();
 
 		if ($ob_hash) {
 			if (local_channel()) {
-				$channel = \App::get_channel();
+				$channel = App::get_channel();
 				$auth->setCurrentUser($channel['channel_address']);
 				$auth->channel_account_id = $channel['channel_account_id'];
 				$auth->channel_id = $channel['channel_id'];
@@ -63,18 +71,11 @@ class Cloud extends Controller {
 			$auth->observer = $ob_hash;
 		}
 
-		// if we arrived at this path with any query parameters in the url, build a clean url without
-		// them and redirect.
-
 		if(! array_key_exists('cloud_sort',$_SESSION)) {
 			$_SESSION['cloud_sort'] = 'name';
 		}
 
 		$_SESSION['cloud_sort'] = ((isset($_REQUEST['sort']) && $_REQUEST['sort']) ? trim(notags($_REQUEST['sort'])) : $_SESSION['cloud_sort']);
-
-		$x = clean_query_string();
-		if($x !== \App::$query_string)
-			goaway(z_root() . '/' . $x);
 
 		$rootDirectory = new Directory('/', [], $auth);
 
@@ -116,16 +117,16 @@ class Cloud extends Controller {
 	function DAVException($err) {
 
 		if($err instanceof \Sabre\DAV\Exception\NotFound) {
-			\App::$page['content'] = '<h2>404 Not found</h2>';
+			App::$page['content'] = '<h2>404 Not found</h2>';
 		}
 		elseif($err instanceof \Sabre\DAV\Exception\Forbidden) {
-			\App::$page['content'] = '<h2>403 Forbidden</h2>';
+			App::$page['content'] = '<h2>403 Forbidden</h2>';
 		}
 		elseif($err instanceof \Sabre\DAV\Exception\NotImplemented) {
-			goaway(z_root() . '/' . \App::$query_string);
+			goaway(z_root() . '/' . App::$query_string);
 		}
 		else {
-			\App::$page['content'] = '<h2>Unknown error</h2>';
+			App::$page['content'] = '<h2>Unknown error</h2>';
 		}
 
 		construct_page();
