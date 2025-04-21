@@ -13,6 +13,7 @@ class IConfig {
 	static public function Get(&$item, $family, $key, $default = false) {
 
 		$is_item = false;
+		$iid = null;
 
 		if(is_array($item)) {
 			$is_item = true;
