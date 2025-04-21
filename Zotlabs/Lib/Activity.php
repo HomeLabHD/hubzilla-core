@@ -13,6 +13,7 @@ use Zotlabs\Entity\Item;
 require_once('include/event.php');
 require_once('include/html2plain.php');
 require_once('include/items.php');
+require_once('include/markdown.php');
 
 class Activity {
 
