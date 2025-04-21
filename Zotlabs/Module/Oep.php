@@ -23,6 +23,7 @@ class Oep extends \Zotlabs\Web\Controller {
 		if(! $url)
 			http_status_exit(404, 'Not found');
 
+		$arr = [];
 		$maxwidth  = $_REQUEST['maxwidth'] ?? 0;
 		$maxheight = $_REQUEST['maxheight'] ?? 0;
 		$format = $_REQUEST['format'] ?? '';
