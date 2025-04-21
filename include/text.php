@@ -1447,7 +1447,7 @@ function smilies($s, $sample = false, $terms = []) {
 				}
 			}
 
-			if (!$emoji) {
+			if (!$emoji || empty($emoji['filepath'])) {
 				continue;
 			}
 
