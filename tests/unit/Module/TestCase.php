@@ -43,6 +43,8 @@ class TestCase extends UnitTestCase {
 		$_SERVER['REQUEST_METHOD'] = $method;
 		$_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
 		$_SERVER['QUERY_STRING'] = "q={$uri}";
+		$_SERVER['REQUEST_URI'] = $uri;
+
 		// phpcs:disable Generic.PHP.DisallowRequestSuperglobal.Found
 		$_REQUEST = array_merge($_GET, $_POST);
 		// phpcs::enable
