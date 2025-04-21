@@ -95,8 +95,8 @@ class Enotify {
 			if (array_key_exists('verb', $params['item'])) {
 				// localize_item() alters the original item so make a copy first
 				$i = $params['item'];
-				logger('calling localize');
-				localize_item($i);
+			//	logger('calling localize');
+			//	localize_item($i);
 				$title = $i['title'];
 				$body = $i['body'];
 				$private = (($i['item_private']) || intval($i['item_obscured']));

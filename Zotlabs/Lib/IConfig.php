@@ -28,12 +28,13 @@ class IConfig {
 		elseif(intval($item))
 			$iid = $item;
 
-		if(! $iid)
+		if (!$iid)
 			return $default;
+
 
 		if(is_array($item) && array_key_exists('iconfig',$item) && is_array($item['iconfig'])) {
 			foreach($item['iconfig'] as $c) {
-				if($c['iid'] == $iid && $c['cat'] == $family && $c['k'] == $key)
+				if (isset($c['iid']) && $c['iid'] == $iid && isset($c['cat']) && $c['cat'] == $family && isset($c['k']) && $c['k'] == $key)
 					return $c['v'];
 			}
 		}

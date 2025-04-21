@@ -456,7 +456,7 @@ function post_activity_item($arr, $allow_code = false, $deliver = true, $channel
 	$ret = array('success' => false);
 
 	$is_comment = false;
-	if((($arr['parent']) && $arr['parent'] != $arr['id']) || (($arr['parent_mid']) && $arr['parent_mid'] != $arr['mid']))
+	if((isset($arr['parent'], $arr['id']) && intval($arr['parent']) !== intval($arr['id'])) || (isset($arr['parent_mid'], $arr['mid']) && $arr['parent_mid'] !== $arr['mid']))
 		$is_comment = true;
 
 	if(! array_key_exists('item_origin',$arr))
@@ -491,7 +491,7 @@ function post_activity_item($arr, $allow_code = false, $deliver = true, $channel
 		$arr['mimetype'] = 'text/bbcode';
 
 
-	if(! $arr['mid']) {
+	if(empty($arr['mid'])) {
 		$arr['uuid']         = ((x($arr,'uuid')) ? $arr['uuid'] : new_uuid());
 	}
 	$arr['mid']          = ((x($arr,'mid')) ? $arr['mid'] : z_root() . '/item/' . $arr['uuid']);
@@ -514,7 +514,7 @@ function post_activity_item($arr, $allow_code = false, $deliver = true, $channel
 
 	$arr['comment_policy'] = map_scope(PermissionLimits::Get($channel['channel_id'],'post_comments'));
 
-	if ((! $arr['plink']) && (intval($arr['item_thread_top']))) {
+	if (empty($arr['plink']) && (intval($arr['item_thread_top']))) {
 		$arr['plink'] = $arr['mid'];
 	}
 
