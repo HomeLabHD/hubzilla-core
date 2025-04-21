@@ -2959,7 +2959,7 @@ class Activity {
 
 			if (intval($parent[0]['item_private']) === 0) {
 				if (intval($item['item_private'])) {
-					$item['item_restrict'] = $item['item_restrict'] | 1;
+					$item['item_restrict'] = ((isset($item['item_restrict'])) ? $item['item_restrict'] | 1 : 1);
 					$item['allow_cid'] = '<' . $channel['channel_hash'] . '>';
 					$item['allow_gid'] = $item['deny_cid'] = $item['deny_gid'] = '';
 				}
