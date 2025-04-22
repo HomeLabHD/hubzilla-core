@@ -180,7 +180,7 @@ class Item extends Controller {
 		$item_delayed  = ((x($_REQUEST, 'delayed')) ? intval($_REQUEST['delayed']) : 0);
 		$pagetitle     = ((x($_REQUEST, 'pagetitle')) ? escape_tags($_REQUEST['pagetitle']) : '');
 		$layout_mid    = ((x($_REQUEST, 'layout_mid')) ? escape_tags($_REQUEST['layout_mid']) : '');
-		$plink         = ((x($_REQUEST, 'permalink')) ? escape_tags($_REQUEST['permalink']) : '');
+		$plink         = ((x($_REQUEST, 'permalink')) ? escape_tags($_REQUEST['permalink']) : null);
 		$obj_type      = ((x($_REQUEST, 'obj_type')) ? escape_tags($_REQUEST['obj_type']) : 'Note');
 
 		// allow API to bulk load a bunch of imported items with sending out a bunch of posts.
