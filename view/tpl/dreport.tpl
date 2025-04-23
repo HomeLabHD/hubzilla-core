@@ -14,7 +14,7 @@
 	</div>
 
 	<div>
-	<table>
+	<table class="table table-hover table-borderless">
 	{{if $entries}}
 	{{foreach $entries as $e}}
 	<tr>
