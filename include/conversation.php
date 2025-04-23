@@ -565,8 +565,13 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 				$likebuttons = false;
 				$shareable = false;
 
+				if (!isset($item['sig'])) {
+					hz_syslog(print_r($item,true));
+					bt_syslog('nosig');
+				}
+
 				$verified = (intval($item['item_verified']) ? t('Message signature validated') : '');
-				$forged = ((($item['sig']) && (! intval($item['item_verified']))) ? t('Message signature incorrect') : '');
+				$forged = ((!empty($item['sig']) && !intval($item['item_verified'])) ? t('Message signature incorrect') : '');
 
 				$unverified = '';
 
@@ -781,7 +786,7 @@ function best_link_url($item) {
 	$clean_url = isset($item['author-link']) ? normalise_link($item['author-link']) : '';
 
 	if($clean_url  && local_channel() && (local_channel() == $item['uid'])) {
-		if(isset(App::$contacts) && x(App::$contacts, $clean_url)) {
+		if(isset(App::$contacts) && !empty(App::$contacts[$clean_url])) {
 			if(App::$contacts[$clean_url]['network'] === NETWORK_DFRN) {
 				$best_url = z_root() . '/redir/' . App::$contacts[$clean_url]['id'];
 				$sparkle = true;
@@ -1108,48 +1113,48 @@ function hz_status_editor($x, $popup = false) {
 	if($c && $c['channel_moved'])
 		return;
 
-	$webpage   = ((x($x,'webpage')) ? $x['webpage'] : '');
+	$webpage   = ((!empty($x['webpage'])) ? $x['webpage'] : '');
 	$plaintext = true;
 
 	$feature_nocomment = feature_enabled($x['profile_uid'], 'disable_comments');
-	if(x($x, 'disable_comments'))
+	if(!empty($x['disable_comments']))
 		$feature_nocomment = false;
 
 	$feature_expire = ((feature_enabled($x['profile_uid'], 'content_expire') && (! $webpage)) ? true : false);
-	if(x($x, 'hide_expire'))
+	if(!empty($x['hide_expire']))
 		$feature_expire = false;
 
 	$feature_future = ((feature_enabled($x['profile_uid'], 'delayed_posting') && (! $webpage)) ? true : false);
-	if(x($x, 'hide_future'))
+	if(!empty($x['hide_future']))
 		$feature_future = false;
 
 	$geotag = ((isset($x['allow_location']) && $x['allow_location']) ? replace_macros(get_markup_template('jot_geotag.tpl'), array()) : '');
 	$setloc = t('Set your location');
 	$clearloc = ((get_pconfig($x['profile_uid'], 'system', 'use_browser_location')) ? t('Clear browser location') : '');
-	if(x($x, 'hide_location'))
+	if(!empty($x['hide_location']))
 		$geotag = $setloc = $clearloc = '';
 
-	$mimetype = ((x($x,'mimetype')) ? $x['mimetype'] : 'text/bbcode');
+	$mimetype = ((!empty($x['mimetype'])) ? $x['mimetype'] : 'text/bbcode');
 
-	$mimeselect = ((x($x,'mimeselect')) ? $x['mimeselect'] : false);
+	$mimeselect = ((!empty($x['mimeselect'])) ? $x['mimeselect'] : false);
 	if($mimeselect)
 		$mimeselect = mimetype_select($x['profile_uid'], $mimetype);
 	else
 		$mimeselect = '<input type="hidden" name="mimetype" value="' . $mimetype . '" />';
 
 	$weblink = (($mimetype === 'text/bbcode') ? t('Insert web link') : false);
-	if(x($x, 'hide_weblink'))
+	if(!empty($x['hide_weblink']))
 		$weblink = false;
 
 	$embedPhotos = t('Embed (existing) photo from your photo albums');
 
 	$writefiles = (($mimetype === 'text/bbcode') ? perm_is_allowed($x['profile_uid'], get_observer_hash(), 'write_storage') : false);
-	if(x($x, 'hide_attach'))
+	if(!empty($x['hide_attach']))
 		$writefiles = false;
 
-	$layout = ((x($x,'layout')) ? $x['layout'] : '');
+	$layout = ((!empty($x['layout'])) ? $x['layout'] : '');
 
-	$layoutselect = ((x($x,'layoutselect')) ? $x['layoutselect'] : false);
+	$layoutselect = ((!empty($x['layoutselect'])) ? $x['layoutselect'] : false);
 	if($layoutselect)
 		$layoutselect = layout_select($x['profile_uid'], $layout);
 	else
@@ -1162,7 +1167,7 @@ function hz_status_editor($x, $popup = false) {
 	else
 		$id_select = '';
 
-	$reset = ((x($x,'reset')) ? $x['reset'] : '');
+	$reset = ((!empty($x['reset'])) ? $x['reset'] : '');
 
 	$feature_auto_save_draft = ((feature_enabled($x['profile_uid'], 'auto_save_draft')) ? "true" : "false");
 
@@ -1171,14 +1176,14 @@ function hz_status_editor($x, $popup = false) {
 	$tplmacros = [
 		'$baseurl' => z_root(),
 		'$editselect' => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
-		'$pretext' => ((x($x,'pretext')) ? $x['pretext'] : ''),
+		'$pretext' => ((!empty($x['pretext'])) ? $x['pretext'] : ''),
 		'$geotag' => $geotag,
 		'$nickname' => $x['nickname'],
 		'$linkurl' => t('Please enter a link URL:'),
 		'$term' => t('Tag term:'),
 		'$whereareu' => t('Where are you right now?'),
-		'$editor_autocomplete'=> ((x($x,'editor_autocomplete')) ? $x['editor_autocomplete'] : ''),
-		'$bbco_autocomplete'=> ((x($x,'bbco_autocomplete')) ? $x['bbco_autocomplete'] : ''),
+		'$editor_autocomplete'=> ((!empty($x['editor_autocomplete'])) ? $x['editor_autocomplete'] : ''),
+		'$bbco_autocomplete'=> ((!empty($x['bbco_autocomplete'])) ? $x['bbco_autocomplete'] : ''),
 		'$modalchooseimages' => t('Choose images to embed'),
 		'$modalchoosealbum' => t('Choose an album'),
 		'$modaldiffalbum' => t('Choose a different album...'),
@@ -1205,7 +1210,7 @@ function hz_status_editor($x, $popup = false) {
 	$tpl = get_markup_template('jot.tpl');
 
 	$preview = t('Preview');
-	if(x($x, 'hide_preview'))
+	if(!empty($x['hide_preview']))
 		$preview = '';
 
 	$defexpire = ((($z = get_pconfig($x['profile_uid'], 'system', 'default_post_expire')) && (! $webpage)) ? $z : '');
@@ -1233,21 +1238,21 @@ function hz_status_editor($x, $popup = false) {
 	call_hooks('jot_tool', $jotplugins);
 
 	$jotnets = '';
-	if(x($x,'jotnets')) {
+	if(!empty($x['jotnets'])) {
 		call_hooks('jot_networks', $jotnets);
 	}
 
-	$sharebutton = (x($x,'button') ? $x['button'] : t('Share'));
-	$placeholdtext = (x($x,'content_label') ? $x['content_label'] : $sharebutton);
+	$sharebutton = (!empty($x['button']) ? $x['button'] : t('Share'));
+	$placeholdtext = (!empty($x['content_label']) ? $x['content_label'] : $sharebutton);
 
 	$tplmacros = [
-		'$return_path' => ((x($x, 'return_path')) ? $x['return_path'] : App::$query_string),
+		'$return_path' => ((!empty($x['return_path'])) ? $x['return_path'] : App::$query_string),
 		'$action' =>  z_root() . '/item',
 		'$share' => $sharebutton,
 		'$placeholdtext' => $placeholdtext,
 		'$webpage' => $webpage,
-		'$placeholdpagetitle' => ((x($x,'ptlabel')) ? $x['ptlabel'] : t('Page link name')),
-		'$pagetitle' => (x($x,'pagetitle') ? $x['pagetitle'] : ''),
+		'$placeholdpagetitle' => ((!empty($x['ptlabel'])) ? $x['ptlabel'] : t('Page link name')),
+		'$pagetitle' => (!empty($x['pagetitle']) ? $x['pagetitle'] : ''),
 		'$id_select' => $id_select,
 		'$id_seltext' => t('Post as'),
 		'$writefiles' => $writefiles,
@@ -1276,18 +1281,18 @@ function hz_status_editor($x, $popup = false) {
 		'$feature_nocomment' => $feature_nocomment,
 		'$nocomment' => ((array_key_exists('item',$x)) ? $x['item']['item_nocomment'] : 0),
 		'$clearloc' => $clearloc,
-		'$title' => ((x($x, 'title')) ? htmlspecialchars($x['title'], ENT_COMPAT,'UTF-8') : ''),
-		'$summary' => ((x($x, 'summary')) ? htmlspecialchars($x['summary'], ENT_COMPAT,'UTF-8') : ''),
-		'$placeholdertitle' => ((x($x, 'placeholdertitle')) ? $x['placeholdertitle'] : t('Title (optional)')),
-		'$placeholdersummary' => ((x($x, 'placeholdersummary')) ? $x['placeholdersummary'] : t('Summary (optional)')),
+		'$title' => ((!empty($x['title'])) ? htmlspecialchars($x['title'], ENT_COMPAT,'UTF-8') : ''),
+		'$summary' => ((!empty($x['summary'])) ? htmlspecialchars($x['summary'], ENT_COMPAT,'UTF-8') : ''),
+		'$placeholdertitle' => ((!empty($x['placeholdertitle'])) ? $x['placeholdertitle'] : t('Title (optional)')),
+		'$placeholdersummary' => ((!empty($x['placeholdersummary'])) ? $x['placeholdersummary'] : t('Summary (optional)')),
 		'$catsenabled' => $catsenabled,
-		'$category' => ((x($x, 'category')) ? $x['category'] : ''),
+		'$category' => ((!empty($x['category'])) ? $x['category'] : ''),
 		'$placeholdercategory' => t('Categories (optional, comma-separated list)'),
 		'$permset' => t('Permission settings'),
-		'$ptyp' => ((x($x, 'ptyp')) ? $x['ptyp'] : ''),
-		'$content' => ((x($x,'body')) ? htmlspecialchars($x['body'], ENT_COMPAT,'UTF-8') : ''),
-		'$attachment' => ((x($x, 'attachment')) ? $x['attachment'] : ''),
-		'$post_id' => ((x($x, 'post_id')) ? $x['post_id'] : ''),
+		'$ptyp' => ((!empty($x['ptyp'])) ? $x['ptyp'] : ''),
+		'$content' => ((!empty($x['body'])) ? htmlspecialchars($x['body'], ENT_COMPAT,'UTF-8') : ''),
+		'$attachment' => ((!empty($x['attachment'])) ? $x['attachment'] : ''),
+		'$post_id' => ((!empty($x['post_id'])) ? $x['post_id'] : ''),
 		'$defloc' => $x['default_location'] ?? '',
 		'$visitor' => $x['visitor'] ?? '',
 		'$lockstate' => $x['lockstate'] ?? '',
@@ -1302,7 +1307,7 @@ function hz_status_editor($x, $popup = false) {
 		'$bang' => $x['bang'] ?? '',
 		'$profile_uid' => $x['profile_uid'],
 		'$preview' => $preview,
-		'$source' => ((x($x, 'source')) ? $x['source'] : ''),
+		'$source' => ((!empty($x['source'])) ? $x['source'] : ''),
 		'$jotplugins' => $jotplugins,
 		'$jotnets' => $jotnets,
 		'$jotnets_label' => t('Other networks and post services'),
@@ -1317,8 +1322,8 @@ function hz_status_editor($x, $popup = false) {
 		'$cipher' => $cipher,
 		'$expiryModalOK' => t('OK'),
 		'$expiryModalCANCEL' => t('Cancel'),
-		'$expanded' => ((x($x, 'expanded')) ? $x['expanded'] : false),
-		'$bbcode' => ((x($x, 'bbcode')) ? $x['bbcode'] : false),
+		'$expanded' => ((!empty($x['expanded'])) ? $x['expanded'] : false),
+		'$bbcode' => ((!empty($x['bbcode'])) ? $x['bbcode'] : false),
 		'$parent' => ((array_key_exists('parent',$x) && $x['parent']) ? $x['parent'] : 0),
 		'$reset' => $reset,
 		'$is_owner' => ((local_channel() && (local_channel() == $x['profile_uid'])) ? true : false),

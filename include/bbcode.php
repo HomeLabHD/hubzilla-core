@@ -420,12 +420,12 @@ function getAttachmentData($body) {
 	$type = "";
 	preg_match("/type='(.*?)'/ism", $attributes, $matches);
 
-	if (x($matches, 1)) {
+	if (!empty($matches[1])) {
 		$type = strtolower($matches[1]);
 	}
 
 	preg_match('/type=\&quot\;(.*?)\&quot\;/ism', $attributes, $matches);
-	if (x($matches, 1)) {
+	if (!empty($matches[1])) {
 		$type = strtolower($matches[1]);
 	}
 
@@ -442,12 +442,12 @@ function getAttachmentData($body) {
 	}
 	$url = "";
 	preg_match("/url='(.*?)'/ism", $attributes, $matches);
-	if (x($matches, 1)) {
+	if (!empty($matches[1])) {
 		$url = $matches[1];
 	}
 
 	preg_match('/url=\&quot\;(.*?)\&quot\;/ism', $attributes, $matches);
-	if (x($matches, 1)) {
+	if (!empty($matches[1])) {
 		$url = $matches[1];
 	}
 
@@ -457,12 +457,12 @@ function getAttachmentData($body) {
 
 	$title = "";
 	preg_match("/title='(.*?)'/ism", $attributes, $matches);
-	if (x($matches, 1)) {
+	if (!empty($matches[1])) {
 		$title = $matches[1];
 	}
 
 	preg_match('/title=\&quot\;(.*?)\&quot\;/ism', $attributes, $matches);
-	if (x($matches, 1)) {
+	if (!empty($matches[1])) {
 		$title = $matches[1];
 	}
 	if ($title != "") {
@@ -473,12 +473,12 @@ function getAttachmentData($body) {
 
 	$image = "";
 	preg_match("/image='(.*?)'/ism", $attributes, $matches);
-	if (x($matches, 1)) {
+	if (!empty($matches[1])) {
 		$image = $matches[1];
 	}
 
 	preg_match('/image=\&quot\;(.*?)\&quot\;/ism', $attributes, $matches);
-	if (x($matches, 1)) {
+	if (!empty($matches[1])) {
 		$image = $matches[1];
 	}
 
@@ -488,12 +488,12 @@ function getAttachmentData($body) {
 
 	$preview = "";
 	preg_match("/preview='(.*?)'/ism", $attributes, $matches);
-	if (x($matches, 1)) {
+	if (!empty($matches[1])) {
 		$preview = $matches[1];
 	}
 
 	preg_match('/preview=\&quot\;(.*?)\&quot\;/ism', $attributes, $matches);
-	if (x($matches, 1)) {
+	if (!empty($matches[1])) {
 		$preview = $matches[1];
 	}
 	if ($preview != "") {
@@ -1761,7 +1761,7 @@ function bbcode($text, $options = []) {
 	// Summary (e.g. title) is required, earlier revisions only required description (in addition to
 	// start which is always required). Allow desc with a missing summary for compatibility.
 
-	if ((x($ev,'desc') || x($ev,'summary')) && x($ev,'dtstart')) {
+	if ((!empty($ev['desc']) || !empty($ev['summary'])) && !empty($ev['dtstart'])) {
 
 		$sub = format_event_html($ev);
 

@@ -366,7 +366,7 @@ function nav($template = 'default') {
 		'$form_security_token' => get_form_security_token('pconfig')
 	]);
 
-	if (x($_SESSION, 'reload_avatar') && $observer) {
+	if (!empty($_SESSION['reload_avatar']) && $observer) {
 		// The avatar has been changed on the server but the browser doesn't know that,
 		// force the browser to reload the image from the server instead of its cache.
 		$tpl = get_markup_template('force_image_reload.tpl');

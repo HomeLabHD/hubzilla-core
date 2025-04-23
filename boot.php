@@ -1301,7 +1301,7 @@ class App {
 	public static function register_template_engine($class, $name = '') {
 		if (!$name) {
 			$v = get_class_vars($class);
-			if (x($v, "name")) {
+			if (!empty($v['name'])) {
 				$name = $v['name'];
 			}
 		}
@@ -1327,7 +1327,7 @@ class App {
 		}
 		else {
 			$template_engine = 'smarty3';
-			if (x(self::$theme, 'template_engine')) {
+			if (!empty(self::$theme['template_engine'])) {
 				$template_engine = self::$theme['template_engine'];
 			}
 		}
@@ -2132,40 +2132,6 @@ function load_contact_links($uid) {
 
 
 /**
- * @brief Returns querystring as string from a mapped array.
- *
- * @param array $params mapped array with query parameters
- * @param string $name of parameter, default null
- *
- * @return string
- */
-function build_querystring($params, $name = null) {
-	$ret = '';
-	foreach ($params as $key => $val) {
-		if (is_array($val)) {
-			if ($name === null) {
-				$ret .= build_querystring($val, $key);
-			}
-			else {
-				$ret .= build_querystring($val, $name . "[$key]");
-			}
-		}
-		else {
-			$val = urlencode($val);
-			if ($name != null) {
-				$ret .= $name . "[$key]" . "=$val&";
-			}
-			else {
-				$ret .= "$key=$val&";
-			}
-		}
-	}
-
-	return $ret;
-}
-
-
-/**
  * @brief Much better way of dealing with c-style args.
  */
 function argc() {
@@ -2322,7 +2288,7 @@ function construct_page() {
 		nav($navbar);
 	}
 
-	$current_theme = Zotlabs\Render\Theme::current();
+	$current_theme = Theme::current();
 	// logger('current_theme: ' . print_r($current_theme,true));
 	// Zotlabs\Render\Theme::debug();
 

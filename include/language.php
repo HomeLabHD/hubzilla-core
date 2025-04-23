@@ -29,7 +29,7 @@ function get_browser_language() {
 	$langs = [];
 	$lang_parse = [];
 
-	if (x($_SERVER, 'HTTP_ACCEPT_LANGUAGE')) {
+	if (!empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
 		// break up string into pieces (languages and q factors)
 		preg_match_all('/([a-z]{1,8}(-[a-z]{1,8})?)\s*(;\s*q\s*=\s*(1|0\.[0-9]+))?/i',
 			$_SERVER['HTTP_ACCEPT_LANGUAGE'], $lang_parse);
@@ -204,7 +204,7 @@ function load_translation_table($lang, $install = false) {
 function t($s, $ctx = ''): string {
 
 	$cs = $ctx ? '__ctx:' . $ctx . '__ ' . $s : $s;
-	if (x(App::$strings, $cs)) {
+	if (!empty(App::$strings[$cs])) {
 		$t = App::$strings[$cs];
 
 		return ((is_array($t)) ? translate_projectname($t[0]) : translate_projectname($t));
@@ -219,7 +219,7 @@ function t($s, $ctx = ''): string {
  */
 
 function translate_projectname($s) {
-	if(strpos($s,'rojectname') !== false) {
+	if(str_contains($s,'rojectname')) {
 		return str_replace(array('$projectname','$Projectname'),array(Zotlabs\Lib\System::get_platform_name(),ucfirst(Zotlabs\Lib\System::get_platform_name())),$s);
 	}
 	return $s;
@@ -239,7 +239,7 @@ function translate_projectname($s) {
 function tt($singular, $plural, $count, $ctx = ''){
 
 	$cs = $ctx ? "__ctx:" . $ctx . "__ " . $singular : $singular;
-	if (x(App::$strings,$cs)) {
+	if (!empty(App::$strings[$cs])) {
 		$t = App::$strings[$cs];
 		$f = 'string_plural_select_' . str_replace('-', '_', App::$language);
 		if (! function_exists($f))
@@ -282,9 +282,8 @@ function ta($k){
  */
 
 function tf() {
-
-        $s = "plural_function_code";
-        return (x(App::$strings, $s) ? App::$strings[$s] : "0");
+	$s = "plural_function_code";
+	return (!empty(App::$strings[$s]) ? App::$strings[$s] : "0");
 }
 
 /**

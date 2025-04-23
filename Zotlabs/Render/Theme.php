@@ -26,9 +26,9 @@ class Theme {
 	 */
 	static public function current() {
 
-		self::$system_theme = ((isset(App::$config['system']['theme']))
+		self::$system_theme = ((!empty(App::$config['system']['theme']))
 			? App::$config['system']['theme'] : '');
-		self::$session_theme = ((isset($_SESSION) && x($_SESSION, 'theme'))
+		self::$session_theme = ((!empty($_SESSION['theme']))
 			? $_SESSION['theme'] : self::$system_theme);
 
 		$page_theme = null;
@@ -111,7 +111,7 @@ class Theme {
 		$opts = '';
 		$opts = (($uid) ? '?puid=' . $uid : '');
 
-		$schema_str = ((x(App::$layout,'schema')) ? '&schema=' . App::$layout['schema'] : '');
+		$schema_str = ((!empty(App::$layout['schema'])) ? '&schema=' . App::$layout['schema'] : '');
 		if(($s) && (! $schema_str))
 			$schema_str = '&schema=' . $s;
 

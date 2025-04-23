@@ -69,10 +69,10 @@ class Activity {
 		if ($j) {
 			xchan_query($j, true);
 			$items = fetch_post_tags($j);
-		}
 
-		if ($items) {
-			return self::encode_item(array_shift($items));
+			if ($items) {
+				return self::encode_item(array_shift($items));
+			}
 		}
 
 		return null;

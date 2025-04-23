@@ -51,7 +51,7 @@ class Router {
 		$module = App::$module;
 		$modname = "Zotlabs\\Module\\" . ucfirst($module);
 
-		if(strlen($module)) {
+		if(!empty($module)) {
 
 			/*
 			 * We will always have a module name.

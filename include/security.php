@@ -22,7 +22,7 @@ function authenticate_success($user_record, $channel = null, $login_initial = fa
 	$lastlog_updated = false;
 	$uid_to_load = null;
 
-	if (x($user_record, 'account_id')) {
+	if (!empty($user_record['account_id'])) {
 		App::$account = $user_record;
 		$_SESSION['account_id'] = $user_record['account_id'];
 		$_SESSION['authenticated'] = 1;
@@ -31,7 +31,7 @@ function authenticate_success($user_record, $channel = null, $login_initial = fa
 			$uid_to_load = $channel['channel_id'];
 
 		if (!$uid_to_load) {
-			$uid_to_load = (((x($_SESSION, 'uid')) && (intval($_SESSION['uid'])))
+			$uid_to_load = ((!empty($_SESSION['uid']))
 				? intval($_SESSION['uid'])
 				: intval(App::$account['account_default_channel'])
 			);
@@ -60,12 +60,12 @@ function authenticate_success($user_record, $channel = null, $login_initial = fa
 		// might want to log success here
 	}
 
-	if ($return || x($_SESSION, 'workflow')) {
+	if ($return || isset($_SESSION['workflow'])) {
 		unset($_SESSION['workflow']);
 		return;
 	}
 
-	if ((App::$module !== 'home') && x($_SESSION, 'login_return_url') && strlen($_SESSION['login_return_url'])) {
+	if (App::$module !== 'home' && !empty($_SESSION['login_return_url'])) {
 		$return_url = $_SESSION['login_return_url'];
 
 		// don't let members get redirected to a raw ajax page update - this can happen
@@ -614,7 +614,7 @@ function get_form_security_token($typename = '') {
 }
 
 function check_form_security_token($typename = '', $formname = 'form_security_token') {
-	if (!x($_REQUEST, $formname)) return false;
+	if (empty($_REQUEST[$formname])) return false;
 	$hash = $_REQUEST[$formname];
 
 	$max_livetime = 10800; // 3 hours

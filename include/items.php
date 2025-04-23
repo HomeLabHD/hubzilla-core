@@ -474,8 +474,8 @@ function post_activity_item($arr, $allow_code = false, $deliver = true, $channel
 		$observer = App::get_observer();
 	}
 
-	$arr['aid'] = ((x($arr,'aid')) ? $arr['aid'] : $channel['channel_account_id']);
-	$arr['uid'] = ((x($arr,'uid')) ? $arr['uid'] : $channel['channel_id']);
+	$arr['aid'] = ((!empty($arr['aid'])) ? $arr['aid'] : $channel['channel_account_id']);
+	$arr['uid'] = ((!empty($arr['uid'])) ? $arr['uid'] : $channel['channel_id']);
 
 	if(! perm_is_allowed($arr['uid'],$observer['xchan_hash'],(($is_comment) ? 'post_comments' : 'post_wall'))) {
 		$ret['message'] = t('Permission denied');
@@ -492,17 +492,17 @@ function post_activity_item($arr, $allow_code = false, $deliver = true, $channel
 
 
 	if(empty($arr['mid'])) {
-		$arr['uuid']         = ((x($arr,'uuid')) ? $arr['uuid'] : new_uuid());
+		$arr['uuid']         = ((!empty($arr['uuid'])) ? $arr['uuid'] : new_uuid());
 	}
-	$arr['mid']          = ((x($arr,'mid')) ? $arr['mid'] : z_root() . '/item/' . $arr['uuid']);
-	$arr['parent_mid']   = ((x($arr,'parent_mid')) ? $arr['parent_mid'] : $arr['mid']);
-	$arr['thr_parent']   = ((x($arr,'thr_parent')) ? $arr['thr_parent'] : $arr['mid']);
+	$arr['mid']          = ((!empty($arr['mid'])) ? $arr['mid'] : z_root() . '/item/' . $arr['uuid']);
+	$arr['parent_mid']   = ((!empty($arr['parent_mid'])) ? $arr['parent_mid'] : $arr['mid']);
+	$arr['thr_parent']   = ((!empty($arr['thr_parent'])) ? $arr['thr_parent'] : $arr['mid']);
 
-	$arr['owner_xchan']  = ((x($arr,'owner_xchan'))  ? $arr['owner_xchan']  : $channel['channel_hash']);
-	$arr['author_xchan'] = ((x($arr,'author_xchan')) ? $arr['author_xchan'] : $observer['xchan_hash']);
+	$arr['owner_xchan']  = ((!empty($arr['owner_xchan']))  ? $arr['owner_xchan']  : $channel['channel_hash']);
+	$arr['author_xchan'] = ((!empty($arr['author_xchan'])) ? $arr['author_xchan'] : $observer['xchan_hash']);
 
-	$arr['verb']         = ((x($arr,'verb')) ? $arr['verb'] : 'Create');
-	$arr['obj_type']     = ((x($arr,'obj_type')) ? $arr['obj_type'] : 'Note');
+	$arr['verb']         = ((!empty($arr['verb'])) ? $arr['verb'] : 'Create');
+	$arr['obj_type']     = ((!empty($arr['obj_type'])) ? $arr['obj_type'] : 'Note');
 
 	if(! ( array_key_exists('allow_cid',$arr) || array_key_exists('allow_gid',$arr)
 		|| array_key_exists('deny_cid',$arr) || array_key_exists('deny_gid',$arr))) {
@@ -537,7 +537,7 @@ function post_activity_item($arr, $allow_code = false, $deliver = true, $channel
 	 */
 	call_hooks('post_local', $arr);
 
-	if(x($arr, 'cancel')) {
+	if (!empty($arr['cancel'])) {
 		logger('Post cancelled by plugin.');
 		return $ret;
 	}
@@ -727,14 +727,14 @@ function get_item_elements($x,$allow_code = false) {
 	if($arr['edited'] > datetime_convert())
 		$arr['edited']   = datetime_convert();
 
-	$arr['expires']      = ((x($x,'expires') && $x['expires'])
+	$arr['expires']      = ((!empty($x['expires']) && $x['expires'])
 								? datetime_convert('UTC','UTC',$x['expires'])
 								: NULL_DATE);
 
-	$arr['commented']    = ((x($x,'commented') && $x['commented'])
+	$arr['commented']    = ((!empty($x['commented']) && $x['commented'])
 								? datetime_convert('UTC','UTC',$x['commented'])
 								: $arr['created']);
-	$arr['comments_closed']    = ((x($x,'comments_closed') && $x['comments_closed'])
+	$arr['comments_closed']    = ((!empty($x['comments_closed']) && $x['comments_closed'])
 								? datetime_convert('UTC','UTC',$x['comments_closed'])
 								: NULL_DATE);
 
@@ -1679,7 +1679,7 @@ function item_store($arr, $allow_exec = false, $deliver = true, $addAndSync = tr
 	if(array_key_exists('parent',$arr))
 		unset($arr['parent']);
 
-	$arr['mimetype']      = ((x($arr,'mimetype'))      ? notags(trim($arr['mimetype']))      : 'text/bbcode');
+	$arr['mimetype']      = ((!empty($arr['mimetype']))      ? notags(trim($arr['mimetype']))      : 'text/bbcode');
 
 	if(($arr['mimetype'] == 'application/x-php') && (! $allow_exec)) {
 		logger('item_store: php mimetype but allow_exec is denied.');
@@ -1691,19 +1691,19 @@ function item_store($arr, $allow_exec = false, $deliver = true, $addAndSync = tr
 	$arr['summary'] = ((array_key_exists('summary',$arr) && $arr['summary'])  ? trim($arr['summary']) : '');
 	$arr['body']  = ((array_key_exists('body',$arr) && $arr['body'])    ? trim($arr['body'])  : '');
 
-	$arr['allow_cid']     = ((x($arr,'allow_cid'))     ? trim($arr['allow_cid'])             : '');
-	$arr['allow_gid']     = ((x($arr,'allow_gid'))     ? trim($arr['allow_gid'])             : '');
-	$arr['deny_cid']      = ((x($arr,'deny_cid'))      ? trim($arr['deny_cid'])              : '');
-	$arr['deny_gid']      = ((x($arr,'deny_gid'))      ? trim($arr['deny_gid'])              : '');
-	$arr['postopts']      = ((x($arr,'postopts'))      ? trim($arr['postopts'])              : '');
-	$arr['route']         = ((x($arr,'route'))         ? trim($arr['route'])                 : '');
-	$arr['uuid']          = ((x($arr,'uuid'))          ? trim($arr['uuid'])                  : '');
-	$arr['item_private']  = ((x($arr,'item_private'))  ? intval($arr['item_private'])        : 0 );
-	$arr['item_wall']     = ((x($arr,'item_wall'))     ? intval($arr['item_wall'])           : 0 );
-	$arr['item_type']     = ((x($arr,'item_type'))     ? intval($arr['item_type'])           : 0 );
+	$arr['allow_cid']     = ((!empty($arr['allow_cid']))     ? trim($arr['allow_cid'])             : '');
+	$arr['allow_gid']     = ((!empty($arr['allow_gid']))     ? trim($arr['allow_gid'])             : '');
+	$arr['deny_cid']      = ((!empty($arr['deny_cid']))      ? trim($arr['deny_cid'])              : '');
+	$arr['deny_gid']      = ((!empty($arr['deny_gid']))      ? trim($arr['deny_gid'])              : '');
+	$arr['postopts']      = ((!empty($arr['postopts']))      ? trim($arr['postopts'])              : '');
+	$arr['route']         = ((!empty($arr['route']))         ? trim($arr['route'])                 : '');
+	$arr['uuid']          = ((!empty($arr['uuid']))          ? trim($arr['uuid'])                  : '');
+	$arr['item_private']  = ((!empty($arr['item_private']))  ? intval($arr['item_private'])        : 0 );
+	$arr['item_wall']     = ((!empty($arr['item_wall']))     ? intval($arr['item_wall'])           : 0 );
+	$arr['item_type']     = ((!empty($arr['item_type']))     ? intval($arr['item_type'])           : 0 );
 
 	// obsolete, but needed so as not to throw not-null constraints on some database driveres
-	$arr['item_flags']    = ((x($arr,'item_flags'))    ? intval($arr['item_flags'])          : 0 );
+	$arr['item_flags']    = ((!empty($arr['item_flags']))    ? intval($arr['item_flags'])          : 0 );
 
 
 	$arr['lang'] = detect_language($arr['body']);
@@ -1744,32 +1744,32 @@ function item_store($arr, $allow_exec = false, $deliver = true, $addAndSync = tr
 		$arr = $translate['item'];
 	}
 
-	if((x($arr,'obj')) && is_array($arr['obj'])) {
+	if((!empty($arr['obj'])) && is_array($arr['obj'])) {
 		activity_sanitise($arr['obj']);
 		$arr['obj'] = json_encode($arr['obj']);
 	}
 
-	if((x($arr,'target')) && is_array($arr['target'])) {
+	if((!empty($arr['target'])) && is_array($arr['target'])) {
 		activity_sanitise($arr['target']);
 		$arr['target'] = json_encode($arr['target']);
 	}
 
-	if((x($arr,'attach')) && is_array($arr['attach'])) {
+	if((!empty($arr['attach'])) && is_array($arr['attach'])) {
 		activity_sanitise($arr['attach']);
 		$arr['attach'] = json_encode($arr['attach']);
 	}
 
-	$arr['aid']           = ((x($arr,'aid'))           ? intval($arr['aid'])                           : 0);
-	$arr['mid']           = ((x($arr,'mid'))           ? notags(trim($arr['mid']))                     : random_string());
-	$arr['revision']      = ((x($arr,'revision') && intval($arr['revision']) > 0)   ? intval($arr['revision']) : 0);
+	$arr['aid']           = ((!empty($arr['aid']))           ? intval($arr['aid'])                           : 0);
+	$arr['mid']           = ((!empty($arr['mid']))           ? notags(trim($arr['mid']))                     : random_string());
+	$arr['revision']      = ((!empty($arr['revision']) && intval($arr['revision']) > 0)   ? intval($arr['revision']) : 0);
 
-	$arr['author_xchan']  = ((x($arr,'author_xchan'))  ? notags(trim($arr['author_xchan']))  : '');
-	$arr['owner_xchan']   = ((x($arr,'owner_xchan'))   ? notags(trim($arr['owner_xchan']))   : '');
-	$arr['created']       = ((x($arr,'created') !== false) ? datetime_convert('UTC','UTC',$arr['created']) : datetime_convert());
-	$arr['edited']        = ((x($arr,'edited')  !== false) ? datetime_convert('UTC','UTC',$arr['edited'])  : datetime_convert());
-	$arr['expires']       = ((x($arr,'expires')  !== false) ? datetime_convert('UTC','UTC',$arr['expires'])  : NULL_DATE);
-	$arr['commented']     = ((x($arr,'commented')  !== false) ? datetime_convert('UTC','UTC',$arr['commented'])  : datetime_convert());
-	$arr['comments_closed'] = ((x($arr,'comments_closed')  !== false) ? datetime_convert('UTC','UTC',$arr['comments_closed'])  : NULL_DATE);
+	$arr['author_xchan']  = ((!empty($arr['author_xchan']))  ? notags(trim($arr['author_xchan']))  : '');
+	$arr['owner_xchan']   = ((!empty($arr['owner_xchan']))   ? notags(trim($arr['owner_xchan']))   : '');
+	$arr['created']       = ((!empty($arr['created']) !== false) ? datetime_convert('UTC','UTC',$arr['created']) : datetime_convert());
+	$arr['edited']        = ((!empty($arr['edited'])  !== false) ? datetime_convert('UTC','UTC',$arr['edited'])  : datetime_convert());
+	$arr['expires']       = ((!empty($arr['expires'])  !== false) ? datetime_convert('UTC','UTC',$arr['expires'])  : NULL_DATE);
+	$arr['commented']     = ((!empty($arr['commented'])  !== false) ? datetime_convert('UTC','UTC',$arr['commented'])  : datetime_convert());
+	$arr['comments_closed'] = ((!empty($arr['comments_closed'])  !== false) ? datetime_convert('UTC','UTC',$arr['comments_closed'])  : NULL_DATE);
 	$arr['html'] = ((array_key_exists('html',$arr)) ? $arr['html'] : '');
 
 	if($deliver) {
@@ -1783,26 +1783,26 @@ function item_store($arr, $allow_exec = false, $deliver = true, $addAndSync = tr
 		// will still take place through backdoor methods. Since these fields are rarely used
 		// otherwise, just preserve the original timestamp.
 
-		$arr['received']      = ((x($arr,'received')  !== false) ? datetime_convert('UTC','UTC',$arr['received'])  : datetime_convert());
-		$arr['changed']       = ((x($arr,'changed')  !== false) ? datetime_convert('UTC','UTC',$arr['changed'])  : datetime_convert());
+		$arr['received']      = ((!empty($arr['received'])  !== false) ? datetime_convert('UTC','UTC',$arr['received'])  : datetime_convert());
+		$arr['changed']       = ((!empty($arr['changed'])  !== false) ? datetime_convert('UTC','UTC',$arr['changed'])  : datetime_convert());
 	}
 
-	$arr['location']      = ((x($arr,'location'))      ? notags(trim($arr['location']))      : '');
-	$arr['coord']         = ((x($arr,'coord'))         ? notags(trim($arr['coord']))         : '');
-	$arr['parent_mid']    = ((x($arr,'parent_mid'))    ? notags(trim($arr['parent_mid']))    : '');
-	$arr['thr_parent']    = ((x($arr,'thr_parent'))    ? notags(trim($arr['thr_parent']))    : $arr['parent_mid']);
-	$arr['verb']          = ((x($arr,'verb'))          ? notags(trim($arr['verb']))          : 'Create');
-	$arr['obj_type']      = ((x($arr,'obj_type'))      ? notags(trim($arr['obj_type']))      : 'Note');
-	$arr['obj']           = ((x($arr,'obj'))           ? trim($arr['obj'])                   : '');
-	$arr['tgt_type']      = ((x($arr,'tgt_type'))      ? notags(trim($arr['tgt_type']))      : '');
-	$arr['target']        = ((x($arr,'target'))        ? trim($arr['target'])                : '');
-	$arr['plink']         = ((x($arr,'plink'))         ? notags(trim($arr['plink']))         : '');
-	$arr['attach']        = ((x($arr,'attach'))        ? notags(trim($arr['attach']))        : '');
-	$arr['app']           = ((x($arr,'app'))           ? notags(trim($arr['app']))           : '');
+	$arr['location']      = ((!empty($arr['location']))      ? notags(trim($arr['location']))      : '');
+	$arr['coord']         = ((!empty($arr['coord']))         ? notags(trim($arr['coord']))         : '');
+	$arr['parent_mid']    = ((!empty($arr['parent_mid']))    ? notags(trim($arr['parent_mid']))    : '');
+	$arr['thr_parent']    = ((!empty($arr['thr_parent']))    ? notags(trim($arr['thr_parent']))    : $arr['parent_mid']);
+	$arr['verb']          = ((!empty($arr['verb']))          ? notags(trim($arr['verb']))          : 'Create');
+	$arr['obj_type']      = ((!empty($arr['obj_type']))      ? notags(trim($arr['obj_type']))      : 'Note');
+	$arr['obj']           = ((!empty($arr['obj']))           ? trim($arr['obj'])                   : '');
+	$arr['tgt_type']      = ((!empty($arr['tgt_type']))      ? notags(trim($arr['tgt_type']))      : '');
+	$arr['target']        = ((!empty($arr['target']))        ? trim($arr['target'])                : '');
+	$arr['plink']         = ((!empty($arr['plink']))         ? notags(trim($arr['plink']))         : '');
+	$arr['attach']        = ((!empty($arr['attach']))        ? notags(trim($arr['attach']))        : '');
+	$arr['app']           = ((!empty($arr['app']))           ? notags(trim($arr['app']))           : '');
 
-	$arr['public_policy'] = ((x($arr,'public_policy')) ? notags(trim($arr['public_policy']))  : '' );
+	$arr['public_policy'] = ((!empty($arr['public_policy'])) ? notags(trim($arr['public_policy']))  : '' );
 
-	$arr['comment_policy'] = ((x($arr,'comment_policy')) ? notags(trim($arr['comment_policy']))  : 'contacts' );
+	$arr['comment_policy'] = ((!empty($arr['comment_policy'])) ? notags(trim($arr['comment_policy']))  : 'contacts' );
 
 	if(! array_key_exists('item_unseen',$arr))
 		$arr['item_unseen'] = 1;
@@ -1946,7 +1946,7 @@ function item_store($arr, $allow_exec = false, $deliver = true, $addAndSync = tr
 	 */
 	call_hooks('post_remote', $arr);
 
-	if(x($arr, 'cancel')) {
+	if(!empty($arr['cancel'])) {
 		logger('Post cancelled by plugin.');
 		$ret['message'] = 'cancelled.';
 		return $ret;
@@ -2163,7 +2163,7 @@ function item_store_update($arr, $allow_exec = false, $deliver = true, $addAndSy
 	if(array_key_exists('edit',$arr))
 		unset($arr['edit']);
 
-	$arr['mimetype']      = ((x($arr,'mimetype'))      ? notags(trim($arr['mimetype']))      : 'text/bbcode');
+	$arr['mimetype']      = ((!empty($arr['mimetype']))      ? notags(trim($arr['mimetype']))      : 'text/bbcode');
 
 	if(($arr['mimetype'] == 'application/x-php') && (! $allow_exec)) {
 		logger('item_store: php mimetype but allow_exec is denied.');
@@ -2234,10 +2234,10 @@ function item_store_update($arr, $allow_exec = false, $deliver = true, $addAndSy
 	unset($arr['thr_parent']);
 	unset($arr['llink']);
 
-	$arr['edited']        = ((x($arr,'edited')  !== false) ? datetime_convert('UTC','UTC',$arr['edited'])  : datetime_convert());
-	$arr['expires']       = ((x($arr,'expires')  !== false) ? datetime_convert('UTC','UTC',$arr['expires'])  : $orig[0]['expires']);
+	$arr['edited']        = ((!empty($arr['edited'])) ? datetime_convert('UTC','UTC',$arr['edited'])  : datetime_convert());
+	$arr['expires']       = ((!empty($arr['expires'])) ? datetime_convert('UTC','UTC',$arr['expires'])  : $orig[0]['expires']);
 
-	$arr['revision']      = ((x($arr,'revision') && $arr['revision'] > 0)   ? intval($arr['revision']) : 0);
+	$arr['revision']      = ((!empty($arr['revision'])) ? intval($arr['revision']) : 0);
 
 	if(array_key_exists('comments_closed',$arr))
 		$arr['comments_closed'] = datetime_convert('UTC','UTC',$arr['comments_closed']);
@@ -2251,15 +2251,15 @@ function item_store_update($arr, $allow_exec = false, $deliver = true, $addAndSy
 
 	$arr['route']         = ((array_key_exists('route',$arr)) ? trim($arr['route'])          : $orig[0]['route']);
 
-	$arr['location']      = ((x($arr,'location'))      ? notags(trim($arr['location']))      : $orig[0]['location']);
-	$arr['uuid']          = ((x($arr,'uuid'))          ? notags(trim($arr['uuid']))          : $orig[0]['uuid']);
-	$arr['coord']         = ((x($arr,'coord'))         ? notags(trim($arr['coord']))         : $orig[0]['coord']);
-	$arr['verb']          = ((x($arr,'verb'))          ? notags(trim($arr['verb']))          : $orig[0]['verb']);
-	$arr['obj_type']      = ((x($arr,'obj_type'))      ? notags(trim($arr['obj_type']))      : $orig[0]['obj_type']);
-	$arr['obj']           = ((x($arr,'obj'))           ? trim($arr['obj'])                   : $orig[0]['obj']);
-	$arr['tgt_type']      = ((x($arr,'tgt_type'))      ? notags(trim($arr['tgt_type']))      : $orig[0]['tgt_type']);
-	$arr['target']        = ((x($arr,'target'))        ? trim($arr['target'])                : $orig[0]['target']);
-	$arr['plink']         = ((x($arr,'plink'))         ? notags(trim($arr['plink']))         : $orig[0]['plink']);
+	$arr['location']      = ((!empty($arr['location']))      ? notags(trim($arr['location']))      : $orig[0]['location']);
+	$arr['uuid']          = ((!empty($arr['uuid']))          ? notags(trim($arr['uuid']))          : $orig[0]['uuid']);
+	$arr['coord']         = ((!empty($arr['coord']))         ? notags(trim($arr['coord']))         : $orig[0]['coord']);
+	$arr['verb']          = ((!empty($arr['verb']))          ? notags(trim($arr['verb']))          : $orig[0]['verb']);
+	$arr['obj_type']      = ((!empty($arr['obj_type']))      ? notags(trim($arr['obj_type']))      : $orig[0]['obj_type']);
+	$arr['obj']           = ((!empty($arr['obj']))           ? trim($arr['obj'])                   : $orig[0]['obj']);
+	$arr['tgt_type']      = ((!empty($arr['tgt_type']))      ? notags(trim($arr['tgt_type']))      : $orig[0]['tgt_type']);
+	$arr['target']        = ((!empty($arr['target']))        ? trim($arr['target'])                : $orig[0]['target']);
+	$arr['plink']         = ((!empty($arr['plink']))         ? notags(trim($arr['plink']))         : $orig[0]['plink']);
 
 	$arr['allow_cid']     = ((array_key_exists('allow_cid',$arr))  ? trim($arr['allow_cid']) : $orig[0]['allow_cid']);
 	$arr['allow_gid']     = ((array_key_exists('allow_gid',$arr))  ? trim($arr['allow_gid']) : $orig[0]['allow_gid']);
@@ -2298,11 +2298,11 @@ function item_store_update($arr, $allow_exec = false, $deliver = true, $addAndSy
 	$arr['item_pending_remove']    = ((array_key_exists('item_pending_remove',$arr))    ? intval($arr['item_pending_remove'])          : $orig[0]['item_pending_remove'] );
 	$arr['item_blocked']    = ((array_key_exists('item_blocked',$arr))    ? intval($arr['item_blocked'])          : $orig[0]['item_blocked'] );
 
-	$arr['sig']           = ((x($arr,'sig'))           ? $arr['sig']                         : '');
+	$arr['sig']           = ((!empty($arr['sig']))           ? $arr['sig']                         : '');
 	$arr['layout_mid']    = ((array_key_exists('layout_mid',$arr)) ? dbesc($arr['layout_mid'])           : $orig[0]['layout_mid'] );
 
-	$arr['public_policy'] = ((x($arr,'public_policy')) ? notags(trim($arr['public_policy']))  : $orig[0]['public_policy'] );
-	$arr['comment_policy'] = ((x($arr,'comment_policy')) ? notags(trim($arr['comment_policy']))  : $orig[0]['comment_policy'] );
+	$arr['public_policy'] = ((!empty($arr['public_policy'])) ? notags(trim($arr['public_policy']))  : $orig[0]['public_policy'] );
+	$arr['comment_policy'] = ((!empty($arr['comment_policy'])) ? notags(trim($arr['comment_policy']))  : $orig[0]['comment_policy'] );
 
 	/**
 	 * @hooks post_remote_update
@@ -2310,7 +2310,7 @@ function item_store_update($arr, $allow_exec = false, $deliver = true, $addAndSy
 	 */
 	call_hooks('post_remote_update', $arr);
 
-	if(x($arr, 'cancel')) {
+	if(!empty($arr['cancel'])) {
 		logger('Post cancelled by plugin.');
 		$ret['message'] = 'cancelled.';
 		return $ret;

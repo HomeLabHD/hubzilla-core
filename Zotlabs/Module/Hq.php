@@ -129,7 +129,7 @@ class Hq extends \Zotlabs\Web\Controller {
 				'$nouveau' => '0',
 				'$wall'    => '0',
 				'$page'    => '1',
-				'$list'    => ((x($_REQUEST,'list')) ? intval($_REQUEST['list']) : 0),
+				'$list'    => ((!empty($_REQUEST['list'])) ? intval($_REQUEST['list']) : 0),
 				'$search'  => '',
 				'$xchan'   => '',
 				'$order'   => '',
