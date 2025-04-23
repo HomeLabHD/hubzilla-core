@@ -1425,11 +1425,10 @@ function smilies($s, $sample = false, $terms = []) {
 		|| (local_channel() && intval(get_pconfig(local_channel(), 'system', 'no_smilies'))))
 		return $s;
 
-	$s = preg_replace_callback('{<(pre|code)>.*?</\1>}ism', 'smile_shield', $s);
+	$s = preg_replace_callback('/<(pre|code)\b[^>]*>.*?<\/(pre|code)>/ism', 'smile_shield', $s);
 	$s = preg_replace_callback('/<[a-z]+ .*?>/ism', 'smile_shield', $s);
 
 	if (preg_match_all('/(\:(\w|\+|\-)+\:)(?=|[\!\.\?]|$)/', $s, $match)) {
-
 		// emoji shortcodes
 		$emojis = get_emojis();
 		foreach ($match[0] as $mtch) {
