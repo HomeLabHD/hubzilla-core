@@ -132,7 +132,7 @@ class Session {
 		else
 			logger('no session handler');
 
-		if (x($_COOKIE, 'jsdisabled')) {
+		if (!empty($_COOKIE['jsdisabled'])) {
 			setcookie(
 				'jsdisabled',
 				$_COOKIE['jsdisabled'],

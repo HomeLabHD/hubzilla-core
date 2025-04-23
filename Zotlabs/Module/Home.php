@@ -68,9 +68,9 @@ class Home extends Controller {
 
 		$o = '';
 
-		if (x($_SESSION, 'theme'))
+		if (isset($_SESSION['theme']))
 			unset($_SESSION['theme']);
-		if (x($_SESSION, 'mobile_theme'))
+		if (isset($_SESSION['mobile_theme']))
 			unset($_SESSION['mobile_theme']);
 
 		$splash = ((argc() > 1 && argv(1) === 'splash') ? true : false);

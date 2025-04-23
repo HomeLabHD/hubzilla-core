@@ -2188,7 +2188,7 @@ function get_plink($item,$conversation_mode = true) {
 	if(array_key_exists('author',$item) && $item['author']['xchan_network'] !== 'zot6')
 		$zidify = false;
 
-	if(x($item,$key)) {
+	if(!empty($item[$key])) {
 		return array(
 			'href' => (($zidify) ? zid($item[$key]) : $item[$key]),
 			'title' => t('Link to Source'),
