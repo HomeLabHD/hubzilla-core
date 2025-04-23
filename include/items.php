@@ -2376,14 +2376,15 @@ function item_store_update($arr, $allow_exec = false, $deliver = true, $addAndSy
 
 	if(is_array($terms)) {
 		foreach($terms as $t) {
-			q("insert into term (uid,oid,otype,ttype,term,url)
-				values(%d,%d,%d,%d,'%s','%s') ",
+			q("insert into term (uid, oid, otype, ttype, term, url, imgurl)
+				values (%d, %d, %d, %d, '%s', '%s', '%s')",
 				intval($uid),
 				intval($orig_post_id),
 				intval(TERM_OBJ_POST),
 				intval($t['ttype']),
 				dbesc($t['term']),
-				dbesc($t['url'])
+				dbesc($t['url']),
+				dbesc($t['imgurl'] ?? ''),
 			);
 		}
 		$arr['term'] = $terms;
