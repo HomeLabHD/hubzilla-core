@@ -35,7 +35,7 @@ class DReport {
 	}
 
 	function addto_update($status) {
-		$this->status = $this->status . ' ' . $status;
+		$this->status = $this->status . ', ' . $status;
 	}
 
 
