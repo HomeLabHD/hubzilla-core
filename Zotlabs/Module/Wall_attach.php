@@ -18,7 +18,6 @@ class Wall_attach extends \Zotlabs\Web\Controller {
 
 
 	function post() {
-
 		$using_api = false;
 
 		$result = [];
