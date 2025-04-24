@@ -1997,7 +1997,7 @@ class Libzot {
 				}
 
 				$DR->addto_update('relayed');
-				$result[] = $DR->get();
+				$result = [$DR->get()];
 			}
 		}
 
