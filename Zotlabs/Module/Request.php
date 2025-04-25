@@ -102,7 +102,6 @@ class Request extends Controller
 		$r = q("SELECT xchan_hash, xchan_name as name, xchan_url as url, xchan_photo_s as photo FROM item
 			LEFT JOIN xchan ON author_xchan = xchan_hash
 			WHERE uid = %d
-			AND parent = %d
 			AND thr_parent = '%s'
 			AND verb = '%s'
 			AND item_thread_top = 0
