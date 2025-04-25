@@ -1266,6 +1266,42 @@ function justifyPhotosAjax(id) {
 	$('#' + id).justifiedGallery('norewind').on('jg.complete', function(e){ justifiedGalleryActive = false; });
 }
 
+function request(id, mid, verb) {
+	const modal = new bootstrap.Modal('#reactions');
+	modal.show();
+
+	const modal_content = document.getElementById('reactions_body');
+	modal_content.innerHTML = 'Loading...';
+
+	const modal_title = document.getElementById('reactions_title');
+	modal_title.innerHTML = verb;
+
+	const modal_action = document.getElementById('reactions_action');
+	modal_action.innerHTML = '';
+
+	fetch('/request?verb=' + verb + '&mid=' + mid + '&id=' + id)
+	.then(response => response.json())
+	.then(obj => {
+		modal_content.innerHTML = '';
+
+		modal_action.innerHTML = '<a href="#" onclick="' + obj.action + '(' + id + ',\'' + verb + '\'); return false;">' + obj.action_label + '</a>';
+
+		obj.result.forEach(e => {
+			modal_content.innerHTML += '<a href="' + e.url + '" class="list-group-item list-group-item-action border-0"><img src="' + e.photo + '" class="menu-img-1" loading="lazy">&nbsp;' + e.name + '</a>';
+		});
+
+	})
+	.catch(error => {
+		console.error('Error fetching data:', error);
+	});
+
+}
+
+function sleep(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
 function dolike(ident, verb) {
 	$('#like-rotator-' + ident).show();
 
