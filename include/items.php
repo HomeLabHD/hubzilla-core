@@ -5366,7 +5366,7 @@ function items_by_parent_ids($ids, $sql_extra = '') {
 		LEFT JOIN item c
 		  ON c.parent = item.parent
 		  AND c.item_thread_top = 0
-		  AND c.thr_parent = item.parent_mid
+		  AND c.thr_parent = item.mid
 		  $item_normal_c
 		WHERE item.parent in ($ids)
 		  AND (
