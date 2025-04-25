@@ -95,7 +95,6 @@ class Request extends Controller
 			killme();
 		}
 
-		$id = intval($_GET['id']);
 		$mid = strip_tags($_GET['mid']);
 		$hash = get_observer_hash();
 		$item_normal = item_normal();
@@ -109,12 +108,9 @@ class Request extends Controller
 			AND item_thread_top = 0
 			$item_normal",
 			intval(local_channel()),
-			dbesc($id),
 			dbesc($mid),
 			dbesc($verb)
 		);
-
-
 
 		$ret = [
 			'result' => $r,

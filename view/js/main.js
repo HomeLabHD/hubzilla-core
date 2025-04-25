@@ -1279,7 +1279,7 @@ function request(id, mid, verb) {
 	const modal_action = document.getElementById('reactions_action');
 	modal_action.innerHTML = '';
 
-	fetch('/request?verb=' + verb + '&mid=' + mid + '&id=' + id)
+	fetch('/request?verb=' + verb + '&mid=' + mid)
 	.then(response => response.json())
 	.then(obj => {
 		modal_content.innerHTML = '';
