@@ -709,7 +709,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 				$item = $x['item'];
 
-				builtin_activity_puller($item, $conv_responses);
+				// builtin_activity_puller($item, $conv_responses);
 
 				if(! visible_activity($item)) {
 					continue;
