@@ -1297,11 +1297,6 @@ function request(id, mid, verb) {
 
 }
 
-function sleep(ms) {
-	return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-
 function dolike(ident, verb) {
 	$('#like-rotator-' + ident).show();
 

@@ -79,16 +79,36 @@ class Like extends Controller {
 				dbesc(ACTIVITY_ATTENDNO),
 				dbesc(ACTIVITY_ATTENDMAYBE)
 			);
-			xchan_query($activities, true);
-			$items = array_merge([$arr['item']], $activities);
-			$items = fetch_post_tags($items, true);
+
+			$item_normal_c = str_replace('item.', 'c.', $item_normal);
+
+			$item = dbq(
+				"SELECT
+				  item.*,
+				  COUNT(CASE c.verb WHEN 'Like' THEN 1 END) AS like_count,
+				  COUNT(CASE c.verb WHEN 'Dislike' THEN 1 END) AS dislike_count,
+				  COUNT(CASE c.verb WHEN 'Announce' THEN 1 END) AS announce_count,
+				  COUNT(CASE WHEN c.verb IN ('Create','Update') THEN 1 END) AS comment_count
+				FROM item
+				LEFT JOIN item c
+				  ON c.parent = item.parent
+				  AND c.item_thread_top = 0
+				  AND c.thr_parent = item.mid
+				  $item_normal_c
+				WHERE item.id = {$arr['item']['id']}
+				  $item_normal
+				GROUP BY item.id"
+			);
+
+			xchan_query($item, true);
+			$item = fetch_post_tags($item, true);
 		}
 
 		$ret = [
 			'success' => 1,
 			'orig_id' => $arr['orig_item_id'], //this is required for pubstream items where $item_id != $item['id']
 			'id'      => $arr['item']['id'],
-			'html'    => conversation($items, $conv_mode, true, $page_mode),
+			'html'    => conversation($item, $conv_mode, true, $page_mode),
 		];
 
 		// mod photos
