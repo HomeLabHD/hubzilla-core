@@ -5353,6 +5353,7 @@ function set_activity_mid($string) {
 
 function items_by_parent_ids($ids, $sql_extra = '') {
 	$item_normal = item_normal();
+	$item_normal_c = str_replace('item.', 'c.', $item_normal);
 
 	return dbq(
 		"SELECT
@@ -5365,13 +5366,14 @@ function items_by_parent_ids($ids, $sql_extra = '') {
 		LEFT JOIN item c
 		  ON c.parent = item.parent
 		  AND c.item_thread_top = 0
-		  AND c.thr_parent = item.mid
+		  AND c.thr_parent = item.parent_mid
+		  $item_normal_c
 		WHERE item.parent in ($ids)
 		  AND (
 			item.verb NOT IN ('Like', 'Dislike', 'Announce')
 			OR (item.verb = 'Announce' AND item.item_thread_top = 1)
 		  )
-		  AND item.parent_mid = item.thr_parent
+		  AND item.thr_parent = item.parent_mid
 		  $item_normal
 		GROUP BY item.id"
 	);
