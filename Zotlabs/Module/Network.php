@@ -375,10 +375,10 @@ class Network extends \Zotlabs\Web\Controller {
 		}
 
 		if ($dm) {
-			$sql_extra .= ' AND item_private = 2 ';
+			$sql_extra .= ' AND item.item_private = 2 ';
 		}
 		else {
-			$sql_extra .= ' AND item_private IN (0, 1) ';
+			$sql_extra .= ' AND item.item_private IN (0, 1) ';
 		}
 
 
@@ -510,11 +510,8 @@ class Network extends \Zotlabs\Web\Controller {
 
 			if($r) {
 				$parents_str = ids_to_querystr($r, 'item_id');
-				$items = dbq("SELECT item.*, item.id AS item_id FROM item
-					WHERE true $uids $item_normal
-					AND item.parent IN ( $parents_str )
-					$sql_extra "
-				);
+
+				$items = items_by_parent_ids($parents_str, $sql_extra);
 
 				xchan_query($items, true);
 				$items = fetch_post_tags($items, true);

@@ -199,11 +199,7 @@ class Hq extends \Zotlabs\Web\Controller {
 		}
 
 		if($r) {
-			$items = q("SELECT item.*, item.id AS item_id
-				FROM item
-				WHERE parent = '%s' $item_normal $sql_extra",
-				dbesc($r[0]['item_id'])
-			);
+			$items = items_by_parent_ids($r[0]['item_id'], $sql_extra);
 
 			xchan_query($items,true,(($sys_item) ? local_channel() : 0));
 			$items = fetch_post_tags($items,true);

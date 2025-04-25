@@ -410,14 +410,7 @@ class Channel extends Controller {
 		if ($r) {
 			$parents_str = ids_to_querystr($r, 'item_id');
 
-			$r = q("SELECT item.*, item.id AS item_id
-				FROM item
-				WHERE item.uid = %d $item_normal
-				AND item.parent IN ( %s )
-				$sql_extra ",
-				intval(App::$profile['profile_uid']),
-				dbesc($parents_str)
-			);
+			$r = items_by_parent_ids($parents_str, $sql_extra);
 
 			xchan_query($r);
 			$items = fetch_post_tags($r, true);
@@ -434,10 +427,7 @@ class Channel extends Controller {
 			$items = [];
 		}
 
-
-
 		$mode = (($search) ? 'search' : 'channel');
-
 
 		if ((!$update) && (!$load)) {
 

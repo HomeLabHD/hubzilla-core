@@ -222,9 +222,7 @@ class ThreadItem {
 			$response_verbs[] = 'answer';
 		}
 
-		if (!feature_enabled($conv->get_profile_owner(),'dislike')) {
-			unset($conv_responses['dislike']);
-		}
+		$response_verbs[] = 'comment';
 
 		$responses = get_responses($conv_responses,$response_verbs,$this,$item);
 

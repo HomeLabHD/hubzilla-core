@@ -5351,3 +5351,28 @@ function set_activity_mid($string) {
 	return str_replace(z_root() . '/item/', z_root() . '/activity/', $string);
 }
 
+function items_by_parent_ids($ids, $sql_extra = '') {
+	$item_normal = item_normal();
+
+	return dbq(
+		"SELECT
+		  item.*,
+		  COUNT(CASE c.verb WHEN 'Like' THEN 1 END) AS like_count,
+		  COUNT(CASE c.verb WHEN 'Dislike' THEN 1 END) AS dislike_count,
+		  COUNT(CASE c.verb WHEN 'Announce' THEN 1 END) AS announce_count,
+		  COUNT(CASE WHEN c.verb IN ('Create','Update') THEN 1 END) AS comment_count
+		FROM item
+		LEFT JOIN item c
+		  ON c.parent = item.parent
+		  AND c.item_thread_top = 0
+		  AND c.thr_parent = item.mid
+		WHERE item.parent in ($ids)
+		  AND (
+			item.verb NOT IN ('Like', 'Dislike', 'Announce')
+			OR (item.verb = 'Announce' AND item.item_thread_top = 1)
+		  )
+		  AND item.parent_mid = item.thr_parent
+		  $item_normal
+		GROUP BY item.id"
+	);
+}

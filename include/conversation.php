@@ -986,6 +986,9 @@ function builtin_activity_puller($item, &$conv_responses) {
 			case 'dislike':
 				$verb = ['Dislike', ACTIVITY_DISLIKE];
 				break;
+			case 'comment':
+				$verb = ['Create'];
+				break;
 			case 'attendyes':
 				$verb = ['Accept', ACTIVITY_ATTEND];
 				break;
@@ -1541,12 +1544,11 @@ function get_responses($conv_responses,$response_verbs,$ob,$item) {
 			continue;
 		}
 
-		$ret[$v] = [];
-		$ret[$v]['count'] = $conv_responses[$v][$item['mid']] ?? 0;
-		$ret[$v]['list']  = ((isset($conv_responses[$v][$item['mid']])) ? $conv_responses[$v][$item['mid'] . '-l'] : '');
+		$ret[$v]['count'] = $item[$v . '_count'] ?? 0;
+		$ret[$v]['list']  = ''; // ((isset($conv_responses[$v][$item['mid']])) ? $conv_responses[$v][$item['mid'] . '-l'] : '');
 		$ret[$v]['button'] = get_response_button_text($v, $ret[$v]['count']);
 		$ret[$v]['title'] = $conv_responses[$v]['title'] ?? '';
-		$ret[$v]['modal'] = (($ret[$v]['count'] > MAX_LIKERS) ? true : false);
+		$ret[$v]['modal'] = false; // (($ret[$v]['count'] > MAX_LIKERS) ? true : false);
 	}
 
 //logger('ret: ' . print_r($ret,true));
@@ -1564,6 +1566,9 @@ function get_response_button_text($v,$count) {
 			break;
 		case 'dislike':
 			return ['label' => tt('Dislike','Dislikes',$count,'noun'), 'icon' => 'hand-thumbs-down', 'class' => 'dislike', 'onclick' => 'dolike'];
+			break;
+		case 'comment':
+			return ['label' => tt('Comment','Comments',$count,'noun'), 'icon' => 'chat', 'class' => 'comment', 'onclick' => ''];
 			break;
 		case 'attendyes':
 			return ['label' => tt('Attending','Attending',$count,'noun'), 'icon' => 'calendar-check', 'class' => 'attendyes', 'onclick' => 'dolike'];
