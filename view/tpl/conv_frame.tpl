@@ -18,7 +18,7 @@
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
-<div class="modal modal-sm" id="reactions" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal" id="reactions" tabindex="-1" role="dialog" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
