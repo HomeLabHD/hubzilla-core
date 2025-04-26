@@ -52,54 +52,22 @@ class Like extends Controller {
 			profile_load($parts[0]);
 		}
 
-		$item_normal = item_normal();
-
 		if ($page_mode === 'list') {
+			$item_normal = item_normal();
+
 			$items = q("SELECT item.*, item.id AS item_id FROM item
 				WHERE uid = %d $item_normal
 				AND parent = %d",
 				intval($arr['item']['uid']),
 				intval($arr['item']['parent'])
 			);
+
 			xchan_query($items, true);
 			$items = fetch_post_tags($items, true);
 			$items = conv_sort($items, 'commented');
 		}
 		else {
-			$activities = q("SELECT item.*, item.id AS item_id FROM item
-				WHERE uid = %d $item_normal
-				AND thr_parent = '%s'
-				AND verb IN ('%s', '%s', '%s', '%s', '%s', '%s', 'Accept', 'Reject', 'TentativeAccept')",
-				intval($arr['item']['uid']),
-				dbesc($arr['item']['mid']),
-				dbesc('Like'),
-				dbesc('Dislike'),
-				dbesc(ACTIVITY_SHARE),
-				dbesc(ACTIVITY_ATTEND),
-				dbesc(ACTIVITY_ATTENDNO),
-				dbesc(ACTIVITY_ATTENDMAYBE)
-			);
-
-			$item_normal_c = str_replace('item.', 'c.', $item_normal);
-
-			$item = dbq(
-				"SELECT
-				  item.*,
-				  COUNT(CASE c.verb WHEN 'Like' THEN 1 END) AS like_count,
-				  COUNT(CASE c.verb WHEN 'Dislike' THEN 1 END) AS dislike_count,
-				  COUNT(CASE c.verb WHEN 'Announce' THEN 1 END) AS announce_count,
-				  COUNT(CASE WHEN c.verb IN ('Create','Update') THEN 1 END) AS comment_count
-				FROM item
-				LEFT JOIN item c
-				  ON c.parent = item.parent
-				  AND c.item_thread_top = 0
-				  AND c.thr_parent = item.mid
-				  $item_normal_c
-				WHERE item.id = {$arr['item']['id']}
-				  $item_normal
-				GROUP BY item.id"
-			);
-
+			$item = item_by_item_id($arr['item']['id']);
 			xchan_query($item, true);
 			$item = fetch_post_tags($item, true);
 		}

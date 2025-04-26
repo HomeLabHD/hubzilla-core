@@ -5351,31 +5351,65 @@ function set_activity_mid($string) {
 	return str_replace(z_root() . '/item/', z_root() . '/activity/', $string);
 }
 
-function items_by_parent_ids($ids, $sql_extra = '') {
+function activity_sql($prefix = 'c') {
 	$item_normal = item_normal();
-	$item_normal_c = str_replace('item.', 'c.', $item_normal);
+	$item_normal_c = str_replace('item.', $prefix . '.', $item_normal);
+	$sql = '';
 
 	$observer = get_observer_hash();
 	$observer_sql = '';
 
 	if ($observer) {
-		$observer_sql = <<<SQL
-			,
-			COUNT(CASE WHEN c.verb = 'Like' AND c.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_liked,
-			COUNT(CASE WHEN c.verb = 'Dislike' AND c.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_disliked,
-			COUNT(CASE WHEN c.verb = 'Announce' AND c.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_announced,
-			COUNT(CASE WHEN c.verb IN ('Create','Update') AND c.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_commented
+		$sql = <<<SQL
+			COUNT(CASE WHEN $prefix.verb = 'Like' AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_liked,
+			COUNT(CASE WHEN $prefix.verb = 'Dislike' AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_disliked,
+			COUNT(CASE WHEN $prefix.verb = 'Announce' AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_announced,
+			COUNT(CASE WHEN $prefix.verb IN ('Create','Update') AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_commented,
 		SQL;
 	}
+
+	$sql .= <<<SQL
+		COUNT(CASE $prefix.verb WHEN 'Like' THEN 1 END) AS like_count,
+		COUNT(CASE $prefix.verb WHEN 'Dislike' THEN 1 END) AS dislike_count,
+		COUNT(CASE $prefix.verb WHEN 'Announce' THEN 1 END) AS announce_count,
+		COUNT(CASE WHEN $prefix.verb IN ('Create','Update') THEN 1 END) AS comment_count
+	SQL;
+
+	return $sql;
+
+}
+
+function item_by_item_id($id, $sql_extra = '') {
+	$item_normal = item_normal();
+	$item_normal_c = str_replace('item.', 'c.', $item_normal);
+	$activity_sql = activity_sql('c');
+
+	$ret = dbq("SELECT item.*,
+		$activity_sql
+		FROM item
+		LEFT JOIN item c
+		ON c.parent = item.parent
+		AND c.item_thread_top = 0
+		AND c.thr_parent = item.mid
+		$item_normal_c
+		WHERE item.id = $id
+		$item_normal
+		GROUP BY item.id"
+	);
+
+	return $ret;
+
+}
+
+function items_by_parent_ids($ids, $sql_extra = '') {
+	$item_normal = item_normal();
+	$item_normal_c = str_replace('item.', 'c.', $item_normal);
+	$activity_sql = activity_sql('c');
 
 	$ret = dbq(
 		"SELECT
 		  item.*,
-		  COUNT(CASE c.verb WHEN 'Like' THEN 1 END) AS like_count,
-		  COUNT(CASE c.verb WHEN 'Dislike' THEN 1 END) AS dislike_count,
-		  COUNT(CASE c.verb WHEN 'Announce' THEN 1 END) AS announce_count,
-		  COUNT(CASE WHEN c.verb IN ('Create','Update') THEN 1 END) AS comment_count
-		  $observer_sql
+		  $activity_sql
 		FROM item
 		LEFT JOIN item c
 		  ON c.parent = item.parent
