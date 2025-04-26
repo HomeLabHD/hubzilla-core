@@ -5351,7 +5351,7 @@ function set_activity_mid($string) {
 	return str_replace(z_root() . '/item/', z_root() . '/activity/', $string);
 }
 
-function activity_sql($prefix = 'c') {
+function item_activity_sql($prefix = 'c') {
 	$item_normal = item_normal();
 	$item_normal_c = str_replace('item.', $prefix . '.', $item_normal);
 	$sql = '';
@@ -5382,19 +5382,21 @@ function activity_sql($prefix = 'c') {
 function item_by_item_id($id, $sql_extra = '') {
 	$item_normal = item_normal();
 	$item_normal_c = str_replace('item.', 'c.', $item_normal);
-	$activity_sql = activity_sql('c');
+	$activity_sql = item_activity_sql('c');
 
-	$ret = dbq("SELECT item.*,
-		$activity_sql
+	$ret = q("SELECT item.*,
+			$activity_sql
 		FROM item
 		LEFT JOIN item c
-		ON c.parent = item.parent
-		AND c.item_thread_top = 0
-		AND c.thr_parent = item.mid
-		$item_normal_c
+			ON c.parent = item.parent
+			AND c.item_thread_top = 0
+			AND c.thr_parent = item.mid
+			$item_normal_c
 		WHERE item.id = $id
-		$item_normal
-		GROUP BY item.id"
+			AND item.uid = %d
+			$item_normal
+		GROUP BY item.id",
+		intval(local_channel())
 	);
 
 	return $ret;
@@ -5404,26 +5406,53 @@ function item_by_item_id($id, $sql_extra = '') {
 function items_by_parent_ids($ids, $sql_extra = '') {
 	$item_normal = item_normal();
 	$item_normal_c = str_replace('item.', 'c.', $item_normal);
-	$activity_sql = activity_sql('c');
+	$activity_sql = item_activity_sql('c');
 
-	$ret = dbq(
-		"SELECT
-		  item.*,
-		  $activity_sql
+	$ret = q(
+		"SELECT item.*,
+			$activity_sql
 		FROM item
 		LEFT JOIN item c
-		  ON c.parent = item.parent
-		  AND c.item_thread_top = 0
-		  AND c.thr_parent = item.mid
-		  $item_normal_c
-		WHERE item.parent in ($ids)
-		  AND (
-			item.verb NOT IN ('Like', 'Dislike', 'Announce')
-			OR (item.verb = 'Announce' AND item.item_thread_top = 1)
-		  )
-		  AND item.thr_parent = item.parent_mid
-		  $item_normal
-		GROUP BY item.id"
+			ON c.parent = item.parent
+			AND c.item_thread_top = 0
+			AND c.thr_parent = item.mid
+			$item_normal_c
+		WHERE item.parent in (%s)
+			AND (
+				item.verb NOT IN ('Like', 'Dislike', 'Announce')
+				OR (item.verb = 'Announce' AND item.item_thread_top = 1)
+			)
+			AND item.thr_parent = item.parent_mid
+			$item_normal
+		GROUP BY item.id",
+		dbesc($ids)
+	);
+
+	return $ret;
+}
+
+function items_by_thr_parent($mid, $sql_extra = '') {
+	$item_normal = item_normal();
+	$item_normal_c = str_replace('item.', 'c.', $item_normal);
+	$activity_sql = item_activity_sql('c');
+
+	$ret = q(
+		"SELECT item.*,
+			$activity_sql
+		FROM item
+		LEFT JOIN item c
+			ON c.parent = item.parent
+			AND c.item_thread_top = 0
+			AND c.thr_parent = item.mid
+			$item_normal_c
+		WHERE item.thr_parent = '%s'
+			AND item.uid = %d
+			AND item.verb NOT IN ('Like', 'Dislike', 'Announce')
+			AND item.item_thread_top = 0
+			$item_normal
+		GROUP BY item.id",
+		dbesc($mid),
+		intval(local_channel())
 	);
 
 	return $ret;

@@ -25,11 +25,29 @@ class Request extends Controller
 	}
 
 
+	private function processSubthreadRequest() : string
+	{
+		$mid = $_GET['mid'];
+		$items = items_by_thr_parent($mid);
+
+		xchan_query($items,true,(($sys_item) ? local_channel() : 0));
+		$items = fetch_post_tags($items,true);
+	//	$items = conv_sort($items,'created');
+
+		$ret['html'] = conversation($items, 'network', true, 'r_preview');
+
+		json_return_and_die($ret);
+	}
+
 	public function get() : string
 	{
 
 		if (!local_channel()) {
 			killme();
+		}
+
+		if ($_GET['verb'] === 'comment') {
+			return self::processSubthreadRequest();
 		}
 
 		$verb = self::mapVerb($_GET['verb']);

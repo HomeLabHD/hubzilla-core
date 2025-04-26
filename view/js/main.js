@@ -1267,35 +1267,72 @@ function justifyPhotosAjax(id) {
 }
 
 function request(id, mid, verb) {
-	const modal = new bootstrap.Modal('#reactions');
-	modal.show();
 
-	const modal_content = document.getElementById('reactions_body');
-	modal_content.innerHTML = 'Loading...';
-
-	const modal_title = document.getElementById('reactions_title');
-	modal_title.innerHTML = verb;
-
-	const modal_action = document.getElementById('reactions_action');
-	modal_action.innerHTML = '';
-
-	fetch('/request?verb=' + verb + '&mid=' + mid)
-	.then(response => response.json())
-	.then(obj => {
-		modal_content.innerHTML = '';
-
-		modal_action.innerHTML = '<a href="#" onclick="' + obj.action + '(' + id + ',\'' + verb + '\'); return false;">' + obj.action_label + '</a>';
-
-		obj.result.forEach(e => {
-			modal_content.innerHTML += '<a href="' + e.url + '" class="list-group-item list-group-item-action border-0"><img src="' + e.photo + '" class="menu-img-1" loading="lazy">&nbsp;' + e.name + '</a>';
+	if (verb === 'comment') {
+		fetch('/request?verb=' + verb + '&mid=' + mid)
+		.then(response => response.json())
+		.then(obj => {
+			injectWithAnimation('sub-thread-wrapper-' + id, obj.html);
+			updateRelativeTime('.autotime');
+		})
+		.catch(error => {
+			console.error('Error fetching data:', error);
 		});
+	}
+	else {
+		const modal = new bootstrap.Modal('#reactions');
+		modal.show();
 
-	})
-	.catch(error => {
-		console.error('Error fetching data:', error);
-	});
+		const modal_content = document.getElementById('reactions_body');
+		modal_content.innerHTML = 'Loading...';
+
+		const modal_title = document.getElementById('reactions_title');
+		modal_title.innerHTML = verb;
+
+		const modal_action = document.getElementById('reactions_action');
+		modal_action.innerHTML = '';
+
+		fetch('/request?verb=' + verb + '&mid=' + mid)
+		.then(response => response.json())
+		.then(obj => {
+			modal_content.innerHTML = '';
+			modal_action.innerHTML = '<a href="#" onclick="' + obj.action + '(' + id + ',\'' + verb + '\'); return false;">' + obj.action_label + '</a>';
+			obj.result.forEach(e => {
+				modal_content.innerHTML += '<a href="' + e.url + '" class="list-group-item list-group-item-action border-0"><img src="' + e.photo + '" class="menu-img-1" loading="lazy">&nbsp;' + e.name + '</a>';
+			});
+		})
+		.catch(error => {
+			console.error('Error fetching data:', error);
+		});
+	}
 
 }
+
+function injectWithAnimation(container, html) {
+	const target = document.getElementById(container);
+	target.innerHTML = html;
+
+	target.animate([
+		{ opacity: 0, transform: 'translateY(-20px)' },
+		{ opacity: 1, transform: 'translateY(0)' }
+	], {
+		duration: 300,
+		easing: 'ease-out'
+	});
+
+	// For children animation
+	Array.from(target.children).forEach((el, i) => {
+		el.animate([
+			{ opacity: 0, transform: 'scale(.7)' },
+			{ opacity: 1, transform: 'scale(1)' }
+		], {
+			duration: 300,
+			delay: i * 50,
+			fill: 'both'
+		});
+	});
+}
+
 
 function dolike(ident, verb) {
 	$('#like-rotator-' + ident).show();
