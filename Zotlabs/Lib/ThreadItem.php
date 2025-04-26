@@ -481,7 +481,8 @@ class ThreadItem {
 			'rtl' => in_array($item['lang'], rtl_languages()),
 			'reactions_allowed' => $reactions_allowed,
 			'reaction_str' => [t('Add yours'), t('Remove yours')],
-			'is_contained' => $this->is_toplevel() && str_contains($item['tgt_type'], 'Collection')
+			'is_contained' => $this->is_toplevel() && str_contains($item['tgt_type'], 'Collection'),
+			'observer_activity' => ['like' => intval($item['observer_liked']), 'dislike' => intval($item['observer_disliked']), 'announce' => intval($item['observer_announced']), 'comment' => intval($item['observer_commented'])]
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);

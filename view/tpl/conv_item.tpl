@@ -112,7 +112,7 @@
 						{{foreach $item.responses as $verb=>$response}}
 						{{if $item.reactions_allowed || (!$item.reactions_allowed && $response.count)}}
 						<div class="">
-							<button type="button" title="{{$response.count}} {{$response.button.label}}" class="btn btn-sm btn-link{{if !$item.my_responses.$verb}} link-secondary{{/if}} wall-item-{{$response.button.class}}"{{if $item.reactions_allowed}} onclick="request({{$item.id}}, '{{$item.rawmid}}', '{{$verb}}'); return false;"{{/if}} id="wall-item-{{$verb}}-{{$item.id}}">
+							<button type="button" title="{{$response.count}} {{$response.button.label}}" class="btn btn-sm btn-link{{if !$item.observer_activity.$verb}} link-secondary{{/if}} wall-item-{{$response.button.class}}"{{if $item.reactions_allowed}} onclick="request({{$item.id}}, '{{$item.rawmid}}', '{{$verb}}'); return false;"{{/if}} id="wall-item-{{$verb}}-{{$item.id}}">
 								<i class="bi bi-{{$response.button.icon}} generic-icons"></i>{{if $response.count}}<span style="display: inline-block; margin-top: -.25rem;" class="align-top">{{$response.count}}</span>{{/if}}
 							</button>
 							{{if $response.modal}}
