@@ -60,6 +60,7 @@ class Request extends Controller
 			killme();
 		}
 
+
 		$parent = intval($_GET['parent']);
 		$mid = strip_tags($_GET['mid']);
 
@@ -82,23 +83,24 @@ class Request extends Controller
 		}
 
 		if (!$r) {
-			$sys = get_sys_channel();
-			$sql_extra = item_permissions_sql(0, $observer_hash);
+
+			$x = q("SELECT uid FROM item WHERE id = %d",
+				intval($parent)
+			);
+
+			$sql_extra = item_permissions_sql($x[0]['uid'], $observer_hash);
 
 			$r = q("SELECT xchan_hash, xchan_name as name, xchan_url as url, xchan_photo_s as photo FROM item
 				LEFT JOIN xchan ON author_xchan = xchan_hash
-				WHERE
-				-- This covers /channel/name            -- This covers /pubstream
-				((item.thr_parent = '%s' $sql_extra) OR (item.thr_parent = '%s' AND item.uid = %d))
-				AND parent = %d
+				WHERE uid = %d
+				AND thr_parent = '%s'
 				AND verb = '%s'
 				AND item_thread_top = 0
+				$sql_extra
 				$item_normal
 				ORDER BY item.created",
+				intval($x[0]['uid']),
 				dbesc($mid),
-				dbesc($mid),
-				intval($sys['channel_id']),
-				intval($parent),
 				dbesc($verb)
 			);
 		}

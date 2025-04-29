@@ -5460,9 +5460,13 @@ function items_by_thr_parent($mid, $parent, $sql_extra = '') {
 	}
 
 	if (!$ret) {
-		$sys = get_sys_channel();
+
+		$x = q("SELECT uid FROM item WHERE id = %d",
+			intval($parent)
+		);
+
 		$observer_hash = get_observer_hash();
-		$sql_extra = item_permissions_sql(0, $observer_hash);
+		$sql_extra = item_permissions_sql($x[0]['uid'], $observer_hash);
 
 		$ret = q(
 			"SELECT item.*,
@@ -5472,19 +5476,16 @@ function items_by_thr_parent($mid, $parent, $sql_extra = '') {
 				AND c.item_thread_top = 0
 				AND c.thr_parent = item.mid
 				$item_normal_c
-			WHERE
-				-- This covers /channel/name            -- This covers /pubstream
-				((item.thr_parent = '%s' $sql_extra) OR (item.thr_parent = '%s' AND item.uid = %d))
-				AND item.parent = %d
+			WHERE item.thr_parent = '%s'
+				AND item.uid = %d
 				AND item.verb NOT IN ('Like', 'Dislike', 'Announce')
 				AND item.item_thread_top = 0
+				$sql_extra
 				$item_normal
 			GROUP BY item.id
 			ORDER BY item.created",
 			dbesc($mid),
-			dbesc($mid),
-			intval($sys['channel_id']),
-			intval($parent)
+			intval($x[0]['uid'])
 		);
 	}
 
