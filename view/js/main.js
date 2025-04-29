@@ -1266,40 +1266,51 @@ function justifyPhotosAjax(id) {
 	$('#' + id).justifiedGallery('norewind').on('jg.complete', function(e){ justifiedGalleryActive = false; });
 }
 
-function request(id, mid, verb) {
+function request(id, mid, verb, parent) {
+
+	const loading = document.getElementById('like-rotator-' + id);
+	loading.style.display = 'block';
 
 	if (verb === 'comment') {
-		fetch('/request?verb=' + verb + '&mid=' + mid)
+
+		document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => {
+			el.classList.remove('item-highlight');
+		});
+
+		document.getElementById('thread-wrapper-' + id).classList.add('item-highlight');
+
+		fetch('/request?verb=' + verb + '&mid=' + mid + '&parent=' + parent + '&module=' + module)
 		.then(response => response.json())
 		.then(obj => {
 			injectWithAnimation('sub-thread-wrapper-' + id, obj.html);
 			updateRelativeTime('.autotime');
+			loading.style.display = 'none';
 		})
 		.catch(error => {
 			console.error('Error fetching data:', error);
 		});
 	}
 	else {
-		const modal = new bootstrap.Modal('#reactions');
-		modal.show();
-
-		const modal_content = document.getElementById('reactions_body');
-		modal_content.innerHTML = 'Loading...';
-
-		const modal_title = document.getElementById('reactions_title');
-		modal_title.innerHTML = verb;
-
-		const modal_action = document.getElementById('reactions_action');
-		modal_action.innerHTML = '';
-
-		fetch('/request?verb=' + verb + '&mid=' + mid)
+		fetch('/request?verb=' + verb + '&mid=' + mid + '&parent=' + parent)
 		.then(response => response.json())
 		.then(obj => {
+			const modal = new bootstrap.Modal('#reactions');
+			const modal_content = document.getElementById('reactions_body');
+			const modal_title = document.getElementById('reactions_title');
+			const modal_action = document.getElementById('reactions_action');
+			modal_action.style.display = 'none';
+			modal_title.innerHTML = verb;
 			modal_content.innerHTML = '';
-			modal_action.innerHTML = '<a href="#" onclick="' + obj.action + '(' + id + ',\'' + verb + '\'); return false;">' + obj.action_label + '</a>';
+			if (obj.action) {
+				modal_action.innerHTML = '<a href="#" onclick="' + obj.action + '(' + id + ',\'' + verb + '\'); return false;">' + obj.action_label + '</a>';
+				modal_action.style.display = 'block';
+			}
 			obj.result.forEach(e => {
 				modal_content.innerHTML += '<a href="' + e.url + '" class="list-group-item list-group-item-action border-0"><img src="' + e.photo + '" class="menu-img-1" loading="lazy">&nbsp;' + e.name + '</a>';
 			});
+
+			modal.show();
+			loading.style.display = 'none';
 		})
 		.catch(error => {
 			console.error('Error fetching data:', error);
@@ -1328,7 +1339,8 @@ function injectWithAnimation(container, html) {
 		], {
 			duration: 300,
 			delay: i * 50,
-			fill: 'both'
+			fill: 'both',
+			easing: 'ease-out'
 		});
 	});
 }

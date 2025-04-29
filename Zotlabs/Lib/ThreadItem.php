@@ -382,6 +382,7 @@ class ThreadItem {
 			'folders' => $body['folders'],
 			'text' => strip_tags($body['html']),
 			'id' => $this->get_id(),
+			'parent' => intval($item['parent']),
 			'mid' => $midb64,
 			'mids' => $json_mids,
 			'parent' => $item['parent'],

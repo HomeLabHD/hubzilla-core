@@ -5431,29 +5431,62 @@ function items_by_parent_ids($ids, $sql_extra = '') {
 	return $ret;
 }
 
-function items_by_thr_parent($mid, $sql_extra = '') {
+function items_by_thr_parent($mid, $parent, $sql_extra = '') {
 	$item_normal = item_normal();
 	$item_normal_c = str_replace('item.', 'c.', $item_normal);
 	$activity_sql = item_activity_sql('c');
 
-	$ret = q(
-		"SELECT item.*,
-			$activity_sql
-		FROM item
-		LEFT JOIN item c
-			ON c.parent = item.parent
-			AND c.item_thread_top = 0
-			AND c.thr_parent = item.mid
-			$item_normal_c
-		WHERE item.thr_parent = '%s'
-			AND item.uid = %d
-			AND item.verb NOT IN ('Like', 'Dislike', 'Announce')
-			AND item.item_thread_top = 0
-			$item_normal
-		GROUP BY item.id",
-		dbesc($mid),
-		intval(local_channel())
-	);
+
+	if (local_channel()) {
+		$ret = q(
+			"SELECT item.*,
+				$activity_sql
+			FROM item
+			LEFT JOIN item c
+				ON c.parent = item.parent
+				AND c.item_thread_top = 0
+				AND c.thr_parent = item.mid
+				$item_normal_c
+			WHERE item.thr_parent = '%s'
+				AND item.uid = %d
+				AND item.verb NOT IN ('Like', 'Dislike', 'Announce')
+				AND item.item_thread_top = 0
+				$item_normal
+			GROUP BY item.id
+			ORDER BY item.created",
+			dbesc($mid),
+			intval(local_channel())
+		);
+	}
+
+	if (!$ret) {
+		$sys = get_sys_channel();
+		$observer_hash = get_observer_hash();
+		$sql_extra = item_permissions_sql(0, $observer_hash);
+
+		$ret = q(
+			"SELECT item.*,
+				$activity_sql
+			FROM item
+			LEFT JOIN item c ON c.parent = item.parent
+				AND c.item_thread_top = 0
+				AND c.thr_parent = item.mid
+				$item_normal_c
+			WHERE
+				-- This covers /channel/name            -- This covers /pubstream
+				((item.thr_parent = '%s' $sql_extra) OR (item.thr_parent = '%s' AND item.uid = %d))
+				AND item.parent = %d
+				AND item.verb NOT IN ('Like', 'Dislike', 'Announce')
+				AND item.item_thread_top = 0
+				$item_normal
+			GROUP BY item.id
+			ORDER BY item.created",
+			dbesc($mid),
+			dbesc($mid),
+			intval($sys['channel_id']),
+			intval($parent)
+		);
+	}
 
 	return $ret;
 }

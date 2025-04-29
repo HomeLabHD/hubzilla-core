@@ -631,7 +631,7 @@
 			noNotifications.style.display = 'none';
 			notifications.style.display = 'block';
 		} else {
-			notificationsBtn.style.opacity = 0.5;
+			if (notificationsBtn) notificationsBtn.style.opacity = 0.5;
 			if (navbarCollapse) navbarCollapse.classList.remove('show');
 			noNotifications.style.display = 'block';
 			notifications.style.display = 'none';

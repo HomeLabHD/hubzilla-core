@@ -110,12 +110,10 @@
 				<div class="p-2 wall-item-tools d-flex justify-content-between">
 					<div class="wall-item-tools-left hstack gap-1" id="wall-item-tools-left-{{$item.id}}">
 						{{foreach $item.responses as $verb=>$response}}
-						{{if $item.reactions_allowed || (!$item.reactions_allowed && $response.count)}}
 						{{if !($verb == 'comment' && $item.toplevel)}}
-						<button type="button" title="{{$response.count}} {{$response.button.label}}" class="btn btn-sm btn-link{{if !$item.observer_activity.$verb}} link-secondary{{/if}} wall-item-{{$response.button.class}}"{{if $item.reactions_allowed}} onclick="request({{$item.id}}, '{{$item.rawmid}}', '{{$verb}}'); return false;"{{/if}} id="wall-item-{{$verb}}-{{$item.id}}">
+						<button type="button" title="{{$response.count}} {{$response.button.label}}" class="btn btn-sm btn-link{{if !$item.observer_activity.$verb}} link-secondary{{/if}} wall-item-{{$response.button.class}}" onclick="request({{$item.id}}, '{{$item.rawmid}}', '{{$verb}}', {{$item.parent}}); return false;" id="wall-item-{{$verb}}-{{$item.id}}">
 							<i class="bi bi-{{$response.button.icon}} generic-icons"></i>{{if $response.count}}<span style="display: inline-block; margin-top: -.25rem;" class="align-top">{{$response.count}}</span>{{/if}}
 						</button>
-						{{/if}}
 						{{/if}}
 						{{/foreach}}
 						{{if $item.toplevel && $item.emojis && $item.reactions}}
@@ -220,10 +218,10 @@
 				</div>
 			</div>
 		</div>
+		<div id="sub-thread-wrapper-{{$item.id}}"></div>
 		{{if $item.toplevel}}
 		{{foreach $item.children as $child}}
 			{{include file="{{$child.template}}" item=$child}}
-			<div id="sub-thread-wrapper-{{$child.id}}"></div>
 		{{/foreach}}
 		{{/if}}
 		{{if $item.comment}}

@@ -432,7 +432,7 @@ function item_permissions_sql($owner_id, $remote_observer = null) {
 	 * default permissions - anonymous user
 	 */
 
-	$sql = " AND item_private = 0 ";
+	$sql = " AND item.item_private = 0 ";
 
 	/**
 	 * Profile owner - everything is visible
@@ -492,10 +492,10 @@ function item_permissions_sql($owner_id, $remote_observer = null) {
 
 			$regexop = db_getfunc('REGEXP');
 			$sql = sprintf(
-				" AND ( author_xchan = '%s' OR owner_xchan = '%s' OR
-				(( NOT (deny_cid $regexop '%s' OR deny_gid $regexop '%s')
-				AND ( allow_cid $regexop '%s' OR allow_gid $regexop '%s' OR ( allow_cid = '' AND allow_gid = '' AND item_private = 0 ))
-				)) OR ( item_private = 1 $scope ))
+				" AND ( item.author_xchan = '%s' OR item.owner_xchan = '%s' OR
+				(( NOT (item.deny_cid $regexop '%s' OR item.deny_gid $regexop '%s')
+				AND ( item.allow_cid $regexop '%s' OR item.allow_gid $regexop '%s' OR ( item.allow_cid = '' AND item.allow_gid = '' AND item.item_private = 0 ))
+				)) OR ( item.item_private = 1 $scope ))
 				",
 				dbesc($observer),
 				dbesc($observer),
@@ -518,11 +518,11 @@ function item_permissions_sql($owner_id, $remote_observer = null) {
 
 
 function scopes_sql($uid, $observer) {
-	$str = " and ( public_policy = 'authenticated' ";
+	$str = " and ( item.public_policy = 'authenticated' ";
 	if (!is_foreigner($observer))
-		$str .= " or public_policy = 'network: red' ";
+		$str .= " or item.public_policy = 'network: red' ";
 	if (local_channel())
-		$str .= " or public_policy = 'site: " . App::get_hostname() . "' ";
+		$str .= " or item.public_policy = 'site: " . App::get_hostname() . "' ";
 
 	$ab = q("select * from abook where abook_xchan = '%s' and abook_channel = %d limit 1",
 		dbesc($observer),
@@ -531,8 +531,8 @@ function scopes_sql($uid, $observer) {
 	if (!$ab)
 		return $str . " ) ";
 	if ($ab[0]['abook_pending'])
-		$str .= " or public_policy = 'any connections' ";
-	$str .= " or public_policy = 'contacts' ) ";
+		$str .= " or item.public_policy = 'any connections' ";
+	$str .= " or item.public_policy = 'contacts' ) ";
 	return $str;
 }
 
