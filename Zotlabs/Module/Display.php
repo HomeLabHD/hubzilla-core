@@ -291,7 +291,31 @@ class Display extends Controller {
 			$parents_str = ids_to_querystr($r,'item_id');
 			if($parents_str) {
 
-				$items = items_by_parent_ids($parents_str, $sql_extra);
+				$thr_parents[] = $target_item['thr_parent'];
+
+				if (Config::Get('system', 'thread_allow', true)) {
+					$_mid = $target_item['thr_parent'];
+					$_parent_mid = $target_item['parent_mid'];
+					$_uid = $target_item['uid'];
+					$_i = 0;
+
+					// Find the thr_parents we need to show when we need to show a nested comment
+					// TODO: can this be improved or maybe implemented differently in the UI?
+					while ($_mid !== $target_item['parent_mid'] && $_i < 100) {
+						$x = q("SELECT thr_parent, mid FROM item WHERE uid = %d AND mid = '%s'",
+							intval($_uid),
+							dbesc($_mid)
+						);
+
+						$_mid = $x[0]['thr_parent'];
+						$thr_parents[] = $x[0]['thr_parent'];
+						$_i++;
+					}
+				}
+
+				$thr_parents_str = stringify_array($thr_parents, true);
+
+				$items = items_by_parent_ids($parents_str, $thr_parents_str);
 
 				xchan_query($items);
 				$items = fetch_post_tags($items,true);

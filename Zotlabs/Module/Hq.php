@@ -3,6 +3,7 @@ namespace Zotlabs\Module;
 
 use App;
 use Zotlabs\Widget\Messages;
+use Zotlabs\Lib\Config;
 
 class Hq extends \Zotlabs\Web\Controller {
 
@@ -50,11 +51,12 @@ class Hq extends \Zotlabs\Web\Controller {
 			// select the target item with a bias to our own item
 			$sql_order = ((local_channel() > $sys['channel_id']) ? 'DESC' : 'ASC');
 
-			$r = q("select id, uid, mid, parent_mid, thr_parent, verb, item_type, item_deleted, item_blocked from item where uid in (%d, %d) and $identifier = '%s' order by uid $sql_order limit 2",
+			$r = q("select id, uid, mid, parent, parent_mid, thr_parent, verb, item_type, item_deleted, item_blocked from item where uid in (%d, %d) and $identifier = '%s' order by uid $sql_order limit 2",
 				intval(local_channel()),
 				intval($sys['channel_id']),
 				dbesc($item_hash)
 			);
+
 
 			if($r) {
 				$target_item = $r[0];
@@ -145,7 +147,6 @@ class Hq extends \Zotlabs\Web\Controller {
 		}
 
 		if($load && $target_item) {
-
 			if (!$sys_item) {
 				$r = q("SELECT item.id AS item_id FROM item
 					WHERE uid = %d
@@ -199,7 +200,31 @@ class Hq extends \Zotlabs\Web\Controller {
 		}
 
 		if($r) {
-			$items = items_by_parent_ids($r[0]['item_id'], $sql_extra);
+			$thr_parents[] = $target_item['thr_parent'];
+
+			if (Config::Get('system', 'thread_allow', true)) {
+				$_mid = $target_item['thr_parent'];
+				$_parent_mid = $target_item['parent_mid'];
+				$_uid = $target_item['uid'];
+				$_i = 0;
+
+				// Find the thr_parents we need to show when we need to show a nested comment
+				// TODO: can this be improved or maybe implemented differently in the UI?
+				while ($_mid !== $target_item['parent_mid'] && $_i < 100) {
+					$x = q("SELECT thr_parent, mid FROM item WHERE uid = %d AND mid = '%s'",
+						intval($_uid),
+						dbesc($_mid)
+					);
+
+					$_mid = $x[0]['thr_parent'];
+					$thr_parents[] = $x[0]['thr_parent'];
+					$_i++;
+				}
+			}
+
+			$thr_parents_str = stringify_array($thr_parents, true);
+
+			$items = items_by_parent_ids($r[0]['item_id'], $thr_parents_str);
 
 			xchan_query($items,true,(($sys_item) ? local_channel() : 0));
 			$items = fetch_post_tags($items,true);

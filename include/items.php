@@ -5359,21 +5359,34 @@ function item_activity_sql($prefix = 'c') {
 	$observer = get_observer_hash();
 	$observer_sql = '';
 
+	$thread_allow = Config::Get('system', 'thread_allow', true);
+
+
 	if ($observer) {
 		$sql = <<<SQL
 			COUNT(CASE WHEN $prefix.verb = 'Like' AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_liked,
 			COUNT(CASE WHEN $prefix.verb = 'Dislike' AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_disliked,
 			COUNT(CASE WHEN $prefix.verb = 'Announce' AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_announced,
-			COUNT(CASE WHEN $prefix.verb IN ('Create','Update') AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_commented,
 		SQL;
+
+		if ($thread_allow) {
+			$sql .= " COUNT(CASE WHEN $prefix.verb IN ('Create','Update') AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_commented, ";
+		}
+	}
+
+
+	if ($thread_allow) {
+		$sql .= "COUNT(CASE WHEN $prefix.verb IN ('Create','Update') THEN 1 END) AS comment_count,";
 	}
 
 	$sql .= <<<SQL
 		COUNT(CASE $prefix.verb WHEN 'Like' THEN 1 END) AS like_count,
 		COUNT(CASE $prefix.verb WHEN 'Dislike' THEN 1 END) AS dislike_count,
-		COUNT(CASE $prefix.verb WHEN 'Announce' THEN 1 END) AS announce_count,
-		COUNT(CASE WHEN $prefix.verb IN ('Create','Update') THEN 1 END) AS comment_count
+		COUNT(CASE $prefix.verb WHEN 'Announce' THEN 1 END) AS announce_count
 	SQL;
+
+
+
 
 	return $sql;
 
@@ -5403,10 +5416,17 @@ function item_by_item_id($id, $sql_extra = '') {
 
 }
 
-function items_by_parent_ids($ids, $sql_extra = '') {
+function items_by_parent_ids($ids, $thr_parents = '', $sql_extra = '') {
 	$item_normal = item_normal();
 	$item_normal_c = str_replace('item.', 'c.', $item_normal);
 	$activity_sql = item_activity_sql('c');
+	$thread_allow = Config::Get('system', 'thread_allow', true);
+
+	$thr_parent_sql = (($thread_allow) ? " AND item.thr_parent = item.parent_mid " : '');
+
+	if ($thr_parents && $thread_allow) {
+		$thr_parent_sql = " AND item.thr_parent IN ($thr_parents) ";
+	}
 
 	$ret = q(
 		"SELECT item.*,
@@ -5422,7 +5442,7 @@ function items_by_parent_ids($ids, $sql_extra = '') {
 				item.verb NOT IN ('Like', 'Dislike', 'Announce')
 				OR (item.verb = 'Announce' AND item.item_thread_top = 1)
 			)
-			AND item.thr_parent = item.parent_mid
+			$thr_parent_sql
 			$item_normal
 		GROUP BY item.id",
 		dbesc($ids)

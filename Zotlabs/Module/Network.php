@@ -511,7 +511,7 @@ class Network extends \Zotlabs\Web\Controller {
 			if($r) {
 				$parents_str = ids_to_querystr($r, 'item_id');
 
-				$items = items_by_parent_ids($parents_str, $sql_extra);
+				$items = items_by_parent_ids($parents_str);
 
 				xchan_query($items, true);
 				$items = fetch_post_tags($items, true);

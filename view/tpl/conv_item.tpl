@@ -218,15 +218,23 @@
 				</div>
 			</div>
 		</div>
+		{{if $item.thread_level == 1}}
 		<div id="wall-item-sub-thread-wrapper-{{$item.id}}" class="wall-item-sub-thread-wrapper"></div>
-		{{if $item.toplevel}}
 		{{foreach $item.children as $child}}
 			{{include file="{{$child.template}}" item=$child}}
 		{{/foreach}}
-		{{/if}}
+
 		{{if $item.comment}}
 		<div id="wall-item-comment-wrapper-{{$item.id}}" class="p-2 rounded wall-item-comment-wrapper{{if $item.children}} wall-item-comment-wrapper-wc{{/if}}">
 			{{$item.comment}}
+		</div>
+		{{/if}}
+
+		{{else}}
+		<div id="wall-item-sub-thread-wrapper-{{$item.id}}" class="wall-item-sub-thread-wrapper">
+		{{foreach $item.children as $child}}
+			{{include file="{{$child.template}}" item=$child}}
+		{{/foreach}}
 		</div>
 		{{/if}}
 	</div>
