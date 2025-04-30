@@ -5436,26 +5436,26 @@ function items_by_thr_parent($mid, $parent, $sql_extra = '') {
 	$item_normal_c = str_replace('item.', 'c.', $item_normal);
 	$activity_sql = item_activity_sql('c');
 
-
 	if (local_channel()) {
 		$ret = q(
 			"SELECT item.*,
 				$activity_sql
 			FROM item
-			LEFT JOIN item c
-				ON c.parent = item.parent
+			LEFT JOIN item c ON c.parent = item.parent
 				AND c.item_thread_top = 0
 				AND c.thr_parent = item.mid
 				$item_normal_c
 			WHERE item.thr_parent = '%s'
 				AND item.uid = %d
+				AND item.parent = %d
 				AND item.verb NOT IN ('Like', 'Dislike', 'Announce')
 				AND item.item_thread_top = 0
 				$item_normal
 			GROUP BY item.id
 			ORDER BY item.created",
 			dbesc($mid),
-			intval(local_channel())
+			intval(local_channel()),
+			intval($parent)
 		);
 	}
 
@@ -5486,6 +5486,54 @@ function items_by_thr_parent($mid, $parent, $sql_extra = '') {
 			ORDER BY item.created",
 			dbesc($mid),
 			intval($x[0]['uid'])
+		);
+	}
+
+	return $ret;
+}
+
+function item_activity_xchans($mid, $parent, $verb) {
+	$observer_hash = get_observer_hash();
+	$item_normal = item_normal();
+
+	if (local_channel()) {
+		$ret = q("SELECT xchan.xchan_hash, xchan.xchan_name as name, xchan.xchan_url as url, xchan.xchan_photo_s as photo FROM item
+			LEFT JOIN xchan ON item.author_xchan = xchan.xchan_hash
+			WHERE item.uid = %d
+			AND item.parent = %d
+			AND item.thr_parent = '%s'
+			AND item.verb = '%s'
+			AND item.item_thread_top = 0
+			$item_normal
+			ORDER BY item.created",
+			intval(local_channel()),
+			intval($parent),
+			dbesc($mid),
+			dbesc($verb)
+		);
+	}
+
+	if (!$ret) {
+		$x = q("SELECT uid FROM item WHERE id = %d",
+			intval($parent)
+		);
+
+		$item_uid = $x[0]['uid'];
+
+		$sql_extra = item_permissions_sql($item_uid, $observer_hash);
+
+		$ret = q("SELECT xchan.xchan_hash, xchan.xchan_name as name, xchan.xchan_url as url, xchan.xchan_photo_s as photo FROM item
+			LEFT JOIN xchan ON item.author_xchan = xchan.xchan_hash
+			WHERE item.uid = %d
+			AND item.thr_parent = '%s'
+			AND item.verb = '%s'
+			AND item.item_thread_top = 0
+			$sql_extra
+			$item_normal
+			ORDER BY item.created",
+			intval($item_uid),
+			dbesc($mid),
+			dbesc($verb)
 		);
 	}
 

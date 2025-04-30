@@ -46,10 +46,6 @@ class Request extends Controller
 	public function get() : string
 	{
 
-		if (!local_channel()) {
-		//	killme();
-		}
-
 		if ($_GET['verb'] === 'comment') {
 			return self::processSubthreadRequest();
 		}
@@ -60,60 +56,18 @@ class Request extends Controller
 			killme();
 		}
 
-
-		$parent = intval($_GET['parent']);
 		$mid = strip_tags($_GET['mid']);
-
+		$parent = intval($_GET['parent']);
 		$observer_hash = get_observer_hash();
-		$item_normal = item_normal();
-
-		if (local_channel()) {
-			$r = q("SELECT xchan_hash, xchan_name as name, xchan_url as url, xchan_photo_s as photo FROM item
-				LEFT JOIN xchan ON author_xchan = xchan_hash
-				WHERE uid = %d
-				AND thr_parent = '%s'
-				AND verb = '%s'
-				AND item_thread_top = 0
-				$item_normal
-				ORDER BY item.created",
-				intval(local_channel()),
-				dbesc($mid),
-				dbesc($verb)
-			);
-		}
-
-		if (!$r) {
-
-			$x = q("SELECT uid FROM item WHERE id = %d",
-				intval($parent)
-			);
-
-			$sql_extra = item_permissions_sql($x[0]['uid'], $observer_hash);
-
-			$r = q("SELECT xchan_hash, xchan_name as name, xchan_url as url, xchan_photo_s as photo FROM item
-				LEFT JOIN xchan ON author_xchan = xchan_hash
-				WHERE uid = %d
-				AND thr_parent = '%s'
-				AND verb = '%s'
-				AND item_thread_top = 0
-				$sql_extra
-				$item_normal
-				ORDER BY item.created",
-				intval($x[0]['uid']),
-				dbesc($mid),
-				dbesc($verb)
-			);
-		}
 
 		$ret = [
-			'result' => $r
+			'result' => item_activity_xchans($mid, $parent, $verb)
 		];
-
 
 		// TODO: check permission to like
 		if ($observer_hash) {
 			$ret['action'] = (($verb === 'Announce') ? 'jotShare' : 'dolike');
-			$ret['action_label'] = ((find_xchan_in_array($observer_hash, $r)) ? t('- Remove yours') : t('+ Add yours'));
+			$ret['action_label'] = ((find_xchan_in_array($observer_hash, $ret['result'])) ? t('- Remove yours') : t('+ Add yours'));
 		}
 
 		json_return_and_die($ret);
