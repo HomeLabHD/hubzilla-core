@@ -1276,7 +1276,9 @@ function request(id, mid, verb, parent) {
 			el.classList.remove('item-highlight');
 		});
 
-		document.getElementById('thread-wrapper-' + id).classList.add('item-highlight');
+		const wrapper = document.getElementById('thread-wrapper-' + id);
+		wrapper.classList.add('item-highlight');
+		wrapper.style.borderColor = stringToHexColor(mid);
 
 		fetch('/request?verb=' + verb + '&mid=' + mid + '&parent=' + parent + '&module=' + module)
 		.then(response => response.json())
@@ -1344,6 +1346,18 @@ function injectWithAnimation(container, html) {
 	});
 }
 
+function stringToHexColor(str) {
+	let hash = 0;
+	for (let i = 0; i < str.length; i++) {
+		hash = str.charCodeAt(i) + ((hash << 5) - hash);
+	}
+	let color = "#";
+	for (let i = 0; i < 3; i++) {
+		const value = (hash >> (i * 8)) & 0xFF;
+		color += value.toString(16).padStart(2, '0');
+	}
+	return color;
+}
 
 function dolike(ident, verb) {
 	$('#like-rotator-' + ident).show();

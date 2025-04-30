@@ -51,7 +51,7 @@
 							{{/if}}
 							<small class="autotime" title="{{$item.isotime}}"><time class="dt-published" datetime="{{$item.isotime}}">{{$item.localtime}}</time>{{if $item.expiretime}}&nbsp;{{$item.expiretime}}{{/if}}</small>
 						</div>
-						{{if $item.thr_parent_uuid}}
+						{{if !$item.threaded $item.thr_parent_uuid}}
 						<a href="javascript:doscroll('{{$item.thr_parent_uuid}}',{{$item.parent}});" class="ms-3" title="{{$item.top_hint}}"><i class="bi bi-chevron-double-up"></i></a>
 						{{/if}}
 						{{if $item.pinned}}
