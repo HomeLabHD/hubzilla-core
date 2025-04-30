@@ -1272,7 +1272,6 @@ function request(id, mid, verb, parent) {
 	loading.style.display = 'block';
 
 	if (verb === 'comment') {
-
 		document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => {
 			el.classList.remove('item-highlight');
 		});
@@ -1282,7 +1281,7 @@ function request(id, mid, verb, parent) {
 		fetch('/request?verb=' + verb + '&mid=' + mid + '&parent=' + parent + '&module=' + module)
 		.then(response => response.json())
 		.then(obj => {
-			injectWithAnimation('sub-thread-wrapper-' + id, obj.html);
+			injectWithAnimation('wall-item-sub-thread-wrapper-' + id, obj.html);
 			updateRelativeTime('.autotime');
 			loading.style.display = 'none';
 		})

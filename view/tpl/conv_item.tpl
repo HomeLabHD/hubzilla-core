@@ -218,7 +218,7 @@
 				</div>
 			</div>
 		</div>
-		<div id="sub-thread-wrapper-{{$item.id}}"></div>
+		<div id="wall-item-sub-thread-wrapper-{{$item.id}}" class="wall-item-sub-thread-wrapper"></div>
 		{{if $item.toplevel}}
 		{{foreach $item.children as $child}}
 			{{include file="{{$child.template}}" item=$child}}
