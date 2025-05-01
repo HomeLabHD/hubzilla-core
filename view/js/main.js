@@ -740,7 +740,15 @@ function updateConvItems(mode, data) {
 			}
 		}
 
-		b64mids.push(...JSON.parse(elem.dataset.b64mids));
+		let data_json = JSON.parse(elem.dataset.b64mids);
+
+		// Also highlight the thread parent
+		if (data_json.includes(bParam_mid) && elem.parentNode.classList.contains('wall-item-sub-thread-wrapper')) {
+			elem.parentNode.parentNode.classList.add('item-highlight');
+			elem.parentNode.parentNode.style.borderColor = stringToHexColor(JSON.parse(elem.parentNode.parentNode.dataset.b64mids)[0]);
+		}
+
+		b64mids.push(...data_json);
 	});
 
 	document.dispatchEvent(new CustomEvent('hz:sse_setNotificationsStatus', { detail: b64mids }));
@@ -962,8 +970,9 @@ function scrollToItem() {
                 behavior: 'smooth'
             });
 
-            // Add highlight class
-            thread.classList.add('item-highlight');
+			let id = thread.id.replace('thread-wrapper-', '');
+			let wrapper = document.getElementById('wall-item-content-wrapper-' + id);
+			wrapper.classList.add('item-highlight-fade');
         }
     });
 }
@@ -1266,7 +1275,7 @@ function justifyPhotosAjax(id) {
 	$('#' + id).justifiedGallery('norewind').on('jg.complete', function(e){ justifiedGalleryActive = false; });
 }
 
-function request(id, mid, verb, parent) {
+function request(id, mid, verb, parent, uuid) {
 
 	const loading = document.getElementById('like-rotator-' + id);
 	loading.style.display = 'block';
@@ -1278,7 +1287,7 @@ function request(id, mid, verb, parent) {
 
 		const wrapper = document.getElementById('thread-wrapper-' + id);
 		wrapper.classList.add('item-highlight');
-		wrapper.style.borderColor = stringToHexColor(mid);
+		wrapper.style.borderColor = stringToHexColor(uuid);
 
 		fetch('/request?verb=' + verb + '&mid=' + mid + '&parent=' + parent + '&module=' + module)
 		.then(response => response.json())

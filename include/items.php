@@ -5382,7 +5382,10 @@ function item_activity_sql($prefix = 'c') {
 	$sql .= <<<SQL
 		COUNT(CASE $prefix.verb WHEN 'Like' THEN 1 END) AS like_count,
 		COUNT(CASE $prefix.verb WHEN 'Dislike' THEN 1 END) AS dislike_count,
-		COUNT(CASE $prefix.verb WHEN 'Announce' THEN 1 END) AS announce_count
+		COUNT(CASE $prefix.verb WHEN 'Announce' THEN 1 END) AS announce_count,
+		COUNT(CASE $prefix.verb WHEN 'Accept' THEN 1 END) AS attendyes_count,
+		COUNT(CASE $prefix.verb WHEN 'Reject' THEN 1 END) AS attendno_count,
+		COUNT(CASE $prefix.verb WHEN 'TentativeAccept' THEN 1 END) AS attendmaybe_count
 	SQL;
 
 
