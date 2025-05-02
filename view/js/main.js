@@ -970,8 +970,8 @@ function scrollToItem() {
             });
 
 			let id = thread.id.replace('thread-wrapper-', '');
-			let wrapper = document.getElementById('wall-item-content-wrapper-' + id);
-			wrapper.classList.add('item-highlight-fade');
+			let content = document.getElementById('wall-item-content-wrapper-' + id);
+			content.classList.add('item-highlight-fade');
         }
     });
 }

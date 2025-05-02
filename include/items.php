@@ -2479,21 +2479,23 @@ function send_status_notifications($post_id,$item) {
 
 	$parent = 0;
 	$is_reaction = false;
-	$thr_parent_id = 0;
+	$thr_parent_id = null;
+	$thr_parent_uuid = null;
 
 	$type =  ((intval($item['item_private']) === 2) ? NOTIFY_MAIL : NOTIFY_COMMENT);
 
-	if(array_key_exists('verb',$item) && activity_match($item['verb'], ['Like', 'Dislike', ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
+	if(array_key_exists('verb',$item) && activity_match($item['verb'], ['Like', 'Dislike', ACTIVITY_LIKE, ACTIVITY_DISLIKE, 'Announce'])) {
 
 		$type = NOTIFY_LIKE;
 
-		$r = q("select id from item where mid = '%s' and uid = %d limit 1",
+		$r = q("select id, uuid from item where mid = '%s' and uid = %d limit 1",
 			dbesc($item['thr_parent']),
 			intval($item['uid'])
 		);
 
 		if ($r) {
 			$thr_parent_id = $r[0]['id'];
+			$thr_parent_uuid = $r[0]['uuid'];
 		}
 
 	}
@@ -2541,7 +2543,7 @@ function send_status_notifications($post_id,$item) {
 	if($unfollowed)
 		return;
 
-	$link =  z_root() . '/display/' . $item['uuid'];
+	$link =  z_root() . '/display/' . $thr_parent_uuid ?? $item['uuid'];
 
 	$y = q("select id from notify where link = '%s' and uid = %d limit 1",
 		dbesc($link),
@@ -2562,7 +2564,7 @@ function send_status_notifications($post_id,$item) {
 		'link'         => $link,
 		'verb'         => $item['verb'],
 		'otype'        => 'item',
-		'parent'       => $thr_parent_id ? $thr_parent_id : $parent,
+		'parent'       => $thr_parent_id ?? $parent,
 		'parent_mid'   => $thr_parent_id ? $item['thr_parent'] : $item['parent_mid']
 	));
 }
@@ -5561,4 +5563,28 @@ function item_activity_xchans($mid, $parent, $verb) {
 	}
 
 	return $ret;
+}
+
+// Find the thr_parents we need to show when we need to show a nested comment
+// TODO: can this be improved or maybe implemented differently in the UI?
+function get_recursive_thr_parents(array $item) : array {
+	$thr_parents[] = $item['thr_parent'];
+
+	$mid = $item['thr_parent'];
+	$parent_mid = $item['parent_mid'];
+	$uid = $item['uid'];
+	$i = 0;
+
+	while ($mid !== $item['parent_mid'] && $i < 100) {
+		$x = q("SELECT thr_parent, mid FROM item WHERE uid = %d AND mid = '%s'",
+			intval($uid),
+			dbesc($mid)
+		);
+
+		$mid = $x[0]['thr_parent'];
+		$thr_parents[] = $x[0]['thr_parent'];
+		$i++;
+	}
+
+	return $thr_parents;
 }

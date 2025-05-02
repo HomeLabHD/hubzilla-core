@@ -200,30 +200,7 @@ class Hq extends \Zotlabs\Web\Controller {
 		}
 
 		if($r) {
-			$thr_parents[] = $target_item['thr_parent'];
-
-			if (Config::Get('system', 'thread_allow', true)) {
-				$_mid = $target_item['thr_parent'];
-				$_parent_mid = $target_item['parent_mid'];
-				$_uid = $target_item['uid'];
-				$_i = 0;
-
-				// Find the thr_parents we need to show when we need to show a nested comment
-				// TODO: can this be improved or maybe implemented differently in the UI?
-				while ($_mid !== $target_item['parent_mid'] && $_i < 100) {
-					$x = q("SELECT thr_parent, mid FROM item WHERE uid = %d AND mid = '%s'",
-						intval($_uid),
-						dbesc($_mid)
-					);
-
-					$_mid = $x[0]['thr_parent'];
-					$thr_parents[] = $x[0]['thr_parent'];
-					$_i++;
-				}
-			}
-
-			$thr_parents_str = stringify_array($thr_parents, true);
-
+			$thr_parents_str = stringify_array(get_recursive_thr_parents($target_item), true);
 			$items = items_by_parent_ids($r[0]['item_id'], $thr_parents_str);
 
 			xchan_query($items,true,(($sys_item) ? local_channel() : 0));

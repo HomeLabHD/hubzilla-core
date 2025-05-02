@@ -483,7 +483,7 @@ class ThreadItem {
 			'reactions_allowed' => $reactions_allowed,
 			'reaction_str' => [t('Add yours'), t('Remove yours')],
 			'is_contained' => $this->is_toplevel() && str_contains($item['tgt_type'], 'Collection'),
-			'observer_activity' => ['like' => intval($item['observer_liked']), 'dislike' => intval($item['observer_disliked']), 'announce' => intval($item['observer_announced']), 'comment' => intval($item['observer_commented'])],
+			'observer_activity' => ['like' => intval($item['observer_liked'] ?? 0), 'dislike' => intval($item['observer_disliked'] ?? 0), 'announce' => intval($item['observer_announced'] ?? 0), 'comment' => intval($item['observer_commented'] ?? 0)],
 			'threaded' => $this->threaded
 		);
 
@@ -504,15 +504,15 @@ class ThreadItem {
 
 			// Collapse
 			if($thread_level === 1 && $nb_children > $visible_comments) {
-				$result['children'][0]['comment_firstcollapsed'] = false;
+				$result['children'][0]['comment_firstcollapsed'] = true;
 				$result['children'][0]['num_comments'] = $comment_count_txt['label'];
 				$result['children'][0]['hide_text'] = t('show all');
-				if($thread_level > 1) {
-					$result['children'][$nb_children - 1]['comment_lastcollapsed'] = true;
-				}
-				else {
+//				if($thread_level > 1) {
+//					$result['children'][$nb_children - 1]['comment_lastcollapsed'] = false;
+//				}
+//				else {
 					$result['children'][$nb_children - ($visible_comments + 1)]['comment_lastcollapsed'] = true;
-				}
+//				}
 			}
 		}
 
