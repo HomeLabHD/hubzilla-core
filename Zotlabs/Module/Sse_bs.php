@@ -182,32 +182,33 @@ class Sse_bs extends Controller {
 
 		$sql_extra = '';
 		if (!(self::$vnotify & VNOTIFY_LIKE)) {
-			$sql_extra = " AND verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			$sql_extra = " AND item.verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 		}
 		elseif (!feature_enabled(self::$uid, 'dislike')) {
-			$sql_extra = " AND verb NOT IN ('Dislike', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			$sql_extra = " AND item.verb NOT IN ('Dislike', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 		}
 
 		$sql_extra2 = '';
 		if(self::$xchans)
-			$sql_extra2 = " AND CASE WHEN verb = '" . dbesc(ACTIVITY_SHARE) . "' THEN owner_xchan ELSE author_xchan END IN (" . self::$xchans . ") ";
+			$sql_extra2 = " AND CASE WHEN item.verb = '" . dbesc(ACTIVITY_SHARE) . "' THEN item.owner_xchan ELSE item.author_xchan END IN (" . self::$xchans . ") ";
 
 		$item_normal = item_normal();
 
 		// Filter internal follow activities and strerams add/remove activities
-		$item_normal .= " AND verb NOT IN ('Add', 'Remove', 'Follow', 'Ignore', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
+		$item_normal .= " AND item.verb NOT IN ('Add', 'Remove', 'Follow', 'Ignore', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
 
 		if ($notifications) {
-			$items = q("SELECT * FROM item
-				WHERE uid = %d
-				AND created <= '%s'
-				AND item_unseen = 1 AND item_wall = 0 AND item_private IN (0, 1)
-				AND obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
-				AND author_xchan != '%s'
+			$items = q("SELECT item.*, tp.uuid AS thr_parent_uuid FROM item
+				LEFT JOIN item tp ON item.thr_parent = tp.mid AND item.uid = tp.uid
+				WHERE item.uid = %d
+				AND item.created <= '%s'
+				AND item.item_unseen = 1 AND item.item_wall = 0 AND item.item_private IN (0, 1)
+				AND item.obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
+				AND item.author_xchan != '%s'
 				$item_normal
 				$sql_extra
 				$sql_extra2
-				ORDER BY created DESC LIMIT $limit OFFSET $offset",
+				ORDER BY item.created DESC LIMIT $limit OFFSET $offset",
 				intval(self::$uid),
 				dbescdate($_SESSION['sse_loadtime']),
 				dbesc(self::$ob_hash)
@@ -265,15 +266,15 @@ class Sse_bs extends Controller {
 
 		$sql_extra = '';
 		if (!(self::$vnotify & VNOTIFY_LIKE)) {
-			$sql_extra = " AND verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			$sql_extra = " AND item.verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 		}
 		elseif (!feature_enabled(self::$uid, 'dislike')) {
-			$sql_extra = " AND verb NOT IN ('Dislike', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			$sql_extra = " AND item.verb NOT IN ('Dislike', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 		}
 
 		$sql_extra2 = '';
 		if(self::$xchans)
-			$sql_extra2 = " AND CASE WHEN verb = '" . ACTIVITY_SHARE . "' THEN owner_xchan ELSE author_xchan END IN (" . self::$xchans . ") ";
+			$sql_extra2 = " AND CASE WHEN item.verb = '" . ACTIVITY_SHARE . "' THEN item.owner_xchan ELSE item.author_xchan END IN (" . self::$xchans . ") ";
 
 		$item_normal = item_normal();
 
@@ -281,12 +282,13 @@ class Sse_bs extends Controller {
 		$item_normal .= " AND verb NOT IN ('Add', 'Remove', 'Follow', 'Ignore', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
 
 		if ($notifications) {
-			$items = q("SELECT * FROM item
-				WHERE uid = %d
-				AND created <= '%s'
-				AND item_unseen = 1 AND item_private = 2
-				AND obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
-				AND author_xchan != '%s'
+			$items = q("SELECT item.*, tp.uuid AS thr_parent_uuid FROM item
+				LEFT JOIN item tp ON item.thr_parent = tp.mid AND item.uid = tp.uid
+				WHERE item.uid = %d
+				AND item.created <= '%s'
+				AND item.item_unseen = 1 AND item.item_private = 2
+				AND item.obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
+				AND item.author_xchan != '%s'
 				$item_normal
 				$sql_extra
 				$sql_extra2
@@ -347,33 +349,34 @@ class Sse_bs extends Controller {
 
 		$sql_extra = '';
 		if (!(self::$vnotify & VNOTIFY_LIKE)) {
-			$sql_extra = " AND verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			$sql_extra = " AND item.verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 		}
 		elseif (!feature_enabled(self::$uid, 'dislike')) {
-			$sql_extra = " AND verb NOT IN ('Dislike', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			$sql_extra = " AND item.verb NOT IN ('Dislike', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 		}
 
 		$sql_extra2 = '';
 		if(self::$xchans)
-			$sql_extra2 = " AND CASE WHEN verb = '" . ACTIVITY_SHARE . "' THEN owner_xchan ELSE author_xchan END IN (" . self::$xchans . ") ";
+			$sql_extra2 = " AND CASE WHEN item.verb = '" . ACTIVITY_SHARE . "' THEN item.owner_xchan ELSE item.author_xchan END IN (" . self::$xchans . ") ";
 
 
 		$item_normal = item_normal();
 
 		// Filter internal follow activities and strerams add/remove activities
-		$item_normal .= " AND verb NOT IN ('Add', 'Remove', 'Follow', 'Ignore', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
+		$item_normal .= " AND item.verb NOT IN ('Add', 'Remove', 'Follow', 'Ignore', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
 
 		if ($notifications) {
-			$items = q("SELECT * FROM item
-				WHERE uid = %d
-				AND created <= '%s'
-				AND item_unseen = 1 AND item_wall = 1 AND item_private IN (0, 1)
-				AND obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
-				AND author_xchan != '%s'
+			$items = q("SELECT item.*, tp.uuid AS thr_parent_uuid FROM item
+				LEFT JOIN item tp ON item.thr_parent = tp.mid AND item.uid = tp.uid
+				WHERE item.uid = %d
+				AND item.created <= '%s'
+				AND item.item_unseen = 1 AND item.item_wall = 1 AND item.item_private IN (0, 1)
+				AND item.obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
+				AND item.author_xchan != '%s'
 				$item_normal
 				$sql_extra
 				$sql_extra2
-				ORDER BY created DESC LIMIT $limit OFFSET $offset",
+				ORDER BY item.created DESC LIMIT $limit OFFSET $offset",
 				intval(self::$uid),
 				dbescdate($_SESSION['sse_loadtime']),
 				dbesc(self::$ob_hash)
@@ -442,46 +445,47 @@ class Sse_bs extends Controller {
 		$sys = get_sys_channel();
 		$sql_extra = '';
 		if (!(self::$vnotify & VNOTIFY_LIKE)) {
-			$sql_extra = " AND verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			$sql_extra = " AND item.verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 		}
 		elseif (!feature_enabled(self::$uid, 'dislike')) {
-			$sql_extra = " AND verb NOT IN ('Dislike', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			$sql_extra = " AND item.verb NOT IN ('Dislike', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 		}
 
 		$sql_extra2 = '';
 		if(self::$xchans)
-			$sql_extra2 = " AND CASE WHEN verb = '" . ACTIVITY_SHARE . "' THEN owner_xchan ELSE author_xchan END IN (" . self::$xchans . ") ";
+			$sql_extra2 = " AND CASE WHEN item.verb = '" . ACTIVITY_SHARE . "' THEN item.owner_xchan ELSE item.author_xchan END IN (" . self::$xchans . ") ";
 
 		$sql_extra3 = '';
 		$sse_mids_all = unserialise($_SESSION['sse_mids_all']) ?? [];
 		if ($sse_mids_all) {
-			$sql_extra3 = " AND uuid NOT IN (" . protect_sprintf(implode(',', $sse_mids_all)) . ") ";
+			$sql_extra3 = " AND item.uuid NOT IN (" . protect_sprintf(implode(',', $sse_mids_all)) . ") ";
 		}
 
-		$uids = " AND uid IN ( " . $sys['channel_id'] . " ) ";
+		$uids = " AND item.uid IN ( " . $sys['channel_id'] . " ) ";
 
 		$site_firehose = Config::Get('system', 'site_firehose', 0);
 		if($site_firehose) {
-			$uids = " AND uid IN ( " . stream_perms_api_uids(PERMS_PUBLIC) . " ) AND item_private = 0 AND item_wall = 1 ";
+			$uids = " AND item.uid IN ( " . stream_perms_api_uids(PERMS_PUBLIC) . " ) AND item.item_private = 0 AND item.item_wall = 1 ";
 		}
 
 		$item_normal = item_normal();
 
 		// Filter internal follow activities and strerams add/remove activities
-		$item_normal .= " AND verb NOT IN ('Add', 'Remove', 'Follow', 'Ignore', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
+		$item_normal .= " AND item.verb NOT IN ('Add', 'Remove', 'Follow', 'Ignore', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
 
 		if ($notifications) {
-			$items = q("SELECT * FROM item
+			$items = q("SELECT item.*, tp.uuid AS thr_parent_uuid FROM item
+				LEFT JOIN item tp ON item.thr_parent = tp.mid AND item.uid = tp.uid
 				WHERE true $uids
-				AND created <= '%s'
-				AND obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
-				AND author_xchan != '%s'
-				AND created > '%s'
+				AND item.created <= '%s'
+				AND item.obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
+				AND item.author_xchan != '%s'
+				AND item.created > '%s'
 				$item_normal
 				$sql_extra
 				$sql_extra2
 				$sql_extra3
-				ORDER BY created DESC LIMIT $limit OFFSET $offset",
+				ORDER BY item.created DESC LIMIT $limit OFFSET $offset",
 				dbescdate($_SESSION['sse_loadtime']),
 				dbesc(self::$ob_hash),
 				dbescdate($_SESSION['last_login_date'] ?? $_SESSION['static_loadtime'])

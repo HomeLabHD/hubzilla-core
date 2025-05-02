@@ -886,7 +886,7 @@ class Enotify {
 			'when' => (($edit) ? datetime_convert('UTC', date_default_timezone_get(), $item['edited']) : datetime_convert('UTC', date_default_timezone_get(), $item['created'])),
 			'class' => (intval($item['item_unseen']) ? 'notify-unseen' : 'notify-seen'),
 		//	'b64mid' => (($item['mid']) ? gen_link_id($item['mid']) : ''),
-			'b64mid' => (($item['uuid']) ? $item['uuid'] : ''),
+			'b64mid' => ((in_array($item['verb'] , ['Like', 'Dislike', 'Announce']) && !empty($item['thr_parent_uuid'])) ? $item['thr_parent_uuid'] : $item['uuid'] ?? ''),
 			//'b64mid' => ((in_array($item['verb'], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) ? gen_link_id($item['thr_parent']) : gen_link_id($item['mid'])),
 			'thread_top' => (($item['item_thread_top']) ? true : false),
 			'message' => bbcode(escape_tags($itemem_text)),

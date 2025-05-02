@@ -1989,7 +1989,9 @@ function item_store($arr, $allow_exec = false, $deliver = true, $addAndSync = tr
 
 	// find the item we just created
 
-	$r = q("SELECT * FROM item WHERE mid = '%s' AND uid = %d and revision = %d ORDER BY id ASC ",
+	$r = q("SELECT item.*, tp.uuid AS thr_parent_uuid FROM item
+		LEFT JOIN item tp ON item.thr_parent = tp.mid AND item.uid = tp.uid
+		WHERE item.mid = '%s' AND item.uid = %d and item.revision = %d ORDER BY item.id ASC ",
 		dbesc($arr['mid']),
 		intval($arr['uid']),
 		intval($arr['revision'])
@@ -2362,7 +2364,9 @@ function item_store_update($arr, $allow_exec = false, $deliver = true, $addAndSy
 
 	// fetch an unescaped complete copy of the stored item
 
-	$r = q("select * from item where id = %d",
+	$r = q("SELECT item.*, tp.uuid AS thr_parent_uuid FROM item
+		LEFT JOIN item tp ON item.thr_parent = tp.mid AND item.uid = tp.uid
+		WHERE item.id = %d",
 		intval($orig_post_id)
 	);
 	if($r)
@@ -5389,9 +5393,6 @@ function item_activity_sql($prefix = 'c') {
 		COUNT(CASE $prefix.verb WHEN 'Reject' THEN 1 END) AS attendno_count,
 		COUNT(CASE $prefix.verb WHEN 'TentativeAccept' THEN 1 END) AS attendmaybe_count
 	SQL;
-
-
-
 
 	return $sql;
 
