@@ -501,9 +501,10 @@ class ThreadItem {
 			foreach($children as $child) {
 				$result['children'][] = $child->get_template_data($conv_responses, $mid_uuid_map, $thread_level + 1,$conv_flags);
 			}
+
 			// Collapse
-			if(($nb_children > $visible_comments) /* || ($thread_level > 1) */ ) {
-				$result['children'][0]['comment_firstcollapsed'] = true;
+			if($thread_level === 1 && $nb_children > $visible_comments) {
+				$result['children'][0]['comment_firstcollapsed'] = false;
 				$result['children'][0]['num_comments'] = $comment_count_txt['label'];
 				$result['children'][0]['hide_text'] = t('show all');
 				if($thread_level > 1) {

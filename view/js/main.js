@@ -948,8 +948,7 @@ function scrollToItem() {
         // Get the 'data-b64mids' attribute and check if it contains submid
         let b64mids = thread.dataset.b64mids;
 
-        if (b64mids && b64mids.includes(submid) && !thread.classList.contains('toplevel_item')) {
-
+        if (b64mids && b64mids.includes(submid)) {
             // Handle collapsed comments if any
             let collapsedComments = document.querySelectorAll('.collapsed-comments');
             if (collapsedComments.length) {
