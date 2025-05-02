@@ -42,7 +42,7 @@ class Sse_bs extends Controller {
 		self::$offset = 0;
 		self::$xchans = '';
 
-		if (isset($_REQUEST['sse_rmids'])) {
+		if (!empty($_REQUEST['sse_rmids'])) {
 			self::mark_read(explode(',', $_REQUEST['sse_rmids']));
 		}
 
@@ -153,10 +153,22 @@ class Sse_bs extends Controller {
 		$x = [ 'channel_id' => self::$uid, 'update' => 'unset' ];
 		call_hooks('update_unseen',$x);
 
-		if($x['update'] === 'unset' || intval($x['update'])) {
-			q("UPDATE item SET item_unseen = 0 WHERE uid = %d AND uuid in (%s) AND item_unseen = 1",
+		if ($x['update'] === 'unset' || intval($x['update'])) {
+			q("UPDATE item SET item_unseen = 0
+				WHERE uid = %d
+				AND item_unseen = 1
+				AND (
+					uuid IN (%s)
+				OR
+					thr_parent IN (
+						SELECT mid FROM item WHERE uid = %d AND uuid IN (%s)
+					)
+					AND verb IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept')
+				)",
 				intval(self::$uid),
-				$str // this is dbesc() in the above foreach loop
+				$str, // this is dbesc() in the above foreach loop
+				intval(self::$uid),
+				$str
 			);
 		}
 
