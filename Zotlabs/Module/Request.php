@@ -32,12 +32,9 @@ class Request extends Controller
 		$module = strip_tags($_GET['module']);
 
 		$items = items_by_thr_parent($mid, $parent);
-
-		xchan_query($items,true,(($sys_item) ? local_channel() : 0));
+		xchan_query($items);
 
 		$items = fetch_post_tags($items,true);
-	//	$items = conv_sort($items,'created');
-
 		$ret['html'] = conversation($items, $module, true, 'r_preview');
 
 		json_return_and_die($ret);
