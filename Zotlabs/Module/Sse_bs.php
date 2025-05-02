@@ -118,7 +118,6 @@ class Sse_bs extends Controller {
 	}
 
 	function mark_read($arr) {
-
 		$mids = [];
 		$str = '';
 		$slice = 0;
@@ -154,24 +153,26 @@ class Sse_bs extends Controller {
 		call_hooks('update_unseen',$x);
 
 		if ($x['update'] === 'unset' || intval($x['update'])) {
+			q("UPDATE item SET
+				item_unseen = 0
+				WHERE uid = %d
+				AND uuid in (%s)
+				AND item_unseen = 1",
+				intval(self::$uid),
+				$str // this is dbesc() in the above foreach loop
+			);
+
 			q("UPDATE item SET item_unseen = 0
 				WHERE uid = %d
-				AND item_unseen = 1
-				AND (
-					uuid IN (%s)
-				OR
-					thr_parent IN (
-						SELECT mid FROM item WHERE uid = %d AND uuid IN (%s)
-					)
-					AND verb IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept')
-				)",
+				AND thr_parent IN (SELECT mid FROM item WHERE uid = %d AND uuid IN (%s))
+				AND verb IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept')
+				AND item_unseen = 1",
+				intval(self::$uid),
 				intval(self::$uid),
 				$str, // this is dbesc() in the above foreach loop
-				intval(self::$uid),
 				$str
 			);
 		}
-
 	}
 
 	function bs_network($notifications) {
