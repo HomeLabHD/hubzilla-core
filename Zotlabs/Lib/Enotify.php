@@ -146,7 +146,7 @@ class Enotify {
 
 		$itemlink = $params['link'];
 
-		$action = (($moderated) ? t('requested to comment on') : t('commented on'));
+		$action = (($moderated) ? t('requested to post in') : t('posted in'));
 
 		if(array_key_exists('item',$params)) {
 
@@ -849,7 +849,7 @@ class Enotify {
 		else {
 			$itemem_text = (($item['item_thread_top'])
 				? (($item['obj_type'] === 'Question') ? t('started a poll') : t('started a conversation'))
-				: (($item['obj_type'] === 'Answer') ? sprintf( t('answered %s\'s poll'), '[bdi]' . $item['owner']['xchan_name'] . '[/bdi]') : sprintf( t('posted in %s\'s conversation'), '[bdi]' . $item['owner']['xchan_name'] . '[/bdi]'))
+				: (($item['obj_type'] === 'Answer') ? sprintf( t('voted on %s\'s poll'), '[bdi]' . $item['owner']['xchan_name'] . '[/bdi]') : sprintf( t('posted in %s\'s conversation'), '[bdi]' . $item['owner']['xchan_name'] . '[/bdi]'))
 			);
 
 			if(in_array($item['obj_type'], ['Document', 'Video', 'Audio', 'Image'])) {
