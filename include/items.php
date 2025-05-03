@@ -5428,7 +5428,7 @@ function items_by_parent_ids($ids, $thr_parents = '', $blog_mode = false) {
 	$activity_sql = item_activity_sql('c');
 	$thread_allow = Config::Get('system', 'thread_allow', true);
 
-	$blog_mode_sql = (($blog_mode) ? " AND item.item_thread_top = 1 " : '');
+	$blog_mode_sql = (($blog_mode) ? 'item.id' : 'item.parent');
 	$thr_parent_sql = (($thread_allow) ? " AND item.thr_parent = item.parent_mid " : '');
 
 	if ($thr_parents && $thread_allow) {
@@ -5444,12 +5444,11 @@ function items_by_parent_ids($ids, $thr_parents = '', $blog_mode = false) {
 			AND c.item_thread_top = 0
 			AND c.thr_parent = item.mid
 			$item_normal_c
-		WHERE item.parent in (%s)
+		WHERE $blog_mode_sql in (%s)
 			AND (
 				item.verb NOT IN ('Like', 'Dislike', 'Announce')
 				OR (item.verb = 'Announce' AND item.item_thread_top = 1)
 			)
-			$blog_mode_sql
 			$thr_parent_sql
 			$item_normal
 		GROUP BY item.id",
