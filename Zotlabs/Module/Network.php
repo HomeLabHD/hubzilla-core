@@ -70,15 +70,15 @@ class Network extends \Zotlabs\Web\Controller {
 		$dm         = ((x($_REQUEST,'dm')) ? $_REQUEST['dm'] : 0);
 
 
-		$order = get_pconfig(local_channel(), 'mod_network', 'order', 0);
+		$order = get_pconfig(local_channel(), 'mod_network', 'order', 'created');
 		switch($order) {
-			case 0:
-				$order = 'comment';
+			case 'commented':
+				$ordering = 'commented';
 				break;
-			case 1:
-				$order = 'post';
+			case 'created':
+				$ordering = 'created';
 				break;
-			case 2:
+			case 'unthreaded':
 				$nouveau = true;
 				break;
 		}
@@ -473,13 +473,6 @@ class Network extends \Zotlabs\Web\Controller {
 			$items = fetch_post_tags($items, true);
 		}
 		elseif($update) {
-
-			// Normal conversation view
-
-			if($order === 'post')
-				$ordering = 'created';
-			else
-				$ordering = 'commented';
 
 			if($load) {
 				// Fetch a page full of parent items for this page
