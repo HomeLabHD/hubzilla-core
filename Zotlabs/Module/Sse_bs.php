@@ -230,7 +230,8 @@ class Sse_bs extends Controller {
 				AND item.created <= '%s'
 				AND item.item_unseen = 1 AND item.item_wall = 0 AND item.item_private IN (0, 1)
 				AND item.obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
-				AND item.author_xchan != '%s'
+				AND NOT (item.verb = 'Announce' AND item.item_thread_top = 1) -- only show the announce activity and not the resulting item
+				AND NOT item.author_xchan = '%s'
 				$item_normal
 				$sql_extra
 				$sql_extra2
@@ -314,7 +315,8 @@ class Sse_bs extends Controller {
 				AND item.created <= '%s'
 				AND item.item_unseen = 1 AND item.item_private = 2
 				AND item.obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
-				AND item.author_xchan != '%s'
+				AND NOT (item.verb = 'Announce' AND item.item_thread_top = 1) -- only show the announce activity and not the resulting item
+				AND NOT item.author_xchan = '%s'
 				$item_normal
 				$sql_extra
 				$sql_extra2
@@ -398,7 +400,8 @@ class Sse_bs extends Controller {
 				AND item.created <= '%s'
 				AND item.item_unseen = 1 AND item.item_wall = 1 AND item.item_private IN (0, 1)
 				AND item.obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
-				AND item.author_xchan != '%s'
+				AND NOT (item.verb = 'Announce' AND item.item_thread_top = 1) -- only show the announce activity and not the resulting item
+				AND NOT item.author_xchan = '%s'
 				$item_normal
 				$sql_extra
 				$sql_extra2
@@ -504,9 +507,10 @@ class Sse_bs extends Controller {
 				LEFT JOIN item tp ON item.thr_parent = tp.mid AND item.uid = tp.uid
 				WHERE true $uids
 				AND item.created <= '%s'
-				AND item.obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
-				AND item.author_xchan != '%s'
 				AND item.created > '%s'
+				AND item.obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
+				AND NOT (item.verb = 'Announce' AND item.item_thread_top = 1) -- only show the announce activity not the resulting item
+				AND NOT item.author_xchan = '%s'
 				$item_normal
 				$sql_extra
 				$sql_extra2
