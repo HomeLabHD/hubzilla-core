@@ -1285,8 +1285,10 @@ function request(id, mid, verb, parent, uuid) {
 		});
 
 		const wrapper = document.getElementById('thread-wrapper-' + id);
-		wrapper.classList.add('item-highlight');
-		wrapper.style.borderColor = stringToHexColor(uuid);
+		if (!wrapper.classList.contains('toplevel_item')) {
+			wrapper.classList.add('item-highlight');
+			wrapper.style.borderColor = stringToHexColor(uuid);
+		}
 
 		fetch('/request?verb=' + verb + '&mid=' + mid + '&parent=' + parent + '&module=' + module)
 		.then(response => response.json())

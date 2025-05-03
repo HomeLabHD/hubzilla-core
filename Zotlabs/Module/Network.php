@@ -427,11 +427,7 @@ class Network extends \Zotlabs\Web\Controller {
 		$abook_uids = ' and abook.abook_channel = ' . local_channel() . ' ';
 		$uids = ' and item.uid = ' . local_channel() . ' ';
 
-		if(feature_enabled(local_channel(), 'network_list_mode'))
-			$page_mode = 'list';
-		else
-			$page_mode = 'client';
-
+		$page_mode = 'client';
 		$parents_str = '';
 
 		// This fixes a very subtle bug so I'd better explain it. You wake up in the morning or return after a day
@@ -504,7 +500,7 @@ class Network extends \Zotlabs\Web\Controller {
 			if($r) {
 				$parents_str = ids_to_querystr($r, 'item_id');
 
-				$items = items_by_parent_ids($parents_str);
+				$items = items_by_parent_ids($parents_str, blog_mode: feature_enabled(local_channel(), 'network_list_mode'));
 
 				xchan_query($items, true);
 				$items = fetch_post_tags($items, true);

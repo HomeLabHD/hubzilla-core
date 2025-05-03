@@ -300,10 +300,7 @@ class Channel extends Controller {
 		$item_normal_update = item_normal_update();
 		$sql_extra = item_permissions_sql(App::$profile['profile_uid']);
 
-		if (feature_enabled(App::$profile['profile_uid'], 'channel_list_mode') && (!$mid))
-			$page_mode = 'list';
-		else
-			$page_mode = 'client';
+		$page_mode = 'client';
 
 		$abook_uids = " and abook.abook_channel = " . intval(App::$profile['profile_uid']) . " ";
 
@@ -410,7 +407,7 @@ class Channel extends Controller {
 		if ($r) {
 			$parents_str = ids_to_querystr($r, 'item_id');
 
-			$r = items_by_parent_ids($parents_str);
+			$r = items_by_parent_ids($parents_str, blog_mode: (feature_enabled(App::$profile['profile_uid'], 'channel_list_mode') && !$mid));
 
 			xchan_query($r);
 			$items = fetch_post_tags($r, true);
