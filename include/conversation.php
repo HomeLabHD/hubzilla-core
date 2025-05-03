@@ -177,9 +177,7 @@ function localize_item(&$item){
 			case ACTIVITY_OBJ_NOTE:
 			case 'Note':
 			default:
-				$post_type = t('post');
-				if(((isset($obj['parent']) && isset($obj['id']) && $obj['id'] != $obj['parent'])) || isset($obj['inReplyTo']))
-					$post_type = t('comment');
+				$post_type = t('message');
 				break;
 		}
 
