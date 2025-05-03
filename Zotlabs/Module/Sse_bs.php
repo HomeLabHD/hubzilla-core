@@ -141,36 +141,49 @@ class Sse_bs extends Controller {
 			}
 		}
 
-		$_SESSION['sse_mids_all'] = serialise($mids_all);
+		$str = implode(',', $mids);
+
+		$sys = get_sys_channel();
+		$sql_order = ((self::$uid > $sys['channel_id']) ? 'DESC' : 'ASC');
+
+		$r = q("SELECT uid, uuid FROM item
+			WHERE uid in (%d, %d)
+			AND verb IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept')
+			AND thr_parent IN (
+				SELECT mid FROM item WHERE uid IN (%d, %d) AND uuid IN (%s) ORDER BY uid $sql_order
+			)
+			GROUP BY uuid
+			ORDER BY uid $sql_order",
+			intval(self::$uid),
+			intval($sys['channel_id']),
+			intval(self::$uid),
+			intval($sys['channel_id']),
+			$str
+		);
+
+		if ($r) {
+			$activities_str = ids_to_querystr($r, 'uuid', true);
+			$str .= ',' . $activities_str;
+			$activities_arr = explode(',', $activities_str);
+			$mids_all = array_merge($mids_all, $activities_arr);
+		}
+
+		$_SESSION['sse_mids_all'] = serialise(array_unique($mids_all));
 
 		if(! self::$uid) {
 			return;
 		}
 
-		$str = implode(',', $mids);
-
 		$x = [ 'channel_id' => self::$uid, 'update' => 'unset' ];
 		call_hooks('update_unseen',$x);
 
 		if ($x['update'] === 'unset' || intval($x['update'])) {
-			q("UPDATE item SET
-				item_unseen = 0
+			q("UPDATE item SET item_unseen = 0
 				WHERE uid = %d
 				AND uuid in (%s)
 				AND item_unseen = 1",
 				intval(self::$uid),
 				$str // this is dbesc() in the above foreach loop
-			);
-
-			q("UPDATE item SET item_unseen = 0
-				WHERE uid = %d
-				AND thr_parent IN (SELECT mid FROM item WHERE uid = %d AND uuid IN (%s))
-				AND verb IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept')
-				AND item_unseen = 1",
-				intval(self::$uid),
-				intval(self::$uid),
-				$str, // this is dbesc() in the above foreach loop
-				$str
 			);
 		}
 	}
