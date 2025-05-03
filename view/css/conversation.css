@@ -199,10 +199,10 @@ a.wall-item-name-link {
 
 .item-highlight-fade {
 	background-color: var(--bs-primary-bg-subtle);
-	animation: fadeBgIn 1s .5s backwards;
+	animation: fadeBgOut .3s 1.5s backwards;
 }
 
-@keyframes fadeBgIn {
+@keyframes fadeBgOut {
 	from { background-color: var(--bs-primary-bg-subtle); }
 	to   { background-color: none; }
 }
