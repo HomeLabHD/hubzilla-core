@@ -21,7 +21,7 @@ class Notifications {
 				'icon' => 'grid-3x3',
 				'severity' => 'secondary',
 				'label' => t('Network'),
-				'title' => t('Unseen network activity'),
+				'title' => t('New network activity notifications'),
 				'viewall' => [
 					'url' => 'network',
 					'label' => t('Network stream')
@@ -30,7 +30,7 @@ class Notifications {
 					'label' => t('Mark all notifications read')
 				],
 				'filter' => [
-					'posts_label' => t('Show conversations only'),
+					'posts_label' => t('Show new posts only'),
 					'name_label' => t('Filter by name or address')
 				]
 			];
@@ -40,17 +40,17 @@ class Notifications {
 				'type' => 'home',
 				'icon' => 'house',
 				'severity' => 'danger',
-				'label' => t('Channel'),
-				'title' => t('Unseen channel activity'),
+				'label' => t('Home'),
+				'title' => t('New home activity notifications'),
 				'viewall' => [
 					'url' => 'channel/' . $channel['channel_address'],
-					'label' => t('Channel stream')
+					'label' => t('Home stream')
 				],
 				'markall' => [
 					'label' => t('Mark all notifications seen')
 				],
 				'filter' => [
-					'posts_label' => t('Show conversations only'),
+					'posts_label' => t('Show new posts only'),
 					'name_label' => t('Filter by name or address')
 				]
 			];
@@ -59,17 +59,17 @@ class Notifications {
 				'type' => 'dm',
 				'icon' => 'envelope',
 				'severity' => 'danger',
-				'label' => t('Private'),
-				'title' => t('Unseen private activity'),
+				'label' => t('Direct Messages'),
+				'title' => t('New direct messages notifications'),
 				'viewall' => [
 					'url' => 'network/?dm=1',
-					'label' => t('Private stream')
+					'label' => t('Direct messages stream')
 				],
 				'markall' => [
-					'label' => t('Mark all read')
+					'label' => t('Mark all notifications read')
 				],
 				'filter' => [
-					'posts_label' => t('Show conversations only'),
+					'posts_label' => t('Show new posts only'),
 					'name_label' => t('Filter by name or address')
 				]
 			];
@@ -94,7 +94,7 @@ class Notifications {
 				'icon' => 'people',
 				'severity' => 'danger',
 				'label' => t('New Connections'),
-				'title' => t('New connections'),
+				'title' => t('New connections notifications'),
 				'viewall' => [
 					'url' => 'connections',
 					'label' => t('View all connections')
@@ -106,15 +106,15 @@ class Notifications {
 				'icon' => 'folder',
 				'severity' => 'danger',
 				'label' => t('Files'),
-				'title' => t('New files'),
+				'title' => t('New files notifications'),
 			];
 
 			$notifications[] = [
 				'type' => 'notify',
 				'icon' => 'exclamation-circle',
 				'severity' => 'danger',
-				'label' => t('Notifications'),
-				'title' => t('New notifications'),
+				'label' => t('Notices'),
+				'title' => t('Notices'),
 				'viewall' => [
 					'url' => 'notifications/system',
 					'label' => t('View all notices')

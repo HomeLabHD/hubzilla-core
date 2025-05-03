@@ -2380,9 +2380,9 @@ function item_post_type($item) {
 			$post_type = t('event');
 			break;
 		default:
-			$post_type = t('conversation');
+			$post_type = t('post');
 			if($item['mid'] != $item['parent_mid'])
-				$post_type = t('message');
+				$post_type = t('comment');
 			break;
 	}
 

@@ -305,7 +305,7 @@ class Sse_bs extends Controller {
 		$item_normal = item_normal();
 
 		// Filter internal follow activities and strerams add/remove activities
-		$item_normal .= " AND item.verb NOT IN ('Add', 'Remove', 'Follow', 'Ignore', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
+		$item_normal .= " AND verb NOT IN ('Add', 'Remove', 'Follow', 'Ignore', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
 
 		if ($notifications) {
 			$items = q("SELECT item.*, tp.uuid AS thr_parent_uuid FROM item

@@ -848,8 +848,8 @@ class Enotify {
 		}
 		else {
 			$itemem_text = (($item['item_thread_top'])
-				? (($item['obj_type'] === 'Question') ? t('started a poll') : t('started a conversation'))
-				: (($item['obj_type'] === 'Answer') ? sprintf( t('answered %s\'s poll'), '[bdi]' . $item['owner']['xchan_name'] . '[/bdi]') : sprintf( t('posted in %s\'s conversation'), '[bdi]' . $item['owner']['xchan_name'] . '[/bdi]'))
+				? (($item['obj_type'] === 'Question') ? t('created a new poll') : t('created a new post'))
+				: (($item['obj_type'] === 'Answer') ? sprintf( t('voted on %s\'s poll'), '[bdi]' . $item['owner']['xchan_name'] . '[/bdi]') : sprintf( t('commented on %s\'s post'), '[bdi]' . $item['owner']['xchan_name'] . '[/bdi]'))
 			);
 
 			if(in_array($item['obj_type'], ['Document', 'Video', 'Audio', 'Image'])) {
@@ -861,7 +861,12 @@ class Enotify {
 
 		if($item['edited'] > $item['created']) {
 			$edit = true;
-			$itemem_text = sprintf( t('edited a message dated %s'), relative_date($item['created']));
+			if($item['item_thread_top']) {
+				$itemem_text = sprintf( t('edited a post dated %s'), relative_date($item['created']));
+			}
+			else {
+				$itemem_text = sprintf( t('edited a comment dated %s'), relative_date($item['created']));
+			}
 		}
 
 
