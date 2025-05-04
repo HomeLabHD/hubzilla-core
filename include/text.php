@@ -2386,11 +2386,13 @@ function item_post_type($item) {
 			break;
 	}
 
-	if(strlen($item['verb']) && (! activity_match($item['verb'],ACTIVITY_POST)))
+	if(strlen($item['verb']) && (!activity_match($item['verb'], ['Create', ACTIVITY_POST]))) {
 		$post_type = t('activity');
+	}
 
-	if($item['obj_type'] === 'Question')
+	if($item['obj_type'] === 'Question') {
 		$post_type = t('poll');
+	}
 
 	return $post_type;
 }
