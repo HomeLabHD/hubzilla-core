@@ -403,7 +403,7 @@ class Channel extends Controller {
 						$item_normal
 						$sql_extra
 						$sql_extra2
-						ORDER BY $ordering DESC
+						ORDER BY $ordering DESC, item_id
 						$pager_sql",
 						intval(App::$profile['profile_uid'])
 					);
