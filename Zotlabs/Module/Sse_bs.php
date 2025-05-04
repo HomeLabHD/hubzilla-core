@@ -158,7 +158,7 @@ class Sse_bs extends Controller {
 			intval($sys['channel_id']),
 			intval(self::$uid),
 			intval($sys['channel_id']),
-			$str
+			$str // this is dbesc() in the above foreach loop
 		);
 
 		if ($r) {
