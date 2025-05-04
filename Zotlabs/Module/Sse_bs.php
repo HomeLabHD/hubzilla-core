@@ -152,7 +152,7 @@ class Sse_bs extends Controller {
 			AND thr_parent IN (
 				SELECT mid FROM item WHERE uid IN (%d, %d) AND uuid IN (%s) ORDER BY uid $sql_order
 			)
-			GROUP BY uuid
+			GROUP BY uid, uuid
 			ORDER BY uid $sql_order",
 			intval(self::$uid),
 			intval($sys['channel_id']),
