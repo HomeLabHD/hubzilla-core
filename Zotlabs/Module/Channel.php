@@ -302,7 +302,7 @@ class Channel extends Controller {
 
 		$page_mode = 'client';
 
-		$blog_mode = feature_enabled(local_channel(), 'channel_list_mode') && !$mid;
+		$blog_mode = feature_enabled(App::$profile['profile_uid'], 'channel_list_mode') && !$mid;
 		if ($blog_mode) {
 			$page_mode = 'list';
 		}
