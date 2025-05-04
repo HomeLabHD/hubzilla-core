@@ -46,7 +46,7 @@ class Messages {
 				'direct_messages_title' => t('Private conversations'),
 				'starred_messages_title' => t('Starred conversations'),
 				'filed_messages_title' => t('Filed messages'),
-				'notice_messages_title' => t('Notices'),
+				'notice_messages_title' => t('Notifications'),
 				'loading' => t('Loading'),
 				'empty' => t('No conversations'),
 				'unseen_count' => t('Unseen reactions'),
