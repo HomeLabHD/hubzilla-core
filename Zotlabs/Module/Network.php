@@ -81,6 +81,8 @@ class Network extends \Zotlabs\Web\Controller {
 			case 'unthreaded':
 				$nouveau = true;
 				break;
+			default:
+				$ordering = 'created';
 		}
 
 		$search = $_GET['search'] ?? '';
@@ -92,7 +94,7 @@ class Network extends \Zotlabs\Web\Controller {
 		}
 
 		if($datequery)
-			$order = 'post';
+			$order = 'created';
 
 
 		// filter by collection (e.g. group)
