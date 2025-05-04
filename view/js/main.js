@@ -744,8 +744,10 @@ function updateConvItems(mode, data) {
 
 		// Also highlight the thread parent
 		if (data_json.includes(bParam_mid) && elem.parentNode.classList.contains('wall-item-sub-thread-wrapper')) {
-			elem.parentNode.parentNode.classList.add('item-highlight');
-			elem.parentNode.parentNode.style.borderColor = stringToHexColor(JSON.parse(elem.parentNode.parentNode.dataset.b64mids)[0]);
+			if (!elem.parentNode.parentNode.classList.contains('toplevel_item')) {
+				elem.parentNode.parentNode.classList.add('item-highlight');
+				elem.parentNode.parentNode.style.borderColor = stringToHexColor(JSON.parse(elem.parentNode.parentNode.dataset.b64mids)[0]);
+			}
 		}
 
 		b64mids.push(...data_json);
