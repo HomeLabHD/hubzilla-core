@@ -84,7 +84,7 @@ class ThreadItem {
 	 *      _ false on failure
 	 */
 
-	public function get_template_data($conv_responses, $mid_uuid_map, $thread_level=1, $conv_flags = []) {
+	public function get_template_data($conv_responses, $mid_uuid_map, $blog_mode, $thread_level=1, $conv_flags = []) {
 
 		$result = [];
 		$item = $this->get_data();
@@ -223,14 +223,14 @@ class ThreadItem {
 		}
 
 		$response_verbs[] = 'comment';
-
 		$responses = get_responses($conv_responses,$response_verbs,$this,$item);
 
+/*
 		$my_responses = [];
 		foreach($response_verbs as $v) {
 			$my_responses[$v] = ((isset($conv_responses[$v][$item['mid'] . '-m'])) ? 1 : 0);
 		}
-
+*/
 
 		/*
 		 * We should avoid doing this all the time, but it depends on the conversation mode
@@ -484,7 +484,8 @@ class ThreadItem {
 			'reaction_str' => [t('Add yours'), t('Remove yours')],
 			'is_contained' => $this->is_toplevel() && str_contains($item['tgt_type'], 'Collection'),
 			'observer_activity' => ['like' => intval($item['observer_liked'] ?? 0), 'dislike' => intval($item['observer_disliked'] ?? 0), 'announce' => intval($item['observer_announced'] ?? 0), 'comment' => intval($item['observer_commented'] ?? 0)],
-			'threaded' => $this->threaded
+			'threaded' => $this->threaded,
+			'blog_mode' => $blog_mode
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);
@@ -499,7 +500,7 @@ class ThreadItem {
 
 		if(($this->get_display_mode() === 'normal') && ($nb_children > 0)) {
 			foreach($children as $child) {
-				$result['children'][] = $child->get_template_data($conv_responses, $mid_uuid_map, $thread_level + 1,$conv_flags);
+				$result['children'][] = $child->get_template_data($conv_responses, $mid_uuid_map, $blog_mode, $thread_level + 1, $conv_flags);
 			}
 
 			// Collapse

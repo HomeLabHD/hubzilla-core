@@ -110,7 +110,7 @@
 				<div class="p-2 wall-item-tools d-flex justify-content-between">
 					<div class="wall-item-tools-left hstack gap-1" id="wall-item-tools-left-{{$item.id}}">
 						{{foreach $item.responses as $verb=>$response}}
-						{{if !($verb == 'comment' && $response.count == 0)}}
+						{{if !($verb == 'comment' && (($item.toplevel && !$item.blog_mode) || $response.count == 0))}}
 						<button type="button" title="{{$response.count}} {{$response.button.label}}" class="btn btn-sm btn-link{{if !$item.observer_activity.$verb}} link-secondary{{/if}} wall-item-{{$response.button.class}}" onclick="request({{$item.id}}, '{{$item.rawmid}}', '{{$verb}}', {{$item.parent}}, '{{$item.mid}}'); return false;" id="wall-item-{{$verb}}-{{$item.id}}">
 							<i class="bi bi-{{$response.button.icon}} generic-icons"></i>{{if $response.count}}<span style="display: inline-block; margin-top: -.25rem;" class="align-top">{{$response.count}}</span>{{/if}}
 						</button>

@@ -723,7 +723,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 					$conv->add_thread($item_object);
 					if(($page_mode === 'list') || ($page_mode === 'pager_list')) {
-						$item_object->set_template('conv_list.tpl');
+					//	$item_object->set_template('conv_list.tpl');
 						$item_object->set_display_mode('list');
 					}
 					if($mode === 'cards' || $mode === 'articles') {
@@ -733,7 +733,9 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 				}
 			}
 
-			$threads = $conv->get_template_data($conv_responses, $mid_uuid_map);
+			$blog_mode = $page_mode === 'list';
+
+			$threads = $conv->get_template_data($conv_responses, $mid_uuid_map, $blog_mode);
 			if(!$threads) {
 				logger('[ERROR] conversation : Failed to get template data.', LOGGER_DEBUG);
 				$threads = array();
