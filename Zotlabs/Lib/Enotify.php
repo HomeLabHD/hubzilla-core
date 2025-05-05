@@ -508,9 +508,14 @@ class Enotify {
 */
 
 
+	$hash = ((in_array($params['verb'], ['Create'])) ? $params['item']['uuid']  : $params['item']['thr_parent_uuid']);
+
+	if (!$hash) {
+		$hash = new_uuid();
+	}
 
 	$datarray = [];
-	$datarray['hash']   = $params['item']['uuid'] ?? new_uuid();
+	$datarray['hash'] = $hash;
 	$datarray['sender_hash'] = $sender['xchan_hash'];
 	$datarray['xname']   = $sender['xchan_name'];
 	$datarray['url']    = $sender['xchan_url'];
@@ -908,7 +913,7 @@ class Enotify {
 			$message = substr($message, strlen($tt['xname']) + 1);
 
 		$x = [
-			'notify_link' => (($tt['ntype'] === NOTIFY_MAIL) ? $tt['link'] : z_root() . '/notify/view/' . $tt['id']),
+			'notify_link' => $tt['link'],
 			'name' => $tt['xname'],
 			'url' => $tt['url'],
 			'photo' => $tt['photo'],

@@ -2845,8 +2845,8 @@ function tag_deliver($uid, $item_id) {
 				'from_xchan'   => $item['author_xchan'],
 				'type'         => NOTIFY_TAGSELF,
 				'item'         => $item,
-				'link'         => $i[0]['llink'],
-				'verb'         => ACTIVITY_TAG,
+				'link'         => $item['llink'],
+				'verb'         => $item['verb'],
 				'otype'        => 'item'
 			));
 
