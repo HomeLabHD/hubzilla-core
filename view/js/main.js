@@ -1307,10 +1307,7 @@ function request(id, mid, verb, parent, uuid) {
 		fetch('/request?verb=' + verb + '&mid=' + mid + '&parent=' + parent + '&module=' + module)
 		.then(response => response.json())
 		.then(obj => {
-			let parser = new DOMParser();
-			let doc = parser.parseFromString(obj.html, 'text/html');
-
-			imagesLoaded(doc.querySelectorAll('.wall-item-body img'), function () {
+			imagesLoaded(obj.html, function () {
 				injectWithAnimation('wall-item-sub-thread-wrapper-' + id, obj.html);
 				updateRelativeTime('.autotime');
 				loading.style.display = 'none';
