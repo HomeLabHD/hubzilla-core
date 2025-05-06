@@ -869,27 +869,21 @@ function imagesLoaded(elements, callback) {
 
 	// Iterate through images to add load and error event listeners
 	images.forEach((img) => {
-
 		let new_img = new Image();
 		new_img.src = img.src;
 
-//		new_img.loading = 'eager'; // Preload the image
-
 		if (new_img.complete && new_img.naturalHeight > 0) {
 			// Image is already loaded, handle immediately
+			// console.log(`Image cached: ${new_img.src}`);
 			checkComplete(new_img.src);
-			console.log(`Image success: ${img.src}`);
-
 		} else {
-			console.log('attmpt loading')
 			// Add event listeners for load and error events
 			new_img.addEventListener('load', () => {
-				console.log('load listener')
-
+				// console.log(`Image loaded: ${new_img.src}`);
 				checkComplete(new_img.src)
 			});
 			new_img.addEventListener('error', () => {
-				console.log(`Image failed to load: ${img.src}`);
+				console.log(`Image failed to load: ${new_img.src}`);
 				checkComplete(new_img.src);
 			});
 		}
@@ -1307,11 +1301,23 @@ function request(id, mid, verb, parent, uuid) {
 		fetch('/request?verb=' + verb + '&mid=' + mid + '&parent=' + parent + '&module=' + module)
 		.then(response => response.json())
 		.then(obj => {
-			imagesLoaded(obj.html, function () {
+			let parser = new DOMParser();
+			let doc = parser.parseFromString(obj.html, 'text/html');
+			let b64mids = [];
+
+			doc.querySelectorAll('.thread-wrapper').forEach(function (e) {
+				let data = JSON.parse(e.dataset.b64mids);
+				b64mids.push(...data);
+			});
+
+			imagesLoaded(doc.querySelectorAll('.wall-item-body img'), function () {
 				injectWithAnimation('wall-item-sub-thread-wrapper-' + id, obj.html);
 				updateRelativeTime('.autotime');
 				loading.style.display = 'none';
 				collapseHeight();
+
+				document.dispatchEvent(new CustomEvent('hz:sse_setNotificationsStatus', { detail: b64mids }));
+				document.dispatchEvent(new Event('hz:sse_bs_counts'));
 			});
 
 		})
