@@ -2276,8 +2276,8 @@ class Activity {
 		if (!array_key_exists('edited', $s))
 			$s['edited'] = $s['created'];
 
-		$s['title']   = (($response_activity) ? EMPTY_STR : self::bb_content($content, 'name'));
-		$s['summary'] = self::bb_content($content, 'summary');
+		$s['title']   = (($response_activity) ? EMPTY_STR : html2plain($content['name']));
+		$s['summary'] = html2plain($content['summary']);
 		$s['body']    = ((self::bb_content($content, 'bbcode') && (!$response_activity)) ? self::bb_content($content, 'bbcode') : self::bb_content($content, 'content'));
 
 		// peertube quirks
