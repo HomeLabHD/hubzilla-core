@@ -59,7 +59,6 @@ class Request extends Controller
 		$parent = intval($_GET['parent']);
 		$observer_hash = get_observer_hash();
 
-
 		$ret['result'] = item_activity_xchans($mid, $parent, $verb);
 
 		// TODO: check permission to like
