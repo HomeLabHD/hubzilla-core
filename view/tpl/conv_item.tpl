@@ -155,7 +155,7 @@
 						</div>
 						{{/if}}
 						{{if $item.reply_to}}
-						<button type="button" title="{{$item.reply_to.0}}" class="btn btn-sm btn-link link-secondary" onclick="doreply({{$item.parent}}, {{$item.id}}, '{{$item.author_id}}', '{{$item.reply_to.2}} {{$item.name|escape:javascript}}');">
+						<button type="button" title="{{$item.reply_to.0}}" class="btn btn-sm btn-link link-secondary" onclick="doreply({{$item.parent}}, {{$item.id}}, '{{$item.author_id}}', '{{$item.reply_to.2}}: {{$item.name|escape:javascript}}');">
 							<i class="bi bi-arrow-90deg-left generic-icons" ></i>
 						</button>
 						{{/if}}
@@ -225,7 +225,7 @@
 		{{/foreach}}
 		</div>
 		{{if $item.comment}}
-		<div id="wall-item-comment-wrapper-{{$item.id}}" class="p-2 rounded wall-item-comment-wrapper{{if $item.children}} wall-item-comment-wrapper-wc{{/if}}">
+		<div id="wall-item-comment-wrapper-{{$item.id}}" class="p-2 rounded wall-item-comment-wrapper{{if $item.children}} wall-item-comment-wrapper-wc{{/if}}{{if $item.comment_hidden}} d-none{{/if}}">
 			{{$item.comment}}
 		</div>
 		{{/if}}

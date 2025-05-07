@@ -35,6 +35,7 @@ class Request extends Controller
 		xchan_query($items);
 
 		$items = fetch_post_tags($items,true);
+
 		$ret['html'] = conversation($items, $module, true, 'r_preview');
 
 		json_return_and_die($ret);
@@ -53,19 +54,21 @@ class Request extends Controller
 			killme();
 		}
 
+		$text = get_response_button_text($_GET['verb']);
 		$mid = strip_tags($_GET['mid']);
 		$parent = intval($_GET['parent']);
 		$observer_hash = get_observer_hash();
 
-		$ret = [
-			'result' => item_activity_xchans($mid, $parent, $verb)
-		];
+
+		$ret['result'] = item_activity_xchans($mid, $parent, $verb);
 
 		// TODO: check permission to like
 		if ($observer_hash) {
 			$ret['action'] = (($verb === 'Announce') ? 'jotShare' : 'dolike');
 			$ret['action_label'] = ((find_xchan_in_array($observer_hash, $ret['result'])) ? t('- Remove yours') : t('+ Add yours'));
 		}
+
+		$ret['title'] = $text['label'];
 
 		json_return_and_die($ret);
 

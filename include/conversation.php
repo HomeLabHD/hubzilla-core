@@ -1556,7 +1556,7 @@ function get_responses($conv_responses,$response_verbs,$ob,$item) {
 	return $ret;
 }
 
-function get_response_button_text($v, $count) {
+function get_response_button_text($v, $count = 0) {
 	switch($v) {
 		case 'like':
 			return ['label' => tt('Like','Likes',$count,'noun'), 'icon' => 'hand-thumbs-up', 'class' => 'like', 'action' => 'dolike'];
@@ -1568,13 +1568,13 @@ function get_response_button_text($v, $count) {
 			return ['label' => tt('Dislike','Dislikes',$count,'noun'), 'icon' => 'hand-thumbs-down', 'class' => 'dislike', 'action' => 'dolike'];
 			break;
 		case 'comment':
-			return ['label' => tt('Comment','Comments',$count,'noun'), 'icon' => 'chat', 'class' => 'comment', 'action' => ''];
+			return ['label' => tt('Reply','Replies',$count,'noun'), 'icon' => 'chat', 'class' => 'comment', 'action' => ''];
 			break;
 		case 'attendyes':
 			return ['label' => tt('Attending','Attending',$count,'noun'), 'icon' => 'calendar-check', 'class' => 'attendyes', 'action' => 'dolike'];
 			break;
 		case 'attendno':
-			return ['label' => tt('Not Attending','Not Attending',$count,'noun'), 'icon' => 'calendar-x', 'class' => 'attendno', 'action' => 'dolike'];
+			return ['label' => tt('Not attending','Not attending',$count,'noun'), 'icon' => 'calendar-x', 'class' => 'attendno', 'action' => 'dolike'];
 			break;
 		case 'attendmaybe':
 			return ['label' => tt('Undecided','Undecided',$count,'noun'), 'icon' => 'calendar', 'class' => 'attendmaybe', 'action' => 'dolike'];

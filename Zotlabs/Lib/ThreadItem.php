@@ -293,7 +293,7 @@ class ThreadItem {
 		if($this->is_commentable() && $observer) {
 			$like = array( t("I like this \x28toggle\x29"), t("like"));
 			$dislike = array( t("I don't like this \x28toggle\x29"), t("dislike"));
-			$reply_to = array( t("Reply to this comment"), t("reply"), t("Reply to"));
+			$reply_to = array( t("Reply to this message"), t("reply"), t("Reply to"));
 			$reactions_allowed = true;
 		}
 
@@ -441,7 +441,7 @@ class ThreadItem {
 			'emojis'	=> (($this->is_toplevel() && $this->is_commentable() && $observer && feature_enabled($conv->get_profile_owner(),'emojis')) ? '1' : ''),
 			'like'      => $like,
 			'dislike'   => ((feature_enabled($conv->get_profile_owner(),'dislike')) ? $dislike : ''),
-			'reply_to'	=> (((! $this->is_toplevel()) && feature_enabled($conv->get_profile_owner(),'reply_to')) ? $reply_to : ''),
+			'reply_to'	=> ((feature_enabled($conv->get_profile_owner(),'reply_to')) ? $reply_to : ''),
 			'top_hint'	=> t("Go to previous comment"),
 			'share'     => $share,
 			'embed'     => $embed,
@@ -468,6 +468,7 @@ class ThreadItem {
 			'my_responses' => $my_responses,
 			'modal_dismiss' => t('Close'),
 			'comment' => ($item['item_delayed'] ? '' : $this->get_comment_box()),
+			'comment_hidden' => feature_enabled($conv->get_profile_owner(),'reply_to'),
 			'no_comment' => (($item['item_thread_top'] && $item['item_nocomment'])? t('Comments disabled') : ''),
 			'previewing' => ($conv->is_preview() ? true : false ),
 			'preview_lbl' => t('This is an unsaved preview'),
