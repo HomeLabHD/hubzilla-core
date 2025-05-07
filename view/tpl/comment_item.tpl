@@ -74,5 +74,5 @@
 				</div>
 				<div class="clear"></div>
 			</form>
+			<div id="comment-edit-preview-{{$id}}" class="comment-edit-preview mt-4"></div>
 		</div>
-		<div id="comment-edit-preview-{{$id}}" class="comment-edit-preview mt-4"></div>

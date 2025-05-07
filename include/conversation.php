@@ -563,11 +563,6 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 				$likebuttons = false;
 				$shareable = false;
 
-				if (!isset($item['sig'])) {
-					hz_syslog(print_r($item,true));
-					bt_syslog('nosig');
-				}
-
 				$verified = (intval($item['item_verified']) ? t('Message signature validated') : '');
 				$forged = ((!empty($item['sig']) && !intval($item['item_verified'])) ? t('Message signature incorrect') : '');
 
@@ -1245,8 +1240,8 @@ function hz_status_editor($x, $popup = false) {
 		call_hooks('jot_networks', $jotnets);
 	}
 
-	$sharebutton = (!empty($x['button']) ? $x['button'] : t('Share'));
-	$placeholdtext = (!empty($x['content_label']) ? $x['content_label'] : $sharebutton);
+	$sharebutton = (!empty($x['button']) ? $x['button'] : t('Submit'));
+	$placeholdtext = (!empty($x['content_label']) ? $x['content_label'] : t('Start a conversation'));
 
 	$tplmacros = [
 		'$return_path' => ((!empty($x['return_path'])) ? $x['return_path'] : App::$query_string),

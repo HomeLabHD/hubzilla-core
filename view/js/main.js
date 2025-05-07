@@ -1459,12 +1459,15 @@ function doreply(parent, ident, owner, hint) {
 	const modal_content = document.getElementById('reactions_body');
 	const modal_title = document.getElementById('reactions_title');
 	const modal_action = document.getElementById('reactions_action');
+
 	modal_action.style.display = 'none';
 	modal_title.innerHTML = hint;
 
+	const preview = document.getElementById('comment-edit-preview-' + parent.toString());
+	preview.innerHTML = '';
 
 	// Get the form element by ID
-	const form = document.getElementById('comment-edit-form-' + parent.toString());
+	const form = document.getElementById('comment-edit-wrapper-' + parent.toString());
 	if (!form) return;
 
 	modal_content.innerHTML = '';
@@ -1503,15 +1506,12 @@ function doreply(parent, ident, owner, hint) {
 
 	modal.show();
 
-
 	// Set the textarea value
 	const textarea = form.querySelector('textarea');
 	if (textarea) {
 		textarea.value = "@{" + owner + "}" + ((!isInSel || quote.length === 0) ? " " : "\n[quote]" + quote + "[/quote]\n");
 		textarea.focus();
 	}
-
-
 }
 
 
