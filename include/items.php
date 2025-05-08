@@ -5521,14 +5521,19 @@ function items_by_thr_parent($mid, $parent, $sql_extra = '') {
 
 function item_activity_xchans($mid, $parent, $verb) {
 	$observer_hash = get_observer_hash();
-	$item_normal = item_normal();
-
 	$parent_item = q("SELECT * FROM item WHERE id = %d",
 		intval($parent)
 	);
 
+	$item_uid = $parent_item[0]['uid'];
+
+	// Set App::$profile_uid before calling item_normal()
+	App::$profile_uid = $item_uid;
+	$item_normal = item_normal();
+
+
 	if (local_channel()) {
-		$ret = q("SELECT xchan.xchan_hash, xchan.xchan_name as name, xchan.xchan_url as url, xchan.xchan_photo_s as photo FROM item
+		$ret = q("SELECT item.id, item.item_blocked, xchan.xchan_hash, xchan.xchan_name as name, xchan.xchan_url as url, xchan.xchan_photo_s as photo FROM item
 			LEFT JOIN xchan ON item.author_xchan = xchan.xchan_hash
 			WHERE item.uid = %d
 			AND item.parent = %d
@@ -5545,10 +5550,9 @@ function item_activity_xchans($mid, $parent, $verb) {
 	}
 
 	if (!$ret) {
-		$item_uid = $parent_item[0]['uid'];
 		$sql_extra = item_permissions_sql($item_uid, $observer_hash);
 
-		$ret = q("SELECT xchan.xchan_hash, xchan.xchan_name as name, xchan.xchan_url as url, xchan.xchan_photo_s as photo FROM item
+		$ret = q("SELECT item.id, item.item_blocked, xchan.xchan_hash, xchan.xchan_name as name, xchan.xchan_url as url, xchan.xchan_photo_s as photo FROM item
 			LEFT JOIN xchan ON item.author_xchan = xchan.xchan_hash
 			WHERE item.uid = %d
 			AND item.thr_parent = '%s'
