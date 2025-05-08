@@ -66,7 +66,7 @@ class Request extends Controller
 
 		if ($commentable) {
 			$ret['action'] = (($verb === 'Announce') ? 'jotShare' : 'dolike');
-			$ret['action_label'] = ((find_xchan_in_array($observer_hash, $ret['result'])) ? t('- Remove yours') : t('+ Add yours'));
+			$ret['action_label'] = ((find_xchan_in_array($observer_hash, $ret['result'])) ? (($verb === 'Announce') ? t('+ Repeat again') : t('- Remove yours')) : t('+ Add yours'));
 		}
 
 		$ret['title'] = $text['label'];
