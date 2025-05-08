@@ -240,19 +240,22 @@ function comments_are_now_closed($item) {
 	return false;
 }
 
-function item_normal() {
-	$profile_uid = App::$profile['profile_uid'] ?? App::$profile_uid ?? null;
+function item_normal($profile_uid = null, $prefix = 'item') {
+	if ($profile_uid === null) {
+		$profile_uid = App::$profile['profile_uid'] ?? App::$profile_uid ?? null;
+	}
+
 	$uid = local_channel();
 	$is_owner = ($uid && intval($profile_uid) === $uid);
 
-	$sql = " and item.item_hidden = 0 and item.item_type = 0 and item.item_deleted = 0
-		and item.item_unpublished = 0 and item.item_pending_remove = 0";
+	$sql = " and $prefix.item_hidden = 0 and $prefix.item_type = 0 and $prefix.item_deleted = 0
+		and $prefix.item_unpublished = 0 and $prefix.item_pending_remove = 0";
 
 	if ($is_owner) {
-		$sql .= " and item.item_blocked IN (0, " . intval(ITEM_MODERATED) . ") and item.item_delayed IN (0, 1) ";
+		$sql .= " and $prefix.item_blocked IN (0, " . intval(ITEM_MODERATED) . ") and $prefix.item_delayed IN (0, 1) ";
 	}
 	else {
-		$sql .= " and item.item_blocked = 0 and item.item_delayed = 0 ";
+		$sql .= " and $prefix.item_blocked = 0 and $prefix.item_delayed = 0 ";
 	}
 
 	return $sql;
@@ -5358,8 +5361,7 @@ function set_activity_mid($string) {
 }
 
 function item_activity_sql($prefix = 'c') {
-	$item_normal = item_normal();
-	$item_normal_c = str_replace('item.', $prefix . '.', $item_normal);
+	$item_normal_c = item_normal(prefix: $prefix);
 	$sql = '';
 
 	$observer = get_observer_hash();
@@ -5400,7 +5402,7 @@ function item_activity_sql($prefix = 'c') {
 
 function item_by_item_id($id, $sql_extra = '') {
 	$item_normal = item_normal();
-	$item_normal_c = str_replace('item.', 'c.', $item_normal);
+	$item_normal_c = item_normal(prefix: 'c');
 	$activity_sql = item_activity_sql('c');
 
 	$ret = q("SELECT item.*,
@@ -5424,7 +5426,7 @@ function item_by_item_id($id, $sql_extra = '') {
 
 function items_by_parent_ids($ids, $thr_parents = '', $blog_mode = false) {
 	$item_normal = item_normal();
-	$item_normal_c = str_replace('item.', 'c.', $item_normal);
+	$item_normal_c = item_normal(prefix: 'c');
 	$activity_sql = item_activity_sql('c');
 	$thread_allow = Config::Get('system', 'thread_allow', true);
 
@@ -5460,7 +5462,7 @@ function items_by_parent_ids($ids, $thr_parents = '', $blog_mode = false) {
 
 function items_by_thr_parent($mid, $parent, $sql_extra = '') {
 	$item_normal = item_normal();
-	$item_normal_c = str_replace('item.', 'c.', $item_normal);
+	$item_normal_c = item_normal(prefix: 'c');
 	$activity_sql = item_activity_sql('c');
 
 	if (local_channel()) {
@@ -5525,12 +5527,8 @@ function item_activity_xchans($mid, $parent, $verb) {
 		intval($parent)
 	);
 
-	$item_uid = $parent_item[0]['uid'];
-
-	// Set App::$profile_uid before calling item_normal()
-	App::$profile_uid = $item_uid;
-	$item_normal = item_normal();
-
+	$owner_uid = $parent_item[0]['uid'];
+	$item_normal = item_normal($owner_uid);
 
 	if (local_channel()) {
 		$ret = q("SELECT item.id, item.item_blocked, xchan.xchan_hash, xchan.xchan_name as name, xchan.xchan_url as url, xchan.xchan_photo_s as photo FROM item
@@ -5550,7 +5548,7 @@ function item_activity_xchans($mid, $parent, $verb) {
 	}
 
 	if (!$ret) {
-		$sql_extra = item_permissions_sql($item_uid, $observer_hash);
+		$sql_extra = item_permissions_sql($owner_uid, $observer_hash);
 
 		$ret = q("SELECT item.id, item.item_blocked, xchan.xchan_hash, xchan.xchan_name as name, xchan.xchan_url as url, xchan.xchan_photo_s as photo FROM item
 			LEFT JOIN xchan ON item.author_xchan = xchan.xchan_hash
@@ -5561,7 +5559,7 @@ function item_activity_xchans($mid, $parent, $verb) {
 			$sql_extra
 			$item_normal
 			ORDER BY item.created",
-			intval($item_uid),
+			intval($owner_uid),
 			dbesc($mid),
 			dbesc($verb)
 		);
