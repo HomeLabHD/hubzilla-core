@@ -517,8 +517,8 @@ class Sse_bs extends Controller {
 				$sql_extra3
 				ORDER BY item.created DESC LIMIT $limit OFFSET $offset",
 				dbescdate($_SESSION['sse_loadtime']),
-				dbesc(self::$ob_hash),
-				dbescdate($_SESSION['last_login_date'] ?? $_SESSION['static_loadtime'])
+				dbescdate($_SESSION['last_login_date'] ?? $_SESSION['static_loadtime']),
+				dbesc(self::$ob_hash)
 			);
 
 			if($items) {
