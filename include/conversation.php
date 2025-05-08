@@ -1540,10 +1540,7 @@ function get_responses($conv_responses,$response_verbs,$ob,$item) {
 		}
 
 		$ret[$v]['count'] = $item[$v . '_count'] ?? 0;
-		$ret[$v]['list']  = ''; // ((isset($conv_responses[$v][$item['mid']])) ? $conv_responses[$v][$item['mid'] . '-l'] : '');
 		$ret[$v]['button'] = get_response_button_text($v, $ret[$v]['count']);
-		$ret[$v]['title'] = $conv_responses[$v]['title'] ?? '';
-		$ret[$v]['modal'] = false; // (($ret[$v]['count'] > MAX_LIKERS) ? true : false);
 	}
 
 //logger('ret: ' . print_r($ret,true));

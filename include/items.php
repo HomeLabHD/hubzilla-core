@@ -5386,12 +5386,12 @@ function item_activity_sql($prefix = 'c') {
 	}
 
 	$sql .= <<<SQL
-		COUNT(CASE $prefix.verb WHEN 'Like' THEN 1 END) AS like_count,
-		COUNT(CASE $prefix.verb WHEN 'Dislike' THEN 1 END) AS dislike_count,
-		COUNT(CASE $prefix.verb WHEN 'Announce' THEN 1 END) AS announce_count,
-		COUNT(CASE $prefix.verb WHEN 'Accept' THEN 1 END) AS attendyes_count,
-		COUNT(CASE $prefix.verb WHEN 'Reject' THEN 1 END) AS attendno_count,
-		COUNT(CASE $prefix.verb WHEN 'TentativeAccept' THEN 1 END) AS attendmaybe_count
+		COUNT(CASE WHEN $prefix.verb = 'Like' $item_normal_c THEN 1 END) AS like_count,
+		COUNT(CASE WHEN $prefix.verb = 'Dislike' $item_normal_c THEN 1 END) AS dislike_count,
+		COUNT(CASE WHEN $prefix.verb = 'Announce' $item_normal_c THEN 1 END) AS announce_count,
+		COUNT(CASE WHEN $prefix.verb = 'Accept' $item_normal_c THEN 1 END) AS attendyes_count,
+		COUNT(CASE WHEN $prefix.verb = 'Reject' $item_normal_c THEN 1 END) AS attendno_count,
+		COUNT(CASE WHEN $prefix.verb = 'TentativeAccept' $item_normal_c THEN 1 END) AS attendmaybe_count
 	SQL;
 
 	return $sql;
@@ -5523,6 +5523,10 @@ function item_activity_xchans($mid, $parent, $verb) {
 	$observer_hash = get_observer_hash();
 	$item_normal = item_normal();
 
+	$parent_item = q("SELECT * FROM item WHERE id = %d",
+		intval($parent)
+	);
+
 	if (local_channel()) {
 		$ret = q("SELECT xchan.xchan_hash, xchan.xchan_name as name, xchan.xchan_url as url, xchan.xchan_photo_s as photo FROM item
 			LEFT JOIN xchan ON item.author_xchan = xchan.xchan_hash
@@ -5541,12 +5545,7 @@ function item_activity_xchans($mid, $parent, $verb) {
 	}
 
 	if (!$ret) {
-		$x = q("SELECT uid FROM item WHERE id = %d",
-			intval($parent)
-		);
-
-		$item_uid = $x[0]['uid'];
-
+		$item_uid = $parent_item[0]['uid'];
 		$sql_extra = item_permissions_sql($item_uid, $observer_hash);
 
 		$ret = q("SELECT xchan.xchan_hash, xchan.xchan_name as name, xchan.xchan_url as url, xchan.xchan_photo_s as photo FROM item
@@ -5563,6 +5562,8 @@ function item_activity_xchans($mid, $parent, $verb) {
 			dbesc($verb)
 		);
 	}
+
+	$ret['is_commentable'] = can_comment_on_post($observer_hash, $parent_item[0]);
 
 	return $ret;
 }

@@ -61,8 +61,10 @@ class Request extends Controller
 
 		$ret['result'] = item_activity_xchans($mid, $parent, $verb);
 
-		// TODO: check permission to like
-		if ($observer_hash) {
+		$commentable = $ret['result']['is_commentable'];
+		unset($ret['result']['is_commentable']);
+
+		if ($commentable) {
 			$ret['action'] = (($verb === 'Announce') ? 'jotShare' : 'dolike');
 			$ret['action_label'] = ((find_xchan_in_array($observer_hash, $ret['result'])) ? t('- Remove yours') : t('+ Add yours'));
 		}

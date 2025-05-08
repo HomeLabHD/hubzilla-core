@@ -114,7 +114,7 @@ class ThreadItem {
 		$locktype = intval($item['item_private']);
 
 		if ($locktype === 2) {
-			$lock = t('Direct message');
+			$lock = t('Private message');
 		}
 
 		// 0 = limited based on public policy
@@ -285,14 +285,10 @@ class ThreadItem {
 		if((in_array($item['obj_type'], ['Event', ACTIVITY_OBJ_EVENT])) && $conv->get_profile_owner() == local_channel())
 			$has_event = true;
 
-		$like = [];
-		$dislike = [];
 		$reply_to = [];
 		$reactions_allowed = false;
 
 		if($this->is_commentable() && $observer) {
-			$like = array( t("I like this \x28toggle\x29"), t("like"));
-			$dislike = array( t("I don't like this \x28toggle\x29"), t("dislike"));
 			$reply_to = array( t("Reply to this message"), t("reply"), t("Reply to"));
 			$reactions_allowed = true;
 		}
@@ -439,8 +435,6 @@ class ThreadItem {
 			'reactions' => $this->reactions,
 			// Item toolbar buttons
 			'emojis'	=> (($this->is_toplevel() && $this->is_commentable() && $observer && feature_enabled($conv->get_profile_owner(),'emojis')) ? '1' : ''),
-			'like'      => $like,
-			'dislike'   => ((feature_enabled($conv->get_profile_owner(),'dislike')) ? $dislike : ''),
 			'reply_to'	=> ((feature_enabled($conv->get_profile_owner(),'reply_to')) ? $reply_to : ''),
 			'top_hint'	=> t("Go to previous comment"),
 			'share'     => $share,
@@ -465,7 +459,7 @@ class ThreadItem {
 			'list_unseen_txt' => $list_unseen_txt,
 			'markseen' => t('Mark all comments seen'),
 			'responses' => $responses,
-			'my_responses' => $my_responses,
+		//	'my_responses' => $my_responses,
 			'modal_dismiss' => t('Close'),
 			'comment' => ($item['item_delayed'] ? '' : $this->get_comment_box()),
 			'comment_hidden' => feature_enabled($conv->get_profile_owner(),'reply_to'),
