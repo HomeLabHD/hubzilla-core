@@ -6,6 +6,14 @@
  * SPDX-FileContributor: Harald Eilertsen <haraldei@anduin.net>
  *
  * SPDX-License-Identifier: MIT
+ *
+ * The _observer_ in Hubzilla is the channel visiting the site in the current
+ * session. This could be a local channel, or a remote channel logged in via
+ * OpenWebAuth.
+ *
+ * If the observer is not set, or empty, this indicates an unauthenticated
+ * visitor, which may mean a visitor from another site that don't support, or
+ * has not enabled OpenWebAuth.
  */
 
 /**
