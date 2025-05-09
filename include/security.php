@@ -607,7 +607,7 @@ function public_permissions_sql($observer_hash) {
 function get_form_security_token($typename = '') {
 
 	$timestamp = time();
-	$guid = App::$observer['xchan_guid'] ?? '';
+	$guid = get_observer_guid();
 	$sec_hash = hash('whirlpool', $guid . ((local_channel()) ? App::$channel['channel_prvkey'] : '') . session_id() . $timestamp . $typename);
 
 	return $timestamp . '.' . $sec_hash;
@@ -623,7 +623,7 @@ function check_form_security_token($typename = '', $formname = 'form_security_to
 	if (time() > (IntVal($x[0]) + $max_livetime))
 		return false;
 
-	$sec_hash = hash('whirlpool', App::$observer['xchan_guid'] . ((local_channel()) ? App::$channel['channel_prvkey'] : '') . session_id() . $x[0] . $typename);
+	$sec_hash = hash('whirlpool', get_observer_guid() . ((local_channel()) ? App::$channel['channel_prvkey'] : '') . session_id() . $x[0] . $typename);
 
 	return ($sec_hash == $x[1]);
 }
@@ -635,7 +635,7 @@ function check_form_security_std_err_msg() {
 
 function check_form_security_token_redirectOnErr($err_redirect, $typename = '', $formname = 'form_security_token') {
 	if (!check_form_security_token($typename, $formname)) {
-		logger('check_form_security_token failed: user ' . App::$observer['xchan_name'] . ' - form element ' . $typename);
+		logger('check_form_security_token failed: user ' . get_observer_name() . ' - form element ' . $typename);
 		logger('check_form_security_token failed: _REQUEST data: ' . print_r($_REQUEST, true), LOGGER_DATA);
 		notice(check_form_security_std_err_msg());
 		goaway(z_root() . $err_redirect);
@@ -644,7 +644,7 @@ function check_form_security_token_redirectOnErr($err_redirect, $typename = '', 
 
 function check_form_security_token_ForbiddenOnErr($typename = '', $formname = 'form_security_token') {
 	if (!check_form_security_token($typename, $formname)) {
-		logger('check_form_security_token failed: user ' . App::$observer['xchan_name'] . ' - form element ' . $typename);
+		logger('check_form_security_token failed: user ' . get_observer_name() . ' - form element ' . $typename);
 		logger('check_form_security_token failed: _REQUEST data: ' . print_r($_REQUEST, true), LOGGER_DATA);
 		header('HTTP/1.1 403 Forbidden');
 		killme();

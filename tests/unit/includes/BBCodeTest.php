@@ -23,6 +23,7 @@
 
 namespace Zotlabs\Tests\Unit\includes;
 
+use App;
 use Zotlabs\Tests\Unit\UnitTestCase;
 
 class BBCodeTest extends UnitTestCase {
@@ -42,7 +43,7 @@ class BBCodeTest extends UnitTestCase {
 	 */
 	public function test_bbcode_observer(string $src, bool $logged_in, string $lang, string $expected): void {
 		if ($logged_in) {
-			\App::$observer = [
+			App::set_observer([
 				'xchan_addr' => '',
 				'xchan_name' => '',
 				'xchan_connurl' => '',
@@ -50,9 +51,9 @@ class BBCodeTest extends UnitTestCase {
 
 				// port required in xchan url due to bug in get_rpost_path
 				'xchan_url' => 'https://example.com:666',
-			];
+			]);
 		} else {
-			\App::$observer = null;
+			App::set_observer(null);
 		}
 
 		\App::$language = $lang;

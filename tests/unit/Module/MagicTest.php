@@ -46,9 +46,9 @@ class MagicTest extends TestCase {
 
 		App::set_baseurl($baseurl);
 
-		App::$observer = [
+		App::set_observer([
 			'xchan_hash' => 'the hash',
-		];
+		]);
 
 		// We pass a local URL, and have a valid observer, but as the
 		// delegate param is not passed, nothing will be done except
@@ -72,9 +72,9 @@ class MagicTest extends TestCase {
 		App::$timezone = 'UTC';
 
 		// Simulate a foreign (to this hub) observer,
-		App::$observer = [
+		App::set_observer([
 			'xchan_hash' => 'foreign hash',
-		];
+		]);
 
 		// Create the channel the foreign observer wants to access
 		$result = create_identity([
