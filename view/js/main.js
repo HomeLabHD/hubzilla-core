@@ -1290,7 +1290,7 @@ function request(id, mid, verb, parent, uuid) {
 	if (verb === 'comment') {
 
 		if (singlethread_modules.indexOf(module) !== -1) {
-			let stateObj = { uuid: uuid };
+			let stateObj = { b64mid: uuid };
 			history.pushState(stateObj, '', module + '/' + uuid);
 		}
 
