@@ -2527,6 +2527,7 @@ function send_status_notifications($post_id,$item) {
 		dbesc($item['parent_mid']),
 		intval($item['uid'])
 	);
+
 	if($x) {
 		foreach($x as $xx) {
 			if($xx['author_xchan'] === $r[0]['channel_hash']) {
@@ -2550,7 +2551,7 @@ function send_status_notifications($post_id,$item) {
 	if($unfollowed)
 		return;
 
-	$link =  z_root() . '/display/' . ($thr_parent_uuid ?? $item['uuid']);
+	$link =  z_root() . '/display/' . $item['uuid'];
 
 	$y = q("select id from notify where link = '%s' and uid = %d limit 1",
 		dbesc($link),

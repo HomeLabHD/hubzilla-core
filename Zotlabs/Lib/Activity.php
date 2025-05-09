@@ -3033,9 +3033,14 @@ class Activity {
 				}
 			}
 
-			$r = q("select * from item where id = %d limit 1",
+			// find the item we just created
+
+			$r = q("SELECT item.*, tp.uuid AS thr_parent_uuid FROM item
+				LEFT JOIN item tp ON item.thr_parent = tp.mid AND item.uid = tp.uid
+				WHERE item.id = %d",
 				intval($x['item_id'])
 			);
+
 
 			if ($r) {
 				send_status_notifications($x['item_id'], $r[0]);

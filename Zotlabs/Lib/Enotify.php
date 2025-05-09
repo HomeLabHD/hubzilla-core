@@ -131,9 +131,9 @@ class Enotify {
 		logger('notification: mail');
 		$subject = 	sprintf( t('[$Projectname:Notify] New direct message received at %s'), $sitename);
 
-		$preamble = sprintf( t('%1$s sent you a new direct message at %2$s'), $sender['xchan_name'], $sitename);
+		$preamble = sprintf( t('%1$s sent you a new private message at %2$s'), $sender['xchan_name'], $sitename);
 		$epreamble = sprintf( t('%1$s sent you %2$s.'), '[zrl=' . $sender['xchan_url'] . ']' . $sender['xchan_name'] . '[/zrl]', '[zrl=$itemlink]' . t('a direct message') . '[/zrl]');
-		$sitelink = t('Please visit %s to view and/or reply to your direct messages.');
+		$sitelink = t('Please visit %s to view and/or reply to your private messages.');
 		$tsitelink = sprintf( $sitelink, $siteurl . '/hq/' . gen_link_id($params['item']['mid']));
 		$hsitelink = sprintf( $sitelink, '<a href="' . $siteurl . '/hq/' . gen_link_id($params['item']['mid']) . '">' . $sitename . '</a>');
 		$itemlink = $siteurl . '/hq/' . gen_link_id($params['item']['mid']);
@@ -164,8 +164,8 @@ class Enotify {
 				if(activity_match($params['verb'], ['Dislike', ACTIVITY_DISLIKE]))
 					$action = (($moderated) ? t('requested to dislike') : t('disliked'));
 
-				if(activity_match($params['verb'], ACTIVITY_SHARE))
-					$action = t('repeated');
+				if(activity_match($params['verb'], [ACTIVITY_SHARE]))
+					$action = (($moderated) ? t('requested to repeat') : t('repeated'));
 
 			}
 
@@ -271,7 +271,7 @@ class Enotify {
 
 		$itemlink =  $params['link'];
 
-		if (array_key_exists('item',$params) && (activity_match($params['item']['verb'], ['Like', 'Dislike', ACTIVITY_LIKE, ACTIVITY_DISLIKE]))) {
+		if (array_key_exists('item',$params) && (activity_match($params['item']['verb'], ['Like', 'Dislike', ACTIVITY_LIKE, ACTIVITY_DISLIKE, 'Announce']))) {
 			if(! $always_show_in_notices  || !($vnotify & VNOTIFY_LIKE) || !feature_enabled($recip['channel_id'], 'dislike')) {
 				logger('notification: not a visible activity. Ignoring.');
 				pop_lang();
@@ -326,6 +326,9 @@ class Enotify {
 
 		if(activity_match($params['item']['verb'], ['Dislike', ACTIVITY_DISLIKE]))
 			$verb = (($moderated) ? t('requested to dislike') : t('disliked'));
+
+		if(activity_match($params['item']['verb'], [ACTIVITY_SHARE]))
+			$verb = (($moderated) ? t('requested to repeat') : t('repeated'));
 
 		// "your post"
 		if ($parent_item['author']['xchan_hash'] === $recip['channel_hash']) {
@@ -574,8 +577,9 @@ class Enotify {
 		dbesc($datarray['otype'])
 	);
 
-	$r = q("select id from notify where hash = '%s' and ntype = %d and uid = %d limit 1",
+	$r = q("select id from notify where hash = '%s' and link = '%s' and ntype = %d and uid = %d limit 1",
 		dbesc($datarray['hash']),
+		dbesc($itemlink),
 		intval($datarray['ntype']),
 		intval($recip['channel_id'])
 	);
