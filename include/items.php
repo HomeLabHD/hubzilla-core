@@ -5462,8 +5462,14 @@ function items_by_parent_ids($ids, $thr_parents = '', $blog_mode = false) {
 }
 
 function items_by_thr_parent($mid, $parent, $sql_extra = '') {
-	$item_normal = item_normal();
-	$item_normal_c = item_normal(prefix: 'c');
+	$parent_item = q("SELECT uid FROM item WHERE id = %d",
+		intval($parent)
+	);
+
+	$owner_uid = $parent_item[0]['uid'];
+
+	$item_normal = item_normal($owner_uid);
+	$item_normal_c = item_normal($owner_uid, 'c');
 	$activity_sql = item_activity_sql('c');
 
 	if (local_channel()) {

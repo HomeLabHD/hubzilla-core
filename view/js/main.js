@@ -26,6 +26,8 @@ var followUpPageLoad = false;
 var window_needs_alert = true;
 var expanded_items = [];
 var updateTimeout = [];
+const singlethread_modules = ['display', 'hq'];
+const redirect_modules = ['display', 'notify'];
 
 var page_cache = {};
 
@@ -149,8 +151,6 @@ $(document).ready(function() {
 		let notify_id = this.dataset.notify_id;
 		let path = $(this)[0].pathname.split('/')[1];
 		let stateObj = { b64mid: b64mid };
-		let singlethread_modules = ['display', 'hq'];
-		let redirect_modules = ['display', 'notify'];
 
 		if (!b64mid && !notify_id) {
 			return;
@@ -1288,6 +1288,12 @@ function request(id, mid, verb, parent, uuid) {
 	loading.style.display = 'block';
 
 	if (verb === 'comment') {
+
+		if (singlethread_modules.indexOf(module) !== -1) {
+			let stateObj = { uuid: uuid };
+			history.pushState(stateObj, '', module + '/' + uuid);
+		}
+
 		document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => {
 			el.classList.remove('item-highlight');
 		});
