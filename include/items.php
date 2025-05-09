@@ -5368,8 +5368,7 @@ function item_activity_sql($prefix = 'c') {
 	$observer = get_observer_hash();
 	$observer_sql = '';
 
-	$thread_allow = Config::Get('system', 'thread_allow', true);
-
+	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
 
 	if ($observer) {
 		$sql = <<<SQL
@@ -5429,7 +5428,7 @@ function items_by_parent_ids($ids, $thr_parents = '', $blog_mode = false) {
 	$item_normal = item_normal();
 	$item_normal_c = item_normal(prefix: 'c');
 	$activity_sql = item_activity_sql('c');
-	$thread_allow = Config::Get('system', 'thread_allow', true);
+	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
 
 	$blog_mode_sql = (($blog_mode) ? 'item.id' : 'item.parent');
 	$thr_parent_sql = (($thread_allow) ? " AND item.thr_parent = item.parent_mid " : '');

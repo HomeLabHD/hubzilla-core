@@ -1339,10 +1339,12 @@ function hz_status_editor($x, $popup = false) {
 
 
 function get_item_children($arr, $parent) {
-	$children = array();
+	$children = [];
+	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
+
 	foreach($arr as $item) {
 		if($item['id'] != $item['parent']) {
-			if (Config::Get('system', 'thread_allow', true)) {
+			if ($thread_allow) {
 				// Fallback to parent_mid if thr_parent is not set
 				$thr_parent = $item['thr_parent'];
 				if($thr_parent == '')

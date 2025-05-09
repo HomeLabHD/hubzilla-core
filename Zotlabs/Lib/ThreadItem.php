@@ -4,8 +4,6 @@ namespace Zotlabs\Lib;
 
 use App;
 use Zotlabs\Access\AccessList;
-use Zotlabs\Lib\Apps;
-use Zotlabs\Lib\Config;
 
 require_once('include/text.php');
 
@@ -42,7 +40,7 @@ class ThreadItem {
 
 		$this->data = $data;
 		$this->toplevel = ($this->get_id() == $this->get_data_value('parent'));
-		$this->threaded = Config::Get('system', 'thread_allow', true);
+		$this->threaded = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
 
 		// Prepare the children
 		if(isset($data['children'])) {
@@ -64,8 +62,6 @@ class ThreadItem {
 			// performance: we have already added the children
 			unset($this->data['children']);
 		}
-
-
 
 		// allow a site to configure the order and content of the reaction emoji list
 		if($this->toplevel) {
