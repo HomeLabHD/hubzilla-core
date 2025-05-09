@@ -474,7 +474,15 @@ class ThreadItem {
 			'reactions_allowed' => $reactions_allowed,
 			'reaction_str' => [t('Add yours'), t('Remove yours')],
 			'is_contained' => $this->is_toplevel() && str_contains($item['tgt_type'], 'Collection'),
-			'observer_activity' => ['like' => intval($item['observer_liked'] ?? 0), 'dislike' => intval($item['observer_disliked'] ?? 0), 'announce' => intval($item['observer_announced'] ?? 0), 'comment' => intval($item['observer_commented'] ?? 0)],
+			'observer_activity' => [
+				'like' => intval($item['observer_liked'] ?? 0),
+				'dislike' => intval($item['observer_disliked'] ?? 0),
+				'announce' => intval($item['observer_announced'] ?? 0),
+				'comment' => intval($item['observer_commented'] ?? 0),
+				'attendyes' => intval($item['observer_accepted'] ?? 0),
+				'attendno' => intval($item['observer_rejected'] ?? 0),
+				'attendmaybe' => intval($item['observer_tentativelyaccepted'] ?? 0)
+			],
 			'threaded' => $this->threaded,
 			'blog_mode' => $blog_mode
 		);

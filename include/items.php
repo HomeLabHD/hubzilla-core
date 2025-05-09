@@ -5361,12 +5361,17 @@ function set_activity_mid($string) {
 	return str_replace(z_root() . '/item/', z_root() . '/activity/', $string);
 }
 
+/**
+ * @brief returns SQL which counts activities for an item and
+ * if there is an observer also count activities authored by observer.
+ * @param string $prefix (optional)
+ */
+
 function item_activity_sql($prefix = 'c') {
 	$item_normal_c = item_normal(prefix: $prefix);
 	$sql = '';
 
 	$observer = get_observer_hash();
-	$observer_sql = '';
 
 	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
 
@@ -5375,6 +5380,9 @@ function item_activity_sql($prefix = 'c') {
 			COUNT(CASE WHEN $prefix.verb = 'Like' AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_liked,
 			COUNT(CASE WHEN $prefix.verb = 'Dislike' AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_disliked,
 			COUNT(CASE WHEN $prefix.verb = 'Announce' AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_announced,
+			COUNT(CASE WHEN $prefix.verb = 'Accept' AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_accepted,
+			COUNT(CASE WHEN $prefix.verb = 'Reject' AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_rejected,
+			COUNT(CASE WHEN $prefix.verb = 'TentativeAccept' AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_tentativelyaccepted,
 		SQL;
 
 		if ($thread_allow) {
@@ -5400,7 +5408,14 @@ function item_activity_sql($prefix = 'c') {
 
 }
 
-function item_by_item_id($id, $sql_extra = '') {
+/**
+ * @brief returns an item by id belonging to local_channel()
+ * including activity counts.
+ * @param int $id
+ */
+
+function item_by_item_id(int $id): array
+{
 	$item_normal = item_normal();
 	$item_normal_c = item_normal(prefix: 'c');
 	$activity_sql = item_activity_sql('c');
@@ -5421,10 +5436,20 @@ function item_by_item_id($id, $sql_extra = '') {
 	);
 
 	return $ret;
-
 }
 
-function items_by_parent_ids($ids, $thr_parents = '', $blog_mode = false) {
+/**
+ * @brief returns an array of items by ids
+ * ATTENTION: no permissions are checked here!!!
+ * Permissions MUST be checked by the function which returns the ids.
+ * @param string $ids - a string with ids separated by comma
+ * @param string $thr_parents (optional) - a string with thr_parent mids separated by comma
+ * which will be included
+ * @param bool $blog_mode (optional) - if set to yes only the parent items will be returned
+ */
+
+function items_by_parent_ids(string $ids, string $thr_parents = '', bool $blog_mode = false): array
+{
 	$item_normal = item_normal();
 	$item_normal_c = item_normal(prefix: 'c');
 	$activity_sql = item_activity_sql('c');
@@ -5460,7 +5485,16 @@ function items_by_parent_ids($ids, $thr_parents = '', $blog_mode = false) {
 	return $ret;
 }
 
-function items_by_thr_parent($mid, $parent, $sql_extra = '') {
+
+/**
+ * @brief returns an array of items by thr_parent mid of a parent
+
+ * @param string $mid
+ * @param int $parent
+ */
+
+function items_by_thr_parent(string $mid, int $parent): array
+{
 	$parent_item = q("SELECT uid FROM item WHERE id = %d",
 		intval($parent)
 	);
@@ -5495,13 +5529,8 @@ function items_by_thr_parent($mid, $parent, $sql_extra = '') {
 	}
 
 	if (!$ret) {
-
-		$x = q("SELECT uid FROM item WHERE id = %d",
-			intval($parent)
-		);
-
 		$observer_hash = get_observer_hash();
-		$sql_extra = item_permissions_sql($x[0]['uid'], $observer_hash);
+		$sql_extra = item_permissions_sql($owner_uid, $observer_hash);
 
 		$ret = q(
 			"SELECT item.*,
@@ -5520,14 +5549,23 @@ function items_by_thr_parent($mid, $parent, $sql_extra = '') {
 			GROUP BY item.id
 			ORDER BY item.created",
 			dbesc($mid),
-			intval($x[0]['uid'])
+			intval($owner_uid)
 		);
 	}
 
 	return $ret;
 }
 
-function item_activity_xchans($mid, $parent, $verb) {
+/**
+ * @brief returns an array of xchan entries (partly) for activities of an item by mid of a parent.
+ * Also checks if observer is allowed to add activities to the item.
+ * @param string $mid
+ * @param int $parent
+ * @param string $verb
+ */
+
+function item_activity_xchans(string $mid, int $parent, string $verb): array
+{
 	$observer_hash = get_observer_hash();
 	$parent_item = q("SELECT * FROM item WHERE id = %d",
 		intval($parent)
@@ -5576,9 +5614,15 @@ function item_activity_xchans($mid, $parent, $verb) {
 	return $ret;
 }
 
-// Find the thr_parents we need to show when we need to show a nested comment
-// TODO: can this be improved or maybe implemented differently in the UI?
-function get_recursive_thr_parents(array $item) : array {
+
+/**
+ * @brief find and return thr_parents we need to show when displaying a nested comment.
+ * TODO: can this be improved or maybe implemented differently in the UI?
+ * @param array $item
+ */
+
+function get_recursive_thr_parents(array $item): array
+{
 	$thr_parents[] = $item['thr_parent'];
 
 	$mid = $item['thr_parent'];
