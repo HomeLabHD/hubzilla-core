@@ -3014,7 +3014,6 @@ class Activity {
 		}
 
 		if ($x['success']) {
-
 			if ($relay && $channel['channel_hash'] === $x['item']['owner_xchan'] && $x['item']['verb'] !== 'Add' && !$isCollectionOperation) {
 				$approval = Activity::addToCollection($channel, $act->data, $x['item']['parent_mid'], $x['item'], deliver: false);
 			}
@@ -3033,18 +3032,8 @@ class Activity {
 				}
 			}
 
-			// find the item we just created
+			send_status_notifications($x['item_id'], $x['item']);
 
-			$r = q("SELECT item.*, tp.uuid AS thr_parent_uuid FROM item
-				LEFT JOIN item tp ON item.thr_parent = tp.mid AND item.uid = tp.uid
-				WHERE item.id = %d",
-				intval($x['item_id'])
-			);
-
-
-			if ($r) {
-				send_status_notifications($x['item_id'], $r[0]);
-			}
 			sync_an_item($channel['channel_id'], $x['item_id']);
 		}
 
