@@ -3014,7 +3014,7 @@ class Activity {
 		}
 
 		if ($x['success']) {
-			if ($relay && $channel['channel_hash'] === $x['item']['owner_xchan'] && $x['item']['verb'] !== 'Add' && !$isCollectionOperation) {
+			if ($relay && $channel['channel_hash'] === $x['item']['owner_xchan'] && $x['item']['verb'] !== 'Add' && !$is_collection_operation) {
 				$approval = Activity::addToCollection($channel, $act->data, $x['item']['parent_mid'], $x['item'], deliver: false);
 			}
 
