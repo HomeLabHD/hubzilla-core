@@ -728,9 +728,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 				}
 			}
 
-			$blog_mode = $page_mode === 'list';
-
-			$threads = $conv->get_template_data($conv_responses, $mid_uuid_map, $blog_mode);
+			$threads = $conv->get_template_data($conv_responses, $mid_uuid_map);
 			if(!$threads) {
 				logger('[ERROR] conversation : Failed to get template data.', LOGGER_DEBUG);
 				$threads = array();

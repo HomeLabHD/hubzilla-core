@@ -80,7 +80,7 @@ class ThreadItem {
 	 *      _ false on failure
 	 */
 
-	public function get_template_data($conv_responses, $mid_uuid_map, $blog_mode, $thread_level=1, $conv_flags = []) {
+	public function get_template_data($conv_responses, $mid_uuid_map, $thread_level=1, $conv_flags = []) {
 
 		$result = [];
 		$item = $this->get_data();
@@ -484,7 +484,7 @@ class ThreadItem {
 				'attendmaybe' => intval($item['observer_tentativelyaccepted'] ?? 0)
 			],
 			'threaded' => $this->threaded,
-			'blog_mode' => $blog_mode
+			'blog_mode' => $this->get_display_mode() === 'list'
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);
@@ -499,7 +499,7 @@ class ThreadItem {
 
 		if(($this->get_display_mode() === 'normal') && ($nb_children > 0)) {
 			foreach($children as $child) {
-				$result['children'][] = $child->get_template_data($conv_responses, $mid_uuid_map, $blog_mode, $thread_level + 1, $conv_flags);
+				$result['children'][] = $child->get_template_data($conv_responses, $mid_uuid_map, $thread_level + 1, $conv_flags);
 			}
 
 			// Collapse
