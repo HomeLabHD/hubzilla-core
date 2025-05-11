@@ -4,8 +4,6 @@ namespace Zotlabs\Lib;
 
 use App;
 use Zotlabs\Access\AccessList;
-use Zotlabs\Lib\Apps;
-use Zotlabs\Lib\Config;
 
 require_once('include/text.php');
 
@@ -42,7 +40,7 @@ class ThreadItem {
 
 		$this->data = $data;
 		$this->toplevel = ($this->get_id() == $this->get_data_value('parent'));
-		$this->threaded = Config::Get('system','thread_allow');
+		$this->threaded = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
 
 		// Prepare the children
 		if(isset($data['children'])) {
@@ -64,8 +62,6 @@ class ThreadItem {
 			// performance: we have already added the children
 			unset($this->data['children']);
 		}
-
-
 
 		// allow a site to configure the order and content of the reaction emoji list
 		if($this->toplevel) {
@@ -114,7 +110,7 @@ class ThreadItem {
 		$locktype = intval($item['item_private']);
 
 		if ($locktype === 2) {
-			$lock = t('Direct message');
+			$lock = t('Private message');
 		}
 
 		// 0 = limited based on public policy
@@ -222,17 +218,15 @@ class ThreadItem {
 			$response_verbs[] = 'answer';
 		}
 
-		if (!feature_enabled($conv->get_profile_owner(),'dislike')) {
-			unset($conv_responses['dislike']);
-		}
-
+		$response_verbs[] = 'comment';
 		$responses = get_responses($conv_responses,$response_verbs,$this,$item);
 
+/*
 		$my_responses = [];
 		foreach($response_verbs as $v) {
 			$my_responses[$v] = ((isset($conv_responses[$v][$item['mid'] . '-m'])) ? 1 : 0);
 		}
-
+*/
 
 		/*
 		 * We should avoid doing this all the time, but it depends on the conversation mode
@@ -287,15 +281,11 @@ class ThreadItem {
 		if((in_array($item['obj_type'], ['Event', ACTIVITY_OBJ_EVENT])) && $conv->get_profile_owner() == local_channel())
 			$has_event = true;
 
-		$like = [];
-		$dislike = [];
 		$reply_to = [];
 		$reactions_allowed = false;
 
 		if($this->is_commentable() && $observer) {
-			$like = array( t("I like this \x28toggle\x29"), t("like"));
-			$dislike = array( t("I don't like this \x28toggle\x29"), t("dislike"));
-			$reply_to = array( t("Reply to this comment"), t("reply"), t("Reply to"));
+			$reply_to = array( t("Reply to this message"), t("reply"), t("Reply to"));
 			$reactions_allowed = true;
 		}
 
@@ -384,6 +374,7 @@ class ThreadItem {
 			'folders' => $body['folders'],
 			'text' => strip_tags($body['html']),
 			'id' => $this->get_id(),
+			'parent' => intval($item['parent']),
 			'mid' => $midb64,
 			'mids' => $json_mids,
 			'parent' => $item['parent'],
@@ -440,9 +431,7 @@ class ThreadItem {
 			'reactions' => $this->reactions,
 			// Item toolbar buttons
 			'emojis'	=> (($this->is_toplevel() && $this->is_commentable() && $observer && feature_enabled($conv->get_profile_owner(),'emojis')) ? '1' : ''),
-			'like'      => $like,
-			'dislike'   => ((feature_enabled($conv->get_profile_owner(),'dislike')) ? $dislike : ''),
-			'reply_to'	=> (((! $this->is_toplevel()) && feature_enabled($conv->get_profile_owner(),'reply_to')) ? $reply_to : ''),
+			'reply_to'	=> ((feature_enabled($conv->get_profile_owner(),'reply_to')) ? $reply_to : ''),
 			'top_hint'	=> t("Go to previous comment"),
 			'share'     => $share,
 			'embed'     => $embed,
@@ -466,9 +455,10 @@ class ThreadItem {
 			'list_unseen_txt' => $list_unseen_txt,
 			'markseen' => t('Mark all comments seen'),
 			'responses' => $responses,
-			'my_responses' => $my_responses,
+		//	'my_responses' => $my_responses,
 			'modal_dismiss' => t('Close'),
 			'comment' => ($item['item_delayed'] ? '' : $this->get_comment_box()),
+			'comment_hidden' => feature_enabled($conv->get_profile_owner(),'reply_to'),
 			'no_comment' => (($item['item_thread_top'] && $item['item_nocomment'])? t('Comments disabled') : ''),
 			'previewing' => ($conv->is_preview() ? true : false ),
 			'preview_lbl' => t('This is an unsaved preview'),
@@ -483,7 +473,18 @@ class ThreadItem {
 			'rtl' => in_array($item['lang'], rtl_languages()),
 			'reactions_allowed' => $reactions_allowed,
 			'reaction_str' => [t('Add yours'), t('Remove yours')],
-			'is_contained' => $this->is_toplevel() && str_contains($item['tgt_type'], 'Collection')
+			'is_contained' => $this->is_toplevel() && str_contains($item['tgt_type'], 'Collection'),
+			'observer_activity' => [
+				'like' => intval($item['observer_liked'] ?? 0),
+				'dislike' => intval($item['observer_disliked'] ?? 0),
+				'announce' => intval($item['observer_announced'] ?? 0),
+				'comment' => intval($item['observer_commented'] ?? 0),
+				'attendyes' => intval($item['observer_accepted'] ?? 0),
+				'attendno' => intval($item['observer_rejected'] ?? 0),
+				'attendmaybe' => intval($item['observer_tentativelyaccepted'] ?? 0)
+			],
+			'threaded' => $this->threaded,
+			'blog_mode' => $this->get_display_mode() === 'list'
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);
@@ -498,19 +499,20 @@ class ThreadItem {
 
 		if(($this->get_display_mode() === 'normal') && ($nb_children > 0)) {
 			foreach($children as $child) {
-				$result['children'][] = $child->get_template_data($conv_responses, $mid_uuid_map, $thread_level + 1,$conv_flags);
+				$result['children'][] = $child->get_template_data($conv_responses, $mid_uuid_map, $thread_level + 1, $conv_flags);
 			}
+
 			// Collapse
-			if(($nb_children > $visible_comments) || ($thread_level > 1)) {
+			if($thread_level === 1 && $nb_children > $visible_comments) {
 				$result['children'][0]['comment_firstcollapsed'] = true;
 				$result['children'][0]['num_comments'] = $comment_count_txt['label'];
 				$result['children'][0]['hide_text'] = t('show all');
-				if($thread_level > 1) {
-					$result['children'][$nb_children - 1]['comment_lastcollapsed'] = true;
-				}
-				else {
+//				if($thread_level > 1) {
+//					$result['children'][$nb_children - 1]['comment_lastcollapsed'] = false;
+//				}
+//				else {
 					$result['children'][$nb_children - ($visible_comments + 1)]['comment_lastcollapsed'] = true;
-				}
+//				}
 			}
 		}
 
@@ -763,7 +765,7 @@ class ThreadItem {
 	 */
 	private function get_comment_box() {
 
-		if(!$this->is_toplevel() && !Config::Get('system','thread_allow')) {
+		if(!$this->is_toplevel()) {
 			return '';
 		}
 

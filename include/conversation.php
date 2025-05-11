@@ -177,9 +177,7 @@ function localize_item(&$item){
 			case ACTIVITY_OBJ_NOTE:
 			case 'Note':
 			default:
-				$post_type = t('post');
-				if(((isset($obj['parent']) && isset($obj['id']) && $obj['id'] != $obj['parent'])) || isset($obj['inReplyTo']))
-					$post_type = t('comment');
+				$post_type = t('message');
 				break;
 		}
 
@@ -565,11 +563,6 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 				$likebuttons = false;
 				$shareable = false;
 
-				if (!isset($item['sig'])) {
-					hz_syslog(print_r($item,true));
-					bt_syslog('nosig');
-				}
-
 				$verified = (intval($item['item_verified']) ? t('Message signature validated') : '');
 				$forged = ((!empty($item['sig']) && !intval($item['item_verified'])) ? t('Message signature incorrect') : '');
 
@@ -709,7 +702,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 				$item = $x['item'];
 
-				builtin_activity_puller($item, $conv_responses);
+				// builtin_activity_puller($item, $conv_responses);
 
 				if(! visible_activity($item)) {
 					continue;
@@ -725,7 +718,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 					$conv->add_thread($item_object);
 					if(($page_mode === 'list') || ($page_mode === 'pager_list')) {
-						$item_object->set_template('conv_list.tpl');
+					//	$item_object->set_template('conv_list.tpl');
 						$item_object->set_display_mode('list');
 					}
 					if($mode === 'cards' || $mode === 'articles') {
@@ -986,6 +979,9 @@ function builtin_activity_puller($item, &$conv_responses) {
 			case 'dislike':
 				$verb = ['Dislike', ACTIVITY_DISLIKE];
 				break;
+			case 'comment':
+				$verb = ['Create'];
+				break;
 			case 'attendyes':
 				$verb = ['Accept', ACTIVITY_ATTEND];
 				break;
@@ -1242,8 +1238,8 @@ function hz_status_editor($x, $popup = false) {
 		call_hooks('jot_networks', $jotnets);
 	}
 
-	$sharebutton = (!empty($x['button']) ? $x['button'] : t('Share'));
-	$placeholdtext = (!empty($x['content_label']) ? $x['content_label'] : $sharebutton);
+	$sharebutton = (!empty($x['button']) ? $x['button'] : t('Submit'));
+	$placeholdtext = (!empty($x['content_label']) ? $x['content_label'] : t('Start a conversation'));
 
 	$tplmacros = [
 		'$return_path' => ((!empty($x['return_path'])) ? $x['return_path'] : App::$query_string),
@@ -1341,10 +1337,12 @@ function hz_status_editor($x, $popup = false) {
 
 
 function get_item_children($arr, $parent) {
-	$children = array();
+	$children = [];
+	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
+
 	foreach($arr as $item) {
 		if($item['id'] != $item['parent']) {
-			if(Config::Get('system','thread_allow')) {
+			if ($thread_allow) {
 				// Fallback to parent_mid if thr_parent is not set
 				$thr_parent = $item['thr_parent'];
 				if($thr_parent == '')
@@ -1541,12 +1539,8 @@ function get_responses($conv_responses,$response_verbs,$ob,$item) {
 			continue;
 		}
 
-		$ret[$v] = [];
-		$ret[$v]['count'] = $conv_responses[$v][$item['mid']] ?? 0;
-		$ret[$v]['list']  = ((isset($conv_responses[$v][$item['mid']])) ? $conv_responses[$v][$item['mid'] . '-l'] : '');
+		$ret[$v]['count'] = $item[$v . '_count'] ?? 0;
 		$ret[$v]['button'] = get_response_button_text($v, $ret[$v]['count']);
-		$ret[$v]['title'] = $conv_responses[$v]['title'] ?? '';
-		$ret[$v]['modal'] = (($ret[$v]['count'] > MAX_LIKERS) ? true : false);
 	}
 
 //logger('ret: ' . print_r($ret,true));
@@ -1554,25 +1548,28 @@ function get_responses($conv_responses,$response_verbs,$ob,$item) {
 	return $ret;
 }
 
-function get_response_button_text($v,$count) {
+function get_response_button_text($v, $count = 0) {
 	switch($v) {
 		case 'like':
-			return ['label' => tt('Like','Likes',$count,'noun'), 'icon' => 'hand-thumbs-up', 'class' => 'like', 'onclick' => 'dolike'];
+			return ['label' => tt('Like','Likes',$count,'noun'), 'icon' => 'hand-thumbs-up', 'class' => 'like', 'action' => 'dolike'];
 			break;
 		case 'announce':
-			return ['label' => tt('Repeat','Repeats',$count,'noun'), 'icon' => 'repeat', 'class' => 'announce', 'onclick' => 'jotShare'];
+			return ['label' => tt('Repeat','Repeats',$count,'noun'), 'icon' => 'repeat', 'class' => 'announce', 'action' => 'jotShare'];
 			break;
 		case 'dislike':
-			return ['label' => tt('Dislike','Dislikes',$count,'noun'), 'icon' => 'hand-thumbs-down', 'class' => 'dislike', 'onclick' => 'dolike'];
+			return ['label' => tt('Dislike','Dislikes',$count,'noun'), 'icon' => 'hand-thumbs-down', 'class' => 'dislike', 'action' => 'dolike'];
+			break;
+		case 'comment':
+			return ['label' => tt('Reply','Replies',$count,'noun'), 'icon' => 'chat', 'class' => 'comment', 'action' => ''];
 			break;
 		case 'attendyes':
-			return ['label' => tt('Attending','Attending',$count,'noun'), 'icon' => 'calendar-check', 'class' => 'attendyes', 'onclick' => 'dolike'];
+			return ['label' => tt('Attending','Attending',$count,'noun'), 'icon' => 'calendar-check', 'class' => 'attendyes', 'action' => 'dolike'];
 			break;
 		case 'attendno':
-			return ['label' => tt('Not Attending','Not Attending',$count,'noun'), 'icon' => 'calendar-x', 'class' => 'attendno', 'onclick' => 'dolike'];
+			return ['label' => tt('Not attending','Not attending',$count,'noun'), 'icon' => 'calendar-x', 'class' => 'attendno', 'action' => 'dolike'];
 			break;
 		case 'attendmaybe':
-			return ['label' => tt('Undecided','Undecided',$count,'noun'), 'icon' => 'calendar', 'class' => 'attendmaybe', 'onclick' => 'dolike'];
+			return ['label' => tt('Undecided','Undecided',$count,'noun'), 'icon' => 'calendar', 'class' => 'attendmaybe', 'action' => 'dolike'];
 			break;
 		default:
 			return [];

@@ -63,6 +63,7 @@
 						{{include file="field_checkbox.tpl" field=$user_scalable}}
 						{{include file="field_checkbox.tpl" field=$preload_images}}
 						{{include file="field_checkbox.tpl" field=$start_menu}}
+						{{include file="field_checkbox.tpl" field=$thread_allow}}
 						<div class="settings-submit-wrapper" >
 							<button type="submit" name="submit" class="btn btn-primary">{{$submit}}</button>
 						</div>

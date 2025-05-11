@@ -290,11 +290,9 @@ class Display extends Controller {
 		if($r) {
 			$parents_str = ids_to_querystr($r,'item_id');
 			if($parents_str) {
-				$items = q("SELECT item.*, item.id AS item_id
-					FROM item
-					WHERE parent in ( %s ) $sql_extra $item_normal ",
-					dbesc($parents_str)
-				);
+				$thr_parents_str = stringify_array(get_recursive_thr_parents($target_item), true);
+				$items = items_by_parent_ids($parents_str, $thr_parents_str);
+
 				xchan_query($items);
 				$items = fetch_post_tags($items,true);
 				$items = conv_sort($items,'created');

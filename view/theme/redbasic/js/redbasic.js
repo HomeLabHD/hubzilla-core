@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
     testElem.style.display = 'none';
     testElem.id = 'css3-calc';
     document.body.appendChild(testElem);
-    
+
     if (testElem.offsetWidth === 10) {
         window.addEventListener('resize', function () {
             if (window.innerWidth < 992) {
@@ -132,17 +132,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (navCollapse && navCollapse.classList.contains('show')) {
             navCollapse.classList.remove('show');
         }
-    });
-
-    document.querySelectorAll('.notifications-btn').forEach(function (element) {
-        element.addEventListener('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            let navCollapse = document.getElementById('navbar-collapse-2');
-            if (navCollapse && navCollapse.classList.contains('show')) {
-                navCollapse.classList.remove('show');
-            }
-        });
     });
 
     $("input[data-role=cat-tagsinput]").tagsinput({

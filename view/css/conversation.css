@@ -194,7 +194,17 @@ a.wall-item-name-link {
 }
 
 .item-highlight {
-	border-left: 0.2rem solid var(--bs-primary);
+	border-left: 0.2rem solid transparent;
+}
+
+.item-highlight-fade {
+	background-color: var(--bs-primary-bg-subtle);
+	animation: fadeBgOut .35s .7s backwards;
+}
+
+@keyframes fadeBgOut {
+	from { background-color: var(--bs-primary-bg-subtle); }
+	to   { background-color: none; }
 }
 
 /* comment_item */

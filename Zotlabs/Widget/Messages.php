@@ -42,14 +42,14 @@ class Messages {
 			'$feature_file' => feature_enabled(local_channel(), 'filing'),
 			'$file_tags' => $file_tags,
 			'$strings' => [
-				'messages_title' => t('Public and restricted messages'),
-				'direct_messages_title' => t('Direct messages'),
-				'starred_messages_title' => t('Starred messages'),
+				'messages_title' => t('Public and restricted conversations'),
+				'direct_messages_title' => t('Private conversations'),
+				'starred_messages_title' => t('Starred conversations'),
 				'filed_messages_title' => t('Filed messages'),
-				'notice_messages_title' => t('Notices'),
+				'notice_messages_title' => t('Notifications'),
 				'loading' => t('Loading'),
-				'empty' => t('No messages'),
-				'unseen_count' => t('Unseen'),
+				'empty' => t('No conversations'),
+				'unseen_count' => t('Unseen reactions'),
 				'filter' => t('Filter by name or address'),
 				'file_filter' => t('Filter by file name')
 			]

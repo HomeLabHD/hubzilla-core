@@ -211,6 +211,7 @@
 		$.get('{{$baseurl}}/share/' + id, function(data) {
 			$('#like-rotator-' + id).hide();
 			updateInit();
+			close_modal();
 		});
 	}
 

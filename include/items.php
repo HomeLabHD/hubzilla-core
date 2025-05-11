@@ -240,19 +240,22 @@ function comments_are_now_closed($item) {
 	return false;
 }
 
-function item_normal() {
-	$profile_uid = App::$profile['profile_uid'] ?? App::$profile_uid ?? null;
+function item_normal($profile_uid = null, $prefix = 'item') {
+	if ($profile_uid === null) {
+		$profile_uid = App::$profile['profile_uid'] ?? App::$profile_uid ?? null;
+	}
+
 	$uid = local_channel();
 	$is_owner = ($uid && intval($profile_uid) === $uid);
 
-	$sql = " and item.item_hidden = 0 and item.item_type = 0 and item.item_deleted = 0
-		and item.item_unpublished = 0 and item.item_pending_remove = 0";
+	$sql = " and $prefix.item_hidden = 0 and $prefix.item_type = 0 and $prefix.item_deleted = 0
+		and $prefix.item_unpublished = 0 and $prefix.item_pending_remove = 0";
 
 	if ($is_owner) {
-		$sql .= " and item.item_blocked IN (0, " . intval(ITEM_MODERATED) . ") and item.item_delayed IN (0, 1) ";
+		$sql .= " and $prefix.item_blocked IN (0, " . intval(ITEM_MODERATED) . ") and $prefix.item_delayed IN (0, 1) ";
 	}
 	else {
-		$sql .= " and item.item_blocked = 0 and item.item_delayed = 0 ";
+		$sql .= " and $prefix.item_blocked = 0 and $prefix.item_delayed = 0 ";
 	}
 
 	return $sql;
@@ -1989,7 +1992,9 @@ function item_store($arr, $allow_exec = false, $deliver = true, $addAndSync = tr
 
 	// find the item we just created
 
-	$r = q("SELECT * FROM item WHERE mid = '%s' AND uid = %d and revision = %d ORDER BY id ASC ",
+	$r = q("SELECT item.*, tp.uuid AS thr_parent_uuid FROM item
+		LEFT JOIN item tp ON item.thr_parent = tp.mid AND item.uid = tp.uid
+		WHERE item.mid = '%s' AND item.uid = %d and item.revision = %d ORDER BY item.id ASC ",
 		dbesc($arr['mid']),
 		intval($arr['uid']),
 		intval($arr['revision'])
@@ -2362,7 +2367,9 @@ function item_store_update($arr, $allow_exec = false, $deliver = true, $addAndSy
 
 	// fetch an unescaped complete copy of the stored item
 
-	$r = q("select * from item where id = %d",
+	$r = q("SELECT item.*, tp.uuid AS thr_parent_uuid FROM item
+		LEFT JOIN item tp ON item.thr_parent = tp.mid AND item.uid = tp.uid
+		WHERE item.id = %d",
 		intval($orig_post_id)
 	);
 	if($r)
@@ -2479,21 +2486,23 @@ function send_status_notifications($post_id,$item) {
 
 	$parent = 0;
 	$is_reaction = false;
-	$thr_parent_id = 0;
+	$thr_parent_id = null;
+	$thr_parent_uuid = null;
 
 	$type =  ((intval($item['item_private']) === 2) ? NOTIFY_MAIL : NOTIFY_COMMENT);
 
-	if(array_key_exists('verb',$item) && activity_match($item['verb'], ['Like', 'Dislike', ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
+	if(array_key_exists('verb',$item) && activity_match($item['verb'], ['Like', 'Dislike', ACTIVITY_LIKE, ACTIVITY_DISLIKE, 'Announce'])) {
 
 		$type = NOTIFY_LIKE;
 
-		$r = q("select id from item where mid = '%s' and uid = %d limit 1",
+		$r = q("select id, uuid from item where mid = '%s' and uid = %d limit 1",
 			dbesc($item['thr_parent']),
 			intval($item['uid'])
 		);
 
 		if ($r) {
 			$thr_parent_id = $r[0]['id'];
+			$thr_parent_uuid = $r[0]['uuid'];
 		}
 
 	}
@@ -2518,6 +2527,7 @@ function send_status_notifications($post_id,$item) {
 		dbesc($item['parent_mid']),
 		intval($item['uid'])
 	);
+
 	if($x) {
 		foreach($x as $xx) {
 			if($xx['author_xchan'] === $r[0]['channel_hash']) {
@@ -2562,7 +2572,7 @@ function send_status_notifications($post_id,$item) {
 		'link'         => $link,
 		'verb'         => $item['verb'],
 		'otype'        => 'item',
-		'parent'       => $thr_parent_id ? $thr_parent_id : $parent,
+		'parent'       => $thr_parent_id ?? $parent,
 		'parent_mid'   => $thr_parent_id ? $item['thr_parent'] : $item['parent_mid']
 	));
 }
@@ -2839,8 +2849,8 @@ function tag_deliver($uid, $item_id) {
 				'from_xchan'   => $item['author_xchan'],
 				'type'         => NOTIFY_TAGSELF,
 				'item'         => $item,
-				'link'         => $i[0]['llink'],
-				'verb'         => ACTIVITY_TAG,
+				'link'         => $item['llink'],
+				'verb'         => $item['verb'],
 				'otype'        => 'item'
 			));
 
@@ -5351,3 +5361,285 @@ function set_activity_mid($string) {
 	return str_replace(z_root() . '/item/', z_root() . '/activity/', $string);
 }
 
+/**
+ * @brief returns SQL which counts activities for an item and
+ * if there is an observer also count activities authored by observer.
+ * @param string $prefix (optional)
+ */
+
+function item_activity_sql($prefix = 'c') {
+	$item_normal_c = item_normal(prefix: $prefix);
+	$sql = '';
+
+	$observer = get_observer_hash();
+
+	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
+
+	if ($observer) {
+		$sql = <<<SQL
+			COUNT(CASE WHEN $prefix.verb = 'Like' AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_liked,
+			COUNT(CASE WHEN $prefix.verb = 'Dislike' AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_disliked,
+			COUNT(CASE WHEN $prefix.verb = 'Announce' AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_announced,
+			COUNT(CASE WHEN $prefix.verb = 'Accept' AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_accepted,
+			COUNT(CASE WHEN $prefix.verb = 'Reject' AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_rejected,
+			COUNT(CASE WHEN $prefix.verb = 'TentativeAccept' AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_tentativelyaccepted,
+		SQL;
+
+		if ($thread_allow) {
+			$sql .= " COUNT(CASE WHEN $prefix.verb IN ('Create','Update') AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_commented, ";
+		}
+	}
+
+
+	if ($thread_allow) {
+		$sql .= "COUNT(CASE WHEN $prefix.verb IN ('Create','Update') THEN 1 END) AS comment_count,";
+	}
+
+	$sql .= <<<SQL
+		COUNT(CASE WHEN $prefix.verb = 'Like' $item_normal_c THEN 1 END) AS like_count,
+		COUNT(CASE WHEN $prefix.verb = 'Dislike' $item_normal_c THEN 1 END) AS dislike_count,
+		COUNT(CASE WHEN $prefix.verb = 'Announce' $item_normal_c THEN 1 END) AS announce_count,
+		COUNT(CASE WHEN $prefix.verb = 'Accept' $item_normal_c THEN 1 END) AS attendyes_count,
+		COUNT(CASE WHEN $prefix.verb = 'Reject' $item_normal_c THEN 1 END) AS attendno_count,
+		COUNT(CASE WHEN $prefix.verb = 'TentativeAccept' $item_normal_c THEN 1 END) AS attendmaybe_count
+	SQL;
+
+	return $sql;
+
+}
+
+/**
+ * @brief returns an item by id belonging to local_channel()
+ * including activity counts.
+ * @param int $id
+ */
+
+function item_by_item_id(int $id): array
+{
+	$item_normal = item_normal();
+	$item_normal_c = item_normal(prefix: 'c');
+	$activity_sql = item_activity_sql('c');
+
+	$ret = q("SELECT item.*,
+			$activity_sql
+		FROM item
+		LEFT JOIN item c
+			ON c.parent = item.parent
+			AND c.item_thread_top = 0
+			AND c.thr_parent = item.mid
+			$item_normal_c
+		WHERE item.id = $id
+			AND item.uid = %d
+			$item_normal
+		GROUP BY item.id",
+		intval(local_channel())
+	);
+
+	return $ret;
+}
+
+/**
+ * @brief returns an array of items by ids
+ * ATTENTION: no permissions are checked here!!!
+ * Permissions MUST be checked by the function which returns the ids.
+ * @param string $ids - a string with ids separated by comma
+ * @param string $thr_parents (optional) - a string with thr_parent mids separated by comma
+ * which will be included
+ * @param bool $blog_mode (optional) - if set to yes only the parent items will be returned
+ */
+
+function items_by_parent_ids(string $ids, string $thr_parents = '', bool $blog_mode = false): array
+{
+	$item_normal = item_normal();
+	$item_normal_c = item_normal(prefix: 'c');
+	$activity_sql = item_activity_sql('c');
+	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
+
+	$blog_mode_sql = (($blog_mode) ? 'item.id' : 'item.parent');
+	$thr_parent_sql = (($thread_allow) ? " AND item.thr_parent = item.parent_mid " : '');
+
+	if ($thr_parents && $thread_allow) {
+		$thr_parent_sql = " AND item.thr_parent IN ($thr_parents) ";
+	}
+
+	$ret = q(
+		"SELECT item.*,
+			$activity_sql
+		FROM item
+		LEFT JOIN item c
+			ON c.parent = item.parent
+			AND c.item_thread_top = 0
+			AND c.thr_parent = item.mid
+			$item_normal_c
+		WHERE $blog_mode_sql in (%s)
+			AND (
+				item.verb NOT IN ('Like', 'Dislike', 'Announce')
+				OR (item.verb = 'Announce' AND item.item_thread_top = 1)
+			)
+			$thr_parent_sql
+			$item_normal
+		GROUP BY item.id",
+		dbesc($ids)
+	);
+
+	return $ret;
+}
+
+
+/**
+ * @brief returns an array of items by thr_parent mid of a parent
+
+ * @param string $mid
+ * @param int $parent
+ */
+
+function items_by_thr_parent(string $mid, int $parent): array
+{
+	$parent_item = q("SELECT uid FROM item WHERE id = %d",
+		intval($parent)
+	);
+
+	$owner_uid = $parent_item[0]['uid'];
+
+	$item_normal = item_normal($owner_uid);
+	$item_normal_c = item_normal($owner_uid, 'c');
+	$activity_sql = item_activity_sql('c');
+
+	if (local_channel()) {
+		$ret = q(
+			"SELECT item.*,
+				$activity_sql
+			FROM item
+			LEFT JOIN item c ON c.parent = item.parent
+				AND c.item_thread_top = 0
+				AND c.thr_parent = item.mid
+				$item_normal_c
+			WHERE item.thr_parent = '%s'
+				AND item.uid = %d
+				AND item.parent = %d
+				AND item.verb NOT IN ('Like', 'Dislike', 'Announce')
+				AND item.item_thread_top = 0
+				$item_normal
+			GROUP BY item.id
+			ORDER BY item.created",
+			dbesc($mid),
+			intval(local_channel()),
+			intval($parent)
+		);
+	}
+
+	if (!$ret) {
+		$observer_hash = get_observer_hash();
+		$sql_extra = item_permissions_sql($owner_uid, $observer_hash);
+
+		$ret = q(
+			"SELECT item.*,
+				$activity_sql
+			FROM item
+			LEFT JOIN item c ON c.parent = item.parent
+				AND c.item_thread_top = 0
+				AND c.thr_parent = item.mid
+				$item_normal_c
+			WHERE item.thr_parent = '%s'
+				AND item.uid = %d
+				AND item.verb NOT IN ('Like', 'Dislike', 'Announce')
+				AND item.item_thread_top = 0
+				$sql_extra
+				$item_normal
+			GROUP BY item.id
+			ORDER BY item.created",
+			dbesc($mid),
+			intval($owner_uid)
+		);
+	}
+
+	return $ret;
+}
+
+/**
+ * @brief returns an array of xchan entries (partly) for activities of an item by mid of a parent.
+ * Also checks if observer is allowed to add activities to the item.
+ * @param string $mid
+ * @param int $parent
+ * @param string $verb
+ */
+
+function item_activity_xchans(string $mid, int $parent, string $verb): array
+{
+	$observer_hash = get_observer_hash();
+	$parent_item = q("SELECT * FROM item WHERE id = %d",
+		intval($parent)
+	);
+
+	$owner_uid = $parent_item[0]['uid'];
+	$item_normal = item_normal($owner_uid);
+
+	if (local_channel()) {
+		$ret = q("SELECT item.id, item.item_blocked, xchan.xchan_hash, xchan.xchan_name as name, xchan.xchan_url as url, xchan.xchan_photo_s as photo FROM item
+			LEFT JOIN xchan ON item.author_xchan = xchan.xchan_hash
+			WHERE item.uid = %d
+			AND item.parent = %d
+			AND item.thr_parent = '%s'
+			AND item.verb = '%s'
+			AND item.item_thread_top = 0
+			$item_normal
+			ORDER BY item.created",
+			intval(local_channel()),
+			intval($parent),
+			dbesc($mid),
+			dbesc($verb)
+		);
+	}
+
+	if (!$ret) {
+		$sql_extra = item_permissions_sql($owner_uid, $observer_hash);
+
+		$ret = q("SELECT item.id, item.item_blocked, xchan.xchan_hash, xchan.xchan_name as name, xchan.xchan_url as url, xchan.xchan_photo_s as photo FROM item
+			LEFT JOIN xchan ON item.author_xchan = xchan.xchan_hash
+			WHERE item.uid = %d
+			AND item.thr_parent = '%s'
+			AND item.verb = '%s'
+			AND item.item_thread_top = 0
+			$sql_extra
+			$item_normal
+			ORDER BY item.created",
+			intval($owner_uid),
+			dbesc($mid),
+			dbesc($verb)
+		);
+	}
+
+	$ret['is_commentable'] = can_comment_on_post($observer_hash, $parent_item[0]);
+
+	return $ret;
+}
+
+
+/**
+ * @brief find and return thr_parents we need to show when displaying a nested comment.
+ * TODO: can this be improved or maybe implemented differently in the UI?
+ * @param array $item
+ */
+
+function get_recursive_thr_parents(array $item): array
+{
+	$thr_parents[] = $item['thr_parent'];
+
+	$mid = $item['thr_parent'];
+	$parent_mid = $item['parent_mid'];
+	$uid = $item['uid'];
+	$i = 0;
+
+	while ($mid !== $item['parent_mid'] && $i < 100) {
+		$x = q("SELECT thr_parent, mid FROM item WHERE uid = %d AND mid = '%s'",
+			intval($uid),
+			dbesc($mid)
+		);
+
+		$mid = $x[0]['thr_parent'];
+		$thr_parents[] = $x[0]['thr_parent'];
+		$i++;
+	}
+
+	return $thr_parents;
+}

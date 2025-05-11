@@ -120,6 +120,10 @@ function collecturls($message) {
 function html2plain($html, $wraplength = 75, $compact = false)
 {
 
+	if (!$html) {
+		return '';
+	}
+
 	$message = str_replace("\r", "", $html);
 
 	// mb_convert_encoding() is deprecated

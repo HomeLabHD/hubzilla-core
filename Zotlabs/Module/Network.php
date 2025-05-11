@@ -70,17 +70,19 @@ class Network extends \Zotlabs\Web\Controller {
 		$dm         = ((x($_REQUEST,'dm')) ? $_REQUEST['dm'] : 0);
 
 
-		$order = get_pconfig(local_channel(), 'mod_network', 'order', 0);
+		$order = get_pconfig(local_channel(), 'mod_network', 'order', 'created');
 		switch($order) {
-			case 0:
-				$order = 'comment';
+			case 'commented':
+				$ordering = 'commented';
 				break;
-			case 1:
-				$order = 'post';
+			case 'created':
+				$ordering = 'created';
 				break;
-			case 2:
+			case 'unthreaded':
 				$nouveau = true;
 				break;
+			default:
+				$ordering = 'created';
 		}
 
 		$search = $_GET['search'] ?? '';
@@ -92,7 +94,7 @@ class Network extends \Zotlabs\Web\Controller {
 		}
 
 		if($datequery)
-			$order = 'post';
+			$order = 'created';
 
 
 		// filter by collection (e.g. group)
@@ -375,10 +377,10 @@ class Network extends \Zotlabs\Web\Controller {
 		}
 
 		if ($dm) {
-			$sql_extra .= ' AND item_private = 2 ';
+			$sql_extra .= ' AND item.item_private = 2 ';
 		}
 		else {
-			$sql_extra .= ' AND item_private IN (0, 1) ';
+			$sql_extra .= ' AND item.item_private IN (0, 1) ';
 		}
 
 
@@ -427,10 +429,12 @@ class Network extends \Zotlabs\Web\Controller {
 		$abook_uids = ' and abook.abook_channel = ' . local_channel() . ' ';
 		$uids = ' and item.uid = ' . local_channel() . ' ';
 
-		if(feature_enabled(local_channel(), 'network_list_mode'))
+		$page_mode = 'client';
+
+		$blog_mode = feature_enabled(local_channel(), 'network_list_mode');
+		if ($blog_mode) {
 			$page_mode = 'list';
-		else
-			$page_mode = 'client';
+		}
 
 		$parents_str = '';
 
@@ -474,13 +478,6 @@ class Network extends \Zotlabs\Web\Controller {
 		}
 		elseif($update) {
 
-			// Normal conversation view
-
-			if($order === 'post')
-				$ordering = 'created';
-			else
-				$ordering = 'commented';
-
 			if($load) {
 				// Fetch a page full of parent items for this page
 				$r = dbq("SELECT item.parent AS item_id FROM item
@@ -510,11 +507,8 @@ class Network extends \Zotlabs\Web\Controller {
 
 			if($r) {
 				$parents_str = ids_to_querystr($r, 'item_id');
-				$items = dbq("SELECT item.*, item.id AS item_id FROM item
-					WHERE true $uids $item_normal
-					AND item.parent IN ( $parents_str )
-					$sql_extra "
-				);
+
+				$items = items_by_parent_ids($parents_str, blog_mode: $blog_mode);
 
 				xchan_query($items, true);
 				$items = fetch_post_tags($items, true);

@@ -183,6 +183,7 @@ class Pubstream extends \Zotlabs\Web\Controller {
 			$sql_extra .= protect_sprintf(term_query('item', $hashtags, TERM_HASHTAG, TERM_COMMUNITYTAG));
 			$sql_extra_order = " ORDER BY item.created DESC ";
 			$thread_top = '';
+
 		}
 
 		$net_query2 = (($net) ? " and xchan_network = '" . protect_sprintf(dbesc($net)) . "' " : '');
@@ -196,7 +197,7 @@ class Pubstream extends \Zotlabs\Web\Controller {
 
 		if($update) {
 
-			$ordering = Config::Get('system', 'pubstream_ordering', 'commented');
+			$ordering = Config::Get('system', 'pubstream_ordering', 'created');
 
 			if($load) {
 				if($mid) {
@@ -253,12 +254,7 @@ class Pubstream extends \Zotlabs\Web\Controller {
 
 				$parents_str = ids_to_querystr($r,'item_id');
 
-				$items = dbq("SELECT item.*, item.id AS item_id FROM item
-					WHERE true $uids $item_normal
-					AND item.parent IN ( $parents_str )
-					$sql_extra $sql_extra_order"
-				);
-
+				$items = items_by_parent_ids($parents_str);
 
 				// use effective_uid param of xchan_query to help sort out comment permission
 				// for sys_channel owned items.

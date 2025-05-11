@@ -26,6 +26,8 @@ var followUpPageLoad = false;
 var window_needs_alert = true;
 var expanded_items = [];
 var updateTimeout = [];
+const singlethread_modules = ['display', 'hq'];
+const redirect_modules = ['display', 'notify'];
 
 var page_cache = {};
 
@@ -149,8 +151,6 @@ $(document).ready(function() {
 		let notify_id = this.dataset.notify_id;
 		let path = $(this)[0].pathname.split('/')[1];
 		let stateObj = { b64mid: b64mid };
-		let singlethread_modules = ['display', 'hq'];
-		let redirect_modules = ['display', 'notify'];
 
 		if (!b64mid && !notify_id) {
 			return;
@@ -740,7 +740,17 @@ function updateConvItems(mode, data) {
 			}
 		}
 
-		b64mids.push(...JSON.parse(elem.dataset.b64mids));
+		let data_json = JSON.parse(elem.dataset.b64mids);
+
+		// Also highlight the thread parent
+		if (data_json.includes(bParam_mid) && elem.parentNode.classList.contains('wall-item-sub-thread-wrapper')) {
+			if (!elem.parentNode.parentNode.classList.contains('toplevel_item')) {
+				elem.parentNode.parentNode.classList.add('item-highlight');
+				elem.parentNode.parentNode.style.borderColor = stringToHlsColor(JSON.parse(elem.parentNode.parentNode.dataset.b64mids)[0]);
+			}
+		}
+
+		b64mids.push(...data_json);
 	});
 
 	document.dispatchEvent(new CustomEvent('hz:sse_setNotificationsStatus', { detail: b64mids }));
@@ -859,19 +869,25 @@ function imagesLoaded(elements, callback) {
 
 	// Iterate through images to add load and error event listeners
 	images.forEach((img) => {
-		img.loading = 'eager'; // Preload the image
+		let new_img = new Image();
+		new_img.src = img.src;
 
-		if (img.complete && img.naturalHeight > 0) {
+		if (new_img.complete && new_img.naturalHeight > 0) {
 			// Image is already loaded, handle immediately
-			checkComplete(img.src);
+			// console.log(`Image cached: ${new_img.src}`);
+			checkComplete(new_img.src);
 		} else {
 			// Add event listeners for load and error events
-			img.addEventListener('load', () => checkComplete(img.src));
-			img.addEventListener('error', () => {
-				console.log(`Image failed to load: ${img.src}`);
-				checkComplete(img.src);
+			new_img.addEventListener('load', () => {
+				// console.log(`Image loaded: ${new_img.src}`);
+				checkComplete(new_img.src)
+			});
+			new_img.addEventListener('error', () => {
+				console.log(`Image failed to load: ${new_img.src}`);
+				checkComplete(new_img.src);
 			});
 		}
+
 	});
 }
 
@@ -940,8 +956,7 @@ function scrollToItem() {
         // Get the 'data-b64mids' attribute and check if it contains submid
         let b64mids = thread.dataset.b64mids;
 
-        if (b64mids && b64mids.includes(submid) && !thread.classList.contains('toplevel_item')) {
-
+        if (b64mids && b64mids.includes(submid)) {
             // Handle collapsed comments if any
             let collapsedComments = document.querySelectorAll('.collapsed-comments');
             if (collapsedComments.length) {
@@ -962,8 +977,9 @@ function scrollToItem() {
                 behavior: 'smooth'
             });
 
-            // Add highlight class
-            thread.classList.add('item-highlight');
+			let id = thread.id.replace('thread-wrapper-', '');
+			let content = document.getElementById('wall-item-content-wrapper-' + id);
+			content.classList.add('item-highlight-fade');
         }
     });
 }
@@ -1266,6 +1282,136 @@ function justifyPhotosAjax(id) {
 	$('#' + id).justifiedGallery('norewind').on('jg.complete', function(e){ justifiedGalleryActive = false; });
 }
 
+function request(id, mid, verb, parent, uuid) {
+
+	const loading = document.getElementById('like-rotator-' + id);
+	loading.style.display = 'block';
+
+	if (verb === 'comment') {
+
+		if (singlethread_modules.indexOf(module) !== -1) {
+			let stateObj = { b64mid: uuid };
+			history.pushState(stateObj, '', module + '/' + uuid);
+		}
+
+		document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => {
+			el.classList.remove('item-highlight');
+		});
+
+		const wrapper = document.getElementById('thread-wrapper-' + id);
+		if (!wrapper.classList.contains('toplevel_item')) {
+			wrapper.classList.add('item-highlight');
+			wrapper.style.borderColor = stringToHlsColor(uuid);
+		}
+
+		fetch('/request?verb=' + verb + '&mid=' + mid + '&parent=' + parent + '&module=' + module)
+		.then(response => response.json())
+		.then(obj => {
+			let parser = new DOMParser();
+			let doc = parser.parseFromString(obj.html, 'text/html');
+			let b64mids = [];
+
+			doc.querySelectorAll('.thread-wrapper').forEach(function (e) {
+				let data = JSON.parse(e.dataset.b64mids);
+				b64mids.push(...data);
+			});
+
+			imagesLoaded(doc.querySelectorAll('.wall-item-body img'), function () {
+				injectWithAnimation('wall-item-sub-thread-wrapper-' + id, obj.html);
+				updateRelativeTime('.autotime');
+				loading.style.display = 'none';
+				collapseHeight();
+
+				document.dispatchEvent(new CustomEvent('hz:sse_setNotificationsStatus', { detail: b64mids }));
+				document.dispatchEvent(new Event('hz:sse_bs_counts'));
+			});
+
+		})
+		.catch(error => {
+			console.error('Error fetching data:', error);
+		});
+	}
+	else {
+		fetch('/request?verb=' + verb + '&mid=' + mid + '&parent=' + parent)
+		.then(response => response.json())
+		.then(obj => {
+			const modal = new bootstrap.Modal('#reactions');
+			const modal_content = document.getElementById('reactions_body');
+			const modal_title = document.getElementById('reactions_title');
+			const modal_action = document.getElementById('reactions_action');
+			modal_action.style.display = 'none';
+			modal_title.innerHTML = obj.title;
+			modal_content.innerHTML = '';
+			if (obj.action) {
+				modal_action.innerHTML = '<a href="#" onclick="' + obj.action + '(' + id + ',\'' + verb + '\'); return false;">' + obj.action_label + '</a>';
+				modal_action.style.display = 'block';
+			}
+			console.log(obj)
+			obj.result.forEach(e => {
+				let mod = '';
+				if (e.item_blocked === 4) {
+					mod = '<span onclick="moderate_approve(' + e.id + '); return false;" class="text-success pe-4 d-inline-block"><i class="bi bi-check-lg" ></i></span><span onclick="moderate_drop(' + e.id + '); return false;" class="text-danger pe-4 d-inline-block"><i class="bi bi-trash" ></i></span>';
+				}
+				modal_content.innerHTML += '<a href="' + e.url + '" class="list-group-item list-group-item-action border-0">' + mod + '<img src="' + e.photo + '" class="menu-img-1" loading="lazy">&nbsp;' + e.name + '</a>';
+
+			});
+
+			modal.show();
+			loading.style.display = 'none';
+		})
+		.catch(error => {
+			console.error('Error fetching data:', error);
+		});
+	}
+
+}
+
+function injectWithAnimation(container, html) {
+	const target = document.getElementById(container);
+	target.innerHTML = html;
+
+	target.animate([
+		{ opacity: 0, transform: 'translateY(-20px)' },
+		{ opacity: 1, transform: 'translateY(0)' }
+	], {
+		duration: 300,
+		easing: 'ease-out'
+	});
+
+	// For children animation
+	Array.from(target.children).forEach((el, i) => {
+		el.animate([
+			{ opacity: 0, transform: 'scale(.7)' },
+			{ opacity: 1, transform: 'scale(1)' }
+		], {
+			duration: 300,
+			delay: i * 50,
+			fill: 'both',
+			easing: 'ease-out'
+		});
+	});
+}
+
+function stringToHexColor(str) {
+	let hash = 0;
+	for (let i = 0; i < str.length; i++) {
+		hash = str.charCodeAt(i) + ((hash << 5) - hash);
+	}
+	let color = "#";
+	for (let i = 0; i < 3; i++) {
+		const value = (hash >> (i * 8)) & 0xFF;
+		color += value.toString(16).padStart(2, '0');
+	}
+	return color;
+}
+
+function stringToHlsColor(str) {
+	let stringUniqueHash = [...str].reduce((acc, char) => {
+		return char.charCodeAt(0) + ((acc << 5) - acc);
+	}, 0);
+	return `hsl(${stringUniqueHash % 360}, 95%, 70%)`;
+}
+
 function dolike(ident, verb) {
 	$('#like-rotator-' + ident).show();
 
@@ -1321,16 +1467,65 @@ function doprofilelike(ident, verb) {
 
 
 function doreply(parent, ident, owner, hint) {
-        var form = $('#comment-edit-form-' + parent.toString());
-        form.find('input[name=parent]').val(ident);
-        var i = form.find('button[type=submit]');
-        var btn = i.html().replace(/<[^>]*>/g, '').trim();
-        i.html('<i class="bi bi-arrow-90deg-left"></i> ' + btn);
-        var sel = 'wall-item-body-' + ident.toString();
-        var quote = window.getSelection().toString().trim();
-        form.find('textarea').val("@{" + owner + "}" + ((($(window.getSelection().anchorNode).closest("#" + sel).attr("id") != sel) || (quote.length === 0))? " " : "\n[quote]" + quote + "[/quote]\n"));
-        $('#comment-edit-text-' + parent.toString()).focus();
+	const modal = new bootstrap.Modal('#reactions');
+	const modal_content = document.getElementById('reactions_body');
+	const modal_title = document.getElementById('reactions_title');
+	const modal_action = document.getElementById('reactions_action');
+
+	modal_action.style.display = 'none';
+	modal_title.innerHTML = hint;
+
+	const preview = document.getElementById('comment-edit-preview-' + parent.toString());
+	preview.innerHTML = '';
+
+	// Get the form element by ID
+	const form = document.getElementById('comment-edit-wrapper-' + parent.toString());
+	if (!form) return;
+
+	modal_content.innerHTML = '';
+	modal_content.append(form);
+
+	// Set the value of the input named 'parent'
+	const parentInput = form.querySelector('input[name=parent]');
+	if (parentInput) {
+		parentInput.value = ident;
+	}
+
+	// Find the submit button and update its HTML
+	const submitBtn = form.querySelector('button[type=submit]');
+	if (submitBtn) {
+		const btnText = submitBtn.innerHTML.replace(/<[^>]*>/g, '').trim();
+		submitBtn.innerHTML = '<i class="bi bi-arrow-90deg-left"></i> ' + btnText;
+	}
+
+	// Prepare the quote logic
+	const sel = 'wall-item-body-' + ident.toString();
+	const quote = window.getSelection().toString().trim();
+
+	// Check if the selection is inside the correct element
+	let isInSel = false;
+	const anchorNode = window.getSelection().anchorNode;
+	if (anchorNode) {
+		let node = anchorNode.nodeType === 3 ? anchorNode.parentNode : anchorNode;
+		while (node) {
+			if (node.id === sel) {
+				isInSel = true;
+				break;
+			}
+			node = node.parentNode;
+		}
+	}
+
+	modal.show();
+
+	// Set the textarea value
+	const textarea = form.querySelector('textarea');
+	if (textarea) {
+		textarea.value = "@{" + owner + "}" + ((!isInSel || quote.length === 0) ? " " : "\n[quote]" + quote + "[/quote]\n");
+		textarea.focus();
+	}
 }
+
 
 function doscroll(parent, hidden) {
 	var id;
@@ -1542,11 +1737,13 @@ function post_comment(id) {
 					window.location.href = data.reload;
 				}
 
+				close_modal();
 
 				localStorage.removeItem("comment_body-" + id);
 				$("#comment-edit-preview-" + id).hide();
 				$("#comment-edit-text-" + id).val('').blur().attr('placeholder', aStr.comment);
-				$('#wall-item-comment-wrapper-' + id).before(data.html);
+				$('#wall-item-sub-thread-wrapper-' + data.thr_parent_id).append(data.html);
+
 				updateRelativeTime('.autotime');
 				$('body').css('cursor', 'unset');
 				collapseHeight();

@@ -51,7 +51,7 @@
 							{{/if}}
 							<small class="autotime" title="{{$item.isotime}}"><time class="dt-published" datetime="{{$item.isotime}}">{{$item.localtime}}</time>{{if $item.expiretime}}&nbsp;{{$item.expiretime}}{{/if}}</small>
 						</div>
-						{{if $item.thr_parent_uuid}}
+						{{if !$item.threaded && $item.thr_parent_uuid}}
 						<a href="javascript:doscroll('{{$item.thr_parent_uuid}}',{{$item.parent}});" class="ms-3" title="{{$item.top_hint}}"><i class="bi bi-chevron-double-up"></i></a>
 						{{/if}}
 						{{if $item.pinned}}
@@ -110,47 +110,10 @@
 				<div class="p-2 wall-item-tools d-flex justify-content-between">
 					<div class="wall-item-tools-left hstack gap-1" id="wall-item-tools-left-{{$item.id}}">
 						{{foreach $item.responses as $verb=>$response}}
-						{{if $item.reactions_allowed || (!$item.reactions_allowed && $response.count)}}
-						<div class="">
-							<button type="button" title="{{$response.count}} {{$response.button.label}}" class="btn btn-sm btn-link{{if !$item.my_responses.$verb}} link-secondary{{/if}} wall-item-{{$response.button.class}}"{{if $response.modal}} data-bs-toggle="modal" data-bs-target="#{{$verb}}Modal-{{$item.id}}"{{else if $response.count}} data-bs-toggle="dropdown"{{elseif $item.reactions_allowed}} onclick="{{$response.button.onclick}}({{$item.id}},'{{$verb}}'); return false;"{{/if}} id="wall-item-{{$verb}}-{{$item.id}}">
-								<i class="bi bi-{{$response.button.icon}} generic-icons"></i>{{if $response.count}}<span style="display: inline-block; margin-top: -.25rem;" class="align-top">{{$response.count}}</span>{{/if}}
-							</button>
-							{{if $response.modal}}
-							<div class="modal" id="{{$verb}}Modal-{{$item.id}}">
-								<div class="modal-dialog">
-									<div class="modal-content">
-										<div class="modal-header">
-											<h3 class="modal-title">{{$response.count}} {{$response.button.label}}</h3>
-											<button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
-										</div>
-										{{if $item.reactions_allowed && !($verb === 'announce' && $item.my_responses.$verb)}} {{** undo announce is not yet supported **}}
-										<div class="modal-header">
-											<a href="#" class="text-reset" onclick="{{$response.button.onclick}}({{$item.id}},'{{$verb}}'); return false;">{{if $item.my_responses.$verb}}- {{$item.reaction_str.1}}{{else}}+ {{$item.reaction_str.0}}{{/if}}</a>
-										</div>
-										{{/if}}
-										<div class="modal-body response-list">
-											<ul class="nav nav-pills flex-column">
-												{{foreach $response.list as $liker}}
-												{{$liker}}
-												{{/foreach}}
-											</ul>
-										</div>
-										<div class="modal-footer clear">
-											<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{{$item.modal_dismiss}}</button>
-										</div>
-									</div><!-- /.modal-content -->
-								</div><!-- /.modal-dialog -->
-							</div><!-- /.modal -->
-							{{else}}
-							<div class="dropdown-menu">
-								{{if $item.reactions_allowed && !($verb === 'announce' && $item.my_responses.$verb)}} {{** undo announce is not yet supported **}}
-								<a href="#" class="text-reset dropdown-item" onclick="{{$response.button.onclick}}({{$item.id}},'{{$verb}}'); return false;">{{if $item.my_responses.$verb}}- {{$item.reaction_str.1}}{{else}}+ {{$item.reaction_str.0}}{{/if}}</a>
-								<div class="dropdown-divider"></div>
-								{{/if}}
-								{{foreach $response.list as $liker}}{{$liker}}{{/foreach}}
-							</div>
-							{{/if}}
-						</div>
+						{{if !($verb == 'comment' && (($item.toplevel && !$item.blog_mode) || $response.count == 0))}}
+						<button type="button" title="{{$response.count}} {{$response.button.label}}" class="btn btn-sm btn-link{{if !$item.observer_activity.$verb}} link-secondary{{/if}} wall-item-{{$response.button.class}}" onclick="request({{$item.id}}, '{{$item.rawmid}}', '{{$verb}}', {{$item.parent}}, '{{$item.mid}}'); return false;" id="wall-item-{{$verb}}-{{$item.id}}">
+							<i class="bi bi-{{$response.button.icon}} generic-icons"></i>{{if $response.count}}<span style="display: inline-block; margin-top: -.25rem;" class="align-top">{{$response.count}}</span>{{/if}}
+						</button>
 						{{/if}}
 						{{/foreach}}
 						{{if $item.toplevel && $item.emojis && $item.reactions}}
@@ -192,7 +155,7 @@
 						</div>
 						{{/if}}
 						{{if $item.reply_to}}
-						<button type="button" title="{{$item.reply_to.0}}" class="btn btn-sm btn-link link-secondary" onclick="doreply({{$item.parent}}, {{$item.id}}, '{{$item.author_id}}', '{{$item.reply_to.2}} {{$item.name|escape:javascript}}');">
+						<button type="button" title="{{$item.reply_to.0}}" class="btn btn-sm btn-link link-secondary" onclick="doreply({{$item.parent}}, {{$item.id}}, '{{$item.author_id}}', '{{$item.reply_to.2}}: {{$item.name|escape:javascript}}');">
 							<i class="bi bi-arrow-90deg-left generic-icons" ></i>
 						</button>
 						{{/if}}
@@ -255,14 +218,23 @@
 				</div>
 			</div>
 		</div>
-		{{if $item.toplevel}}
+		{{if $item.thread_level == 1}}
+		<div id="wall-item-sub-thread-wrapper-{{$item.id}}" class="wall-item-sub-thread-wrapper">
 		{{foreach $item.children as $child}}
 			{{include file="{{$child.template}}" item=$child}}
 		{{/foreach}}
-		{{/if}}
+		</div>
 		{{if $item.comment}}
-		<div id="wall-item-comment-wrapper-{{$item.id}}" class="p-2 rounded wall-item-comment-wrapper{{if $item.children}} wall-item-comment-wrapper-wc{{/if}}">
+		<div id="wall-item-comment-wrapper-{{$item.id}}" class="p-2 rounded wall-item-comment-wrapper{{if $item.children}} wall-item-comment-wrapper-wc{{/if}}{{if $item.comment_hidden}} d-none{{/if}}">
 			{{$item.comment}}
+		</div>
+		{{/if}}
+
+		{{else}}
+		<div id="wall-item-sub-thread-wrapper-{{$item.id}}" class="wall-item-sub-thread-wrapper">
+		{{foreach $item.children as $child}}
+			{{include file="{{$child.template}}" item=$child}}
+		{{/foreach}}
 		</div>
 		{{/if}}
 	</div>

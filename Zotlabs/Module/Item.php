@@ -108,6 +108,7 @@ class Item extends Controller {
 		 */
 
 		$parent     = ((!empty($_POST['parent'])) ? intval($_POST['parent']) : 0);
+		$thr_parent_id = $parent;
 		$parent_mid = ((!empty($_POST['parent_mid'])) ? trim($_POST['parent_mid']) : '');
 		$mode       = ((isset($_POST['conv_mode']) && $_POST['conv_mode'] === 'channel') ? 'channel' : 'network');
 
@@ -1218,6 +1219,7 @@ class Item extends Controller {
 		$json = [
 			'success' => 1,
 			'id'      => $post_id,
+			'thr_parent_id'  => $thr_parent_id,
 			'html'    => conversation($item, $mode, true, 'r_preview'),
 		];
 

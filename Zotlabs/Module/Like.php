@@ -52,43 +52,31 @@ class Like extends Controller {
 			profile_load($parts[0]);
 		}
 
-		$item_normal = item_normal();
-
 		if ($page_mode === 'list') {
+			$item_normal = item_normal();
+
 			$items = q("SELECT item.*, item.id AS item_id FROM item
 				WHERE uid = %d $item_normal
 				AND parent = %d",
 				intval($arr['item']['uid']),
 				intval($arr['item']['parent'])
 			);
+
 			xchan_query($items, true);
 			$items = fetch_post_tags($items, true);
 			$items = conv_sort($items, 'commented');
 		}
 		else {
-			$activities = q("SELECT item.*, item.id AS item_id FROM item
-				WHERE uid = %d $item_normal
-				AND thr_parent = '%s'
-				AND verb IN ('%s', '%s', '%s', '%s', '%s', '%s', 'Accept', 'Reject', 'TentativeAccept')",
-				intval($arr['item']['uid']),
-				dbesc($arr['item']['mid']),
-				dbesc('Like'),
-				dbesc('Dislike'),
-				dbesc(ACTIVITY_SHARE),
-				dbesc(ACTIVITY_ATTEND),
-				dbesc(ACTIVITY_ATTENDNO),
-				dbesc(ACTIVITY_ATTENDMAYBE)
-			);
-			xchan_query($activities, true);
-			$items = array_merge([$arr['item']], $activities);
-			$items = fetch_post_tags($items, true);
+			$item = item_by_item_id($arr['item']['id']);
+			xchan_query($item, true);
+			$item = fetch_post_tags($item, true);
 		}
 
 		$ret = [
 			'success' => 1,
 			'orig_id' => $arr['orig_item_id'], //this is required for pubstream items where $item_id != $item['id']
 			'id'      => $arr['item']['id'],
-			'html'    => conversation($items, $conv_mode, true, $page_mode),
+			'html'    => conversation($item, $conv_mode, true, $page_mode),
 		];
 
 		// mod photos

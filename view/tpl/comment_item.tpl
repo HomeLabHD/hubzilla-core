@@ -1,16 +1,12 @@
-		{{if $threaded}}
-		<div class="comment-wwedit-wrapper threaded" id="comment-edit-wrapper-{{$id}}" style="display: block;">
-		{{else}}
-		<div class="comment-wwedit-wrapper" id="comment-edit-wrapper-{{$id}}" style="display: block;">
-		{{/if}}
-			<form class="comment-edit-form" style="display: block;" id="comment-edit-form-{{$id}}" action="item" method="post" onsubmit="post_comment({{$id}}); return false;">
+		<div class="comment-wwedit-wrapper{{if $threaded}} threaded{{/if}}" id="comment-edit-wrapper-{{$id}}">
+			<form class="comment-edit-form" id="comment-edit-form-{{$id}}" action="item" method="post" onsubmit="post_comment({{$id}}); return false;">
 				<input type="hidden" name="type" value="{{$type}}" />
 				<input type="hidden" name="profile_uid" value="{{$profile_uid}}" />
 				<input type="hidden" name="parent" value="{{$parent}}" />
 				<input type="hidden" name="return" value="{{$return_path}}" />
 				<input type="hidden" name="jsreload" value="{{$jsreload}}" />
 				<input type="hidden" name="preview" id="comment-preview-inp-{{$id}}" value="0" />
-				{{if $anoncomments && ! $observer}}
+				{{if $anoncomments && !$observer}}
 				<div id="comment-edit-anon-{{$id}}" style="display: none;" >
 					{{include file="field_input.tpl" field=$anonname}}
 					{{include file="field_input.tpl" field=$anonmail}}
@@ -74,5 +70,5 @@
 				</div>
 				<div class="clear"></div>
 			</form>
+			<div id="comment-edit-preview-{{$id}}" class="comment-edit-preview mt-4"></div>
 		</div>
-		<div id="comment-edit-preview-{{$id}}" class="comment-edit-preview mt-4"></div>

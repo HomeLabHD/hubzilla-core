@@ -2276,8 +2276,8 @@ class Activity {
 		if (!array_key_exists('edited', $s))
 			$s['edited'] = $s['created'];
 
-		$s['title']   = (($response_activity) ? EMPTY_STR : self::bb_content($content, 'name'));
-		$s['summary'] = self::bb_content($content, 'summary');
+		$s['title']   = (($response_activity) ? EMPTY_STR : html2plain($content['name']));
+		$s['summary'] = html2plain($content['summary']);
 		$s['body']    = ((self::bb_content($content, 'bbcode') && (!$response_activity)) ? self::bb_content($content, 'bbcode') : self::bb_content($content, 'content'));
 
 		// peertube quirks
@@ -3014,7 +3014,6 @@ class Activity {
 		}
 
 		if ($x['success']) {
-
 			if ($relay && $channel['channel_hash'] === $x['item']['owner_xchan'] && $x['item']['verb'] !== 'Add' && !$isCollectionOperation) {
 				$approval = Activity::addToCollection($channel, $act->data, $x['item']['parent_mid'], $x['item'], deliver: false);
 			}
@@ -3033,13 +3032,8 @@ class Activity {
 				}
 			}
 
-			$r = q("select * from item where id = %d limit 1",
-				intval($x['item_id'])
-			);
+			send_status_notifications($x['item_id'], $x['item']);
 
-			if ($r) {
-				send_status_notifications($x['item_id'], $r[0]);
-			}
 			sync_an_item($channel['channel_id'], $x['item_id']);
 		}
 

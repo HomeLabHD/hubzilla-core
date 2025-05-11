@@ -21,16 +21,16 @@ class Notifications {
 				'icon' => 'grid-3x3',
 				'severity' => 'secondary',
 				'label' => t('Network'),
-				'title' => t('New network activity notifications'),
+				'title' => t('Unseen network activity'),
 				'viewall' => [
 					'url' => 'network',
 					'label' => t('Network stream')
 				],
 				'markall' => [
-					'label' => t('Mark all notifications read')
+					'label' => t('Mark all read')
 				],
 				'filter' => [
-					'posts_label' => t('Show new posts only'),
+					'posts_label' => t('Conversation starters only'),
 					'name_label' => t('Filter by name or address')
 				]
 			];
@@ -40,17 +40,17 @@ class Notifications {
 				'type' => 'home',
 				'icon' => 'house',
 				'severity' => 'danger',
-				'label' => t('Home'),
-				'title' => t('New home activity notifications'),
+				'label' => t('Channel'),
+				'title' => t('Unseen channel activity'),
 				'viewall' => [
 					'url' => 'channel/' . $channel['channel_address'],
-					'label' => t('Home stream')
+					'label' => t('Channel stream')
 				],
 				'markall' => [
-					'label' => t('Mark all notifications seen')
+					'label' => t('Mark all seen')
 				],
 				'filter' => [
-					'posts_label' => t('Show new posts only'),
+					'posts_label' => t('Conversation starters only'),
 					'name_label' => t('Filter by name or address')
 				]
 			];
@@ -59,17 +59,17 @@ class Notifications {
 				'type' => 'dm',
 				'icon' => 'envelope',
 				'severity' => 'danger',
-				'label' => t('Direct Messages'),
-				'title' => t('New direct messages notifications'),
+				'label' => t('Private'),
+				'title' => t('Unseen private activity'),
 				'viewall' => [
 					'url' => 'network/?dm=1',
-					'label' => t('Direct messages stream')
+					'label' => t('Private stream')
 				],
 				'markall' => [
-					'label' => t('Mark all notifications read')
+					'label' => t('Mark all read')
 				],
 				'filter' => [
-					'posts_label' => t('Show new posts only'),
+					'posts_label' => t('Conversation starters only'),
 					'name_label' => t('Filter by name or address')
 				]
 			];
@@ -79,13 +79,13 @@ class Notifications {
 				'icon' => 'calendar-date',
 				'severity' => 'secondary',
 				'label' => t('Events'),
-				'title' => t('New events notifications'),
+				'title' => t('Unseen events activity'),
 				'viewall' => [
 					'url' => 'cdav/calendar',
 					'label' => t('View events')
 				],
 				'markall' => [
-					'label' => t('Mark all events seen')
+					'label' => t('Mark all seen')
 				]
 			];
 
@@ -94,10 +94,10 @@ class Notifications {
 				'icon' => 'people',
 				'severity' => 'danger',
 				'label' => t('New Connections'),
-				'title' => t('New connections notifications'),
+				'title' => t('New connections'),
 				'viewall' => [
 					'url' => 'connections',
-					'label' => t('View all connections')
+					'label' => t('View all')
 				]
 			];
 
@@ -106,21 +106,21 @@ class Notifications {
 				'icon' => 'folder',
 				'severity' => 'danger',
 				'label' => t('Files'),
-				'title' => t('New files notifications'),
+				'title' => t('Useen files activity'),
 			];
 
 			$notifications[] = [
 				'type' => 'notify',
 				'icon' => 'exclamation-circle',
 				'severity' => 'danger',
-				'label' => t('Notices'),
-				'title' => t('Notices'),
+				'label' => t('Notifications'),
+				'title' => t('Unseen notifications'),
 				'viewall' => [
 					'url' => 'notifications/system',
-					'label' => t('View all notices')
+					'label' => t('View all')
 				],
 				'markall' => [
-					'label' => t('Mark all notices seen')
+					'label' => t('Mark all seen')
 				]
 			];
 
@@ -129,7 +129,7 @@ class Notifications {
 				'icon' => 'chat-quote',
 				'severity' => 'secondary',
 				'label' => t('Forums'),
-				'title' => t('Forums'),
+				'title' => t('Unseen forums activity'),
 				'filter' => [
 					'name_label' => t('Filter by name or address')
 				]
@@ -142,7 +142,7 @@ class Notifications {
 				'icon' => 'person-exclamation',
 				'severity' => 'danger',
 				'label' => t('Registrations'),
-				'title' => t('New registrations notifications'),
+				'title' => t('Unseen registration activity'),
 			];
 		}
 
@@ -152,7 +152,7 @@ class Notifications {
 				'icon' => 'globe',
 				'severity' => 'secondary',
 				'label' => t('Public Stream'),
-				'title' => t('New public stream notifications'),
+				'title' => t('Unseen public stream activity'),
 				'viewall' => [
 					'url' => 'pubstream',
 					'label' => t('Public stream')
@@ -163,7 +163,7 @@ class Notifications {
 				],
 				*/
 				'filter' => [
-					'posts_label' => t('Show new posts only'),
+					'posts_label' => t('Conversation starters only'),
 					'name_label' => t('Filter by name or address')
 				]
 			];

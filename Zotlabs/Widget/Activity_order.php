@@ -16,7 +16,7 @@ class Activity_order {
 			return '';
 
  		if(! feature_enabled(local_channel(),'order_tab')) {
-			set_pconfig(local_channel(), 'mod_network', 'order', 0);
+			set_pconfig(local_channel(), 'mod_network', 'order', 'created');
 			return '';
 		}
 
@@ -26,17 +26,17 @@ class Activity_order {
 
 		if(x($_GET, 'order')) {
 			switch($_GET['order']){
-				case 'post':
+				case 'created':
 					$postord_active = 'active';
-					set_pconfig(local_channel(), 'mod_network', 'order', 1);
+					set_pconfig(local_channel(), 'mod_network', 'order', 'created');
 					break;
-				case 'comment':
+				case 'commented':
 					$commentord_active = 'active';
-					set_pconfig(local_channel(), 'mod_network', 'order', 0);
+					set_pconfig(local_channel(), 'mod_network', 'order', 'commented');
 					break;
 				case 'unthreaded':
 					$unthreaded_active = 'active';
-					set_pconfig(local_channel(), 'mod_network', 'order', 2);
+					set_pconfig(local_channel(), 'mod_network', 'order', 'unthreaded');
 					break;
 				default:
 					$commentord_active = 'active';
@@ -44,19 +44,19 @@ class Activity_order {
 			}
 		}
 		else {
-			$order = get_pconfig(local_channel(), 'mod_network', 'order', 0);
+			$order = get_pconfig(local_channel(), 'mod_network', 'order', 'created');
 			switch($order) {
-				case 0:
+				case 'commented':
 					$commentord_active = 'active';
 					break;
-				case 1:
+				case 'created':
 					$postord_active = 'active';
 					break;
-				case 2:
+				case 'unthreaded':
 					$unthreaded_active = 'active';
 					break;
 				default:
-					$commentord_active = 'active';
+					$postord_active = 'active';
 			}
 		}
 
@@ -90,26 +90,26 @@ class Activity_order {
 
 
 		// tabs
-		$tabs = [];
+		$tabs[] = [
+			'label' => t('Posted Date'),
+			'icon' => '',
+			'url'=>z_root() . '/' . $cmd . '?order=created' . $filter,
+			'sel'=> $postord_active,
+			'title' => t('Order by last posted date'),
+		];
 
 		$tabs[] = [
 			'label' => t('Commented Date'),
 			'icon' => '',
-			'url'=>z_root() . '/' . $cmd . '?f=&order=comment' . $filter,
+			'url'=>z_root() . '/' . $cmd . '?order=commented' . $filter,
 			'sel'=> $commentord_active,
 			'title' => t('Order by last commented date'),
 		];
-		$tabs[] = [
-			'label' => t('Posted Date'),
-			'icon' => '',
-			'url'=>z_root() . '/' . $cmd . '?f=&order=post' . $filter,
-			'sel'=> $postord_active,
-			'title' => t('Order by last posted date'),
-		];
+
 		$tabs[] = array(
 			'label' => t('Date Unthreaded'),
 			'icon' => '',
-			'url' => z_root() . '/' . $cmd . '?f=&order=unthreaded' . $filter,
+			'url' => z_root() . '/' . $cmd . '?order=unthreaded' . $filter,
 			'sel' => $unthreaded_active,
 			'title' => t('Order unthreaded by date'),
 		);

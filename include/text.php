@@ -2380,17 +2380,19 @@ function item_post_type($item) {
 			$post_type = t('event');
 			break;
 		default:
-			$post_type = t('post');
+			$post_type = t('conversation');
 			if($item['mid'] != $item['parent_mid'])
-				$post_type = t('comment');
+				$post_type = t('message');
 			break;
 	}
 
-	if(strlen($item['verb']) && (! activity_match($item['verb'],ACTIVITY_POST)))
+	if(strlen($item['verb']) && (!activity_match($item['verb'], ['Create', ACTIVITY_POST]))) {
 		$post_type = t('activity');
+	}
 
-	if($item['obj_type'] === 'Question')
+	if($item['obj_type'] === 'Question') {
 		$post_type = t('poll');
+	}
 
 	return $post_type;
 }

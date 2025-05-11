@@ -1078,7 +1078,7 @@ CREATE TABLE IF NOT EXISTS `register` (
 CREATE TABLE IF NOT EXISTS `session` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `sid` char(191) NOT NULL DEFAULT '',
-  `sess_data` text NOT NULL,
+  `sess_data` mediumtext NOT NULL,
   `expire` bigint(20) unsigned NOT NULL DEFAULT 0 ,
   PRIMARY KEY (`id`),
   KEY `sid` (`sid`),
