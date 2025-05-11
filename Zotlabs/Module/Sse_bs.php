@@ -485,7 +485,7 @@ class Sse_bs extends Controller {
 			$sql_extra2 = " AND CASE WHEN item.verb = '" . ACTIVITY_SHARE . "' THEN item.owner_xchan ELSE item.author_xchan END IN (" . self::$xchans . ") ";
 
 		$sql_extra3 = '';
-		$sse_mids_all = unserialise($_SESSION['sse_mids_all']) ?? [];
+		$sse_mids_all = isset($_SESSION['sse_mids_all']) ? unserialise($_SESSION['sse_mids_all']) : [];
 		if ($sse_mids_all) {
 			$sql_extra3 = " AND item.uuid NOT IN (" . protect_sprintf(implode(',', $sse_mids_all)) . ") ";
 		}
