@@ -49,6 +49,7 @@ require_once('include/text.php');
 require_once('include/datetime.php');
 require_once('include/language.php');
 require_once('include/nav.php');
+require_once('include/observer.php');
 require_once('include/permissions.php');
 require_once('include/features.php');
 require_once('include/taxonomy.php');
@@ -2148,22 +2149,6 @@ function argv($x) {
 
 function dba_timer() {
 	return microtime(true);
-}
-
-/**
- * @brief Returns xchan_hash from the observer.
- *
- * Observer can be a local or remote channel.
- *
- * @return string xchan_hash from observer, otherwise empty string if no observer
- */
-function get_observer_hash() {
-	$observer = App::get_observer();
-	if (is_array($observer)) {
-		return $observer['xchan_hash'];
-	}
-
-	return '';
 }
 
 /**
