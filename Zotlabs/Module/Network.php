@@ -463,6 +463,7 @@ class Network extends \Zotlabs\Web\Controller {
 				$net_query
 				WHERE true $uids $item_normal
 				and (abook.abook_blocked = 0 or abook.abook_flags is null)
+				AND item.verb NOT IN ('Add', 'Remove')
 				$sql_extra $sql_options $sql_nets
 				$net_query2
 				ORDER BY item.created DESC $pager_sql "
