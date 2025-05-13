@@ -5384,7 +5384,7 @@ function item_activity_sql($prefix = 'c') {
 		SQL;
 
 		if ($thread_allow) {
-			$sql .= " COUNT(CASE WHEN $prefix.verb IN ('Create','Update') AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_commented, ";
+			$sql .= " COUNT(CASE WHEN $prefix.verb IN ('Create','Update') AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_commented, ";
 		}
 	}
 
