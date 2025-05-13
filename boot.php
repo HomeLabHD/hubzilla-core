@@ -1214,8 +1214,6 @@ class App {
 
 		$user_scalable = ((local_channel()) ? get_pconfig(local_channel(), 'system', 'user_scalable', 0) : 0);
 
-		$preload_images = ((local_channel()) ? get_pconfig(local_channel(), 'system', 'preload_images', 0) : 0);
-
 		$interval = ((local_channel()) ? get_pconfig(local_channel(), 'system', 'update_interval') : 80000);
 		if ($interval < 10000) {
 			$interval = 80000;

@@ -1169,25 +1169,17 @@ function liveUpdate(notify_id) {
 		var dready = new Date();
 		console.log('DATA ready in: ' + (dready - dstart)/1000 + ' seconds.');
 
-		if(update_mode === 'update' || preloadImages) {
-			console.log('LOADING images...');
-			imagesLoaded(data, function () {
-				var iready = new Date();
-				console.log('IMAGES ready in: ' + (iready - dready)/1000 + ' seconds.');
+		console.log('LOADING images...');
+		imagesLoaded(data, function () {
+			var iready = new Date();
+			console.log('IMAGES ready in: ' + (iready - dready)/1000 + ' seconds.');
 
-				page_load = false;
-				scroll_next = false;
-				updateConvItems(update_mode,data);
-
-				in_progress = false;
-			});
-		}
-		else {
 			page_load = false;
 			scroll_next = false;
 			updateConvItems(update_mode,data);
+
 			in_progress = false;
-		}
+		});
 
 	});
 }
