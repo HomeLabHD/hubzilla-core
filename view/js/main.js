@@ -746,7 +746,7 @@ function updateConvItems(mode, data) {
 		if (data_json.includes(bParam_mid) && elem.parentNode.classList.contains('wall-item-sub-thread-wrapper')) {
 			if (!elem.parentNode.parentNode.classList.contains('toplevel_item')) {
 				elem.parentNode.parentNode.classList.add('item-highlight');
-				elem.parentNode.parentNode.style.borderColor = stringToHlsColor(JSON.parse(elem.parentNode.parentNode.dataset.b64mids)[0]);
+				elem.parentNode.parentNode.style.boxShadow = '-.15rem 0 0 0 ' + stringToHlsColor(JSON.parse(elem.parentNode.parentNode.dataset.b64mids)[0]);
 			}
 		}
 
@@ -1296,12 +1296,13 @@ function request(id, mid, verb, parent, uuid) {
 
 		document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => {
 			el.classList.remove('item-highlight');
+			el.style.boxShadow = '';
 		});
 
 		const wrapper = document.getElementById('thread-wrapper-' + id);
 		if (!wrapper.classList.contains('toplevel_item')) {
 			wrapper.classList.add('item-highlight');
-			wrapper.style.borderColor = stringToHlsColor(uuid);
+			wrapper.style.boxShadow = '-.15rem 0 0 0 ' + stringToHlsColor(uuid);
 		}
 
 		fetch('/request?verb=' + verb + '&mid=' + mid + '&parent=' + parent + '&module=' + module)
