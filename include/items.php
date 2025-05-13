@@ -5368,21 +5368,19 @@ function set_activity_mid($string) {
  */
 
 function item_activity_sql($prefix = 'c') {
-	$item_normal_c = item_normal(prefix: $prefix);
 	$sql = '';
-
 	$observer = get_observer_hash();
 
 	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
 
 	if ($observer) {
 		$sql = <<<SQL
-			COUNT(CASE WHEN $prefix.verb = 'Like' AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_liked,
-			COUNT(CASE WHEN $prefix.verb = 'Dislike' AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_disliked,
-			COUNT(CASE WHEN $prefix.verb = 'Announce' AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_announced,
-			COUNT(CASE WHEN $prefix.verb = 'Accept' AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_accepted,
-			COUNT(CASE WHEN $prefix.verb = 'Reject' AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_rejected,
-			COUNT(CASE WHEN $prefix.verb = 'TentativeAccept' AND $prefix.author_xchan = '$observer' $item_normal_c THEN 1 END) AS observer_tentativelyaccepted,
+			COUNT(CASE WHEN $prefix.verb = 'Like' AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_liked,
+			COUNT(CASE WHEN $prefix.verb = 'Dislike' AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_disliked,
+			COUNT(CASE WHEN $prefix.verb = 'Announce' AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_announced,
+			COUNT(CASE WHEN $prefix.verb = 'Accept' AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_accepted,
+			COUNT(CASE WHEN $prefix.verb = 'Reject' AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_rejected,
+			COUNT(CASE WHEN $prefix.verb = 'TentativeAccept' AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_tentativelyaccepted,
 		SQL;
 
 		if ($thread_allow) {
@@ -5396,12 +5394,12 @@ function item_activity_sql($prefix = 'c') {
 	}
 
 	$sql .= <<<SQL
-		COUNT(CASE WHEN $prefix.verb = 'Like' $item_normal_c THEN 1 END) AS like_count,
-		COUNT(CASE WHEN $prefix.verb = 'Dislike' $item_normal_c THEN 1 END) AS dislike_count,
-		COUNT(CASE WHEN $prefix.verb = 'Announce' $item_normal_c THEN 1 END) AS announce_count,
-		COUNT(CASE WHEN $prefix.verb = 'Accept' $item_normal_c THEN 1 END) AS attendyes_count,
-		COUNT(CASE WHEN $prefix.verb = 'Reject' $item_normal_c THEN 1 END) AS attendno_count,
-		COUNT(CASE WHEN $prefix.verb = 'TentativeAccept' $item_normal_c THEN 1 END) AS attendmaybe_count
+		COUNT(CASE WHEN $prefix.verb = 'Like' THEN 1 END) AS like_count,
+		COUNT(CASE WHEN $prefix.verb = 'Dislike' THEN 1 END) AS dislike_count,
+		COUNT(CASE WHEN $prefix.verb = 'Announce' THEN 1 END) AS announce_count,
+		COUNT(CASE WHEN $prefix.verb = 'Accept' THEN 1 END) AS attendyes_count,
+		COUNT(CASE WHEN $prefix.verb = 'Reject' THEN 1 END) AS attendno_count,
+		COUNT(CASE WHEN $prefix.verb = 'TentativeAccept' THEN 1 END) AS attendmaybe_count
 	SQL;
 
 	return $sql;
@@ -5459,7 +5457,7 @@ function items_by_parent_ids(string $ids, string $thr_parents = '', bool $blog_m
 	$thr_parent_sql = (($thread_allow) ? " AND item.thr_parent = item.parent_mid " : '');
 
 	if ($thr_parents && $thread_allow) {
-		$thr_parent_sql = " AND item.thr_parent IN ($thr_parents) ";
+		$thr_parent_sql = " AND item.thr_parent IN (" . protect_sprintf($thr_parents) . ") ";
 	}
 
 	$ret = q(
@@ -5481,6 +5479,7 @@ function items_by_parent_ids(string $ids, string $thr_parents = '', bool $blog_m
 		GROUP BY item.id",
 		dbesc($ids)
 	);
+
 
 	return $ret;
 }
