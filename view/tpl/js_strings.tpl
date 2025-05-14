@@ -5,8 +5,6 @@
 		'delitem'     : "{{$delitem}}",
 		'itemdel'     : "{{$itemdel}}",
 		'comment'     : "{{$comment}}",
-		'showmore'    : "{{$showmore}}",
-		'showfewer'   : "{{$showfewer}}",
 		'divgrowmore' : "{{$divgrowmore}}",
 		'divgrowless' : "{{$divgrowless}}",
 		'pwshort'     : "{{$pwshort}}",

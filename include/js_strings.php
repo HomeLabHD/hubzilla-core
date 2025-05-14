@@ -5,8 +5,6 @@ function js_strings() {
 		'$delitem'     => t('Delete this item?'),
 		'$itemdel'     => t('Item deleted'),
 		'$comment'     => t('Comment'),
-		'$showmore'    => t('show all'),
-		'$showfewer'   => t('show less'),
 		'$divgrowmore' => t('expand'),
 		'$divgrowless' => t('collapse'),
 		'$pwshort'     => t("Password too short"),

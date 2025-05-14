@@ -484,7 +484,9 @@ class ThreadItem {
 				'attendmaybe' => intval($item['observer_tentativelyaccepted'] ?? 0)
 			],
 			'threaded' => $this->threaded,
-			'blog_mode' => $this->get_display_mode() === 'list'
+			'blog_mode' => $this->get_display_mode() === 'list',
+			'collapse_comments' => t('show less'),
+			'expand_comments' =>  $this->threaded ? t('show more') : t('show all')
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);
@@ -506,7 +508,7 @@ class ThreadItem {
 			if($thread_level === 1 && $nb_children > $visible_comments) {
 				$result['children'][0]['comment_firstcollapsed'] = true;
 				$result['children'][0]['num_comments'] = $comment_count_txt['label'];
-				$result['children'][0]['hide_text'] = t('show all');
+//				$result['children'][0]['hide_text'] = t('show all');
 //				if($thread_level > 1) {
 //					$result['children'][$nb_children - 1]['comment_lastcollapsed'] = false;
 //				}

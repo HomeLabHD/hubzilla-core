@@ -502,8 +502,11 @@ function showHideComments(id) {
 	let isCollapsed = collapsedComments.style.display === 'none';
 
 	collapsedComments.style.display = isCollapsed ? '' : 'none';
-	hideCommentsLabel.textContent = isCollapsed ? aStr.showfewer : aStr.showmore;
-	hideCommentsTotal.style.display = isCollapsed ? 'none' : '';
+	hideCommentsLabel.textContent = isCollapsed ? hideCommentsLabel.dataset.expanded : hideCommentsLabel.dataset.collapsed;
+
+	if (hideCommentsTotal) {
+		hideCommentsTotal.style.display = isCollapsed ? 'none' : '';
+	}
 
 	let oldClass = isCollapsed ? 'bi-chevron-down' : 'bi-chevron-up';
 	let newClass = isCollapsed ? 'bi-chevron-up' : 'bi-chevron-down';
@@ -960,14 +963,8 @@ function scrollToItem() {
             // Handle collapsed comments if any
             let collapsedComments = document.querySelectorAll('.collapsed-comments');
             if (collapsedComments.length) {
-                let scrolltoid = collapsedComments[0].id.substring(19);
-                let collapsedComment = document.getElementById('collapsed-comments-' + scrolltoid);
-                let hideCommentsLabel = document.getElementById('hide-comments-label-' + scrolltoid);
-                let hideCommentsTotal = document.getElementById('hide-comments-total-' + scrolltoid);
-
-                if (collapsedComment) collapsedComment.style.display = 'block';
-                if (hideCommentsLabel) hideCommentsLabel.innerHTML = aStr.showfewer;
-                if (hideCommentsTotal) hideCommentsTotal.style.display = 'none';
+                let scrollToId = collapsedComments[0].id.substring(19);
+                showHideComments(scrollToId);
             }
 
             // Scroll to the target element
