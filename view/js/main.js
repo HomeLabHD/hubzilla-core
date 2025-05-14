@@ -329,6 +329,13 @@ function handle_comment_form(e) {
 	var commentSaveTimer = null;
 	var emptyCommentElm = form.find('.comment-edit-text').attr('id');
 	var convId = emptyCommentElm.replace('comment-edit-text-','');
+
+	// in case parent input is set use it as convId
+	const parentInputVal = form.find(':input[name=parent]').val();
+	if (parentInputVal) {
+		convId = parentInputVal;
+	}
+
 	$('#' + emptyCommentElm).on('focusout',function(e){
 		if(commentSaveTimer)
 			clearTimeout(commentSaveTimer);
@@ -1511,7 +1518,14 @@ function doreply(parent, ident, owner, hint) {
 	// Set the textarea value
 	const textarea = form.querySelector('textarea');
 	if (textarea) {
-		textarea.value = "@{" + owner + "}" + ((!isInSel || quote.length === 0) ? " " : "\n[quote]" + quote + "[/quote]\n");
+		let commentBody = localStorage.getItem('comment_body-' + ident);
+		if (commentBody) {
+			textarea.value = commentBody;
+		}
+		else {
+			textarea.value = "@{" + owner + "}" + ((!isInSel || quote.length === 0) ? " " : "\n[quote]" + quote + "[/quote]\n");
+		}
+
 		textarea.focus();
 	}
 }
