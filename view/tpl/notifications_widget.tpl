@@ -724,7 +724,7 @@
 					<div class="text-truncate pe-1">
 						<strong title="{2} - {3}">{2}</strong>
 					</div>
-					<small class="autotime-narrow opacity-75" title="{5}"></small>
+					<small class="autotime-narrow text-body-secondary" title="{5}"></small>
 				</div>
 				<div class="text-truncate">{4}</div>
 			</div>

@@ -28,7 +28,7 @@
 				{{/if}}
 				<div class="p-2 wall-item-head{{if !$item.title && !$item.event && !$item.photo}} rounded-top{{/if}} clearfix">
 					<div class="lh-sm text-end float-end">
-						<div class="wall-item-ago opacity-75" id="wall-item-ago-{{$item.id}}">
+						<div class="wall-item-ago text-body-secondary" id="wall-item-ago-{{$item.id}}">
 							{{if $item.location}}
 							{{$item.location}}
 							{{/if}}
@@ -87,7 +87,7 @@
 						<div class="text-truncate">
 							<a href="{{$item.profile_url}}" class="lh-sm wall-item-name-link u-url"{{if $item.app}} title="{{$item.str_app}}"{{/if}}><span class="wall-item-name{{$item.sparkle}}" id="wall-item-name-{{$item.id}}" ><bdi>{{$item.name}}</bdi></span></a>{{if $item.owner_url}}&nbsp;{{$item.via}}&nbsp;<a href="{{$item.owner_url}}" title="{{$item.olinktitle}}" class="wall-item-name-link"><span class="wall-item-name{{$item.osparkle}}" id="wall-item-ownername-{{$item.id}}"><bdi>{{$item.owner_name}}</bdi></span></a>{{/if}}
 						</div>
-						<small class="lh-sm text-truncate d-block wall-item-addr opacity-75">{{$item.author_id}}</small>
+						<small class="lh-sm text-truncate d-block wall-item-addr text-body-secondary">{{$item.author_id}}</small>
 					</div>
 				</div>
 				{{if $item.divider}}

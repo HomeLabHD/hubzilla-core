@@ -40,17 +40,17 @@
 							{7}
 							<strong title="{4}">{4}</strong>
 						</div>
-						<small class="autotime-narrow opacity-75" title="{1}"></small>
+						<small class="autotime-narrow text-body-secondary" title="{1}"></small>
 					</div>
 					<div class="text-truncate">
-						<small class="opacity-75" title="{5}">{5}</small>
+						<small class="text-body-secondary" title="{5}">{5}</small>
 					</div>
 				</div>
 			</div>
 			<div class="mb-2">
 				<div class="text-break">{2}</div>
 			</div>
-			<small class="opacity-75">{3}</small>
+			<small class="text-body-secondary">{3}</small>
 			{8}
 		</a>
 	</div>
@@ -82,17 +82,17 @@
 							{{$e.icon}}
 							<strong title="{{$e.author_name}}">{{$e.author_name}}</strong>
 						</div>
-						<small class="autotime-narrow opacity-75" title="{{$e.created}}"></small>
+						<small class="autotime-narrow text-body-secondary" title="{{$e.created}}"></small>
 					</div>
 					<div class="text-truncate">
-						<small class="opacity-75" title="{{$e.author_addr}}">{{$e.author_addr}}</small>
+						<small class="text-body-secondary" title="{{$e.author_addr}}">{{$e.author_addr}}</small>
 					</div>
 				</div>
 			</div>
 			<div class="mb-2">
 				<div class="text-break">{{$e.summary}}</div>
 			</div>
-			<small class="opacity-75">{{$e.info}}</small>
+			<small class="text-body-secondary">{{$e.info}}</small>
 			{{if $e.unseen_count}}
 			<span class="badge bg-transparent border border-{{$e.unseen_class}} text-{{$e.unseen_class}} rounded-pill position-absolute bottom-0 end-0 m-2 unseen_count" title="{{$strings.unseen_count}}">{{$e.unseen_count}}</span>
 			{{/if}}

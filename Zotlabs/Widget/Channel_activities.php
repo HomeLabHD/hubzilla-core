@@ -223,7 +223,7 @@ class Channel_activities {
 			$i[] = [
 				'url' => z_root() . '/manage/' . $rr['channel_id'],
 				'title' => '',
-				'summary' => '<div class="text-truncate lh-sm"><img src="' . $rr['xchan_photo_s'] . '" class="menu-img-2">' . '<strong>' . $rr['channel_name'] . '</strong><br><small class="opacity-75">' . $rr['xchan_addr'] . '</small></div>',
+				'summary' => '<div class="text-truncate lh-sm"><img src="' . $rr['xchan_photo_s'] . '" class="menu-img-2">' . '<strong>' . $rr['channel_name'] . '</strong><br><small class="text-body-secondary">' . $rr['xchan_addr'] . '</small></div>',
 				'footer' => $footer
 			];
 
