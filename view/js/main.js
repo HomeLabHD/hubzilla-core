@@ -518,8 +518,6 @@ function showHideComments(id) {
 	let oldClass = isCollapsed ? 'bi-chevron-down' : 'bi-chevron-up';
 	let newClass = isCollapsed ? 'bi-chevron-up' : 'bi-chevron-down';
 	hideCommentsIcon.classList.replace(oldClass, newClass);
-
-	setTimeout(collapseHeight, 100);
 }
 
 function openClose(theID, display) {
@@ -792,9 +790,12 @@ function updateConvItems(mode, data) {
 		mediaPlaying = event.type === 'playing';
 	}
 
-	if (bParam_mid && mode === 'replace') {
-		scrollToItem();
-	}
+	imagesLoaded(document.querySelectorAll('.wall-item-body img, .wall-photo-item img'), function () {
+		collapseHeight();
+		if (bParam_mid && mode === 'replace') {
+			scrollToItem();
+		}
+	});
 
 	// reset rotators and cursors we may have set before reaching this place
 	let pageSpinner = document.getElementById("page-spinner");
@@ -807,8 +808,6 @@ function updateConvItems(mode, data) {
 	}
 
 	followUpPageLoad = true;
-
-	setTimeout(collapseHeight, 100);
 
 	updateRelativeTime('.autotime');
 }
@@ -990,7 +989,7 @@ function scrollToItem() {
 }
 
 function collapseHeight() {
-	$(".wall-item-content:not('.divmore_checked, :hidden'), .directory-collapse:not('.divmore_checked')").each(function(i) {
+	$(".wall-item-content:not('.divmore_checked'), .directory-collapse:not('.divmore_checked')").each(function(i) {
 		let orgHeight = $(this).outerHeight(true);
 		let id = (($(this).attr('id')) ? $(this).attr('id').split('wall-item-content-').pop() : 0);
 		let b64mid = ((typeof bParam_mid !== 'undefined') ? bParam_mid : '');
@@ -1182,8 +1181,10 @@ function liveUpdate(notify_id) {
 			page_load = false;
 			scroll_next = false;
 			updateConvItems(update_mode,data);
+
 			in_progress = false;
 		});
+
 	});
 }
 
