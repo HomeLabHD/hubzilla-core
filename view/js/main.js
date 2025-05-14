@@ -518,8 +518,6 @@ function showHideComments(id) {
 	let oldClass = isCollapsed ? 'bi-chevron-down' : 'bi-chevron-up';
 	let newClass = isCollapsed ? 'bi-chevron-up' : 'bi-chevron-down';
 	hideCommentsIcon.classList.replace(oldClass, newClass);
-
-	setTimeout(collapseHeight, 100);
 }
 
 function openClose(theID, display) {
@@ -792,9 +790,14 @@ function updateConvItems(mode, data) {
 		mediaPlaying = event.type === 'playing';
 	}
 
-	if (bParam_mid && mode === 'replace') {
-		scrollToItem();
-	}
+	imagesLoaded(document.querySelectorAll('.wall-item-body img, .wall-photo-item img'), function () {
+		if (bParam_mid && mode === 'replace') {
+			scrollToItem();
+		}
+		else {
+			collapseHeight();
+		}
+	});
 
 	// reset rotators and cursors we may have set before reaching this place
 	let pageSpinner = document.getElementById("page-spinner");
@@ -808,7 +811,6 @@ function updateConvItems(mode, data) {
 
 	followUpPageLoad = true;
 
-	setTimeout(collapseHeight, 100);
 
 	updateRelativeTime('.autotime');
 }
@@ -975,6 +977,8 @@ function scrollToItem() {
                 showHideComments(scrollToId);
             }
 
+            collapseHeight();
+
             // Scroll to the target element
             let navHeight = document.querySelector('nav') ? document.querySelector('nav').offsetHeight : 0;
             window.scrollTo({
@@ -990,7 +994,7 @@ function scrollToItem() {
 }
 
 function collapseHeight() {
-	$(".wall-item-content:not('.divmore_checked, :hidden'), .directory-collapse:not('.divmore_checked')").each(function(i) {
+	$(".wall-item-content:not('.divmore_checked'), .directory-collapse:not('.divmore_checked')").each(function(i) {
 		let orgHeight = $(this).outerHeight(true);
 		let id = (($(this).attr('id')) ? $(this).attr('id').split('wall-item-content-').pop() : 0);
 		let b64mid = ((typeof bParam_mid !== 'undefined') ? bParam_mid : '');
@@ -1543,6 +1547,7 @@ function doscroll(parent, hidden) {
 		var c = '#collapsed-comments-' + x;
 		if($(c).length !== 0 && (! $(c).is(':visible'))) {
 			showHideComments(x);
+			collapseHeight();
 			pos += $(c).height();
 		}
 	}
