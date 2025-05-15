@@ -291,7 +291,7 @@ class Display extends Controller {
 			$parents_str = ids_to_querystr($r,'item_id');
 			if($parents_str) {
 				$thr_parents_str = stringify_array(get_recursive_thr_parents($target_item), true);
-				$items = items_by_parent_ids($parents_str, $thr_parents_str);
+				$items = items_by_parent_ids($parents_str, $thr_parents_str, $sql_extra);
 
 				xchan_query($items);
 				$items = fetch_post_tags($items,true);

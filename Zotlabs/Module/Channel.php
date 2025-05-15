@@ -416,7 +416,7 @@ class Channel extends Controller {
 		if ($r) {
 			$parents_str = ids_to_querystr($r, 'item_id');
 
-			$r = items_by_parent_ids($parents_str, blog_mode: $blog_mode);
+			$r = items_by_parent_ids($parents_str, sql_extra: $sql_extra, blog_mode: $blog_mode);
 
 			xchan_query($r);
 			$items = fetch_post_tags($r, true);

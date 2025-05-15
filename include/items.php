@@ -5446,7 +5446,7 @@ function item_by_item_id(int $id): array
  * @param bool $blog_mode (optional) - if set to yes only the parent items will be returned
  */
 
-function items_by_parent_ids(string $ids, string $thr_parents = '', bool $blog_mode = false): array
+function items_by_parent_ids(string $ids, string $thr_parents = '', string $sql_extra = '', bool $blog_mode = false): array
 {
 	$item_normal = item_normal();
 	$item_normal_c = item_normal(prefix: 'c');
@@ -5479,6 +5479,7 @@ function items_by_parent_ids(string $ids, string $thr_parents = '', bool $blog_m
 			AND c.item_thread_top = 0
 			AND c.thr_parent = item.mid
 			$item_normal_c
+			$sql_extra
 		$thr_parent_uuid_sql_join
 		WHERE $blog_mode_sql in (%s)
 			AND (
@@ -5487,6 +5488,7 @@ function items_by_parent_ids(string $ids, string $thr_parents = '', bool $blog_m
 			)
 			$thr_parent_sql
 			$item_normal
+			$sql_extra
 		GROUP BY item.id",
 		dbesc($ids)
 	);
@@ -5509,13 +5511,13 @@ function items_by_thr_parent(string $mid, int $parent): array
 		intval($parent)
 	);
 
-	$owner_uid = $parent_item[0]['uid'];
+	$owner_uid = intval($parent_item[0]['uid']);
 
 	$item_normal = item_normal($owner_uid);
 	$item_normal_c = item_normal($owner_uid, 'c');
 	$activity_sql = item_activity_sql('c');
 
-	if (local_channel()) {
+	if (local_channel() === $owner_uid) {
 		$ret = q(
 			"SELECT item.*,
 				$activity_sql
@@ -5581,10 +5583,10 @@ function item_activity_xchans(string $mid, int $parent, string $verb): array
 		intval($parent)
 	);
 
-	$owner_uid = $parent_item[0]['uid'];
+	$owner_uid = intval($parent_item[0]['uid']);
 	$item_normal = item_normal($owner_uid);
 
-	if (local_channel()) {
+	if (local_channel() === $owner_uid) {
 		$ret = q("SELECT item.id, item.item_blocked, xchan.xchan_hash, xchan.xchan_name as name, xchan.xchan_url as url, xchan.xchan_photo_s as photo FROM item
 			LEFT JOIN xchan ON item.author_xchan = xchan.xchan_hash
 			WHERE item.uid = %d
