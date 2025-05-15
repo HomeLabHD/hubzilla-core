@@ -5460,8 +5460,18 @@ function items_by_parent_ids(string $ids, string $thr_parents = '', bool $blog_m
 		$thr_parent_sql = " AND item.thr_parent IN (" . protect_sprintf($thr_parents) . ") ";
 	}
 
+	$thr_parent_uuid_sql = '';
+	$thr_parent_uuid_sql_join = '';
+
+	if (!$thread_allow) {
+		// this is required for navigation between replies if thread_allow is false
+		$thr_parent_uuid_sql = "tp.uuid AS thr_parent_uuid,";
+		$thr_parent_uuid_sql_join = "LEFT JOIN item tp ON item.thr_parent = tp.mid AND item.uid = tp.uid";
+	}
+
 	$ret = q(
 		"SELECT item.*,
+			$thr_parent_uuid_sql
 			$activity_sql
 		FROM item
 		LEFT JOIN item c
@@ -5469,6 +5479,7 @@ function items_by_parent_ids(string $ids, string $thr_parents = '', bool $blog_m
 			AND c.item_thread_top = 0
 			AND c.thr_parent = item.mid
 			$item_normal_c
+		$thr_parent_uuid_sql_join
 		WHERE $blog_mode_sql in (%s)
 			AND (
 				item.verb NOT IN ('Like', 'Dislike', 'Announce')

@@ -34,8 +34,6 @@ class ThreadItem {
 	private $channel = null;
 	private $display_mode = 'normal';
 	private $reload = '';
-	private $mid_uuid_map = [];
-
 
 	public function __construct($data) {
 
@@ -81,7 +79,7 @@ class ThreadItem {
 	 *      _ false on failure
 	 */
 
-	public function get_template_data($conv_responses, $mid_uuid_map, $thread_level=1, $conv_flags = []) {
+	public function get_template_data($thread_level=1, $conv_flags = []) {
 
 		$result = [];
 		$item = $this->get_data();
@@ -220,14 +218,8 @@ class ThreadItem {
 		}
 
 		$response_verbs[] = 'comment';
-		$responses = get_responses($conv_responses,$response_verbs,$this,$item);
+		$responses = get_responses($response_verbs, $item);
 
-/*
-		$my_responses = [];
-		foreach($response_verbs as $v) {
-			$my_responses[$v] = ((isset($conv_responses[$v][$item['mid'] . '-m'])) ? 1 : 0);
-		}
-*/
 
 		/*
 		 * We should avoid doing this all the time, but it depends on the conversation mode
@@ -342,14 +334,7 @@ class ThreadItem {
 
 		$midb64 = $item['uuid'];
 		$mids = [ $item['uuid'] ];
-		$response_mids = [];
-		foreach($response_verbs as $v) {
-			if(isset($conv_responses[$v]['mids'][$item['mid']])) {
-				$response_mids = array_merge($response_mids, $conv_responses[$v]['mids'][$item['mid']]);
-			}
-		}
 
-		$mids = array_merge($mids, $response_mids);
 		$json_mids = json_encode($mids);
 
 		// Pinned item processing
@@ -467,7 +452,7 @@ class ThreadItem {
 			'wait' => t('Please wait'),
 			'thread_level' => $thread_level,
 			'settings' => $settings,
-			'thr_parent_uuid' => (($item['parent_mid'] !== $item['thr_parent'] && isset($mid_uuid_map[$item['thr_parent']])) ? $mid_uuid_map[$item['thr_parent']] : ''),
+			'thr_parent_uuid' => ((isset($item['thr_parent_uuid']) && $item['thr_parent'] !== $item['parent_mid']) ? $item['thr_parent_uuid'] : ''),
 			'contact_id' => (($contact) ? $contact['abook_id'] : ''),
 			'moderate' => ($item['item_blocked'] == ITEM_MODERATED),
 			'moderate_approve' => t('Approve'),
@@ -503,20 +488,14 @@ class ThreadItem {
 
 		if(($this->get_display_mode() === 'normal') && ($nb_children > 0)) {
 			foreach($children as $child) {
-				$result['children'][] = $child->get_template_data($conv_responses, $mid_uuid_map, $thread_level + 1, $conv_flags);
+				$result['children'][] = $child->get_template_data($thread_level + 1, $conv_flags);
 			}
 
 			// Collapse
 			if($thread_level === 1 && $nb_children > $visible_comments) {
 				$result['children'][0]['comment_firstcollapsed'] = true;
 				$result['children'][0]['num_comments'] = $comment_count_txt['label'];
-//				$result['children'][0]['hide_text'] = t('show all');
-//				if($thread_level > 1) {
-//					$result['children'][$nb_children - 1]['comment_lastcollapsed'] = false;
-//				}
-//				else {
-					$result['children'][$nb_children - ($visible_comments + 1)]['comment_lastcollapsed'] = true;
-//				}
+				$result['children'][$nb_children - ($visible_comments + 1)]['comment_lastcollapsed'] = true;
 			}
 		}
 

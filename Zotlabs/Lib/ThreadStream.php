@@ -211,16 +211,15 @@ class ThreadStream {
 	 *      _ The data requested on success
 	 *      _ false on failure
 	 */
-	public function get_template_data($conv_responses, $mid_uuid_map) {
+	public function get_template_data() {
 		$result = array();
 
 		foreach($this->threads as $item) {
-
 			if(($item->get_data_value('id') == $item->get_data_value('parent')) && $this->prepared_item) {
 				$item_data = $this->prepared_item;
 			}
 			else {
-				$item_data = $item->get_template_data($conv_responses, $mid_uuid_map);
+				$item_data = $item->get_template_data();
 			}
 			if(!$item_data) {
 				logger('Failed to get item template data ('. $item->get_id() .').', LOGGER_DEBUG, LOG_ERR);

@@ -1104,16 +1104,7 @@ class Photos extends \Zotlabs\Web\Controller {
 				$alike = array();
 				$dlike = array();
 
-				$conv_responses = array(
-					'like' => array('title' => t('Likes','title')),'dislike' => array('title' => t('Dislikes','title')),
-					'attendyes' => array('title' => t('Attending','title')), 'attendno' => array('title' => t('Not attending','title')), 'attendmaybe' => array('title' => t('Might attend','title'))
-				);
-
 				if($r) {
-
-					foreach($r as $item) {
-						builtin_activity_puller($item, $conv_responses);
-					}
 
 					$like_count = ((x($alike,$link_item['mid'])) ? $alike[$link_item['mid']] : '');
 					$like_list = ((x($alike,$link_item['mid'])) ? $alike[$link_item['mid'] . '-l'] : '');
@@ -1224,7 +1215,7 @@ class Photos extends \Zotlabs\Web\Controller {
 					$response_verbs[] = 'dislike';
 				}
 
-				$responses = get_responses($conv_responses,$response_verbs,'',$link_item);
+				$responses = get_responses($response_verbs, $link_item);
 			}
 
 			$hookdata = [

@@ -465,17 +465,6 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 	$items = $cb['items'];
 
-	$conv_responses = [
-		'like' => ['title' => t('Likes','title')],
-		'dislike' => ['title' => t('Dislikes','title')],
-		'attendyes' => ['title' => t('Attending','title')],
-		'attendno' => ['title' => t('Not attending','title')],
-		'attendmaybe' => ['title' => t('Might attend','title')],
-		'answer' => [],
-		'announce' => ['title' => t('Repeats','title')],
-	];
-
-
 	// array with html for each thread (parent+comments)
 	$threads = array();
 	$threadsid = -1;
@@ -702,13 +691,9 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 				$item = $x['item'];
 
-				// builtin_activity_puller($item, $conv_responses);
-
-				if(! visible_activity($item)) {
+				if (!visible_activity($item)) {
 					continue;
 				}
-
-				$mid_uuid_map[$item['mid']] = $item['uuid'];
 
 				$item['pagedrop'] = $page_dropping;
 
@@ -718,7 +703,6 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 					$conv->add_thread($item_object);
 					if(($page_mode === 'list') || ($page_mode === 'pager_list')) {
-					//	$item_object->set_template('conv_list.tpl');
 						$item_object->set_display_mode('list');
 					}
 					if($mode === 'cards' || $mode === 'articles') {
@@ -728,7 +712,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 				}
 			}
 
-			$threads = $conv->get_template_data($conv_responses, $mid_uuid_map);
+			$threads = $conv->get_template_data();
 			if(!$threads) {
 				logger('[ERROR] conversation : Failed to get template data.', LOGGER_DEBUG);
 				$threads = array();
@@ -947,104 +931,6 @@ function thread_author_menu($item, $mode = '') {
 
 	return $args['menu'];
 
-}
-
-
-
-
-
-/**
- * @brief Checks item to see if it is one of the builtin activities (like/dislike, event attendance, consensus items, etc.)
- *
- * Increments the count of each matching activity and adds a link to the author as needed.
- *
- * @param array $item
- * @param array &$conv_responses (already created with builtin activity structure)
- */
-function builtin_activity_puller($item, &$conv_responses) {
-
-	// if this item is a post or comment there's nothing for us to do here, just return.
-
-	if(activity_match($item['verb'], ['Create', ACTIVITY_POST]) && $item['obj_type'] !== 'Answer')
-		return;
-
-	foreach($conv_responses as $mode => $v) {
-
-		$url = '';
-
-		switch($mode) {
-			case 'like':
-				$verb = ['Like', ACTIVITY_LIKE];
-				break;
-			case 'dislike':
-				$verb = ['Dislike', ACTIVITY_DISLIKE];
-				break;
-			case 'comment':
-				$verb = ['Create'];
-				break;
-			case 'attendyes':
-				$verb = ['Accept', ACTIVITY_ATTEND];
-				break;
-			case 'attendno':
-				$verb = ['Reject', ACTIVITY_ATTENDNO];
-				break;
-			case 'attendmaybe':
-				$verb = ['TentativeAccept', ACTIVITY_ATTENDMAYBE];
-				break;
-			case 'answer':
-				$verb = ['Create', ACTIVITY_POST];
-				break;
-			case 'announce':
-				$verb = 'Announce';
-				break;
-			default:
-				return;
-				break;
-		}
-
-		if((activity_match($item['verb'], $verb)) && ($item['id'] != $item['parent'])) {
-
-			$name = (($item['author']['xchan_name']) ? $item['author']['xchan_name'] : t('Unknown'));
-
-			$moderate = ((intval($item['item_blocked']) === ITEM_MODERATED) ? '<a href="moderate/' . $item['id'] . '/approve" onclick="moderate_approve(' . $item['id'] . '); return false;" class="text-success pe-2" title="' . t('Approve this item') . '"><i class="bi bi-check-lg" ></i></a><a href="moderate/' . $item['id'] . '/drop" onclick="moderate_drop(' . $item['id'] . '); return false;" class="text-danger pe-2" title="' . t('Delete this item') . '"><i class="bi bi-trash" ></i></a>' : '');
-
-			$url = (($item['author_xchan'] && $item['author']['xchan_photo_s'])
-				? '<div class="dropdown-item">' . $moderate . '<a href="' . chanlink_hash($item['author_xchan']) . '" class="text-reset">' . '<img class="menu-img-1" src="' . $item['author']['xchan_photo_s'] . '" alt="' . urlencode($name) . '" loading="lazy" /> ' . $name . '</a></div>'
-				: '<a class="dropdown-item" href="#" class="disabled">' . $name . '</a>'
-			);
-
-
-
-			if(! $item['thr_parent'])
-				$item['thr_parent'] = $item['parent_mid'];
-
-			$conv_responses[$mode]['mids'][$item['thr_parent']][] = $item['uuid'];
-
-			if($item['obj_type'] === 'Answer')
-				continue;
-
-			if(! ((isset($conv_responses[$mode][$item['thr_parent'] . '-l']))
-				&& (is_array($conv_responses[$mode][$item['thr_parent'] . '-l']))))
-				$conv_responses[$mode][$item['thr_parent'] . '-l'] = array();
-
-			// only list each unique author once
-			if(in_array($url,$conv_responses[$mode][$item['thr_parent'] . '-l']))
-				continue;
-
-			if(! isset($conv_responses[$mode][$item['thr_parent']]))
-				$conv_responses[$mode][$item['thr_parent']] = 1;
-			else
-				$conv_responses[$mode][$item['thr_parent']] ++;
-
-			$conv_responses[$mode][$item['thr_parent'] . '-l'][] = $url;
-			if(get_observer_hash() && get_observer_hash() === $item['author_xchan']) {
-				$conv_responses[$mode][$item['thr_parent'] . '-m'] = true;
-			}
-
-			// there can only be one activity verb per item so if we found anything, we can stop looking
-			return;
-		}
-	}
 }
 
 
@@ -1529,7 +1415,7 @@ function prepare_page($item) {
 	));
 }
 
-function get_responses($conv_responses,$response_verbs,$ob,$item) {
+function get_responses($response_verbs, $item) {
 
 	$ret = array();
 	foreach($response_verbs as $v) {
