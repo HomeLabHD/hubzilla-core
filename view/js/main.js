@@ -956,41 +956,43 @@ function updateRelativeTime(selector) {
 }
 
 function scrollToItem() {
-    // auto-scroll to a particular comment in a thread (designated by mid) when in single-thread mode
+	// auto-scroll to a particular comment in a thread (designated by mid) when in single-thread mode
 
-    if (justifiedGalleryActive) return;
+	if (justifiedGalleryActive) return;
 
-    let submid = ((bParam_mid.length) ? bParam_mid : 'abcdefg');
+	let submid = ((bParam_mid.length) ? bParam_mid : 'abcdefg');
 
-    // Select all thread wrappers
-    let threadWrappers = document.querySelectorAll('.thread-wrapper');
+	// Select all thread wrappers
+	let threadWrappers = document.querySelectorAll('.thread-wrapper');
 
-    threadWrappers.forEach(thread => {
-        // Get the 'data-b64mids' attribute and check if it contains submid
-        let b64mids = thread.dataset.b64mids;
+	threadWrappers.forEach(thread => {
+		// Get the 'data-b64mids' attribute and check if it contains submid
+		let b64mids = thread.dataset.b64mids;
 
-        if (b64mids && b64mids.includes(submid)) {
-            // Handle collapsed comments if any
-            let collapsedComments = document.querySelectorAll('.collapsed-comments');
-            if (collapsedComments.length) {
-                let scrollToId = collapsedComments[0].id.substring(19);
-                showHideComments(scrollToId);
-            }
+		if (b64mids && b64mids.includes(submid)) {
+			// Handle collapsed comments if any
+			let collapsedComments = document.querySelectorAll('.collapsed-comments');
+			if (collapsedComments.length) {
+				let scrollToId = collapsedComments[0].id.substring(19);
+				showHideComments(scrollToId);
+			}
 
-            collapseHeight();
+			collapseHeight();
 
-            // Scroll to the target element
-            let navHeight = document.querySelector('nav') ? document.querySelector('nav').offsetHeight : 0;
-            window.scrollTo({
-                top: getOffsetTopRelativeToBody(thread) - navHeight,
-                behavior: 'smooth'
-            });
+			if (!thread.classList.contains('toplevel_item')) {
+				// Scroll to the target element
+				let navHeight = document.getElementById('navbar-top') ? document.getElementById('navbar-top').offsetHeight : 0;
+				window.scrollTo({
+					top: getOffsetTopRelativeToBody(thread) - navHeight,
+					behavior: 'smooth'
+				});
+			}
 
 			let id = thread.id.replace('thread-wrapper-', '');
 			let content = document.getElementById('wall-item-content-wrapper-' + id);
 			content.classList.add('item-highlight-fade');
-        }
-    });
+		}
+	});
 }
 
 function getOffsetTopRelativeToBody(element) {
