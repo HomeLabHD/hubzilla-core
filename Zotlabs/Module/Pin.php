@@ -29,9 +29,8 @@ class Pin extends \Zotlabs\Web\Controller {
 		if(! $observer)
 			http_status_exit(403, 'Forbidden');
 
-		$r = q("SELECT * FROM item WHERE id = %d AND uid = %d AND id = parent AND item_private = 0 LIMIT 1",
-			intval($item_id),
-			intval(local_channel())
+		$r = q("SELECT * FROM item WHERE id = %d AND id = parent AND item_private = 0 LIMIT 1",
+			$item_id
 		);
 		if(! $r) {
 			notice(t('Unable to locate original post.'));
