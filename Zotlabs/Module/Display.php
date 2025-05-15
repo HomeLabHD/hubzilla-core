@@ -212,7 +212,7 @@ class Display extends Controller {
 		$observer_hash = get_observer_hash();
 		$item_normal = item_normal();
 		$item_normal_update = item_normal_update();
-		$sql_extra = '';
+		$permission_sql = '';
 		$r = [];
 
 		if($noscript_content || $load) {
@@ -231,7 +231,7 @@ class Display extends Controller {
 			}
 
 			if(!$r) {
-				$sql_extra = item_permissions_sql(0, $observer_hash);
+				$permission_sql = item_permissions_sql(0, $observer_hash);
 
 				$r = q("SELECT item.id AS item_id FROM item
 					WHERE ((mid = '%s'
@@ -239,7 +239,7 @@ class Display extends Controller {
 					AND item.deny_gid  = '' AND item_private = 0 )
 					AND uid IN ( " . stream_perms_api_uids(($observer_hash) ? (PERMS_NETWORK|PERMS_PUBLIC) : PERMS_PUBLIC) . " ))
 					OR uid = %d ))) OR
-					(mid = '%s' $sql_extra ))
+					(mid = '%s' $permission_sql ))
 					$item_normal
 					limit 1",
 					dbesc($target_item['parent_mid']),
@@ -269,7 +269,7 @@ class Display extends Controller {
 			}
 
 			if(!$r) {
-				$sql_extra = item_permissions_sql(0, $observer_hash);
+				$permission_sql = item_permissions_sql(0, $observer_hash);
 
 				$r = q("SELECT item.id as item_id from item
 					WHERE ((parent_mid = '%s'
@@ -277,7 +277,7 @@ class Display extends Controller {
 					AND item.deny_gid  = '' AND item_private = 0 )
 					and uid in ( " . stream_perms_api_uids(($observer_hash) ? (PERMS_NETWORK|PERMS_PUBLIC) : PERMS_PUBLIC) . " ))
 					OR uid = %d ))) OR
-					(parent_mid = '%s' $sql_extra ))
+					(parent_mid = '%s' $permission_sql ))
 					$item_normal
 					limit 1",
 					dbesc($target_item['parent_mid']),
@@ -291,7 +291,7 @@ class Display extends Controller {
 			$parents_str = ids_to_querystr($r,'item_id');
 			if($parents_str) {
 				$thr_parents_str = stringify_array(get_recursive_thr_parents($target_item), true);
-				$items = items_by_parent_ids($parents_str, $thr_parents_str, $sql_extra);
+				$items = items_by_parent_ids($parents_str, $thr_parents_str, $permission_sql);
 
 				xchan_query($items);
 				$items = fetch_post_tags($items,true);

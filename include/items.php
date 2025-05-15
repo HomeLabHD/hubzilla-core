@@ -5438,15 +5438,16 @@ function item_by_item_id(int $id): array
 
 /**
  * @brief returns an array of items by ids
- * ATTENTION: no permissions are checked here!!!
+ * ATTENTION: no permissions for the pa are checked here!!!
  * Permissions MUST be checked by the function which returns the ids.
  * @param string $ids - a string with ids separated by comma
  * @param string $thr_parents (optional) - a string with thr_parent mids separated by comma
  * which will be included
+ * @param string $permission_sql (optional) - SQL provided by item_permission_sql() by the calling module
  * @param bool $blog_mode (optional) - if set to yes only the parent items will be returned
  */
 
-function items_by_parent_ids(string $ids, string $thr_parents = '', string $sql_extra = '', bool $blog_mode = false): array
+function items_by_parent_ids(string $ids, string $thr_parents = '', string $permission_sql = '', bool $blog_mode = false): array
 {
 	$item_normal = item_normal();
 	$item_normal_c = item_normal(prefix: 'c');
@@ -5469,7 +5470,10 @@ function items_by_parent_ids(string $ids, string $thr_parents = '', string $sql_
 		$thr_parent_uuid_sql_join = "LEFT JOIN item tp ON item.thr_parent = tp.mid AND item.uid = tp.uid";
 	}
 
-	$sql_extra_c = str_replace('item.', 'c.', $sql_extra);
+	$permission_sql_c = '';
+	if ($permission_sql) {
+		$permission_sql_c = str_replace('item.', 'c.', $permission_sql);
+	}
 
 	$ret = q(
 		"SELECT item.*,
@@ -5481,7 +5485,7 @@ function items_by_parent_ids(string $ids, string $thr_parents = '', string $sql_
 			AND c.item_thread_top = 0
 			AND c.thr_parent = item.mid
 			$item_normal_c
-			$sql_extra_c
+			$permission_sql_c
 		$thr_parent_uuid_sql_join
 		WHERE $blog_mode_sql in (%s)
 			AND (
@@ -5490,7 +5494,7 @@ function items_by_parent_ids(string $ids, string $thr_parents = '', string $sql_
 			)
 			$thr_parent_sql
 			$item_normal
-			$sql_extra
+			$permission_sql
 		GROUP BY item.id",
 		dbesc($ids)
 	);

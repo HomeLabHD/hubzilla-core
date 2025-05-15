@@ -298,7 +298,8 @@ class Channel extends Controller {
 
 		$item_normal = item_normal();
 		$item_normal_update = item_normal_update();
-		$sql_extra = item_permissions_sql(App::$profile['profile_uid']);
+		$sql_extra = '';
+		$permission_sql = item_permissions_sql(App::$profile['profile_uid']);
 
 		$page_mode = 'client';
 
@@ -337,7 +338,7 @@ class Channel extends Controller {
 
 			if ($mid) {
 				$r = q("SELECT parent AS item_id from item where $identifier = '%s' and uid = %d $item_normal_update
-					AND item_wall = 1 $simple_update $sql_extra limit 1",
+					AND item_wall = 1 $simple_update $permission_sql $sql_extra limit 1",
 					dbesc($mid),
 					intval(App::$profile['profile_uid'])
 				);
@@ -348,6 +349,7 @@ class Channel extends Controller {
 					WHERE uid = %d $item_normal_update
 					AND item_wall = 1 $simple_update
 					AND (abook.abook_blocked = 0 or abook.abook_flags is null)
+					$permission_sql
 					$sql_extra
 					ORDER BY created DESC",
 					intval(App::$profile['profile_uid'])
@@ -385,7 +387,7 @@ class Channel extends Controller {
 			if ($noscript_content || $load) {
 				if ($mid) {
 					$r = q("SELECT parent AS item_id from item where $identifier = '%s' and uid = %d $item_normal
-						AND item_wall = 1 $sql_extra limit 1",
+						AND item_wall = 1 $permission_sql $sql_extra limit 1",
 						dbesc($mid),
 						intval(App::$profile['profile_uid'])
 					);
@@ -401,6 +403,7 @@ class Channel extends Controller {
 						AND (abook.abook_blocked = 0 or abook.abook_flags is null)
 						AND item.item_wall = 1
 						$item_normal
+						$permission_sql
 						$sql_extra
 						$sql_extra2
 						ORDER BY $ordering DESC, item_id
@@ -416,7 +419,7 @@ class Channel extends Controller {
 		if ($r) {
 			$parents_str = ids_to_querystr($r, 'item_id');
 
-			$r = items_by_parent_ids($parents_str, sql_extra: $sql_extra, blog_mode: $blog_mode);
+			$r = items_by_parent_ids($parents_str, permission_sql: $permission_sql, blog_mode: $blog_mode);
 
 			xchan_query($r);
 			$items = fetch_post_tags($r, true);
