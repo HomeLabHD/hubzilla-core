@@ -24,6 +24,7 @@ class ThreadItem {
 	private $parent = null;
 	private $conversation = null;
 	private $redirect_url = null;
+	private $owner_addr = '';
 	private $owner_url = '';
 	private $owner_photo = '';
 	private $owner_name = '';
@@ -422,6 +423,7 @@ class ThreadItem {
 			'vote_title' => t('Voting Options'),
 			'is_comment' => $is_comment,
 			'is_new' => $is_new,
+			'owner_addr' => $this->get_owner_addr(),
 			'owner_url' => $this->get_owner_url(),
 			'owner_photo' => $this->get_owner_photo(),
 			'owner_name' => $this->get_owner_name(),
@@ -838,6 +840,7 @@ class ThreadItem {
 		$conv = $this->get_conversation();
 		$this->wall_to_wall = false;
 		$this->owner_url = '';
+		$this->owner_addr = '';
 		$this->owner_photo = '';
 		$this->owner_name = '';
 
@@ -846,12 +849,14 @@ class ThreadItem {
 
 		if($this->is_toplevel() && ($this->get_data_value('author_xchan') != $this->get_data_value('owner_xchan'))) {
 			$this->owner_url = chanlink_hash($this->data['owner']['xchan_hash']);
+			$this->owner_addr = $this->data['owner']['xchan_addr'];
 			$this->owner_photo = $this->data['owner']['xchan_photo_s'];
 			$this->owner_name = $this->data['owner']['xchan_name'];
 			$this->wall_to_wall = true;
 		}
 		elseif($this->is_toplevel() && $this->get_data_value('verb') === 'Announce' && isset($this->data['source'])) {
 			$this->owner_url = chanlink_hash($this->data['source']['xchan_hash']);
+			$this->owner_addr = $this->data['source']['xchan_addr'];
 			$this->owner_photo = $this->data['source']['xchan_photo_s'];
 			$this->owner_name = $this->data['source']['xchan_name'];
 			$this->wall_to_wall = true;
@@ -864,6 +869,10 @@ class ThreadItem {
 
 	private function get_owner_url() {
 		return $this->owner_url;
+	}
+
+	private function get_owner_addr() {
+		return $this->owner_addr;
 	}
 
 	private function get_owner_photo() {
