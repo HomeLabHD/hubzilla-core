@@ -1264,7 +1264,6 @@ class App {
 
 		self::$page['htmlhead'] = replace_macros(get_markup_template('head.tpl'),
 				[
-					'$preload_images'  => $preload_images,
 					'$user_scalable'   => $user_scalable,
 					'$query'           => urlencode(self::$query_string),
 					'$baseurl'         => self::get_baseurl(),
