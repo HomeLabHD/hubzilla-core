@@ -194,7 +194,17 @@ a.wall-item-name-link {
 }
 
 .item-highlight {
-	box-shadow: -.15rem 0 0 0 var(--bs-primary);
+	position: relative;
+}
+
+.item-highlight:after {
+	content: '';
+	position: absolute;
+	pointer-events: none;
+	box-shadow: inset .15rem 0 0 0 var(--hz-item-highlight);
+	height: 100%;
+	width: 100%;
+	top: 0;
 }
 
 .item-highlight-fade {

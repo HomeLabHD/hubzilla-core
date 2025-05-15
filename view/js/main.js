@@ -756,7 +756,7 @@ function updateConvItems(mode, data) {
 		if (data_json.includes(bParam_mid) && elem.parentNode.classList.contains('wall-item-sub-thread-wrapper')) {
 			if (!elem.parentNode.parentNode.classList.contains('toplevel_item')) {
 				elem.parentNode.parentNode.classList.add('item-highlight');
-				elem.parentNode.parentNode.style.boxShadow = '-.15rem 0 0 0 ' + stringToHlsColor(JSON.parse(elem.parentNode.parentNode.dataset.b64mids)[0]);
+				document.documentElement.style.setProperty('--hz-item-highlight', stringToHlsColor(JSON.parse(elem.parentNode.parentNode.dataset.b64mids)[0]));
 			}
 		}
 
@@ -982,7 +982,7 @@ function scrollToItem() {
             // Scroll to the target element
             let navHeight = document.querySelector('nav') ? document.querySelector('nav').offsetHeight : 0;
             window.scrollTo({
-                top: thread.offsetTop - navHeight,
+                top: getOffsetTopRelativeToBody(thread) - navHeight,
                 behavior: 'smooth'
             });
 
@@ -991,6 +991,15 @@ function scrollToItem() {
 			content.classList.add('item-highlight-fade');
         }
     });
+}
+
+function getOffsetTopRelativeToBody(element) {
+	let offsetTop = 0;
+	while (element) {
+		offsetTop += element.offsetTop;
+		element = element.offsetParent;
+	}
+	return offsetTop;
 }
 
 function collapseHeight() {
@@ -1301,7 +1310,7 @@ function request(id, mid, verb, parent, uuid) {
 		const wrapper = document.getElementById('thread-wrapper-' + id);
 		if (!wrapper.classList.contains('toplevel_item')) {
 			wrapper.classList.add('item-highlight');
-			wrapper.style.boxShadow = '-.15rem 0 0 0 ' + stringToHlsColor(uuid);
+			document.documentElement.style.setProperty('--hz-item-highlight', stringToHlsColor(uuid));
 		}
 
 		fetch('/request?verb=' + verb + '&mid=' + mid + '&parent=' + parent + '&module=' + module)
