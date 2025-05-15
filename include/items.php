@@ -5469,6 +5469,8 @@ function items_by_parent_ids(string $ids, string $thr_parents = '', string $sql_
 		$thr_parent_uuid_sql_join = "LEFT JOIN item tp ON item.thr_parent = tp.mid AND item.uid = tp.uid";
 	}
 
+	$sql_extra_c = str_replace('item.', 'c.', $sql_extra);
+
 	$ret = q(
 		"SELECT item.*,
 			$thr_parent_uuid_sql
@@ -5479,7 +5481,7 @@ function items_by_parent_ids(string $ids, string $thr_parents = '', string $sql_
 			AND c.item_thread_top = 0
 			AND c.thr_parent = item.mid
 			$item_normal_c
-			$sql_extra
+			$sql_extra_c
 		$thr_parent_uuid_sql_join
 		WHERE $blog_mode_sql in (%s)
 			AND (
