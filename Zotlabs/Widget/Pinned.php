@@ -67,19 +67,19 @@ class Pinned {
 			$attend = null;
 			$canvote = false;
 
-			$conv_responses = [];
+			$response_verbs[] = 'like';
 
-			if(in_array($item['obj_type'], ['Event', ACTIVITY_OBJ_EVENT])) {
-				$conv_responses['attendyes'] = [ 'title' => t('Attending','title') ];
-				$conv_responses['attendno'] = [ 'title' => t('Not attending','title') ];
-				$conv_responses['attendmaybe'] = [ 'title' => t('Might attend','title') ];
-				if($commentable && $observer) {
-					$attend = [ t('I will attend'), t('I will not attend'), t('I might attend') ];
-					$isevent = true;
-				}
+			if(feature_enabled(\App::$profile['profile_uid'],'dislike')) {
+				$response_verbs[] = 'dislike';
 			}
 
-			$this->activity($item, $conv_responses);
+			$response_verbs[] = 'announce';
+
+			if ($item['obj_type'] === 'Question') {
+				$response_verbs[] = 'answer';
+			}
+
+			$responses = get_responses($response_verbs, $item);
 
 			$verified = (intval($item['item_verified']) ? t('Message signature validated') : '');
 			$forged = ((! intval($item['item_verified']) && $item['sig']) ? t('Message signature incorrect') : '');
@@ -110,6 +110,9 @@ class Pinned {
 				'text'		 => strip_tags($body['html']),
 				'id'		 => $item['id'],
 				'mids'		 => json_encode([ $midb64 ]),
+				'mid'		 => $item['uuid'],
+				'rawmid'	 => $item['mid'],
+				'parent'	 => $item['parent'],
 				'isevent'	 => $isevent,
 				'attend'	 => $attend,
 				'conlabels'	 => [],
@@ -151,7 +154,7 @@ class Pinned {
 				'hide'		 => (! $is_new && isset($observer['xchan_hash']) && $observer['xchan_hash'] != $owner['xchan_hash'] ? t("Don't show") : ''),
 				// end toolbar buttons
 				'modal_dismiss' => t('Close'),
-				'responses'	 => $conv_responses,
+				'responses'	 => $responses,
 				'author_id' => (($author['xchan_addr']) ? $author['xchan_addr'] : $author['xchan_url'])
 
 			];
@@ -193,74 +196,14 @@ class Pinned {
 		if(empty($mids_list))
 			return [];
 
-		$r = q("SELECT * FROM item WHERE uuid IN ( '%s' ) AND uid = %d AND id = parent AND item_private = 0 ORDER BY created DESC",
+
+		$r = q("SELECT parent FROM item WHERE uuid IN ( '%s' ) AND uid = %d AND id = parent AND item_private = 0",
 			dbesc(implode(",", $mids_list)),
 			intval($this->uid)
 		);
-		if($r)
-			return $r;
 
-		return [];
+		return items_by_parent_ids($r[0]['parent'], blog_mode: true);
+
 	}
 
-
-	/*
-	 * @brief List activities on item
-	 *
-	 * @param array $item
-	 * @param array $conv_responses
-	 * @return array
-	 *
-	 */
-	private function activity($item, &$conv_responses) {
-
-		foreach(array_keys($conv_responses) as $verb) {
-			$verb_sql = '';
-
-			switch($verb) {
-				case 'like':
-					$verb_sql = " AND verb IN ('Like', '" . ACTIVITY_LIKE . "') ";
-					break;
-				case 'dislike':
-					$verb_sql = " AND verb IN ('Dislike', '" . ACTIVITY_DISLIKE . "') ";
-					break;
-				case 'attendyes':
-					$verb_sql = " AND verb IN ('Accept', '" . ACTIVITY_ATTEND . "') ";
-					break;
-				case 'attendno':
-					$verb_sql = " AND verb IN ('Reject', '" . ACTIVITY_ATTENDNO . "') ";
-					break;
-				case 'attendmaybe':
-					$verb_sql = " AND verb IN ('TentativeAccept', '" . ACTIVITY_ATTENDMAYBE . "') ";
-					break;
-				default:
-					break;
-			}
-
-			$r = q("SELECT * FROM item WHERE parent = %d AND id <> parent $verb_sql AND item_deleted = 0",
-				intval($item['id'])
-			);
-			if(! $r) {
-				unset($conv_responses[$verb]);
-				continue;
-			}
-
-			$conv_responses[$verb]['count'] = count($r);
-			$conv_responses[$verb]['button'] = get_response_button_text($verb, $conv_responses[$verb]['count']);
-
-			foreach($r as $rr) {
-
-				$author = q("SELECT * FROM xchan WHERE xchan_hash = '%s' LIMIT 1",
-					dbesc($rr['author_xchan'])
-				);
-				$name = (($author && $author[0]['xchan_name']) ? $author[0]['xchan_name'] : t('Unknown'));
-				$conv_responses[$verb]['list'][] = (($rr['author_xchan'] && $author && $author[0]['xchan_photo_s']) ?
-					'<a class="dropdown-item" href="' . chanlink_hash($rr['author_xchan']) . '">' . '<img class="menu-img-1" src="' . zid($author[0]['xchan_photo_s']) . '" alt="' . urlencode($name) . '" /> ' . $name . '</a>' :
-					'<a class="dropdown-item" href="#" class="disabled">' . $name . '</a>'
-				);
-			}
-		}
-
-		$conv_responses['count'] = count($conv_responses);
-	}
 }
