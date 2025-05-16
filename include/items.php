@@ -2076,9 +2076,8 @@ function item_store($arr, $allow_exec = false, $deliver = true, $addAndSync = tr
 
 	item_update_parent_commented($arr);
 
-
-	if(strpos($arr['body'],'[embed]') !== false) {
-		Master::Summon([ 'Cache_embeds', $current_post ]);
+	if (str_contains($arr['body'], '[/embed]') || str_contains($arr['body'], '[/img]') || str_contains($arr['body'], '[/zmg]')) {
+		Master::Summon(['Cache_embeds', $arr['uuid']]);
 	}
 
 	$ret['success'] = true;
@@ -2422,8 +2421,8 @@ function item_store_update($arr, $allow_exec = false, $deliver = true, $addAndSy
 	 */
 	call_hooks('item_stored_update',$arr);
 
-	if(strpos($arr['body'],'[embed]') !== false) {
-		Master::Summon([ 'Cache_embeds', $orig_post_id ]);
+	if (str_contains($arr['body'], '[/embed]') || str_contains($arr['body'], '[/img]') || str_contains($arr['body'], '[/zmg]')) {
+		Master::Summon(['Cache_embeds', $arr['uuid']]);
 	}
 
 	$ret['success'] = true;
