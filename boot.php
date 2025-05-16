@@ -138,6 +138,12 @@ define('PNG_QUALITY', 8);
 define('WEBP_QUALITY', 80);
 
 /**
+ * App::$config['system']['avif_quality'] from 1 (maximum compressed) to 100 (uncompressed)
+ */
+define('AVIF_QUALITY', 80);
+
+
+/**
  * Language detection parameters
  */
 define('LANGUAGE_DETECT_MIN_LENGTH', 128);

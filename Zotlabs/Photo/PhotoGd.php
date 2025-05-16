@@ -25,6 +25,8 @@ class PhotoGd extends PhotoDriver {
 			$t['image/gif'] = 'gif';
 		if(\imagetypes() & IMG_WEBP)
 			$t['image/webp'] = 'webp';
+		if(\imagetypes() & IMG_AVIF)
+			$t['image/avif'] = 'avif';
 
 		return $t;
 	}
@@ -180,6 +182,19 @@ class PhotoGd extends PhotoDriver {
 
 				if (function_exists('imagewebp')) {
 					\imagewebp($this->image, NULL, $quality);
+				}
+
+			    break;
+
+			case 'image/avif':
+			    $quality = Config::Get('system', 'avif_quality');
+
+			    if((! $quality) || ($quality > 100)) {
+			        $quality = AVIF_QUALITY;
+				}
+
+				if (function_exists('imageavif')) {
+					\imageavif($this->image, NULL, $quality);
 				}
 
 			    break;

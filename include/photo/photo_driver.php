@@ -165,6 +165,8 @@ function guess_image_type($filename, $data = '') {
 				$type = 'image/png';
 			elseif(strpos(strtolower($filename),'webp') !== false)
 				$type = 'image/webp';
+			elseif(strpos(strtolower($filename),'avif') !== false)
+				$type = 'image/avif';
 		}
 
 	}
