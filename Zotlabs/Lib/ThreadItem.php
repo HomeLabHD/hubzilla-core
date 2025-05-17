@@ -34,6 +34,7 @@ class ThreadItem {
 	private $channel = null;
 	private $display_mode = 'normal';
 	private $reload = '';
+	private $mid_uuid_map = [];
 
 	public function __construct($data) {
 
@@ -53,6 +54,8 @@ class ThreadItem {
 				if((! visible_activity($item)) || array_key_exists('blocked',$item)) {
 					continue;
 				}
+
+				$this->mid_uuid_map[$item['mid']] = $item['uuid'];
 
 				$child = new ThreadItem($item);
 				$this->add_child($child);
@@ -452,7 +455,7 @@ class ThreadItem {
 			'wait' => t('Please wait'),
 			'thread_level' => $thread_level,
 			'settings' => $settings,
-			'thr_parent_uuid' => ((isset($item['thr_parent_uuid']) && $item['thr_parent'] !== $item['parent_mid']) ? $item['thr_parent_uuid'] : ''),
+			'thr_parent_uuid' => (($item['parent_mid'] !== $item['thr_parent'] && isset($this->mid_uuid_map[$item['thr_parent']])) ? $this->mid_uuid_map[$item['thr_parent']] : ''),
 			'contact_id' => (($contact) ? $contact['abook_id'] : ''),
 			'moderate' => ($item['item_blocked'] == ITEM_MODERATED),
 			'moderate_approve' => t('Approve'),
