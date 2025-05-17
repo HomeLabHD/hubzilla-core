@@ -34,7 +34,6 @@ class ThreadItem {
 	private $channel = null;
 	private $display_mode = 'normal';
 	private $reload = '';
-	private $mid_uuid_map = [];
 
 	public function __construct($data) {
 
@@ -100,6 +99,8 @@ class ThreadItem {
 
  		$conv = $this->get_conversation();
 		$observer = $conv->get_observer();
+
+		$conv->mid_uuid_map[$item['mid']] = $item['uuid'];
 
 		$acl = new AccessList([]);
 		$acl->set($item);
@@ -455,7 +456,7 @@ class ThreadItem {
 			'wait' => t('Please wait'),
 			'thread_level' => $thread_level,
 			'settings' => $settings,
-			'thr_parent_uuid' => (($item['parent_mid'] !== $item['thr_parent'] && isset($this->mid_uuid_map[$item['thr_parent']])) ? $this->mid_uuid_map[$item['thr_parent']] : ''),
+			'thr_parent_uuid' => (($item['parent_mid'] != $item['thr_parent']) ? $conv->mid_uuid_map[$item['thr_parent']] : ''),
 			'contact_id' => (($contact) ? $contact['abook_id'] : ''),
 			'moderate' => ($item['item_blocked'] == ITEM_MODERATED),
 			'moderate_approve' => t('Approve'),

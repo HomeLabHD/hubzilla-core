@@ -24,6 +24,8 @@ class ThreadStream {
 	private $prepared_item = '';
 	public $reload = '';
 	private $cipher = 'AES-128-CCM';
+	public $mid_uuid_map = [];
+
 
 	// $prepared_item is for use by alternate conversation structures such as photos
 	// wherein we've already prepared a top level item which doesn't look anything like
