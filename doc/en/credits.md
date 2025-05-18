@@ -1,0 +1,86 @@
+## Credits 
+
+Many thanks to everyone who has contributed to this project and its predecessors over the years. It is possible that we have not mentioned your name, but this is not intentional. We also thank the community and its members who have provided valuable input and without whom all this work would be pointless. 
+It is also worth acknowledging the contributions and problem solving that resulted from discussions between members and developers of other, somewhat related and competing projects; even if we had occasional disagreements.
+
+- Mike Macgirvin
+- Mario Vavti
+- Scott M. Stolz
+- Chris Burger
+- Emanuel Han
+- Fabio Comuni
+- Simon L'nu
+- marijus
+- Tobias Diekershoff
+- fabrixxm
+- tommy tomson
+- Simon
+- zottel
+- Christian Vogeley
+- jeroenpraat
+- Michael Vogel
+- erik
+- Zach Prezkuta
+- Paolo T
+- Michael Meer
+- Michael
+- Abinoam P. Marques Jr
+- Tobias Hößl
+- Alexander Kampmann
+- Olaf Conradi
+- Paolo Tacconi
+- tobiasd
+- Devlon Duthie
+- Zvi ben Yaakov (a.k.a rdc)
+- Alexandre Hannud Abdo
+- Olivier Migeot
+- Chris Case
+- Klaus Weidenbach
+- Michael Johnston
+- olivierm
+- Vasudev Kamath
+- pixelroot
+- Max Weller
+- duthied
+- Martin Schmitt
+- Sebastian Egbers
+- Erkan Yilmaz
+- sasiflo
+- Stefan Parviainen
+- Haakon Meland Eriksen
+- Oliver Hartmann (23n)
+- Erik Lundin
+- habeascodice
+- sirius
+- Charles
+- Tony Baldwin
+- Hauke Zuehl
+- Keith Fernie
+- Anne Walk
+- toclimb
+- Daniel Frank
+- Matthew Exon
+- Michal Supler
+- Tobias Luther
+- U-SOUND\mike
+- mrjive
+- nostupidzone
+- tonnerkiller
+- Antoine G
+- Christian Drechsler
+- Ludovic Grossard
+- RedmatrixCanada
+- Stanislav Lechev [0xAF]
+- aweiher
+- bufalo1973
+- dsp1986
+- felixgilles
+- ike
+- maase2
+- mycocham
+- ndurchx
+- pafcu
+- Simó Albert i Beltran
+- Manuel Reva
+- Manuel Jiménez Friaza
+- Gustav Wall aka "neue medienordnung plus"

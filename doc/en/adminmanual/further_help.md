@@ -1,0 +1,3 @@
+### Where to find further help 
+
+If you run into problems or have questions that are not covered in this documentation, please let us know via the [Github Issue Tracker](‘https://framagit.org/hubzilla/core/issues’). Please describe your operating environment as accurately as possible and provide as much detail as possible about the error messages you see so that we can avoid them in the future. Due to the wide variety of operating systems and PHP platforms, we have limited ability to debug your PHP installation or obtain missing modules, but we will do our best to resolve common code issues.

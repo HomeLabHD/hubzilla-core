@@ -1,0 +1,3 @@
+#### Scope 
+
+This Code of Conduct applies both within the project areas and in the public sphere when a person is representing the project or its community. Examples of representing a project or community include using an official project email address, posting via an official social media account or acting as an appointed representative at an online or offline event. The representation of a project can be further defined and specified by the project supervisors.

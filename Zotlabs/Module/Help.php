@@ -30,7 +30,7 @@ class Help extends \Zotlabs\Web\Controller {
 		$this->determine_help_language();
 
 		if (empty($_REQUEST['search']) && argc() === 1) {
-			goaway("/help/about/about");
+			goaway("/help/about");
 			killme();
 		}
 	}
@@ -85,7 +85,7 @@ class Help extends \Zotlabs\Web\Controller {
 		}
 
 
-		if(argc() > 2 && argv(argc()-2) === 'assets') {
+		if(argc() > 2 && argv(argc()-2) === 'pic') {
 			$path = '';
 			for($x = 1; $x < argc(); $x ++) {
 				if(strlen($path))

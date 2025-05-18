@@ -12,7 +12,7 @@
 }
 
 #doco-content img {
-	width: 100%;
+	max-width: 100%;
 }
 
 #region_1 .widget ul ul {
