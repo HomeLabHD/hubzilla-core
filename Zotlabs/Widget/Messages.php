@@ -28,6 +28,8 @@ class Messages {
 			intval(TERM_FILE)
 		);
 
+		$file_tags = [];
+
 		if ($r) {
 			foreach($r as $rr) {
 				$file_tags[] = $rr['term'];

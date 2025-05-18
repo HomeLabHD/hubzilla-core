@@ -135,10 +135,12 @@ class Cron {
 			);
 			foreach ($r as $rr) {
 				$file = dbunescbin($rr['content']);
+				hz_syslog('info: about to deleted cached photo file ' . $file, LOGGER_DEBUG);
+
 				if (is_file($file)) {
 					@unlink($file);
 					@rmdir(dirname($file));
-					logger('info: deleted cached photo file ' . $file, LOGGER_DEBUG);
+					hz_syslog('info: deleted cached photo file ' . $file, LOGGER_DEBUG);
 				}
 			}
 		}
