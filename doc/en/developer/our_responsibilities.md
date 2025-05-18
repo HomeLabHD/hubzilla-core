@@ -1,0 +1,3 @@
+#### Our responsibilities 
+
+Project maintainers are responsible for clarifying the standards of acceptable behaviour and are expected to take appropriate and fair corrective action when unacceptable behaviour is identified. Project maintainers have the right and responsibility to remove, edit or reject comments, commits, code, wiki edits, issues and other contributions that do not comply with this Code of Conduct, or to temporarily or permanently ban contributions that they deem inappropriate, threatening, offensive or harmful.

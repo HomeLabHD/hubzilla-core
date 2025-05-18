@@ -89,7 +89,7 @@ trait HelpHelperTrait {
 		);
 
 		return bbcode(
-			t("This page is not yet available in {$prefered_language_name}. See [observer.baseurl]/help/developer/developer_guide#Translations for information about how to help.")
+			t("This page is not yet available in {$prefered_language_name}. See [observer.baseurl]/help/developer/developers_guide#Translations for information about how to help.")
 		);
 	}
 }
