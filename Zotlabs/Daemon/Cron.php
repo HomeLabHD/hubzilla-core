@@ -125,14 +125,15 @@ class Cron {
 		$r = q("SELECT DISTINCT xchan, content FROM photo WHERE photo_usage = %d AND expires < %s - INTERVAL %s",
 			intval(PHOTO_CACHE),
 			db_utcnow(),
-			db_quoteinterval(Config::Get('system', 'cache_expire_days', 7) . ' DAY')
+			db_quoteinterval(Config::Get('system', 'default_expire_days', 30) . ' DAY')
 		);
 		if ($r) {
 			q("DELETE FROM photo WHERE photo_usage = %d AND expires < %s - INTERVAL %s",
 				intval(PHOTO_CACHE),
 				db_utcnow(),
-				db_quoteinterval(Config::Get('system', 'cache_expire_days', 7) . ' DAY')
+				db_quoteinterval(Config::Get('system', 'default_expire_days', 30) . ' DAY')
 			);
+
 			foreach ($r as $rr) {
 				$file = dbunescbin($rr['content']);
 				if (is_file($file)) {
