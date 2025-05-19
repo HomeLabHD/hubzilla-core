@@ -65,115 +65,93 @@ function photo_factory($data, $type = null) {
  *
  * @param string $filename
  *   Image filename
- * @param string $data (optional)
+ * @param array $data (optional)
  *   Data array fetched from cURL with z_fetch_url
  * @return null|string Guessed mimetype
  */
-function guess_image_type($filename, $data = '') {
-
-	if($data)
-		$headers = (is_array($data) ? $data['header'] : $data);
-
-	// logger('Photo: guess_image_type: '.$filename . ($headers?' from curl headers':''), LOGGER_DEBUG);
-
-	$type = null;
-	$m = null;
-	$headers = '';
-
+function guess_image_type($filename, $data = []) {
 	$ph = photo_factory('');
 	$types = $ph->supportedTypes();
 
-	if($headers) {
-		$hdrs = [];
-		$h = explode("\n", $headers);
-		foreach ($h as $l) {
-			if (strpos($l, ':') === false) {
-				continue;
-			}
+	logger('filename: ' . print_r($filename, true), LOGGER_DEBUG);
 
-			list($k, $v) = array_map('trim', explode(':', trim($l), 2));
-			$hdrs[strtolower($k)] = $v;
+	// Try Fileinfo from raw data
+	if (!empty($data['body'])) {
+		$finfo = new finfo(FILEINFO_MIME_TYPE);
+		$mime = $finfo->buffer($data['body']);
+		if ($mime && array_key_exists($mime, $types)) {
+			logger('finfo mime type: ' . print_r($mime, true), LOGGER_DEBUG);
+			return $mime;
 		}
-		logger('Curl headers: ' .var_export($hdrs, true), LOGGER_DEBUG);
-		if(array_key_exists('content-type', $hdrs) && array_key_exists($hdrs['content-type'], $types))
-			$type = $hdrs['content-type'];
 	}
 
-	if(is_null($type)){
-		$ignore_imagick = Config::Get('system', 'ignore_imagick');
-		// Guessing from extension? Isn't that... dangerous?
-		if(class_exists('Imagick') && ! $ignore_imagick) {
-			$v = Imagick::getVersion();
-			preg_match('/ImageMagick ([0-9]+\.[0-9]+\.[0-9]+)/', $v['versionString'], $m);
-			if(version_compare($m[1], '6.6.7') >= 0) {
-				/**
-				 * Well, this not much better,
-				 * but at least it comes from the data inside the image,
-				 * we won't be tricked by a manipulated extension
-			 	*/
-				$body = false;
-				if (strpos($filename, 'http') === false && file_exists($filename) && is_readable($filename))
-					$body == file_get_contents($filename);
-				elseif (is_array($data) && array_key_exists('body', $data))
-					$body = $data['body'];
-				if ($body) {
-					$image = new Imagick();
+	// Try exif_imagetype + image_type_to_mime_type if file exists locally
+	if (is_file($filename) && is_readable($filename)) {
+		$image_type = @exif_imagetype($filename);
+		if ($image_type !== false) {
+			$mime = image_type_to_mime_type($image_type);
+			if ($mime && array_key_exists($mime, $types)) {
+				logger('exif_imagetype mime type: ' . print_r($mime, true), LOGGER_DEBUG);
+				return $mime;
+			}
+		}
+	}
 
-					try{
-						$image->readImageBlob($body);
-					} catch (\Exception $e) {
-						logger('Imagick readImageBlob() exception:' . print_r($e, true));
-						return $type;
-					}
+	// Try getimagesize for URLs
+	if (filter_var($filename, FILTER_VALIDATE_URL)) {
+		$size = @getimagesize($filename);
+		if (isset($size['mime']) && array_key_exists($size['mime'], $types)) {
+			logger('getimagesize mime type: ' . print_r($size['mime'], true), LOGGER_DEBUG);
+			return $size['mime'];
+		}
+	}
 
+	// Try Imagick if available and not disabled
+	$ignore_imagick = Config::Get('system', 'ignore_imagick');
+	if (class_exists('Imagick') && !$ignore_imagick) {
+		$v = Imagick::getVersion();
+		if (preg_match('/ImageMagick ([0-9]+\.[0-9]+\.[0-9]+)/', $v['versionString'], $m) && version_compare($m[1], '6.6.7') >= 0) {
+			$body = false;
+			if (is_file($filename) && is_readable($filename)) {
+				$body = file_get_contents($filename);
+			} elseif (!empty($data['body'])) {
+				$body = $data['body'];
+			}
+			if ($body) {
+				$image = new Imagick();
+				try {
+					$image->readImageBlob($body);
 					$r = $image->identifyImage();
-					if ($r && is_array($r) && array_key_exists($r['mimetype'], $types))
-						$type = $r['mimetype'];
-				}
-			}
-			else {
-				// earlier imagick versions have issues with scaling png's
-				// don't log this because it will just fill the logfile.
-				// leave this note here so those who are looking for why
-				// we aren't using imagick can find it
-			}
-		}
-
-		if(is_null($type)) {
-			$ext = pathinfo($filename, PATHINFO_EXTENSION);
-			foreach($types as $m => $e) {
-				if($ext === $e) {
-					$type = $m;
+					if (isset($r['mimetype']) && array_key_exists($r['mimetype'], $types)) {
+						logger('imagick mime type: ' . print_r($r['mimetype'], true), LOGGER_DEBUG);
+						return $r['mimetype'];
+					}
+				} catch (\Exception $e) {
+					logger('Imagick readImageBlob() exception:' . print_r($e, true));
 				}
 			}
 		}
-
-		if(is_null($type) && strpos($filename, 'http') === 0) {
-			$size = getimagesize($filename);
-			if ($size && array_key_exists($size['mime'], $types))
-				$type = $size['mime'];
-		}
-
-		if(is_null($type)) {
-			if(strpos(strtolower($filename),'jpg') !== false)
-				$type = 'image/jpeg';
-			elseif(strpos(strtolower($filename),'jpeg') !== false)
-				$type = 'image/jpeg';
-			elseif(strpos(strtolower($filename),'gif') !== false)
-				$type = 'image/gif';
-			elseif(strpos(strtolower($filename),'png') !== false)
-				$type = 'image/png';
-			elseif(strpos(strtolower($filename),'webp') !== false)
-				$type = 'image/webp';
-			elseif(strpos(strtolower($filename),'avif') !== false)
-				$type = 'image/avif';
-		}
-
 	}
-	logger('Photo: guess_image_type: filename = ' . $filename . ' type = ' . $type, LOGGER_DEBUG);
 
-	return $type;
+	// Try Content-Type header
+	$headers = $data['header'] ?? $data;
+	if ($headers) {
+		$hdrs = [];
+		foreach (explode("\n", $headers) as $l) {
+			if (strpos($l, ':') !== false) {
+				list($k, $v) = array_map('trim', explode(':', trim($l), 2));
+				$hdrs[strtolower($k)] = $v;
+			}
+		}
+		if (isset($hdrs['content-type']) && array_key_exists($hdrs['content-type'], $types)) {
+			logger('headers mime type: ' . print_r($hdrs['content-type'], true), LOGGER_DEBUG);
+			return $hdrs['content-type'];
+		}
+	}
+
+	return null;
 }
+
 
 /**
  * @brief Delete thing photo from database.
