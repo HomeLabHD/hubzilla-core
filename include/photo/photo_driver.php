@@ -149,6 +149,8 @@ function guess_image_type($filename, $data = []) {
 		}
 	}
 
+	logger('failed to guess image type'), LOGGER_DEBUG);
+
 	return null;
 }
 
