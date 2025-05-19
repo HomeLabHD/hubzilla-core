@@ -54,8 +54,6 @@ class ThreadItem {
 					continue;
 				}
 
-				$this->mid_uuid_map[$item['mid']] = $item['uuid'];
-
 				$child = new ThreadItem($item);
 				$this->add_child($child);
 			}
