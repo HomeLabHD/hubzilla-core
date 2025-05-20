@@ -86,7 +86,7 @@ function guess_image_type($filename, $data = []) {
 	}
 
 	// Try exif_imagetype + image_type_to_mime_type if file exists locally
-	if (is_file($filename) && is_readable($filename)) {
+	if (function_exists('exif_imagetype') && is_file($filename) && is_readable($filename)) {
 		$image_type = @exif_imagetype($filename);
 		if ($image_type !== false) {
 			$mime = image_type_to_mime_type($image_type);
