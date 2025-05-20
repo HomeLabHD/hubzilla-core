@@ -134,10 +134,9 @@ function guess_image_type($filename, $data = []) {
 	}
 
 	// Try Content-Type header
-	$headers = $data['header'] ?? $data;
-	if ($headers) {
+	if (!empty($data['header'])) {
 		$hdrs = [];
-		foreach (explode("\n", $headers) as $l) {
+		foreach (explode("\n", $data['header']) as $l) {
 			if (strpos($l, ':') !== false) {
 				list($k, $v) = array_map('trim', explode(':', trim($l), 2));
 				$hdrs[strtolower($k)] = $v;

@@ -1802,6 +1802,7 @@ return array(
     'Zotlabs\\Module\\Regver' => $baseDir . '/Zotlabs/Module/Regver.php',
     'Zotlabs\\Module\\Removeaccount' => $baseDir . '/Zotlabs/Module/Removeaccount.php',
     'Zotlabs\\Module\\Removeme' => $baseDir . '/Zotlabs/Module/Removeme.php',
+    'Zotlabs\\Module\\Request' => $baseDir . '/Zotlabs/Module/Request.php',
     'Zotlabs\\Module\\Rmagic' => $baseDir . '/Zotlabs/Module/Rmagic.php',
     'Zotlabs\\Module\\Rpost' => $baseDir . '/Zotlabs/Module/Rpost.php',
     'Zotlabs\\Module\\Search' => $baseDir . '/Zotlabs/Module/Search.php',
