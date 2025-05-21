@@ -454,7 +454,7 @@ class ThreadItem {
 			'wait' => t('Please wait'),
 			'thread_level' => $thread_level,
 			'settings' => $settings,
-			'thr_parent_uuid' => (($item['parent_mid'] != $item['thr_parent']) ? $conv->mid_uuid_map[$item['thr_parent']] : ''),
+			'thr_parent_uuid' => (($item['parent_mid'] !== $item['thr_parent'] && isset($conv->mid_uuid_map[$item['thr_parent']])) ? $conv->mid_uuid_map[$item['thr_parent']] : ''),
 			'contact_id' => (($contact) ? $contact['abook_id'] : ''),
 			'moderate' => ($item['item_blocked'] == ITEM_MODERATED),
 			'moderate_approve' => t('Approve'),
