@@ -5413,6 +5413,10 @@ function item_activity_sql($prefix = 'c') {
 
 function item_by_item_id(int $id): array
 {
+	if (!$id) {
+		return [];
+	}
+
 	$item_normal = item_normal();
 	$item_normal_c = item_normal(prefix: 'c');
 	$activity_sql = item_activity_sql('c');
@@ -5448,6 +5452,10 @@ function item_by_item_id(int $id): array
 
 function items_by_parent_ids(string $ids, string $thr_parents = '', string $permission_sql = '', bool $blog_mode = false): array
 {
+	if (!$ids) {
+		return [];
+	}
+
 	$item_normal = item_normal();
 	$item_normal_c = item_normal(prefix: 'c');
 	$activity_sql = item_activity_sql('c');
@@ -5501,6 +5509,10 @@ function items_by_parent_ids(string $ids, string $thr_parents = '', string $perm
 
 function items_by_thr_parent(string $mid, int $parent): array
 {
+	if (!$mid && !$parent) {
+		return [];
+	}
+
 	$parent_item = q("SELECT uid FROM item WHERE id = %d",
 		intval($parent)
 	);
