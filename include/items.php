@@ -5460,7 +5460,6 @@ function items_by_parent_ids(string $ids, string $thr_parents = '', string $perm
 	$item_normal_c = item_normal(prefix: 'c');
 	$activity_sql = item_activity_sql('c');
 	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
-	$thread_limit = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_limit', false) : Config::Get('system', 'thread_limit', false));
 
 	$blog_mode_sql = (($blog_mode) ? 'item.id' : 'item.parent');
 	$thr_parent_sql = (($thread_allow) ? " AND item.thr_parent = item.parent_mid " : '');
@@ -5472,23 +5471,6 @@ function items_by_parent_ids(string $ids, string $thr_parents = '', string $perm
 	$permission_sql_c = '';
 	if ($permission_sql) {
 		$permission_sql_c = str_replace('item.', 'c.', $permission_sql);
-	}
-
-	$thread_limit_sql = '';
-	if (!$blog_mode && $thread_allow && $thread_limit) {
-		// This is not enabled by default currently!
-		// The ORDER BY clause will make sure we get the parent item and
-		// the last 30 comments.
-
-		// Something like that should be used later when we implement pagination.
-		// For now it is a hidden config.
-
-		$thread_limit_sql = <<<SQL
-			ORDER BY
-				CASE WHEN item.id = item.parent THEN 0 ELSE 1 END,
-				item.created DESC
-			LIMIT 30
-		SQL;
 	}
 
 	$ret = q(
@@ -5509,10 +5491,10 @@ function items_by_parent_ids(string $ids, string $thr_parents = '', string $perm
 			$thr_parent_sql
 			$item_normal
 			$permission_sql
-		GROUP BY item.id
-		$thread_limit_sql",
+		GROUP BY item.id",
 		dbesc($ids)
 	);
+
 
 	return $ret;
 }
