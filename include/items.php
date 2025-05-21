@@ -5584,6 +5584,10 @@ function items_by_thr_parent(string $mid, int $parent): array
 
 function item_activity_xchans(string $mid, int $parent, string $verb): array
 {
+	if (!$mid && !$parent && !$verb) {
+		return [];
+	}
+
 	$observer_hash = get_observer_hash();
 	$parent_item = q("SELECT * FROM item WHERE id = %d",
 		intval($parent)
