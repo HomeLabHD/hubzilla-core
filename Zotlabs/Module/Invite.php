@@ -403,11 +403,11 @@ class Invite extends Controller {
 			 	'field' => 	array(
 			 		'name'  => 'expire',
 			 		'title' => t('duration up from now'),
-			 		'value' => ($invexpire_n ? $invexpire_n : 2),
+			 		'value' => 2,
 			 		'min'  => '1',
 			 		'max'  => '99',
 			 		'size' => '2',
-					'default' => ($invexpire_u ? $invexpire_u : 'd')
+					'default' => 'd',
 			 	),
 			 	'rabot'	=> 	$inv_rabots
 			 )
