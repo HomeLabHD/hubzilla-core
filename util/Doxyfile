@@ -4,12 +4,13 @@ PROJECT_NAME = "Hubzilla"
 PROJECT_BRIEF = "A powerful, privacy oriented fediverse CMS."
 PROJECT_LOGO = images/hz-64.png
 IMAGE_PATH = images/
-EXCLUDE = .htconfig.php library/ doc/ store/ vendor/ .git/ util/zotsh/easywebdav/ util/generate-hooks-index/
+EXCLUDE = .htconfig.php library/ doc/ store/ vendor/ .git/ util/zotsh/easywebdav/ util/generate-hooks-index/ Zotlabs/Update/
 EXCLUDE_PATTERNS = *smarty3* *strings.php *.out *test*
 OUTPUT_DIRECTORY = doc
 GENERATE_HTML = YES
 HTML_OUTPUT = html/
 HTML_FILE_EXTENSION = .html
+HTML_COLORSTYLE = TOGGLE
 GENERATE_LATEX = NO
 EXTRACT_ALL = YES
 EXTRACT_PRIVATE = YES
@@ -17,7 +18,6 @@ GENERATE_TODOLIST = YES
 USE_MDFILE_AS_MAINPAGE = README.md
 REFERENCED_BY_RELATION = YES
 GENERATE_TREEVIEW = YES
-HTML_FOOTER = util/Doxygen.footer
 ALIASES += "license=@par License:\n"
 ALIASES += "fixme=\xrefitem fixme \"Fixme\" \"Fixme List\""
 ALIASES += "FIXME=\fixme"
