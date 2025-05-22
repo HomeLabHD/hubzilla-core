@@ -388,12 +388,6 @@ class Invite extends Controller {
 			}
 		}
 
-		if ($wehave > $invmaxau) {
-			if (! is_site_admin()) {
-				$feedbk .= 'ZAI0200E,' . t('All users invitation limit exceeded.') . $eol;
-			}
-		}
-
 		$tpl = get_markup_template('invite.tpl');
 
 		$inv_rabots = array(
