@@ -5444,17 +5444,18 @@ function item_by_item_id(int $id): array
  * ATTENTION: no permissions for the pa are checked here!!!
  * Permissions MUST be checked by the function which returns the ids.
  * @param string $ids - a string with ids separated by comma
- * @param string $thr_parents (optional) - a string with thr_parent mids separated by comma
+ * @param array $thr_parents (optional) - a string with thr_parent mids separated by comma
  * which will be included
  * @param string $permission_sql (optional) - SQL provided by item_permission_sql() from the calling module
  * @param bool $blog_mode (optional) - if set to yes only the parent items will be returned
  */
 
-function items_by_parent_ids(string $ids, string $thr_parents = '', string $permission_sql = '', bool $blog_mode = false): array
+function items_by_parent_ids(string $ids, array $thr_parents = [], string $permission_sql = '', bool $blog_mode = false): array
 {
 	if (!$ids) {
 		return [];
 	}
+
 
 	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
 
@@ -5465,7 +5466,8 @@ function items_by_parent_ids(string $ids, string $thr_parents = '', string $perm
 	$thr_parent_sql = (($thread_allow) ? " AND item.thr_parent = item.parent_mid " : '');
 
 	if ($thr_parents && $thread_allow) {
-		$thr_parent_sql = " AND item.thr_parent IN (" . protect_sprintf($thr_parents) . ") ";
+		$thr_parent_str = stringify_array($thr_parents, true);
+		$thr_parent_sql = " AND item.thr_parent IN (" . protect_sprintf($thr_parent_str) . ") ";
 	}
 
 	if ($blog_mode) {

@@ -200,8 +200,8 @@ class Hq extends \Zotlabs\Web\Controller {
 		}
 
 		if($r) {
-			$thr_parents_str = stringify_array(get_recursive_thr_parents($target_item), true);
-			$items = items_by_parent_ids($r[0]['item_id'], $thr_parents_str);
+			$thr_parents = get_recursive_thr_parents($target_item);
+			$items = items_by_parent_ids($r[0]['item_id'], $thr_parents);
 
 			xchan_query($items,true,(($sys_item) ? local_channel() : 0));
 			$items = fetch_post_tags($items,true);
