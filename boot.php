@@ -870,6 +870,9 @@ class App {
 	 */
 	public static $template_engine_instance = [];
 
+	/// Page layouts for comanche
+	public static array $page_layouts = [];
+
 	private static $ldelim = [
 		'internal' => '',
 		'smarty3'  => '{{'
