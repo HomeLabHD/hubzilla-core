@@ -5456,7 +5456,6 @@ function items_by_parent_ids(string $ids, array $thr_parents = [], string $permi
 		return [];
 	}
 
-
 	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
 
 	$item_normal_sql = item_normal();
@@ -5642,8 +5641,7 @@ function items_by_thr_parent(string $mid, int $parent): array
 			intval($parent)
 		);
 	}
-
-	if (!$ret) {
+	else {
 		$observer_hash = get_observer_hash();
 		$sql_extra = item_permissions_sql($owner_uid, $observer_hash);
 
