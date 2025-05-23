@@ -78,7 +78,7 @@ class dba_pdo extends dba_driver {
 
 		$result = false;
 		$this->error = '';
-		$select = stripos($sql, 'select') === 0 || stripos($sql, 'returning ') > 0;
+		$select = stripos($sql, 'select') === 0 || stripos($sql, 'with') === 0 || stripos($sql, 'returning ') > 0;
 
 		try {
 			$result = $this->db->query($sql, PDO::FETCH_ASSOC);
