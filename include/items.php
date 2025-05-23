@@ -5446,7 +5446,7 @@ function item_by_item_id(int $id): array
  * @param string $ids - a string with ids separated by comma
  * @param string $thr_parents (optional) - a string with thr_parent mids separated by comma
  * which will be included
- * @param string $permission_sql (optional) - SQL provided by item_permission_sql() by the calling module
+ * @param string $permission_sql (optional) - SQL provided by item_permission_sql() from the calling module
  * @param bool $blog_mode (optional) - if set to yes only the parent items will be returned
  */
 
@@ -5456,49 +5456,144 @@ function items_by_parent_ids(string $ids, string $thr_parents = '', string $perm
 		return [];
 	}
 
-	$item_normal = item_normal();
-	$item_normal_c = item_normal(prefix: 'c');
-	$activity_sql = item_activity_sql('c');
 	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
 
-	$blog_mode_sql = (($blog_mode) ? 'item.id' : 'item.parent');
+	$item_normal_sql = item_normal();
+	$activity_sql_cte = item_activity_sql_cte();
+	$activity_sql_cte_sub = item_activity_sql_cte('sub');
+
 	$thr_parent_sql = (($thread_allow) ? " AND item.thr_parent = item.parent_mid " : '');
 
 	if ($thr_parents && $thread_allow) {
 		$thr_parent_sql = " AND item.thr_parent IN (" . protect_sprintf($thr_parents) . ") ";
 	}
 
-	$permission_sql_c = '';
-	if ($permission_sql) {
-		$permission_sql_c = str_replace('item.', 'c.', $permission_sql);
+	if ($blog_mode) {
+		$ret = q("SELECT item.*,
+				$activity_sql_cte
+			FROM item
+			WHERE item.id IN (%s)
+				$item_normal_sql
+				$permission_sql",
+			dbesc($ids)
+		);
 	}
-
-	$ret = q(
-		"SELECT item.*,
-			$activity_sql
-		FROM item
-		LEFT JOIN item c
-			ON c.parent = item.parent
-			AND c.item_thread_top = 0
-			AND c.thr_parent = item.mid
-			$item_normal_c
-			$permission_sql_c
-		WHERE $blog_mode_sql in (%s)
-			AND (
-				item.verb NOT IN ('Like', 'Dislike', 'Announce')
-				OR (item.verb = 'Announce' AND item.item_thread_top = 1)
+	else {
+		$ret = q("WITH parents AS (
+			SELECT item.*,
+				0 AS rn, -- this is required for union (equal amount of coulumns)
+				$activity_sql_cte
+			FROM item
+			WHERE item.id IN (%s)
+				$item_normal_sql
+				$permission_sql
+			),
+			comments AS (
+				SELECT sub.*,
+					$activity_sql_cte_sub
+				FROM (
+					SELECT item.*,
+						ROW_NUMBER() OVER (PARTITION BY item.parent ORDER BY item.created DESC) AS rn
+					FROM item
+					WHERE item.parent IN (%s)
+						AND item.id != item.parent
+						AND (
+							item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept')
+							OR (item.verb = 'Announce' AND item.item_thread_top = 1)
+						)
+						$thr_parent_sql
+						$item_normal_sql
+						$permission_sql
+				) sub
+				WHERE rn <= 100 -- number of comments we want to load
 			)
-			$thr_parent_sql
-			$item_normal
-			$permission_sql
-		GROUP BY item.id",
-		dbesc($ids)
-	);
-
+			SELECT * FROM parents
+			UNION ALL
+			SELECT * FROM comments",
+			dbesc($ids),
+			dbesc($ids)
+		);
+	}
 
 	return $ret;
 }
 
+/**
+ * @brief returns SQL which counts activities for an item and
+ * if there is an observer also count activities authored by observer.
+ * @param string $prefix (optional)
+ */
+
+function item_activity_sql_cte($prefix = 'item'): string
+{
+	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
+	$observer = get_observer_hash();
+	$sql = '';
+
+	if ($observer) {
+		$observer_verbs = [
+			'Like' => 'observer_liked',
+			'Dislike' => 'observer_disliked',
+			'Announce' => 'observer_announced',
+			'Accept' => 'observer_accepted',
+			'Reject' => 'observer_rejected',
+			'TentativeAccept' => 'observer_tentativelyaccepted'
+		];
+
+		foreach($observer_verbs as $k => $v) {
+			if ($sql) {
+				$sql .= ",\n";
+			}
+
+			$sql .= <<<SQL
+				(SELECT COUNT(*) FROM item AS reaction
+					WHERE reaction.parent = $prefix.parent AND reaction.verb = '$k' AND reaction.author_xchan = '$observer' AND reaction.item_thread_top = 0 AND reaction.thr_parent = $prefix.mid
+				) AS $v
+			SQL;
+		}
+
+		if ($thread_allow) {
+			$sql .= ",\n";
+			$sql .= <<<SQL
+				(SELECT COUNT(*) FROM item AS reaction
+					WHERE reaction.parent = $prefix.parent AND reaction.verb IN ('Create', 'Update') AND reaction.author_xchan = '$observer' AND reaction.item_thread_top = 0 AND reaction.thr_parent = $prefix.mid
+				) AS observer_commented
+			SQL;
+		}
+	}
+
+	$verbs = [
+		'Like' => 'like_count',
+		'Dislike' => 'dislike_count',
+		'Announce' => 'announce_count',
+		'Accept' => 'attendyes_count',
+		'Reject' => 'attendno_count',
+		'TentativeAccept' => 'attendmaybe_count'
+	];
+
+	foreach($verbs as $k => $v) {
+		if ($sql) {
+			$sql .= ",\n";
+		}
+
+		$sql .= <<<SQL
+			(SELECT COUNT(*) FROM item AS reaction
+				WHERE reaction.parent = $prefix.parent AND reaction.verb = '$k' AND reaction.item_thread_top = 0 AND reaction.thr_parent = $prefix.mid
+			) AS $v
+		SQL;
+	}
+
+	if ($thread_allow) {
+		$sql .= ",\n";
+		$sql .= <<<SQL
+			(SELECT COUNT(*) FROM item AS reaction
+				WHERE reaction.parent = $prefix.parent AND reaction.verb IN ('Create', 'Update') AND reaction.item_thread_top = 0 AND reaction.thr_parent = $prefix.mid
+			) AS comment_count
+		SQL;
+	}
+
+	return $sql;
+}
 
 /**
  * @brief returns an array of items by thr_parent mid of a parent
@@ -5535,7 +5630,7 @@ function items_by_thr_parent(string $mid, int $parent): array
 			WHERE item.thr_parent = '%s'
 				AND item.uid = %d
 				AND item.parent = %d
-				AND item.verb NOT IN ('Like', 'Dislike', 'Announce')
+				AND item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept')
 				AND item.item_thread_top = 0
 				$item_normal
 			GROUP BY item.id
@@ -5560,7 +5655,7 @@ function items_by_thr_parent(string $mid, int $parent): array
 				$item_normal_c
 			WHERE item.thr_parent = '%s'
 				AND item.uid = %d
-				AND item.verb NOT IN ('Like', 'Dislike', 'Announce')
+				AND item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept')
 				AND item.item_thread_top = 0
 				$sql_extra
 				$item_normal
