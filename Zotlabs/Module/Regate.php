@@ -375,7 +375,7 @@ class Regate extends \Zotlabs\Web\Controller {
 							]);
 
 							$reonar = json_decode( $r['reg_stuff'], true);
-							$reonar['deny'] = $now . ',' . $ip . ' ' . $did2 . ' ' . $msg;
+							$reonar['deny'] = $now . ',' . $ip . ' ' . $did2;
 							$flags  = ( $r['reg_flags'] &= ( $r['reg_flags'] ^ ACCOUNT_UNVERIFIED) )
 									| ( $r['reg_flags'] |= REGISTER_DENIED);
 							$rd = q("UPDATE register SET reg_stuff='%s', reg_vital=0, reg_flags=%d  WHERE reg_id = %d ",
@@ -456,7 +456,7 @@ class Regate extends \Zotlabs\Web\Controller {
 			// $log = ' from § ' . $ip . ' §' . ' (' . dbesc($did2) . ')';
 			zar_log($msg);
 			$o = replace_macros(get_markup_template('plain.tpl'), [
-				'$title'	=> $title,
+				'$title'	=> $msg,
 				'$now'		=> $nowfmt,
 				'$infos'	=> $msg
 			]);

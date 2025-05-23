@@ -2727,7 +2727,7 @@ class Activity {
 
 			$relay = $channel['channel_hash'] === $parent[0]['owner_xchan'];
 
-			if (str_contains($parent[0]['tgt_type'], 'Collection') && !$relay && !$isCollectionOperation) {
+			if (str_contains($parent[0]['tgt_type'], 'Collection') && !$relay && !$is_collection_operation) {
 				logger('not a collection activity');
 				return;
 			}
