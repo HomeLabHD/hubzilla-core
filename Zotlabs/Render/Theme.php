@@ -87,8 +87,13 @@ class Theme {
 		// Find any theme at all and use it.
 
 		$fallback = array_merge(glob('view/theme/*/css/style.css'), glob('view/theme/*/php/style.php'));
-		if(count($fallback))
-			return(array(str_replace('view/theme/', '', substr($fallback[0], 0, -14))));
+
+		if (empty($fallback)) {
+			logger('Unable to find a theme');
+			http_status_exit(500, 'internal server error');
+		}
+
+		return(array(str_replace('view/theme/', '', substr($fallback[0], 0, -14))));
 	}
 
 
