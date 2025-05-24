@@ -3097,8 +3097,16 @@ function pchan_to_chan($pchan) {
 	return $chan;
 }
 
+/**
+ * Return the URL for the provided channel, or the site URL if the channel does
+ * not have an address.
+ *
+ * @param array	$channel	An array representing a channel
+ *
+ * @return string	The URL to the channel if defined, otherwise the site URL.
+ */
 function channel_url($channel) {
-	return ((isset($channel['channel_address'])) ? z_root() . '/channel/' . $channel['channel_address'] : z_root());
+	return isset($channel['channel_address']) ? z_root() . '/channel/' . $channel['channel_address'] : z_root();
 }
 
 function get_channel_hashes() {
