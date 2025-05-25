@@ -30,7 +30,7 @@ class Notifications {
 					'label' => t('Mark all read')
 				],
 				'filter' => [
-					'posts_label' => t('Conversation starters only'),
+					'posts_label' => t('Conversation starters'),
 					'name_label' => t('Filter by name or address')
 				]
 			];
@@ -50,7 +50,7 @@ class Notifications {
 					'label' => t('Mark all seen')
 				],
 				'filter' => [
-					'posts_label' => t('Conversation starters only'),
+					'posts_label' => t('Conversation starters'),
 					'name_label' => t('Filter by name or address')
 				]
 			];
@@ -69,7 +69,7 @@ class Notifications {
 					'label' => t('Mark all read')
 				],
 				'filter' => [
-					'posts_label' => t('Conversation starters only'),
+					'posts_label' => t('Conversation starters'),
 					'name_label' => t('Filter by name or address')
 				]
 			];
@@ -163,7 +163,7 @@ class Notifications {
 				],
 				*/
 				'filter' => [
-					'posts_label' => t('Conversation starters only'),
+					'posts_label' => t('Conversation starters'),
 					'name_label' => t('Filter by name or address')
 				]
 			];
