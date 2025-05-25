@@ -5450,6 +5450,7 @@ function item_by_item_id(int $id): array
  * @param bool $blog_mode (optional) - if set to yes only the parent items will be returned
  */
 
+// TODO: improve SQL performance
 function items_by_parent_ids(string $ids, array $thr_parents = [], string $permission_sql = '', bool $blog_mode = false): array
 {
 	if (!$ids) {
@@ -5518,6 +5519,80 @@ function items_by_parent_ids(string $ids, array $thr_parents = [], string $permi
 
 	return $ret;
 }
+
+/**
+ * @brief returns an array of items by ids
+ * ATTENTION: no permissions for the pa are checked here!!!
+ * Permissions MUST be checked by the function which returns the ids.
+ * @param int $id - a parent item id
+ * @param array $thr_parents (optional) - a string with thr_parent mids separated by comma
+ * which will be included
+ * @param string $permission_sql (optional) - SQL provided by item_permission_sql() from the calling module
+ * @param bool $blog_mode (optional) - if set to yes only the parent items will be returned
+ */
+
+function items_by_parent_id(int $id, array $thr_parents = [], string $permission_sql = '', bool $blog_mode = false): array
+{
+	if (!$id) {
+		return [];
+	}
+
+	$item_normal = item_normal();
+	$item_normal_c = item_normal(prefix: 'c');
+	$activity_sql = item_activity_sql('c');
+	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
+
+	$blog_mode_sql = (($blog_mode) ? 'item.id' : 'item.parent');
+
+	$thr_parent_sql = (($thread_allow) ? " AND item.thr_parent = item.parent_mid " : '');
+	if ($thr_parents && $thread_allow) {
+		$thr_parent_str = stringify_array($thr_parents, true);
+		$thr_parent_sql = " AND item.thr_parent IN (" . protect_sprintf($thr_parent_str) . ") ";
+	}
+
+	$permission_sql_c = '';
+	if ($permission_sql) {
+		$permission_sql_c = str_replace('item.', 'c.', $permission_sql);
+	}
+
+	$thread_limit_sql = '';
+	if (!$blog_mode && $thread_allow) {
+		// Get the last x replies but make sure the toplevel is included anyway
+		$thread_limit_sql = <<<SQL
+			ORDER BY
+				CASE WHEN item.id = item.parent THEN 0 ELSE 1 END,
+				item.created DESC
+			LIMIT 101
+		SQL;
+	}
+
+	$ret = q(
+		"SELECT item.*,
+			$activity_sql
+		FROM item
+		LEFT JOIN item c
+			ON c.parent = item.parent
+			AND c.item_thread_top = 0
+			AND c.thr_parent = item.mid
+			$item_normal_c
+			$permission_sql_c
+		WHERE $blog_mode_sql = %d
+			AND (
+				item.verb NOT IN ('Like', 'Dislike', 'Announce')
+				OR (item.verb = 'Announce' AND item.item_thread_top = 1)
+			)
+			$thr_parent_sql
+			$item_normal
+			$permission_sql
+		GROUP BY item.id
+		$thread_limit_sql",
+		intval($id)
+	);
+
+	return $ret;
+}
+
+
 
 /**
  * @brief returns SQL which counts activities for an item and

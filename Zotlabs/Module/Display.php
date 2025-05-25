@@ -288,15 +288,12 @@ class Display extends Controller {
 		}
 
 		if($r) {
-			$parents_str = ids_to_querystr($r,'item_id');
-			if($parents_str) {
-				$thr_parents = get_recursive_thr_parents($target_item);
-				$items = items_by_parent_ids($parents_str, $thr_parents, $permission_sql);
+			$thr_parents = get_recursive_thr_parents($target_item);
+			$items = items_by_parent_id($r[0]['item_id'], $thr_parents, $permission_sql);
 
-				xchan_query($items);
-				$items = fetch_post_tags($items,true);
-				$items = conv_sort($items,'created');
-			}
+			xchan_query($items);
+			$items = fetch_post_tags($items,true);
+			$items = conv_sort($items,'created');
 		}
 		else {
 			$items = array();
