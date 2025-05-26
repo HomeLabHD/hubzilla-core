@@ -1,0 +1,34 @@
+[h2]Fehler, Probleme und Dinge, die nachts für Unruhe sorgen...[/h2]
+[h3]Etwas ist schiefgelaufen! Wer ist für die Behebung zuständig?[/h3]
+
+[b]Hubzilla Community Server[/b]
+
+Hubzilla Community Server ist eine Open-Source-Software, die von „der Community“ – im Wesentlichen unbezahlten Freiwilligen – gepflegt wird. Niemand ist für die Behebung von Fehlern zuständig. Wir arbeiten gemeinsam daran, die Software und das Netzwerk reibungslos und fehlerfrei zu betreiben. Sie sind Mitglied dieser Community, daher benötigen wir auch Ihre Hilfe, um qualitativ hochwertige Software anbieten zu können. Es gibt keine mythischen „Entwickler“, die auf magische Weise alles reparieren. Es liegt an uns allen, mit anzupacken und zu helfen.
+
+Als Erstes sollten Sie sich an Ihren Hub-Administrator wenden – die Person, die Ihre Website betreibt und verwaltet. Er hat als Einziger Zugriff auf die interne Software, die Datenbank und die [b]Logdateien[/b] und muss daher in die Behebung Ihres Problems einbezogen werden. Andere Personen „im Netz“ können Ihnen dabei nicht wirklich helfen. Der Hub-Administrator muss als Erstes die Logdateien überprüfen und/oder versuchen, das Problem zu reproduzieren. Seien Sie daher so hilfsbereit und höflich wie möglich, um ihm bei der Suche nach dem Problem zu helfen.
+
+
+Um Ihren Hub-Administrator zu finden (falls Sie ihn nicht kennen), schauen Sie bitte auf [url=[baseurl]/siteinfo]dieser Seite[/url]. Wenn er auf dieser Seite keine Kontaktinformationen oder ein „Impressum“ angegeben hat, finden Sie diese unter [url=[baseurl]/siteinfo.json]dieser Zusammenfassung der Website-Informationen[/url] unter der Überschrift „admin:“.
+
+Es wird dringend empfohlen, dass Fehlerberichte von Hub-Administratoren eingereicht werden, damit diese die relevanten Logdateien und Datenbankinformationen zum Problem hinzufügen und Workarounds und Folgetests durchführen können. Ohne diese Zusammenarbeit ist es möglicherweise nicht möglich, das Problem zu beheben.
+
+[h3]Ich bin Hub-Administrator; was soll ich tun?[/h3]
+
+Die Softwareanweisungen, die diesen Webdienst bereitstellen, sind Open Source und können von Ihnen eingesehen werden. Wir empfehlen allen, diese zu lesen, um sich über die Funktionsweise zu informieren und sich davon zu überzeugen, dass wir Ihre persönlichen Daten nicht missbräuchlich oder fahrlässig verwenden. Wenn eine Fehlermeldung gemeldet wurde, kann man häufig in den Quelldateien nach dieser Fehlermeldung suchen und herausfinden, wodurch sie ausgelöst wurde. Mit diesen Informationen und den Logdateien der Website lässt sich möglicherweise die Abfolge der Ereignisse ermitteln, die zu dem Fehler geführt haben. Möglicherweise sind auch andere Websites beteiligt, und das Problem liegt gar nicht auf Ihrer Website, sondern an anderer Stelle im Netzwerk. Versuchen Sie, die am Problem beteiligten Kommunikationsendpunkte (Hubs oder Websites) zu ermitteln, und wenden Sie sich an den Administrator dieser Website(s). Geben Sie bitte den Zeitpunkt an, zu dem der Fehler aufgetreten ist, damit er in den Protokollen gefunden werden kann. Arbeiten Sie mit den anderen Administratoren zusammen, um die Ursache des Problems zu finden. Logdateien sind Ihr Freund. Wenn in der Software etwas Unerwartetes passiert, wird dies fast immer protokolliert.
+
+[h3]Der weiße Bildschirm des Todes[/h3]
+
+Wenn Sie bei einer Aktion einen leeren weißen Bildschirm erhalten, handelt es sich fast immer um einen Code- oder Syntaxfehler. In der Datei .htconfig.php der Website finden Sie Anweisungen, mit denen der Website-Administrator die Syntaxprotokollierung aktivieren kann. Wir empfehlen allen Websites, diese Funktion zu verwenden. Wiederholen Sie mit aktivierter Syntaxprotokollierung die Sequenz, die zu dem Fehler geführt hat, und die fehlerhafte Codezeile sollte protokolliert werden. Hoffentlich können Sie das Problem mit diesen Informationen beheben. Wenn ja, reichen Sie die Korrektur bitte „upstream“ ein, damit wir sie mit den anderen Projektmitgliedern und anderen Communities teilen können. Dies ist ein wesentlicher Vorteil der Verwendung von Open-Source-Software – wir teilen miteinander und alle profitieren davon.
+
+[h3]Ich bin ratlos. Ich kann nicht herausfinden, was falsch ist.[/h3]
+
+An dieser Stelle könnte es sich lohnen, das Problem in einem der Online-Foren zu diskutieren. Es gibt möglicherweise mehrere davon, und einige sind vielleicht besser für Ihre Sprache geeignet. Derzeit ist der Kanal „Hubzilla Support Forum“ (adminsforum@hubzilla.org) das empfohlene Forum für die Diskussion von Fehlern.
+
+Wenn Community-Mitglieder mit einer Ausbildung/Erfahrung im Bereich Softwareentwicklung Ihnen nicht sofort helfen können, haben Sie bitte Verständnis dafür, dass sie ehrenamtlich tätig sind und möglicherweise viele andere Aufgaben und Verpflichtungen haben. An diesem Punkt müssen Sie einen Fehlerbericht erstellen. Dazu benötigen Sie ein Konto auf framagit.org. Registrieren Sie sich also und besuchen Sie dann https://framagit.org/hubzilla/core/issues . Erstellen Sie hier ein Ticket und geben Sie alle Informationen an, die Sie online angegeben haben. Lassen Sie nichts aus.
+
+Dann warten Sie. Wenn es sich um ein wichtiges Problem handelt, wird es möglicherweise schnell behoben. Aber niemand ist für die Behebung von Fehlern zuständig. Wenn das Problem weiterhin besteht, nehmen Sie sich bitte etwas mehr Zeit, um es zu untersuchen. Fragen Sie nach allem, was Sie im Zusammenhang mit dem Verhalten nicht verstehen. Sie werden mehr über die Funktionsweise der Software erfahren und möglicherweise herausfinden, warum sie derzeit nicht funktioniert. Letztendlich wird jemand aus der Community das Problem beheben, und Sie sind ein Mitglied dieser Community. So funktioniert der Open-Source-Prozess.
+
+
+
+Andere Personen, die an der Behebung des Problems arbeiten, benötigen möglicherweise weitere Informationen. Bereiten Sie sich daher gut vor und dokumentieren Sie, was passiert ist und was Sie bereits versucht haben. Sagen Sie nicht einfach: „Ich habe xyz gemacht und es hat nicht funktioniert.“ Das sagt uns nichts. Teilen Sie uns genau mit, welche Schritte Sie unternommen haben, welches Ergebnis Sie erwartet haben und was genau passiert ist. Welche Seite/URL haben Sie aufgerufen oder welches Formular haben Sie ausgefüllt? Wenn Fehlermeldungen angezeigt wurden, sagen Sie nicht „Es wurde eine Fehlermeldung angezeigt“. Teilen Sie uns den genauen Wortlaut der Meldung mit. Teilen Sie uns außerdem mit, welchen Hub Sie verwenden, welche Softwareversion Sie ausführen und alle weiteren Details, die für die Konfiguration Ihrer Website relevant sein könnten. Wir verstehen, dass Sie möglicherweise einige Informationen und Ihre Verbindungen geheim halten möchten. Wenn Sie jedoch nicht bereit sind, die Informationen weiterzugeben, die andere Personen benötigen, um das Problem zu reproduzieren/beheben, kann es möglicherweise nicht behoben werden.
+       

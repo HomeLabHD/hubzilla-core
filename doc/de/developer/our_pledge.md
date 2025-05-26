@@ -1,0 +1,3 @@
+#### Unser Versprechen
+
+Im Interesse der Förderung eines offenen und einladenden Umfelds verpflichten wir uns als Mitwirkende und Betreuer, die Teilnahme an unserem Projekt und unserer Gemeinschaft zu einer belästigungsfreien Erfahrung für jeden zu machen, unabhängig von Alter, Körpergröße, Behinderung, ethnischer Zugehörigkeit, Geschlechtsidentität und -ausdruck, Erfahrungsniveau, Nationalität, persönlichem Aussehen, Ethnie, Religion oder sexueller Identität und Orientierung.

@@ -1,0 +1,17 @@
+### Bevor Sie beginnen
+
+Wählen Sie einen Domänennamen oder einen Subdomänennamen für Ihren Server.
+
+Die Software kann nur im Stammverzeichnis einer Domäne oder Subdomäne installiert werden und kann nicht über alternative TCP-Ports installiert werden. Diese Beschränkungen können in Zukunft gelockert werden, sind aber unbequem, so dass wir Ihnen weiterhin DRINGEND empfehlen, sich daran zu halten.
+
+Entscheiden Sie, ob Sie SSL verwenden wollen, und besorgen Sie sich vor der Softwareinstallation ein SSL-Zertifikat.  Sie SOLLTEN SSL verwenden. Wenn Sie SSL verwenden, MÜSSEN Sie ein „browsergültiges“ Zertifikat verwenden.  Sie KÖNNEN KEINE selbstsignierten Zertifikate verwenden!
+
+Bitte testen Sie Ihr Zertifikat vor der Installation. Ein Webtool zum Testen Ihres Zertifikats finden Sie unter „http://www.digicert.com/help/“. Wenn Sie Ihre Website zum ersten Mal besuchen, verwenden Sie bitte die SSL-URL („https://“), wenn SSL verfügbar ist. Dadurch werden spätere Probleme vermieden. Die Installationsroutine erlaubt es Ihnen nicht, ein nicht browsergültiges Zertifikat zu verwenden.
+
+Diese Einschränkung wird vorgenommen, weil öffentliche Beiträge von Ihnen Verweise auf Bilder in Ihrem eigenen Hub enthalten können. Andere Mitglieder, die ihren Stream auf anderen Hubs betrachten, erhalten Warnungen, wenn Ihr Zertifikat von ihrem Webbrowser nicht als vertrauenswürdig eingestuft wird. Dies wird viele Leute verwirren, da es sich um ein dezentralisiertes Netzwerk handelt, und sie werden die Warnung über Ihren Hub erhalten, während sie ihren eigenen Hub ansehen, und könnten denken, dass ihr eigener Hub ein Problem hat. Diese Warnungen sind sehr technisch und beängstigend für einige Leute, von denen viele nicht wissen, wie sie weiter vorgehen sollen, außer den Ratschlägen des Browsers zu folgen. Das ist für die Gemeinschaft störend. Abgesehen davon erkennen wir die Probleme im Zusammenhang mit der derzeitigen Zertifikatsinfrastruktur an und stimmen zu, dass es viele Probleme gibt, aber das ändert nichts an der Anforderung.
+
+Kostenlose „browsergültige“ Zertifikate gibt es von Anbietern wie ZeroSSL, LetsEncrypt und einigen anderen.
+
+Wenn Sie NICHT SSL verwenden, kann es beim ersten Installationsskript zu einer Verzögerung von bis zu einer Minute kommen - während wir den SSL-Port überprüfen, um zu sehen, ob dort etwas antwortet. Bei der Kommunikation mit neuen Sites versucht Hubzilla immer zuerst eine Verbindung über den SSL-Port herzustellen, bevor es auf eine weniger sichere Verbindung zurückgreift.  Wenn Sie kein SSL verwenden, MUSS Ihr Webserver überhaupt nicht auf Port 443 lauschen.
+
+Wenn Sie LetsEncrypt für die Bereitstellung von Zertifikaten verwenden und eine Datei unter .well-known/acme-challenge erstellen, damit LetsEncrypt Ihre Domaineigentümerschaft überprüfen kann, entfernen Sie bitte das Verzeichnis .well-known oder benennen Sie es um, sobald das Zertifikat generiert wurde. Die Software stellt bei der Installation einen eigenen Handler für „.well-known“-Dienste zur Verfügung, und ein bestehendes Verzeichnis an diesem Ort kann verhindern, dass einige dieser Dienste korrekt funktionieren. Dies sollte bei Apache kein Problem sein, kann aber bei nginx oder anderen Webserver-Plattformen ein Problem darstellen.

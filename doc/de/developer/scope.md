@@ -1,0 +1,3 @@
+#### Geltungsbereich
+
+Dieser Verhaltenskodex gilt sowohl innerhalb der Projektbereiche als auch im öffentlichen Umfeld, wenn eine Person das Projekt oder seine Gemeinschaft vertritt. Beispiele für das Repräsentieren eines Projekts oder einer Gemeinschaft sind die Verwendung einer offiziellen Projekt-E-Mail-Adresse, das Posten über ein offizielles Social-Media-Konto oder das Handeln als ernannter Vertreter bei einer Online- oder Offline-Veranstaltung. Die Repräsentation eines Projekts kann von den Projektbetreuern weiter definiert und präzisiert werden.

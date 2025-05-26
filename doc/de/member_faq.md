@@ -1,0 +1,17 @@
+### Hubzilla FAQ
+
+#### Ich kann den Text eines Beitrags nach dem Speichern bearbeiten, aber gibt es eine Möglichkeit, die Berechtigungen zu ändern?
+
+Kurze Antwort: Nein, das geht nicht. Dafür gibt es Gründe. Sie können die Berechtigungen für Ihre Dateien, Fotos und Ähnliches ändern, aber nicht für Beiträge, nachdem Sie diese gespeichert haben. Der Hauptgrund dafür ist: Sobald Sie einen Beitrag gespeichert haben, wird er entweder an den öffentlichen Kanal und von dort an andere Hubzilla-Server oder an diejenigen verteilt, für die er bestimmt war. Genauso wie Sie etwas, das Sie einer anderen Person gegeben haben, nicht zurückfordern können, können Sie die Berechtigungen für Hubzilla-Beiträge nicht ändern. Wir müssten überall nachverfolgen, wohin Ihre Beiträge gelangen, alle Personen erfassen, denen Sie die Anzeige erlaubt haben, und dann nachverfolgen, von wem wir sie löschen müssen. Bei öffentlichen Beiträgen ist dies noch schwieriger, da Hubzilla ein globales Netzwerk ist und es keine Möglichkeit gibt, einen Beitrag zu verfolgen, geschweige denn zuverlässig zurückzuholen. Andere Netzwerke, die Ihren Beitrag erhalten haben, haben keine zuverlässige Möglichkeit, ihn zu löschen oder zurückzuholen.
+
+#### Ich habe meinen Kanal heruntergeladen und auf eine andere Website importiert (meine Identität geklont), aber es gibt keine Inhalte, keine Beiträge, keine Fotos. Was ist los???
+
+Beiträge und Fotos/Dateien werden getrennt von den grundlegenden Kanalinformationen bereitgestellt. Dies ist aufgrund von Speicherbeschränkungen im Zusammenhang mit jahrelangen Unterhaltungen und Fotoarchiven erforderlich. Beiträge und Unterhaltungen können separat von den grundlegenden Kanalinformationen synchronisiert werden. Fotos und Dateiarchive können mit einem Plugin-Tool wie „redfiles“ übertragen werden, das derzeit als „experimentell“ gekennzeichnet ist. Bei der Entwicklung dieser Funktion war es uns wichtig, dass alle Ihre Kontakte erhalten bleiben. Ihre Freunde haben Ihre alten Inhalte bereits gesehen. Beiträge/Konversationen hatten die nächste Priorität und können nun synchronisiert werden. Dateien und Fotos sind der letzte Punkt, der noch vollständig funktioniert. Sobald wir jemanden finden, der die Implementierung fertigstellen möchte, wird dies umgesetzt. :)
+
+#### Ich kann private Ressourcen nicht sehen
+
+Sie haben wahrscheinlich Cookies von Drittanbietern deaktiviert. Sie müssen diese aktivieren, damit die Remote-Authentifizierung funktioniert.
+
+#### Es gibt viele Beiträge in Fremdsprachen. Lassen Sie uns diese automatisch übersetzen.
+
+Es gibt auch viele **private** Beiträge in Fremdsprachen, und automatische Übersetzungsdienste würden erfordern, dass wir diese privaten Nachrichten an den Übersetzungsdienst übermitteln; und wir wissen nicht, was dieser mit ihnen auf seinen Servern macht. Dank Edward Snowden wissen wir das eigentlich. Unsere beste Option ist ein Projekt namens ***Apertium\***, ein Open-Source-Übersetzungsprogramm, das wir lokal installieren können. Derzeit fehlen noch deutsche Übersetzungen – die am häufigsten nachgefragten Übersetzungen in der Matrix. Auch dies wird implementiert, sobald wir jemanden finden, der sich wirklich dafür engagieren möchte.

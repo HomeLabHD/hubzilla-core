@@ -1,0 +1,3 @@
+### Überblick  
+
+Während viele Funktionen und Möglichkeiten von Hubzilla denjenigen vertraut sind, die bereits Social-Networking-Websites und Blogging-Software verwendet haben, gibt es auch einige neue Konzepte und Funktionen, die den meisten Menschen noch nicht begegnet sind. Einige der neuen Ideen hängen mit der dezentralen Natur des Grids zusammen, andere mit dem fortschrittlichen Berechtigungssystem, das zum Schutz Ihrer Daten notwendig ist. Dieser Leitfaden soll Ihnen helfen zu verstehen, wie Sie Ihre nomadische Identität erstellen, konfigurieren und nutzen können.
