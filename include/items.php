@@ -5411,6 +5411,8 @@ function item_activity_sql($prefix = 'c') {
  * @param int $id
  */
 
+// TODO: streamline reactions logic with items_by_parent_ids()
+
 function item_by_item_id(int $id): array
 {
 	if (!$id) {
@@ -5669,7 +5671,7 @@ function item_reaction_sql(string $ids, string $permission_sql = ''): array
  * @param int $parent
  */
 
-// TODO: streamline logic with items_by_parent_ids() -
+// TODO: streamline reactions logic with items_by_parent_ids()
 function items_by_thr_parent(string $mid, int $parent): array
 {
 	if (!$mid && !$parent) {
