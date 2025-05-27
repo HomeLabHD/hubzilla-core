@@ -206,9 +206,9 @@ class ThreadItem {
 		}
 
 		if (in_array($item['obj_type'], ['Event', ACTIVITY_OBJ_EVENT])) {
-			$response_verbs[] = 'attendyes';
-			$response_verbs[] = 'attendno';
-			$response_verbs[] = 'attendmaybe';
+			$response_verbs[] = 'accept';
+			$response_verbs[] = 'reject';
+			$response_verbs[] = 'tentativeaccept';
 			if($this->is_commentable() && $observer) {
 				$isevent = true;
 				$attend = array( t('I will attend'), t('I will not attend'), t('I might attend'));
@@ -222,7 +222,6 @@ class ThreadItem {
 		$response_verbs[] = 'comment';
 		$responses = get_responses($response_verbs, $item);
 
-
 		/*
 		 * We should avoid doing this all the time, but it depends on the conversation mode
 		 * And the conv mode may change when we change the conv, or it changes its mode
@@ -231,7 +230,10 @@ class ThreadItem {
 
 		$this->check_wall_to_wall();
 
+		$toplevel_comments_total = 0;
 		if($this->is_toplevel()) {
+			$toplevel_comments_total = $responses['comment']['count'] ?? 0;
+
 			if((local_channel() && $conv->get_profile_owner() === local_channel()) || (local_channel() && App::$module === 'pubstream')) {
 				$star = [
 					'toggle' => t("Toggle Star Status"),
@@ -242,7 +244,6 @@ class ThreadItem {
 		else {
 			$is_comment = true;
 		}
-
 
 		$verified = (intval($item['item_verified']) ? t('Message signature validated') : '');
 		$forged = ((($item['sig']) && (! intval($item['item_verified']))) ? t('Message signature incorrect') : '');
@@ -348,6 +349,17 @@ class ThreadItem {
 
 		if(App::$contacts && array_key_exists($item['author_xchan'], App::$contacts)) {
 			$contact = App::$contacts[$item['author_xchan']];
+		}
+
+		$load_more = '';
+		$load_more_title = '';
+		if ($toplevel_comments_total > $total_children) {
+			if (is_site_admin()) {
+				// provide a load more comments button
+				$load_more = t('Load more');
+				$load_more_title = sprintf(t('Load more of %d replies'), $toplevel_comments_total);
+
+			}
 		}
 
 		$tmp_item = array(
@@ -463,18 +475,20 @@ class ThreadItem {
 			'reaction_str' => [t('Add yours'), t('Remove yours')],
 			'is_contained' => $this->is_toplevel() && str_contains($item['tgt_type'], 'Collection'),
 			'observer_activity' => [
-				'like' => intval($item['observer_liked'] ?? 0),
-				'dislike' => intval($item['observer_disliked'] ?? 0),
-				'announce' => intval($item['observer_announced'] ?? 0),
-				'comment' => intval($item['observer_commented'] ?? 0),
-				'attendyes' => intval($item['observer_accepted'] ?? 0),
-				'attendno' => intval($item['observer_rejected'] ?? 0),
-				'attendmaybe' => intval($item['observer_tentativelyaccepted'] ?? 0)
+				'like' => intval($item['observer_like_count'] ?? 0),
+				'dislike' => intval($item['observer_dislike_count'] ?? 0),
+				'announce' => intval($item['observer_announce_count'] ?? 0),
+				'comment' => intval($item['observer_comment_count'] ?? 0),
+				'accept' => intval($item['observer_accept_count'] ?? 0),
+				'reject' => intval($item['observer_reject_count'] ?? 0),
+				'tentativeaccept' => intval($item['observer_tentativeaccept_count'] ?? 0)
 			],
 			'threaded' => $this->threaded,
 			'blog_mode' => $this->get_display_mode() === 'list',
 			'collapse_comments' => t('show less'),
-			'expand_comments' =>  $this->threaded ? t('show more') : t('show all')
+			'expand_comments' =>  $this->threaded ? t('show more') : t('show all'),
+			'load_more' => $load_more,
+			'load_more_title' => $load_more_title,
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);

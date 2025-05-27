@@ -417,14 +417,7 @@ class Channel extends Controller {
 			}
 		}
 		if ($r) {
-			//$parents_str = ids_to_querystr($r, 'item_id');
-
-			//$r = items_by_parent_ids($parents_str, permission_sql: $permission_sql, blog_mode: $blog_mode);
-			$items = [];
-			foreach($r as $parent) {
-				$nitems = items_by_parent_id($parent['item_id'], permission_sql: $permission_sql, blog_mode: $blog_mode);
-				$items = array_merge($items, $nitems);
-			}
+			$items = items_by_parent_ids($r, permission_sql: $permission_sql, blog_mode: $blog_mode);
 
 			xchan_query($items);
 			$items = fetch_post_tags($items, true);

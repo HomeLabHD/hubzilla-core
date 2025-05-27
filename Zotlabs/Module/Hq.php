@@ -201,7 +201,7 @@ class Hq extends \Zotlabs\Web\Controller {
 
 		if($r) {
 			$thr_parents = get_recursive_thr_parents($target_item);
-			$items = items_by_parent_id($r[0]['item_id'], $thr_parents);
+			$items = items_by_parent_ids($r, $thr_parents);
 
 			xchan_query($items,true,(($sys_item) ? local_channel() : 0));
 			$items = fetch_post_tags($items,true);

@@ -289,7 +289,7 @@ class Display extends Controller {
 
 		if($r) {
 			$thr_parents = get_recursive_thr_parents($target_item);
-			$items = items_by_parent_id($r[0]['item_id'], $thr_parents, $permission_sql);
+			$items = items_by_parent_ids($r, $thr_parents, $permission_sql);
 
 			xchan_query($items);
 			$items = fetch_post_tags($items,true);

@@ -507,11 +507,7 @@ class Network extends \Zotlabs\Web\Controller {
 			// Then fetch all the children of the parents that are on this page
 
 			if($r) {
-				$items = [];
-				foreach($r as $parent) {
-					$nitems = items_by_parent_id($parent['item_id'], blog_mode: $blog_mode);
-					$items = array_merge($items, $nitems);
-				}
+				$items = items_by_parent_ids($r, blog_mode: $blog_mode);
 
 				xchan_query($items, true);
 				$items = fetch_post_tags($items, true);

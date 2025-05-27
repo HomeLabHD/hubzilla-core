@@ -251,11 +251,7 @@ class Pubstream extends \Zotlabs\Web\Controller {
 			$parents_str = '';
 
 			if($r) {
-				$items = [];
-				foreach($r as $parent) {
-					$nitems = items_by_parent_id($parent['item_id']);
-					$items = array_merge($items, $nitems);
-				}
+				$items = items_by_parent_ids($r);
 
 				// use effective_uid param of xchan_query to help sort out comment permission
 				// for sys_channel owned items.

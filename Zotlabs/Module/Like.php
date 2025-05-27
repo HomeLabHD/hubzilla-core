@@ -22,9 +22,9 @@ class Like extends Controller {
 			'like'        => 'Like',
 			'dislike'     => 'Dislike',
 			'announce'    => ACTIVITY_SHARE,
-			'attendyes'   => 'Accept',
-			'attendno'    => 'Reject',
-			'attendmaybe' => 'TentativeAccept'
+			'accept'   => 'Accept',
+			'reject'    => 'Reject',
+			'tentativeaccept' => 'TentativeAccept'
 		];
 
 		// unlike (etc.) reactions are an undo of positive reactions, rather than a negative action.
@@ -474,11 +474,11 @@ class Like extends Controller {
 			$bodyverb = t('%1$s likes %2$s\'s %3$s');
 		if ($verb === 'dislike')
 			$bodyverb = t('%1$s doesn\'t like %2$s\'s %3$s');
-		if ($verb === 'attendyes')
+		if ($verb === 'accept')
 			$bodyverb = t('%1$s is attending %2$s\'s %3$s');
-		if ($verb === 'attendno')
+		if ($verb === 'reject')
 			$bodyverb = t('%1$s is not attending %2$s\'s %3$s');
-		if ($verb === 'attendmaybe')
+		if ($verb === 'tentativeaccept')
 			$bodyverb = t('%1$s may attend %2$s\'s %3$s');
 
 		if (!isset($bodyverb))
@@ -561,7 +561,7 @@ class Like extends Controller {
 
 		call_hooks('post_local_end', $arr);
 
-		if ($is_rsvp && in_array($verb, ['attendyes', 'attendmaybe'])) {
+		if ($is_rsvp && in_array($verb, ['accept', 'tentativeaccept'])) {
 			event_addtocal($item_id, local_channel());
 		}
 

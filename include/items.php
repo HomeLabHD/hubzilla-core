@@ -5374,16 +5374,16 @@ function item_activity_sql($prefix = 'c') {
 
 	if ($observer) {
 		$sql = <<<SQL
-			COUNT(CASE WHEN $prefix.verb = 'Like' AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_liked,
-			COUNT(CASE WHEN $prefix.verb = 'Dislike' AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_disliked,
-			COUNT(CASE WHEN $prefix.verb = 'Announce' AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_announced,
-			COUNT(CASE WHEN $prefix.verb = 'Accept' AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_accepted,
-			COUNT(CASE WHEN $prefix.verb = 'Reject' AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_rejected,
-			COUNT(CASE WHEN $prefix.verb = 'TentativeAccept' AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_tentativelyaccepted,
+			COUNT(CASE WHEN $prefix.verb = 'Like' AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_like_count,
+			COUNT(CASE WHEN $prefix.verb = 'Dislike' AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_dislike_count,
+			COUNT(CASE WHEN $prefix.verb = 'Announce' AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_announce_count,
+			COUNT(CASE WHEN $prefix.verb = 'Accept' AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_accept_count,
+			COUNT(CASE WHEN $prefix.verb = 'Reject' AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_reject_count,
+			COUNT(CASE WHEN $prefix.verb = 'TentativeAccept' AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_tentativeaccept_count,
 		SQL;
 
 		if ($thread_allow) {
-			$sql .= " COUNT(CASE WHEN $prefix.verb IN ('Create','Update') AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_commented, ";
+			$sql .= " COUNT(CASE WHEN $prefix.verb IN ('Create','Update') AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_comment_count, ";
 		}
 	}
 
@@ -5396,9 +5396,9 @@ function item_activity_sql($prefix = 'c') {
 		COUNT(CASE WHEN $prefix.verb = 'Like' THEN 1 END) AS like_count,
 		COUNT(CASE WHEN $prefix.verb = 'Dislike' THEN 1 END) AS dislike_count,
 		COUNT(CASE WHEN $prefix.verb = 'Announce' THEN 1 END) AS announce_count,
-		COUNT(CASE WHEN $prefix.verb = 'Accept' THEN 1 END) AS attendyes_count,
-		COUNT(CASE WHEN $prefix.verb = 'Reject' THEN 1 END) AS attendno_count,
-		COUNT(CASE WHEN $prefix.verb = 'TentativeAccept' THEN 1 END) AS attendmaybe_count
+		COUNT(CASE WHEN $prefix.verb = 'Accept' THEN 1 END) AS accept_count,
+		COUNT(CASE WHEN $prefix.verb = 'Reject' THEN 1 END) AS reject_count,
+		COUNT(CASE WHEN $prefix.verb = 'TentativeAccept' THEN 1 END) AS tentativeaccept_count
 	SQL;
 
 	return $sql;
@@ -5443,77 +5443,145 @@ function item_by_item_id(int $id): array
  * @brief returns an array of items by ids
  * ATTENTION: no permissions for the pa are checked here!!!
  * Permissions MUST be checked by the function which returns the ids.
- * @param string $ids - a string with ids separated by comma
- * @param array $thr_parents (optional) - a string with thr_parent mids separated by comma
- * which will be included
+ * @param array $ids
+ * @param array $thr_parents (optional) - thr_parent mids which will be included
  * @param string $permission_sql (optional) - SQL provided by item_permission_sql() from the calling module
  * @param bool $blog_mode (optional) - if set to yes only the parent items will be returned
  */
 
-// TODO: improve SQL performance
-function items_by_parent_ids(string $ids, array $thr_parents = [], string $permission_sql = '', bool $blog_mode = false): array
+function items_by_parent_ids(array $parents, array $thr_parents = [], string $permission_sql = '', bool $blog_mode = false): array
 {
-	if (!$ids) {
+	if (!$parents) {
 		return [];
 	}
 
+	$ids = ids_to_querystr($parents, 'item_id');
 	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
-
 	$item_normal_sql = item_normal();
-	$activity_sql_cte = item_activity_sql_cte();
-	$activity_sql_cte_sub = item_activity_sql_cte('sub');
 
 	$thr_parent_sql = (($thread_allow) ? " AND item.thr_parent = item.parent_mid " : '');
-
 	if ($thr_parents && $thread_allow) {
 		$thr_parent_str = stringify_array($thr_parents, true);
 		$thr_parent_sql = " AND item.thr_parent IN (" . protect_sprintf($thr_parent_str) . ") ";
 	}
 
+	$reaction = item_reaction_sql($ids, $permission_sql);
+	$reaction_cte_sql = $reaction['cte'];
+	$reaction_select_sql = $reaction['select'];
+
 	if ($blog_mode) {
-		$ret = q("SELECT item.*,
-				$activity_sql_cte
-			FROM item
-			WHERE item.id IN (%s)
-				$item_normal_sql
-				$permission_sql",
-			dbesc($ids)
+		$ret = dbq("WITH
+			parent_items_base AS (
+				SELECT item.*
+				FROM item
+				WHERE item.id IN ($ids)
+					$item_normal_sql
+					$permission_sql
+			),
+
+			$reaction_cte_sql,
+
+			parent_items AS (
+				SELECT
+					parent_items_base.*,
+					$reaction_select_sql
+
+				FROM parent_items_base
+				LEFT JOIN reaction_like
+					ON reaction_like.thr_parent = parent_items_base.mid
+				LEFT JOIN reaction_dislike
+					ON reaction_dislike.thr_parent = parent_items_base.mid
+				LEFT JOIN reaction_announce
+					ON reaction_announce.thr_parent = parent_items_base.mid
+				LEFT JOIN reaction_accept
+					ON reaction_accept.thr_parent = parent_items_base.mid
+				LEFT JOIN reaction_reject
+					ON reaction_reject.thr_parent = parent_items_base.mid
+				LEFT JOIN reaction_tentativeaccept
+					ON reaction_tentativeaccept.thr_parent = parent_items_base.mid
+				LEFT JOIN reaction_comment
+					ON reaction_comment.thr_parent = parent_items_base.mid
+			)
+
+			SELECT * FROM parent_items"
 		);
 	}
 	else {
-		$ret = q("WITH parents AS (
-			SELECT item.*,
-				0 AS rn, -- this is required for union (equal amount of coulumns)
-				$activity_sql_cte
-			FROM item
-			WHERE item.id IN (%s)
-				$item_normal_sql
-				$permission_sql
+		$ret = dbq("WITH
+			parent_items_base AS (
+				SELECT item.*
+				FROM item
+				WHERE item.id IN ($ids)
+					$item_normal_sql
+					$permission_sql
 			),
-			comments AS (
-				SELECT sub.*,
-					$activity_sql_cte_sub
-				FROM (
-					SELECT item.*,
-						ROW_NUMBER() OVER (PARTITION BY item.parent ORDER BY item.created DESC) AS rn
-					FROM item
-					WHERE item.parent IN (%s)
-						AND item.id != item.parent
-						AND (
-							item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept')
-							OR (item.verb = 'Announce' AND item.item_thread_top = 1)
-						)
-						$thr_parent_sql
-						$item_normal_sql
-						$permission_sql
-				) sub
-				WHERE rn <= 100 -- number of comments we want to load
+
+			$reaction_cte_sql,
+
+			parent_items AS (
+				SELECT
+					parent_items_base.*,
+					0 AS rn,
+					$reaction_select_sql
+
+				FROM parent_items_base
+				LEFT JOIN reaction_like
+					ON reaction_like.thr_parent = parent_items_base.mid
+				LEFT JOIN reaction_dislike
+					ON reaction_dislike.thr_parent = parent_items_base.mid
+				LEFT JOIN reaction_announce
+					ON reaction_announce.thr_parent = parent_items_base.mid
+				LEFT JOIN reaction_accept
+					ON reaction_accept.thr_parent = parent_items_base.mid
+				LEFT JOIN reaction_reject
+					ON reaction_reject.thr_parent = parent_items_base.mid
+				LEFT JOIN reaction_tentativeaccept
+					ON reaction_tentativeaccept.thr_parent = parent_items_base.mid
+				LEFT JOIN reaction_comment
+					ON reaction_comment.thr_parent = parent_items_base.mid
+			),
+
+			all_comments AS (
+				SELECT item.*,
+					   ROW_NUMBER() OVER (PARTITION BY item.parent ORDER BY item.created DESC) AS rn
+				FROM item
+				WHERE item.id != item.parent
+					AND item.parent IN ($ids)
+					AND (
+						item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept')
+						OR (item.verb = 'Announce' AND item.item_thread_top = 1)
+					)
+					$thr_parent_sql
+					$item_normal_sql
+					$permission_sql
+			),
+
+			last_comments AS (
+				SELECT
+					all_comments.*,
+					$reaction_select_sql
+
+				FROM all_comments
+				LEFT JOIN reaction_like
+					ON reaction_like.thr_parent = all_comments.mid
+				LEFT JOIN reaction_dislike
+					ON reaction_dislike.thr_parent = all_comments.mid
+				LEFT JOIN reaction_announce
+					ON reaction_announce.thr_parent = all_comments.mid
+				LEFT JOIN reaction_accept
+					ON reaction_accept.thr_parent = all_comments.mid
+				LEFT JOIN reaction_reject
+					ON reaction_reject.thr_parent = all_comments.mid
+				LEFT JOIN reaction_tentativeaccept
+					ON reaction_tentativeaccept.thr_parent = all_comments.mid
+				LEFT JOIN reaction_comment
+					ON reaction_comment.thr_parent = all_comments.mid
+
+				WHERE all_comments.rn <= 100
 			)
-			SELECT * FROM parents
+			SELECT * FROM parent_items
 			UNION ALL
-			SELECT * FROM comments",
-			dbesc($ids),
-			dbesc($ids)
+			SELECT * FROM last_comments"
 		);
 	}
 
@@ -5521,155 +5589,78 @@ function items_by_parent_ids(string $ids, array $thr_parents = [], string $permi
 }
 
 /**
- * @brief returns an array of items by ids
+ * @brief prepare reaction sql for items_by_parent_ids()
  * ATTENTION: no permissions for the pa are checked here!!!
  * Permissions MUST be checked by the function which returns the ids.
- * @param int $id - a parent item id
- * @param array $thr_parents (optional) - a string with thr_parent mids separated by comma
- * which will be included
- * @param string $permission_sql (optional) - SQL provided by item_permission_sql() from the calling module
- * @param bool $blog_mode (optional) - if set to yes only the parent items will be returned
+ * @param string $ids
+ * @param string $permission_sql (optional) - SQL provided by item_permission_sql()
  */
 
-function items_by_parent_id(int $id, array $thr_parents = [], string $permission_sql = '', bool $blog_mode = false): array
+function item_reaction_sql(string $ids, string $permission_sql = ''): array
 {
-	if (!$id) {
-		return [];
-	}
+	$item_normal_sql = item_normal();
+	$observer = get_observer_hash();
 
-	$item_normal = item_normal();
-	$item_normal_c = item_normal(prefix: 'c');
-	$activity_sql = item_activity_sql('c');
-	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
+	$verbs = [
+		'like' => ['Like'],
+		'dislike' => ['Dislike'],
+		'announce' => ['Announce'],
+		'accept' => ['Accept'],
+		'reject' => ['Reject'],
+		'tentativeaccept' => ['TentativeAccept'],
+		'comment' => ['Create', 'Update']
+	];
 
-	$blog_mode_sql = (($blog_mode) ? 'item.id' : 'item.parent');
+	$cte = '';
+	$select = '';
 
-	$thr_parent_sql = (($thread_allow) ? " AND item.thr_parent = item.parent_mid " : '');
-	if ($thr_parents && $thread_allow) {
-		$thr_parent_str = stringify_array($thr_parents, true);
-		$thr_parent_sql = " AND item.thr_parent IN (" . protect_sprintf($thr_parent_str) . ") ";
-	}
+	foreach($verbs as $k => $v) {
 
-	$permission_sql_c = '';
-	if ($permission_sql) {
-		$permission_sql_c = str_replace('item.', 'c.', $permission_sql);
-	}
+		$observer_sql = "0 AS observer_{$k}_count";
+		if ($observer) {
+			$observer_sql = "COUNT(CASE WHEN item.author_xchan = '$observer' THEN 1 END) AS observer_{$k}_count";
+		}
 
-	$thread_limit_sql = '';
-	if (!$blog_mode && $thread_allow) {
-		// Get the last x replies but make sure the toplevel is included anyway
-		$thread_limit_sql = <<<SQL
-			ORDER BY
-				CASE WHEN item.id = item.parent THEN 0 ELSE 1 END,
-				item.created DESC
-			LIMIT 101
-		SQL;
-	}
+		$verbs_str = stringify_array($v);
 
-	$ret = q(
-		"SELECT item.*,
-			$activity_sql
-		FROM item
-		LEFT JOIN item c
-			ON c.parent = item.parent
-			AND c.item_thread_top = 0
-			AND c.thr_parent = item.mid
-			$item_normal_c
-			$permission_sql_c
-		WHERE $blog_mode_sql = %d
-			AND (
-				item.verb NOT IN ('Like', 'Dislike', 'Announce')
-				OR (item.verb = 'Announce' AND item.item_thread_top = 1)
+		if ($cte) {
+			$cte .= ",\n";
+		}
+
+		$cte .= <<<SQL
+			reaction_{$k} AS (
+				SELECT
+					item.thr_parent,
+					COUNT(*) AS {$k}_count,
+					$observer_sql
+				FROM item
+				WHERE item.verb IN ($verbs_str)
+					AND item.item_thread_top = 0
+					AND item.parent IN ($ids)
+					$item_normal_sql
+					$permission_sql
+				GROUP BY item.thr_parent
 			)
-			$thr_parent_sql
-			$item_normal
-			$permission_sql
-		GROUP BY item.id
-		$thread_limit_sql",
-		intval($id)
-	);
+		SQL;
+
+		if ($select) {
+			$select .= ",\n";
+		}
+
+		$select .= <<<SQL
+			COALESCE(reaction_{$k}.{$k}_count, 0) AS {$k}_count,
+			COALESCE(reaction_{$k}.observer_{$k}_count, 0) AS observer_{$k}_count
+		SQL;
+
+	}
+
+	$ret['cte'] = $cte;
+	$ret['select'] = $select;
 
 	return $ret;
 }
 
 
-
-/**
- * @brief returns SQL which counts activities for an item and
- * if there is an observer also count activities authored by observer.
- * @param string $prefix (optional)
- */
-
-function item_activity_sql_cte($prefix = 'item'): string
-{
-	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
-	$observer = get_observer_hash();
-	$sql = '';
-
-	if ($observer) {
-		$observer_verbs = [
-			'Like' => 'observer_liked',
-			'Dislike' => 'observer_disliked',
-			'Announce' => 'observer_announced',
-			'Accept' => 'observer_accepted',
-			'Reject' => 'observer_rejected',
-			'TentativeAccept' => 'observer_tentativelyaccepted'
-		];
-
-		foreach($observer_verbs as $k => $v) {
-			if ($sql) {
-				$sql .= ",\n";
-			}
-
-			$sql .= <<<SQL
-				(SELECT COUNT(*) FROM item AS reaction
-					WHERE reaction.parent = $prefix.parent AND reaction.verb = '$k' AND reaction.author_xchan = '$observer' AND reaction.item_thread_top = 0 AND reaction.thr_parent = $prefix.mid
-				) AS $v
-			SQL;
-		}
-
-		if ($thread_allow) {
-			$sql .= ",\n";
-			$sql .= <<<SQL
-				(SELECT COUNT(*) FROM item AS reaction
-					WHERE reaction.parent = $prefix.parent AND reaction.verb IN ('Create', 'Update') AND reaction.author_xchan = '$observer' AND reaction.item_thread_top = 0 AND reaction.thr_parent = $prefix.mid
-				) AS observer_commented
-			SQL;
-		}
-	}
-
-	$verbs = [
-		'Like' => 'like_count',
-		'Dislike' => 'dislike_count',
-		'Announce' => 'announce_count',
-		'Accept' => 'attendyes_count',
-		'Reject' => 'attendno_count',
-		'TentativeAccept' => 'attendmaybe_count'
-	];
-
-	foreach($verbs as $k => $v) {
-		if ($sql) {
-			$sql .= ",\n";
-		}
-
-		$sql .= <<<SQL
-			(SELECT COUNT(*) FROM item AS reaction
-				WHERE reaction.parent = $prefix.parent AND reaction.verb = '$k' AND reaction.item_thread_top = 0 AND reaction.thr_parent = $prefix.mid
-			) AS $v
-		SQL;
-	}
-
-	if ($thread_allow) {
-		$sql .= ",\n";
-		$sql .= <<<SQL
-			(SELECT COUNT(*) FROM item AS reaction
-				WHERE reaction.parent = $prefix.parent AND reaction.verb IN ('Create', 'Update') AND reaction.item_thread_top = 0 AND reaction.thr_parent = $prefix.mid
-			) AS comment_count
-		SQL;
-	}
-
-	return $sql;
-}
 
 /**
  * @brief returns an array of items by thr_parent mid of a parent
@@ -5678,6 +5669,7 @@ function item_activity_sql_cte($prefix = 'item'): string
  * @param int $parent
  */
 
+// TODO: streamline logic with items_by_parent_ids() -
 function items_by_thr_parent(string $mid, int $parent): array
 {
 	if (!$mid && !$parent) {

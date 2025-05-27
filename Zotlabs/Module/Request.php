@@ -12,9 +12,9 @@ class Request extends Controller
 			'like'        => 'Like',
 			'dislike'     => 'Dislike',
 			'announce'    => 'Announce',
-			'attendyes'   => 'Accept',
-			'attendno'    => 'Reject',
-			'attendmaybe' => 'TentativeAccept'
+			'accept'   => 'Accept',
+			'reject'    => 'Reject',
+			'tentativeaccept' => 'TentativeAccept'
 		];
 
 		if (array_key_exists($verb, $verbs)) {

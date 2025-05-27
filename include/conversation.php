@@ -1448,14 +1448,14 @@ function get_response_button_text($v, $count = 0) {
 		case 'comment':
 			return ['label' => tt('Reply','Replies',$count,'noun'), 'icon' => 'chat', 'class' => 'comment', 'action' => ''];
 			break;
-		case 'attendyes':
-			return ['label' => tt('Attending','Attending',$count,'noun'), 'icon' => 'calendar-check', 'class' => 'attendyes', 'action' => 'dolike'];
+		case 'accept':
+			return ['label' => tt('Attending','Attending',$count,'noun'), 'icon' => 'calendar-check', 'class' => 'accept', 'action' => 'dolike'];
 			break;
-		case 'attendno':
-			return ['label' => tt('Not attending','Not attending',$count,'noun'), 'icon' => 'calendar-x', 'class' => 'attendno', 'action' => 'dolike'];
+		case 'reject':
+			return ['label' => tt('Not attending','Not attending',$count,'noun'), 'icon' => 'calendar-x', 'class' => 'reject', 'action' => 'dolike'];
 			break;
-		case 'attendmaybe':
-			return ['label' => tt('Undecided','Undecided',$count,'noun'), 'icon' => 'calendar', 'class' => 'attendmaybe', 'action' => 'dolike'];
+		case 'tentativeaccept':
+			return ['label' => tt('Undecided','Undecided',$count,'noun'), 'icon' => 'calendar', 'class' => 'tentativeaccept', 'action' => 'dolike'];
 			break;
 		default:
 			return [];
