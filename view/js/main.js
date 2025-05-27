@@ -1293,12 +1293,6 @@ function justifyPhotosAjax(id) {
 }
 
 function request(id, mid, verb, parent, uuid) {
-
-	if (!id) {
-		console.log('load_more');
-		return;
-	}
-
 	const loading = document.getElementById('like-rotator-' + id);
 	loading.style.display = 'block';
 

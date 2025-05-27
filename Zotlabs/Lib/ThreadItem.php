@@ -354,12 +354,9 @@ class ThreadItem {
 		$load_more = '';
 		$load_more_title = '';
 		if ($toplevel_comments_total > $total_children) {
-			if (is_site_admin()) {
-				// provide a load more comments button
-				$load_more = t('Load more');
-				$load_more_title = sprintf(t('Load more of %d replies'), $toplevel_comments_total);
-
-			}
+			// provide a load more comments button
+			$load_more = t('Load more');
+			$load_more_title = sprintf(t('Load more of %d replies'), $toplevel_comments_total);
 		}
 
 		$tmp_item = array(

@@ -207,9 +207,6 @@
 								<div class="dropdown-divider"></div>
 								<a class="dropdown-item" href="dreport/{{$item.dreport_link}}">{{$item.dreport}}</a>
 								{{/if}}
-								{{if $item.load_more}}
-								<a class="dropdown-item conversation-load-more" title="{{$item.load_more_title}}" href="#" onclick="request(''); return false;">{{$item.load_more}}</a>
-								{{/if}}
 								{{if $item.settings}}
 								<div class="dropdown-divider"></div>
 								<a class="dropdown-item conversation-settings-link" href="#" data-bs-toggle="modal" data-bs-target="#conversation_settings">{{$item.settings}}</a>
