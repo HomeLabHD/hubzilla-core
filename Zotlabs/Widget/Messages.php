@@ -86,8 +86,6 @@ class Messages {
 		$entries = [];
 		$limit = 30;
 		$order_sql = 'i.created DESC';
-		$dummy_order_sql = '';
-		$filter_sql = '';
 		$loadtime = (($offset) ? $_SESSION['messages_loadtime'] : datetime_convert());
 		$vnotify = get_pconfig(local_channel(), 'system', 'vnotify', -1);
 
@@ -103,13 +101,17 @@ class Messages {
 			$vnotify_sql_i = " AND i.verb NOT IN ('Dislike', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 		}
 
+		$filter_sql = '';
 		if($type !== 'filed' && $author) {
 			$filter_sql = " AND (i.owner_xchan = '" . protect_sprintf(dbesc($author)) . "') ";
 		}
 
+		$filed_filter_sql = '';
 		if($type === 'filed' && $file) {
 			$filed_filter_sql = " AND (term.term = '" . protect_sprintf(dbesc($file)) . "') ";
 		}
+
+		$dummy_order_sql = '';
 
 		switch($type) {
 			case 'direct':
