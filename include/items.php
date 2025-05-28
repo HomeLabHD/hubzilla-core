@@ -5361,85 +5361,41 @@ function set_activity_mid($string) {
 }
 
 /**
- * @brief returns SQL which counts activities for an item and
- * if there is an observer also count activities authored by observer.
- * @param string $prefix (optional)
- */
-
-function item_activity_sql($prefix = 'c') {
-	$sql = '';
-	$observer = get_observer_hash();
-
-	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
-
-	if ($observer) {
-		$sql = <<<SQL
-			COUNT(CASE WHEN $prefix.verb = 'Like' AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_like_count,
-			COUNT(CASE WHEN $prefix.verb = 'Dislike' AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_dislike_count,
-			COUNT(CASE WHEN $prefix.verb = 'Announce' AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_announce_count,
-			COUNT(CASE WHEN $prefix.verb = 'Accept' AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_accept_count,
-			COUNT(CASE WHEN $prefix.verb = 'Reject' AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_reject_count,
-			COUNT(CASE WHEN $prefix.verb = 'TentativeAccept' AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_tentativeaccept_count,
-		SQL;
-
-		if ($thread_allow) {
-			$sql .= " COUNT(CASE WHEN $prefix.verb IN ('Create','Update') AND $prefix.author_xchan = '$observer' THEN 1 END) AS observer_comment_count, ";
-		}
-	}
-
-
-	if ($thread_allow) {
-		$sql .= "COUNT(CASE WHEN $prefix.verb IN ('Create','Update') THEN 1 END) AS comment_count,";
-	}
-
-	$sql .= <<<SQL
-		COUNT(CASE WHEN $prefix.verb = 'Like' THEN 1 END) AS like_count,
-		COUNT(CASE WHEN $prefix.verb = 'Dislike' THEN 1 END) AS dislike_count,
-		COUNT(CASE WHEN $prefix.verb = 'Announce' THEN 1 END) AS announce_count,
-		COUNT(CASE WHEN $prefix.verb = 'Accept' THEN 1 END) AS accept_count,
-		COUNT(CASE WHEN $prefix.verb = 'Reject' THEN 1 END) AS reject_count,
-		COUNT(CASE WHEN $prefix.verb = 'TentativeAccept' THEN 1 END) AS tentativeaccept_count
-	SQL;
-
-	return $sql;
-
-}
-
-/**
  * @brief returns an item by id belonging to local_channel()
  * including activity counts.
  * @param int $id
  */
 
-// TODO: streamline reactions logic with items_by_parent_ids()
-
-function item_by_item_id(int $id): array
+function item_by_item_id(int $id, int $parent): array
 {
-	if (!$id) {
+	if (!$id && !local_channel()) {
 		return [];
 	}
 
-	$item_normal = item_normal();
-	$item_normal_c = item_normal(prefix: 'c');
-	$activity_sql = item_activity_sql('c');
+	$item_normal_sql = item_normal();
 
-	$ret = q("SELECT item.*,
-			$activity_sql
+	$reaction = item_reaction_sql($parent);
+	$reaction_cte_sql = $reaction['cte'];
+	$reaction_select_sql = $reaction['select'];
+	$reaction_join_sql = $reaction['join'];
+
+	return q("WITH
+		$reaction_cte_sql
+		SELECT
+			*,
+			$reaction_select_sql
 		FROM item
-		LEFT JOIN item c
-			ON c.parent = item.parent
-			AND c.item_thread_top = 0
-			AND c.thr_parent = item.mid
-			$item_normal_c
-		WHERE item.id = $id
+		$reaction_join_sql
+		WHERE
+			item.id = %d
 			AND item.uid = %d
-			$item_normal
-		GROUP BY item.id",
+			AND item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept')
+			$item_normal_sql",
+		intval($id),
 		intval(local_channel())
 	);
-
-	return $ret;
 }
+
 
 /**
  * @brief returns an array of items by ids
@@ -5467,127 +5423,89 @@ function items_by_parent_ids(array $parents, array $thr_parents = [], string $pe
 		$thr_parent_sql = " AND item.thr_parent IN (" . protect_sprintf($thr_parent_str) . ") ";
 	}
 
-	$reaction = item_reaction_sql($ids, $permission_sql);
+	$reaction = item_reaction_sql($ids, $permission_sql, 'final_selection');
 	$reaction_cte_sql = $reaction['cte'];
 	$reaction_select_sql = $reaction['select'];
+	$reaction_join_sql = $reaction['join'];
 
 	if ($blog_mode) {
-		$ret = dbq("WITH
-			parent_items_base AS (
-				SELECT item.*
-				FROM item
-				WHERE item.id IN ($ids)
-					$item_normal_sql
+		$q = <<<SQL
+			WITH
+			final_selection AS (
+				SELECT
+					item.*
+				FROM
+					item
+				WHERE
+					item.id IN ($ids)
 					$permission_sql
+					$item_normal_sql
 			),
 
-			$reaction_cte_sql,
+			$reaction_cte_sql
 
-			parent_items AS (
-				SELECT
-					parent_items_base.*,
-					$reaction_select_sql
+			SELECT
+				final_selection.*,
+				$reaction_select_sql
+			FROM final_selection
+			$reaction_join_sql
+		SQL;
 
-				FROM parent_items_base
-				LEFT JOIN reaction_like
-					ON reaction_like.thr_parent = parent_items_base.mid
-				LEFT JOIN reaction_dislike
-					ON reaction_dislike.thr_parent = parent_items_base.mid
-				LEFT JOIN reaction_announce
-					ON reaction_announce.thr_parent = parent_items_base.mid
-				LEFT JOIN reaction_accept
-					ON reaction_accept.thr_parent = parent_items_base.mid
-				LEFT JOIN reaction_reject
-					ON reaction_reject.thr_parent = parent_items_base.mid
-				LEFT JOIN reaction_tentativeaccept
-					ON reaction_tentativeaccept.thr_parent = parent_items_base.mid
-				LEFT JOIN reaction_comment
-					ON reaction_comment.thr_parent = parent_items_base.mid
-			)
-
-			SELECT * FROM parent_items"
-		);
+		return dbq(trim($q));
 	}
-	else {
-		$ret = dbq("WITH
-			parent_items_base AS (
-				SELECT item.*
-				FROM item
-				WHERE item.id IN ($ids)
-					$item_normal_sql
-					$permission_sql
-			),
 
-			$reaction_cte_sql,
+	$q = <<<SQL
+		WITH
+		parent_items AS (
+			SELECT
+				item.*,
+				0 AS rn
+			FROM item
+			WHERE item.id IN ($ids)
+				$permission_sql
+				$item_normal_sql
+		),
 
-			parent_items AS (
-				SELECT
-					parent_items_base.*,
-					0 AS rn,
-					$reaction_select_sql
+		$reaction_cte_sql,
 
-				FROM parent_items_base
-				LEFT JOIN reaction_like
-					ON reaction_like.thr_parent = parent_items_base.mid
-				LEFT JOIN reaction_dislike
-					ON reaction_dislike.thr_parent = parent_items_base.mid
-				LEFT JOIN reaction_announce
-					ON reaction_announce.thr_parent = parent_items_base.mid
-				LEFT JOIN reaction_accept
-					ON reaction_accept.thr_parent = parent_items_base.mid
-				LEFT JOIN reaction_reject
-					ON reaction_reject.thr_parent = parent_items_base.mid
-				LEFT JOIN reaction_tentativeaccept
-					ON reaction_tentativeaccept.thr_parent = parent_items_base.mid
-				LEFT JOIN reaction_comment
-					ON reaction_comment.thr_parent = parent_items_base.mid
-			),
+		all_comments AS (
+			SELECT item.*,
+				   ROW_NUMBER() OVER (PARTITION BY item.parent ORDER BY item.created DESC) AS rn
+			FROM item
+			WHERE item.id != item.parent
+				AND item.parent IN ($ids)
+				AND (
+					item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept')
+					OR (item.verb = 'Announce' AND item.item_thread_top = 1)
+				)
+				$thr_parent_sql
+				$item_normal_sql
+				$permission_sql
+		),
 
-			all_comments AS (
-				SELECT item.*,
-					   ROW_NUMBER() OVER (PARTITION BY item.parent ORDER BY item.created DESC) AS rn
-				FROM item
-				WHERE item.id != item.parent
-					AND item.parent IN ($ids)
-					AND (
-						item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept')
-						OR (item.verb = 'Announce' AND item.item_thread_top = 1)
-					)
-					$thr_parent_sql
-					$item_normal_sql
-					$permission_sql
-			),
+		last_comments AS (
+			SELECT
+				all_comments.*
+			FROM
+				all_comments
+			WHERE all_comments.rn <= 100
+		),
 
-			last_comments AS (
-				SELECT
-					all_comments.*,
-					$reaction_select_sql
-
-				FROM all_comments
-				LEFT JOIN reaction_like
-					ON reaction_like.thr_parent = all_comments.mid
-				LEFT JOIN reaction_dislike
-					ON reaction_dislike.thr_parent = all_comments.mid
-				LEFT JOIN reaction_announce
-					ON reaction_announce.thr_parent = all_comments.mid
-				LEFT JOIN reaction_accept
-					ON reaction_accept.thr_parent = all_comments.mid
-				LEFT JOIN reaction_reject
-					ON reaction_reject.thr_parent = all_comments.mid
-				LEFT JOIN reaction_tentativeaccept
-					ON reaction_tentativeaccept.thr_parent = all_comments.mid
-				LEFT JOIN reaction_comment
-					ON reaction_comment.thr_parent = all_comments.mid
-
-				WHERE all_comments.rn <= 100
-			)
+		final_selection AS (
 			SELECT * FROM parent_items
 			UNION ALL
-			SELECT * FROM last_comments"
-		);
-	}
+			SELECT * FROM last_comments
+		)
 
-	return $ret;
+		SELECT
+			final_selection.*,
+			$reaction_select_sql
+		FROM final_selection
+		$reaction_join_sql
+	SQL;
+
+	return dbq(trim($q));
+
 }
 
 /**
@@ -5598,7 +5516,7 @@ function items_by_parent_ids(array $parents, array $thr_parents = [], string $pe
  * @param string $permission_sql (optional) - SQL provided by item_permission_sql()
  */
 
-function item_reaction_sql(string $ids, string $permission_sql = ''): array
+function item_reaction_sql(string $ids, string $permission_sql = '', string $join_prefix = 'item'): array
 {
 	$item_normal_sql = item_normal();
 	$observer = get_observer_hash();
@@ -5615,6 +5533,7 @@ function item_reaction_sql(string $ids, string $permission_sql = ''): array
 
 	$cte = '';
 	$select = '';
+	$join = '';
 
 	foreach($verbs as $k => $v) {
 
@@ -5654,10 +5573,15 @@ function item_reaction_sql(string $ids, string $permission_sql = ''): array
 			COALESCE(reaction_{$k}.observer_{$k}_count, 0) AS observer_{$k}_count
 		SQL;
 
+		$join .= <<<SQL
+			LEFT JOIN reaction_{$k}	ON reaction_{$k}.thr_parent = $join_prefix.mid
+		SQL;
+
 	}
 
 	$ret['cte'] = $cte;
 	$ret['select'] = $select;
+	$ret['join'] = $join;
 
 	return $ret;
 }
@@ -5671,7 +5595,6 @@ function item_reaction_sql(string $ids, string $permission_sql = ''): array
  * @param int $parent
  */
 
-// TODO: streamline reactions logic with items_by_parent_ids()
 function items_by_thr_parent(string $mid, int $parent): array
 {
 	if (!$mid && !$parent) {
@@ -5683,53 +5606,49 @@ function items_by_thr_parent(string $mid, int $parent): array
 	);
 
 	$owner_uid = intval($parent_item[0]['uid']);
+	$item_normal_sql = item_normal($owner_uid);
 
-	$item_normal = item_normal($owner_uid);
-	$item_normal_c = item_normal($owner_uid, 'c');
-	$activity_sql = item_activity_sql('c');
+	$reaction = item_reaction_sql($parent);
+	$reaction_cte_sql = $reaction['cte'];
+	$reaction_select_sql = $reaction['select'];
+	$reaction_join_sql = $reaction['join'];
 
 	if (local_channel() === $owner_uid) {
-		$ret = q(
-			"SELECT item.*,
-				$activity_sql
+		$ret = q("WITH
+			$reaction_cte_sql
+			SELECT
+				item.*,
+				$reaction_select_sql
 			FROM item
-			LEFT JOIN item c ON c.parent = item.parent
-				AND c.item_thread_top = 0
-				AND c.thr_parent = item.mid
-				$item_normal_c
-			WHERE item.thr_parent = '%s'
+			$reaction_join_sql
+			WHERE
+				item.thr_parent = '%s'
 				AND item.uid = %d
-				AND item.parent = %d
 				AND item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept')
 				AND item.item_thread_top = 0
-				$item_normal
-			GROUP BY item.id
-			ORDER BY item.created",
+				$item_normal_sql",
 			dbesc($mid),
-			intval(local_channel()),
-			intval($parent)
+			intval($owner_uid)
 		);
 	}
 	else {
 		$observer_hash = get_observer_hash();
 		$sql_extra = item_permissions_sql($owner_uid, $observer_hash);
 
-		$ret = q(
-			"SELECT item.*,
-				$activity_sql
+		$ret = q("WITH
+			$reaction_cte_sql
+			SELECT
+				item.*,
+				$reaction_select_sql
 			FROM item
-			LEFT JOIN item c ON c.parent = item.parent
-				AND c.item_thread_top = 0
-				AND c.thr_parent = item.mid
-				$item_normal_c
-			WHERE item.thr_parent = '%s'
+			$reaction_join_sql
+			WHERE
+				item.thr_parent = '%s'
 				AND item.uid = %d
 				AND item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept')
 				AND item.item_thread_top = 0
 				$sql_extra
-				$item_normal
-			GROUP BY item.id
-			ORDER BY item.created",
+				$item_normal_sql",
 			dbesc($mid),
 			intval($owner_uid)
 		);
@@ -5737,6 +5656,7 @@ function items_by_thr_parent(string $mid, int $parent): array
 
 	return $ret;
 }
+
 
 /**
  * @brief returns an array of xchan entries (partly) for activities of an item by mid of a parent.

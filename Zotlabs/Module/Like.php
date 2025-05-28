@@ -67,7 +67,7 @@ class Like extends Controller {
 			$items = conv_sort($items, 'commented');
 		}
 		else {
-			$item = item_by_item_id($arr['item']['id']);
+			$item = item_by_item_id($arr['item']['id'], $arr['item']['parent']);
 			xchan_query($item, true);
 			$item = fetch_post_tags($item, true);
 		}

@@ -76,7 +76,7 @@ function guess_image_type($filename, $data = []) {
 	logger('filename: ' . print_r($filename, true), LOGGER_DEBUG);
 
 	// Try Fileinfo from raw data
-	if (!empty($data['body'])) {
+	if (class_exists('finfo') && !empty($data['body'])) {
 		$finfo = new finfo(FILEINFO_MIME_TYPE);
 		$mime = $finfo->buffer($data['body']);
 		if ($mime && array_key_exists($mime, $types)) {
