@@ -5696,8 +5696,7 @@ function item_activity_xchans(string $mid, int $parent, string $verb): array
 			dbesc($verb)
 		);
 	}
-
-	if (!$ret) {
+	else {
 		$sql_extra = item_permissions_sql($owner_uid, $observer_hash);
 
 		$ret = q("SELECT item.id, item.item_blocked, xchan.xchan_hash, xchan.xchan_name as name, xchan.xchan_url as url, xchan.xchan_photo_s as photo FROM item
