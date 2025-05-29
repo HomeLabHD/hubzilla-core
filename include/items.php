@@ -5464,10 +5464,6 @@ function items_by_parent_ids(array $parents, null|array $thr_parents = null, str
 				0 AS rn
 			FROM item
 			WHERE item.id IN ($ids)
-				AND (
-					item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'Add', 'Remove')
-					OR (item.verb = 'Announce' AND item.item_thread_top = 1)
-				)
 				$permission_sql
 				$item_normal_sql
 		),
