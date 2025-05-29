@@ -356,7 +356,7 @@ class ThreadItem {
 		if ($conv->comments_total > 3) {
 			// provide a load more comments button
 			$load_more = true;
-			$load_more_title = sprintf(t('Load the next batch of total %d replies'), $conv->comments_total);
+			$load_more_title = sprintf(t('Load the next few of total %d replies'), $conv->comments_total);
 			$comments_total_percent = round(100 * 3 / $conv->comments_total);
 		}
 
