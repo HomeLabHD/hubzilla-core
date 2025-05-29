@@ -5522,9 +5522,14 @@ function item_reaction_sql(string $ids, string $permission_sql = '', string $joi
 		'announce' => ['Announce'],
 		'accept' => ['Accept'],
 		'reject' => ['Reject'],
-		'tentativeaccept' => ['TentativeAccept'],
-		'comment' => ['Create', 'Update']
+		'tentativeaccept' => ['TentativeAccept']
 	];
+
+	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
+
+	if ($thread_allow) {
+		$verbs['comment'] = ['Create', 'Update'];
+	}
 
 	$cte = '';
 	$select = '';
