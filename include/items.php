@@ -5481,8 +5481,8 @@ function items_by_parent_ids(array $parents, null|array $thr_parents = null, str
 					OR (item.verb = 'Announce' AND item.item_thread_top = 1)
 				)
 				$thr_parent_sql
-				$item_normal_sql
 				$permission_sql
+				$item_normal_sql
 		),
 
 		last_comments AS (
@@ -5615,12 +5615,12 @@ function items_by_thr_parent(string $mid, int $parent, int|null $offset = null):
 	$owner_uid = intval($parent_item[0]['uid']);
 	$item_normal_sql = item_normal($owner_uid);
 
-	$reaction = item_reaction_sql($parent);
-	$reaction_cte_sql = $reaction['cte'];
-	$reaction_select_sql = $reaction['select'];
-	$reaction_join_sql = $reaction['join'];
-
 	if (local_channel() === $owner_uid) {
+		$reaction = item_reaction_sql($parent);
+		$reaction_cte_sql = $reaction['cte'];
+		$reaction_select_sql = $reaction['select'];
+		$reaction_join_sql = $reaction['join'];
+
 		$ret = q("WITH
 			$reaction_cte_sql
 			SELECT
@@ -5641,7 +5641,12 @@ function items_by_thr_parent(string $mid, int $parent, int|null $offset = null):
 	}
 	else {
 		$observer_hash = get_observer_hash();
-		$sql_extra = item_permissions_sql($owner_uid, $observer_hash);
+		$permission_sql = item_permissions_sql($owner_uid, $observer_hash);
+
+		$reaction = item_reaction_sql($parent, $permission_sql);
+		$reaction_cte_sql = $reaction['cte'];
+		$reaction_select_sql = $reaction['select'];
+		$reaction_join_sql = $reaction['join'];
 
 		$ret = q("WITH
 			$reaction_cte_sql
@@ -5655,7 +5660,7 @@ function items_by_thr_parent(string $mid, int $parent, int|null $offset = null):
 				AND item.uid = %d
 				AND item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept')
 				AND item.item_thread_top = 0
-				$sql_extra
+				$permission_sql
 				$item_normal_sql
 			$order_sql",
 			dbesc($mid),
