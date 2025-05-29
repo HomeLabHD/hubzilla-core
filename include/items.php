@@ -5361,14 +5361,15 @@ function set_activity_mid($string) {
 }
 
 /**
- * @brief returns an item by id belonging to local_channel()
+ * @brief returns an item by id and parent belonging to local_channel()
  * including activity counts.
  * @param int $id
+ * @param int $parent
  */
 
 function item_by_item_id(int $id, int $parent): array
 {
-	if (!$id && !local_channel()) {
+	if (!$id && !$parent && !local_channel()) {
 		return [];
 	}
 
@@ -5399,11 +5400,11 @@ function item_by_item_id(int $id, int $parent): array
 
 /**
  * @brief returns an array of items by ids
- * ATTENTION: no permissions for the pa are checked here!!!
- * Permissions MUST be checked by the function which returns the ids.
- * @param array $ids
- * @param array $thr_parents (optional) - thr_parent mids which will be included
- * @param string $permission_sql (optional) - SQL provided by item_permission_sql() from the calling module
+ * ATTENTION: no permissions for the parents are checked here!!!
+ * Permissions MUST be checked by the module which calls this function.
+ * @param array $parents
+ * @param null|array $thr_parents (optional) - thr_parent mids which will be included
+ * @param string $permission_sql (optional) - SQL as provided by item_permission_sql() from the calling module
  * @param bool $blog_mode (optional) - if set to yes only the parent items will be returned
  */
 
@@ -5440,8 +5441,6 @@ function items_by_parent_ids(array $parents, null|array $thr_parents = null, str
 					item
 				WHERE
 					item.id IN ($ids)
-					$permission_sql
-					$item_normal_sql
 			),
 
 			$reaction_cte_sql
@@ -5463,9 +5462,8 @@ function items_by_parent_ids(array $parents, null|array $thr_parents = null, str
 				item.*,
 				0 AS rn
 			FROM item
-			WHERE item.id IN ($ids)
-				$permission_sql
-				$item_normal_sql
+			WHERE
+				item.id IN ($ids)
 		),
 
 		$reaction_cte_sql,
@@ -5505,6 +5503,7 @@ function items_by_parent_ids(array $parents, null|array $thr_parents = null, str
  * Permissions MUST be checked by the function which returns the ids.
  * @param string $ids
  * @param string $permission_sql (optional) - SQL provided by item_permission_sql()
+ * @param string $join_prefix (optional) - prefix for the join part defaults to 'item'
  */
 
 function item_reaction_sql(string $ids, string $permission_sql = '', string $join_prefix = 'item'): array
@@ -5589,6 +5588,7 @@ function item_reaction_sql(string $ids, string $permission_sql = '', string $joi
 
  * @param string $mid
  * @param int $parent
+ * @param int|null $offset
  */
 
 function items_by_thr_parent(string $mid, int $parent, int|null $offset = null): array
