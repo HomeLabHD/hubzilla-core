@@ -5416,7 +5416,7 @@ function items_by_parent_ids(array $parents, null|array $thr_parents = null, str
 	$ids = ids_to_querystr($parents, 'item_id');
 	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
 	$item_normal_sql = item_normal();
-	$limit = 3;
+	$limit = $thread_allow ? 3 : 1000;
 
 	$thr_parent_sql = (($thread_allow) ? " AND item.thr_parent = item.parent_mid " : '');
 	if ($thr_parents && $thread_allow) {

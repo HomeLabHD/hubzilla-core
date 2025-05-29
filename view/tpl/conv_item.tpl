@@ -219,7 +219,7 @@
 			</div>
 		</div>
 		{{if $item.thread_level == 1}}
-		{{if $item.toplevel && $item.load_more && !$item.blog_mode}}
+		{{if $item.toplevel && $item.load_more && $item.threaded && !$item.blog_mode}}
 		<div id="load-more-progress-wrapper-{{$item.id}}" class="progress " role="progressbar" aria-valuenow="{{$item.comments_total_percent}}" aria-valuemin="0" aria-valuemax="100" style="height: 1px">
 			<div id="load-more-progress-{{$item.id}}" class="progress-bar bg-info" style="width: {{$item.comments_total_percent}}%; margin-left: auto; margin-right: auto;" data-comments-total="{{$item.comments_total}}"></div>
 		</div>
