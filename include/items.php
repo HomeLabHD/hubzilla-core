@@ -5500,7 +5500,7 @@ function items_by_parent_ids(array $parents, null|array $thr_parents = null, str
 		$reaction_join_sql
 	SQL;
 
-	return = dbq(trim($q));
+	return dbq(trim($q));
 }
 
 /**
