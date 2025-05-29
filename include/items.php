@@ -5464,6 +5464,10 @@ function items_by_parent_ids(array $parents, null|array $thr_parents = null, str
 				0 AS rn
 			FROM item
 			WHERE item.id IN ($ids)
+				AND (
+					item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'Add', 'Remove')
+					OR (item.verb = 'Announce' AND item.item_thread_top = 1)
+				)
 				$permission_sql
 				$item_normal_sql
 		),
@@ -5471,32 +5475,22 @@ function items_by_parent_ids(array $parents, null|array $thr_parents = null, str
 		$reaction_cte_sql,
 
 		all_comments AS (
-			SELECT item.*,
-				   ROW_NUMBER() OVER (PARTITION BY item.parent ORDER BY item.created DESC) AS rn
+			SELECT
+				item.*,
+				ROW_NUMBER() OVER (PARTITION BY item.parent ORDER BY item.created DESC) AS rn
 			FROM item
-			WHERE item.id != item.parent
-				AND item.parent IN ($ids)
-				AND (
-					item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept')
-					OR (item.verb = 'Announce' AND item.item_thread_top = 1)
-				)
+			WHERE item.parent IN ($ids)
+				AND item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'Add', 'Remove')
+				AND item.item_thread_top = 0
 				$thr_parent_sql
 				$permission_sql
 				$item_normal_sql
 		),
 
-		last_comments AS (
-			SELECT
-				all_comments.*
-			FROM
-				all_comments
-			WHERE all_comments.rn <= $limit
-		),
-
 		final_selection AS (
 			SELECT * FROM parent_items
 			UNION ALL
-			SELECT * FROM last_comments
+			SELECT * FROM all_comments WHERE all_comments.rn <= $limit
 		)
 
 		SELECT
@@ -5506,8 +5500,7 @@ function items_by_parent_ids(array $parents, null|array $thr_parents = null, str
 		$reaction_join_sql
 	SQL;
 
-	return dbq(trim($q));
-
+	return = dbq(trim($q));
 }
 
 /**
@@ -5631,7 +5624,7 @@ function items_by_thr_parent(string $mid, int $parent, int|null $offset = null):
 			WHERE
 				item.thr_parent = '%s'
 				AND item.uid = %d
-				AND item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept')
+				AND item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'Add', 'Remove')
 				AND item.item_thread_top = 0
 				$item_normal_sql
 			$order_sql",
@@ -5658,7 +5651,7 @@ function items_by_thr_parent(string $mid, int $parent, int|null $offset = null):
 			WHERE
 				item.thr_parent = '%s'
 				AND item.uid = %d
-				AND item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept')
+				AND item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'Add', 'Remove')
 				AND item.item_thread_top = 0
 				$permission_sql
 				$item_normal_sql
