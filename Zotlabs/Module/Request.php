@@ -29,9 +29,15 @@ class Request extends Controller
 	{
 		$mid = $_GET['mid'];
 		$parent = intval($_GET['parent']);
+
+		$offset = null;
+		if ($_GET['verb'] === 'load') {
+			$offset = intval($_GET['offset']);
+		}
+
 		$module = strip_tags($_GET['module']);
 
-		$items = items_by_thr_parent($mid, $parent);
+		$items = items_by_thr_parent($mid, $parent, $offset);
 		xchan_query($items);
 
 		$items = fetch_post_tags($items,true);
@@ -44,7 +50,7 @@ class Request extends Controller
 	public function get() : string
 	{
 
-		if ($_GET['verb'] === 'comment') {
+		if (in_array($_GET['verb'], ['comment', 'load'])) {
 			return self::processSubthreadRequest();
 		}
 

@@ -230,9 +230,8 @@ class ThreadItem {
 
 		$this->check_wall_to_wall();
 
-		$toplevel_comments_total = 0;
 		if($this->is_toplevel()) {
-			$toplevel_comments_total = $responses['comment']['count'] ?? 0;
+			$conv->comments_total = $responses['comment']['count'] ?? 0;
 
 			if((local_channel() && $conv->get_profile_owner() === local_channel()) || (local_channel() && App::$module === 'pubstream')) {
 				$star = [
@@ -351,12 +350,14 @@ class ThreadItem {
 			$contact = App::$contacts[$item['author_xchan']];
 		}
 
-		$load_more = '';
+		$load_more = false;
 		$load_more_title = '';
-		if ($toplevel_comments_total > $total_children) {
+		$comments_total_percent = 0;
+		if ($conv->comments_total > 3) {
 			// provide a load more comments button
-			$load_more = t('Load more');
-			$load_more_title = sprintf(t('Load more of %d replies'), $toplevel_comments_total);
+			$load_more = true;
+			$load_more_title = sprintf(t('Load the next batch of total %d replies'), $conv->comments_total);
+			$comments_total_percent = round(100 * 3 / $conv->comments_total);
 		}
 
 		$tmp_item = array(
@@ -433,6 +434,7 @@ class ThreadItem {
 			'share'     => $share,
 			'embed'     => $embed,
 			'rawmid'	=> $item['mid'],
+			'parent_mid' => $item['parent_mid'],
 			'plink'     => get_plink($item),
 			'edpost'    => $edpost,
 			'star'      => ((feature_enabled($conv->get_profile_owner(),'star_posts') && ($item['item_type'] == ITEM_TYPE_POST)) ? $star : ''),
@@ -486,6 +488,8 @@ class ThreadItem {
 			'expand_comments' =>  $this->threaded ? t('show more') : t('show all'),
 			'load_more' => $load_more,
 			'load_more_title' => $load_more_title,
+			'comments_total' => $conv->comments_total,
+			'comments_total_percent' => $comments_total_percent
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);
@@ -496,7 +500,7 @@ class ThreadItem {
 		$result['children'] = array();
 		$nb_children = count($children);
 
-		$visible_comments = Config::Get('system', 'expanded_comments', 3);
+		$visible_comments = 3; // Config::Get('system', 'expanded_comments', 3);
 
 		if(($this->get_display_mode() === 'normal') && ($nb_children > 0)) {
 			foreach($children as $child) {

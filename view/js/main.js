@@ -1293,6 +1293,53 @@ function justifyPhotosAjax(id) {
 }
 
 function request(id, mid, verb, parent, uuid) {
+
+	if (verb === 'load') {
+		const dots = document.getElementById('load-more-dots-' + parent);
+		dots.classList.add('jumping-dots');
+
+		const parent_sub = document.getElementById('wall-item-sub-thread-wrapper-' + parent);
+		const offset = parent_sub.children.length;
+
+		fetch('/request?offset=' + offset + '&verb=' + verb + '&mid=' + mid + '&parent=' + parent + '&module=' + module)
+		.then(response => response.json())
+		.then(obj => {
+			let parser = new DOMParser();
+			let doc = parser.parseFromString(obj.html, 'text/html');
+			let b64mids = [];
+
+			doc.querySelectorAll('.thread-wrapper').forEach(function (e) {
+				let data = JSON.parse(e.dataset.b64mids);
+				b64mids.push(...data);
+			});
+
+			imagesLoaded(doc.querySelectorAll('.wall-item-body img'), function () {
+				injectWithAnimation('wall-item-sub-thread-wrapper-' + parent, doc);
+				dots.classList.remove('jumping-dots');
+
+				const loadmore_progress = document.getElementById('load-more-progress-' + parent);
+				loadmore_progress.style.width = Math.round(100 * parent_sub.children.length / loadmore_progress.dataset.commentsTotal) + '%';
+
+				if (Number(parent_sub.children.length) === Number(loadmore_progress.dataset.commentsTotal)) {
+					const loadmore = document.getElementById('load-more-' + parent);
+					loadmore.remove();
+				}
+
+				updateRelativeTime('.autotime');
+				collapseHeight();
+
+				document.dispatchEvent(new CustomEvent('hz:sse_setNotificationsStatus', { detail: b64mids }));
+				document.dispatchEvent(new Event('hz:sse_bs_counts'));
+			});
+
+		})
+		.catch(error => {
+			console.error('Error fetching data:', error);
+		});
+
+		return;
+	}
+
 	const loading = document.getElementById('like-rotator-' + id);
 	loading.style.display = 'block';
 
@@ -1327,7 +1374,7 @@ function request(id, mid, verb, parent, uuid) {
 			});
 
 			imagesLoaded(doc.querySelectorAll('.wall-item-body img'), function () {
-				injectWithAnimation('wall-item-sub-thread-wrapper-' + id, obj.html);
+				injectWithAnimation('wall-item-sub-thread-wrapper-' + id, doc, true);
 				updateRelativeTime('.autotime');
 				loading.style.display = 'none';
 				collapseHeight();
@@ -1376,30 +1423,30 @@ function request(id, mid, verb, parent, uuid) {
 
 }
 
-function injectWithAnimation(container, html) {
-	const target = document.getElementById(container);
-	target.innerHTML = html;
+function injectWithAnimation(containerId, parsedDoc, overwrite = false) {
+	const container = document.getElementById(containerId);
+	if (!container) return;
 
-	target.animate([
-		{ opacity: 0, transform: 'translateY(-20px)' },
-		{ opacity: 1, transform: 'translateY(0)' }
-	], {
-		duration: 300,
-		easing: 'ease-out'
-	});
+	if (overwrite) {
+		container.innerHTML = '';
+	}
 
-	// For children animation
-	Array.from(target.children).forEach((el, i) => {
+	const newElements = Array.from(parsedDoc.body.children);
+
+	for (let i = newElements.length - 1; i >= 0; i--) {
+		const el = newElements[i].cloneNode(true);
+		container.insertBefore(el, container.firstChild);
+
 		el.animate([
-			{ opacity: 0, transform: 'scale(.7)' },
-			{ opacity: 1, transform: 'scale(1)' }
+			{ opacity: 0, transform: 'scale(.7) translateY(-20px)' },
+			{ opacity: 1, transform: 'scale(1) translateY(0)' }
 		], {
 			duration: 300,
-			delay: i * 50,
+			delay: (newElements.length - 1 - i) * 50,
 			fill: 'both',
 			easing: 'ease-out'
 		});
-	});
+	}
 }
 
 function stringToHexColor(str) {

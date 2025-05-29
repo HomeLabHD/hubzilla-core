@@ -5407,7 +5407,7 @@ function item_by_item_id(int $id, int $parent): array
  * @param bool $blog_mode (optional) - if set to yes only the parent items will be returned
  */
 
-function items_by_parent_ids(array $parents, array $thr_parents = [], string $permission_sql = '', bool $blog_mode = false): array
+function items_by_parent_ids(array $parents, null|array $thr_parents = null, string $permission_sql = '', bool $blog_mode = false): array
 {
 	if (!$parents) {
 		return [];
@@ -5416,9 +5416,11 @@ function items_by_parent_ids(array $parents, array $thr_parents = [], string $pe
 	$ids = ids_to_querystr($parents, 'item_id');
 	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
 	$item_normal_sql = item_normal();
+	$limit = 3;
 
 	$thr_parent_sql = (($thread_allow) ? " AND item.thr_parent = item.parent_mid " : '');
 	if ($thr_parents && $thread_allow) {
+		$limit = 100;
 		$thr_parent_str = stringify_array($thr_parents, true);
 		$thr_parent_sql = " AND item.thr_parent IN (" . protect_sprintf($thr_parent_str) . ") ";
 	}
@@ -5488,7 +5490,7 @@ function items_by_parent_ids(array $parents, array $thr_parents = [], string $pe
 				all_comments.*
 			FROM
 				all_comments
-			WHERE all_comments.rn <= 100
+			WHERE all_comments.rn <= $limit
 		),
 
 		final_selection AS (
@@ -5595,7 +5597,7 @@ function item_reaction_sql(string $ids, string $permission_sql = '', string $joi
  * @param int $parent
  */
 
-function items_by_thr_parent(string $mid, int $parent): array
+function items_by_thr_parent(string $mid, int $parent, int|null $offset = null): array
 {
 	if (!$mid && !$parent) {
 		return [];
@@ -5604,6 +5606,11 @@ function items_by_thr_parent(string $mid, int $parent): array
 	$parent_item = q("SELECT uid FROM item WHERE id = %d",
 		intval($parent)
 	);
+
+	$order_sql = "ORDER BY item.created";
+	if (isset($offset)) {
+		$order_sql = "ORDER BY item.created DESC LIMIT 3 OFFSET $offset";
+	}
 
 	$owner_uid = intval($parent_item[0]['uid']);
 	$item_normal_sql = item_normal($owner_uid);
@@ -5626,7 +5633,8 @@ function items_by_thr_parent(string $mid, int $parent): array
 				AND item.uid = %d
 				AND item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept')
 				AND item.item_thread_top = 0
-				$item_normal_sql",
+				$item_normal_sql
+			$order_sql",
 			dbesc($mid),
 			intval($owner_uid)
 		);
@@ -5648,10 +5656,15 @@ function items_by_thr_parent(string $mid, int $parent): array
 				AND item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept')
 				AND item.item_thread_top = 0
 				$sql_extra
-				$item_normal_sql",
+				$item_normal_sql
+			$order_sql",
 			dbesc($mid),
 			intval($owner_uid)
 		);
+	}
+
+	if (isset($offset)) {
+		$ret = array_reverse($ret);
 	}
 
 	return $ret;
@@ -5726,8 +5739,13 @@ function item_activity_xchans(string $mid, int $parent, string $verb): array
  * @param array $item
  */
 
-function get_recursive_thr_parents(array $item): array
+function get_recursive_thr_parents(array $item): array|null
 {
+	if ($item['id'] === $item['parent']) {
+		// This is a toplevel post, return null.
+		return null;
+	}
+
 	$thr_parents[] = $item['thr_parent'];
 
 	$mid = $item['thr_parent'];
