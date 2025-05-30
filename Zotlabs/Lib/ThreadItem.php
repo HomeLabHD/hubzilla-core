@@ -230,8 +230,12 @@ class ThreadItem {
 
 		$this->check_wall_to_wall();
 
+		$children = $this->get_children();
+		$children_count = count($children);
+
 		if($this->is_toplevel()) {
 			$conv->comments_total = $responses['comment']['count'] ?? 0;
+			$conv->comments_loaded = $children_count;
 
 			if((local_channel() && $conv->get_profile_owner() === local_channel()) || (local_channel() && App::$module === 'pubstream')) {
 				$star = [
@@ -326,7 +330,6 @@ class ThreadItem {
 		$comment_count_txt = ['label' => sprintf(tt('%d comment', '%d comments', $total_children), $total_children), 'count' => $total_children];
 		$list_unseen_txt = $unseen_comments ? ['label' => sprintf(t('%d unseen'), $unseen_comments), 'count' => $unseen_comments] : [];
 
-		$children = $this->get_children();
 
 		$has_tags = (($body['tags'] || $body['categories'] || $body['mentions'] || $body['attachments'] || $body['folders']) ? true : false);
 
@@ -353,7 +356,7 @@ class ThreadItem {
 		$load_more = false;
 		$load_more_title = '';
 		$comments_total_percent = 0;
-		if ($conv->comments_total > 3) {
+		if ($conv->comments_total > $conv->comments_loaded) {
 			// provide a load more comments button
 			$load_more = true;
 			$load_more_title = sprintf(t('Load the next few of total %d replies'), $conv->comments_total);
@@ -498,20 +501,19 @@ class ThreadItem {
 		$result = $arr['output'];
 
 		$result['children'] = array();
-		$nb_children = count($children);
 
 		$visible_comments = 3; // Config::Get('system', 'expanded_comments', 3);
 
-		if(($this->get_display_mode() === 'normal') && ($nb_children > 0)) {
+		if(($this->get_display_mode() === 'normal') && ($children_count > 0)) {
 			foreach($children as $child) {
 				$result['children'][] = $child->get_template_data($thread_level + 1, $conv_flags);
 			}
 
 			// Collapse
-			if($thread_level === 1 && $nb_children > $visible_comments) {
+			if($thread_level === 1 && $children_count > $visible_comments) {
 				$result['children'][0]['comment_firstcollapsed'] = true;
 				$result['children'][0]['num_comments'] = $comment_count_txt['label'];
-				$result['children'][$nb_children - ($visible_comments + 1)]['comment_lastcollapsed'] = true;
+				$result['children'][$children_count - ($visible_comments + 1)]['comment_lastcollapsed'] = true;
 			}
 		}
 

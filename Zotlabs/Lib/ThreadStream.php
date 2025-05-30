@@ -26,6 +26,7 @@ class ThreadStream {
 	private $cipher = 'AES-128-CCM';
 	public $mid_uuid_map = [];
 	public $comments_total = 0;
+	public $comments_loaded = 0;
 
 
 	// $prepared_item is for use by alternate conversation structures such as photos
