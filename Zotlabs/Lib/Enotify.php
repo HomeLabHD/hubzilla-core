@@ -910,14 +910,13 @@ class Enotify {
 	}
 
 	static public function format_notify($tt) {
-
 		$message = trim(strip_tags(bbcode($tt['msg'])));
 
 		if(strpos($message, $tt['xname']) === 0)
 			$message = substr($message, strlen($tt['xname']) + 1);
 
 		$x = [
-			'notify_link' => $tt['link'],
+			'notify_link' => (($tt['ntype'] === NOTIFY_INTRO) ? z_root() . '/notify/view/' . $tt['id'] : $tt['link']),
 			'name' => $tt['xname'],
 			'url' => $tt['url'],
 			'photo' => $tt['photo'],
@@ -929,11 +928,9 @@ class Enotify {
 		];
 
 		return $x;
-
 	}
 
 	static public function format_intros($rr) {
-
 		return [
 			'notify_link' => z_root() . '/connections#' . $rr['abook_id'],
 			'name' => $rr['xchan_name'],
