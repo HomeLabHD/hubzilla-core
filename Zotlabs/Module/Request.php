@@ -42,6 +42,11 @@ class Request extends Controller
 
 		$items = fetch_post_tags($items,true);
 
+		if ($module === 'channel') {
+			$parts = explode('@', $items[0]['owner']['xchan_addr']);
+			profile_load($parts[0]);
+		}
+
 		$ret['html'] = conversation($items, $module, true, 'r_preview');
 
 		json_return_and_die($ret);
