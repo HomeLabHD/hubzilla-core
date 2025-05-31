@@ -96,6 +96,13 @@
 
 /* conv_item */
 
+.thread-wrapper {
+	/* fix issue where dropdown menus of dynamically loaded content
+	 * are hidden behind its following thread-wrapper for whatever reason
+	 */
+	z-index: inherit;
+}
+
 .wall-item-wrapper {
 	margin-left: .75rem;
 }
