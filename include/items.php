@@ -5390,7 +5390,7 @@ function item_by_item_id(int $id, int $parent): array
 		WHERE
 			item.id = %d
 			AND item.uid = %d
-			AND item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept')
+			AND item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'Add', 'Remove', 'Follow', 'Ignore')
 			$item_normal_sql",
 		intval($id),
 		intval(local_channel())
@@ -5474,7 +5474,7 @@ function items_by_parent_ids(array $parents, null|array $thr_parents = null, str
 				ROW_NUMBER() OVER (PARTITION BY item.parent ORDER BY item.created DESC) AS rn
 			FROM item
 			WHERE item.parent IN ($ids)
-				AND item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'Add', 'Remove')
+				AND item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'Add', 'Remove', 'Follow', 'Ignore')
 				AND item.item_thread_top = 0
 				$thr_parent_sql
 				$permission_sql
@@ -5547,6 +5547,7 @@ function item_reaction_sql(string $ids, string $permission_sql = '', string $joi
 			reaction_{$k} AS (
 				SELECT
 					item.thr_parent,
+				--	COUNT(DISTINCT item.author_xchan) AS {$k}_count, (should we prevent multiple reactions by the same author?)
 					COUNT(*) AS {$k}_count,
 					$observer_sql
 				FROM item
@@ -5625,7 +5626,7 @@ function items_by_thr_parent(string $mid, int $parent, int|null $offset = null):
 			WHERE
 				item.thr_parent = '%s'
 				AND item.uid = %d
-				AND item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'Add', 'Remove')
+				AND item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'Add', 'Remove', 'Follow', 'Ignore')
 				AND item.item_thread_top = 0
 				$item_normal_sql
 			$order_sql",
@@ -5652,7 +5653,7 @@ function items_by_thr_parent(string $mid, int $parent, int|null $offset = null):
 			WHERE
 				item.thr_parent = '%s'
 				AND item.uid = %d
-				AND item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'Add', 'Remove')
+				AND item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'Add', 'Remove', 'Follow', 'Ignore')
 				AND item.item_thread_top = 0
 				$permission_sql
 				$item_normal_sql
@@ -5701,6 +5702,7 @@ function item_activity_xchans(string $mid, int $parent, string $verb): array
 			AND item.verb = '%s'
 			AND item.item_thread_top = 0
 			$item_normal
+		--	GROUP BY item.author_xchan (should we prevent multiple reactions by the same author?)
 			ORDER BY item.created",
 			intval(local_channel()),
 			intval($parent),
@@ -5719,6 +5721,7 @@ function item_activity_xchans(string $mid, int $parent, string $verb): array
 			AND item.item_thread_top = 0
 			$sql_extra
 			$item_normal
+		--	GROUP BY item.author_xchan (should we prevent multiple reactions by the same author?)
 			ORDER BY item.created",
 			intval($owner_uid),
 			dbesc($mid),
