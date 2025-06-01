@@ -1437,7 +1437,7 @@ function injectWithAnimation(containerId, parsedDoc, overwrite = false) {
 		const el = newElements[i].cloneNode(true);
 		container.insertBefore(el, container.firstChild);
 
-		const animation = el.animate([
+		el.animate([
 			{ opacity: 0, transform: 'scale(.7) translateY(-20px)' },
 			{ opacity: 1, transform: 'scale(1) translateY(0)' }
 		], {
