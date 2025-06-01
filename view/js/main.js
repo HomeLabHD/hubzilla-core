@@ -1426,26 +1426,25 @@ function request(id, mid, verb, parent, uuid) {
 function injectWithAnimation(containerId, parsedDoc, overwrite = false) {
 	const container = document.getElementById(containerId);
 	if (!container) return;
-
-	if (overwrite) {
-		container.innerHTML = '';
-	}
+	if (overwrite) container.innerHTML = '';
 
 	const newElements = Array.from(parsedDoc.body.children);
 
 	for (let i = newElements.length - 1; i >= 0; i--) {
 		const el = newElements[i].cloneNode(true);
+		el.classList.add('item-fade-in');
 		container.insertBefore(el, container.firstChild);
 
-		el.animate([
-			{ opacity: 0, transform: 'scale(.7) translateY(-20px)' },
-			{ opacity: 1, transform: 'scale(1) translateY(0)' }
-		], {
-			duration: 300,
-			delay: (newElements.length - 1 - i) * 50,
-			fill: 'none',
-			easing: 'ease-out'
-		});
+		// Remove classes after transition ends
+		const onTransitionEnd = (event) => {
+			el.classList.remove('item-fade-in', 'show');
+			el.removeEventListener('transitionend', onTransitionEnd);
+		};
+		el.addEventListener('transitionend', onTransitionEnd);
+
+		setTimeout(() => {
+			el.classList.add('show');
+		}, (newElements.length - 1 - i) * 30);
 	}
 }
 
