@@ -337,7 +337,7 @@ class Channel extends Controller {
 		if (($update) && (!$load)) {
 
 			if ($mid) {
-				$r = q("SELECT parent AS item_id from item where $identifier = '%s' and uid = %d $item_normal_update
+				$r = q("SELECT *, parent AS item_id from item where $identifier = '%s' and uid = %d $item_normal_update
 					AND item_wall = 1 $simple_update $permission_sql $sql_extra limit 1",
 					dbesc($mid),
 					intval(App::$profile['profile_uid'])
@@ -386,7 +386,7 @@ class Channel extends Controller {
 
 			if ($noscript_content || $load) {
 				if ($mid) {
-					$r = q("SELECT parent AS item_id from item where $identifier = '%s' and uid = %d $item_normal
+					$r = q("SELECT *, parent AS item_id from item where $identifier = '%s' and uid = %d $item_normal
 						AND item_wall = 1 $permission_sql $sql_extra limit 1",
 						dbesc($mid),
 						intval(App::$profile['profile_uid'])
@@ -417,7 +417,12 @@ class Channel extends Controller {
 			}
 		}
 		if ($r) {
-			$items = items_by_parent_ids($r, permission_sql: $permission_sql, blog_mode: $blog_mode);
+			$thr_parents = null;
+			if ($mid) {
+				$thr_parents = get_recursive_thr_parents($r[0]);
+			}
+
+			$items = items_by_parent_ids($r, $thr_parents, $permission_sql, $blog_mode);
 
 			xchan_query($items);
 			$items = fetch_post_tags($items, true);
