@@ -1437,13 +1437,13 @@ function injectWithAnimation(containerId, parsedDoc, overwrite = false) {
 		const el = newElements[i].cloneNode(true);
 		container.insertBefore(el, container.firstChild);
 
-		el.animate([
+		const animation = el.animate([
 			{ opacity: 0, transform: 'scale(.7) translateY(-20px)' },
 			{ opacity: 1, transform: 'scale(1) translateY(0)' }
 		], {
 			duration: 300,
 			delay: (newElements.length - 1 - i) * 50,
-			fill: 'both',
+			fill: 'none',
 			easing: 'ease-out'
 		});
 	}
