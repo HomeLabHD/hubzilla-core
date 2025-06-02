@@ -102,7 +102,7 @@
 			<div class="p-2 wall-item-tools d-flex justify-content-between">
 				<div class="wall-item-tools-left hstack gap-1" id="pinned-item-tools-left-{{$id}}">
 					{{foreach $responses as $verb=>$response}}
-					<button type="button" title="{{$response.count}} {{$response.button.label}}" class="btn btn-sm btn-link{{if !$observer_activity.$verb}} link-secondary{{/if}} wall-item-{{$response.button.class}}" onclick="request({{$id}}, '{{$rawmid}}', '{{$verb}}', {{$parent}}, '{{$mid}}'); return false;" id="pinned-item-{{$verb}}-{{$id}}">
+					<button type="button" title="{{$response.count}} {{$response.button.label}}" class="disabled btn btn-sm btn-link{{if !$observer_activity.$verb}} link-secondary{{/if}} wall-item-{{$response.button.class}}" id="pinned-item-{{$verb}}-{{$id}}">
 						<i class="bi bi-{{$response.button.icon}} generic-icons"></i>{{if $response.count}}<span style="display: inline-block; margin-top: -.25rem;" class="align-top">{{$response.count}}</span>{{/if}}
 					</button>
 					{{/foreach}}
