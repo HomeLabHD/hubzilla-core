@@ -197,12 +197,12 @@ class Pinned {
 			return [];
 
 
-		$r = q("SELECT parent FROM item WHERE uuid IN ( '%s' ) AND uid = %d AND id = parent AND item_private = 0",
+		$r = q("SELECT parent AS item_id FROM item WHERE uuid IN ( '%s' ) AND uid = %d AND id = parent AND item_private = 0",
 			dbesc(implode(",", $mids_list)),
 			intval($this->uid)
 		);
 
-		return items_by_parent_ids($r[0]['parent'], blog_mode: true);
+		return items_by_parent_ids($r, blog_mode: true);
 
 	}
 
