@@ -29,6 +29,11 @@ var updateTimeout = [];
 const singlethread_modules = ['display', 'hq'];
 const redirect_modules = ['display', 'notify'];
 
+let clickTimer = null;
+const clickTimerDelay = 300; // Adjust as needed
+let b64mids = [];
+
+
 var page_cache = {};
 
 // take care of tab/window reloads on channel change
@@ -85,6 +90,51 @@ $(document).ready(function() {
 		if (e.ctrlKey && e.keyCode === 13) {
 			post_comment(this.id.replace('comment-edit-text-',''));
 		}
+	});
+
+	document.addEventListener('click', function(event) {
+		const targetElement = event.target.closest('.wall-item-reaction');
+		if (!targetElement) return;
+
+		let userClick = event.isTrusted;
+
+		clearTimeout(clickTimer);
+		clickTimer = setTimeout(() => {
+			const id = targetElement.dataset.itemId;
+			const mid = targetElement.dataset.itemMid;
+			const parent = targetElement.dataset.itemParent;
+			const uuid = targetElement.dataset.itemUuid;
+			const verb = targetElement.dataset.itemVerb;
+
+			request(id, mid, verb, parent, uuid, userClick);
+
+		}, clickTimerDelay);
+	});
+
+	document.addEventListener('dblclick', function(event) {
+		const targetElement = event.target.closest('.wall-item-reaction.wall-item-comment');
+		if (!targetElement) return;
+
+		clearTimeout(clickTimer);
+
+		const id = targetElement.dataset.itemId;
+		const uuid = targetElement.dataset.itemUuid;
+
+		const loading = document.getElementById('like-rotator-' + id);
+		loading.style.display = 'block';
+
+		document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => {
+			el.classList.remove('item-highlight');
+			el.style.boxShadow = '';
+		});
+
+		const wrapper = document.getElementById('thread-wrapper-' + id);
+		if (!wrapper.classList.contains('toplevel_item')) {
+			wrapper.classList.add('item-highlight');
+			document.documentElement.style.setProperty('--hz-item-highlight', stringToHlsColor(uuid));
+		}
+
+		autoExpand(id);
 	});
 
 	// @hilmar |->
@@ -1292,7 +1342,7 @@ function justifyPhotosAjax(id) {
 	$('#' + id).justifiedGallery('norewind').on('jg.complete', function(e){ justifiedGalleryActive = false; });
 }
 
-function request(id, mid, verb, parent, uuid) {
+function request(id, mid, verb, parent, uuid, userClick) {
 
 	if (verb === 'load') {
 		const dots = document.getElementById('load-more-dots-' + parent);
@@ -1341,23 +1391,29 @@ function request(id, mid, verb, parent, uuid) {
 	}
 
 	const loading = document.getElementById('like-rotator-' + id);
-	loading.style.display = 'block';
+
+	if (userClick) {
+		loading.style.display = 'block';
+	}
 
 	if (verb === 'comment') {
 
-		if (singlethread_modules.indexOf(module) !== -1) {
+		if (userClick && singlethread_modules.indexOf(module) !== -1) {
 			let stateObj = { b64mid: uuid };
 			history.pushState(stateObj, '', module + '/' + uuid);
 		}
 
-		document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => {
-			el.classList.remove('item-highlight');
-			el.style.boxShadow = '';
-		});
-
 		const wrapper = document.getElementById('thread-wrapper-' + id);
-		if (!wrapper.classList.contains('toplevel_item')) {
+		const subWrapper = document.getElementById('wall-item-sub-thread-wrapper-' + id);
+
+		if (userClick && !wrapper.classList.contains('toplevel_item')) {
+			document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => {
+				el.classList.remove('item-highlight');
+				el.style.boxShadow = '';
+			});
+
 			wrapper.classList.add('item-highlight');
+			subWrapper.classList.remove('ms-3');
 			document.documentElement.style.setProperty('--hz-item-highlight', stringToHlsColor(uuid));
 		}
 
@@ -1366,7 +1422,6 @@ function request(id, mid, verb, parent, uuid) {
 		.then(obj => {
 			let parser = new DOMParser();
 			let doc = parser.parseFromString(obj.html, 'text/html');
-			let b64mids = [];
 
 			doc.querySelectorAll('.thread-wrapper').forEach(function (e) {
 				let data = JSON.parse(e.dataset.b64mids);
@@ -1376,11 +1431,16 @@ function request(id, mid, verb, parent, uuid) {
 			imagesLoaded(doc.querySelectorAll('.wall-item-body img'), function () {
 				injectWithAnimation('wall-item-sub-thread-wrapper-' + id, doc, true);
 				updateRelativeTime('.autotime');
-				loading.style.display = 'none';
 				collapseHeight();
 
-				document.dispatchEvent(new CustomEvent('hz:sse_setNotificationsStatus', { detail: b64mids }));
-				document.dispatchEvent(new Event('hz:sse_bs_counts'));
+				const icon = document.querySelector('#wall-item-comment-' + id + ' i');
+				icon.classList.replace('bi-chat-dots', 'bi-chat');
+
+				if (userClick) {
+					loading.style.display = 'none';
+					document.dispatchEvent(new CustomEvent('hz:sse_setNotificationsStatus', { detail: b64mids }));
+					document.dispatchEvent(new Event('hz:sse_bs_counts'));
+				}
 			});
 
 		})
@@ -1447,6 +1507,111 @@ function injectWithAnimation(containerId, parsedDoc, overwrite = false) {
 		}, (newElements.length - 1 - i) * 30);
 	}
 }
+
+const autoExpand = (function () {
+	const clickedElements = new Set(); // Stores clicked button references
+
+	function waitForElement(selector, timeout = 3000) {
+		return new Promise((resolve, reject) => {
+			// Check if the element already exists
+			const element = document.querySelector(selector);
+
+			if (element) {
+				resolve(element);
+				return;
+			}
+
+			// Set up a timeout to reject the promise if the element doesn't appear in time
+			const timer = setTimeout(() => {
+				observer.disconnect();
+				reject(new Error(`Element "${selector}" not found within ${timeout}ms`));
+			}, timeout);
+
+			// Create a MutationObserver to watch for DOM changes
+			const observer = new MutationObserver(() => {
+				const el = document.querySelector(selector);
+				if (el) {
+					clearTimeout(timer);
+					observer.disconnect();
+					resolve(el);
+				}
+			});
+
+			// Start observing the document for changes
+			observer.observe(document.documentElement, {
+				childList: true,
+				subtree: true
+			});
+		});
+	}
+
+
+	async function autoExpand(id) {
+		try {
+			// Step 1: Ensure initial button is clicked
+			const initBtnSelector = '#wall-item-comment-' + id;
+			const initBtn = await waitForElement(initBtnSelector);
+			if (!clickedElements.has(initBtn)) {
+				initBtn.click();
+				clickedElements.add(initBtn);
+			}
+
+			// Step 2: Loop until no new buttons are found
+			const commentSelector = `#wall-item-sub-thread-wrapper-${id} .wall-item-comment`;
+			let newButtonsFound;
+
+			const subs = `#wall-item-sub-thread-wrapper-${id}, #wall-item-sub-thread-wrapper-${id} .wall-item-sub-thread-wrapper`;
+
+			do {
+				newButtonsFound = false;
+
+				// Wait for any comment to appear
+				await waitForElement(commentSelector);
+
+				document.querySelectorAll(subs).forEach(el => {
+					el.classList.add('ms-3');
+					el.classList.add('border-start');
+				});
+
+				const expandButtons = document.querySelectorAll(commentSelector);
+
+
+				for (const btn of expandButtons) {
+					if (!clickedElements.has(btn)) {
+						// Wait between iterations to allow UI to update
+
+						await new Promise(res0 => setTimeout(res0, 500));
+						btn.click();
+						clickedElements.add(btn);
+
+						newButtonsFound = true;
+						// Optional: await waitForElement(...) to wait for new content
+					}
+				}
+
+				// Wait between iterations to allow UI to update
+				if (newButtonsFound) {
+					await new Promise(res1 => setTimeout(res1, 500));
+				}
+
+			} while (newButtonsFound);
+
+			console.log('All replies loaded!');
+
+			const loading = document.getElementById('like-rotator-' + id);
+			loading.style.display = 'none';
+
+			document.dispatchEvent(new CustomEvent('hz:sse_setNotificationsStatus', { detail: b64mids }));
+			document.dispatchEvent(new Event('hz:sse_bs_counts'));
+
+		} catch (error) {
+			console.error("autoExpand failed:", error.message);
+		}
+	}
+
+	return autoExpand;
+})();
+
 
 function stringToHexColor(str) {
 	let hash = 0;
