@@ -193,7 +193,8 @@ a.wall-item-name-link {
 	color: var(--bs-primary);
 }
 
-.item-highlight {
+.item-highlight,
+.item-indent {
 	position: relative;
 }
 
@@ -225,6 +226,24 @@ a.wall-item-name-link {
 @keyframes fadeBgOut {
 	from { background-color: var(--bs-primary-bg-subtle); }
 	to   { background-color: none; }
+}
+
+.item-indent {
+	/* This must be equal to .item.indent:before width */
+	padding-left: .75rem;
+}
+
+.item-indent:before {
+	content: '';
+	position: absolute;
+	height: 100%;
+	width: .75rem;
+	top: 0;
+	left: 0;
+	border-color: var(--bs-light-border-subtle);
+	border-radius: 0 var(--bs-border-radius) 0 0;
+	border-style: solid;
+	border-width: 1px 1px 0 0;
 }
 
 /* comment_item */

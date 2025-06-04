@@ -118,7 +118,10 @@ $(document).ready(function() {
 
 		document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => {
 			el.classList.remove('item-highlight');
-			el.style.boxShadow = '';
+		});
+
+		document.querySelectorAll('.wall-item-sub-thread-wrapper.item-indent').forEach(el => {
+			el.classList.remove('item-indent');
 		});
 
 		const wrapper = document.getElementById('thread-wrapper-' + id);
@@ -1406,7 +1409,7 @@ function request(id, mid, verb, parent, uuid, userClick) {
 			});
 
 			wrapper.classList.add('item-highlight');
-			subWrapper.classList.remove('ms-3');
+			subWrapper.classList.remove('item-indent');
 			document.documentElement.style.setProperty('--hz-item-highlight', stringToHlsColor(uuid));
 		}
 
@@ -1426,8 +1429,10 @@ function request(id, mid, verb, parent, uuid, userClick) {
 				updateRelativeTime('.autotime');
 				collapseHeight();
 
-				const icon = document.querySelector('#wall-item-comment-' + id + ' i');
-				icon.classList.replace('bi-chat-dots', 'bi-chat');
+				const icon = document.querySelector('#wall-item-comment-' + id);
+				if (icon) {
+					icon.classList.add('disabled');
+				}
 
 				if (userClick) {
 					loading.style.display = 'none';
@@ -1504,7 +1509,7 @@ function injectWithAnimation(containerId, parsedDoc, overwrite = false) {
 const autoExpand = (function () {
 	const clickedElements = new Set(); // Stores clicked button references
 
-	function waitForElement(selector, timeout = 5000) {
+	function waitForElement(selector, timeout = 3000) {
 		return new Promise((resolve, reject) => {
 			// Check if the element already exists
 			const element = document.querySelector(selector);
@@ -1564,21 +1569,16 @@ const autoExpand = (function () {
 				await waitForElement(commentSelector);
 
 				document.querySelectorAll(subs).forEach(el => {
-					el.classList.add('ms-2');
-					el.classList.add('border-start');
+					if (el.children.length > 0) {
+						el.classList.add('item-indent');
+					}
 				});
 
 				const expandButtons = document.querySelectorAll(commentSelector);
-
-
 				for (const btn of expandButtons) {
 					if (!clickedElements.has(btn)) {
-						// Wait between iterations to allow UI to update
-
-				//		await new Promise(res0 => setTimeout(res0, 500));
 						btn.click();
 						clickedElements.add(btn);
-
 						newButtonsFound = true;
 						// Optional: await waitForElement(...) to wait for new content
 					}
@@ -1586,7 +1586,7 @@ const autoExpand = (function () {
 
 				// Wait between iterations to allow UI to update
 				if (newButtonsFound) {
-					await new Promise(res => setTimeout(res, 1000));
+					await new Promise(res => setTimeout(res, 700));
 				}
 
 			} while (newButtonsFound);

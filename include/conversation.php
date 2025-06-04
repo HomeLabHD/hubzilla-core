@@ -1446,7 +1446,7 @@ function get_response_button_text($v, $count = 0) {
 			return ['label' => tt('Dislike','Dislikes',$count,'noun'), 'icon' => 'hand-thumbs-down', 'class' => 'dislike', 'action' => 'dolike'];
 			break;
 		case 'comment':
-			return ['label' => tt('Reply','Replies',$count,'noun'), 'icon' => 'chat-dots', 'class' => 'comment', 'action' => ''];
+			return ['label' => tt('Reply','Replies',$count,'noun'), 'icon' => 'chat', 'class' => 'comment', 'action' => ''];
 			break;
 		case 'accept':
 			return ['label' => tt('Attending','Attending',$count,'noun'), 'icon' => 'calendar-check', 'class' => 'accept', 'action' => 'dolike'];
