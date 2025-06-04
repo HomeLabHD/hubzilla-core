@@ -28,9 +28,6 @@ var expanded_items = [];
 var updateTimeout = [];
 const singlethread_modules = ['display', 'hq'];
 const redirect_modules = ['display', 'notify'];
-
-let clickTimer = null;
-const clickTimerDelay = 300; // Adjust as needed
 let b64mids = [];
 
 
@@ -96,21 +93,43 @@ $(document).ready(function() {
 		const targetElement = event.target.closest('.wall-item-reaction');
 		if (!targetElement) return;
 
-		let userClick = event.isTrusted;
+		const userClick = event.isTrusted;
+		const id = targetElement.dataset.itemId;
+		const mid = targetElement.dataset.itemMid;
+		const parent = targetElement.dataset.itemParent;
+		const uuid = targetElement.dataset.itemUuid;
+		const verb = targetElement.dataset.itemVerb;
 
-		clearTimeout(clickTimer);
-		clickTimer = setTimeout(() => {
-			const id = targetElement.dataset.itemId;
-			const mid = targetElement.dataset.itemMid;
-			const parent = targetElement.dataset.itemParent;
-			const uuid = targetElement.dataset.itemUuid;
-			const verb = targetElement.dataset.itemVerb;
+		request(id, mid, verb, parent, uuid, userClick);
 
-			request(id, mid, verb, parent, uuid, userClick);
-
-		}, clickTimerDelay);
 	});
 
+	document.addEventListener('click', function(event) {
+		event.preventDefault();
+
+		const targetElement = event.target.closest('.dropdown-item-expand');
+		if (!targetElement) return;
+
+		const id = targetElement.dataset.itemId;
+		const uuid = targetElement.dataset.itemUuid;
+
+		const loading = document.getElementById('like-rotator-' + id);
+		loading.style.display = 'block';
+
+		document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => {
+			el.classList.remove('item-highlight');
+			el.style.boxShadow = '';
+		});
+
+		const wrapper = document.getElementById('thread-wrapper-' + id);
+		if (!wrapper.classList.contains('toplevel_item')) {
+			wrapper.classList.add('item-highlight');
+			document.documentElement.style.setProperty('--hz-item-highlight', stringToHlsColor(uuid));
+		}
+
+		autoExpand(id);
+	});
+/*
 	document.addEventListener('dblclick', function(event) {
 		const targetElement = event.target.closest('.wall-item-reaction.wall-item-comment');
 		if (!targetElement) return;
@@ -136,7 +155,7 @@ $(document).ready(function() {
 
 		autoExpand(id);
 	});
-
+*/
 	// @hilmar |->
 	if ( typeof(window.tao) == 'undefined' ) {
 		window.tao = {};
@@ -1511,7 +1530,7 @@ function injectWithAnimation(containerId, parsedDoc, overwrite = false) {
 const autoExpand = (function () {
 	const clickedElements = new Set(); // Stores clicked button references
 
-	function waitForElement(selector, timeout = 3000) {
+	function waitForElement(selector, timeout = 5000) {
 		return new Promise((resolve, reject) => {
 			// Check if the element already exists
 			const element = document.querySelector(selector);
@@ -1547,6 +1566,8 @@ const autoExpand = (function () {
 
 
 	async function autoExpand(id) {
+		const loading = document.getElementById('like-rotator-' + id);
+
 		try {
 			// Step 1: Ensure initial button is clicked
 			const initBtnSelector = '#wall-item-comment-' + id;
@@ -1569,7 +1590,7 @@ const autoExpand = (function () {
 				await waitForElement(commentSelector);
 
 				document.querySelectorAll(subs).forEach(el => {
-					el.classList.add('ms-3');
+					el.classList.add('ms-2');
 					el.classList.add('border-start');
 				});
 
@@ -1580,7 +1601,7 @@ const autoExpand = (function () {
 					if (!clickedElements.has(btn)) {
 						// Wait between iterations to allow UI to update
 
-						await new Promise(res0 => setTimeout(res0, 500));
+				//		await new Promise(res0 => setTimeout(res0, 500));
 						btn.click();
 						clickedElements.add(btn);
 
@@ -1591,20 +1612,20 @@ const autoExpand = (function () {
 
 				// Wait between iterations to allow UI to update
 				if (newButtonsFound) {
-					await new Promise(res1 => setTimeout(res1, 500));
+					await new Promise(res => setTimeout(res, 1000));
 				}
 
 			} while (newButtonsFound);
 
 			console.log('All replies loaded!');
 
-			const loading = document.getElementById('like-rotator-' + id);
 			loading.style.display = 'none';
 
 			document.dispatchEvent(new CustomEvent('hz:sse_setNotificationsStatus', { detail: b64mids }));
 			document.dispatchEvent(new Event('hz:sse_bs_counts'));
 
 		} catch (error) {
+			loading.style.display = 'none';
 			console.error("autoExpand failed:", error.message);
 		}
 	}

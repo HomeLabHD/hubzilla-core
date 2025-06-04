@@ -191,6 +191,9 @@
 								{{if $item.star}}
 								<a class="dropdown-item" href="#" onclick="dostar({{$item.id}}); return false;"><i id="starred-{{$item.id}}" class="generic-icons-nav bi{{if $item.star.isstarred}} starred bi-star-fill{{else}} unstarred bi-star{{/if}}" title="{{$item.star.toggle}}"></i>{{$item.star.toggle}}</a>
 								{{/if}}
+								{{if $item.expand}}
+								<a class="dropdown-item dropdown-item-expand" href="#" data-item-id="{{$item.id}}" data-item-uuid="{{$item.mid}}"><i id="expand-{{$item.id}}" class="generic-icons-nav bi bi-arrows-angle-expand" title="{{$item.expand}}"></i>{{$item.expand}}</a>
+								{{/if}}
 								{{if $item.thread_action_menu}}
 								{{foreach $item.thread_action_menu as $mitem}}
 								<a class="dropdown-item" {{if $mitem.href}}href="{{$mitem.href}}"{{/if}} {{if $mitem.action}}onclick="{{$mitem.action}}"{{/if}} {{if $mitem.title}}title="{{$mitem.title}}"{{/if}} ><i class="generic-icons-nav bi bi-{{$mitem.icon}}"></i>{{$mitem.title}}</a>

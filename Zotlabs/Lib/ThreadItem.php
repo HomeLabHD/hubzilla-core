@@ -328,8 +328,8 @@ class ThreadItem {
 			$viewthread = z_root() . '/channel/' . $owner_address . '?f=&mid=' . urlencode(gen_link_id($item['mid']));
 
 		$comment_count_txt = ['label' => sprintf(tt('%d comment', '%d comments', $total_children), $total_children), 'count' => $total_children];
-		$list_unseen_txt = $unseen_comments ? ['label' => sprintf(t('%d unseen'), $unseen_comments), 'count' => $unseen_comments] : [];
 
+		$list_unseen_txt = $unseen_comments ? ['label' => sprintf(t('%d unseen'), $unseen_comments), 'count' => $unseen_comments] : [];
 
 		$has_tags = (($body['tags'] || $body['categories'] || $body['mentions'] || $body['attachments'] || $body['folders']) ? true : false);
 
@@ -361,6 +361,11 @@ class ThreadItem {
 			$load_more = true;
 			$load_more_title = sprintf(t('Load the next few of total %d replies'), $conv->comments_total);
 			$comments_total_percent = round(100 * 3 / $conv->comments_total);
+		}
+
+		$expand = '';
+		if ($this->threaded && !empty($item['comment_count'] && !$this->is_toplevel())) {
+			$expand = t('Expand Replies');
 		}
 
 		$tmp_item = array(
@@ -492,7 +497,8 @@ class ThreadItem {
 			'load_more' => $load_more,
 			'load_more_title' => $load_more_title,
 			'comments_total' => $conv->comments_total,
-			'comments_total_percent' => $comments_total_percent
+			'comments_total_percent' => $comments_total_percent,
+			'expand' => $expand
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);
