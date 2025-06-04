@@ -105,10 +105,10 @@ $(document).ready(function() {
 	});
 
 	document.addEventListener('click', function(event) {
-		event.preventDefault();
-
 		const targetElement = event.target.closest('.dropdown-item-expand');
 		if (!targetElement) return;
+
+		event.preventDefault();
 
 		const id = targetElement.dataset.itemId;
 		const uuid = targetElement.dataset.itemUuid;
