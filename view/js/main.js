@@ -120,10 +120,6 @@ $(document).ready(function() {
 			el.classList.remove('item-highlight');
 		});
 
-		document.querySelectorAll('.wall-item-sub-thread-wrapper.item-indent').forEach(el => {
-			el.classList.remove('item-indent');
-		});
-
 		const wrapper = document.getElementById('thread-wrapper-' + id);
 		if (!wrapper.classList.contains('toplevel_item')) {
 			wrapper.classList.add('item-highlight');
@@ -1509,7 +1505,8 @@ function injectWithAnimation(containerId, parsedDoc, overwrite = false) {
 const autoExpand = (function () {
 	const clickedElements = new Set(); // Stores clicked button references
 
-	function waitForElement(selector, timeout = 3000) {
+	// We wait 10 seconds for images. Set the timeout here slightly higher.
+	function waitForElement(selector, timeout = 11000) {
 		return new Promise((resolve, reject) => {
 			// Check if the element already exists
 			const element = document.querySelector(selector);
@@ -1551,16 +1548,18 @@ const autoExpand = (function () {
 			// Step 1: Ensure initial button is clicked
 			const initBtnSelector = '#wall-item-comment-' + id;
 			const initBtn = await waitForElement(initBtnSelector);
+
 			if (!clickedElements.has(initBtn)) {
 				initBtn.click();
 				clickedElements.add(initBtn);
 			}
 
 			// Step 2: Loop until no new buttons are found
-			const commentSelector = `#wall-item-sub-thread-wrapper-${id} .wall-item-comment`;
 			let newButtonsFound;
 
-			const subs = `#wall-item-sub-thread-wrapper-${id}, #wall-item-sub-thread-wrapper-${id} .wall-item-sub-thread-wrapper`;
+			const commentSelector = `#wall-item-sub-thread-wrapper-${id} .thread-wrapper`;
+			const commentBtnSelector = `#wall-item-sub-thread-wrapper-${id} .wall-item-comment`;
+			const subsSelector = `#wall-item-sub-thread-wrapper-${id}, #wall-item-sub-thread-wrapper-${id} .wall-item-sub-thread-wrapper`;
 
 			do {
 				newButtonsFound = false;
@@ -1568,13 +1567,14 @@ const autoExpand = (function () {
 				// Wait for any comment to appear
 				await waitForElement(commentSelector);
 
-				document.querySelectorAll(subs).forEach(el => {
+				document.querySelectorAll(subsSelector).forEach(el => {
 					if (el.children.length > 0) {
 						el.classList.add('item-indent');
 					}
 				});
 
-				const expandButtons = document.querySelectorAll(commentSelector);
+				const expandButtons = document.querySelectorAll(commentBtnSelector);
+
 				for (const btn of expandButtons) {
 					if (!clickedElements.has(btn)) {
 						btn.click();
