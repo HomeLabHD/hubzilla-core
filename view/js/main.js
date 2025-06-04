@@ -129,33 +129,7 @@ $(document).ready(function() {
 
 		autoExpand(id);
 	});
-/*
-	document.addEventListener('dblclick', function(event) {
-		const targetElement = event.target.closest('.wall-item-reaction.wall-item-comment');
-		if (!targetElement) return;
 
-		clearTimeout(clickTimer);
-
-		const id = targetElement.dataset.itemId;
-		const uuid = targetElement.dataset.itemUuid;
-
-		const loading = document.getElementById('like-rotator-' + id);
-		loading.style.display = 'block';
-
-		document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => {
-			el.classList.remove('item-highlight');
-			el.style.boxShadow = '';
-		});
-
-		const wrapper = document.getElementById('thread-wrapper-' + id);
-		if (!wrapper.classList.contains('toplevel_item')) {
-			wrapper.classList.add('item-highlight');
-			document.documentElement.style.setProperty('--hz-item-highlight', stringToHlsColor(uuid));
-		}
-
-		autoExpand(id);
-	});
-*/
 	// @hilmar |->
 	if ( typeof(window.tao) == 'undefined' ) {
 		window.tao = {};
