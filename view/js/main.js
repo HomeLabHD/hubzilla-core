@@ -101,18 +101,30 @@ $(document).ready(function() {
 		const verb = targetElement.dataset.itemVerb;
 
 		if (targetElement.classList.contains('wall-item-comment')) {
+			const threadWrapper = document.getElementById(`thread-wrapper-${id}`);
 			const subWrapper = document.getElementById(`wall-item-sub-thread-wrapper-${id}`);
+			const parentSubWrapper = document.querySelectorAll(`#wall-item-sub-thread-wrapper-${parent} .wall-item-sub-thread-wrapper`);
+			const parentSubWrapperIndented = document.querySelector(`#wall-item-sub-thread-wrapper-${parent} .wall-item-sub-thread-wrapper.item-indent`);
 
 			subWrapper.style.setProperty('--hz-item-indent', stringToHslColor(uuid));
+			threadWrapper.style.setProperty('--hz-item-highlight', stringToHslColor(uuid));
+
+			document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => {
+				el.classList.remove('item-highlight');
+			});
+
+			if (!parentSubWrapperIndented) {
+				threadWrapper.classList.add('item-highlight');
+			}
+			else {
+				subWrapper.classList.add('item-indent');
+			}
 
 			if (userClick && targetElement.classList.contains('expanded')) {
-				if (subWrapper.closest('.item-indent') === null) {
-					document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => {
-						el.classList.remove('item-highlight');
-					});
-				}
+				document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => {
+					el.classList.remove('item-highlight');
+				});
 
-				const parentSubWrapper = document.querySelectorAll(`#wall-item-sub-thread-wrapper-${parent} .wall-item-sub-thread-wrapper`);
 				parentSubWrapper.forEach(el => {
 					if (el.children.length > 0) {
 						el.classList.add('item-indent');
@@ -123,11 +135,6 @@ $(document).ready(function() {
 				return;
 			}
 
-			if (subWrapper.closest('.item-indent') !== null) {
-				subWrapper.classList.add('item-indent');
-				targetElement.classList.add('disabled');
-			}
-
 			targetElement.classList.add('expanded');
 
 			if (!userClick) {
@@ -136,7 +143,6 @@ $(document).ready(function() {
 		}
 
 		request(id, mid, verb, parent, uuid, userClick);
-
 	});
 
 	document.addEventListener('click', function(event) {
@@ -1423,25 +1429,9 @@ function request(id, mid, verb, parent, uuid, userClick) {
 	}
 
 	if (verb === 'comment') {
-
 		if (userClick && singlethread_modules.indexOf(module) !== -1) {
 			let stateObj = { b64mid: uuid };
 			history.pushState(stateObj, '', module + '/' + uuid);
-		}
-
-		const wrapper = document.getElementById('thread-wrapper-' + id);
-		const subWrapper = document.getElementById('wall-item-sub-thread-wrapper-' + id);
-
-		if (userClick && !wrapper.classList.contains('toplevel_item')) {
-			if (wrapper.closest('.item-indent') === null) {
-				document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => {
-					el.classList.remove('item-highlight');
-				});
-
-				wrapper.classList.add('item-highlight');
-				subWrapper.classList.remove('item-indent');
-				document.documentElement.style.setProperty('--hz-item-highlight', stringToHslColor(uuid));
-			}
 		}
 
 		fetch('/request?verb=' + verb + '&mid=' + mid + '&parent=' + parent + '&module=' + module)
@@ -1572,7 +1562,7 @@ const autoExpand = (function () {
 
 	async function autoExpand(id) {
 		const loading = document.getElementById('like-rotator-' + id);
-		const maxIterations = 3;
+		const maxIterations = 10;
 
 		try {
 			// Step 1: Ensure initial button is clicked
@@ -1619,8 +1609,10 @@ const autoExpand = (function () {
 				// Wait between iterations to allow UI to update
 				if (newButtonsFound) {
 					await new Promise(res => setTimeout(res, 700));
-					iteration++;
 				}
+
+				iteration++;
+
 			} while (newButtonsFound && iteration < maxIterations);
 
 			console.log('All replies loaded!');
