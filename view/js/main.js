@@ -100,23 +100,39 @@ $(document).ready(function() {
 		const uuid = targetElement.dataset.itemUuid;
 		const verb = targetElement.dataset.itemVerb;
 
-		if (userClick && targetElement.classList.contains('expanded') && targetElement.classList.contains('indented')) {
-			document.getElementById(`wall-item-sub-thread-wrapper-${id}`).innerHTML = '';
-			document.getElementById(`wall-item-sub-thread-wrapper-${id}`).classList.remove('item-indent');
-			targetElement.classList.remove('expanded', 'indented');
-			document.getElementById('thread-wrapper-' + id).classList.remove('item-highlight');
-			return;
-		}
+		if (targetElement.classList.contains('wall-item-comment')) {
+			const subWrapper = document.getElementById(`wall-item-sub-thread-wrapper-${id}`);
 
-		if (userClick && targetElement.classList.contains('expanded')) {
-			document.getElementById(`wall-item-sub-thread-wrapper-${id}`).classList.toggle('item-indent');
-			targetElement.classList.add('indented');
-			return;
-		}
+			subWrapper.style.setProperty('--hz-item-indent', stringToHlsColor(uuid));
 
-		targetElement.classList.add('expanded');
-		if (!userClick) {
-			targetElement.classList.add('indented');
+			if (userClick && targetElement.classList.contains('expanded')) {
+				if (subWrapper.closest('.item-indent') === null) {
+					document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => {
+						el.classList.remove('item-highlight');
+					});
+				}
+
+				const parentSubWrapper = document.querySelectorAll(`#wall-item-sub-thread-wrapper-${parent} .wall-item-sub-thread-wrapper`);
+				parentSubWrapper.forEach(el => {
+					if (el.children.length > 0) {
+						el.classList.add('item-indent');
+					}
+				});
+
+				targetElement.classList.add('disabled');
+				return;
+			}
+
+			if (subWrapper.closest('.item-indent') !== null) {
+				subWrapper.classList.add('item-indent');
+				targetElement.classList.add('disabled');
+			}
+
+			targetElement.classList.add('expanded');
+
+			if (!userClick) {
+				targetElement.classList.add('disabled');
+			}
 		}
 
 		request(id, mid, verb, parent, uuid, userClick);
@@ -141,7 +157,6 @@ $(document).ready(function() {
 
 		const wrapper = document.getElementById('thread-wrapper-' + id);
 		if (!wrapper.classList.contains('toplevel_item')) {
-			wrapper.classList.add('item-highlight');
 			document.documentElement.style.setProperty('--hz-item-highlight', stringToHlsColor(uuid));
 		}
 
@@ -1418,14 +1433,15 @@ function request(id, mid, verb, parent, uuid, userClick) {
 		const subWrapper = document.getElementById('wall-item-sub-thread-wrapper-' + id);
 
 		if (userClick && !wrapper.classList.contains('toplevel_item')) {
-			document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => {
-				el.classList.remove('item-highlight');
-				el.style.boxShadow = '';
-			});
+			if (wrapper.closest('.item-indent') === null) {
+				document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => {
+					el.classList.remove('item-highlight');
+				});
 
-			wrapper.classList.add('item-highlight');
-			subWrapper.classList.remove('item-indent');
-			document.documentElement.style.setProperty('--hz-item-highlight', stringToHlsColor(uuid));
+				wrapper.classList.add('item-highlight');
+				subWrapper.classList.remove('item-indent');
+				document.documentElement.style.setProperty('--hz-item-highlight', stringToHlsColor(uuid));
+			}
 		}
 
 		fetch('/request?verb=' + verb + '&mid=' + mid + '&parent=' + parent + '&module=' + module)

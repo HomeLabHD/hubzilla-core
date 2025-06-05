@@ -241,24 +241,14 @@ a.wall-item-name-link {
 	width: .75rem;
 	top: 0;
 	left: 0;
-	border-color: var(--bs-border-color);
+	border-color: var(--hz-item-indent, var(--bs-border-color));
 	border-radius: 0 var(--bs-border-radius) 0 0;
 	border-style: solid;
 	border-width: 1px 1px 0 0;
 }
 
-.wall-item-comment.expanded:before {
-	content: '>';
-	position: absolute;
-	left: .82rem;
-	top: .42rem;
-}
-
-.wall-item-comment.expanded.indented:before {
-	content: '\2012';
-	position: absolute;
-	left: .82rem;
-	top: .47rem;
+.wall-item-comment.expanded {
+	opacity: 0.5;
 }
 
 /* comment_item */
