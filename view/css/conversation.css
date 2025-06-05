@@ -251,7 +251,7 @@ a.wall-item-name-link {
 	content: '>';
 	position: absolute;
 	left: .82rem;
-	top: .4rem;
+	top: .42rem;
 }
 
 .wall-item-comment.expanded.indented:before {
