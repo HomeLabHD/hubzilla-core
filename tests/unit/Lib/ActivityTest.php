@@ -274,4 +274,11 @@ class ActivityTest extends UnitTestCase {
 		];
 	}
 
+	public function testBuildPacketWithEmptyChannel(): void {
+		$data = [ 'aKey' => 'aValue' ];
+		$packet = json_decode(Activity::build_packet($data, []), true);
+
+		$this->assertArrayHasKey('aKey', $packet);
+		$this->assertEquals('aValue', $packet['aKey']);
+	}
 }
