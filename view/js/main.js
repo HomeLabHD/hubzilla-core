@@ -1620,7 +1620,6 @@ const autoExpand = (function () {
 				if (newButtonsFound) {
 					await new Promise(res => setTimeout(res, 700));
 					iteration++;
-
 				}
 			} while (newButtonsFound && iteration < maxIterations);
 
@@ -1655,17 +1654,10 @@ function stringToHexColor(str) {
 }
 
 function stringToHslColor(str) {
-	let hash = 0;
-	for (let i = 0; i < str.length; i++) {
-		hash = str.charCodeAt(i) + ((hash << 5) - hash);
-		hash |= 0;
-	}
-
-	const hue = Math.abs(hash) % 360;
-	const sat = 50 + (Math.abs(hash) % 50);     // 50% to 99%
-	const light = 40 + (Math.abs(hash >> 8) % 40); // 40% to 79%
-
-	return `hsl(${hue}, ${sat}%, ${light}%)`;
+	let stringUniqueHash = [...str].reduce((acc, char) => {
+		return char.charCodeAt(0) + ((acc << 5) - acc);
+	}, 0);
+	return `hsl(${stringUniqueHash % 360}, 95%, 70%)`;
 }
 
 function dolike(ident, verb) {
