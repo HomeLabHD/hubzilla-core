@@ -194,7 +194,8 @@ a.wall-item-name-link {
 }
 
 .item-highlight,
-.item-indent {
+.item-indent,
+.wall-item-comment {
 	position: relative;
 }
 
@@ -244,6 +245,20 @@ a.wall-item-name-link {
 	border-radius: 0 var(--bs-border-radius) 0 0;
 	border-style: solid;
 	border-width: 1px 1px 0 0;
+}
+
+.wall-item-comment.expanded:before {
+	content: '>';
+	position: absolute;
+	left: .82rem;
+	top: .4rem;
+}
+
+.wall-item-comment.expanded.indented:before {
+	content: '\2012';
+	position: absolute;
+	left: .82rem;
+	top: .45rem;
 }
 
 /* comment_item */

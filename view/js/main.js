@@ -100,6 +100,25 @@ $(document).ready(function() {
 		const uuid = targetElement.dataset.itemUuid;
 		const verb = targetElement.dataset.itemVerb;
 
+		if (userClick && targetElement.classList.contains('expanded') && targetElement.classList.contains('indented')) {
+			document.getElementById(`wall-item-sub-thread-wrapper-${id}`).innerHTML = '';
+			document.getElementById(`wall-item-sub-thread-wrapper-${id}`).classList.remove('item-indent');
+			targetElement.classList.remove('expanded', 'indented');
+			document.getElementById('thread-wrapper-' + id).classList.remove('item-highlight');
+			return;
+		}
+
+		if (userClick && targetElement.classList.contains('expanded')) {
+			document.getElementById(`wall-item-sub-thread-wrapper-${id}`).classList.toggle('item-indent');
+			targetElement.classList.add('indented');
+			return;
+		}
+
+		targetElement.classList.add('expanded');
+		if (!userClick) {
+			targetElement.classList.add('indented');
+		}
+
 		request(id, mid, verb, parent, uuid, userClick);
 
 	});
@@ -1425,11 +1444,6 @@ function request(id, mid, verb, parent, uuid, userClick) {
 				updateRelativeTime('.autotime');
 				collapseHeight();
 
-				const icon = document.querySelector('#wall-item-comment-' + id);
-				if (icon) {
-					icon.classList.add('disabled');
-				}
-
 				if (userClick) {
 					loading.style.display = 'none';
 					document.dispatchEvent(new CustomEvent('hz:sse_setNotificationsStatus', { detail: b64mids }));
@@ -1543,6 +1557,7 @@ const autoExpand = (function () {
 
 	async function autoExpand(id) {
 		const loading = document.getElementById('like-rotator-' + id);
+		clickedElements.clear();
 
 		try {
 			// Step 1: Ensure initial button is clicked
