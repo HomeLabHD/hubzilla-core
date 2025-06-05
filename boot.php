@@ -657,8 +657,10 @@ function sys_boot(): bool {
 	// allow somebody to set some initial settings just in case they can't
 	// install without special fiddling
 
-	if (App::$install && file_exists('.htpreconfig.php'))
+	if (App::$install && file_exists('.htpreconfig.php')) {
+		// @phpstan-ignore include.fileNotFound
 		@include('.htpreconfig.php');
+	}
 
 	if (array_key_exists('default_timezone', get_defined_vars())) {
 		App::$config['system']['timezone'] = $default_timezone;
@@ -869,6 +871,9 @@ class App {
 	 * @brief An array of instanced template engines ('name'=>'instance')
 	 */
 	public static $template_engine_instance = [];
+
+	/// Page layouts for comanche
+	public static array $page_layouts = [];
 
 	private static $ldelim = [
 		'internal' => '',
