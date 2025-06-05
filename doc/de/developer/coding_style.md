@@ -1,0 +1,12 @@
+### Codierungsstil
+
+Im Interesse der Konsistenz verwenden wir den folgenden Code-Stil. Wir akzeptieren auch Patches, die andere Stile verwenden, aber bitte versuchen Sie, wenn möglich, einen einheitlichen Code-Stil zu verwenden. Wir werden nicht über die Vorzüge dieses Stils streiten oder diskutieren, und es ist irrelevant, was Projekt „xyz“ verwendet. Dies ist nicht Projekt „xyz“. Dies ist eine Grundlinie, um zu versuchen, den Code jetzt und in Zukunft lesbar zu halten. 
+
+- Alle Kommentare sollten in Englisch sein.
+- Wir verwenden Doxygen, um Dokumentation zu erstellen. Dies wurde nicht konsequent angewandt, aber es wird dringend empfohlen, es zu lernen und zu benutzen.
+- Die Einrückung erfolgt hauptsächlich durch Tabulatoren mit einer Tabulatorbreite von 4.
+- String-Verkettungen und Operatoren sollten durch Leerzeichen getrennt werden. z.B. `$foo = $bar . 'abc';` anstelle von `$foo=$bar.‘abc';`
+- Im Allgemeinen verwenden wir einfache Anführungszeichen für String-Variablen und doppelte Anführungszeichen für SQL-Anweisungen. „Hier Dokumente“ sollten vermieden werden. Manchmal ist die Verwendung von Strings in doppelten Anführungszeichen mit Variablenersetzung das effizienteste Mittel zur Erstellung des Strings. In den meisten Fällen sollten Sie einfache Anführungszeichen verwenden.
+- Verwenden Sie Leerzeichen großzügig, um die Lesbarkeit zu verbessern. Bei der Erstellung von Arrays mit vielen Elementen wird oft ein Schlüssel/Wert-Paar pro Zeile gesetzt, das entsprechend von der übergeordneten Zeile eingerückt wird. Das Aneinanderreihen der Zuweisungsoperatoren erfordert etwas mehr Arbeit, erhöht aber auch die Lesbarkeit.
+- Im Allgemeinen werden öffnende geschweifte Klammern in dieselbe Zeile gesetzt wie das, was die Klammer öffnet. Sie sind das letzte Zeichen in der Zeile. Schließende Klammern stehen in einer eigenen Zeile.
+- Einige Funktionen nehmen Argumente im argc/argv-Stil entgegen, wie main() in C oder Funktions-Args in Bash oder Perl. Urls werden innerhalb eines Moduls aufgeteilt. z.B. bei `http://example.com/module/arg1/arg2` ist $this->argc 3 (integer) und $this->argv enthält: [0] => 'module', [1] => 'arg1', [2] => 'arg2'. Es wird immer nur ein Argument angegeben. Wenn eine nackte Domain-URL angegeben wird, wird $this->argv[0] auf „home“ gesetzt.

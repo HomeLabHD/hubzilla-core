@@ -1,0 +1,3 @@
+#### Unsere Verantwortlichkeiten
+
+Die Projektbetreuer sind dafür verantwortlich, die Standards für akzeptables Verhalten zu klären, und es wird von ihnen erwartet, dass sie angemessene und faire Korrekturmaßnahmen ergreifen, wenn ein inakzeptables Verhalten festgestellt wird.  Die Projektbetreuer haben das Recht und die Verantwortung, Kommentare, Commits, Code, Wiki-Edits, Issues und andere Beiträge, die nicht mit diesem Verhaltenskodex übereinstimmen, zu entfernen, zu bearbeiten oder abzulehnen, oder Beiträge, die sie als unangemessen, bedrohlich, beleidigend oder schädlich erachten, vorübergehend oder dauerhaft zu verbieten.
