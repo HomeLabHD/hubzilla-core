@@ -103,7 +103,7 @@ $(document).ready(function() {
 		if (targetElement.classList.contains('wall-item-comment')) {
 			const subWrapper = document.getElementById(`wall-item-sub-thread-wrapper-${id}`);
 
-			subWrapper.style.setProperty('--hz-item-indent', stringToHlsColor(uuid));
+			subWrapper.style.setProperty('--hz-item-indent', stringToHslColor(uuid));
 
 			if (userClick && targetElement.classList.contains('expanded')) {
 				if (subWrapper.closest('.item-indent') === null) {
@@ -157,7 +157,7 @@ $(document).ready(function() {
 
 		const wrapper = document.getElementById('thread-wrapper-' + id);
 		if (!wrapper.classList.contains('toplevel_item')) {
-			document.documentElement.style.setProperty('--hz-item-highlight', stringToHlsColor(uuid));
+			document.documentElement.style.setProperty('--hz-item-highlight', stringToHslColor(uuid));
 		}
 
 		autoExpand(id);
@@ -832,7 +832,7 @@ function updateConvItems(mode, data) {
 		if (data_json.includes(bParam_mid) && elem.parentNode.classList.contains('wall-item-sub-thread-wrapper')) {
 			if (!elem.parentNode.parentNode.classList.contains('toplevel_item')) {
 				elem.parentNode.parentNode.classList.add('item-highlight');
-				document.documentElement.style.setProperty('--hz-item-highlight', stringToHlsColor(JSON.parse(elem.parentNode.parentNode.dataset.b64mids)[0]));
+				document.documentElement.style.setProperty('--hz-item-highlight', stringToHslColor(JSON.parse(elem.parentNode.parentNode.dataset.b64mids)[0]));
 			}
 		}
 
@@ -1440,7 +1440,7 @@ function request(id, mid, verb, parent, uuid, userClick) {
 
 				wrapper.classList.add('item-highlight');
 				subWrapper.classList.remove('item-indent');
-				document.documentElement.style.setProperty('--hz-item-highlight', stringToHlsColor(uuid));
+				document.documentElement.style.setProperty('--hz-item-highlight', stringToHslColor(uuid));
 			}
 		}
 
@@ -1570,10 +1570,9 @@ const autoExpand = (function () {
 		});
 	}
 
-
 	async function autoExpand(id) {
 		const loading = document.getElementById('like-rotator-' + id);
-		clickedElements.clear();
+		const maxIterations = 3;
 
 		try {
 			// Step 1: Ensure initial button is clicked
@@ -1591,6 +1590,8 @@ const autoExpand = (function () {
 			const commentSelector = `#wall-item-sub-thread-wrapper-${id} .thread-wrapper`;
 			const commentBtnSelector = `#wall-item-sub-thread-wrapper-${id} .wall-item-comment`;
 			const subsSelector = `#wall-item-sub-thread-wrapper-${id}, #wall-item-sub-thread-wrapper-${id} .wall-item-sub-thread-wrapper`;
+
+			let iteration = 1;
 
 			do {
 				newButtonsFound = false;
@@ -1618,9 +1619,10 @@ const autoExpand = (function () {
 				// Wait between iterations to allow UI to update
 				if (newButtonsFound) {
 					await new Promise(res => setTimeout(res, 700));
-				}
+					iteration++;
 
-			} while (newButtonsFound);
+				}
+			} while (newButtonsFound && iteration < maxIterations);
 
 			console.log('All replies loaded!');
 
@@ -1652,11 +1654,18 @@ function stringToHexColor(str) {
 	return color;
 }
 
-function stringToHlsColor(str) {
-	let stringUniqueHash = [...str].reduce((acc, char) => {
-		return char.charCodeAt(0) + ((acc << 5) - acc);
-	}, 0);
-	return `hsl(${stringUniqueHash % 360}, 95%, 70%)`;
+function stringToHslColor(str) {
+	let hash = 0;
+	for (let i = 0; i < str.length; i++) {
+		hash = str.charCodeAt(i) + ((hash << 5) - hash);
+		hash |= 0;
+	}
+
+	const hue = Math.abs(hash) % 360;
+	const sat = 50 + (Math.abs(hash) % 50);     // 50% to 99%
+	const light = 40 + (Math.abs(hash >> 8) % 40); // 40% to 79%
+
+	return `hsl(${hue}, ${sat}%, ${light}%)`;
 }
 
 function dolike(ident, verb) {

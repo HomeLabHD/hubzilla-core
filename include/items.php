@@ -5421,7 +5421,7 @@ function items_by_parent_ids(array $parents, null|array $thr_parents = null, str
 
 	$thr_parent_sql = (($thread_allow) ? " AND item.thr_parent = item.parent_mid " : '');
 	if ($thr_parents && $thread_allow) {
-		$limit = 100;
+		$limit = 300;
 		$thr_parent_str = stringify_array($thr_parents, true);
 		$thr_parent_sql = " AND item.thr_parent IN (" . protect_sprintf($thr_parent_str) . ") ";
 	}
