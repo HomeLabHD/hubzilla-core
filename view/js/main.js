@@ -113,7 +113,7 @@ $(document).ready(function() {
 				el.classList.remove('item-highlight');
 			});
 
-			if (!parentSubWrapperIndented) {
+			if (!parentSubWrapperIndented && userClick) {
 				threadWrapper.classList.add('item-highlight');
 			}
 			else {
@@ -149,24 +149,54 @@ $(document).ready(function() {
 		const targetElement = event.target.closest('.dropdown-item-expand');
 		if (!targetElement) return;
 
+		// Disable the button we just clicked
+		targetElement.classList.add('disabled');
 		event.preventDefault();
-
-		const id = targetElement.dataset.itemId;
-		const uuid = targetElement.dataset.itemUuid;
-
-		const loading = document.getElementById('like-rotator-' + id);
-		loading.style.display = 'block';
 
 		document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => {
 			el.classList.remove('item-highlight');
 		});
 
+		const id = targetElement.dataset.itemId;
+		const uuid = targetElement.dataset.itemUuid;
+		const subWrapper = document.getElementById(`wall-item-sub-thread-wrapper-${id}`);
+
+		const loading = document.getElementById('like-rotator-' + id);
+
 		const wrapper = document.getElementById('thread-wrapper-' + id);
+		const parent = wrapper.closest('.generic-content-wrapper');
+
+		parent.classList.add('wall-item-backdrop');
+		wrapper.classList.add('wall-item-expanded', 'shadow');
+
 		if (!wrapper.classList.contains('toplevel_item')) {
 			document.documentElement.style.setProperty('--hz-item-highlight', stringToHslColor(uuid));
 		}
 
 		autoExpand(id);
+
+		// Close and reset if dbl clicked
+		wrapper.addEventListener('dblclick', function(event) {
+
+			parent.classList.remove('wall-item-backdrop');
+			wrapper.classList.remove('wall-item-expanded', 'shadow');
+
+			wrapper.querySelectorAll('.dropdown-item-expand').forEach(el => {
+				el.classList.remove('disabled');
+			});
+
+			wrapper.querySelectorAll('.wall-item-comment').forEach(el => {
+				el.classList.remove('disabled', 'expanded');
+			});
+
+			subWrapper.querySelectorAll('.wall-item-comment').forEach(el => {
+				el.classList.remove('disabled', 'expanded');
+			});
+
+			subWrapper.innerHTML = '';
+			subWrapper.classList.remove('item-indent');
+		})
+
 	});
 
 	// @hilmar |->
@@ -1563,6 +1593,7 @@ const autoExpand = (function () {
 	async function autoExpand(id) {
 		const loading = document.getElementById('like-rotator-' + id);
 		const maxIterations = 10;
+		clickedElements.clear();
 
 		try {
 			// Step 1: Ensure initial button is clicked

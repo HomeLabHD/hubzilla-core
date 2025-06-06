@@ -195,7 +195,8 @@ a.wall-item-name-link {
 
 .item-highlight,
 .item-indent,
-.wall-item-comment {
+.wall-item-comment,
+.thread-wrapper {
 	position: relative;
 }
 
@@ -214,9 +215,10 @@ a.wall-item-name-link {
 	position: absolute;
 	pointer-events: none;
 	box-shadow: inset .15rem 0 0 0 var(--hz-item-highlight);
-	height: 100%;
 	width: 100%;
 	top: 0;
+	bottom: 0;
+	margin: var(--bs-border-radius) 0 var(--bs-border-radius) 0;
 }
 
 .item-highlight-fade {
@@ -249,6 +251,23 @@ a.wall-item-name-link {
 
 .wall-item-comment.expanded {
 	opacity: 0.5;
+}
+
+.wall-item-backdrop::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	backdrop-filter: saturate(0%) brightness(90%);
+	z-index: 1;
+}
+
+
+.wall-item-expanded {
+	position: relative;
+	border: 1px solid var(--bs-danger);
+	border-radius: var(--bs-border-radius);
+	background-color: var(--bs-body-bg);
+	z-index: 2;
 }
 
 /* comment_item */
