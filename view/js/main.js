@@ -166,6 +166,14 @@ $(document).ready(function() {
 		const wrapper = document.getElementById('thread-wrapper-' + id);
 		const parent = wrapper.closest('.generic-content-wrapper');
 
+		parent.querySelectorAll('.wall-item-sub-thread-wrapper.item-indent').forEach(el => {
+			el.classList.remove('item-indent');
+		});
+
+		parent.querySelectorAll('.thread-wrapper.wall-item-expanded').forEach(el => {
+			el.classList.remove('wall-item-expanded');
+		});
+
 		parent.classList.add('wall-item-backdrop');
 		wrapper.classList.add('wall-item-expanded', 'shadow');
 
