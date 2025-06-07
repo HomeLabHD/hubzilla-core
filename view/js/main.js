@@ -1600,7 +1600,7 @@ const autoExpand = (function () {
 
 	async function autoExpand(id) {
 		const loading = document.getElementById('like-rotator-' + id);
-		const maxIterations = 10;
+		const maxIterations = 3;
 		clickedElements.clear();
 
 		try {
