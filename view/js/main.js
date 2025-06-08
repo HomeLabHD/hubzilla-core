@@ -90,75 +90,103 @@ $(document).ready(function() {
 	});
 
 	document.addEventListener('click', function(event) {
-		const targetElement = event.target.closest('.wall-item-reaction');
-		if (!targetElement) return;
+		const target = event.target.closest('.wall-item-reaction');
+		if (!target) return;
 
-		const userClick = event.isTrusted;
-		const id = targetElement.dataset.itemId;
-		const mid = targetElement.dataset.itemMid;
-		const parent = targetElement.dataset.itemParent;
-		const uuid = targetElement.dataset.itemUuid;
-		const verb = targetElement.dataset.itemVerb;
+		const isUserClick = event.isTrusted;
 
-		if (targetElement.classList.contains('wall-item-comment')) {
-			const threadWrapper = document.getElementById(`thread-wrapper-${id}`);
-			const subWrapper = document.getElementById(`wall-item-sub-thread-wrapper-${id}`);
-			const parentSubWrapper = document.querySelectorAll(`#wall-item-sub-thread-wrapper-${parent} .wall-item-sub-thread-wrapper`);
-			const parentSubWrapperIndented = document.querySelector(`#wall-item-sub-thread-wrapper-${parent} .wall-item-sub-thread-wrapper.item-indent`);
+		const { itemId: id, itemMid: mid, itemParent: parentId, itemUuid: uuid, itemVerb: verb } = target.dataset;
 
-			subWrapper.style.setProperty('--hz-item-indent', stringToHslColor(uuid));
+		const isComment = target.classList.contains('wall-item-comment');
+		const threadWrapper = document.getElementById(`thread-wrapper-${id}`);
+		const parentWrapper = document.getElementById(`thread-wrapper-${parentId}`);
+		const subThreadWrapper = document.getElementById(`wall-item-sub-thread-wrapper-${id}`);
+
+		if (isComment) {
+			const parentSubThreads = document.querySelectorAll(`#wall-item-sub-thread-wrapper-${parentId} .wall-item-sub-thread-wrapper`);
+			const parentIndentedThreads = document.querySelectorAll(`#wall-item-sub-thread-wrapper-${parentId} .wall-item-sub-thread-wrapper.item-indent`);
+			const expandedThreads = document.querySelectorAll(`#wall-item-sub-thread-wrapper-${parentId} .thread-wrapper.wall-item-expanded`);
+
+			// Set visual styles using UUID
+			subThreadWrapper.style.setProperty('--hz-item-indent', stringToHslColor(uuid));
 			threadWrapper.style.setProperty('--hz-item-highlight', stringToHslColor(uuid));
 
-			document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => {
-				el.classList.remove('item-highlight');
-			});
+			// Clear previous highlights
+			document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => el.classList.remove('item-highlight'));
 
-			if (!parentSubWrapperIndented && userClick) {
+			if (isUserClick && parentIndentedThreads.length === 0) {
 				threadWrapper.classList.add('item-highlight');
+			} else {
+				let indentCount = 0;
+				let ancestor = subThreadWrapper.parentElement;
+
+				while (ancestor) {
+					if (ancestor.classList.contains('item-indent')) indentCount++;
+					ancestor = ancestor.parentElement;
+				}
+
+				const needsRefocus = indentCount >= 3 || parentWrapper.classList.contains('wall-item-unexpanded');
+
+				if (isUserClick && needsRefocus) {
+					parentWrapper.classList.remove('wall-item-unexpanded');
+					target.classList.remove('disabled', 'expanded');
+
+					// Remove existing highlights and expansions
+					document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => el.classList.remove('item-highlight'));
+					expandedThreads.forEach(el => el.classList.remove('wall-item-expanded', 'shadow'));
+					parentIndentedThreads.forEach(el => el.classList.remove('item-indent'));
+
+					// Expand the current thread
+					threadWrapper.classList.add('wall-item-expanded', 'shadow');
+					parentWrapper.classList.add('wall-item-backdrop');
+
+					// Close and reset if dbl clicked
+					threadWrapper.addEventListener('dblclick', function() {
+						parentWrapper.classList.remove('wall-item-backdrop');
+						parentWrapper.classList.add('wall-item-unexpanded');
+
+						parentWrapper.querySelectorAll('.thread-wrapper.wall-item-expanded')
+							.forEach(el => el.classList.remove('wall-item-expanded', 'shadow'));
+					}, { once: true });
+				}
+
+				subThreadWrapper.classList.add('item-indent');
 			}
-			else {
-				subWrapper.classList.add('item-indent');
-			}
 
-			if (userClick && targetElement.classList.contains('expanded')) {
-				document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => {
-					el.classList.remove('item-highlight');
-				});
-
-				parentSubWrapper.forEach(el => {
-					if (el.children.length > 0) {
-						el.classList.add('item-indent');
-					}
-				});
-
-				targetElement.classList.add('disabled');
+			if (isUserClick && target.classList.contains('expanded')) {
+				if (expandedThreads.length === 0) {
+					document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => el.classList.remove('item-highlight'));
+					parentSubThreads.forEach(el => {
+						if (el.children.length > 0) {
+							el.classList.add('item-indent');
+						}
+					});
+					target.classList.add('indented');
+				}
+				else {
+					subThreadWrapper.classList.toggle('d-none');
+					target.classList.toggle('collapsed');
+				}
+				console.log('gothere')
 				return;
 			}
 
-			targetElement.classList.add('expanded');
-
-			if (!userClick) {
-				targetElement.classList.add('disabled');
-			}
+			target.classList.add('expanded');
 		}
 
-		request(id, mid, verb, parent, uuid, userClick);
+		request(id, mid, verb, parentId, uuid, isUserClick);
 	});
+
 
 	document.addEventListener('click', function(event) {
 		const targetElement = event.target.closest('.dropdown-item-expand');
 		if (!targetElement) return;
 
-		// Disable the button we just clicked
-		targetElement.classList.add('disabled');
 		event.preventDefault();
-
-		document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => {
-			el.classList.remove('item-highlight');
-		});
 
 		const id = targetElement.dataset.itemId;
 		const uuid = targetElement.dataset.itemUuid;
+
 		const subWrapper = document.getElementById(`wall-item-sub-thread-wrapper-${id}`);
 
 		const loading = document.getElementById('like-rotator-' + id);
@@ -166,45 +194,28 @@ $(document).ready(function() {
 		const wrapper = document.getElementById('thread-wrapper-' + id);
 		const parent = wrapper.closest('.generic-content-wrapper');
 
+		parent.querySelectorAll('.thread-wrapper.wall-item-expanded').forEach(el => {
+			el.classList.remove('wall-item-expanded', 'shadow');
+		});
+
 		parent.querySelectorAll('.wall-item-sub-thread-wrapper.item-indent').forEach(el => {
 			el.classList.remove('item-indent');
 		});
 
-		parent.querySelectorAll('.thread-wrapper.wall-item-expanded').forEach(el => {
-			el.classList.remove('wall-item-expanded');
-		});
-
-		parent.classList.add('wall-item-backdrop');
 		wrapper.classList.add('wall-item-expanded', 'shadow');
 
-		if (!wrapper.classList.contains('toplevel_item')) {
-			document.documentElement.style.setProperty('--hz-item-highlight', stringToHslColor(uuid));
-		}
-
-		autoExpand(id);
+		parent.classList.add('wall-item-backdrop');
 
 		// Close and reset if dbl clicked
-		wrapper.addEventListener('dblclick', function(event) {
-
+		wrapper.addEventListener('dblclick', function() {
 			parent.classList.remove('wall-item-backdrop');
-			wrapper.classList.remove('wall-item-expanded', 'shadow');
+			parent.classList.add('wall-item-unexpanded');
 
-			wrapper.querySelectorAll('.dropdown-item-expand').forEach(el => {
-				el.classList.remove('disabled');
-			});
+			parent.querySelectorAll('.thread-wrapper.wall-item-expanded')
+				.forEach(el => el.classList.remove('wall-item-expanded', 'shadow'));
+		}, { once: true });
 
-			wrapper.querySelectorAll('.wall-item-comment').forEach(el => {
-				el.classList.remove('disabled', 'expanded');
-			});
-
-			subWrapper.querySelectorAll('.wall-item-comment').forEach(el => {
-				el.classList.remove('disabled', 'expanded');
-			});
-
-			subWrapper.innerHTML = '';
-			subWrapper.classList.remove('item-indent');
-		})
-
+		autoExpand(id);
 	});
 
 	// @hilmar |->
@@ -1600,10 +1611,12 @@ const autoExpand = (function () {
 
 	async function autoExpand(id) {
 		const loading = document.getElementById('like-rotator-' + id);
-		const maxIterations = 3;
 		clickedElements.clear();
+		maxIterations = 3;
 
 		try {
+			let iteration = 0;
+
 			// Step 1: Ensure initial button is clicked
 			const initBtnSelector = '#wall-item-comment-' + id;
 			const initBtn = await waitForElement(initBtnSelector);
@@ -1618,21 +1631,16 @@ const autoExpand = (function () {
 
 			const commentSelector = `#wall-item-sub-thread-wrapper-${id} .thread-wrapper`;
 			const commentBtnSelector = `#wall-item-sub-thread-wrapper-${id} .wall-item-comment`;
-			const subsSelector = `#wall-item-sub-thread-wrapper-${id}, #wall-item-sub-thread-wrapper-${id} .wall-item-sub-thread-wrapper`;
-
-			let iteration = 1;
 
 			do {
+				if (iteration >= maxIterations) {
+					return;
+				}
+
 				newButtonsFound = false;
 
 				// Wait for any comment to appear
 				await waitForElement(commentSelector);
-
-				document.querySelectorAll(subsSelector).forEach(el => {
-					if (el.children.length > 0) {
-						el.classList.add('item-indent');
-					}
-				});
 
 				const expandButtons = document.querySelectorAll(commentBtnSelector);
 
@@ -1652,7 +1660,7 @@ const autoExpand = (function () {
 
 				iteration++;
 
-			} while (newButtonsFound && iteration < maxIterations);
+			} while (newButtonsFound);
 
 			console.log('All replies loaded!');
 

@@ -253,6 +253,13 @@ a.wall-item-name-link {
 	opacity: 0.5;
 }
 
+.wall-item-comment.collapsed::before {
+	content: '-';
+	position: absolute;
+	left: .9rem;
+	top: .45rem;
+}
+
 .wall-item-backdrop::before {
 	content: '';
 	position: absolute;
