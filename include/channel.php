@@ -2407,9 +2407,6 @@ function get_zcard($channel, $observer_hash = '', $args = array()) {
 		$pphoto = array('mimetype' => $channel['xchan_photo_mimetype'], 'width' => 300 , 'height' => 300, 'href' => $channel['xchan_photo_l'].'?rev='.strtotime($channel['xchan_photo_date']));
 	}
 
-//	$scale = (float) $maxwidth / $width;
-//	$translate = intval(($scale / 1.0) * 100);
-
 	$zcard['chan'] = [
 		'xchan_name' => $channel['xchan_name'],
 		'xchan_url' => $channel['xchan_url'],
@@ -2432,8 +2429,6 @@ function get_zcard($channel, $observer_hash = '', $args = array()) {
 
 	return replace_macros(get_markup_template('zcard.tpl'), array(
 		'$maxwidth' => $maxwidth,
-		'$scale' => $scale,
-		'$translate' => $translate,
 		'$size' => $size,
 		'$cover' => $cover,
 		'$pphoto' => $pphoto,
