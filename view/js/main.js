@@ -90,19 +90,23 @@ $(document).ready(function() {
 	});
 
 	document.addEventListener('click', function(event) {
+		// Only handle clicks on .wall-item-reaction or its children
 		const target = event.target.closest('.wall-item-reaction');
 		if (!target) return;
 
 		const isUserClick = event.isTrusted;
 
+		// Destructure relevant data attributes
 		const { itemId: id, itemMid: mid, itemParent: parentId, itemUuid: uuid, itemVerb: verb } = target.dataset;
+		const isCommentBtn = target.classList.contains('wall-item-comment');
 
-		const hasComment = target.classList.contains('wall-item-comment');
+		// Get relevant DOM elements
 		const threadWrapper = document.getElementById(`thread-wrapper-${id}`);
 		const parentWrapper = document.getElementById(`thread-wrapper-${parentId}`);
 		const subThreadWrapper = document.getElementById(`wall-item-sub-thread-wrapper-${id}`);
 
-		if (hasComment) {
+		if (isCommentBtn) {
+			// Query related sub-thread and highlight elements
 			const parentSubThreads = document.querySelectorAll(`#wall-item-sub-thread-wrapper-${parentId} .wall-item-sub-thread-wrapper`);
 			const expandedThreads = document.querySelectorAll(`#wall-item-sub-thread-wrapper-${parentId} .thread-wrapper.wall-item-expanded`);
 			const parentIndentedThreads = document.querySelectorAll(`#wall-item-sub-thread-wrapper-${parentId} .wall-item-sub-thread-wrapper.item-indent`);
@@ -114,17 +118,22 @@ $(document).ready(function() {
 			// Clear previous highlights
 			document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => el.classList.remove('item-highlight'));
 
-			if (isUserClick && parentIndentedThreads.length === 0 && !parentWrapper.classList.contains('wall-item-unexpanded')) {
+			// Handle first-time expansion and highlighting
+			if (
+				isUserClick &&
+				parentIndentedThreads.length === 0 &&
+				!parentWrapper.classList.contains('wall-item-unexpanded') &&
+				!subThreadWrapper.children.length
+			) {
 				threadWrapper.classList.add('item-highlight');
 			} else {
+				// Calculate indentation depth
 				let indentCount = 0;
 				let ancestor = subThreadWrapper.parentElement;
-
 				while (ancestor) {
 					if (ancestor.classList.contains('item-indent')) indentCount++;
 					ancestor = ancestor.parentElement;
 				}
-
 				const needsRefocus = indentCount >= 3 || parentWrapper.classList.contains('wall-item-unexpanded');
 
 				if (isUserClick && needsRefocus) {
@@ -140,48 +149,63 @@ $(document).ready(function() {
 					threadWrapper.classList.add('wall-item-expanded', 'shadow');
 					parentWrapper.classList.add('wall-item-backdrop');
 
-					// Close and reset if dbl clicked
+					// Collapse on double-click
 					threadWrapper.addEventListener('dblclick', function() {
 						parentWrapper.classList.remove('wall-item-backdrop');
 						parentWrapper.classList.add('wall-item-unexpanded');
-
-						parentWrapper.querySelectorAll('.wall-item-sub-thread-wrapper.item-indent').forEach(el => {
-							el.classList.remove('item-indent');
-						});
-
-						parentWrapper.querySelectorAll('.thread-wrapper.wall-item-expanded')
-							.forEach(el => el.classList.remove('wall-item-expanded', 'shadow'));
+						parentWrapper.querySelectorAll('.wall-item-sub-thread-wrapper.item-indent').forEach(el => el.classList.remove('item-indent'));
+						parentWrapper.querySelectorAll('.thread-wrapper.wall-item-expanded').forEach(el => el.classList.remove('wall-item-expanded', 'shadow'));
 					}, { once: true });
 				}
-
 				subThreadWrapper.classList.add('item-indent', 'item-expanded');
 			}
 
-			if (isUserClick && target.classList.contains('expanded')) {
+			// Toggle sub-thread visibility if already expanded
+			if (isUserClick && target.classList.contains('expanded') && expandedThreads.length !== 0) {
+				subThreadWrapper.classList.toggle('d-none');
+				target.classList.toggle('collapsed');
+			}
+
+			// Expand sub-thread if not already loaded
+			if (isUserClick && target.classList.contains('expanded') && !subThreadWrapper.children.length) {
 				if (expandedThreads.length === 0) {
 					parentWrapper.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => el.classList.remove('item-highlight'));
 					parentSubThreads.forEach(el => {
-						if (el.children.length > 0) {
-							el.classList.add('item-indent');
-						}
+						if (el.children.length > 0) el.classList.add('item-indent');
 					});
-					target.classList.add('indented', 'item-expanded');
-				}
-				else {
+					target.classList.add('indented');
+				} else {
 					subThreadWrapper.classList.toggle('d-none');
 					target.classList.toggle('collapsed');
 				}
-
 				return;
 			}
 
+			// Mark as expanded/indented
 			target.classList.add('expanded');
+			if (!isUserClick) target.classList.add('indented');
 
+			// Handle sub-thread children indentation
+			if (isUserClick && subThreadWrapper.children.length) {
+				let count = 0;
+				subThreadWrapper.querySelectorAll('.wall-item-sub-thread-wrapper').forEach(el => {
+					if (count >= 3) el.innerHTML = '';
+					if (el.children.length > 0) {
+						let btn = el.parentElement.querySelector('.wall-item-comment');
+						if (btn) {
+							btn.classList.add('expanded', 'indented');
+							el.style.setProperty('--hz-item-indent', stringToHslColor(btn.dataset.itemUuid));
+						}
+						el.classList.add('item-indent');
+					}
+					count++;
+				});
+				return;
+			}
 		}
 
 		request(id, mid, verb, parentId, uuid, isUserClick);
 	});
-
 
 	document.addEventListener('click', function(event) {
 		const targetElement = event.target.closest('.dropdown-item-expand');
@@ -1633,6 +1657,7 @@ const autoExpand = (function () {
 			if (!clickedElements.has(initBtn)) {
 				initBtn.click();
 				clickedElements.add(initBtn);
+				iteration++;
 			}
 
 			// Step 2: Loop until no new buttons are found
