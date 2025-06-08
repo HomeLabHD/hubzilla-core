@@ -500,7 +500,6 @@
 						.then(ddata => {
 							if (ddata.status) {
 								addActiveEditorText(ddata.photolink);
-								preview_post();
 							} else {
 								console.error("{{$modalerrorlink}}: " + ddata.errormsg);
 							}
@@ -576,7 +575,9 @@
 				textarea.value = currentText + data;
 				textarea.focus();
 				textarea.click();
-				preview_comment(activeCommentID);
+				if (!isModalAction) {
+					preview_comment(activeCommentID);
+				}
 			}
 		} else {
 			addeditortext(data);
