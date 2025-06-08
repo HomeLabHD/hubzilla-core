@@ -1730,7 +1730,7 @@ function stringToHslColor(str) {
 	let stringUniqueHash = [...str].reduce((acc, char) => {
 		return char.charCodeAt(0) + ((acc << 5) - acc);
 	}, 0);
-	return `hsl(${stringUniqueHash % 360}, 95%, 70%)`;
+	return `hsl(${stringUniqueHash % 360}, 75%, 50%)`;
 }
 
 function dolike(ident, verb) {
