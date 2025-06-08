@@ -30,6 +30,9 @@
 			<div class="modal-body list-group" id="reactions_body">
 				{{$wait}}
 			</div>
+			<div class="ps-3 pe-3" id="reactions_extra_top"></div>
+			<div class="ps-3 pe-3" id="reactions_extra_middle"></div>
+			<div class="ps-3 pe-3" id="reactions_extra_bottom"></div>
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal-dialog -->
 </div><!-- /.modal -->

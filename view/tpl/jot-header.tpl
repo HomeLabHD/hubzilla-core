@@ -11,6 +11,8 @@
 	var activeCommentID = 0;
 	var activeCommentText = '';
 
+	var isModalAction = false;
+
 	var postSaveTimer = null;
 
 	function initEditor(cb){
@@ -414,19 +416,41 @@
 		// Fetch the photo album list
 		getPhotoAlbumList();
 
-		// Remove any existing click event listeners on the modal body
-		const modalBodyAlbumDialog = document.getElementById('embedPhotoModalBodyAlbumDialog');
-		modalBodyAlbumDialog.replaceWith(modalBodyAlbumDialog.cloneNode(true)); // This effectively removes all event listeners
+		if (activeCommentID) {
+			const modalEl = document.getElementById('reactions');
+			isModalAction = modalEl.classList.contains('show');
+		}
 
-		// Show the modal
-		const modalEl = document.getElementById('embedPhotoModal');
-		const modal = new bootstrap.Modal(modalEl);
-		modal.show();
+		if (isModalAction) {
+			// Remove any existing click event listeners on the modal body
+			const modalBodyAlbumDialog = document.getElementById('reactions_extra_middle');
+			modalBodyAlbumDialog.replaceWith(modalBodyAlbumDialog.cloneNode(true)); // This effectively removes all event listeners
 
-		// Reset activeCommentID when the modal is closed
-		modalEl.addEventListener('hide.bs.modal', event => {
-			activeCommentID = 0;
-		});
+			const modalEl = document.getElementById('reactions');
+
+			// Reset activeCommentID when the modal is closed
+			modalEl.addEventListener('hide.bs.modal', event => {
+				activeCommentID = 0;
+				isModalAction = false;
+				document.getElementById('reactions_extra_middle').innerHTML = '';
+				document.getElementById('reactions_extra_top').innerHTML = '';
+			});
+		}
+		else {
+			// Remove any existing click event listeners on the modal body
+			const modalBodyAlbumDialog = document.getElementById('embedPhotoModalBodyAlbumDialog');
+			modalBodyAlbumDialog.replaceWith(modalBodyAlbumDialog.cloneNode(true)); // This effectively removes all event listeners
+
+			// Show the modal
+			const modalEl = document.getElementById('embedPhotoModal');
+			const modal = new bootstrap.Modal(modalEl);
+			modal.show();
+
+			// Reset activeCommentID when the modal is closed
+			modalEl.addEventListener('hide.bs.modal', event => {
+				activeCommentID = 0;
+			});
+		}
 	};
 
 	const choosePhotoFromAlbum = (album) => {
@@ -442,15 +466,16 @@
 		.then(data => {
 			if (data.status) {
 
-				const modalLabel = document.getElementById('embedPhotoModalLabel');
-				const modalBody = document.getElementById('embedPhotoModalBodyAlbumDialog');
+				const modalLabel = isModalAction ? document.getElementById('reactions_extra_top') : document.getElementById('embedPhotoModalLabel');
+				const modalBody = isModalAction ? document.getElementById('reactions_extra_middle') : document.getElementById('embedPhotoModalBodyAlbumDialog');
 
-				modalLabel.innerHTML = '{{$modalchooseimages}}';
+				modalLabel.innerHTML = '<h3>{{$modalchooseimages}}</h3>';
 				modalBody.innerHTML = '<div><div class="nav nav-pills flex-column"><li class="nav-item"><a class="nav-link" href="#" onclick="initializeEmbedPhotoDialog(); return false;"><i class="bi bi-chevron-left"></i>&nbsp;{{$modaldiffalbum}}</a></li></div><br></div>';
 				modalBody.innerHTML += data.content;
 
 				// Make sure the loaded script is executed
 				const scripts = modalBody.querySelectorAll('script');
+
 				scripts.forEach(script => {
 					const scriptContent = script.textContent || script.innerText;
 					eval(scriptContent);  // Execute the script
@@ -502,10 +527,10 @@
 		.then(data => {
 			if (data.status) {
 				const albums = data.albumlist;
-				const modalLabel = document.getElementById('embedPhotoModalLabel');
-				const modalBodyList = document.getElementById('embedPhotoModalBodyAlbumList');
+				const modalLabel = isModalAction ? document.getElementById('reactions_extra_top') : document.getElementById('embedPhotoModalLabel');
+				const modalBodyList = isModalAction ? document.getElementById('reactions_extra_middle') : document.getElementById('embedPhotoModalBodyAlbumList');
 
-				modalLabel.innerHTML = '{{$modalchoosealbum}}';
+				modalLabel.innerHTML = '<h3>{{$modalchoosealbum}}</h3>';
 				modalBodyList.innerHTML = '<ul class="nav nav-pills flex-column"></ul>';
 
 				albums.forEach(album => {
