@@ -254,9 +254,9 @@ a.wall-item-name-link {
 }
 
 .wall-item-comment.collapsed::before {
-	content: '-';
+	content: '\2212';
 	position: absolute;
-	left: .9rem;
+	left: .85rem;
 	top: .45rem;
 }
 
@@ -271,7 +271,7 @@ a.wall-item-name-link {
 
 .wall-item-expanded {
 	position: relative;
-	border: 1px solid var(--bs-danger);
+	border: 1px solid var(--bs-secondary);
 	border-radius: var(--bs-border-radius);
 	background-color: var(--bs-body-bg);
 	z-index: 2;
