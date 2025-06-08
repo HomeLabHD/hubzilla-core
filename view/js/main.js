@@ -97,15 +97,15 @@ $(document).ready(function() {
 
 		const { itemId: id, itemMid: mid, itemParent: parentId, itemUuid: uuid, itemVerb: verb } = target.dataset;
 
-		const isComment = target.classList.contains('wall-item-comment');
+		const hasComment = target.classList.contains('wall-item-comment');
 		const threadWrapper = document.getElementById(`thread-wrapper-${id}`);
 		const parentWrapper = document.getElementById(`thread-wrapper-${parentId}`);
 		const subThreadWrapper = document.getElementById(`wall-item-sub-thread-wrapper-${id}`);
 
-		if (isComment) {
+		if (hasComment) {
 			const parentSubThreads = document.querySelectorAll(`#wall-item-sub-thread-wrapper-${parentId} .wall-item-sub-thread-wrapper`);
-			const parentIndentedThreads = document.querySelectorAll(`#wall-item-sub-thread-wrapper-${parentId} .wall-item-sub-thread-wrapper.item-indent`);
 			const expandedThreads = document.querySelectorAll(`#wall-item-sub-thread-wrapper-${parentId} .thread-wrapper.wall-item-expanded`);
+			const parentIndentedThreads = document.querySelectorAll(`#wall-item-sub-thread-wrapper-${parentId} .wall-item-sub-thread-wrapper.item-indent`);
 
 			// Set visual styles using UUID
 			subThreadWrapper.style.setProperty('--hz-item-indent', stringToHslColor(uuid));
@@ -114,7 +114,7 @@ $(document).ready(function() {
 			// Clear previous highlights
 			document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => el.classList.remove('item-highlight'));
 
-			if (isUserClick && parentIndentedThreads.length === 0) {
+			if (isUserClick && parentIndentedThreads.length === 0 && !parentWrapper.classList.contains('wall-item-unexpanded')) {
 				threadWrapper.classList.add('item-highlight');
 			} else {
 				let indentCount = 0;
@@ -129,7 +129,7 @@ $(document).ready(function() {
 
 				if (isUserClick && needsRefocus) {
 					parentWrapper.classList.remove('wall-item-unexpanded');
-					target.classList.remove('disabled', 'expanded');
+					target.classList.remove('expanded');
 
 					// Remove existing highlights and expansions
 					document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => el.classList.remove('item-highlight'));
@@ -145,33 +145,38 @@ $(document).ready(function() {
 						parentWrapper.classList.remove('wall-item-backdrop');
 						parentWrapper.classList.add('wall-item-unexpanded');
 
+						parentWrapper.querySelectorAll('.wall-item-sub-thread-wrapper.item-indent').forEach(el => {
+							el.classList.remove('item-indent');
+						});
+
 						parentWrapper.querySelectorAll('.thread-wrapper.wall-item-expanded')
 							.forEach(el => el.classList.remove('wall-item-expanded', 'shadow'));
 					}, { once: true });
 				}
 
-				subThreadWrapper.classList.add('item-indent');
+				subThreadWrapper.classList.add('item-indent', 'item-expanded');
 			}
 
 			if (isUserClick && target.classList.contains('expanded')) {
 				if (expandedThreads.length === 0) {
-					document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => el.classList.remove('item-highlight'));
+					parentWrapper.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => el.classList.remove('item-highlight'));
 					parentSubThreads.forEach(el => {
 						if (el.children.length > 0) {
 							el.classList.add('item-indent');
 						}
 					});
-					target.classList.add('indented');
+					target.classList.add('indented', 'item-expanded');
 				}
 				else {
 					subThreadWrapper.classList.toggle('d-none');
 					target.classList.toggle('collapsed');
 				}
-				console.log('gothere')
+
 				return;
 			}
 
 			target.classList.add('expanded');
+
 		}
 
 		request(id, mid, verb, parentId, uuid, isUserClick);
@@ -210,6 +215,10 @@ $(document).ready(function() {
 		wrapper.addEventListener('dblclick', function() {
 			parent.classList.remove('wall-item-backdrop');
 			parent.classList.add('wall-item-unexpanded');
+
+			parent.querySelectorAll('.wall-item-sub-thread-wrapper.item-indent').forEach(el => {
+				el.classList.remove('item-indent');
+			});
 
 			parent.querySelectorAll('.thread-wrapper.wall-item-expanded')
 				.forEach(el => el.classList.remove('wall-item-expanded', 'shadow'));
