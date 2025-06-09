@@ -271,10 +271,20 @@ a.wall-item-name-link {
 
 .wall-item-expanded {
 	position: relative;
-	border: 1px solid var(--bs-danger);
 	border-radius: var(--bs-border-radius);
 	background-color: var(--bs-body-bg);
 	z-index: 2;
+}
+
+.wall-item-expanded:after {
+	content: '';
+	position: absolute;
+	pointer-events: none;
+	box-shadow: 0 0 0 1px var(--hz-item-highlight);
+	border-radius: var(--bs-border-radius);
+	width: 100%;
+	top: 0;
+	bottom: 0;
 }
 
 /* comment_item */
