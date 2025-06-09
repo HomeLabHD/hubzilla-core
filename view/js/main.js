@@ -1689,10 +1689,9 @@ const autoExpand = (function () {
 
 				// Wait between iterations to allow UI to update
 				if (newButtonsFound) {
+					iteration++;
 					await new Promise(res => setTimeout(res, 700));
 				}
-
-				iteration++;
 
 			} while (newButtonsFound);
 
