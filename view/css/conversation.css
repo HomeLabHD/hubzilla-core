@@ -280,7 +280,7 @@ a.wall-item-name-link {
 	content: '';
 	position: absolute;
 	pointer-events: none;
-	box-shadow: 0 0 0 1px var(--hz-item-highlight);
+	box-shadow: 0 0 0 1px var(--bs-border-color);
 	border-radius: var(--bs-border-radius);
 	width: 100%;
 	top: 0;
