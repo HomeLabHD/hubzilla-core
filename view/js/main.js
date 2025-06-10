@@ -223,6 +223,8 @@ $(document).ready(function() {
 		const wrapper = document.getElementById('thread-wrapper-' + id);
 		const parent = wrapper.closest('.generic-content-wrapper');
 
+		subWrapper.innerHTML = '';
+
 		parent.querySelectorAll('.thread-wrapper.wall-item-expanded').forEach(el => {
 			el.classList.remove('wall-item-expanded', 'shadow');
 		});
@@ -1691,7 +1693,7 @@ const autoExpand = (function () {
 					await new Promise(res => setTimeout(res, 700));
 				}
 
-			} while (newButtonsFound && iteration <= maxIterations);
+			} while (newButtonsFound && iteration < maxIterations);
 
 			console.log('Replies loaded!');
 
