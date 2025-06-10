@@ -921,6 +921,9 @@ function updateConvItems(mode, data) {
 			if (!elem.parentNode.parentNode.classList.contains('toplevel_item')) {
 				elem.parentNode.parentNode.classList.add('item-highlight');
 				document.documentElement.style.setProperty('--hz-item-highlight', stringToHslColor(JSON.parse(elem.parentNode.parentNode.dataset.b64mids)[0]));
+				// Mark the comment button at the parent expanded
+				// TODO: should do that for all comments that have replies expanded
+				elem.parentNode.parentNode.querySelector('.wall-item-comment').classList.add('expanded');
 			}
 		}
 
@@ -1644,12 +1647,11 @@ const autoExpand = (function () {
 
 	async function autoExpand(id) {
 		const loading = document.getElementById('like-rotator-' + id);
+		let iteration = 0;
+		const maxIterations = 3;
 		clickedElements.clear();
-		maxIterations = 3;
 
 		try {
-			let iteration = 0;
-
 			// Step 1: Ensure initial button is clicked
 			const initBtnSelector = '#wall-item-comment-' + id;
 			const initBtn = await waitForElement(initBtnSelector);
@@ -1667,10 +1669,6 @@ const autoExpand = (function () {
 			const commentBtnSelector = `#wall-item-sub-thread-wrapper-${id} .wall-item-comment`;
 
 			do {
-				if (iteration >= maxIterations) {
-					return;
-				}
-
 				newButtonsFound = false;
 
 				// Wait for any comment to appear
@@ -1693,9 +1691,9 @@ const autoExpand = (function () {
 					await new Promise(res => setTimeout(res, 700));
 				}
 
-			} while (newButtonsFound);
+			} while (newButtonsFound && iteration <= maxIterations);
 
-			console.log('All replies loaded!');
+			console.log('Replies loaded!');
 
 			loading.style.display = 'none';
 
