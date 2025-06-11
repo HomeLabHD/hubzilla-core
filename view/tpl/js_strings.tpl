@@ -36,6 +36,7 @@
 		'pinned'      : "{{$pinned}}",
 		'pin_item'    : "{{$pin_item}}",
 		'unpin_item'  : "{{$unpin_item}}",
+		'dblclick_to_exit_zoom'  : "{{$dblclick_to_exit_zoom}}",
 
 		'monthNames' : [ "{{$January}}","{{$February}}","{{$March}}","{{$April}}","{{$May}}","{{$June}}","{{$July}}","{{$August}}","{{$September}}","{{$October}}","{{$November}}","{{$December}}" ],
 		'monthNamesShort' : [ "{{$Jan}}","{{$Feb}}","{{$Mar}}","{{$Apr}}","{{$MayShort}}","{{$Jun}}","{{$Jul}}","{{$Aug}}","{{$Sep}}","{{$Oct}}","{{$Nov}}","{{$Dec}}" ],

@@ -287,6 +287,22 @@ a.wall-item-name-link {
 	bottom: 0;
 }
 
+.wall-item-expanded:before {
+	content: var(--hz-wall-item-expanded-before-content, "");;
+	position: absolute;
+	top: 0;
+	left: 50%;
+	transform: translate(-50%, -50%);	/* Example styles: */
+	background: var(--bs-info-bg-subtle);
+	color: var(--bs-info-text-emphasis);
+	border-radius: var(--bs-border-radius-pill);
+	padding: 0.35em 0.65em;
+	font-size: 0.73em;
+	font-weight: 700;
+	z-index: 3;
+	text-transform: uppercase;
+}
+
 /* comment_item */
 
 

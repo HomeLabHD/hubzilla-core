@@ -36,6 +36,7 @@ function js_strings() {
 		'$pinned'      => t('Pinned'),
 		'$pin_item'    => t('Pin to the top'),
 		'$unpin_item'  => t('Unpin from the top'),
+		'$dblclick_to_exit_zoom'  => t('Double click to exit zoom'),
 
 		// translatable prefix and suffix strings for jquery.timeago -
 		// using the defaults set below if left untranslated, empty strings if

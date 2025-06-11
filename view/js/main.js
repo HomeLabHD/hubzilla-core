@@ -118,6 +118,7 @@ $(document).ready(function() {
 			// Set visual styles using UUID
 			subThreadWrapper.style.setProperty('--hz-item-indent', stringToHslColor(uuid));
 			threadWrapper.style.setProperty('--hz-item-highlight', stringToHslColor(uuid));
+			threadWrapper.style.setProperty('--hz-wall-item-expanded-before-content', '"' + aStr.dblclick_to_exit_zoom + '"');
 
 			// Clear previous highlights
 			parentSubThreadWrapper.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => el.classList.remove('item-highlight'));
@@ -128,7 +129,7 @@ $(document).ready(function() {
 			} else {
 				// Handle indentation and zooming
 				let ancestor = subThreadWrapper.parentElement;
-				ancestorIds.push(ancestor.id.slice(15));
+				ancestorIds.push(ancestor.id.slice(15)); // thread-wrapper-1234
 
 				while (ancestor) {
 					if (ancestor.classList.contains('item-indent') && ancestor.classList.contains('wall-item-sub-thread-wrapper')) {
@@ -157,21 +158,46 @@ $(document).ready(function() {
 					// Exit zoom on double-click
 					newFirstWrapper.addEventListener('dblclick', function() {
 						parentWrapper.querySelectorAll('.wall-item-comment.indented').forEach(el => el.classList.remove('indented'));
+						parentWrapper.querySelectorAll('.wall-item-comment.collapsed').forEach(el => el.classList.remove('collapsed'));
 						parentWrapper.classList.remove('wall-item-backdrop');
 						parentWrapper.querySelectorAll('.wall-item-sub-thread-wrapper.item-indent').forEach(el => el.classList.remove('item-indent'));
+						parentWrapper.querySelectorAll('.wall-item-sub-thread-wrapper.d-none').forEach(el => el.classList.remove('d-none'));
 						parentWrapper.querySelectorAll('.thread-wrapper.wall-item-expanded').forEach(el => el.classList.remove('wall-item-expanded', 'shadow'));
 					}, { once: true });
 				}
 
-				// Indent the subthread
-				subThreadWrapper.classList.add('item-indent', 'item-expanded');
-
 				// Toggle sub-thread visibility if indented
 				if (isUserClick && target.classList.contains('indented')) {
+					doRequest = false;
 					subThreadWrapper.classList.toggle('d-none');
 					target.classList.toggle('collapsed');
-					doRequest = false;
 				}
+
+				// Indenting of already expanded but flattened items
+				if (isUserClick && subThreadWrapper.classList.contains('item-expanded') && !subThreadWrapper.classList.contains('item-indent')) {
+					doRequest = false;
+
+					threadWrapper.querySelectorAll('.wall-item-sub-thread-wrapper.item-expanded').forEach(function (el, i) {
+						el.classList.add('item-indent');
+
+						el.querySelectorAll('.wall-item-comment.expanded').forEach(function (el, i) {
+							el.classList.add('indented');
+						});
+
+						if (i >= 2) {
+							el.querySelectorAll('.wall-item-comment.expanded').forEach(function (el, i) {
+								el.classList.add('collapsed');
+							});
+						}
+
+						if (i >= 3) {
+							el.classList.add('d-none');
+						}
+					});
+				}
+
+				// Indent the subthread
+				subThreadWrapper.classList.add('item-indent', 'item-expanded');
 
 				// Mark as indented after visibility toggle
 				target.classList.add('indented');
@@ -217,8 +243,10 @@ $(document).ready(function() {
 		// Exit zoom on double-click
 		wrapper.addEventListener('dblclick', function() {
 			parent.querySelectorAll('.wall-item-comment.indented').forEach(el => el.classList.remove('indented'));
+			parent.querySelectorAll('.wall-item-comment.collapsed').forEach(el => el.classList.remove('collapsed'));
 			parent.classList.remove('wall-item-backdrop');
 			parent.querySelectorAll('.wall-item-sub-thread-wrapper.item-indent').forEach(el => el.classList.remove('item-indent'));
+			parent.querySelectorAll('.wall-item-sub-thread-wrapper.d-none').forEach(el => el.classList.remove('d-none'));
 			parent.querySelectorAll('.thread-wrapper.wall-item-expanded').forEach(el => el.classList.remove('wall-item-expanded', 'shadow'));
 		}, { once: true });
 
