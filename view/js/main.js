@@ -94,117 +94,96 @@ $(document).ready(function() {
 		const target = event.target.closest('.wall-item-reaction');
 		if (!target) return;
 
+		let doRequest = true;
 		const isUserClick = event.isTrusted;
 
 		// Destructure relevant data attributes
 		const { itemId: id, itemMid: mid, itemParent: parentId, itemUuid: uuid, itemVerb: verb } = target.dataset;
 		const isCommentBtn = target.classList.contains('wall-item-comment');
 
-		// Get relevant DOM elements
-		const threadWrapper = document.getElementById(`thread-wrapper-${id}`);
-		const parentWrapper = document.getElementById(`thread-wrapper-${parentId}`);
-		const subThreadWrapper = document.getElementById(`wall-item-sub-thread-wrapper-${id}`);
-
 		if (isCommentBtn) {
+			// Get relevant DOM elements
+			const threadWrapper = document.getElementById(`thread-wrapper-${id}`);
+			const parentWrapper = document.getElementById(`thread-wrapper-${parentId}`);
+			const subThreadWrapper = document.getElementById(`wall-item-sub-thread-wrapper-${id}`);
+			const parentSubThreadWrapper = document.getElementById(`wall-item-sub-thread-wrapper-${parentId}`);
+
 			// Query related sub-thread and highlight elements
-			const parentSubThreads = document.querySelectorAll(`#wall-item-sub-thread-wrapper-${parentId} .wall-item-sub-thread-wrapper`);
-			const expandedThreads = document.querySelectorAll(`#wall-item-sub-thread-wrapper-${parentId} .thread-wrapper.wall-item-expanded`);
 			const parentIndentedThreads = document.querySelectorAll(`#wall-item-sub-thread-wrapper-${parentId} .wall-item-sub-thread-wrapper.item-indent`);
+
+			let ancestorIds = [];
+
+			doRequest = !subThreadWrapper.children.length;
 
 			// Set visual styles using UUID
 			subThreadWrapper.style.setProperty('--hz-item-indent', stringToHslColor(uuid));
 			threadWrapper.style.setProperty('--hz-item-highlight', stringToHslColor(uuid));
 
 			// Clear previous highlights
-			document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => el.classList.remove('item-highlight'));
+			parentSubThreadWrapper.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => el.classList.remove('item-highlight'));
 
-			// Handle first-time expansion and highlighting
-			if (
-				isUserClick &&
-				parentIndentedThreads.length === 0 &&
-				!parentWrapper.classList.contains('wall-item-unexpanded') &&
-				!subThreadWrapper.children.length
-			) {
+			if (isUserClick && parentIndentedThreads.length === 0 && !subThreadWrapper.children.length) {
+				// Handle first-time expansion and highlighting
 				threadWrapper.classList.add('item-highlight');
 			} else {
-				// Calculate indentation depth
-				let indentCount = 0;
+				// Handle indentation and zooming
 				let ancestor = subThreadWrapper.parentElement;
+				ancestorIds.push(ancestor.id.slice(15));
+
 				while (ancestor) {
-					if (ancestor.classList.contains('item-indent')) indentCount++;
+					if (ancestor.classList.contains('item-indent') && ancestor.classList.contains('wall-item-sub-thread-wrapper')) {
+						ancestorIds.push(ancestor.parentElement.id.slice(15));
+					}
 					ancestor = ancestor.parentElement;
 				}
-				const needsRefocus = indentCount >= 3 || parentWrapper.classList.contains('wall-item-unexpanded');
 
-				if (isUserClick && needsRefocus) {
-					parentWrapper.classList.remove('wall-item-unexpanded');
-					target.classList.remove('expanded');
+				ancestorIds.reverse();
 
-					// Remove existing highlights and expansions
-					document.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => el.classList.remove('item-highlight'));
-					expandedThreads.forEach(el => el.classList.remove('wall-item-expanded', 'shadow'));
-					parentIndentedThreads.forEach(el => el.classList.remove('item-indent'));
+				if (ancestorIds.length > 3) {
+					// Handle zooming in
+					let firstWrapper = document.getElementById('thread-wrapper-' + ancestorIds[0]);
+					let firstSubWrapper = document.getElementById('wall-item-sub-thread-wrapper-' + ancestorIds[0]);
 
-					// Expand the current thread
-					threadWrapper.classList.add('wall-item-expanded', 'shadow');
+					firstWrapper.querySelector('.wall-item-comment').classList.remove('indented');
+					firstWrapper.classList.remove('wall-item-expanded', 'shadow');
+					firstSubWrapper.classList.remove('item-indent');
+
+					let newFirstWrapper = document.getElementById('thread-wrapper-' + ancestorIds[1])
+					let newFirstSubWrapper = document.getElementById('wall-item-sub-thread-wrapper-' + ancestorIds[1])
+
+					newFirstWrapper.classList.add('wall-item-expanded', 'shadow');
 					parentWrapper.classList.add('wall-item-backdrop');
 
-					// Collapse on double-click
-					threadWrapper.addEventListener('dblclick', function() {
+					// Exit zoom on double-click
+					newFirstWrapper.addEventListener('dblclick', function() {
+						parentWrapper.querySelectorAll('.wall-item-comment.indented').forEach(el => el.classList.remove('indented'));
 						parentWrapper.classList.remove('wall-item-backdrop');
-						parentWrapper.classList.add('wall-item-unexpanded');
 						parentWrapper.querySelectorAll('.wall-item-sub-thread-wrapper.item-indent').forEach(el => el.classList.remove('item-indent'));
 						parentWrapper.querySelectorAll('.thread-wrapper.wall-item-expanded').forEach(el => el.classList.remove('wall-item-expanded', 'shadow'));
 					}, { once: true });
 				}
+
+				// Indent the subthread
 				subThreadWrapper.classList.add('item-indent', 'item-expanded');
-			}
 
-			// Toggle sub-thread visibility if already expanded
-			if (isUserClick && target.classList.contains('expanded') && expandedThreads.length !== 0) {
-				subThreadWrapper.classList.toggle('d-none');
-				target.classList.toggle('collapsed');
-			}
-
-			// Expand sub-thread if not already loaded
-			if (isUserClick && target.classList.contains('expanded') && !subThreadWrapper.children.length) {
-				if (expandedThreads.length === 0) {
-					parentWrapper.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => el.classList.remove('item-highlight'));
-					parentSubThreads.forEach(el => {
-						if (el.children.length > 0) el.classList.add('item-indent');
-					});
-					target.classList.add('indented');
-				} else {
+				// Toggle sub-thread visibility if indented
+				if (isUserClick && target.classList.contains('indented')) {
 					subThreadWrapper.classList.toggle('d-none');
 					target.classList.toggle('collapsed');
+					doRequest = false;
 				}
-				return;
+
+				// Mark as indented after visibility toggle
+				target.classList.add('indented');
 			}
 
-			// Mark as expanded/indented
+			// Mark as expanded
 			target.classList.add('expanded');
-			if (!isUserClick) target.classList.add('indented');
-
-			// Handle sub-thread children indentation
-			if (isUserClick && subThreadWrapper.children.length) {
-				let count = 0;
-				subThreadWrapper.querySelectorAll('.wall-item-sub-thread-wrapper').forEach(el => {
-					if (count >= 3) el.innerHTML = '';
-					if (el.children.length > 0) {
-						let btn = el.parentElement.querySelector('.wall-item-comment');
-						if (btn) {
-							btn.classList.add('expanded', 'indented');
-							el.style.setProperty('--hz-item-indent', stringToHslColor(btn.dataset.itemUuid));
-						}
-						el.classList.add('item-indent');
-					}
-					count++;
-				});
-				return;
-			}
 		}
 
-		request(id, mid, verb, parentId, uuid, isUserClick);
+		if (doRequest) {
+			request(id, mid, verb, parentId, uuid, isUserClick);
+		}
 	});
 
 	document.addEventListener('click', function(event) {
@@ -217,9 +196,7 @@ $(document).ready(function() {
 		const uuid = targetElement.dataset.itemUuid;
 
 		const subWrapper = document.getElementById(`wall-item-sub-thread-wrapper-${id}`);
-
 		const loading = document.getElementById('like-rotator-' + id);
-
 		const wrapper = document.getElementById('thread-wrapper-' + id);
 		const parent = wrapper.closest('.generic-content-wrapper');
 
@@ -237,17 +214,12 @@ $(document).ready(function() {
 
 		parent.classList.add('wall-item-backdrop');
 
-		// Close and reset if dbl clicked
+		// Exit zoom on double-click
 		wrapper.addEventListener('dblclick', function() {
+			parent.querySelectorAll('.wall-item-comment.indented').forEach(el => el.classList.remove('indented'));
 			parent.classList.remove('wall-item-backdrop');
-			parent.classList.add('wall-item-unexpanded');
-
-			parent.querySelectorAll('.wall-item-sub-thread-wrapper.item-indent').forEach(el => {
-				el.classList.remove('item-indent');
-			});
-
-			parent.querySelectorAll('.thread-wrapper.wall-item-expanded')
-				.forEach(el => el.classList.remove('wall-item-expanded', 'shadow'));
+			parent.querySelectorAll('.wall-item-sub-thread-wrapper.item-indent').forEach(el => el.classList.remove('item-indent'));
+			parent.querySelectorAll('.thread-wrapper.wall-item-expanded').forEach(el => el.classList.remove('wall-item-expanded', 'shadow'));
 		}, { once: true });
 
 		autoExpand(id);
