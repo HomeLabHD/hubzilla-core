@@ -292,12 +292,12 @@ a.wall-item-name-link {
 	position: absolute;
 	top: 0;
 	left: 50%;
-	transform: translate(-50%, -50%);	/* Example styles: */
+	transform: translate(-50%, -50%);
 	background: var(--bs-info-bg-subtle);
 	color: var(--bs-info-text-emphasis);
 	border-radius: var(--bs-border-radius-pill);
 	padding: 0.35em 0.65em;
-	font-size: 0.73em;
+	font-size: 0.6em;
 	font-weight: 700;
 	z-index: 3;
 	text-transform: uppercase;
