@@ -1434,7 +1434,7 @@ function get_responses($response_verbs, $item) {
 	return $ret;
 }
 
-function get_response_button_text($v, $count = 0, $top_level) {
+function get_response_button_text($v, $count = 0, $top_level = 0) {
 	switch($v) {
 		case 'like':
 			return ['label' => tt('Like','Likes',$count,'noun'), 'icon' => 'hand-thumbs-up', 'class' => 'like', 'action' => 'dolike'];

@@ -5523,7 +5523,7 @@ function item_reaction_sql(string $ids, string $permission_sql = '', string $joi
 	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
 
 	if ($thread_allow) {
-		$verbs['comment'] = ['Create', 'Update'];
+		$verbs['comment'] = ['Create', 'Update', 'EmojiReact'];
 	}
 
 	$cte = '';
