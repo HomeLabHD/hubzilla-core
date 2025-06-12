@@ -1426,7 +1426,7 @@ function get_responses($response_verbs, $item) {
 		}
 
 		$ret[$v]['count'] = $item[$v . '_count'] ?? 0;
-		$ret[$v]['button'] = get_response_button_text($v, $ret[$v]['count']);
+		$ret[$v]['button'] = get_response_button_text($v, $ret[$v]['count'], $item['item_thread_top']);
 	}
 
 //logger('ret: ' . print_r($ret,true));
@@ -1434,7 +1434,7 @@ function get_responses($response_verbs, $item) {
 	return $ret;
 }
 
-function get_response_button_text($v, $count = 0) {
+function get_response_button_text($v, $count = 0, $top_level) {
 	switch($v) {
 		case 'like':
 			return ['label' => tt('Like','Likes',$count,'noun'), 'icon' => 'hand-thumbs-up', 'class' => 'like', 'action' => 'dolike'];
@@ -1446,7 +1446,7 @@ function get_response_button_text($v, $count = 0) {
 			return ['label' => tt('Dislike','Dislikes',$count,'noun'), 'icon' => 'hand-thumbs-down', 'class' => 'dislike', 'action' => 'dolike'];
 			break;
 		case 'comment':
-			return ['label' => tt('Reply','Replies',$count,'noun'), 'icon' => 'chat', 'class' => 'comment', 'action' => ''];
+			return ['label' => (($top_level) ? tt('Comment', 'Comments' ,$count, 'noun') : tt('Reply', 'Replies', $count, 'noun')), 'icon' => 'chat', 'class' => 'comment', 'action' => ''];
 			break;
 		case 'accept':
 			return ['label' => tt('Attending','Attending',$count,'noun'), 'icon' => 'calendar-check', 'class' => 'accept', 'action' => 'dolike'];

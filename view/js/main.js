@@ -102,6 +102,15 @@ $(document).ready(function() {
 		const isCommentBtn = target.classList.contains('wall-item-comment');
 
 		if (isCommentBtn) {
+			if (id === parentId) {
+				// Handle blog mode
+				target.classList.add('disabled');
+				document.getElementById(`load-more-progress-wrapper-${id}`).classList.remove('d-none');
+				document.getElementById(`load-more-${id}`).classList.remove('d-none')
+				request(id, mid, 'load', parentId, uuid, isUserClick);
+				return;
+			}
+
 			// Get relevant DOM elements
 			const threadWrapper = document.getElementById(`thread-wrapper-${id}`);
 			const parentWrapper = document.getElementById(`thread-wrapper-${parentId}`);
@@ -124,7 +133,7 @@ $(document).ready(function() {
 			parentSubThreadWrapper.querySelectorAll('.thread-wrapper.item-highlight').forEach(el => el.classList.remove('item-highlight'));
 
 			if (isUserClick && parentIndentedThreads.length === 0 && !subThreadWrapper.children.length) {
-				// Handle first-time expansion and highlighting
+				// Handle first-time expansion and highlighting but not for toplevels (blog mode)
 				threadWrapper.classList.add('item-highlight');
 			} else {
 				// Handle indentation and zooming

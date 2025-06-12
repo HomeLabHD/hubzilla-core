@@ -353,10 +353,11 @@ class ThreadItem {
 			$contact = App::$contacts[$item['author_xchan']];
 		}
 
+		$blog_mode = $this->get_display_mode() === 'list';
 		$load_more = false;
 		$load_more_title = '';
 		$comments_total_percent = 0;
-		if ($conv->comments_total > $conv->comments_loaded) {
+		if (($conv->comments_total > $conv->comments_loaded) || ($blog_mode && $conv->comments_total > 3)) {
 			// provide a load more comments button
 			$load_more = true;
 			$load_more_title = sprintf(t('Load the next few of total %d comments'), $conv->comments_total);
@@ -491,7 +492,7 @@ class ThreadItem {
 				'tentativeaccept' => intval($item['observer_tentativeaccept_count'] ?? 0)
 			],
 			'threaded' => $this->threaded,
-			'blog_mode' => $this->get_display_mode() === 'list',
+			'blog_mode' => $blog_mode,
 			'collapse_comments' => t('show less'),
 			'expand_comments' =>  $this->threaded ? t('show more') : t('show all'),
 			'load_more' => $load_more,
