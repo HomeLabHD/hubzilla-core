@@ -181,16 +181,11 @@ $(document).ready(function() {
 						el.classList.add('item-indent');
 
 						el.querySelectorAll('.wall-item-comment.expanded').forEach(function (el, i) {
-							el.classList.add('indented');
+							el.classList.add('collapsed', 'indented');
 						});
 
-						if (i >= 2) {
-							el.querySelectorAll('.wall-item-comment.expanded').forEach(function (el, i) {
-								el.classList.add('collapsed');
-							});
-						}
-
-						if (i >= 3) {
+						// Collapse everything below the first level
+						if (i > 0) {
 							el.classList.add('d-none');
 						}
 					});
