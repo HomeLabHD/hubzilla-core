@@ -5604,7 +5604,7 @@ function items_by_thr_parent(string $mid, int $parent, int|null $offset = null):
 
 	$order_sql = "ORDER BY item.created";
 	if (isset($offset)) {
-		$order_sql = "ORDER BY item.created DESC LIMIT 3 OFFSET $offset";
+		$order_sql = "ORDER BY item.created DESC, item.received DESC LIMIT 3 OFFSET $offset";
 	}
 
 	$owner_uid = intval($parent_item[0]['uid']);
