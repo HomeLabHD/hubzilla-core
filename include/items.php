@@ -5390,7 +5390,7 @@ function item_by_item_id(int $id, int $parent): array
 		WHERE
 			item.id = %d
 			AND item.uid = %d
-			AND item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'Add', 'Remove', 'Follow', 'Ignore')
+			AND item.verb IN ('Create', 'Update', 'EmojiReact')
 			$item_normal_sql",
 		intval($id),
 		intval(local_channel())
@@ -5474,7 +5474,7 @@ function items_by_parent_ids(array $parents, null|array $thr_parents = null, str
 				ROW_NUMBER() OVER (PARTITION BY item.parent ORDER BY item.created DESC) AS rn
 			FROM item
 			WHERE item.parent IN ($ids)
-				AND item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'Add', 'Remove', 'Follow', 'Ignore')
+				AND item.verb IN ('Create', 'Update', 'EmojiReact')
 				AND item.item_thread_top = 0
 				$thr_parent_sql
 				$permission_sql
@@ -5626,7 +5626,7 @@ function items_by_thr_parent(string $mid, int $parent, int|null $offset = null):
 			WHERE
 				item.thr_parent = '%s'
 				AND item.uid = %d
-				AND item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'Add', 'Remove', 'Follow', 'Ignore')
+				AND item.verb IN ('Create', 'Update', 'EmojiReact')
 				AND item.item_thread_top = 0
 				$item_normal_sql
 			$order_sql",
@@ -5653,7 +5653,7 @@ function items_by_thr_parent(string $mid, int $parent, int|null $offset = null):
 			WHERE
 				item.thr_parent = '%s'
 				AND item.uid = %d
-				AND item.verb NOT IN ('Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'Add', 'Remove', 'Follow', 'Ignore')
+				AND item.verb IN ('Create', 'Update', 'EmojiReact')
 				AND item.item_thread_top = 0
 				$permission_sql
 				$item_normal_sql
