@@ -223,37 +223,9 @@ $(document).ready(function() {
 		event.preventDefault();
 
 		const id = targetElement.dataset.itemId;
-		const uuid = targetElement.dataset.itemUuid;
-
 		const subWrapper = document.getElementById(`wall-item-sub-thread-wrapper-${id}`);
-		const loading = document.getElementById('like-rotator-' + id);
-		const wrapper = document.getElementById('thread-wrapper-' + id);
-		const parent = wrapper.closest('.generic-content-wrapper');
 
 		subWrapper.innerHTML = '';
-
-		parent.querySelectorAll('.thread-wrapper.wall-item-expanded').forEach(el => {
-			el.classList.remove('wall-item-expanded', 'shadow');
-		});
-
-		parent.querySelectorAll('.wall-item-sub-thread-wrapper.item-indent').forEach(el => {
-			el.classList.remove('item-indent');
-		});
-
-		wrapper.classList.add('wall-item-expanded', 'shadow');
-
-		parent.classList.add('wall-item-backdrop');
-
-		// Exit zoom on double-click
-		wrapper.addEventListener('dblclick', function() {
-			parent.querySelectorAll('.wall-item-comment.indented').forEach(el => el.classList.remove('indented'));
-			parent.querySelectorAll('.wall-item-comment.collapsed').forEach(el => el.classList.remove('collapsed'));
-			parent.classList.remove('wall-item-backdrop');
-			parent.querySelectorAll('.wall-item-sub-thread-wrapper.item-indent').forEach(el => el.classList.remove('item-indent'));
-			parent.querySelectorAll('.wall-item-sub-thread-wrapper.d-none').forEach(el => el.classList.remove('d-none'));
-			parent.querySelectorAll('.thread-wrapper.wall-item-expanded').forEach(el => el.classList.remove('wall-item-expanded', 'shadow'));
-		}, { once: true });
-
 		autoExpand(id);
 	});
 
