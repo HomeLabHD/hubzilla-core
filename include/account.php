@@ -280,7 +280,7 @@ function create_account_from_register($arr) {
  */
 function verify_email_address(string $email): bool {
 
-	$reg = q("SELECT * FROM register WHERE reg_vital = 1 AND reg_email = 's%' ",
+	$reg = q("SELECT * FROM register WHERE reg_vital = 1 AND reg_email = '%s' ",
 		dbesc($email)
 	);
 
