@@ -303,7 +303,7 @@ function verify_email_address(string $email): bool {
 	);
 
 	$res = z_mail([
-		'toEmail' => $args['email'],
+		'toEmail' => $email,
 		'messageSubject' => sprintf( t('Registration confirmation for %s'), Config::Get('system','sitename')),
 		'textVersion' => $email_msg,
 	]);
@@ -311,7 +311,7 @@ function verify_email_address(string $email): bool {
 	pop_lang();
 
 	if(! $res)
-		logger('send_reg_approval_email: failed to account_id: ' . $args['account']['account_id']);
+		logger("send_reg_approval_email: failed sending email to: {$email}");
 
 	return $res;
 }
