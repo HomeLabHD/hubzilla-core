@@ -1813,9 +1813,13 @@ function bbcode($text, $options = []) {
 		$text = preg_replace("/\<(.*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism", '<$1$2=$3&$4>', $text);
 
 	// This is subtle - it's an XSS filter. It only accepts links with a protocol scheme and where
-	// the scheme begins with z (zhttp), h (http(s)), f (ftp(s)), m (mailto), t (tel) and named anchors.
+	// the scheme begins with http:, https:, mailto:, tel:, geo: and named anchors.
 
-	$text = preg_replace("/\<(.*?)(src|href)=\"[^zhfmt#](.*?)\>/ism", '<$1$2="">', $text);
+	$text = preg_replace(
+		'/(<[^>]*?\b(?:src|href)\s*=\s*([\'"])\s*)(?!https?:|geo:|mailto:|tel:|#)[^\'"]*?\2/iu',
+		'$1$2$2',
+		$text
+	);
 
 	$text = bb_replace_images($text, $saved_images);
 
