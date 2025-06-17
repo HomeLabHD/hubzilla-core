@@ -287,7 +287,7 @@ function verify_email_address(string $email): bool {
 	if ( ! $reg)
 		return false;
 
-	push_lang(($reg[0]['email']) ? $reg[0]['email'] : 'en');
+	push_lang(($reg[0]['reg_lang']) ? $reg[0]['reg_lang'] : 'en');
 
 	$email_msg = replace_macros(get_intltext_template('register_verify_member.tpl'),
 		[
