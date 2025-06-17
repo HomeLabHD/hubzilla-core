@@ -297,7 +297,7 @@ function verify_email_address($arr) {
 			'$siteurl'  => z_root(),
 			'$email'    => $arr['email'],
 			'$uid'      => 1,
-			'$hash'     => $hash,
+			'$hash'     => $reg[0]['reg_hash'],
 			'$details'  => ''
 	 	]
 	);
