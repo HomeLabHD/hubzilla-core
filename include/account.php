@@ -272,22 +272,20 @@ function create_account_from_register($arr) {
 }
 
 /**
- *	@brief as far to see, email validation for register account verification
- *	@param array (account)
- *	@param array ('resend' => true, 'email' = > email)
+ * Send email verification to user pending registration.
  *
+ * @param string $email		The email address of the registration
+ *
+ * @return bool `true` if the email was sucessfully sent, otherwise `false`.
  */
+function verify_email_address(string $email): bool {
 
-function verify_email_address($arr) {
+	$reg = q("SELECT * FROM register WHERE reg_vital = 1 AND reg_email = 's%' ",
+		dbesc($email)
+	);
 
-		// $hash = random_string(24);
-
-		// [hilmar ->
-		$reg = q("SELECT * FROM register WHERE reg_vital = 1 AND reg_email = 's%' ",
-				dbesc($arr['email'])
-			);
-		if ( ! $reg)
-			return false;
+	if ( ! $reg)
+		return false;
 
 	push_lang(($reg[0]['email']) ? $reg[0]['email'] : 'en');
 
@@ -295,25 +293,23 @@ function verify_email_address($arr) {
 		[
 			'$sitename' => Config::Get('system','sitename'),
 			'$siteurl'  => z_root(),
-			'$email'    => $arr['email'],
+			'$email'    => $args['email'],
 			'$uid'      => 1,
 			'$hash'     => $reg[0]['reg_hash'],
 			'$details'  => ''
 	 	]
 	);
 
-	$res = z_mail(
-		[
-		'toEmail' => $arr['email'],
+	$res = z_mail([
+		'toEmail' => $args['email'],
 		'messageSubject' => sprintf( t('Registration confirmation for %s'), Config::Get('system','sitename')),
 		'textVersion' => $email_msg,
-		]
-	);
+	]);
 
 	pop_lang();
 
 	if(! $res)
-		logger('send_reg_approval_email: failed to account_id: ' . $arr['account']['account_id']);
+		logger('send_reg_approval_email: failed to account_id: ' . $args['account']['account_id']);
 
 	return $res;
 }
