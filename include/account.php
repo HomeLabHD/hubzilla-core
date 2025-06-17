@@ -293,9 +293,11 @@ function verify_email_address(string $email): bool {
 		[
 			'$sitename' => Config::Get('system','sitename'),
 			'$siteurl'  => z_root(),
-			'$email'    => $args['email'],
+			'$email'    => $email,
 			'$uid'      => 1,
+			'$mail'     => bin2hex($email) . 'e',
 			'$hash'     => $reg[0]['reg_hash'],
+			'$ko'       => bin2hex(substr($reg[0]['reg_hash'], 0, 4)),
 			'$details'  => ''
 	 	]
 	);
