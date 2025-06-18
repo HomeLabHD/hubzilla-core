@@ -1190,7 +1190,7 @@ function bbcode($text, $options = []) {
 	$cache       = ((array_key_exists('cache',$options)) ? $options['cache'] : false);
 	$newwin      = ((array_key_exists('newwin',$options)) ? $options['newwin'] : true);
 
-	$target = (($newwin) ? ' target="_blank" ' : '');
+	$target = (($newwin) ? 'target="_blank"' : '');
 
 	/**
 	 * @hooks bbcode_filter
@@ -1332,19 +1332,29 @@ function bbcode($text, $options = []) {
 		$text = str_replace('[observer.photo]','', $text);
 	}
 
-
-
 	// Perform URL Search
-
 	$urlchars = '[a-zA-Z0-9\pL\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,\@\(\)]';
 
 	if (strpos($text,'http') !== false) {
 		if($tryoembed) {
 			$text = preg_replace_callback("/([^\]\='".'"'."\;\/]|^|\#\^)(https?\:\/\/$urlchars+)/ismu", 'tryoembed', $text);
 		}
-		// Is this still desired?
-		// We already turn naked URLs into links during creation time cleanup_bbcode()
+
 		$text = preg_replace("/([^\]\='".'"'."\;\/]|^|\#\^)(https?\:\/\/$urlchars+)/ismu", '$1<a href="$2" ' . $target . ' rel="nofollow noopener">$2</a>', $text);
+	}
+
+	// Turn naked geo URIs into clickable links
+	if (str_contains($text, 'geo:')) {
+		$text = preg_replace_callback(
+			'/([^\]\=\'";\/]|^|\#\^)(geo:([A-Za-z0-9:.,;_+\-?&=%]+)(?:\(([^)]+)\))?)/ismu',
+			function ($matches) {
+				$before = $matches[1];
+				$geo_uri = urldecode($matches[2]);
+				$label = ((!empty($matches[4])) ? urldecode($matches[4]) : $geo_uri);
+				return $before . '<a href="' . htmlspecialchars($geo_uri) . '" target="_blank" rel="nofollow noopener">' . htmlspecialchars($label) . '</a>';
+			},
+			$text
+		);
 	}
 
 	$count = 0;

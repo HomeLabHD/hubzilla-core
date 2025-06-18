@@ -156,6 +156,22 @@ class BBCodeTest extends UnitTestCase {
 				"[code]\nhttp://example.com\n[/code]",
 				"<pre><code>http://example.com</code></pre>"
 			],
+			'geo uri is converted to link' => [
+				'example url: [url]geo:37.786971,-122.399677;u=35[/url]',
+				'example url: <a href="geo:37.786971,-122.399677;u=35" target="_blank" rel="nofollow noopener">geo:37.786971,-122.399677;u=35</a>'
+			],
+			'geo uri with label is converted to link' => [
+				'example url: [url=geo:37.786971,-122.399677;u=35(Wikimedia+Foundation)]Wikimedia Foundation[/url]',
+				'example url: <a href="geo:37.786971,-122.399677;u=35(Wikimedia+Foundation)" target="_blank" rel="nofollow noopener">Wikimedia Foundation</a>'
+			],
+			'naked geo uri is converted to link' => [
+				'example url: geo:37.786971,-122.399677;u=35',
+				'example url: <a href="geo:37.786971,-122.399677;u=35" target="_blank" rel="nofollow noopener">geo:37.786971,-122.399677;u=35</a>'
+			],
+			'naked geo uri with label is converted to link' => [
+				'example url: geo:37.78918,-122.40335(Wikimedia+Foundation)',
+				'example url: <a href="geo:37.78918,-122.40335(Wikimedia+Foundation)" target="_blank" rel="nofollow noopener">Wikimedia Foundation</a>'
+			],
 		];
 	}
 
