@@ -894,15 +894,16 @@ function updateConvItems(mode, data) {
 
 		let data_json = JSON.parse(elem.dataset.b64mids);
 
-		// Also highlight the thread parent
-		if (data_json.includes(bParam_mid) && elem.parentNode.classList.contains('wall-item-sub-thread-wrapper')) {
-			if (!elem.parentNode.parentNode.classList.contains('toplevel_item')) {
+		if (elem.parentNode.children.length) {
+			// Set the highlight state
+			if (data_json.includes(bParam_mid) && !elem.parentNode.parentNode.classList.contains('toplevel_item')) {
 				elem.parentNode.parentNode.classList.add('item-highlight');
 				document.documentElement.style.setProperty('--hz-item-highlight', stringToHslColor(JSON.parse(elem.parentNode.parentNode.dataset.b64mids)[0]));
-				// Mark the comment button at the parent expanded
-				// TODO: should do that for all comments that have replies expanded
-				elem.parentNode.parentNode.querySelector('.wall-item-comment').classList.add('expanded');
 			}
+
+			// Set the button and sub-thread-wrapper state
+			elem.parentNode.parentNode.querySelector('.wall-item-comment').classList.add('expanded');
+			elem.parentNode.classList.add('item-expanded');
 		}
 
 		b64mids.push(...data_json);
