@@ -902,7 +902,9 @@ function updateConvItems(mode, data) {
 			}
 
 			// Set the button and sub-thread-wrapper state
-			elem.parentNode.parentNode.querySelector('.wall-item-comment').classList.add('expanded');
+			if (elem.parentNode.parentNode.querySelector('.wall-item-comment')) {
+				elem.parentNode.parentNode.querySelector('.wall-item-comment').classList.add('expanded');
+			}
 			elem.parentNode.classList.add('item-expanded');
 		}
 
