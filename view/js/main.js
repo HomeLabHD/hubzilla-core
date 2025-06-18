@@ -894,7 +894,7 @@ function updateConvItems(mode, data) {
 
 		let data_json = JSON.parse(elem.dataset.b64mids);
 
-		if (elem.parentNode.children.length) {
+		if (elem.parentNode.classList.contains('wall-item-sub-thread-wrapper') && elem.parentNode.children.length) {
 			// Set the highlight state
 			if (data_json.includes(bParam_mid) && !elem.parentNode.parentNode.classList.contains('toplevel_item')) {
 				elem.parentNode.parentNode.classList.add('item-highlight');
