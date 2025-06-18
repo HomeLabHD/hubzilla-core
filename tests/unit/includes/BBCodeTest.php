@@ -142,15 +142,15 @@ class BBCodeTest extends UnitTestCase {
 			],
 			'naked url is converted to link' => [
 				'example url: https://example.com',
-				'example url: <a href="https://example.com"  target="_blank"  rel="nofollow noopener">https://example.com</a>'
+				'example url: <a href="https://example.com" target="_blank" rel="nofollow noopener">https://example.com</a>'
 			],
 			'naked url followed by newline' => [
 				"https://www.example.com\nhave a great day.",
-				'<a href="https://www.example.com"  target="_blank"  rel="nofollow noopener">https://www.example.com</a><br />have a great day.',
+				'<a href="https://www.example.com" target="_blank" rel="nofollow noopener">https://www.example.com</a><br />have a great day.',
 			],
 			'inline naked url' => [
 				"This is a link https://example.com/some/path more info.",
-				'This is a link <a href="https://example.com/some/path"  target="_blank"  rel="nofollow noopener">https://example.com/some/path</a> more info.',
+				'This is a link <a href="https://example.com/some/path" target="_blank" rel="nofollow noopener">https://example.com/some/path</a> more info.',
 			],
 			'naked url within code block is not converted to link' => [
 				"[code]\nhttp://example.com\n[/code]",
@@ -222,7 +222,7 @@ class BBCodeTest extends UnitTestCase {
 				'[rpost=a title]This is the body[/rpost]',
 				true,
 				'en',
-				'<a href="https://example.com:666/rpost?f=&title=a+title&body=This+is+the+body"  target="_blank"  rel="nofollow noopener">https://example.com:666/rpost?f=&title=a+title&body=This+is+the+body</a>',
+				'<a href="https://example.com:666/rpost?f=&title=a+title&body=This+is+the+body" target="_blank" rel="nofollow noopener">https://example.com:666/rpost?f=&title=a+title&body=This+is+the+body</a>',
 			],
 			'unauthenticated observer rpost' => [
 				'[rpost=a title]This is the body[/rpost]',
