@@ -1350,8 +1350,8 @@ function bbcode($text, $options = []) {
 			function ($matches) {
 				$before = $matches[1];
 				$geo_uri = $matches[2];
-				$label = ((!empty($matches[4])) ? urldecode($matches[4]) : $geo_uri);
-				return $before . '<a href="' . htmlspecialchars($geo_uri) . '" target="_blank" rel="nofollow noopener">📍' . htmlspecialchars($label) . '</a>';
+				$label = ((!empty($matches[4])) ? '📍' . urldecode($matches[4]) : $geo_uri);
+				return $before . '<a href="' . htmlspecialchars($geo_uri) . '" target="_blank" rel="nofollow noopener">' . htmlspecialchars($label) . '</a>';
 			},
 			$text
 		);

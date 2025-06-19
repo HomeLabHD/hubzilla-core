@@ -170,7 +170,7 @@ class BBCodeTest extends UnitTestCase {
 			],
 			'naked geo uri with label is converted to link' => [
 				'example url: geo:37.78918,-122.40335(Wikimedia+Foundation)',
-				'example url: <a href="geo:37.78918,-122.40335(Wikimedia+Foundation)" target="_blank" rel="nofollow noopener">Wikimedia Foundation</a>'
+				'example url: <a href="geo:37.78918,-122.40335(Wikimedia+Foundation)" target="_blank" rel="nofollow noopener">📍Wikimedia Foundation</a>'
 			],
 		];
 	}
