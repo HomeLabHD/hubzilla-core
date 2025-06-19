@@ -901,10 +901,14 @@ function updateConvItems(mode, data) {
 				document.documentElement.style.setProperty('--hz-item-highlight', stringToHslColor(JSON.parse(elem.parentNode.parentNode.dataset.b64mids)[0]));
 			}
 
+			let elemSubThreadWrapper = elem.querySelector('.wall-item-sub-thread-wrapper');
+			let elemCommentButton = elem.querySelector('.wall-item-comment');
+
 			// Set the button and sub-thread-wrapper state
-			if (elem.parentNode.parentNode.querySelector('.wall-item-comment')) {
-				elem.parentNode.parentNode.querySelector('.wall-item-comment').classList.add('expanded');
+			if (elemCommentButton && elemSubThreadWrapper.children.length) {
+				elemCommentButton.classList.add('expanded');
 			}
+
 			elem.parentNode.classList.add('item-expanded');
 		}
 
