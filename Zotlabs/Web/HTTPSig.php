@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Web;
 
+use App;
 use DateTime;
 use DateTimeZone;
 use Zotlabs\Lib\Activity;
