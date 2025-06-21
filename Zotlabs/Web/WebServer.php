@@ -4,6 +4,7 @@ namespace Zotlabs\Web;
 
 use App;
 use Zotlabs\Lib\Text;
+use GuzzleHttp\Psr7\ServerRequest;
 
 class WebServer {
 
@@ -18,6 +19,7 @@ class WebServer {
 
 		$installed = sys_boot();
 
+		App::$request = ServerRequest::fromGlobals();
 
 		App::$language = get_best_language();
 		load_translation_table(App::$language, !$installed);

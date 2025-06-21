@@ -11,6 +11,7 @@ use Zotlabs\Lib\Keyutils;
 use Zotlabs\Lib\Webfinger;
 use Zotlabs\Lib\Zotfinger;
 use Zotlabs\Lib\Libzot;
+use HttpSignature\HttpMessageSigner;
 
 /**
  * @brief Implements HTTP Signatures per draft-cavage-http-signatures-10.
@@ -88,7 +89,7 @@ class HTTPSig {
 
 	// See draft-cavage-http-signatures-10
 
-	static function verify($data, $key = '', $keytype = '') {
+	public static function verify($data, $key = '', $keytype = '') {
 
 		$body    = $data;
 		$headers = null;
@@ -102,11 +103,41 @@ class HTTPSig {
 			'content_valid'  => false
 		];
 
-
 		$headers = self::find_headers($data, $body);
 
-		if (!$headers)
+		if (!$headers) {
 			return $result;
+		}
+
+		if (array_key_exists('signature-input', $headers) && array_key_exists('signature', $headers)) {
+			$found = preg_match('/keyid="(.*?)"/', $headers['signature-input'], $matches);
+			$keyId = ($found) ? $matches[1] : '';
+
+			if (!$keyId) {
+				return $result;
+			}
+
+			$keyInfo = self::get_key($key, $keytype, $keyId);
+			$publicKey = $keyInfo['public_key'];
+
+			$messageSigner = new HttpMessageSigner();
+
+			$messageSigner->setPublicKey($publicKey);
+			$messageSigner->setAlgorithm('rsa-sha256');
+			$messageSigner->setKeyId($keyId);
+
+			$verified = $messageSigner->verifyRequest(App::$request);
+			logger('verified (RFC9421): ' . (($verified) ? 'true' : 'false'), LOGGER_DEBUG);
+
+			return [
+				'signer' => $keyId,
+				'portable_id' => $keyInfo['portable_id'] ?? '',
+				'header_signed' => true,
+				'header_valid' => $verified,
+				'content_signed' => array_key_exists('content-digest', $headers),
+				'content_valid' => $verified
+			];
+		}
 
 		if (is_array($body)) {
 			btlogger('body is array:' . print_r($body, true));

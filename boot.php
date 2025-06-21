@@ -774,7 +774,7 @@ class miniApp {
  *
  */
 class App {
-
+	public static $request = null;
 	public static $install = false;           // true if we are installing the software
 	public static $account = null;            // account record of the logged-in account
 	public static $channel = null;            // channel record of the current channel of the logged-in account

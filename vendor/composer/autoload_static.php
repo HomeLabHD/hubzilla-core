@@ -14,6 +14,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'a1cce3d26cc15c00fcd0b3354bd72c88' => __DIR__ . '/..' . '/sabre/event/lib/Promise/functions.php',
         '3569eecfeed3bcf0bad3c998a494ecb8' => __DIR__ . '/..' . '/sabre/xml/lib/Deserializer/functions.php',
         '93aa591bc4ca510c520999e34229ee79' => __DIR__ . '/..' . '/sabre/xml/lib/Serializer/functions.php',
+        '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         'ebdb698ed4152ae445614b69b5e4bb6a' => __DIR__ . '/..' . '/sabre/http/lib/functions.php',
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
@@ -93,6 +94,11 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'H' => 
         array (
             'Hubzilla\\' => 9,
+            'HttpSignature\\' => 14,
+        ),
+        'G' => 
+        array (
+            'GuzzleHttp\\Psr7\\' => 16,
         ),
         'C' => 
         array (
@@ -101,6 +107,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'B' => 
         array (
             'Brick\\Math\\' => 11,
+            'Bakame\\Http\\StructuredFields\\' => 29,
         ),
     );
 
@@ -244,6 +251,14 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         array (
             0 => __DIR__ . '/../..' . '/include',
         ),
+        'HttpSignature\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/macgirvin/http-message-signer/src',
+        ),
+        'GuzzleHttp\\Psr7\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/guzzlehttp/psr7/src',
+        ),
         'CommerceGuys\\Intl\\' => 
         array (
             0 => __DIR__ . '/..' . '/commerceguys/intl/src',
@@ -251,6 +266,10 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Brick\\Math\\' => 
         array (
             0 => __DIR__ . '/..' . '/brick/math/src',
+        ),
+        'Bakame\\Http\\StructuredFields\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/bakame/http-structured-fields/src',
         ),
     );
 
@@ -293,6 +312,36 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
     );
 
     public static $classMap = array (
+        'Bakame\\Http\\StructuredFields\\Bytes' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/Bytes.php',
+        'Bakame\\Http\\StructuredFields\\DataType' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/DataType.php',
+        'Bakame\\Http\\StructuredFields\\Dictionary' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/Dictionary.php',
+        'Bakame\\Http\\StructuredFields\\DisplayString' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/DisplayString.php',
+        'Bakame\\Http\\StructuredFields\\ForbiddenOperation' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/ForbiddenOperation.php',
+        'Bakame\\Http\\StructuredFields\\Ietf' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/Ietf.php',
+        'Bakame\\Http\\StructuredFields\\InnerList' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/InnerList.php',
+        'Bakame\\Http\\StructuredFields\\InvalidArgument' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/InvalidArgument.php',
+        'Bakame\\Http\\StructuredFields\\InvalidOffset' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/InvalidOffset.php',
+        'Bakame\\Http\\StructuredFields\\Item' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/Item.php',
+        'Bakame\\Http\\StructuredFields\\Key' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/Key.php',
+        'Bakame\\Http\\StructuredFields\\Member' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/Member.php',
+        'Bakame\\Http\\StructuredFields\\MissingFeature' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/MissingFeature.php',
+        'Bakame\\Http\\StructuredFields\\OuterList' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/OuterList.php',
+        'Bakame\\Http\\StructuredFields\\ParameterAccess' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/ParameterAccess.php',
+        'Bakame\\Http\\StructuredFields\\Parameters' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/Parameters.php',
+        'Bakame\\Http\\StructuredFields\\Parser' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/Parser.php',
+        'Bakame\\Http\\StructuredFields\\StructuredFieldError' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/StructuredFieldError.php',
+        'Bakame\\Http\\StructuredFields\\StructuredFieldProvider' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/StructuredFieldProvider.php',
+        'Bakame\\Http\\StructuredFields\\SyntaxError' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/SyntaxError.php',
+        'Bakame\\Http\\StructuredFields\\Token' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/Token.php',
+        'Bakame\\Http\\StructuredFields\\Type' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/Type.php',
+        'Bakame\\Http\\StructuredFields\\Validation\\ErrorCode' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/Validation/ErrorCode.php',
+        'Bakame\\Http\\StructuredFields\\Validation\\ItemValidator' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/Validation/ItemValidator.php',
+        'Bakame\\Http\\StructuredFields\\Validation\\ParametersValidator' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/Validation/ParametersValidator.php',
+        'Bakame\\Http\\StructuredFields\\Validation\\Result' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/Validation/Result.php',
+        'Bakame\\Http\\StructuredFields\\Validation\\ValidatedItem' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/Validation/ValidatedItem.php',
+        'Bakame\\Http\\StructuredFields\\Validation\\ValidatedParameters' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/Validation/ValidatedParameters.php',
+        'Bakame\\Http\\StructuredFields\\Validation\\Violation' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/Validation/Violation.php',
+        'Bakame\\Http\\StructuredFields\\Validation\\ViolationList' => __DIR__ . '/..' . '/bakame/http-structured-fields/src/Validation/ViolationList.php',
         'Brick\\Math\\BigDecimal' => __DIR__ . '/..' . '/brick/math/src/BigDecimal.php',
         'Brick\\Math\\BigInteger' => __DIR__ . '/..' . '/brick/math/src/BigInteger.php',
         'Brick\\Math\\BigNumber' => __DIR__ . '/..' . '/brick/math/src/BigNumber.php',
@@ -331,6 +380,37 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'CommerceGuys\\Intl\\NumberFormat\\NumberFormatRepository' => __DIR__ . '/..' . '/commerceguys/intl/src/NumberFormat/NumberFormatRepository.php',
         'CommerceGuys\\Intl\\NumberFormat\\NumberFormatRepositoryInterface' => __DIR__ . '/..' . '/commerceguys/intl/src/NumberFormat/NumberFormatRepositoryInterface.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'GuzzleHttp\\Psr7\\AppendStream' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/AppendStream.php',
+        'GuzzleHttp\\Psr7\\BufferStream' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/BufferStream.php',
+        'GuzzleHttp\\Psr7\\CachingStream' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/CachingStream.php',
+        'GuzzleHttp\\Psr7\\DroppingStream' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/DroppingStream.php',
+        'GuzzleHttp\\Psr7\\Exception\\MalformedUriException' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/Exception/MalformedUriException.php',
+        'GuzzleHttp\\Psr7\\FnStream' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/FnStream.php',
+        'GuzzleHttp\\Psr7\\Header' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/Header.php',
+        'GuzzleHttp\\Psr7\\HttpFactory' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/HttpFactory.php',
+        'GuzzleHttp\\Psr7\\InflateStream' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/InflateStream.php',
+        'GuzzleHttp\\Psr7\\LazyOpenStream' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/LazyOpenStream.php',
+        'GuzzleHttp\\Psr7\\LimitStream' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/LimitStream.php',
+        'GuzzleHttp\\Psr7\\Message' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/Message.php',
+        'GuzzleHttp\\Psr7\\MessageTrait' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/MessageTrait.php',
+        'GuzzleHttp\\Psr7\\MimeType' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/MimeType.php',
+        'GuzzleHttp\\Psr7\\MultipartStream' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/MultipartStream.php',
+        'GuzzleHttp\\Psr7\\NoSeekStream' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/NoSeekStream.php',
+        'GuzzleHttp\\Psr7\\PumpStream' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/PumpStream.php',
+        'GuzzleHttp\\Psr7\\Query' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/Query.php',
+        'GuzzleHttp\\Psr7\\Request' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/Request.php',
+        'GuzzleHttp\\Psr7\\Response' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/Response.php',
+        'GuzzleHttp\\Psr7\\Rfc7230' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/Rfc7230.php',
+        'GuzzleHttp\\Psr7\\ServerRequest' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/ServerRequest.php',
+        'GuzzleHttp\\Psr7\\Stream' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/Stream.php',
+        'GuzzleHttp\\Psr7\\StreamDecoratorTrait' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/StreamDecoratorTrait.php',
+        'GuzzleHttp\\Psr7\\StreamWrapper' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/StreamWrapper.php',
+        'GuzzleHttp\\Psr7\\UploadedFile' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/UploadedFile.php',
+        'GuzzleHttp\\Psr7\\Uri' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/Uri.php',
+        'GuzzleHttp\\Psr7\\UriComparator' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/UriComparator.php',
+        'GuzzleHttp\\Psr7\\UriNormalizer' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/UriNormalizer.php',
+        'GuzzleHttp\\Psr7\\UriResolver' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/UriResolver.php',
+        'GuzzleHttp\\Psr7\\Utils' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/Utils.php',
         'HTMLPurifier' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.php',
         'HTMLPurifier_Arborize' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Arborize.php',
         'HTMLPurifier_AttrCollections' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/AttrCollections.php',
@@ -563,6 +643,8 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'HTMLPurifier_VarParser_Flexible' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/VarParser/Flexible.php',
         'HTMLPurifier_VarParser_Native' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/VarParser/Native.php',
         'HTMLPurifier_Zipper' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Zipper.php',
+        'HttpSignature\\HttpMessageSigner' => __DIR__ . '/..' . '/macgirvin/http-message-signer/src/HttpMessageSigner.php',
+        'HttpSignature\\StructuredFieldTypes' => __DIR__ . '/..' . '/macgirvin/http-message-signer/src/StructuredFieldTypes.php',
         'ID3Parser\\ID3Parser' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/ID3Parser.php',
         'ID3Parser\\getID3\\Tags\\getid3_id3v1' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/getID3/Tags/getid3_id3v1.php',
         'ID3Parser\\getID3\\Tags\\getid3_id3v2' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/getID3/Tags/getid3_id3v2.php',
