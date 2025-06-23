@@ -85,7 +85,7 @@ class Channel extends Controller {
 			$headers = [
 				'Content-Type'     => 'application/x-zot+json',
 				'Digest'           => HTTPSig::generate_digest_header($data),
-				'Date'             => datetime_convert('UTC','UTC', 'now', 'D, d M Y H:i:s \\G\\M\\T')
+				'(request-target)' => strtolower($_SERVER['REQUEST_METHOD']) . ' ' . $_SERVER['REQUEST_URI']
 			];
 
 			$h = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel));
