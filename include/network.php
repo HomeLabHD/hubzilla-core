@@ -433,7 +433,6 @@ function as_return_and_die($obj, $channel = []) {
 	$headers['Content-Type'] = 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"' ;
 	$headers['Date'] = datetime_convert('UTC','UTC', 'now', 'D, d M Y H:i:s \\G\\M\\T');
 	$headers['Digest'] = HTTPSig::generate_digest_header($ret);
-	$headers['(request-target)'] = strtolower($_SERVER['REQUEST_METHOD']) . ' ' . $_SERVER['REQUEST_URI'];
 
 	if ($channel) {
 		$h = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel));
