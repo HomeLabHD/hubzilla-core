@@ -5761,8 +5761,13 @@ function get_recursive_thr_parents(array $item): array|null
 			dbesc($mid)
 		);
 
+		if (!$x) {
+			break;
+		}
+
 		$mid = $x[0]['thr_parent'];
 		$thr_parents[] = $x[0]['thr_parent'];
+
 		$i++;
 	}
 
