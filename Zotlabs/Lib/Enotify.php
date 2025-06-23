@@ -559,6 +559,20 @@ class Enotify {
 		}
 	}
 
+
+	$r = q("select id from notify where hash = '%s' and link = '%s' and ntype = %d and uid = %d limit 1",
+		dbesc($datarray['hash']),
+		dbesc($datarray['link']),
+		intval($datarray['ntype']),
+		intval($recip['channel_id'])
+	);
+
+	if ($r) {
+		pop_lang();
+		logger('duplicate_notification');
+		return;
+	}
+
 	$r = q("insert into notify (hash,xname,url,photo,created,msg,aid,uid,link,parent,seen,ntype,verb,otype)
 		values('%s','%s','%s','%s','%s','%s',%d,%d,'%s','%s',%d,%d,'%s','%s')",
 		dbesc($datarray['hash']),
@@ -579,7 +593,7 @@ class Enotify {
 
 	$r = q("select id from notify where hash = '%s' and link = '%s' and ntype = %d and uid = %d limit 1",
 		dbesc($datarray['hash']),
-		dbesc($itemlink),
+		dbesc($datarray['link']),
 		intval($datarray['ntype']),
 		intval($recip['channel_id'])
 	);

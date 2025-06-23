@@ -6,8 +6,8 @@ namespace Zotlabs\Module;
  *
  * Controller for responding to x-zot: protocol requests
  * x-zot:_jkfRG85nJ-714zn-LW_VbTFW8jSjGAhAydOcJzHxqHkvEHWG2E0RbA_pbch-h4R63RG1YJZifaNzgccoLa3MQ/453c1678-1a79-4af7-ab65-6b012f6cab77
- *  
- */  
+ *
+ */
 
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\ActivityStreams;
@@ -104,7 +104,7 @@ class Id extends Controller {
 			$headers['Content-Type'] = 'application/x-zot+json' ;
 			$ret = json_encode($x, JSON_UNESCAPED_SLASHES);
 			$headers['Digest'] = HTTPSig::generate_digest_header($ret);
-			$headers['(request-target)'] = strtolower($_SERVER['REQUEST_METHOD']) . ' ' . $_SERVER['REQUEST_URI'];
+			$headers['Date'] = datetime_convert('UTC','UTC', 'now', 'D, d M Y H:i:s \\G\\M\\T');
 			$h = HTTPSig::create_sig($headers,$chan['channel_prvkey'],channel_url($chan));
 			HTTPSig::set_headers($h);
 			echo $ret;

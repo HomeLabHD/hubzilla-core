@@ -118,14 +118,22 @@ class HTTPSig {
 				return $result;
 			}
 
+			$found = preg_match('/alg="(.*?)"/', $headers['signature-input'], $matches);
+			$alg = ($found) ? $matches[1] : null;
+
 			$keyInfo = self::get_key($key, $keytype, $keyId);
 			$publicKey = $keyInfo['public_key'];
 
 			$messageSigner = new HttpMessageSigner();
 
 			$messageSigner->setPublicKey($publicKey);
-			$messageSigner->setAlgorithm('rsa-sha256');
+			$messageSigner->setAlgorithm($alg);
 			$messageSigner->setKeyId($keyId);
+
+			$messageSigner->setNonce(preg_match('/nonce="(.*?)"/', $headers['signature-input'], $matches) ? $matches[1] : '');
+			$messageSigner->setTag(preg_match('/tag="(.*?)"/', $headers['signature-input'], $matches) ? $matches[1] : '');
+			$messageSigner->setCreated(preg_match('/created=([0-9]+)/', $headers['signature-input'], $matches) ? $matches[1] : '');
+			$messageSigner->setExpires(preg_match('/expires=([0-9]+)/', $headers['signature-input'], $matches) ? $matches[1] : '');
 
 			$verified = $messageSigner->verifyRequest(App::$request);
 			logger('verified (RFC9421): ' . (($verified) ? 'true' : 'false'), LOGGER_DEBUG);
