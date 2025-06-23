@@ -8,8 +8,8 @@ class MessageFilter {
 
 	public static function evaluate($item, $incl, $excl) {
 
-		$text = prepare_text($item['body'],((isset($item['mimetype'])) ? $item['mimetype'] : 'text/bbcode'));
-		$text = html2plain(($item['title']) ? $item['title'] . ' ' . $text : $text);
+		$text = prepare_text($item['body'], ((isset($item['mimetype'])) ? $item['mimetype'] : 'text/bbcode'));
+		$text = html2plain((!empty($item['title'])) ? $item['title'] . ' ' . $text : $text);
 
 		$lang = null;
 		if ((strpos($incl, 'lang=') !== false) || (strpos($excl, 'lang=') !== false) || (strpos($incl, 'lang!=') !== false) || (strpos($excl, 'lang!=') !== false)) {
