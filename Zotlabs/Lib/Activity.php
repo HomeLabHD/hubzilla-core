@@ -3350,10 +3350,10 @@ class Activity {
 			if (array_key_exists('startTime', $act) && strpos($act['startTime'], -1, 1) === 'Z') {
 				$adjust           = true;
 				$event['adjust']  = 1;
-				$event['dtstart'] = datetime_convert('UTC', 'UTC', $event['startTime'] . (($adjust) ? '' : 'Z'));
+				$event['dtstart'] = datetime_convert('UTC', 'UTC', $act['startTime'] . (($adjust) ? '' : 'Z'));
 			}
 			if (array_key_exists('endTime', $act)) {
-				$event['dtend'] = datetime_convert('UTC', 'UTC', $event['endTime'] . (($adjust) ? '' : 'Z'));
+				$event['dtend'] = datetime_convert('UTC', 'UTC', $act['endTime'] . (($adjust) ? '' : 'Z'));
 			}
 			else {
 				$event['nofinish'] = true;
