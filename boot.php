@@ -1802,26 +1802,6 @@ function shutdown() {
 }
 
 /**
- * @brief Returns the entity id of locally logged in account or false.
- *
- * Returns numeric account_id if authenticated or 0. It is possible to be
- * authenticated and not connected to a channel.
- *
- * @return int|bool account_id or false
- */
-function get_account_id() {
-	if (isset($_SESSION['account_id'])) {
-		return intval($_SESSION['account_id']);
-	}
-
-	if (App::$account) {
-		return intval(App::$account['account_id']);
-	}
-
-	return false;
-}
-
-/**
  * @brief Returns the entity id (channel_id) of locally logged in channel or false.
  *
  * Returns authenticated numeric channel_id if authenticated and connected to

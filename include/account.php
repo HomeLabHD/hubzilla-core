@@ -17,10 +17,38 @@ require_once('include/crypto.php');
 require_once('include/channel.php');
 
 
-function get_account_by_id($account_id) {
-	$r = q("select * from account where account_id = %d",
-		intval($account_id)
-	);
+/**
+ * Returns the id of a locally logged in account or false.
+ *
+ * Returns the numeric account id of the current session if authenticated, or
+ * false otherwise.
+ *
+ * @note It is possible to be authenticated, and not connected to a channel.
+ *
+ * @return int|false Numeric account id or false.
+ */
+function get_account_id(): int|false {
+	if (isset($_SESSION['account_id'])) {
+		return intval($_SESSION['account_id']);
+	}
+
+	if (App::$account) {
+		return intval(App::$account['account_id']);
+	}
+
+	return false;
+}
+
+/**
+ * Get the account with the given id from the database.
+ *
+ * @param int $account_id	The numeric id of the account to fetch.
+ *
+ * @return array|false	An array containing the attributes of the requested
+ *		account, or false if it could not be retreived.
+ */
+function get_account_by_id(int $account_id): array|false {
+	$r = q("select * from account where account_id = %d", $account_id);
 	return (($r) ? $r[0] : false);
 }
 
