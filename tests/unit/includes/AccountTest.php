@@ -1,9 +1,28 @@
 <?php
+
+use Zotlabs\Tests\Unit\UnitTestCase;
+
 /**
  * Tests for account handling helper functions.
  */
+class AccountTest extends UnitTestCase {
 
-class AccountTest extends Zotlabs\Tests\Unit\UnitTestCase {
+	/**
+	 * Test the `get_account_id()` function.
+	 */
+	public function test_get_account_id() {
+		App::set_account(null);
+		unset($_SESSION['account_id']);
+
+		$this->assertEquals(false, get_account_id(), 'get_account_id() should return false if not authenticated');
+
+		App::set_account(['account_id' => 36]);
+		$this->assertEquals(36, get_account_id(), 'get_account_id() should return account from global App object');
+
+		$_SESSION['account_id'] = 42;
+		$this->assertEquals(42, get_account_id(), 'get_account_id() should return the account from the session');
+	}
+
 	public function test_get_account_by_id_returns_existing_account() {
 		$account = get_account_by_id(42);
 		$this->assertNotFalse($account);
