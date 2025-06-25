@@ -5,10 +5,17 @@ namespace Zotlabs\Module;
 class Login extends \Zotlabs\Web\Controller {
 
 	function get() {
-		if(local_channel())
+		if (local_channel()) {
 			goaway(z_root());
-		if(remote_channel() && $_SESSION['atoken'])
+		}
+
+		if (remote_channel() && $_SESSION['atoken']) {
 			goaway(z_root());
+		}
+
+		if (!empty($_GET['retry'])) {
+			notice( t('Login failed.') . EOL );
+		}
 
 		$o = '<div class="generic-content-wrapper">';
 		$o .= '<div class="section-title-wrapper">';

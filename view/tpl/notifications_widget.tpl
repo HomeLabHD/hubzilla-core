@@ -88,6 +88,7 @@
 		}
 		else {
 			if (!document.hidden) {
+				sse_fallback();
 				sse_fallback_interval = setInterval(sse_fallback, updateInterval);
 			}
 

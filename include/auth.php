@@ -353,9 +353,6 @@ else {
 		elseif($atoken) {
 			atoken_login($atoken);
 		}
-		else {
-			notice( t('Failed authentication') . EOL);
-		}
 
 		if(! ($account || $atoken)) {
 			$error = 'authenticate: failed login attempt: ' . notags(trim($username)) . ' from IP ' . $_SERVER['REMOTE_ADDR'];
@@ -364,8 +361,8 @@ else {
 			$authlog = Config::Get('system', 'authlog');
 			if ($authlog)
 				@file_put_contents($authlog, datetime_convert() . ':' . session_id() . ' ' . $error . "\n", FILE_APPEND);
-			notice( t('Login failed.') . EOL );
-			goaway(z_root() . '/login');
+
+			goaway(z_root() . '/login?retry=1');
 		}
 
 		// If the user specified to remember the authentication, then change the cookie
