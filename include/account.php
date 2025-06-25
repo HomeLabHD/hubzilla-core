@@ -145,11 +145,16 @@ function check_account_invite($invite_code) {
 }
 
 function check_account_admin($arr) {
-	if(is_site_admin())
+	if (is_site_admin()) {
 		return true;
+	}
+
 	$admin_email = trim(Config::Get('system','admin_email'));
-	if(strlen($admin_email) && $admin_email === trim($arr['email']))
+
+	if (strlen($admin_email) && $admin_email === trim($arr['reg_email'])) {
 		return true;
+	}
+
 	return false;
 }
 
@@ -191,18 +196,18 @@ function create_account_from_register($arr) {
 	if($default_service_class === false)
 		$default_service_class = '';
 
-	$roles = 0;
-	// prevent form hackery
-	if($roles & ACCOUNT_ROLE_ADMIN) {
-		$admin_result = check_account_admin($arr);
-		if(! $admin_result) {
-			$roles = 0;
-		}
+	// any accounts available ?
+	$total = q("SELECT COUNT(*) AS total FROM account");
+
+	if ($total && intval($total[0]['total']) === 0 && !check_account_admin($register[0])) {
+		logger('create_account: first account is not admin');
+		$result['message'] = t('First account is not admin.');
+		return $result;
 	}
 
-	// any accounts available ?
-	$isa = q("SELECT COUNT(*) AS isa FROM account");
-	if ($isa && $isa[0]['isa'] == 0) {
+	$roles = 0;
+
+	if (check_account_admin($register[0])) {
 		$roles = ACCOUNT_ROLE_ADMIN;
 	}
 
