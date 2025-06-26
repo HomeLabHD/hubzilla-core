@@ -176,7 +176,7 @@ class Item extends Controller {
 		$return_path   = ((!empty($_POST['return'])) ? $_POST['return'] : '');
 		$preview       = ((!empty($_POST['preview'])) ? intval($_POST['preview']) : 0);
 		$categories    = ((!empty($_POST['category'])) ? escape_tags($_POST['category']) : '');
-		$webpage       = ((!empty($_POST['webpage'])) ? intval($_POST['webpage']) : 0);
+		$item_type     = ((!empty($_POST['webpage'])) ? intval($_POST['webpage']) : ITEM_TYPE_POST);
 		$item_obscured = ((!empty($_POST['obscured'])) ? intval($_POST['obscured']) : 0);
 		$item_delayed  = ((!empty($_POST['delayed'])) ? intval($_POST['delayed']) : 0);
 		$pagetitle     = ((!empty($_POST['pagetitle'])) ? escape_tags($_POST['pagetitle']) : '');
@@ -314,7 +314,7 @@ class Item extends Controller {
 			}
 		}
 		else {
-			if (!perm_is_allowed($profile_uid, $observer['xchan_hash'], ($webpage) ? 'write_pages' : 'post_wall')) {
+			if (!perm_is_allowed($profile_uid, $observer['xchan_hash'], (intval($item_type) === ITEM_TYPE_POST) ? 'post_wall' : 'write_pages')) {
 				notice(t('Permission denied.') . EOL);
 				if ($api_source)
 					return (['success' => false, 'message' => 'permission denied']);
@@ -426,16 +426,20 @@ class Item extends Controller {
 		$view_policy    = \Zotlabs\Access\PermissionLimits::Get($channel['channel_id'], 'view_stream');
 		$comment_policy = \Zotlabs\Access\PermissionLimits::Get($channel['channel_id'], 'post_comments');
 
-		$public_policy = ((!empty($_POST['public_policy'])) ? escape_tags($_POST['public_policy']) : map_scope($view_policy, true));
-		if ($webpage)
-			$public_policy = '';
-		if ($public_policy)
+		$public_policy = '';
+
+		if (intval($item_type) === ITEM_TYPE_POST) {
+			$public_policy = ((!empty($_POST['public_policy'])) ? escape_tags($_POST['public_policy']) : map_scope($view_policy, true));
+		}
+
+		if ($public_policy) {
 			$private = 1;
+		}
 
 		if ($orig_post) {
 			$private = 0;
-			// webpages are allowed to change ACLs after the fact. Normal conversation items aren't.
-			if ($webpage) {
+			// Normal conversation items are not allowed to change ACL.
+			if (intval($item_type) !== ITEM_TYPE_POST) {
 				$acl->set_from_array($_POST);
 			}
 			else {
@@ -531,7 +535,7 @@ class Item extends Controller {
 				$private       = intval($parent_item['item_private']);
 				$public_policy = $parent_item['public_policy'];
 				$owner_hash    = $parent_item['owner_xchan'];
-				$webpage       = $parent_item['item_type'];
+				$item_type       = $parent_item['item_type'];
 			}
 
 
@@ -592,7 +596,7 @@ class Item extends Controller {
 
 		$is_group = get_pconfig($profile_uid, 'system', 'group_actor');
 
-		if ($is_group && $walltowall && !$walltowall_comment && !$webpage) {
+		if ($is_group && $walltowall && !$walltowall_comment && (intval($item_type) === ITEM_TYPE_POST)) {
 			$groupww           = true;
 			$str_contact_allow = $owner_xchan['xchan_hash'];
 			$str_group_allow   = '';
@@ -799,15 +803,13 @@ class Item extends Controller {
 
 		// determine if this is a wall post
 
+		if (in_array($item_type, [ITEM_TYPE_POST, ITEM_TYPE_CARD, ITEM_TYPE_ARTICLE])) {
+			$item_wall = 1;
+		}
+
 		if ($parent) {
 			$item_wall = $parent_item['item_wall'];
 		}
-		else {
-			if (!$webpage) {
-				$item_wall = 1;
-			}
-		}
-
 
 		if ($moderated) {
 			$item_blocked = ITEM_MODERATED;
@@ -930,7 +932,7 @@ class Item extends Controller {
 		$datarray['item_unseen']         = intval($item_unseen);
 		$datarray['item_wall']           = intval($item_wall);
 		$datarray['item_origin']         = intval($item_origin);
-		$datarray['item_type']           = $webpage;
+		$datarray['item_type']           = $item_type;
 		$datarray['item_private']        = intval($private);
 		$datarray['item_thread_top']     = intval($item_thread_top);
 		$datarray['item_starred']        = intval($item_starred);
@@ -1025,8 +1027,8 @@ class Item extends Controller {
 		if (mb_strlen($datarray['title']) > 191)
 			$datarray['title'] = mb_substr($datarray['title'], 0, 191);
 
-		if ($webpage) {
-			IConfig::Set($datarray, 'system', webpage_to_namespace($webpage),
+		if (intval($item_type) !== ITEM_TYPE_POST) {
+			IConfig::Set($datarray, 'system', item_type_to_namespace($item_type),
 				(($pagetitle) ? $pagetitle : basename($datarray['mid'])), true);
 		}
 		elseif ($namespace) {
