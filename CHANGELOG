@@ -57,6 +57,7 @@ Hubzilla 10.4 (2025-??-??)
 	- Disable browser rotating image based on EXIF metadata
 
 	Bugfixes
+	- Fix issue where item_wall was not set for article and card item types
 	- Fix first created account was not necessarily the admin account
 	- Fix notice not emited on failed login
 	- Fix intro notifications not handled via /notify/view and hence not marked seen

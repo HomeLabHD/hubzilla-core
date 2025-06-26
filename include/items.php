@@ -4802,19 +4802,19 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 	return $items;
 }
 
-function webpage_to_namespace($webpage) {
+function item_type_to_namespace($item_type) {
 
-	if($webpage == ITEM_TYPE_WEBPAGE)
+	if($item_type == ITEM_TYPE_WEBPAGE)
 		$page_type = 'WEBPAGE';
-	elseif($webpage == ITEM_TYPE_BLOCK)
+	elseif($item_type == ITEM_TYPE_BLOCK)
 		$page_type = 'BUILDBLOCK';
-	elseif($webpage == ITEM_TYPE_PDL)
+	elseif($item_type == ITEM_TYPE_PDL)
 		$page_type = 'PDL';
-	elseif($webpage == ITEM_TYPE_CARD)
+	elseif($item_type == ITEM_TYPE_CARD)
 		$page_type = 'CARD';
-	elseif($webpage == ITEM_TYPE_ARTICLE)
+	elseif($item_type == ITEM_TYPE_ARTICLE)
 		$page_type = 'ARTICLE';
-	elseif($webpage == ITEM_TYPE_DOC)
+	elseif($item_type == ITEM_TYPE_DOC)
 		$page_type = 'docfile';
 	else
 		$page_type = 'unknown';
@@ -4823,12 +4823,12 @@ function webpage_to_namespace($webpage) {
 }
 
 
-function update_remote_id($channel,$post_id,$webpage,$pagetitle,$namespace,$remote_id,$mid) {
+function update_remote_id($channel,$post_id,$item_type,$pagetitle,$namespace,$remote_id,$mid) {
 
 	if(! intval($post_id))
 		return;
 
-	$page_type = webpage_to_namespace($webpage);
+	$page_type = item_type_to_namespace($item_type);
 
 	if($page_type == 'unknown' && $namespace && $remote_id) {
 		$page_type = $namespace;
