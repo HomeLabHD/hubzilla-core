@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'zotlabs/hubzilla',
-        'pretty_version' => 'dev-10.2RC',
-        'version' => 'dev-10.2RC',
-        'reference' => 'e6bd5ef52009e2f7e1673806fb998d542eed4990',
+        'pretty_version' => 'dev-10.4RC',
+        'version' => 'dev-10.4RC',
+        'reference' => '7782183ae356db31dbef2dcf785ddc79c00335c1',
         'type' => 'application',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -146,9 +146,9 @@
             'dev_requirement' => false,
         ),
         'macgirvin/http-message-signer' => array(
-            'pretty_version' => 'v0.1.6',
-            'version' => '0.1.6.0',
-            'reference' => '31774b2a8e103dfcdb56b0c570336ec62487dc6f',
+            'pretty_version' => 'v0.1.7',
+            'version' => '0.1.7.0',
+            'reference' => '44db674fb750b4e4909cf1aeb3a18a4c68d938ca',
             'type' => 'library',
             'install_path' => __DIR__ . '/../macgirvin/http-message-signer',
             'aliases' => array(),
@@ -476,9 +476,9 @@
             'dev_requirement' => false,
         ),
         'zotlabs/hubzilla' => array(
-            'pretty_version' => 'dev-10.2RC',
-            'version' => 'dev-10.2RC',
-            'reference' => 'e6bd5ef52009e2f7e1673806fb998d542eed4990',
+            'pretty_version' => 'dev-10.4RC',
+            'version' => 'dev-10.4RC',
+            'reference' => '7782183ae356db31dbef2dcf785ddc79c00335c1',
             'type' => 'application',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
