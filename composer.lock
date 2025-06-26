@@ -1081,16 +1081,16 @@
         },
         {
             "name": "macgirvin/http-message-signer",
-            "version": "v0.1.6",
+            "version": "v0.1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/macgirvin/HTTP-Message-Signer.git",
-                "reference": "31774b2a8e103dfcdb56b0c570336ec62487dc6f"
+                "reference": "44db674fb750b4e4909cf1aeb3a18a4c68d938ca"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/macgirvin/HTTP-Message-Signer/zipball/31774b2a8e103dfcdb56b0c570336ec62487dc6f",
-                "reference": "31774b2a8e103dfcdb56b0c570336ec62487dc6f",
+                "url": "https://api.github.com/repos/macgirvin/HTTP-Message-Signer/zipball/44db674fb750b4e4909cf1aeb3a18a4c68d938ca",
+                "reference": "44db674fb750b4e4909cf1aeb3a18a4c68d938ca",
                 "shasum": ""
             },
             "require": {
@@ -1116,9 +1116,9 @@
             "description": "RFC 9421 HTTP Message Signer and Verifier for PSR-7 requests",
             "support": {
                 "issues": "https://github.com/macgirvin/HTTP-Message-Signer/issues",
-                "source": "https://github.com/macgirvin/HTTP-Message-Signer/tree/v0.1.6"
+                "source": "https://github.com/macgirvin/HTTP-Message-Signer/tree/v0.1.7"
             },
-            "time": "2025-06-20T23:11:42+00:00"
+            "time": "2025-06-25T03:19:43+00:00"
         },
         {
             "name": "michelf/php-markdown",
