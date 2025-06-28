@@ -114,6 +114,10 @@ class MarkdownTest extends UnitTestCase {
 				'This is a link https://example.com/some/path more info.',
 				'This is a link https://example.com/some/path more info.',
 			],
+			'mention with underscores is untouched' => [
+				'@{_test_@somesite.example} @{test_2_@othersite.example}',
+				'@{_test_@somesite.example} @{test_2_@othersite.example}',
+			],
 		];
 	}
 
