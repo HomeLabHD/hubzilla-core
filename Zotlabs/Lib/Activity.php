@@ -3565,7 +3565,7 @@ class Activity {
 				(isset($t['name']) && $t['name'] === 'Protocols') &&
 				(isset($t['content']) && (str_contains($t['content'], 'zot6') || str_contains($t['content'], 'activitypub') || str_contains($t['content'], 'diaspora')))
 			) {
-				$ret[] = array_map('trim', explode(',', $t['content']));
+				$ret = array_map('trim', explode(',', $t['content']));
 			}
 
 		}

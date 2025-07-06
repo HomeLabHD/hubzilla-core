@@ -297,25 +297,27 @@ class ActivityTest extends UnitTestCase {
 	public static function get_actor_protocols_provider(): array {
 		return [
 			'none' => [
-				['tag' => ['type' => 'Note', 'name' => 'Website', 'content' => 'https://example.com']],
+				['tag' => [['type' => 'Note', 'name' => 'Website', 'content' => 'https://example.com']]],
 				[]
 			],
 			'legacy' => [
-				['tag' =>
+				['tag' => [
 					['type' => 'PropertyValue', 'name' => 'Protocol', 'value' => 'zot6'],
 					['type' => 'PropertyValue', 'name' => 'Protocol', 'value' => 'activitypub'],
 					['type' => 'PropertyValue', 'name' => 'Protocol', 'value' => 'diaspora']
-				],
+				]],
 				['zot6', 'activitypub', 'diaspora']
 			],
 			'fep-fb2a' => [
-				['tag' => ['type' => 'Note', 'name' => 'Protocols', 'content' => 'zot6,activitypub,diaspora']],
+				['tag' => [['type' => 'Note', 'name' => 'Protocols', 'content' => 'zot6,activitypub,diaspora']]],
 				['zot6', 'activitypub', 'diaspora']
 			],
 			'fep-fb2a with spaces' => [
-				['tag' => ['type' => 'Note', 'name' => 'Protocols', 'content' => 'zot6, activitypub, diaspora']],
+				['tag' => [['type' => 'Note', 'name' => 'Protocols', 'content' => 'zot6, activitypub, diaspora']]],
 				['zot6', 'activitypub', 'diaspora']
-			]
+			],
 		];
+
+
 	}
 }
