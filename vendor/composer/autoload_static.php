@@ -645,6 +645,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'HTMLPurifier_Zipper' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Zipper.php',
         'HttpSignature\\HttpMessageSigner' => __DIR__ . '/..' . '/macgirvin/http-message-signer/src/HttpMessageSigner.php',
         'HttpSignature\\StructuredFieldTypes' => __DIR__ . '/..' . '/macgirvin/http-message-signer/src/StructuredFieldTypes.php',
+        'HttpSignature\\UnProcessableSignatureException' => __DIR__ . '/..' . '/macgirvin/http-message-signer/src/UnProcessableSignatureException.php',
         'ID3Parser\\ID3Parser' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/ID3Parser.php',
         'ID3Parser\\getID3\\Tags\\getid3_id3v1' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/getID3/Tags/getid3_id3v1.php',
         'ID3Parser\\getID3\\Tags\\getid3_id3v2' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/getID3/Tags/getid3_id3v2.php',

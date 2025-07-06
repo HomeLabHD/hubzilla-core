@@ -339,6 +339,7 @@ return array(
     'HTMLPurifier_Zipper' => $vendorDir . '/ezyang/htmlpurifier/library/HTMLPurifier/Zipper.php',
     'HttpSignature\\HttpMessageSigner' => $vendorDir . '/macgirvin/http-message-signer/src/HttpMessageSigner.php',
     'HttpSignature\\StructuredFieldTypes' => $vendorDir . '/macgirvin/http-message-signer/src/StructuredFieldTypes.php',
+    'HttpSignature\\UnProcessableSignatureException' => $vendorDir . '/macgirvin/http-message-signer/src/UnProcessableSignatureException.php',
     'ID3Parser\\ID3Parser' => $vendorDir . '/lukasreschke/id3parser/src/ID3Parser.php',
     'ID3Parser\\getID3\\Tags\\getid3_id3v1' => $vendorDir . '/lukasreschke/id3parser/src/getID3/Tags/getid3_id3v1.php',
     'ID3Parser\\getID3\\Tags\\getid3_id3v2' => $vendorDir . '/lukasreschke/id3parser/src/getID3/Tags/getid3_id3v2.php',
