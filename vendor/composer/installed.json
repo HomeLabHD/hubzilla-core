@@ -1112,17 +1112,17 @@
         },
         {
             "name": "macgirvin/http-message-signer",
-            "version": "v0.1.7",
-            "version_normalized": "0.1.7.0",
+            "version": "v0.2.0",
+            "version_normalized": "0.2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/macgirvin/HTTP-Message-Signer.git",
-                "reference": "44db674fb750b4e4909cf1aeb3a18a4c68d938ca"
+                "reference": "055198699858f8a99acf75b62190d70ac0c8cb00"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/macgirvin/HTTP-Message-Signer/zipball/44db674fb750b4e4909cf1aeb3a18a4c68d938ca",
-                "reference": "44db674fb750b4e4909cf1aeb3a18a4c68d938ca",
+                "url": "https://api.github.com/repos/macgirvin/HTTP-Message-Signer/zipball/055198699858f8a99acf75b62190d70ac0c8cb00",
+                "reference": "055198699858f8a99acf75b62190d70ac0c8cb00",
                 "shasum": ""
             },
             "require": {
@@ -1135,7 +1135,7 @@
             "require-dev": {
                 "phpunit/phpunit": "^10.0"
             },
-            "time": "2025-06-25T03:19:43+00:00",
+            "time": "2025-07-01T02:57:39+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -1150,7 +1150,7 @@
             "description": "RFC 9421 HTTP Message Signer and Verifier for PSR-7 requests",
             "support": {
                 "issues": "https://github.com/macgirvin/HTTP-Message-Signer/issues",
-                "source": "https://github.com/macgirvin/HTTP-Message-Signer/tree/v0.1.7"
+                "source": "https://github.com/macgirvin/HTTP-Message-Signer/tree/v0.2.0"
             },
             "install-path": "../macgirvin/http-message-signer"
         },
