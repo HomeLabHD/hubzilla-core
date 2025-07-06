@@ -110,7 +110,7 @@ class HTTPSig {
 			return $result;
 		}
 
-		if (array_key_exists('signature-input', $headers) && array_key_exists('signature', $headers)) {
+		if (App::$request && array_key_exists('signature-input', $headers) && array_key_exists('signature', $headers)) {
 			$found = preg_match('/keyid="(.*?)"/', $headers['signature-input'], $matches);
 			$keyId = ($found) ? $matches[1] : '';
 
