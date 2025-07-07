@@ -7,7 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'voku\\' => array($vendorDir . '/voku/stop-words/src/voku', $vendorDir . '/voku/portable-ascii/src/voku'),
-    'phpseclib\\' => array($vendorDir . '/phpseclib/phpseclib/phpseclib'),
+    'phpseclib3\\' => array($vendorDir . '/phpseclib/phpseclib/phpseclib'),
     'chillerlan\\Settings\\' => array($vendorDir . '/chillerlan/php-settings-container/src'),
     'chillerlan\\QRCode\\' => array($vendorDir . '/chillerlan/php-qrcode/src'),
     'Zotlabs\\' => array($baseDir . '/Zotlabs'),
