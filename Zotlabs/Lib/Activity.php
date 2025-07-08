@@ -3557,7 +3557,7 @@ class Activity {
 				(isset($t['name']) && $t['name'] === 'Protocol') &&
 				isset($t['value'])
 			) {
-				$ret[] = $t['value'];
+				$ret[] = trim($t['value']);
 			}
 
 			// FEP-fb2a - actor metadata
