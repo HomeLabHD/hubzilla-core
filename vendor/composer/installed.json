@@ -1112,17 +1112,17 @@
         },
         {
             "name": "macgirvin/http-message-signer",
-            "version": "v0.2.0",
-            "version_normalized": "0.2.0.0",
+            "version": "v0.2.1",
+            "version_normalized": "0.2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/macgirvin/HTTP-Message-Signer.git",
-                "reference": "055198699858f8a99acf75b62190d70ac0c8cb00"
+                "reference": "55ea393671c58bb6b93445b5f3ee8ba41154f0c9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/macgirvin/HTTP-Message-Signer/zipball/055198699858f8a99acf75b62190d70ac0c8cb00",
-                "reference": "055198699858f8a99acf75b62190d70ac0c8cb00",
+                "url": "https://api.github.com/repos/macgirvin/HTTP-Message-Signer/zipball/55ea393671c58bb6b93445b5f3ee8ba41154f0c9",
+                "reference": "55ea393671c58bb6b93445b5f3ee8ba41154f0c9",
                 "shasum": ""
             },
             "require": {
@@ -1130,12 +1130,14 @@
                 "ext-openssl": "*",
                 "guzzlehttp/psr7": "^2.0",
                 "php": "^8.1",
+                "phpseclib/phpseclib": "~3.0",
+                "phpseclib/phpseclib2_compat": "^1.0",
                 "psr/http-message": "^2.0"
             },
             "require-dev": {
                 "phpunit/phpunit": "^10.0"
             },
-            "time": "2025-07-01T02:57:39+00:00",
+            "time": "2025-07-05T00:38:21+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -1150,7 +1152,7 @@
             "description": "RFC 9421 HTTP Message Signer and Verifier for PSR-7 requests",
             "support": {
                 "issues": "https://github.com/macgirvin/HTTP-Message-Signer/issues",
-                "source": "https://github.com/macgirvin/HTTP-Message-Signer/tree/v0.2.0"
+                "source": "https://github.com/macgirvin/HTTP-Message-Signer/tree/v0.2.1"
             },
             "install-path": "../macgirvin/http-message-signer"
         },
@@ -1614,6 +1616,57 @@
                 }
             ],
             "install-path": "../phpseclib/phpseclib"
+        },
+        {
+            "name": "phpseclib/phpseclib2_compat",
+            "version": "1.0.6",
+            "version_normalized": "1.0.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/phpseclib/phpseclib2_compat.git",
+                "reference": "90976f25d6c2ff936878624b9cfaa322db11dde7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib2_compat/zipball/90976f25d6c2ff936878624b9cfaa322db11dde7",
+                "reference": "90976f25d6c2ff936878624b9cfaa322db11dde7",
+                "shasum": ""
+            },
+            "require": {
+                "phpseclib/phpseclib": "^3.0"
+            },
+            "provide": {
+                "phpseclib/phpseclib": "2.0.47"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.7|^6.0|^9.4"
+            },
+            "time": "2024-02-26T14:37:15+00:00",
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "phpseclib\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jim Wigginton",
+                    "email": "terrafrost@php.net",
+                    "role": "Lead Developer"
+                }
+            ],
+            "description": "phpseclib 2.0 polyfill built with phpseclib 3.0",
+            "homepage": "https://github.com/phpseclib/phpseclib2_compat",
+            "support": {
+                "issues": "https://github.com/phpseclib/phpseclib2_compat/issues",
+                "source": "https://github.com/phpseclib/phpseclib2_compat"
+            },
+            "install-path": "../phpseclib/phpseclib2_compat"
         },
         {
             "name": "psr/clock",
