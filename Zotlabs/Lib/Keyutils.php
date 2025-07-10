@@ -2,8 +2,8 @@
 
 namespace Zotlabs\Lib;
 
-use phpseclib\Crypt\RSA;
-use phpseclib\Math\BigInteger;
+use phpseclib3\Crypt\PublicKeyLoader;
+use phpseclib3\Math\BigInteger;
 
 /**
  * Keyutils
@@ -16,41 +16,42 @@ class Keyutils {
 	 * @param string $e exponent
 	 * @return string
 	 */
-	public static function meToPem($m, $e) {
-
-		$rsa = new RSA();
-		$rsa->loadKey([
+	public static function meToPem(string $m, string $e): string
+	{
+		$parsedKey = PublicKeyLoader::load([
 			'e' => new BigInteger($e, 256),
 			'n' => new BigInteger($m, 256)
 		]);
-		return $rsa->getPublicKey();
-
+		if (method_exists($parsedKey, 'getPublicKey')) {
+			$parsedKey = $parsedKey->getPublicKey();
+		}
+		return $parsedKey->toString('PKCS8');
 	}
 
 	/**
 	 * @param string key
 	 * @return string
 	 */
-	public static function rsaToPem($key) {
-
-		$rsa = new RSA();
-		$rsa->setPublicKey($key);
-
-		return $rsa->getPublicKey(RSA::PUBLIC_FORMAT_PKCS8);
-
+    public static function rsaToPem(string $key): string
+	{
+		$parsedKey = PublicKeyLoader::load($key);
+		if (method_exists($parsedKey, 'getPublicKey')) {
+			$parsedKey = $parsedKey->getPublicKey();
+		}
+		return $parsedKey->toString('PKCS8');
 	}
 
 	/**
 	 * @param string key
 	 * @return string
 	 */
-	public static function pemToRsa($key) {
-
-		$rsa = new RSA();
-		$rsa->setPublicKey($key);
-
-		return $rsa->getPublicKey(RSA::PUBLIC_FORMAT_PKCS1);
-
+	public static function pemToRsa(string $key): string
+	{
+		$parsedKey = PublicKeyLoader::load($key);
+		if (method_exists($parsedKey, 'getPublicKey')) {
+			$parsedKey = $parsedKey->getPublicKey();
+		}
+		return $parsedKey->toString('PKCS1');
 	}
 
 	/**
@@ -58,23 +59,28 @@ class Keyutils {
 	 * @param string $m reference modulo
 	 * @param string $e reference exponent
 	 */
-	public static function pemToMe($key, &$m, &$e) {
+	public static function pemToMe(string $key): array
+	{
+		$parsedKey = PublicKeyLoader::load($key);
+		if (method_exists($parsedKey, 'getPublicKey')) {
+			$parsedKey = $parsedKey->getPublicKey();
+		}
+		$raw = $parsedKey->toString('Raw');
 
-		$rsa = new RSA();
-		$rsa->loadKey($key);
-		$rsa->setPublicKey();
+		$m = $raw['n'];
+		$e = $raw['e'];
 
-		$m = $rsa->modulus->toBytes();
-		$e = $rsa->exponent->toBytes();
-
+		return [$m->toBytes(), $e->toBytes()];
 	}
 
 	/**
 	 * @param string $pubkey
 	 * @return string
 	 */
-	public static function salmonKey($pubkey) {
-		self::pemToMe($pubkey, $m, $e);
+	public static function salmonKey(string $pubkey): string
+	{
+		[$m, $e] = self::pemToMe($pubkey);
+		/** @noinspection PhpRedundantOptionalArgumentInspection */
 		return 'RSA' . '.' . base64url_encode($m, true) . '.' . base64url_encode($e, true);
 	}
 
@@ -82,11 +88,13 @@ class Keyutils {
 	 * @param string $key
 	 * @return string
 	 */
-	public static function convertSalmonKey($key) {
-		if (strstr($key, ','))
+	public static function convertSalmonKey(string $key): string
+	{
+		if (str_contains($key, ',')) {
 			$rawkey = substr($key, strpos($key, ',') + 1);
-		else
+		} else {
 			$rawkey = substr($key, 5);
+		}
 
 		$key_info = explode('.', $rawkey);
 

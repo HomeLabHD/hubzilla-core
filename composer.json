@@ -48,7 +48,7 @@
         "twbs/bootstrap": "^5.3",
         "blueimp/jquery-file-upload": "^10.3",
         "desandro/imagesloaded": "^4.1",
-        "phpseclib/phpseclib": "^2.0.47",
+        "phpseclib/phpseclib": "^3.0.46",
         "jbroadway/urlify": "^1.2",
         "chillerlan/php-qrcode": "^5.0.3",
         "spomky-labs/otphp": "^11.1",
@@ -57,7 +57,7 @@
         "mmccook/php-json-canonicalization-scheme": "^1.0",
         "scssphp/scssphp": "^2.0.1",
         "twbs/bootstrap-icons": "^1.11",
-        "macgirvin/http-message-signer": "^0.1.6"
+        "macgirvin/http-message-signer": "^0.2"
     },
     "require-dev": {
         "ext-yaml": "*",

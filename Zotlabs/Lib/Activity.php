@@ -3552,12 +3552,22 @@ class Activity {
 		}
 
 		foreach ($actor['tag'] as $t) {
+			// TODO: implement FEP-fb2a at the sending side and deprecate PropertyValue
 			if ((isset($t['type']) && $t['type'] === 'PropertyValue') &&
 				(isset($t['name']) && $t['name'] === 'Protocol') &&
-				(isset($t['value']) && in_array($t['value'], ['zot6', 'activitypub', 'diaspora']))
+				isset($t['value'])
 			) {
-				$ret[] = $t['value'];
+				$ret[] = trim($t['value']);
 			}
+
+			// FEP-fb2a - actor metadata
+			if ((isset($t['type']) && $t['type'] === 'Note') &&
+				(isset($t['name']) && $t['name'] === 'Protocols') &&
+				isset($t['content'])
+			) {
+				$ret = array_map('trim', explode(',', $t['content']));
+			}
+
 		}
 
 		return $ret;

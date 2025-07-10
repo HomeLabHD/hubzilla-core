@@ -281,4 +281,43 @@ class ActivityTest extends UnitTestCase {
 		$this->assertArrayHasKey('aKey', $packet);
 		$this->assertEquals('aValue', $packet['aKey']);
 	}
+
+	/**
+	 * Test get protocols from an activitystreams actor object
+	 *
+	 * @dataProvider get_actor_protocols_provider
+	 */
+	public function test_get_actor_protocols(array $actor, array $expected): void {
+		$this->assertEquals($expected, Activity::get_actor_protocols($actor));
+	}
+
+	/**
+	 * Dataprovider for test_get_actor_protocols.
+	 */
+	public static function get_actor_protocols_provider(): array {
+		return [
+			'none' => [
+				['tag' => [['type' => 'Note', 'name' => 'Website', 'content' => 'https://example.com']]],
+				[]
+			],
+			'legacy' => [
+				['tag' => [
+					['type' => 'PropertyValue', 'name' => 'Protocol', 'value' => 'zot6'],
+					['type' => 'PropertyValue', 'name' => 'Protocol', 'value' => 'activitypub'],
+					['type' => 'PropertyValue', 'name' => 'Protocol', 'value' => 'diaspora']
+				]],
+				['zot6', 'activitypub', 'diaspora']
+			],
+			'fep-fb2a' => [
+				['tag' => [['type' => 'Note', 'name' => 'Protocols', 'content' => 'zot6,activitypub,diaspora']]],
+				['zot6', 'activitypub', 'diaspora']
+			],
+			'fep-fb2a with spaces' => [
+				['tag' => [['type' => 'Note', 'name' => 'Protocols', 'content' => 'zot6, activitypub, diaspora']]],
+				['zot6', 'activitypub', 'diaspora']
+			],
+		];
+
+
+	}
 }

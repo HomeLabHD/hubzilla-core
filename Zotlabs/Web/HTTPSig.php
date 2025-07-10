@@ -13,6 +13,8 @@ use Zotlabs\Lib\Webfinger;
 use Zotlabs\Lib\Zotfinger;
 use Zotlabs\Lib\Libzot;
 use HttpSignature\HttpMessageSigner;
+use HttpSignature\UnProcessableSignatureException;
+
 
 /**
  * @brief Implements HTTP Signatures per draft-cavage-http-signatures-10.
@@ -110,7 +112,7 @@ class HTTPSig {
 			return $result;
 		}
 
-		if (array_key_exists('signature-input', $headers) && array_key_exists('signature', $headers)) {
+		if (App::$request && array_key_exists('signature-input', $headers) && array_key_exists('signature', $headers)) {
 			$found = preg_match('/keyid="(.*?)"/', $headers['signature-input'], $matches);
 			$keyId = ($found) ? $matches[1] : '';
 
@@ -135,7 +137,17 @@ class HTTPSig {
 			$messageSigner->setCreated(preg_match('/created=([0-9]+)/', $headers['signature-input'], $matches) ? $matches[1] : '');
 			$messageSigner->setExpires(preg_match('/expires=([0-9]+)/', $headers['signature-input'], $matches) ? $matches[1] : '');
 
-			$verified = $messageSigner->verifyRequest(App::$request);
+			try {
+				$verified = $messageSigner->verifyRequest(App::$request);
+				if (!$verified) {
+					btlogger('RFC9421: Unable to verify request: ' . print_r($headers, true), LOGGER_DATA);
+				}
+			}
+			catch (\Exception $exception) {
+				btlogger($exception->getMessage(), LOGGER_DATA);
+				$verified = false;
+			}
+
 			logger('verified (RFC9421): ' . (($verified) ? 'true' : 'false'), LOGGER_DEBUG);
 
 			return [

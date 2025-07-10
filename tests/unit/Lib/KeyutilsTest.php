@@ -23,8 +23,9 @@
 
 namespace Zotlabs\Tests\Unit\Lib;
 
-use phpseclib\Crypt\RSA;
-use phpseclib\Math\BigInteger;
+use phpseclib3\Crypt\PublicKeyLoader;
+use phpseclib3\Math\BigInteger;
+
 use Zotlabs\Tests\Unit\UnitTestCase;
 use Zotlabs\Lib\Keyutils;
 
@@ -38,56 +39,54 @@ class KeyutilsTest extends UnitTestCase {
 
 	protected function getPubPKCS1() {
 		$key = '-----BEGIN RSA PUBLIC KEY-----
-MIIBCgKCAQEArXcEXQSkk25bwDxq5Ym85/OwernfOz0hgve46Jm1KXCF0+yeje8J
-BDbQTsMgkF+G8eP1er3oz3E0qlIFpYrza5o6kaaLETSroTyZR5QW5S21r/QJHE+4
-F08bw1zp9hrlvoOCE/g/W0mr3asO/x7LrQRKOETlZ/U6HGexTdYLyKlXJtB+VKjI
-XKAHxfVLRW2AvnFj+deowS1OhTN8ECpz88xG9wnh5agoq7Uol0WZNNm0p4oR6+cd
-zTPx/mBwcOoSqHLlO7ZACbx/VyD5G7mQKWfGP4b96D8FcUO74531my+aKIpLF4Io
-1JN4R4a4P8tZ8BkCnMvpuq9TF1s6vEthYQIDAQAB
+MIIBCgKCAQEAsSBBV5khOWvMAOIV2AhxQukBgWc1pfYqUM/9OIFfL+KaRDOFAT0y
+jMbtTCbHEjxZbasS3CNnHtAgJ+4BWjtFnZl7zY4pXb2RDe4IWNnK8BjqsWDVuPks
+sc+yRBTepR/50FG/xB4HfI4GRc/8EDmynyAdLDD/r6oPxmz1gMICqSGDX8yXYG4o
+DliNT3bWDH+uf1+6pWsN6IFQYmUoRLly1xsfc8AV4H1GmSFrbAvQpHA95GOlxnPY
+IwVth1m8O+D9SH2+0e8ourdXH3/9ccJnh6FVvFvkyeC1e2vY+J+uC0uwu+6IvHFV
+pSnS8lTmwG/BBh2dA5eqV3s+REdLdS/tsQIDAQAB
 -----END RSA PUBLIC KEY-----';
 		return str_replace(["\r", "\n"], "\r\n", $key);
 	}
 
 	protected function getPubPKCS8() {
 		$key = '-----BEGIN PUBLIC KEY-----
-MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDUKfOIkFX/Zcv6bmaTIYO6OO2g
-XQOne+iPfXo6YDdrtvvQNZwW5P/fptrgBzmUBkpuc/sEEKpMV2bGhBLsWSlPBYHe
-2ewwLwyzbnuHvGhc1PzwMNQ7R60ubVDQT6sBVigYGZIDBgUPjAXeqmg5qgWWh04H
-8Zf/YxyoGEovWDMxGQIDAQAB
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsSBBV5khOWvMAOIV2Ahx
+QukBgWc1pfYqUM/9OIFfL+KaRDOFAT0yjMbtTCbHEjxZbasS3CNnHtAgJ+4BWjtF
+nZl7zY4pXb2RDe4IWNnK8BjqsWDVuPkssc+yRBTepR/50FG/xB4HfI4GRc/8EDmy
+nyAdLDD/r6oPxmz1gMICqSGDX8yXYG4oDliNT3bWDH+uf1+6pWsN6IFQYmUoRLly
+1xsfc8AV4H1GmSFrbAvQpHA95GOlxnPYIwVth1m8O+D9SH2+0e8ourdXH3/9ccJn
+h6FVvFvkyeC1e2vY+J+uC0uwu+6IvHFVpSnS8lTmwG/BBh2dA5eqV3s+REdLdS/t
+sQIDAQAB
 -----END PUBLIC KEY-----';
 		return str_replace(["\r", "\n"], "\r\n", $key);
 	}
 
 	public function testMeToPem() {
-		Keyutils::pemToMe($this->getPubPKCS8(), $m, $e);
+		[$m, $e] = Keyutils::pemToMe($this->getPubPKCS8());
 		$gen_key = Keyutils::meToPem($m, $e);
 		self::assertEquals($this->getPubPKCS8(), $gen_key);
 	}
 
 	public function testRsaToPem() {
-		$rsa = new RSA();
-		$rsa->setPublicKey($this->getPubPKCS8());
-		$key = $rsa->getPublicKey(RSA::PUBLIC_FORMAT_PKCS1);
-		$gen_key = Keyutils::rsaToPem($key);
+		$gen_key = Keyutils::rsaToPem($this->getPubPKCS1());
 		self::assertEquals($gen_key, $this->getPubPKCS8());
 	}
 
 	public function testPemToRsa() {
-		$rsa = new RSA();
-		$rsa->setPublicKey($this->getPubPKCS1());
-		$key = $rsa->getPublicKey(RSA::PUBLIC_FORMAT_PKCS8);
-		$gen_key = Keyutils::pemToRsa($key);
+		$gen_key = Keyutils::pemToRsa($this->getPubPKCS8());
 		self::assertEquals($gen_key, $this->getPubPKCS1());
 	}
 
 	public function testPemToMe() {
-		Keyutils::pemToMe($this->getPubPKCS8(), $m, $e);
-		$gen_key = new RSA();
-		$gen_key->loadKey([
+		[$m, $e] = Keyutils::pemToMe($this->getPubPKCS8());
+
+		$parsedKey = PublicKeyLoader::load([
 			'e' => new BigInteger($e, 256),
 			'n' => new BigInteger($m, 256)
 		]);
-		self::assertEquals($gen_key->getPublicKey(), $this->getPubPKCS8());
+
+		self::assertEquals($parsedKey->toString('PKCS8'), $this->getPubPKCS8());
 	}
 
 }
