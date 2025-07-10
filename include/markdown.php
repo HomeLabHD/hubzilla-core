@@ -64,6 +64,12 @@ function markdown_to_bb($s, $use_zrl = false, $options = []) {
 	// Escaping the hash tags
 	$s = preg_replace('/\#([^\s\#])/','&#35;$1',$s);
 
+	// Protect mentions from being mangled by the markdown parser
+	$s = preg_replace_callback(
+		'|@\{([^}]+)\}|',
+		fn ($matches) => '@{' . base64_encode($matches[1]) . '}',
+		$s);
+
 	$s = MarkdownExtra::defaultTransform($s);
 
 
@@ -75,6 +81,12 @@ function markdown_to_bb($s, $use_zrl = false, $options = []) {
 	else {
 		$s = str_replace("\r","",$s);
 	}
+
+	// Restore mentions after markdown conversion
+	$s = preg_replace_callback(
+		'|@\{([^}]+)\}|',
+		fn ($matches) => '@{' . base64_decode($matches[1]) . '}',
+		$s);
 
 	$s = str_replace('&#35;','#',$s);
 
