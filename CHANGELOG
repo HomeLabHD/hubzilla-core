@@ -1,4 +1,5 @@
 Hubzilla 10.4 (2025-??-??)
+	- Upgrade phpseclib to version 3
 	- Minor cleanup to the account functions and added tests
 	- Do not sign (request-target) on response
 	- Start verifying incoming RFC9421 HTTP signatures
@@ -57,6 +58,7 @@ Hubzilla 10.4 (2025-??-??)
 	- Disable browser rotating image based on EXIF metadata
 
 	Bugfixes
+	- Fix markdown issue with mentions
 	- Fix issue where item_wall was not set for article and card item types
 	- Fix first created account was not necessarily the admin account
 	- Fix notice not emited on failed login
@@ -85,6 +87,9 @@ Hubzilla 10.4 (2025-??-??)
 	- Fix duplicated head_get_icon()
 
 	Addons
+	- Gallery: look for templates in theme directory first
+	- Articles: look for templates in theme directory first
+	- Wiki: look for templates in theme directory first
 	- Pubcrawl: remove unused force note setting
 	- Flashcards: major refactor and added functionality
 	- Superblock: refactor and new siteblock option for admins
