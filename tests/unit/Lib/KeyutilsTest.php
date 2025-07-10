@@ -86,10 +86,6 @@ sQIDAQAB
 			'n' => new BigInteger($m, 256)
 		]);
 
-		if (method_exists($parsedKey, 'getPublicKey')) {
-			$parsedKey = $parsedKey->getPublicKey();
-		}
-
 		self::assertEquals($parsedKey->toString('PKCS8'), $this->getPubPKCS8());
 	}
 
