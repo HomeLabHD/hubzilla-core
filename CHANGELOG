@@ -1,4 +1,5 @@
 Hubzilla 10.4 (2025-??-??)
+	- Introduce util/init_sys_channel to create the sys channel if required
 	- Upgrade http-message-signer to version 2.2
 	- Upgrade phpseclib to version 3
 	- Minor cleanup to the account functions and added tests
