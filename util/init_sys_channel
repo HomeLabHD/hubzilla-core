@@ -1,0 +1,13 @@
+#!/usr/bin/env php
+<?php
+
+if(!file_exists('include/cli_startup.php')) {
+	echo 'Run init_sys_channel from the top level Hubzilla web directory, as util/init_sys_channel' . PHP_EOL;
+	exit(1);
+}
+
+require_once('include/cli_startup.php');
+
+cli_startup();
+
+create_sys_channel();
