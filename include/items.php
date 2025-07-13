@@ -5426,7 +5426,7 @@ function items_by_parent_ids(array $parents, null|array $thr_parents = null, str
 		$thr_parent_sql = " AND item.thr_parent IN (" . protect_sprintf($thr_parent_str) . ") ";
 	}
 
-	$reaction = item_reaction_sql($ids, $permission_sql, 'final_selection');
+	$reaction = item_reaction_sql($ids, $permission_sql, 'final_selection', $blog_mode);
 	$reaction_cte_sql = $reaction['cte'];
 	$reaction_select_sql = $reaction['select'];
 	$reaction_join_sql = $reaction['join'];
@@ -5506,7 +5506,7 @@ function items_by_parent_ids(array $parents, null|array $thr_parents = null, str
  * @param string $join_prefix (optional) - prefix for the join part defaults to 'item'
  */
 
-function item_reaction_sql(string $ids, string $permission_sql = '', string $join_prefix = 'item'): array
+function item_reaction_sql(string $ids, string $permission_sql = '', string $join_prefix = 'item', bool $blog_mode = false): array
 {
 	$item_normal_sql = item_normal();
 	$observer = get_observer_hash();
@@ -5522,7 +5522,7 @@ function item_reaction_sql(string $ids, string $permission_sql = '', string $joi
 
 	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
 
-	if ($thread_allow) {
+	if ($thread_allow || $blog_mode) {
 		$verbs['comment'] = ['Create', 'Update', 'EmojiReact'];
 	}
 
