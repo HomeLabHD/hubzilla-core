@@ -4,7 +4,8 @@ namespace Zotlabs\Web;
 
 use App;
 use Zotlabs\Lib\Text;
-use GuzzleHttp\Psr7\ServerRequest;
+use GuzzleHttp\Psr7\Request;
+
 
 class WebServer {
 
@@ -19,7 +20,7 @@ class WebServer {
 
 		$installed = sys_boot();
 
-		App::$request = ServerRequest::fromGlobals();
+		$this->createRequest();
 
 		App::$language = get_best_language();
 		load_translation_table(App::$language, !$installed);
@@ -123,6 +124,36 @@ class WebServer {
 		killme();
 	}
 
+
+	public function createRequest()
+	{
+		$input = null;
+		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+			$input = file_get_contents('php://input');
+		}
+
+		$headers = [];
+		if (isset($_SERVER['CONTENT_TYPE'])) {
+			$headers['content-type'] = $_SERVER['CONTENT_TYPE'];
+		}
+		if (isset($_SERVER['CONTENT_LENGTH'])) {
+			$headers['content-length'] = $_SERVER['CONTENT_LENGTH'];
+		}
+		foreach ($_SERVER as $k => $v) {
+			if (str_starts_with($k, 'HTTP_')) {
+				$field = str_replace('_', '-', strtolower(substr($k, 5)));
+				$headers[$field] = $v;
+			}
+		}
+
+		App::$request = new Request(
+			$_SERVER['REQUEST_METHOD'],
+			z_root() . ((App::$originalRequest) ?? $_SERVER['REQUEST_URI']),
+			$headers,
+			$input
+		);
+
+	}
 
 	private function initialise_content() {
 
