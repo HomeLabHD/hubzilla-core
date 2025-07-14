@@ -128,17 +128,21 @@ class WebServer {
 	public function createRequest()
 	{
 		$input = null;
-		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			$input = file_get_contents('php://input');
 		}
 
 		$headers = [];
+
 		if (isset($_SERVER['CONTENT_TYPE'])) {
 			$headers['content-type'] = $_SERVER['CONTENT_TYPE'];
 		}
+
 		if (isset($_SERVER['CONTENT_LENGTH'])) {
 			$headers['content-length'] = $_SERVER['CONTENT_LENGTH'];
 		}
+
 		foreach ($_SERVER as $k => $v) {
 			if (str_starts_with($k, 'HTTP_')) {
 				$field = str_replace('_', '-', strtolower(substr($k, 5)));
