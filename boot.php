@@ -774,7 +774,8 @@ class miniApp {
  *
  */
 class App {
-	public static $request = null;
+	public static $request = null; // psr7 request
+	public static $originalRequest = null; // not used currently, will be needed when we start signing messages with RFC 9421
 	public static $install = false;           // true if we are installing the software
 	public static $account = null;            // account record of the logged-in account
 	public static $channel = null;            // channel record of the current channel of the logged-in account
