@@ -1,6 +1,9 @@
-Hubzilla 10.4 (2025-??-??)
+Hubzilla 10.4 (2025-07-15)
+	- Add support for did:key verification method to checkEddsaSignature()
 	- Introduce util/init_sys_channel to create the sys channel if required
-	- Upgrade http-message-signer to version 2.2
+	- Update norwegian translations
+	- Add init_sys_channel utility to create the sys channel in case of headless installation or failure
+	- Upgrade http-message-signer to version 2.3
 	- Upgrade phpseclib to version 3
 	- Minor cleanup to the account functions and added tests
 	- Do not sign (request-target) on response
@@ -60,6 +63,7 @@ Hubzilla 10.4 (2025-??-??)
 	- Disable browser rotating image based on EXIF metadata
 
 	Bugfixes
+	- Fix blog mode if threaded view is disabled
 	- Fix markdown issue with mentions
 	- Fix issue where item_wall was not set for article and card item types
 	- Fix first created account was not necessarily the admin account
@@ -89,6 +93,7 @@ Hubzilla 10.4 (2025-??-??)
 	- Fix duplicated head_get_icon()
 
 	Addons
+	- Wiki: fix spacing in wikilist widget
 	- Gallery: look for templates in theme directory first
 	- Articles: look for templates in theme directory first
 	- Wiki: look for templates in theme directory first
