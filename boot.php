@@ -36,6 +36,9 @@ use Zotlabs\Daemon\Master;
 use Zotlabs\Lib\DB_Upgrade;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Config;
+use Zotlabs\Render\SmartyTemplate;
+use Zotlabs\Render\Theme;
+use Zotlabs\Web\HttpMeta;
 
 require_once('vendor/autoload.php');
 
@@ -46,6 +49,7 @@ require_once('include/text.php');
 require_once('include/datetime.php');
 require_once('include/language.php');
 require_once('include/nav.php');
+require_once('include/observer.php');
 require_once('include/permissions.php');
 require_once('include/features.php');
 require_once('include/taxonomy.php');
@@ -66,7 +70,7 @@ require_once('include/security.php');
 
 
 define('PLATFORM_NAME', 'hubzilla');
-define('STD_VERSION', '10.2.3');
+define('STD_VERSION', '10.4');
 define('ZOT_REVISION', '6.0');
 
 define('DB_UPDATE_VERSION', 1263);
@@ -134,6 +138,12 @@ define('PNG_QUALITY', 8);
 define('WEBP_QUALITY', 80);
 
 /**
+ * App::$config['system']['avif_quality'] from 1 (maximum compressed) to 100 (uncompressed)
+ */
+define('AVIF_QUALITY', 80);
+
+
+/**
  * Language detection parameters
  */
 define('LANGUAGE_DETECT_MIN_LENGTH', 128);
@@ -174,6 +184,13 @@ if (!defined('STORAGE_DEFAULT_PERMISSIONS')) {
  *
  */
 define('MAX_IMAGE_LENGTH', -1);
+
+/**
+ * Those are the current limits we can store in the DB
+ */
+
+define('MAX_FILENAME_LENGTH', 191);
+define('MAX_FOLDER_LENGTH', 64);
 
 
 /**
@@ -640,8 +657,10 @@ function sys_boot(): bool {
 	// allow somebody to set some initial settings just in case they can't
 	// install without special fiddling
 
-	if (App::$install && file_exists('.htpreconfig.php'))
+	if (App::$install && file_exists('.htpreconfig.php')) {
+		// @phpstan-ignore include.fileNotFound
 		@include('.htpreconfig.php');
+	}
 
 	if (array_key_exists('default_timezone', get_defined_vars())) {
 		App::$config['system']['timezone'] = $default_timezone;
@@ -653,7 +672,6 @@ function sys_boot(): bool {
 
 	App::$timezone = ((App::$config['system']['timezone']) ? App::$config['system']['timezone'] : 'UTC');
 	date_default_timezone_set(App::$timezone);
-
 
 	if (!defined('DEFAULT_PLATFORM_ICON')) {
 		define('DEFAULT_PLATFORM_ICON', '/images/hz-32.png');
@@ -756,7 +774,8 @@ class miniApp {
  *
  */
 class App {
-
+	public static $request = null; // psr7 request
+	public static $originalRequest = null; // not used currently, will be needed when we start signing messages with RFC 9421
 	public static $install = false;           // true if we are installing the software
 	public static $account = null;            // account record of the logged-in account
 	public static $channel = null;            // channel record of the current channel of the logged-in account
@@ -854,6 +873,9 @@ class App {
 	 */
 	public static $template_engine_instance = [];
 
+	/// Page layouts for comanche
+	public static array $page_layouts = [];
+
 	private static $ldelim = [
 		'internal' => '',
 		'smarty3'  => '{{'
@@ -896,46 +918,43 @@ class App {
 		set_include_path(
 			'include' . PATH_SEPARATOR
 			. 'library' . PATH_SEPARATOR
-			. 'library/langdet' . PATH_SEPARATOR
 			. '.');
 
 		self::$scheme = 'http';
-		if (x($_SERVER, 'HTTPS') && $_SERVER['HTTPS'])
-			self::$scheme = 'https';
-		elseif (x($_SERVER, 'SERVER_PORT') && (intval($_SERVER['SERVER_PORT']) == 443))
-			self::$scheme = 'https';
 
-		if (x($_SERVER, 'SERVER_NAME')) {
+		if (!empty($_SERVER['HTTPS'])) {
+			self::$scheme = 'https';
+		}
+		elseif (!empty($_SERVER['SERVER_PORT']) && intval($_SERVER['SERVER_PORT']) == 443) {
+			self::$scheme = 'https';
+		}
+
+		if (!empty($_SERVER['SERVER_NAME'])) {
 			self::$hostname = punify($_SERVER['SERVER_NAME']);
 
-			if (x($_SERVER, 'SERVER_PORT') && $_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443)
+			if (!empty($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443) {
 				self::$hostname .= ':' . $_SERVER['SERVER_PORT'];
+			}
 
 			/*
 			 * Figure out if we are running at the top of a domain
 			 * or in a sub-directory and adjust accordingly
 			 */
 			$path = trim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
-			if (isset($path) && strlen($path) && ($path != self::$path))
+
+			if (isset($path) && strlen($path) && ($path != self::$path)) {
 				self::$path = $path;
+			}
 		}
 
-		if ((x($_SERVER, 'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'], 0, 2) === "q=") {
-			self::$query_string = str_replace(['<', '>'], ['&lt;', '&gt;'], substr($_SERVER['QUERY_STRING'], 2));
-
-			// removing trailing / - maybe a nginx problem
-			if (substr(self::$query_string, 0, 1) == "/")
-				self::$query_string = substr(self::$query_string, 1);
-
-      // trim trailing '&' if no extra args are present
-      self::$query_string = rtrim(self::$query_string, '&');
-
-			// change the first & to ?
-			self::$query_string = preg_replace('/&/', '?', self::$query_string, 1);
+		if (!empty($_SERVER['REQUEST_URI'])) {
+			self::$query_string = str_replace(['<', '>'], ['&lt;', '&gt;'], $_SERVER['REQUEST_URI']);
+			self::$query_string = ltrim(self::$query_string, '/');
 		}
 
-		if (x($_GET, 'q'))
+		if (!empty($_GET['q'])) {
 			self::$cmd = escape_tags(trim($_GET['q'], '/\\'));
+		}
 
 		// Serve raw files from the file system in certain cases.
 		$filext = pathinfo(self::$cmd, PATHINFO_EXTENSION);
@@ -985,8 +1004,9 @@ class App {
 
 		// unix style "homedir"
 
-		if ((substr(self::$cmd, 0, 1) === '~') || (substr(self::$cmd, 0, 1) === '@'))
+		if (substr(self::$cmd, 0, 1) === '~' || substr(self::$cmd, 0, 1) === '@') {
 			self::$cmd = 'channel/' . substr(self::$cmd, 1);
+		}
 
 		/*
 		 * Break the URL path into C style argc/argv style arguments for our
@@ -1006,7 +1026,7 @@ class App {
 		self::$argv = explode('/', self::$cmd);
 
 		self::$argc = count(self::$argv);
-		if ((array_key_exists('0', self::$argv)) && strlen(self::$argv[0])) {
+		if (array_key_exists('0', self::$argv) && strlen(self::$argv[0])) {
 			if (strpos(self::$argv[0], '.')) {
 				$_REQUEST['module_format'] = substr(self::$argv[0], strpos(self::$argv[0], '.') + 1);
 				self::$argv[0]             = substr(self::$argv[0], 0, strpos(self::$argv[0], '.'));
@@ -1014,8 +1034,9 @@ class App {
 
 			self::$module = str_replace(".", "_", self::$argv[0]);
 			self::$module = str_replace("-", "_", self::$module);
-			if (strpos(self::$module, '_') === 0)
+			if (strpos(self::$module, '_') === 0) {
 				self::$module = substr(self::$module, 1);
+			}
 		}
 		else {
 			self::$argc   = 1;
@@ -1029,22 +1050,26 @@ class App {
 		 * pagination
 		 */
 
-		self::$pager['page']      = ((x($_GET, 'page') && intval($_GET['page']) > 0) ? intval($_GET['page']) : 1);
+		self::$pager['page']      = ((!empty($_GET['page']) && intval($_GET['page']) > 0) ? intval($_GET['page']) : 1);
 		self::$pager['itemspage'] = 60;
 		self::$pager['start']     = (self::$pager['page'] * self::$pager['itemspage']) - self::$pager['itemspage'];
-		if (self::$pager['start'] < 0)
+
+		if (self::$pager['start'] < 0) {
 			self::$pager['start'] = 0;
+		}
+
 		self::$pager['total'] = 0;
 
 		/*
 		 * register template engines
 		 */
 
-		self::$meta = new Zotlabs\Web\HttpMeta();
+		self::$meta = new HttpMeta();
 
 		// create an instance of the smarty template engine so we can register it.
 
-		$smarty = new Zotlabs\Render\SmartyTemplate();
+		$smarty = new SmartyTemplate();
+
 		/// @todo validate if this is still the desired behavior
 		self::register_template_engine(get_class($smarty));
 
@@ -1089,10 +1114,12 @@ class App {
 			self::$scheme = $parsed['scheme'];
 
 			self::$hostname = punify($parsed['host']);
-			if (x($parsed, 'port'))
+			if (!empty($parsed['port'])) {
 				self::$hostname .= ':' . $parsed['port'];
-			if (x($parsed, 'path'))
+			}
+			if (!empty($parsed['path'])) {
 				self::$path = trim($parsed['path'], '\\/');
+			}
 		}
 	}
 
@@ -1197,28 +1224,22 @@ class App {
 
 	public static function build_pagehead() {
 
-		$user_scalable = ((local_channel()) ? get_pconfig(local_channel(), 'system', 'user_scalable') : 0);
-		if ($user_scalable === false)
-			$user_scalable = 0;
-
-		$preload_images = ((local_channel()) ? get_pconfig(local_channel(), 'system', 'preload_images') : 0);
-		if ($preload_images === false)
-			$preload_images = 0;
+		$user_scalable = ((local_channel()) ? get_pconfig(local_channel(), 'system', 'user_scalable', 0) : 0);
 
 		$interval = ((local_channel()) ? get_pconfig(local_channel(), 'system', 'update_interval') : 80000);
-		if ($interval < 10000)
+		if ($interval < 10000) {
 			$interval = 80000;
-
-		$theme_color = ((local_channel()) ? get_pconfig(local_channel(), 'redbasic', 'nav_bg') : App::$theme_info['theme_color']);
-		if (!$theme_color) {
-			$theme_color = App::$theme_info['theme_color'];
 		}
 
-		if (!isset(self::$page['title']) && isset(self::$config['system']['sitename']))
-			self::$page['title'] = self::$config['system']['sitename'];
+		$theme_color = ((local_channel()) ? get_pconfig(local_channel(), 'redbasic', 'nav_bg', App::$theme_info['theme_color']) : App::$theme_info['theme_color']);
 
-		if (isset(self::$page['title']))
+		if (empty(self::$page['title']) && !empty(self::$config['system']['sitename'])) {
+			self::$page['title'] = self::$config['system']['sitename'];
+		}
+
+		if (!empty(self::$page['title'])) {
 			$pagemeta = ['og:title' => self::$page['title']];
+		}
 
 		call_hooks('page_meta', $pagemeta);
 
@@ -1236,7 +1257,7 @@ class App {
 		self::$meta->set('generator', Zotlabs\Lib\System::get_platform_name());
 		self::$meta->set('theme-color', $theme_color);
 
-		head_add_link(['rel' => 'shortcut icon', 'href' => head_get_icon()]);
+		head_add_link(['rel' => 'shortcut icon', 'href' => static::head_get_icon()]);
 		head_add_link(['rel' => 'apple-touch-icon', 'href' => '/images/app/hz-192.png']);
 
 
@@ -1255,7 +1276,6 @@ class App {
 
 		self::$page['htmlhead'] = replace_macros(get_markup_template('head.tpl'),
 				[
-					'$preload_images'  => $preload_images,
 					'$user_scalable'   => $user_scalable,
 					'$query'           => urlencode(self::$query_string),
 					'$baseurl'         => self::get_baseurl(),
@@ -1291,7 +1311,7 @@ class App {
 	public static function register_template_engine($class, $name = '') {
 		if (!$name) {
 			$v = get_class_vars($class);
-			if (x($v, "name")) {
+			if (!empty($v['name'])) {
 				$name = $v['name'];
 			}
 		}
@@ -1317,7 +1337,7 @@ class App {
 		}
 		else {
 			$template_engine = 'smarty3';
-			if (x(self::$theme, 'template_engine')) {
+			if (!empty(self::$theme['template_engine'])) {
 				$template_engine = self::$theme['template_engine'];
 			}
 		}
@@ -1359,15 +1379,29 @@ class App {
 		return self::$rdelim[$engine];
 	}
 
+	/**
+	 * Sets the shortcut icon to be used for the current page.
+	 *
+	 * @param string $icon	A URL to the image to use for the
+	 *		shortcut icon.
+	 */
 	public static function head_set_icon($icon) {
 		self::$data['pageicon'] = $icon;
 	}
 
+	/**
+	 * Get the shortcut icon as an absolute URL.
+	 *
+	 * @return string	The absolute URL of the current shortcur icon.
+	 */
 	public static function head_get_icon() {
 		$icon = self::$data['pageicon'];
-		if (!strpos($icon, '://'))
-			$icon = z_root() . $icon;
-		return $icon;
+
+		if (str_contains($icon, '://')) {
+			return $icon;
+		}
+
+		return z_root() . $icon;
 	}
 
 } // End App class
@@ -1420,21 +1454,6 @@ function system_unavailable() {
 }
 
 
-function clean_urls() {
-
-	//	if(App::$config['system']['clean_urls'])
-	return true;
-	//	return false;
-}
-
-function z_path() {
-	$base = z_root();
-	if (!clean_urls())
-		$base .= '/?q=';
-
-	return $base;
-}
-
 /**
  * @brief Returns the baseurl.
  *
@@ -1446,19 +1465,6 @@ function z_root() {
 	return App::get_baseurl();
 }
 
-/**
- * @brief Return absolute URL for given $path.
- *
- * @param string $path
- *
- * @return string
- */
-function absurl($path) {
-	if (strpos($path, '/') === 0)
-		return z_path() . $path;
-
-	return $path;
-}
 
 function os_mkdir($path, $mode = 0777, $recursive = false) {
 	$oldumask = @umask(0);
@@ -1511,10 +1517,11 @@ function is_ajax() {
 function check_config() {
 
 	$saved = Config::Get('system', 'urlverify');
-	if (!$saved)
+	if (!$saved) {
 		Config::Set('system', 'urlverify', bin2hex(z_root()));
+	}
 
-	if (($saved) && ($saved != bin2hex(z_root()))) {
+	if ($saved && $saved !== bin2hex(z_root())) {
 		// our URL changed. Do something.
 
 		$oldurl = hex2bin($saved);
@@ -1526,12 +1533,13 @@ function check_config() {
 		$is_ip_addr  = ((preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/", $host)) ? true : false);
 		$was_ip_addr = ((preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/", $oldhost)) ? true : false);
 		// only change the url to an ip address if it was already an ip and not a dns name
-		if ((!$is_ip_addr) || ($is_ip_addr && $was_ip_addr)) {
+		if (!$is_ip_addr || ($is_ip_addr && $was_ip_addr)) {
 			fix_system_urls($oldurl, z_root());
 			Config::Set('system', 'urlverify', bin2hex(z_root()));
 		}
-		else
+		else {
 			logger('Attempt to change baseurl from a DNS name to an IP address was refused.');
+		}
 	}
 
 	// This will actually set the url to the one stored in .htconfig, and ignore what
@@ -1778,7 +1786,6 @@ function login($register = false, $form_id = 'main_login', $hiddens = false, $lo
  * @brief Used to end the current process, after saving session state.
  */
 function killme() {
-
 	register_shutdown_function('shutdown');
 	exit;
 }
@@ -1796,25 +1803,6 @@ function shutdown() {
 }
 
 /**
- * @brief Returns the entity id of locally logged in account or false.
- *
- * Returns numeric account_id if authenticated or 0. It is possible to be
- * authenticated and not connected to a channel.
- *
- * @return int|bool account_id or false
- */
-function get_account_id() {
-
-	if (isset($_SESSION['account_id']))
-		return intval($_SESSION['account_id']);
-
-	if (App::$account)
-		return intval(App::$account['account_id']);
-
-	return false;
-}
-
-/**
  * @brief Returns the entity id (channel_id) of locally logged in channel or false.
  *
  * Returns authenticated numeric channel_id if authenticated and connected to
@@ -1828,8 +1816,9 @@ function get_account_id() {
 function local_channel() {
 	if (session_id()
 		&& array_key_exists('authenticated', $_SESSION) && $_SESSION['authenticated']
-		&& array_key_exists('uid', $_SESSION) && intval($_SESSION['uid']))
+		&& array_key_exists('uid', $_SESSION) && intval($_SESSION['uid'])) {
 		return intval($_SESSION['uid']);
+	}
 
 	return false;
 }
@@ -1849,8 +1838,9 @@ function local_channel() {
 function remote_channel() {
 	if (session_id()
 		&& array_key_exists('authenticated', $_SESSION) && $_SESSION['authenticated']
-		&& array_key_exists('visitor_id', $_SESSION) && $_SESSION['visitor_id'])
+		&& array_key_exists('visitor_id', $_SESSION) && $_SESSION['visitor_id']) {
 		return $_SESSION['visitor_id'];
+	}
 
 	return false;
 }
@@ -1890,27 +1880,6 @@ function can_view_public_stream() {
  * @param string $s Text to display
  */
 function notice($s) {
-
-/*
-
-	if (!session_id()) {
-		return;
-	}
-
-	if (!isset($_SESSION['sysmsg'])) {
-		$_SESSION['sysmsg'] = [];
-	}
-
-	// ignore duplicated error messages which haven't yet been displayed
-
-	if (in_array($s, $_SESSION['sysmsg'])) {
-		return;
-	}
-
-	if (App::$interactive) {
-		$_SESSION['sysmsg'][] = $s;
-	}
-*/
 
 	$hash   = get_observer_hash();
 	$sse_id = false;
@@ -1960,25 +1929,6 @@ function notice($s) {
  * @param string $s Text to display
  */
 function info($s) {
-/*
-	if (!session_id()) {
-		return;
-	}
-
-	if (!isset($_SESSION['sysmsg_info'])) {
-		$_SESSION['sysmsg_info'] = [];
-	}
-
-	// ignore duplicated error messages which haven't yet been displayed
-
-	if (in_array($s, $_SESSION['sysmsg_info'])) {
-		return;
-	}
-
-	if (App::$interactive) {
-		$_SESSION['sysmsg_info'][] = $s;
-	}
-*/
 
 	$hash   = get_observer_hash();
 	$sse_id = false;
@@ -2065,7 +2015,7 @@ function proc_run() {
 		return;
 
 	if (count($args) && $args[0] === 'php') {
-		$args[0] = ((x(App::$config, 'system')) && (x(App::$config['system'], 'php_path')) && (strlen(App::$config['system']['php_path'])) ? App::$config['system']['php_path'] : 'php');
+		$args[0] = ((!empty(App::$config['system']['php_path'])) ? App::$config['system']['php_path'] : 'php');
 	}
 
 	$args    = array_map('escapeshellarg', $args);
@@ -2077,10 +2027,12 @@ function proc_run() {
 		proc_close(proc_open($cmd, [], $foo));
 	}
 	else {
-		if (Config::Get('system', 'use_proc_open'))
+		if (Config::Get('system', 'use_proc_open')) {
 			proc_close(proc_open($cmdline . " &", [], $foo));
-		else
+		}
+		else {
 			exec($cmdline . ' > /dev/null &');
+		}
 	}
 }
 
@@ -2105,15 +2057,17 @@ function is_windows() {
  * @return bool true if user is an admin
  */
 function is_site_admin() {
-
-	if (!session_id())
+	if (!session_id()) {
 		return false;
+	}
 
-	if (isset($_SESSION['delegate']))
+	if (isset($_SESSION['delegate'])) {
 		return false;
+	}
 
-	if (isset($_SESSION['authenticated']) && is_array(App::$account) && (App::$account['account_roles'] & ACCOUNT_ROLE_ADMIN))
+	if (isset($_SESSION['authenticated']) && is_array(App::$account) && (App::$account['account_roles'] & ACCOUNT_ROLE_ADMIN)) {
 		return true;
+	}
 
 	return false;
 }
@@ -2127,13 +2081,15 @@ function is_site_admin() {
  */
 function is_developer() {
 
-	if (!session_id())
+	if (!session_id()) {
 		return false;
+	}
 
-	if ((intval($_SESSION['authenticated']))
-		&& (is_array(App::$account))
-		&& (App::$account['account_roles'] & ACCOUNT_ROLE_DEVELOPER))
+	if (intval($_SESSION['authenticated'])
+		&& is_array(App::$account)
+		&& (App::$account['account_roles'] & ACCOUNT_ROLE_DEVELOPER)) {
 		return true;
+	}
 
 	return false;
 }
@@ -2143,8 +2099,9 @@ function load_contact_links($uid) {
 
 	$ret = [];
 
-	if (!$uid || x(App::$contacts, 'empty'))
+	if (!$uid || !empty(App::$contacts['empty'])) {
 		return;
+	}
 
 //	logger('load_contact_links');
 
@@ -2156,44 +2113,11 @@ function load_contact_links($uid) {
 			$ret[$rv['xchan_hash']] = $rv;
 		}
 	}
-	else
+	else {
 		$ret['empty'] = true;
-
-	App::$contacts = $ret;
-}
-
-
-/**
- * @brief Returns querystring as string from a mapped array.
- *
- * @param array $params mapped array with query parameters
- * @param string $name of parameter, default null
- *
- * @return string
- */
-function build_querystring($params, $name = null) {
-	$ret = '';
-	foreach ($params as $key => $val) {
-		if (is_array($val)) {
-			if ($name === null) {
-				$ret .= build_querystring($val, $key);
-			}
-			else {
-				$ret .= build_querystring($val, $name . "[$key]");
-			}
-		}
-		else {
-			$val = urlencode($val);
-			if ($name != null) {
-				$ret .= $name . "[$key]" . "=$val&";
-			}
-			else {
-				$ret .= "$key=$val&";
-			}
-		}
 	}
 
-	return $ret;
+	App::$contacts = $ret;
 }
 
 
@@ -2205,29 +2129,15 @@ function argc() {
 }
 
 function argv($x) {
-	if (array_key_exists($x, App::$argv))
+	if (array_key_exists($x, App::$argv)) {
 		return App::$argv[$x];
+	}
 
 	return '';
 }
 
 function dba_timer() {
 	return microtime(true);
-}
-
-/**
- * @brief Returns xchan_hash from the observer.
- *
- * Observer can be a local or remote channel.
- *
- * @return string xchan_hash from observer, otherwise empty string if no observer
- */
-function get_observer_hash() {
-	$observer = App::get_observer();
-	if (is_array($observer))
-		return $observer['xchan_hash'];
-
-	return '';
 }
 
 /**
@@ -2253,22 +2163,6 @@ function curPageURL() {
 	return $pageURL;
 }
 
-/**
- * @brief Returns a custom navigation by name???
- *
- * If no $navname provided load default page['nav']
- *
- * @param string $navname
- *
- * @return mixed
- * @todo not fully implemented yet
- *
- */
-function get_custom_nav($navname) {
-	if (!$navname)
-		return App::$page['nav'];
-	// load custom nav menu by name here
-}
 
 /**
  * @brief Loads a page definition file for a module.
@@ -2368,30 +2262,36 @@ function construct_page() {
 		nav($navbar);
 	}
 
-	$current_theme = Zotlabs\Render\Theme::current();
+	$current_theme = Theme::current();
 	// logger('current_theme: ' . print_r($current_theme,true));
 	// Zotlabs\Render\Theme::debug();
 
-	if (($p = theme_include($current_theme[0] . '.js')) != '')
+	if (($p = theme_include($current_theme[0] . '.js')) != '') {
 		head_add_js('/' . $p);
+	}
 
-	if (($p = theme_include('mod_' . App::$module . '.php')) != '')
+	if (($p = theme_include('mod_' . App::$module . '.php')) != '') {
 		require_once($p);
+	}
 
 	require_once('include/js_strings.php');
 
-	if (x(App::$page, 'template_style'))
+	if (!empty(App::$page['template_style'])) {
 		head_add_css(App::$page['template_style'] . '.css');
-	else
-		head_add_css(((x(App::$page, 'template')) ? App::$page['template'] : 'default') . '.css');
+	}
+	else {
+		head_add_css(((!empty(App::$page['template'])) ? App::$page['template'] : 'default') . '.css');
+	}
 
-	if (($p = theme_include('mod_' . App::$module . '.css')) != '')
+	if (($p = theme_include('mod_' . App::$module . '.css')) != '') {
 		head_add_css('mod_' . App::$module . '.css');
+	}
 
-	head_add_css(Zotlabs\Render\Theme::url());
+	head_add_css(Theme::url());
 
-	if (($p = theme_include('mod_' . App::$module . '.js')) != '')
+	if (($p = theme_include('mod_' . App::$module . '.js')) != '') {
 		head_add_js('mod_' . App::$module . '.js');
+	}
 
 	App::build_pagehead();
 
@@ -2422,7 +2322,6 @@ function construct_page() {
 		 */
 		call_hooks('construct_page', $arr);
 		App::$layout = $arr['layout'];
-
 
 		foreach (App::$layout as $k => $v) {
 			if ((strpos($k, 'region_') === 0) && strlen($v)) {
@@ -2458,8 +2357,9 @@ function construct_page() {
 
 	// security headers - see https://securityheaders.io
 
-	if (App::get_scheme() === 'https' && isset(App::$config['system']['transport_security_header']) && intval(App::$config['system']['transport_security_header']) == 1)
+	if (App::get_scheme() === 'https' && isset(App::$config['system']['transport_security_header']) && intval(App::$config['system']['transport_security_header']) == 1) {
 		header("Strict-Transport-Security: max-age=31536000");
+	}
 
 	if (isset(App::$config['system']['content_security_policy']) && intval(App::$config['system']['content_security_policy']) == 1) {
 		$cspsettings = [
@@ -2511,7 +2411,7 @@ function construct_page() {
 	}
 
 	require_once(theme_include(
-		((x(App::$page, 'template')) ? App::$page['template'] : 'default') . '.php')
+		((!empty(App::$page['template'])) ? App::$page['template'] : 'default') . '.php')
 	);
 }
 
@@ -2530,23 +2430,7 @@ function appdirpath() {
  * @param string $icon
  */
 function head_set_icon($icon) {
-
 	App::$data['pageicon'] = $icon;
-
-}
-
-/**
- * @brief Get the pageicon.
- *
- * @return string absolut path to pageicon
- */
-function head_get_icon() {
-
-	$icon = App::$data['pageicon'];
-	if (!strpos($icon, '://'))
-		$icon = z_root() . $icon;
-
-	return $icon;
 }
 
 /**
@@ -2555,8 +2439,9 @@ function head_get_icon() {
  * @return string
  */
 function get_directory_realm() {
-	if ($x = Config::Get('system', 'directory_realm'))
+	if ($x = Config::Get('system', 'directory_realm')) {
 		return $x;
+	}
 
 	return DIRECTORY_REALM;
 }
@@ -2574,8 +2459,9 @@ function get_directory_primary() {
 		return z_root();
 	}
 
-	if ($x = Config::Get('system', 'directory_primary'))
+	if ($x = Config::Get('system', 'directory_primary')) {
 		return $x;
+	}
 
 	return DIRECTORY_FALLBACK_MASTER;
 }
@@ -2594,18 +2480,22 @@ function get_poller_runtime() {
 
 function z_get_upload_dir() {
 	$upload_dir = Config::Get('system', 'uploaddir');
-	if (!$upload_dir)
+	if (!$upload_dir) {
 		$upload_dir = ini_get('upload_tmp_dir');
-	if (!$upload_dir)
+	}
+
+	if (!$upload_dir) {
 		$upload_dir = sys_get_temp_dir();
+	}
 
 	return $upload_dir;
 }
 
 function z_get_temp_dir() {
 	$temp_dir = Config::Get('system', 'tempdir');
-	if (!$temp_dir)
+	if (!$temp_dir) {
 		$temp_dir = sys_get_temp_dir();
+	}
 
 	return $temp_dir;
 }
@@ -2622,8 +2512,9 @@ function z_check_cert() {
 		if (!$x['success']) {
 			$recurse = 0;
 			$y       = z_fetch_url(z_root() . '/siteinfo.json', false, $recurse, ['novalidate' => true]);
-			if ($y['success'])
+			if ($y['success']) {
 				cert_bad_email();
+			}
 		}
 	}
 }
@@ -2656,8 +2547,9 @@ function check_for_new_perms() {
 
 	// Do not execute if we are in the middle of a git update and the relevant versions don't match
 
-	if (Permissions::version() != PermissionRoles::version())
+	if (Permissions::version() != PermissionRoles::version()) {
 		return;
+	}
 
 	$pregistered = Config::Get('system', 'perms');
 
@@ -2720,8 +2612,9 @@ function check_for_new_perms() {
 	}
 
 	// We should probably call perms_refresh here, but this should get pushed in 24 hours and there is no urgency
-	if ($found_new_perm)
+	if ($found_new_perm) {
 		Config::Set('system', 'perms', $pcurrent);
+	}
 }
 
 

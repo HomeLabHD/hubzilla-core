@@ -3,6 +3,7 @@
 namespace Zotlabs\Tests\Unit\Lib;
 
 use Zotlabs\Lib\JcsEddsa2022;
+use Zotlabs\Lib\JcsEddsa2022SignException;
 use Zotlabs\Tests\Unit\UnitTestCase;
 
 class JcsEddsa2022Test extends UnitTestCase {
@@ -170,5 +171,12 @@ class JcsEddsa2022Test extends UnitTestCase {
 		$verified = (new JcsEddsa2022())->verify($documentArray, $publicKey);
 		$this->assertTrue($verified, 'Verify encode and decode eddsa-jcs-2022');
 
+	}
+
+	public function testSignWithInvalidChannelShouldBeRejected(): void {
+		$this->expectException(JcsEddsa2022SignException::class);
+
+		$alg = new JcsEddsa2022();
+		$res = $alg->sign([], []);
 	}
 }

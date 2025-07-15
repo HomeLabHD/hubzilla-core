@@ -9,6 +9,10 @@ class Zot_probe extends \Zotlabs\Web\Controller {
 
 	function get() {
 
+		if (!local_channel()) {
+			return;
+		}
+
 		$addr = $_GET['addr'] ?? '';
 
 		$o = '<h3>Zot6 Probe Diagnostic</h3>';

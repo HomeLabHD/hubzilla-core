@@ -24,9 +24,13 @@ class Home extends Controller {
 			$key = Config::Get('system', 'prvkey');
 			$ret = json_encode(Libzot::site_info());
 
-			$headers                     = ['Content-Type' => 'application/x-zot+json', 'Digest' => HTTPSig::generate_digest_header($ret)];
-			$headers['(request-target)'] = strtolower($_SERVER['REQUEST_METHOD']) . ' ' . $_SERVER['REQUEST_URI'];
-			$h                           = HTTPSig::create_sig($headers, $key, z_root());
+			$headers = [
+				'Content-Type' => 'application/x-zot+json',
+				'Digest' => HTTPSig::generate_digest_header($ret),
+				'Date' => datetime_convert('UTC','UTC', 'now', 'D, d M Y H:i:s \\G\\M\\T')
+			];
+
+			$h = HTTPSig::create_sig($headers, $key, z_root());
 			HTTPSig::set_headers($h);
 
 			echo $ret;
@@ -68,9 +72,9 @@ class Home extends Controller {
 
 		$o = '';
 
-		if (x($_SESSION, 'theme'))
+		if (isset($_SESSION['theme']))
 			unset($_SESSION['theme']);
-		if (x($_SESSION, 'mobile_theme'))
+		if (isset($_SESSION['mobile_theme']))
 			unset($_SESSION['mobile_theme']);
 
 		$splash = ((argc() > 1 && argv(1) === 'splash') ? true : false);

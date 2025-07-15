@@ -28,6 +28,8 @@ class Messages {
 			intval(TERM_FILE)
 		);
 
+		$file_tags = [];
+
 		if ($r) {
 			foreach($r as $rr) {
 				$file_tags[] = $rr['term'];
@@ -42,14 +44,14 @@ class Messages {
 			'$feature_file' => feature_enabled(local_channel(), 'filing'),
 			'$file_tags' => $file_tags,
 			'$strings' => [
-				'messages_title' => t('Public and restricted messages'),
-				'direct_messages_title' => t('Direct messages'),
-				'starred_messages_title' => t('Starred messages'),
+				'messages_title' => t('Public and restricted conversations'),
+				'direct_messages_title' => t('Private conversations'),
+				'starred_messages_title' => t('Starred conversations'),
 				'filed_messages_title' => t('Filed messages'),
-				'notice_messages_title' => t('Notices'),
+				'notice_messages_title' => t('Notifications'),
 				'loading' => t('Loading'),
-				'empty' => t('No messages'),
-				'unseen_count' => t('Unseen'),
+				'empty' => t('No conversations'),
+				'unseen_count' => t('Unseen reactions'),
 				'filter' => t('Filter by name or address'),
 				'file_filter' => t('Filter by file name')
 			]
@@ -84,8 +86,6 @@ class Messages {
 		$entries = [];
 		$limit = 30;
 		$order_sql = 'i.created DESC';
-		$dummy_order_sql = '';
-		$filter_sql = '';
 		$loadtime = (($offset) ? $_SESSION['messages_loadtime'] : datetime_convert());
 		$vnotify = get_pconfig(local_channel(), 'system', 'vnotify', -1);
 
@@ -101,13 +101,17 @@ class Messages {
 			$vnotify_sql_i = " AND i.verb NOT IN ('Dislike', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 		}
 
+		$filter_sql = '';
 		if($type !== 'filed' && $author) {
 			$filter_sql = " AND (i.owner_xchan = '" . protect_sprintf(dbesc($author)) . "') ";
 		}
 
+		$filed_filter_sql = '';
 		if($type === 'filed' && $file) {
 			$filed_filter_sql = " AND (term.term = '" . protect_sprintf(dbesc($file)) . "') ";
 		}
+
+		$dummy_order_sql = '';
 
 		switch($type) {
 			case 'direct':

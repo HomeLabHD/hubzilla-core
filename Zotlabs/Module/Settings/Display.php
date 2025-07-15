@@ -24,7 +24,7 @@ class Display {
 			$theme = 'redbasic';
 
 
-		$preload_images    = ((x($_POST,'preload_images')) ? intval($_POST['preload_images'])  : 0);
+		$thread_allow      = ((!empty($_POST['thread_allow'])) ? intval($_POST['thread_allow']) : 0);
 		$user_scalable     = ((x($_POST,'user_scalable')) ? intval($_POST['user_scalable'])  : 0);
 		$nosmile           = ((x($_POST,'nosmile')) ? intval($_POST['nosmile'])  : 0);
 		$title_tosource    = ((x($_POST,'title_tosource')) ? intval($_POST['title_tosource'])  : 0);
@@ -40,7 +40,7 @@ class Display {
 			$itemspage = 30;
 
 
-		set_pconfig(local_channel(),'system','preload_images',$preload_images);
+		set_pconfig(local_channel(), 'system', 'thread_allow', $thread_allow);
 		set_pconfig(local_channel(),'system','user_scalable',$user_scalable);
 		set_pconfig(local_channel(),'system','update_interval', $browser_update);
 		set_pconfig(local_channel(),'system','itemspage', $itemspage);
@@ -146,8 +146,7 @@ class Display {
 			$start_menu = get_pconfig(local_channel(), 'system', 'start_menu', 0);
 		}
 
-		$preload_images = get_pconfig(local_channel(),'system','preload_images');
-		$preload_images = (($preload_images===false)? '0': $preload_images); // default if not set: 0
+		$thread_allow = get_pconfig(local_channel(), 'system', 'thread_allow', true);
 
 		$user_scalable = get_pconfig(local_channel(),'system','user_scalable');
 		$user_scalable = (($user_scalable===false)? '0': $user_scalable); // default if not set: 0
@@ -192,7 +191,7 @@ class Display {
 			'$theme'	=> (($themes) ? array('theme', t('Display Theme:'), $theme_selected, '', $themes, 'preview') : false),
 			'$schema'   => (($schemas) ? array('schema', t('Select scheme'), $existing_schema, '' , $schemas) : false),
 
-			'$preload_images' => array('preload_images', t("Preload images before rendering the page"), $preload_images, t("The subjective page load time will be longer but the page will be ready when displayed"), $yes_no),
+			'$thread_allow' => ['thread_allow', t('Threaded conversation view'), $thread_allow, t('Display replies below their parent message (default yes)'), $yes_no],
 			'$user_scalable' => array('user_scalable', t("Enable user zoom on mobile devices"), $user_scalable, '', $yes_no),
 			'$ajaxint'   => array('browser_update',  t("Update browser every xx seconds"), $browser_update, t('Minimum of 10 seconds, no maximum')),
 			'$itemspage'   => array('itemspage',  t("Maximum number of conversations to load at any time:"), $itemspage, t('Maximum of 30 items')),

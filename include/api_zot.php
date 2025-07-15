@@ -546,15 +546,13 @@
 			return false;
 		}
 
-
-		logger('api_red_item_store: REQUEST ' . print_r($_REQUEST,true));
+		logger('api_red_item_store: REQUEST ' . print_r($_POST,true));
 		logger('api_red_item_store: FILES ' . print_r($_FILES,true));
-
 
 		// set this so that the item_post() function is quiet and doesn't redirect or emit json
 
-		$_REQUEST['api_source'] = true;
-		$_REQUEST['profile_uid'] = api_user();
+		$_POST['api_source'] = true;
+		$_POST['profile_uid'] = api_user();
 
 		if(x($_FILES,'media')) {
 			$_FILES['userfile'] = $_FILES['media'];
@@ -562,11 +560,12 @@
 			$mod = new Zotlabs\Module\Wall_attach();
 			$media = $mod->post();
 			if($media)
-				$_REQUEST['body'] = $media . "\n" . $_REQUEST['body'];
+				$_POST['body'] = $media . "\n" . $_POST['body'];
 		}
 
 		$mod = new Zotlabs\Module\Item();
 		$x = $mod->post();
+
 		json_return_and_die($x);
 	}
 

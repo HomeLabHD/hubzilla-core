@@ -1,12 +1,12 @@
-# Testing
+### Testing
 
 Hubzilla uses [PHPUnit] for automated testing, often called _unit testing_ or _integration testing_. 
 
 The tests are written as PHP classes, and live under the `tests/unit` subdirectory of the main Hubzilla repository. This guide will explain how to run the tests, how the tests are structured, and how you can write your own tests.
 
-## Running the test suite
+#### Running the test suite
 
-### Installing the dependencies
+##### Installing the dependencies
 
 To be able to run the tests you have to install the developer dependencies listen in the `composer.json` file. Make sure you have [composer installed] on your development system, and then run:
 
@@ -16,7 +16,7 @@ This will install phpunit and a few other dependencies. It will also update some
 
 **Warning:** Do not commit the changes to the files in the `vendor/composer` directory to your repository!
 
-### Setting up the test database
+##### Setting up the test database
 
 We have included a script (`tests/create_test_db.sh`) that will help you set up the test database. You can run it like this:
 
@@ -28,7 +28,7 @@ If you are running PostgreSQL instead, you create the test db like this:
 
 The script make some assumptions about your setup, but everything is configurable using environment variables. If you need any customization, see the script source for the details.
 
-### Running the tests
+##### Running the tests
 
 Once you have installed the developer dependencies and set up the test database, you can run the tests like this:
 
@@ -42,7 +42,7 @@ You can also run a specific test, or a specific set of tests using the `--filter
 
 Will run any test mathcing "Autoname".
 
-### Generating coverage reports
+##### Generating coverage reports
 
 To generate coverage reports you need a driver that is able to generate the coverage info that PHPUnit will collect. We recommend [Xdebug], but see the PHPUnit [page on code coverage analysis](https://docs.phpunit.de/en/9.6/code-coverage-analysis.html) for alternatives and details.
 
@@ -54,11 +54,11 @@ This will generate a number of HTML files in directories under the `tests/result
 
 Open the `index.php  file in your web browser to view the stats.
 
-### Debugging
+##### Debugging
 
 With Xdebug installed, you can also do step debugging and a number of other things to debug and get information about the execution of the tests. See the [Xdebug] pages and your prefered editor for how to set this up.
 
-## Test structure and organization
+#### Test structure and organization
 
 Tests are located in the `tests/unit` subdirectory, and subdirectories under there again, more or less reflecting the directory layout of the core code repository.
 
@@ -91,9 +91,9 @@ The class can also contain any number of other functions to keep things tidy and
 
 Results and artifacts from the test runs will be left in the `tests/results/` directory. This will typically include the test log, code coverage report etc.
 
-### Hubzilla specific features
+#### Hubzilla specific features
 
-#### Test database access:
+##### Test database access:
 
 Ideally it should be able to test each part of the code in isolation, where any dependencies should be replaced by stubs, mocks or fakes.
 
@@ -107,7 +107,7 @@ When the test finishes, the test database is wiped clean, so that we have the sa
 
 All of this is handled by the `UnitTestCase` base class.
 
-#### Database fixtures:
+##### Database fixtures:
 
 We need some predictable content in the database to set up things like logging, and other content that's useful in general for the tests. These are database fixtures that are loaded into the database for each test run.
 
@@ -115,16 +115,8 @@ The database fixtures are located in the `tests/unit/include/dba/_files` directo
 
 While database fixtures are nice to have, we try to keep the number of them as minimal as possible. It's usually better to add any content needed for a specific test in the test itself.
 
-#### Fakes:
+##### Fakes:
 
 Fakes are classes that we can pass to the code under test that will look and (to the code under test) behave the same as the original class. These are useful when we're able to pass objects to the code under test, as we can control it completely from the test code.
 
 Fakes are located under the `tests/fakes` directory.
-
-## Writing your own tests
-
-To be done
-
-[PHPUnit]: https://phpunit.de
-[composer installed]: https://getcomposer.org/
-[Xdebug]: https://xdebug.org/

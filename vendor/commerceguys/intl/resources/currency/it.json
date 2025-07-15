@@ -15,9 +15,6 @@
 	"ETB": {
 		"name": "birr etiope"
 	},
-	"VED": {
-		"name": "Bolívar Soberano"
-	},
 	"VES": {
 		"name": "bolívar venezuelano"
 	},
@@ -251,7 +248,7 @@
 	"HNL": {
 		"name": "lempira honduregna"
 	},
-	"SLL": {
+	"SLE": {
 		"name": "leone della Sierra Leone"
 	},
 	"MDL": {
@@ -264,7 +261,7 @@
 		"name": "lev bulgaro"
 	},
 	"SZL": {
-		"name": "lilangeni dello Swaziland"
+		"name": "lilangeni"
 	},
 	"LBP": {
 		"name": "lira libanese"
@@ -355,10 +352,6 @@
 	"BRL": {
 		"name": "real brasiliano"
 	},
-	"CNY": {
-		"name": "renminbi cinese",
-		"symbol": "CN¥"
-	},
 	"IRR": {
 		"name": "rial iraniano"
 	},
@@ -422,9 +415,6 @@
 	"UGX": {
 		"name": "scellino ugandese"
 	},
-	"SLE": {
-		"name": "Sierra Leonean Leone"
-	},
 	"PEN": {
 		"name": "sol peruviano"
 	},
@@ -471,9 +461,6 @@
 	"MNT": {
 		"name": "tugrik mongolo"
 	},
-	"UYW": {
-		"name": "Uruguayan Nominal Wage Index Unit"
-	},
 	"VUV": {
 		"name": "vatu di Vanuatu"
 	},
@@ -485,6 +472,10 @@
 	},
 	"JPY": {
 		"name": "yen giapponese"
+	},
+	"CNY": {
+		"name": "yuan cinese",
+		"symbol": "CN¥"
 	},
 	"PLN": {
 		"name": "zloty polacco"

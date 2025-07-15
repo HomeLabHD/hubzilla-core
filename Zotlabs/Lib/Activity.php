@@ -13,6 +13,7 @@ use Zotlabs\Entity\Item;
 require_once('include/event.php');
 require_once('include/html2plain.php');
 require_once('include/items.php');
+require_once('include/markdown.php');
 
 class Activity {
 
@@ -68,10 +69,10 @@ class Activity {
 		if ($j) {
 			xchan_query($j, true);
 			$items = fetch_post_tags($j);
-		}
 
-		if ($items) {
-			return self::encode_item(array_shift($items));
+			if ($items) {
+				return self::encode_item(array_shift($items));
+			}
 		}
 
 		return null;
@@ -165,7 +166,7 @@ class Activity {
 		}
 		else {
 			logger('fetch failed: ' . $url);
-			logger($x['body']);
+			logger(print_r($x, true), LOGGER_DEBUG);
 		}
 
 
@@ -580,13 +581,11 @@ class Activity {
 			}
 		}
 
-		if (intval($i['item_wall'])) {
-			$ret['commentPolicy'] = map_scope(PermissionLimits::Get($i['uid'], 'post_comments'));
-		}
-
 		if (intval($i['item_private']) === 2) {
 			$ret['directMessage'] = true;
 		}
+
+		$ret['commentPolicy'] = (($i['item_wall']) ? map_scope(PermissionLimits::Get($i['uid'], 'post_comments')) : '');
 
 		if (array_key_exists('comments_closed', $i) && $i['comments_closed'] !== EMPTY_STR && $i['comments_closed'] > NULL_DATE) {
 			if ($ret['commentPolicy']) {
@@ -695,7 +694,7 @@ class Activity {
 				if (is_array($t) && !array_key_exists('type', $t))
 					$t['type'] = 'Hashtag';
 
-				if (is_array($t) && (array_key_exists('href', $t) || array_key_exists('id', $t)) && array_key_exists('name', $t)) {
+				if (is_array($t) && (array_key_exists('href', $t) || array_key_exists('id', $t) || isset($t['icon']['url'])) && array_key_exists('name', $t)) {
 					switch ($t['type']) {
 						case 'Hashtag':
 							$ret[] = ['ttype' => TERM_HASHTAG, 'url' => $t['href'], 'term' => escape_tags((substr($t['name'], 0, 1) === '#') ? substr($t['name'], 1) : $t['name'])];
@@ -710,7 +709,7 @@ class Activity {
 							break;
 
 						case 'Emoji':
-							$ret[] = ['ttype' => TERM_EMOJI, 'url' => $t['id'], 'term' => escape_tags($t['name']), 'imgurl' => $t['icon']['url']];
+							$ret[] = ['ttype' => TERM_EMOJI, 'url' => $t['id'] ?? $t['icon']['url'], 'term' => escape_tags($t['name']), 'imgurl' => $t['icon']['url']];
 							break;
 
 						default:
@@ -853,6 +852,8 @@ class Activity {
 					$entry['type'] = $att['mediaType'];
 				} elseif (array_key_exists('type', $att) && $att['type'] === 'Image') {
 					$entry['type'] = 'image/jpeg';
+				} elseif (array_key_exists('type', $att) && $att['type'] === 'Link') {
+					$entry['type'] = 'text/uri-list';
 				}
 				if (array_key_exists('name', $att) && $att['name']) {
 					$entry['name'] = html2plain(purify_html($att['name']), 256);
@@ -942,36 +943,8 @@ class Activity {
 
 		}
 
-		if ($ret['type'] === 'emojiReaction') {
-			// There may not be an object for these items for legacy reasons - it should be the conversation parent.
-			$p = q("select * from item where mid = '%s' and uid = %d",
-				dbesc($i['parent_mid']),
-				intval($i['uid'])
-			);
-			if ($p) {
-				xchan_query($p, true);
-				$p        = fetch_post_tags($p);
-				$i['obj'] = self::encode_item($p[0]);
-
-				// convert to zot6 emoji reaction encoding which uses the target object to indicate the
-				// specific emoji instead of overloading the verb or type.
-
-				$im = explode('#', $i['verb']);
-				if ($im && count($im) > 1)
-					$emoji = $im[1];
-				if (preg_match("/\[img(.*?)\](.*?)\[\/img\]/ism", $i['body'], $match)) {
-					$ln = $match[2];
-				}
-
-				$i['tgt_type'] = 'Image';
-
-				$i['target'] = [
-					'type' => 'Image',
-					'name' => $emoji,
-					'url'  => (($ln) ? $ln : z_root() . '/images/emoji/' . $emoji . '.png')
-				];
-
-			}
+		if ($ret['type'] === 'EmojiReact') {
+			$ret['content'] = $i['body'];
 		}
 
 		if (strpos($i['mid'], z_root() . '/item/') !== false) {
@@ -986,15 +959,15 @@ class Activity {
 
 		$ret['diaspora:guid'] = $i['uuid'];
 
-		if (isset($i['title']) && $i['title'])
-			$ret['name'] = html2plain(bbcode($i['title'], ['cache' => true]));
+		if (!empty($i['title']))
+			$ret['name'] = html2plain(bbcode($i['title']));
 
-		if (isset($i['summary']) && $i['summary'])
-			$ret['summary'] = bbcode($i['summary'], ['cache' => true]);
+		if (!empty($i['summary']))
+			$ret['summary'] = bbcode($i['summary']);
 
 		if ($ret['type'] === 'Announce') {
 			$tmp            = preg_replace('/\[share(.*?)\[\/share\]/ism', EMPTY_STR, $i['body']);
-			$ret['content'] = bbcode($tmp, ['cache' => true]);
+			$ret['content'] = bbcode($tmp);
 			$ret['source']  = [
 				'content'   => $i['body'],
 				'mediaType' => 'text/bbcode'
@@ -1010,7 +983,7 @@ class Activity {
 			}
 		}
 
-		if (isset($i['app']) && $i['app']) {
+		if (!empty($i['app'])) {
 			$ret['generator'] = ['type' => 'Application', 'name' => $i['app']];
 		}
 		if (!empty($i['location']) || !empty($i['coord'])) {
@@ -1062,7 +1035,7 @@ class Activity {
 		else
 			return [];
 
-		if (isset($i['obj']) && $i['obj']) {
+		if (!empty($i['obj'])) {
 			if (!is_array($i['obj'])) {
 				$i['obj'] = json_decode($i['obj'], true);
 			}
@@ -1090,7 +1063,7 @@ class Activity {
 			$ret['type'] = 'Invite';
 		}
 
-		if (isset($i['target']) && $i['target']) {
+		if (!empty($i['target'])) {
 			if (!is_array($i['target'])) {
 				$i['target'] = json_decode($i['target'], true);
 			}
@@ -1101,12 +1074,10 @@ class Activity {
 				return [];
 		}
 
-/* this should not be needed
 		$t = self::encode_taxonomy($i);
 		if ($t) {
 			$ret['tag'] = $t;
 		}
-*/
 
 		$a = self::encode_attachment($i, true);
 		if ($a) {
@@ -1116,7 +1087,6 @@ class Activity {
 		if (intval($i['item_private']) === 0) {
 			$ret['to'] = [ACTIVITY_PUBLIC_INBOX];
 		}
-
 
 		$hookinfo = [
 			'item' => $i,
@@ -2148,34 +2118,24 @@ class Activity {
 		$s['owner_xchan']  = $act->actor['id'];
 		$s['author_xchan'] = $act->actor['id'];
 
-		$content = [];
-
-		if (is_array($act->obj)) {
-			$content = self::get_content($act->obj);
-		}
-
-		$s['mid'] = $act->objprop('id');
-
-		if (!$s['mid'] && is_string($act->obj)) {
-			$s['mid'] = $act->obj;
-		}
-
-		// pleroma fetched activities
-		if (!$s['mid'] && isset($act->obj['data']['id'])) {
-			$s['mid'] = $act->obj['data']['id'];
-		}
-
-		if ($act->objprop('type') === 'Profile') {
-			$s['mid'] = $act->id;
-		}
+		$s['mid'] = self::getMessageID($act);
 
 		if (!$s['mid']) {
 			return false;
 		}
 
-		// Friendica sends the diaspora guid in a nonstandard field via AP
-		// If no uuid is provided we will create an uuid v5 from the mid
-		$s['uuid'] = (($act->objprop('diaspora:guid')) ?: uuid_from_url($s['mid']));
+		$s['uuid'] = self::getUUID($act);
+
+		if (!$s['uuid']) {
+			// If we have not found anything useful, create an uuid v5 from the mid
+			$s['uuid'] = uuid_from_url($s['mid']);
+		}
+
+		$content = [];
+
+		if (is_array($act->obj)) {
+			$content = self::get_content($act->obj);
+		}
 
 		$s['parent_mid'] = $act->parent_id;
 
@@ -2215,23 +2175,8 @@ class Activity {
 
 			$response_activity = true;
 
-			$s['mid'] = $act->id;
-			$s['uuid'] = ((!empty($act->data['diaspora:guid'])) ? $act->data['diaspora:guid'] : uuid_from_url($s['mid']));
-
 			$s['parent_mid'] = $act->objprop('id') ?: $act->obj;
 
-/*
-			if ($act->objprop('inReplyTo')) {
-				$s['parent_mid'] = $act->objprop('inReplyTo');
-			}
-
-			$s['thr_parent'] = $act->objprop('id') ?: $act->obj;
-
-			if (empty($s['parent_mid']) || empty($s['thr_parent'])) {
-				logger('response activity without parent_mid or thr_parent');
-				return;
-			}
-*/
 			// over-ride the object timestamp with the activity
 
 			if (isset($act->data['published'])) {
@@ -2242,9 +2187,9 @@ class Activity {
 				$s['edited'] = datetime_convert('UTC', 'UTC', $act->data['updated']);
 			}
 
-			$obj_actor = $act->objprop('actor') ?: $act->get_actor('attributedTo', $act->obj);
+			$obj_actor = is_array($act->objprop('actor')) ? $act->objprop('actor') : $act->get_actor('attributedTo', $act->obj);
 
-			if (!isset($obj_actor['id'])) {
+			if (empty($obj_actor['id'])) {
 				return false;
 			}
 
@@ -2280,12 +2225,8 @@ class Activity {
 				$content['content'] = sprintf(t('&#x1f501; Repeated %1$s\'s %2$s'), $mention, $act->obj['type']);
 			}
 
-			// TODO: Deprecated
-			if ($act->type === 'emojiReaction') {
-				$content['content'] = (($act->tgt && $act->tgt['type'] === 'Image') ? '[img=32x32]' . $act->tgt['url'] . '[/img]' : '&#x' . $act->tgt['name'] . ';');
-			}
-
 			if (in_array($act->type, ['EmojiReact'])) {
+
 				// Pleroma reactions
 				$t = trim(self::get_textfield($act->data, 'content'));
 
@@ -2335,9 +2276,14 @@ class Activity {
 		if (!array_key_exists('edited', $s))
 			$s['edited'] = $s['created'];
 
-		$s['title']   = (($response_activity) ? EMPTY_STR : self::bb_content($content, 'name'));
-		$s['summary'] = self::bb_content($content, 'summary');
+		$s['title']   = (($response_activity) ? EMPTY_STR : html2plain($content['name']));
+		$s['summary'] = (($content['summary'] !== $content['content']) ? html2plain($content['summary']) : '');
 		$s['body']    = ((self::bb_content($content, 'bbcode') && (!$response_activity)) ? self::bb_content($content, 'bbcode') : self::bb_content($content, 'content'));
+
+		// peertube quirks
+		if ($act->objprop('mediaType') === 'text/markdown') {
+			$s['body'] = markdown_to_bb($act->objprop('content'));
+		}
 
 		if ($act->objprop('quoteUrl')) {
 			$quote_bbcode = self::get_quote_bbcode($act->obj['quoteUrl']);
@@ -2470,7 +2416,8 @@ class Activity {
 					}
 				}
 
-				$tag = (($poster) ? '[video poster=&quot;' . $poster . '&quot;]' : '[video]' );
+				$tag = (($poster) ? '[video poster=\'' . $poster . '\']' : '[video]' );
+
 				$ptr = null;
 
 				if ($act->objprop('url')) {
@@ -2780,7 +2727,7 @@ class Activity {
 
 			$relay = $channel['channel_hash'] === $parent[0]['owner_xchan'];
 
-			if (str_contains($parent[0]['tgt_type'], 'Collection') && !$relay && !$isCollectionOperation) {
+			if (str_contains($parent[0]['tgt_type'], 'Collection') && !$relay && !$is_collection_operation) {
 				logger('not a collection activity');
 				return;
 			}
@@ -3012,7 +2959,7 @@ class Activity {
 
 			if (intval($parent[0]['item_private']) === 0) {
 				if (intval($item['item_private'])) {
-					$item['item_restrict'] = $item['item_restrict'] | 1;
+					$item['item_restrict'] = ((isset($item['item_restrict'])) ? $item['item_restrict'] | 1 : 1);
 					$item['allow_cid'] = '<' . $channel['channel_hash'] . '>';
 					$item['allow_gid'] = $item['deny_cid'] = $item['deny_gid'] = '';
 				}
@@ -3029,7 +2976,7 @@ class Activity {
 				}
 			}
 		}
-
+/*
 		if (isset($item['term']) && !PConfig::Get($channel['channel_id'], 'system', 'no_smilies')) {
 			foreach ($item['term'] as $t) {
 				if ($t['ttype'] === TERM_EMOJI) {
@@ -3043,6 +2990,7 @@ class Activity {
 				}
 			}
 		}
+*/
 
 		// TODO: not implemented
 		// self::rewrite_mentions($item);
@@ -3066,8 +3014,7 @@ class Activity {
 		}
 
 		if ($x['success']) {
-
-			if ($relay && $channel['channel_hash'] === $x['item']['owner_xchan'] && $x['item']['verb'] !== 'Add' && !$isCollectionOperation) {
+			if ($relay && $channel['channel_hash'] === $x['item']['owner_xchan'] && $x['item']['verb'] !== 'Add' && !$is_collection_operation) {
 				$approval = Activity::addToCollection($channel, $act->data, $x['item']['parent_mid'], $x['item'], deliver: false);
 			}
 
@@ -3085,13 +3032,8 @@ class Activity {
 				}
 			}
 
-			$r = q("select * from item where id = %d limit 1",
-				intval($x['item_id'])
-			);
+			send_status_notifications($x['item_id'], $x['item']);
 
-			if ($r) {
-				send_status_notifications($x['item_id'], $r[0]);
-			}
 			sync_an_item($channel['channel_id'], $x['item_id']);
 		}
 
@@ -3408,10 +3350,10 @@ class Activity {
 			if (array_key_exists('startTime', $act) && strpos($act['startTime'], -1, 1) === 'Z') {
 				$adjust           = true;
 				$event['adjust']  = 1;
-				$event['dtstart'] = datetime_convert('UTC', 'UTC', $event['startTime'] . (($adjust) ? '' : 'Z'));
+				$event['dtstart'] = datetime_convert('UTC', 'UTC', $act['startTime'] . (($adjust) ? '' : 'Z'));
 			}
 			if (array_key_exists('endTime', $act)) {
-				$event['dtend'] = datetime_convert('UTC', 'UTC', $event['endTime'] . (($adjust) ? '' : 'Z'));
+				$event['dtend'] = datetime_convert('UTC', 'UTC', $act['endTime'] . (($adjust) ? '' : 'Z'));
 			}
 			else {
 				$event['nofinish'] = true;
@@ -3610,12 +3552,22 @@ class Activity {
 		}
 
 		foreach ($actor['tag'] as $t) {
+			// TODO: implement FEP-fb2a at the sending side and deprecate PropertyValue
 			if ((isset($t['type']) && $t['type'] === 'PropertyValue') &&
 				(isset($t['name']) && $t['name'] === 'Protocol') &&
-				(isset($t['value']) && in_array($t['value'], ['zot6', 'activitypub', 'diaspora']))
+				isset($t['value'])
 			) {
-				$ret[] = $t['value'];
+				$ret[] = trim($t['value']);
 			}
+
+			// FEP-fb2a - actor metadata
+			if ((isset($t['type']) && $t['type'] === 'Note') &&
+				(isset($t['name']) && $t['name'] === 'Protocols') &&
+				isset($t['content'])
+			) {
+				$ret = array_map('trim', explode(',', $t['content']));
+			}
+
 		}
 
 		return $ret;
@@ -3870,6 +3822,41 @@ class Activity {
 		$result = post_activity_item($item->toArray(), deliver: $deliver, channel: $channel, observer: $channel, addAndSync: false);
 		logger('removeFromCollection: ' . print_r($result, true));
 		return $result;
+	}
+
+
+	/**
+	 * @brief Retrieves message ID from activity object.
+	 * @param object $act Activity object
+	 * @return string Message ID or empty string if not found
+	 */
+	public static function getMessageID($act): string
+	{
+		if (ActivityStreams::is_response_activity($act->type) || $act->objprop('type') === 'Profile') {
+			return $act->id;
+		}
+
+		return $act->objprop('id', null)
+			?? (is_string($act->obj) ? $act->obj : null)
+			?? '';
+	}
+
+	/**
+	 * @brief Retrieves the UUID from an activity object.
+	 * @param object $act Activity object
+	 * @return string UUID or empty string if not found
+	 */
+	public static function getUUID($act): string
+	{
+		if (ActivityStreams::is_response_activity($act->type)) {
+			return $act->data['uuid']
+				?? $act->data['diaspora:guid']
+				?? '';
+		}
+
+		return $act->objprop('uuid', null)
+			?? $act->objprop('diaspora:guid', null)
+			?? '';
 	}
 
 }

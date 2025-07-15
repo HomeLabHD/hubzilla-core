@@ -1,0 +1,23 @@
+### Versionen und Releases
+
+Hubzilla verwendet derzeit eine Standard-Versionsnummerierungssequenz von $x.$y(.$z), zum Beispiel '1.12' oder '1.12.1'. Die erste Ziffer ist die Hauptversionsnummer. Hauptversionen werden „ungefähr“ einmal pro Jahr veröffentlicht, oft im Dezember.
+
+Die zweite Ziffer ist die Nummer der Nebenversion. Wenn diese Zahl ungerade ist, handelt es sich um eine Entwicklungsversion. Ist die Zahl gerade, handelt es sich um eine freigegebene Version. Nebenversionen werden in der Regel einmal pro Monat freigegeben (von der Entwicklungs- in die Hauptversion verschoben), wenn die Entwicklung „stabil“ ist, aber das wird wahrscheinlich zunehmen. Zukünftig werden kleinere Versionen zwischen einem und drei Monaten veröffentlicht; das entspricht einem stabilen Codepunkt und wenn es einen allgemeinen Konsens in der Gemeinschaft gibt, dass die aktuelle Codebasis stabil genug ist, um eine Veröffentlichung in Betracht zu ziehen.
+
+Die letzte Ziffer ist eine Schnittstellen- oder Patch-Kennung. 
+
+Der Freigabeprozess beinhaltet die Änderung der Versionsnummer (per Definition ist die Minor-Versionsnummer ungerade, und die Minor-Nummer wird erhöht). Einmal im Jahr wird bei einer Hauptversion die Hauptversionsnummer erhöht und die Nebenversionsnummer auf 0 zurückgesetzt. 
+
+Der Versionskandidat wird in einen neuen Zweig verschoben und die Tests beginnen bzw. werden für einen Zeitraum von 1-2 Wochen fortgesetzt, oder bis alle wichtigen Probleme behoben sind. Dieser Zweig wird in der Regel mit RC (Release Candidate) bezeichnet; beispielsweise steht 1.8RC für die bevorstehende Veröffentlichung der Version 1.8. Zu diesem Zeitpunkt wird die Versionsnummer des Entwicklungszweigs auf die nächsthöhere ungerade Zahl erhöht. (Zum Beispiel 1.9). Neue Entwicklungen können dann im Entwicklungszweig stattfinden. 
+
+Fehlerkorrekturen sollten immer auf „dev“ angewendet werden und von dort aus (in der Regel mit git cherry-pick) auf den RC-Zweig und, falls erforderlich, auf den Master- oder offiziellen Release-Zweig übertragen werden.
+
+Zum Zeitpunkt der Erstellung eines Release Candidate wird die Sprachstring-Datei eingefroren, bis eine neue Version veröffentlicht wird. Die Übersetzungsarbeit kann fortgesetzt werden, aber alle Übersetzungen sollten an „dev“ übermittelt und in RC zusammengeführt werden.
+
+Sobald die RC-Tests abgeschlossen sind, wird RC mit 'master' zusammengeführt und der RC-Versionsbezeichner entfernt; dies führt zu einem letzten Checkin, um die Versionsnummer zu ändern. Die CHANGELOG-Datei sollte ebenfalls zu diesem Zeitpunkt oder kurz davor aktualisiert werden. Wenn es während dieser letzten Zusammenführung Konflikte gibt, wird die Zusammenführung abgebrochen und „git merge -s ours“ angewendet. Dies führt dazu, dass der Master-Zweig durch den Inhalt des RC-Zweigs ersetzt wird. Konflikte entstehen oft durch String-Updates, die nach der letzten Veröffentlichung an master vorgenommen wurden und nicht einfach ohne manuelle Bearbeitung gelöst werden können. Da es sich hier um eine Veröffentlichung von getesteten Code handelt, wird von einer manuellen Bearbeitung abgeraten und stattdessen sollte die Strategie des Replacement Merge verwendet werden. Es wird davon ausgegangen, dass RC nun den neuesten, gut getesteten Code enthält. 
+
+Sobald die Veröffentlichung live ist und in den Master-Zweig überführt wurde, kann der RC-Zweig entfernt werden. 
+
+Nach der Veröffentlichung können Korrekturen an Master vorgenommen werden. Wenn möglich, sollten diese in dev vorgenommen werden und „git cherry-pick“ zum Zusammenführen verwendet werden; dadurch bleiben die Commit-Informationen erhalten und Konflikte beim Zusammenführen im nächsten Zyklus werden vermieden. Nur selten gilt ein Patch nur für den Master-Zweig. Falls nötig, kann das gemacht werden. Wenn die Änderung schwerwiegend ist, sollte die Versionsnummer der Schnittstelle erhöht werden. Dies liegt im Ermessen der Gemeinschaft. In jedem Fall sollte ein „git pull“ des Master-Zweigs immer zur neuesten Version führen, auf die alle Patches nach der Veröffentlichung angewendet werden. 
+
+Die Schnittstellennummer (das $z in $x.$y.$z) sollte in dev immer dann erhöht werden, wenn eine Änderung vorgenommen wird, die die Schnittstellen oder die API in inkompatibler Weise verändert, so dass alle externen Pakete (insbesondere Addons und API-Clients), die sich auf das aktuelle Verhalten verlassen, ihre eigenen Schnittstellen an dem Punkt, an dem es sich geändert hat, entdecken und entsprechend ändern können.

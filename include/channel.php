@@ -94,7 +94,7 @@ function validate_channelname($name) {
 	 */
 	call_hooks('validate_channelname', $arr);
 
-	if (x($arr, 'message'))
+	if (!empty($arr['message']))
 		return $arr['message'];
 
 	return null;
@@ -219,8 +219,8 @@ function create_identity($arr) {
 	}
 
 	$name = escape_tags($arr['name']);
-	$pageflags = ((x($arr,'pageflags')) ? intval($arr['pageflags']) : PAGE_NORMAL);
-	$system = ((x($arr,'system')) ? intval($arr['system']) : 0);
+	$pageflags = ((!empty($arr['pageflags'])) ? intval($arr['pageflags']) : PAGE_NORMAL);
+	$system = ((!empty($arr['system'])) ? intval($arr['system']) : 0);
 	$name_error = validate_channelname($arr['name']);
 	if($name_error) {
 		$ret['message'] = $name_error;
@@ -1634,19 +1634,19 @@ function profile_sidebar($profile, $block = 0, $show_connect = true, $details = 
 			$connect_url = z_root() . '/connect/' . $profile['channel_address'];
 	}
 
-	if((x($profile,'address') == 1)
-		|| (x($profile,'locality') == 1)
-		|| (x($profile,'region') == 1)
-		|| (x($profile,'postal_code') == 1)
-		|| (x($profile,'country_name') == 1))
+	if(!empty($profile['address'])
+		|| !empty($profile['locality'])
+		|| !empty($profile['region'])
+		|| !empty($profile['postal_code'])
+		|| !empty($profile['country_name']))
 		$location = t('Location:');
 
 	$profile['homepage'] = linkify($profile['homepage'],true);
 
-	$gender   = ((x($profile,'gender')   == 1) ? t('Gender:')   : False);
-	$marital  = ((x($profile,'marital')  == 1) ? t('Status:')   : False);
-	$homepage = ((x($profile,'homepage') == 1) ? t('Homepage:') : False);
-	$hometown = ((x($profile,'hometown') == 1) ? t('Hometown:') : False);
+	$gender   = ((!empty($profile['gender'])) ? t('Gender:')   : False);
+	$marital  = ((!empty($profile['marital'])) ? t('Status:')   : False);
+	$homepage = ((!empty($profile['homepage'])) ? t('Homepage:') : False);
+	$hometown = ((!empty($profile['hometown'])) ? t('Hometown:') : False);
 	$profile['online']   = (($profile['online_status'] === 'online') ? t('Online Now') : False);
 
 //	logger('online: ' . $profile['online']);

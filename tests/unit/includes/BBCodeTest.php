@@ -23,6 +23,7 @@
 
 namespace Zotlabs\Tests\Unit\includes;
 
+use App;
 use Zotlabs\Tests\Unit\UnitTestCase;
 
 class BBCodeTest extends UnitTestCase {
@@ -42,7 +43,7 @@ class BBCodeTest extends UnitTestCase {
 	 */
 	public function test_bbcode_observer(string $src, bool $logged_in, string $lang, string $expected): void {
 		if ($logged_in) {
-			\App::$observer = [
+			App::set_observer([
 				'xchan_addr' => '',
 				'xchan_name' => '',
 				'xchan_connurl' => '',
@@ -50,9 +51,9 @@ class BBCodeTest extends UnitTestCase {
 
 				// port required in xchan url due to bug in get_rpost_path
 				'xchan_url' => 'https://example.com:666',
-			];
+			]);
 		} else {
-			\App::$observer = null;
+			App::set_observer(null);
 		}
 
 		\App::$language = $lang;
@@ -141,19 +142,35 @@ class BBCodeTest extends UnitTestCase {
 			],
 			'naked url is converted to link' => [
 				'example url: https://example.com',
-				'example url: <a href="https://example.com"  target="_blank"  rel="nofollow noopener">https://example.com</a>'
+				'example url: <a href="https://example.com" target="_blank" rel="nofollow noopener">https://example.com</a>'
 			],
 			'naked url followed by newline' => [
 				"https://www.example.com\nhave a great day.",
-				'<a href="https://www.example.com"  target="_blank"  rel="nofollow noopener">https://www.example.com</a><br />have a great day.',
+				'<a href="https://www.example.com" target="_blank" rel="nofollow noopener">https://www.example.com</a><br />have a great day.',
 			],
 			'inline naked url' => [
 				"This is a link https://example.com/some/path more info.",
-				'This is a link <a href="https://example.com/some/path"  target="_blank"  rel="nofollow noopener">https://example.com/some/path</a> more info.',
+				'This is a link <a href="https://example.com/some/path" target="_blank" rel="nofollow noopener">https://example.com/some/path</a> more info.',
 			],
 			'naked url within code block is not converted to link' => [
 				"[code]\nhttp://example.com\n[/code]",
 				"<pre><code>http://example.com</code></pre>"
+			],
+			'geo uri is converted to link' => [
+				'example url: [url]geo:37.786971,-122.399677;u=35[/url]',
+				'example url: <a href="geo:37.786971,-122.399677;u=35" target="_blank" rel="nofollow noopener">geo:37.786971,-122.399677;u=35</a>'
+			],
+			'geo uri with label is converted to link' => [
+				'example url: [url=geo:37.786971,-122.399677;u=35(Wikimedia+Foundation)]Wikimedia Foundation[/url]',
+				'example url: <a href="geo:37.786971,-122.399677;u=35(Wikimedia+Foundation)" target="_blank" rel="nofollow noopener">Wikimedia Foundation</a>'
+			],
+			'naked geo uri is converted to link' => [
+				'example url: geo:37.786971,-122.399677;u=35',
+				'example url: <a href="geo:37.786971,-122.399677;u=35" target="_blank" rel="nofollow noopener">geo:37.786971,-122.399677;u=35</a>'
+			],
+			'naked geo uri with label is converted to link' => [
+				'example url: geo:37.78918,-122.40335(Wikimedia+Foundation)',
+				'example url: <a href="geo:37.78918,-122.40335(Wikimedia+Foundation)" target="_blank" rel="nofollow noopener">📍Wikimedia Foundation</a>'
 			],
 		];
 	}
@@ -205,7 +222,7 @@ class BBCodeTest extends UnitTestCase {
 				'[rpost=a title]This is the body[/rpost]',
 				true,
 				'en',
-				'<a href="https://example.com:666/rpost?f=&title=a+title&body=This+is+the+body"  target="_blank"  rel="nofollow noopener">https://example.com:666/rpost?f=&title=a+title&body=This+is+the+body</a>',
+				'<a href="https://example.com:666/rpost?f=&title=a+title&body=This+is+the+body" target="_blank" rel="nofollow noopener">https://example.com:666/rpost?f=&title=a+title&body=This+is+the+body</a>',
 			],
 			'unauthenticated observer rpost' => [
 				'[rpost=a title]This is the body[/rpost]',

@@ -1,0 +1,33 @@
+### Diaspora-Kompatibilität 
+
+Das Diaspora Protocol Addon ermöglicht es einer Website, mit dem Diaspora-Protokoll zu kommunizieren, was die Kommunikation und Verbindungen mit Diaspora-Mitgliedern (und auch Friendica-Mitgliedern, da dieses Netzwerk ebenfalls das Diaspora-Protokoll anbietet) ermöglicht. 
+Dieses Addon ist in den Serverkonfigurationen 'Basic' und 'Standard' verfügbar. Es ist nicht verfügbar mit und das Plugin ist komplett deaktiviert, wenn Sie die 'pro' Serverkonfiguration verwenden. Der Grund dafür ist, dass das Diaspora-Protokoll nicht sehr ausgereift ist und viele Funktionen von $projectname nicht gut damit funktionieren.
+Die Mitglieder müssen sich der Einschränkungen des Protokolls bewusst sein eigenen Aktivitäten auf diejenigen beschränken, die mit Diaspora kompatibel sind. Die „Pro“-Serverkonfiguration ist frei von diesen Einschränkungen und Sie können alle Projektfunktionen und -fähigkeiten nutzen, ohne sich Gedanken darüber zu machen, wie sie sich auf andere Netzwerke übertragen lassen. Viele Funktionen sind einzigartig für Hubzilla und werden durch das Nomad-Protokoll unterstützt, das unsere native Kommunikationssprache zwischen Servern/Hubs ist.
+Wenn Sie eine Konfiguration verwenden, die direkte Diaspora-Kommunikation erlaubt, sollten Sie sich der hier dargestellten Einschränkungen bewusst sein. 
+
+- Das Zurückziehen von privaten Nachrichten (unsend) ist bei Diaspora-Verbindungen nicht möglich.
+- Private Nachrichten und die dazugehörigen Kommentare werden in Diaspora und Friendica als E-Mail-Benachrichtigungen im Klartext gesendet. Dies ist ein großes Problem für die Privatsphäre und betrifft alle privaten Kommunikationen, bei denen sich *ein* Mitglied der Konversation in einem anderen Netzwerk befindet. Sei dir dessen bewusst.
+- Die Zugangskontrolle funktioniert nur für Beiträge und Kommentare. Diaspora-Mitgliedern wird die Erlaubnis verweigert, wenn sie versuchen, auf andere zugriffskontrollierte hubzilla-Objekte wie Dateien, Fotos, Webseiten, Chatrooms usw. zuzugreifen. Im Falle von privaten Fotos, die mit Beiträgen verlinkt sind, sehen sie ein „Verbotszeichen“ anstelle des Fotos. Diaspora hat kein Konzept für private Medien und bietet eine Illusion von Fotoprivatsphäre, indem es unkenntliche URLs verwendet, anstatt das Foto vor dem Schnüffeln durch unbefugte Betrachter zu schützen. 
+
+Es gibt keine andere Möglichkeit, als Ihre Medienressourcen öffentlich zu machen (für jeden im Internet).
+
+- Bearbeitete Beiträge werden nicht zugestellt. Die Diaspora-Mitglieder sehen den ursprünglichen Beitrag/Kommentar ohne Bearbeitungen. Das Protokoll enthält keinen Mechanismus, um einen bestehenden Beitrag zu aktualisieren. Es ist nicht möglich, einen Beitrag zu löschen und einen neuen unsichtbar zu übermitteln, da sich die Message-ID ändert und wir dieselbe Message-ID in unserem eigenen Netzwerk behalten müssen. Die einzige Abhilfe besteht darin, den Beitrag/Kommentar zu löschen und ihn erneut zu übermitteln. (Wenn es sich um einen Beitrag handelt, werden dabei alle vorhandenen Likes/Kommentare gelöscht). Eventuell werden wir eine Möglichkeit anbieten, die veraltete Kopie nur in Diaspora zu löschen und sie in Netzwerken, die Änderungen verarbeiten können, intakt zu lassen.
+- Nomadische Identität (nur $projectname 'standard') wird nicht mit Diaspora funktionieren. Wir werden eventuell eine **Option** bereitstellen, die es Ihnen ermöglicht, die Freigabe von allen Ihren Klonen zu starten, wenn Sie die erste Verbindung herstellen. Die Diaspora-Person muss dies nicht akzeptieren, aber wenn sie die Verbindung akzeptiert, kann die Kommunikation fortgesetzt werden. Ohne diese Option müssen Sie, wenn Sie zu einem anderen Server gehen, von dem aus Sie die Verbindung ursprünglich hergestellt haben, oder wenn Sie die Verbindung herstellen, bevor Sie den Klon erstellt haben, die Verbindung von dem neuen Ort aus erneut herstellen.
+- Das Ablaufen der Post wird auf Diaspora nicht unterstützt. Wir können Ihnen eine Option anbieten, um ablaufende Beiträge nicht an das Netzwerk zu senden. In Zukunft kann dies mit einer Remote-Löschanforderung bereitgestellt werden.
+- Eine Ende-zu-Ende-Verschlüsselung wird nicht unterstützt. Wir werden diese Beiträge in ein Schlosssymbol übersetzen, das von der Diaspora-Seite aus nicht entsperrt werden kann.
+- Die Überprüfung von Nachrichten wird in Zukunft unterstützt werden.
+- Mehrere Profile werden nicht unterstützt. Diaspora-Mitglieder können nur Ihr Standardprofil sehen.
+- Geburtstagsereignisse werden in Diaspora nicht angezeigt. Andere Ereignisse werden übersetzt und als Post verschickt, aber alle Zeiten werden entweder in der Zeitzone des Ursprungskanals oder in GMT angegeben. Wir kennen die Zeitzone des Empfängers nicht, da Diaspora dieses Konzept nicht hat.
+- Wir erlauben derzeit standardmäßig, dass Tags gekapert werden können. Es gibt eine Option, mit der Sie verhindern können, dass das andere Ende des Netzwerks Ihre Tags entführt und sie auf seine eigenen Ressourcen zeigt.
+- Community-Tags werden nicht funktionieren. Wir werden eine Tagging-Aktivität als Kommentar senden. Das wird nichts bewirken.
+- Privatsphären-Tags (@!somebody) werden für Diaspora-Mitglieder nicht verfügbar sein. Diese Tags müssen möglicherweise entfernt oder unkenntlich gemacht werden, um zu verhindern, dass sie gekapert werden - was zu Datenschutzproblemen führen könnte.
+- Plus-getaggte hubzilla-Foren sollten von Diaspora aus funktionieren.
+- Du kannst keine Diaspora-Kanäle als Kanalquellen verwenden.
+- Ablehnungen von Beiträgen werden in Kommentare umgewandelt und Du wirst die Möglichkeit haben, diese als Kommentare zu senden oder sie nicht an Diaspora zu senden (das keine Ablehnungen bietet). Derzeit werden sie nicht gesendet.
+- Wir werden das Gleiche für Likes und Dislikes von ***Kommentaren*** tun. Sie können entweder als Kommentar gesendet werden oder Sie werden die Möglichkeit haben, zu verhindern, dass sie an Diaspora übermittelt werden. Derzeit werden sie nicht gesendet.
+- Emojis sind derzeit nicht übersetzt.
+- „Beobachter-Tags“ werden in leeren Text umgewandelt.
+- Eingebettete Apps werden in Links umgewandelt.
+- Eingebettete Seitendesign-Elemente (in Arbeit) werden entweder entfernt oder in eine Fehlermeldung umgewandelt.
+- Diaspora-Mitglieder werden nicht im Verzeichnis angezeigt.
+- Es gibt Unterschiede in der Kompatibilität von Oembed zwischen den Netzwerken. Einige eingebettete Ressourcen werden auf der einen oder anderen Seite in einen Link umgewandelt.

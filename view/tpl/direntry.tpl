@@ -2,16 +2,16 @@
 	<div class="section-subtitle-wrapper clearfix">
 		<div class="directory-actions float-end">
 			{{if $entry.censor_2}}
-			<a class="directory-censor directory-censor-hide btn btn-outline-danger btn-sm {{$entry.censor_2_class}}" href="{{$entry.censor_2}}"> {{$entry.censor_2_label}}</a>
+			<a class="directory-censor directory-censor-hide btn btn-outline-danger btn-sm {{$entry.censor_2_class}} border-0" href="{{$entry.censor_2}}"> {{$entry.censor_2_label}}</a>
 			{{/if}}
 			{{if $entry.censor}}
-			<a class="directory-censor directory-censor-unsafe btn btn-outline-warning btn-sm {{$entry.censor_class}}" href="{{$entry.censor}}"> {{$entry.censor_label}}</a>
+			<a class="directory-censor directory-censor-unsafe btn btn-outline-warning btn-sm {{$entry.censor_class}} border-0" href="{{$entry.censor}}"> {{$entry.censor_label}}</a>
 			{{/if}}
 			{{if $entry.ignlink}}
-			<a class="directory-ignore btn btn-info btn-sm" href="{{$entry.ignlink}}"> {{$entry.ignore_label}}</a>
+			<a class="directory-ignore btn btn-info btn-sm border-0" href="{{$entry.ignlink}}"> {{$entry.ignore_label}}</a>
 			{{/if}}
 			{{if $entry.connect}}
-			<a class="btn btn-success btn-sm" href="{{$entry.connect}}"><i class="bi bi-plus-lg connect-icon"></i> {{$entry.conn_label}}</a>
+			<a class="btn btn-success btn-sm border-0" href="{{$entry.connect}}"><i class="bi bi-plus-lg connect-icon"></i> {{$entry.conn_label}}</a>
 			{{/if}}
 		</div>
 		<h3>{{if $entry.public_forum}}<i class="bi bi-chat-quote" title="{{$entry.forum_label}} @{{$entry.nickname}}+"></i>&nbsp;{{/if}}<a href='{{$entry.profile_link}}' >{{$entry.name}}</a>{{if $entry.online}}&nbsp;<i class="bi bi-asterisk online-now" title="{{$entry.online}}"></i>{{/if}}</h3>

@@ -70,17 +70,19 @@ class Network extends \Zotlabs\Web\Controller {
 		$dm         = ((x($_REQUEST,'dm')) ? $_REQUEST['dm'] : 0);
 
 
-		$order = get_pconfig(local_channel(), 'mod_network', 'order', 0);
+		$order = get_pconfig(local_channel(), 'mod_network', 'order', 'created');
 		switch($order) {
-			case 0:
-				$order = 'comment';
+			case 'commented':
+				$ordering = 'commented';
 				break;
-			case 1:
-				$order = 'post';
+			case 'created':
+				$ordering = 'created';
 				break;
-			case 2:
+			case 'unthreaded':
 				$nouveau = true;
 				break;
+			default:
+				$ordering = 'created';
 		}
 
 		$search = $_GET['search'] ?? '';
@@ -92,7 +94,7 @@ class Network extends \Zotlabs\Web\Controller {
 		}
 
 		if($datequery)
-			$order = 'post';
+			$order = 'created';
 
 
 		// filter by collection (e.g. group)
@@ -201,7 +203,7 @@ class Network extends \Zotlabs\Web\Controller {
 				'default_location' => $channel['channel_location'],
 				'nickname'         => $channel['channel_address'],
 				'lockstate'        => (($private_editing || $channel['channel_allow_cid'] || $channel['channel_allow_gid'] || $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 'lock' : 'unlock'),
-				'acl'              => populate_acl((($private_editing) ? $def_acl : $channel_acl), true, \Zotlabs\Lib\PermissionDescription::fromGlobalPermission('view_stream'), get_post_aclDialogDescription(), 'acl_dialog_post'),
+				'acl'              => populate_acl((($private_editing) ? $def_acl : $channel_acl), true, \Zotlabs\Lib\PermissionDescription::fromGlobalPermission('view_stream'), get_post_aclDialogDescription(), 'member/permissions'),
 				'permissions'      => (($private_editing) ? $def_acl : $channel_acl),
 				'bang'             => (($private_editing) ? $bang : ''),
 				'visitor'          => true,
@@ -274,11 +276,14 @@ class Network extends \Zotlabs\Web\Controller {
 				elseif($pf && $unseen && $nouveau) {
 
 					$vnotify = get_pconfig(local_channel(), 'system', 'vnotify');
-					if(! ($vnotify & VNOTIFY_LIKE))
+					$likes_sql = '';
+					if (!($vnotify & VNOTIFY_LIKE)) {
 						$likes_sql = " AND verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+					}
 
 					// This is for nouveau view public forum cid queries (if a forum notification is clicked)
 					$sql_extra = " AND item.parent IN (SELECT DISTINCT parent FROM item WHERE uid = " . intval(local_channel()) . " AND ( author_xchan = '" . dbesc($cid_r[0]['abook_xchan']) . "' OR owner_xchan = '" . dbesc($cid_r[0]['abook_xchan']) . "' ) $item_normal) AND item_unseen = 1 AND verb != 'Announce' $likes_sql ";
+
 				}
 				else {
 					// This is for threaded view cid queries (e.g. if a forum is selected from the forum filter)
@@ -372,10 +377,10 @@ class Network extends \Zotlabs\Web\Controller {
 		}
 
 		if ($dm) {
-			$sql_extra .= ' AND item_private = 2 ';
+			$sql_extra .= ' AND item.item_private = 2 ';
 		}
 		else {
-			$sql_extra .= ' AND item_private IN (0, 1) ';
+			$sql_extra .= ' AND item.item_private IN (0, 1) ';
 		}
 
 
@@ -424,10 +429,12 @@ class Network extends \Zotlabs\Web\Controller {
 		$abook_uids = ' and abook.abook_channel = ' . local_channel() . ' ';
 		$uids = ' and item.uid = ' . local_channel() . ' ';
 
-		if(feature_enabled(local_channel(), 'network_list_mode'))
+		$page_mode = 'client';
+
+		$blog_mode = feature_enabled(local_channel(), 'network_list_mode');
+		if ($blog_mode) {
 			$page_mode = 'list';
-		else
-			$page_mode = 'client';
+		}
 
 		$parents_str = '';
 
@@ -451,11 +458,12 @@ class Network extends \Zotlabs\Web\Controller {
 
 		if($nouveau && $load) {
 			// "New Item View" - show all items unthreaded in reverse created date order
-			$items = dbq("SELECT item.*, item.id AS item_id, created FROM item
+			$items = dbq("SELECT item.*, item.id AS item_id FROM item
 				left join abook on ( item.owner_xchan = abook.abook_xchan $abook_uids )
 				$net_query
 				WHERE true $uids $item_normal
 				and (abook.abook_blocked = 0 or abook.abook_flags is null)
+				AND item.verb NOT IN ('Add', 'Remove')
 				$sql_extra $sql_options $sql_nets
 				$net_query2
 				ORDER BY item.created DESC $pager_sql "
@@ -470,13 +478,6 @@ class Network extends \Zotlabs\Web\Controller {
 			$items = fetch_post_tags($items, true);
 		}
 		elseif($update) {
-
-			// Normal conversation view
-
-			if($order === 'post')
-				$ordering = 'created';
-			else
-				$ordering = 'commented';
 
 			if($load) {
 				// Fetch a page full of parent items for this page
@@ -506,12 +507,7 @@ class Network extends \Zotlabs\Web\Controller {
 			// Then fetch all the children of the parents that are on this page
 
 			if($r) {
-				$parents_str = ids_to_querystr($r, 'item_id');
-				$items = dbq("SELECT item.*, item.id AS item_id FROM item
-					WHERE true $uids $item_normal
-					AND item.parent IN ( $parents_str )
-					$sql_extra "
-				);
+				$items = items_by_parent_ids($r, blog_mode: $blog_mode);
 
 				xchan_query($items, true);
 				$items = fetch_post_tags($items, true);

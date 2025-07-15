@@ -3,6 +3,7 @@ namespace Zotlabs\Module;
 
 use App;
 use Zotlabs\Widget\Messages;
+use Zotlabs\Lib\Config;
 
 class Hq extends \Zotlabs\Web\Controller {
 
@@ -50,11 +51,12 @@ class Hq extends \Zotlabs\Web\Controller {
 			// select the target item with a bias to our own item
 			$sql_order = ((local_channel() > $sys['channel_id']) ? 'DESC' : 'ASC');
 
-			$r = q("select id, uid, mid, parent_mid, thr_parent, verb, item_type, item_deleted, item_blocked from item where uid in (%d, %d) and $identifier = '%s' order by uid $sql_order limit 2",
+			$r = q("select id, uid, mid, parent, parent_mid, thr_parent, verb, item_type, item_deleted, item_blocked from item where uid in (%d, %d) and $identifier = '%s' order by uid $sql_order limit 2",
 				intval(local_channel()),
 				intval($sys['channel_id']),
 				dbesc($item_hash)
 			);
+
 
 			if($r) {
 				$target_item = $r[0];
@@ -86,7 +88,7 @@ class Hq extends \Zotlabs\Web\Controller {
 				'default_location'    => $channel['channel_location'],
 				'nickname'            => $channel['channel_address'],
 				'lockstate'           => (($channel['channel_allow_cid'] || $channel['channel_allow_gid'] || $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 'lock' : 'unlock'),
-				'acl'                 => populate_acl($channel_acl,true, \Zotlabs\Lib\PermissionDescription::fromGlobalPermission('view_stream'), get_post_aclDialogDescription(), 'acl_dialog_post'),
+				'acl'                 => populate_acl($channel_acl,true, \Zotlabs\Lib\PermissionDescription::fromGlobalPermission('view_stream'), get_post_aclDialogDescription(), 'member/permissions'),
 				'permissions'         => $channel_acl,
 				'bang'                => '',
 				'visitor'             => true,
@@ -129,7 +131,7 @@ class Hq extends \Zotlabs\Web\Controller {
 				'$nouveau' => '0',
 				'$wall'    => '0',
 				'$page'    => '1',
-				'$list'    => ((x($_REQUEST,'list')) ? intval($_REQUEST['list']) : 0),
+				'$list'    => ((!empty($_REQUEST['list'])) ? intval($_REQUEST['list']) : 0),
 				'$search'  => '',
 				'$xchan'   => '',
 				'$order'   => '',
@@ -145,7 +147,6 @@ class Hq extends \Zotlabs\Web\Controller {
 		}
 
 		if($load && $target_item) {
-
 			if (!$sys_item) {
 				$r = q("SELECT item.id AS item_id FROM item
 					WHERE uid = %d
@@ -199,11 +200,8 @@ class Hq extends \Zotlabs\Web\Controller {
 		}
 
 		if($r) {
-			$items = q("SELECT item.*, item.id AS item_id
-				FROM item
-				WHERE parent = '%s' $item_normal $sql_extra",
-				dbesc($r[0]['item_id'])
-			);
+			$thr_parents = get_recursive_thr_parents($target_item);
+			$items = items_by_parent_ids($r, $thr_parents);
 
 			xchan_query($items,true,(($sys_item) ? local_channel() : 0));
 			$items = fetch_post_tags($items,true);

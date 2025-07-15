@@ -12,7 +12,7 @@ class Zot6Handler implements IHandler {
 	}
 
 	function Rekey($sender, $data, $hub) {
-		return self::reply_rekey_request($sender, $data, $hub);
+		return self::rekey_request($sender, $data, $hub);
 	}
 
 	function Refresh($sender, $recipients, $hub, $force) {

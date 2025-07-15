@@ -346,7 +346,7 @@
 	"SZL": {
 		"name": "სვაზილენდის ლილანგენი"
 	},
-	"SLL": {
+	"SLE": {
 		"name": "სიერა-ლეონეს ლეონე"
 	},
 	"SGD": {
@@ -469,23 +469,8 @@
 	"HKD": {
 		"name": "ჰონკონგის დოლარი"
 	},
-	"VED": {
-		"name": "Bolívar Soberano"
-	},
 	"XPF": {
 		"name": "CFP ფრანკი",
 		"symbol": "CFPF"
-	},
-	"SVC": {
-		"name": "Salvadoran Colón"
-	},
-	"SLE": {
-		"name": "Sierra Leonean Leone"
-	},
-	"UYW": {
-		"name": "Uruguayan Nominal Wage Index Unit"
-	},
-	"ZWL": {
-		"name": "Zimbabwean Dollar (2009)"
 	}
 }

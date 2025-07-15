@@ -364,8 +364,8 @@ function poco() {
 		elseif(argv(3) === '@self')
 			$justme = true;
 	}
-	if(argc() > 4 && intval(argv(4)) && $justme == false)
-		$cid = intval(argv(4));
+
+	$cid = ((argc() > 4 && intval(argv(4)) && $justme == false) ? intval(argv(4)) : null);
 
 	if(! $system_mode) {
 
@@ -413,11 +413,8 @@ function poco() {
 	else
 		$totalResults = 0;
 
-	$startIndex = intval($_GET['startIndex']);
-	if(! $startIndex)
-		$startIndex = 0;
-
-	$itemsPerPage = ((x($_GET,'count') && intval($_GET['count'])) ? intval($_GET['count']) : $totalResults);
+	$startIndex = $_GET['startIndex'] ?? 0;
+	$itemsPerPage = $_GET['count'] ?? $totalResults;
 
 	if($system_mode) {
 		$r = q("SELECT abook.*, xchan.* from abook left join xchan on abook_xchan = xchan_hash where abook_self = 1

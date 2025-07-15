@@ -85,7 +85,7 @@ class Channel extends Controller {
 			$headers = [
 				'Content-Type'     => 'application/x-zot+json',
 				'Digest'           => HTTPSig::generate_digest_header($data),
-				'(request-target)' => strtolower($_SERVER['REQUEST_METHOD']) . ' ' . $_SERVER['REQUEST_URI']
+				'Date'             => datetime_convert('UTC','UTC', 'now', 'D, d M Y H:i:s \\G\\M\\T')
 			];
 
 			$h = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel));
@@ -266,7 +266,7 @@ class Channel extends Controller {
 					'default_location'    => (($is_owner) ? App::$profile['channel_location'] : ''),
 					'nickname'            => App::$profile['channel_address'],
 					'lockstate'           => (((strlen(App::$profile['channel_allow_cid'])) || (strlen(App::$profile['channel_allow_gid'])) || (strlen(App::$profile['channel_deny_cid'])) || (strlen(App::$profile['channel_deny_gid']))) ? 'lock' : 'unlock'),
-					'acl'                 => (($is_owner) ? populate_acl($channel_acl, true, PermissionDescription::fromGlobalPermission('view_stream'), get_post_aclDialogDescription(), 'acl_dialog_post') : ''),
+					'acl'                 => (($is_owner) ? populate_acl($channel_acl, true, PermissionDescription::fromGlobalPermission('view_stream'), get_post_aclDialogDescription(), 'member/permissions') : ''),
 					'permissions'         => $channel_acl,
 					'showacl'             => (($is_owner) ? 'yes' : ''),
 					'bang'                => '',
@@ -298,12 +298,15 @@ class Channel extends Controller {
 
 		$item_normal = item_normal();
 		$item_normal_update = item_normal_update();
-		$sql_extra = item_permissions_sql(App::$profile['profile_uid']);
+		$sql_extra = '';
+		$permission_sql = item_permissions_sql(App::$profile['profile_uid']);
 
-		if (feature_enabled(App::$profile['profile_uid'], 'channel_list_mode') && (!$mid))
+		$page_mode = 'client';
+
+		$blog_mode = feature_enabled(App::$profile['profile_uid'], 'channel_list_mode') && !$mid;
+		if ($blog_mode) {
 			$page_mode = 'list';
-		else
-			$page_mode = 'client';
+		}
 
 		$abook_uids = " and abook.abook_channel = " . intval(App::$profile['profile_uid']) . " ";
 
@@ -334,8 +337,8 @@ class Channel extends Controller {
 		if (($update) && (!$load)) {
 
 			if ($mid) {
-				$r = q("SELECT parent AS item_id, uuid from item where $identifier = '%s' and uid = %d $item_normal_update
-					AND item_wall = 1 $simple_update $sql_extra limit 1",
+				$r = q("SELECT *, parent AS item_id from item where $identifier = '%s' and uid = %d $item_normal_update
+					AND item_wall = 1 $simple_update $permission_sql $sql_extra limit 1",
 					dbesc($mid),
 					intval(App::$profile['profile_uid'])
 				);
@@ -346,6 +349,7 @@ class Channel extends Controller {
 					WHERE uid = %d $item_normal_update
 					AND item_wall = 1 $simple_update
 					AND (abook.abook_blocked = 0 or abook.abook_flags is null)
+					$permission_sql
 					$sql_extra
 					ORDER BY created DESC",
 					intval(App::$profile['profile_uid'])
@@ -382,8 +386,8 @@ class Channel extends Controller {
 
 			if ($noscript_content || $load) {
 				if ($mid) {
-					$r = q("SELECT parent AS item_id, uuid from item where $identifier = '%s' and uid = %d $item_normal
-						AND item_wall = 1 $sql_extra limit 1",
+					$r = q("SELECT *, parent AS item_id from item where $identifier = '%s' and uid = %d $item_normal
+						AND item_wall = 1 $permission_sql $sql_extra limit 1",
 						dbesc($mid),
 						intval(App::$profile['profile_uid'])
 					);
@@ -392,13 +396,18 @@ class Channel extends Controller {
 					}
 				}
 				else {
-					$r = q("SELECT DISTINCT item.parent AS item_id, $ordering FROM item
-						left join abook on ( item.author_xchan = abook.abook_xchan $abook_uids )
-						WHERE true and item.uid = %d $item_normal
+					$r = q("SELECT parent AS item_id, $ordering FROM item
+						LEFT JOIN abook ON (item.author_xchan = abook.abook_xchan $abook_uids)
+						WHERE item.uid = %d
+						AND item.id = item.parent
 						AND (abook.abook_blocked = 0 or abook.abook_flags is null)
-						AND item.item_wall = 1 AND item.item_thread_top = 1
-						$sql_extra $sql_extra2
-						ORDER BY $ordering DESC, item_id $pager_sql ",
+						AND item.item_wall = 1
+						$item_normal
+						$permission_sql
+						$sql_extra
+						$sql_extra2
+						ORDER BY $ordering DESC, item_id
+						$pager_sql",
 						intval(App::$profile['profile_uid'])
 					);
 				}
@@ -408,19 +417,15 @@ class Channel extends Controller {
 			}
 		}
 		if ($r) {
-			$parents_str = ids_to_querystr($r, 'item_id');
+			$thr_parents = null;
+			if ($mid) {
+				$thr_parents = get_recursive_thr_parents($r[0]);
+			}
 
-			$r = q("SELECT item.*, item.id AS item_id
-				FROM item
-				WHERE item.uid = %d $item_normal
-				AND item.parent IN ( %s )
-				$sql_extra ",
-				intval(App::$profile['profile_uid']),
-				dbesc($parents_str)
-			);
+			$items = items_by_parent_ids($r, $thr_parents, $permission_sql, $blog_mode);
 
-			xchan_query($r);
-			$items = fetch_post_tags($r, true);
+			xchan_query($items);
+			$items = fetch_post_tags($items, true);
 			$items = conv_sort($items, $ordering);
 
 			if ($load && $mid && (!count($items))) {
@@ -434,10 +439,7 @@ class Channel extends Controller {
 			$items = [];
 		}
 
-
-
 		$mode = (($search) ? 'search' : 'channel');
-
 
 		if ((!$update) && (!$load)) {
 

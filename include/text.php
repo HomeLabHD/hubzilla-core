@@ -1272,23 +1272,37 @@ function sslify($s) {
 function get_emojis() {
 	$emojis = [
 		// Reactions (emojitwo emojis)
-		'astonished_face' => ['shortname' => ':astonished_face:', 'filepath' => 'images/emoji/astonished_face.png'],
-		'bottle_with_popping_cork' => ['shortname' => ':bottle_with_popping_cork:', 'filepath' => 'images/emoji/bottle_with_popping_cork.png'],
-		'clapping_hands' => ['shortname' => ':clapping_hands:', 'filepath' => 'images/emoji/clapping_hands.png'],
-		'disappointed_face' => ['shortname' => ':disappointed_face:', 'filepath' => 'images/emoji/disappointed_face.png'],
-		'grinning_face' => ['shortname' => ':grinning_face:', 'filepath' => 'images/emoji/grinning_face.png'],
-		'kiss_mark' => ['shortname' => ':kiss_mark:', 'filepath' => 'images/emoji/kiss_mark.png'],
-		'red_heart' => ['shortname' => ':red_heart:', 'filepath' => 'images/emoji/red_heart.png'],
-		'sleeping_face' => ['shortname' => ':sleeping_face:', 'filepath' => 'images/emoji/sleeping_face.png'],
-		'slightly_smiling_face' => ['shortname' => ':slightly_smiling_face:', 'filepath' => 'images/emoji/slightly_smiling_face.png'],
-		'smiling_face_with_halo' => ['shortname' => ':smiling_face_with_halo:', 'filepath' => 'images/emoji/smiling_face_with_halo.png'],
-		'smiling_face_with_horns' => ['shortname' => ':smiling_face_with_horns:', 'filepath' => 'images/emoji/smiling_face_with_horns.png'],
-		'winking_face_with_tongue' => ['shortname' => ':winking_face_with_tongue:', 'filepath' => 'images/emoji/winking_face_with_tongue.png'],
+		'astonished_face' => ['shortname' => ':astonished_face:', 'filepath' => 'images/emoji/emojitwo/astonished_face.png'],
+		'bottle_with_popping_cork' => ['shortname' => ':bottle_with_popping_cork:', 'filepath' => 'images/emoji/emojitwo/bottle_with_popping_cork.png'],
+		'clapping_hands' => ['shortname' => ':clapping_hands:', 'filepath' => 'images/emoji/emojitwo/clapping_hands.png'],
+		'disappointed_face' => ['shortname' => ':disappointed_face:', 'filepath' => 'images/emoji/emojitwo/disappointed_face.png'],
+		'grinning_face' => ['shortname' => ':grinning_face:', 'filepath' => 'images/emoji/emojitwo/grinning_face.png'],
+		'kiss_mark' => ['shortname' => ':kiss_mark:', 'filepath' => 'images/emoji/emojitwo/kiss_mark.png'],
+		'red_heart' => ['shortname' => ':red_heart:', 'filepath' => 'images/emoji/emojitwo/red_heart.png'],
+		'sleeping_face' => ['shortname' => ':sleeping_face:', 'filepath' => 'images/emoji/emojitwo/sleeping_face.png'],
+		'slightly_smiling_face' => ['shortname' => ':slightly_smiling_face:', 'filepath' => 'images/emoji/emojitwo/slightly_smiling_face.png'],
+		'smiling_face_with_halo' => ['shortname' => ':smiling_face_with_halo:', 'filepath' => 'images/emoji/emojitwo/smiling_face_with_halo.png'],
+		'smiling_face_with_horns' => ['shortname' => ':smiling_face_with_horns:', 'filepath' => 'images/emoji/emojitwo/smiling_face_with_horns.png'],
+		'winking_face_with_tongue' => ['shortname' => ':winking_face_with_tongue:', 'filepath' => 'images/emoji/emojitwo/winking_face_with_tongue.png'],
 
-		'facepalm' => ['shortname' => ':facepalm:', 'filepath' => 'images/emoticons/smiley-facepalm.gif']
+		// Hubzilla custom
+		'facepalm' => ['shortname' => ':facepalm:', 'filepath' => 'images/emoji/hubzilla/smiley-facepalm.gif'],
+		'hubzilla' => ['shortname' => ':hubzilla:', 'filepath' => 'images/emoji/hubzilla/hubzilla.png']
 	];
 
+	// Provided by addon
 	call_hooks('get_emojis', $emojis);
+
+	// Custom site emojis
+	$custom_json_path = 'images/emoji/custom/custom_emojis.json';
+	if (file_exists($custom_json_path)) {
+		$custom_json = file_get_contents($custom_json_path);
+		$custom_arr = json_decode($custom_json, true);
+
+		if ($custom_arr) {
+			$emojis = array_merge($emojis, $custom_arr);
+		}
+	}
 
 	return $emojis;
 }
@@ -1406,14 +1420,12 @@ function list_smilies($default_only = false) {
  * @param boolean $sample (optional) default false
  * @return string
  */
-function smilies($s, $sample = false) {
-
+function smilies($s, $sample = false, $terms = []) {
 	if(intval(Config::Get('system', 'no_smilies'))
 		|| (local_channel() && intval(get_pconfig(local_channel(), 'system', 'no_smilies'))))
 		return $s;
 
-
-	$s = preg_replace_callback('{<(pre|code)>.*?</\1>}ism', 'smile_shield', $s);
+	$s = preg_replace_callback('/<(pre|code)\b[^>]*>.*?<\/(pre|code)>/ism', 'smile_shield', $s);
 	$s = preg_replace_callback('/<[a-z]+ .*?>/ism', 'smile_shield', $s);
 
 	if (preg_match_all('/(\:(\w|\+|\-)+\:)(?=|[\!\.\?]|$)/', $s, $match)) {
@@ -1421,12 +1433,22 @@ function smilies($s, $sample = false) {
 		$emojis = get_emojis();
 		foreach ($match[0] as $mtch) {
 			$name = trim($mtch, ':');
+			$emoji = $emojis[$name] ?? [];
 
-			if (!isset($emojis[$name])) {
-				continue;
+			if (!$emoji && !empty($terms)) {
+				foreach($terms as $term) {
+					// some platforms provide the term without :
+					$term['term'] = ':' . trim($term['term'], ':') . ':';
+					if (intval($term['ttype']) === TERM_EMOJI && $term['term'] === $mtch) {
+						$emoji['filepath'] = $term['imgurl'];
+						$emoji['shortname'] = $term['term'];
+					}
+				}
 			}
 
-			$emoji = $emojis[$name];
+			if (!$emoji || empty($emoji['filepath'])) {
+				continue;
+			}
 
 			$class = 'emoji';
 			if (is_solo_string($mtch, $s)) {
@@ -1588,7 +1610,7 @@ function theme_attachments(&$item) {
 					$url = z_root() . '/magic?owa=1&bdest=' . bin2hex($r['href']);
 			}
 
-			if (isset($label) && isset($url) && isset($icon) && isset($title)) {
+			if (isset($label, $url, $icon, $title)) {
 				array_unshift($attaches, ['label' => $label, 'url' => $url, 'icon' => $icon, 'title' => $title]);
 			}
 		}
@@ -1793,7 +1815,7 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 			$s .= prepare_text('[summary]' . $item['summary'] . '[/summary]' . $item['body'],$item['mimetype'],$opts);
 		}
 		else {
-			$s .= prepare_text($item['body'],$item['mimetype'], $opts);
+			$s .= prepare_text($item['body'],$item['mimetype'], $opts, $item['term'] ?? []);
 		}
 	}
 
@@ -2039,8 +2061,7 @@ function format_poll($item,$s,$opts) {
  * @return string
  *  The parsed $text as prepared HTML.
  */
-function prepare_text($text, $content_type = 'text/bbcode', $opts = false) {
-
+function prepare_text($text, $content_type = 'text/bbcode', $opts = false, $terms = []) {
 	switch($content_type) {
 		case 'text/plain':
 			$s = escape_tags($text);
@@ -2086,7 +2107,7 @@ function prepare_text($text, $content_type = 'text/bbcode', $opts = false) {
 					$s = bbcode($text, ((is_array($opts)) ? $opts : [] ));
 				}
 				else {
-					$s = smilies(bbcode($text, ((is_array($opts)) ? $opts : [] )));
+					$s = smilies(bbcode($text, ((is_array($opts)) ? $opts : [] )), terms: $terms);
 				}
 			}
 
@@ -2166,7 +2187,7 @@ function get_plink($item,$conversation_mode = true) {
 	if(array_key_exists('author',$item) && $item['author']['xchan_network'] !== 'zot6')
 		$zidify = false;
 
-	if(x($item,$key)) {
+	if(!empty($item[$key])) {
 		return array(
 			'href' => (($zidify) ? zid($item[$key]) : $item[$key]),
 			'title' => t('Link to Source'),
@@ -2359,17 +2380,19 @@ function item_post_type($item) {
 			$post_type = t('event');
 			break;
 		default:
-			$post_type = t('post');
+			$post_type = t('conversation');
 			if($item['mid'] != $item['parent_mid'])
-				$post_type = t('comment');
+				$post_type = t('message');
 			break;
 	}
 
-	if(strlen($item['verb']) && (! activity_match($item['verb'],ACTIVITY_POST)))
+	if(strlen($item['verb']) && (!activity_match($item['verb'], ['Create', ACTIVITY_POST]))) {
 		$post_type = t('activity');
+	}
 
-	if($item['obj_type'] === 'Question')
+	if($item['obj_type'] === 'Question') {
 		$post_type = t('poll');
+	}
 
 	return $post_type;
 }
@@ -2630,7 +2653,7 @@ function xchan_query(&$items, $abook = true, $effective_uid = 0) {
 				$arr[] = "'" . dbesc($item['owner_xchan']) . "'";
 			if($item['author_xchan'] && (! in_array("'" . dbesc($item['author_xchan']) . "'",$arr)))
 				$arr[] = "'" . dbesc($item['author_xchan']) . "'";
-			if($item['source_xchan'] && (! in_array("'" . dbesc($item['source_xchan']) . "'",$arr)))
+			if(!empty($item['source_xchan']) && (! in_array("'" . dbesc($item['source_xchan']) . "'",$arr)))
 				$arr[] = "'" . dbesc($item['source_xchan']) . "'";
 		}
 	}
@@ -2655,7 +2678,9 @@ function xchan_query(&$items, $abook = true, $effective_uid = 0) {
 		for($x = 0; $x < count($items); $x ++) {
 			$items[$x]['owner'] = find_xchan_in_array($items[$x]['owner_xchan'],$chans);
 			$items[$x]['author'] = find_xchan_in_array($items[$x]['author_xchan'],$chans);
-			$items[$x]['source'] = find_xchan_in_array($items[$x]['source_xchan'],$chans);
+			if (!empty($items[$x]['source_xchan'])) {
+				$items[$x]['source'] = find_xchan_in_array($items[$x]['source_xchan'],$chans);
+			}
 		}
 	}
 }
@@ -3210,6 +3235,7 @@ function getIconFromType($type) {
 		'text/markdown' => 'bi-filetype-md',
 		'text/bbcode' => 'bi-file-earmark-text',
 		'text/html' => 'bi-filetype-html',
+		'text/uri-list' => 'bi-box-arrow-up-right',
 		'application/msword' => 'bi-file-earmark-word',
 		'application/pdf' => 'bi-file-earmark-pdf',
 		'application/vnd.oasis.opendocument.text' => 'bifile--earmark-text',

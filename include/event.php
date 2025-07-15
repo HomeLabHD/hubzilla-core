@@ -106,7 +106,7 @@ function format_event_obj($jobject) {
 		$title = $object['name'] ?? '';
 		$content = html2bbcode($object['content']);
 
-		if (strpos($object['source']['content'], '[/event-description]') !== false) {
+		if (isset($object['source']['content']) && strpos($object['source']['content'], '[/event-description]') !== false) {
 			$bbdescription = [];
 			preg_match("/\[event\-description\](.*?)\[\/event\-description\]/ism", $object['source']['content'], $bbdescription);
 			$content = $bbdescription[1];

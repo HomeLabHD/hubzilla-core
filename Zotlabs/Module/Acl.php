@@ -29,11 +29,11 @@ class Acl extends \Zotlabs\Web\Controller {
 
 		// logger('mod_acl: ' . print_r($_GET,true),LOGGER_DATA);
 
-		$start    = (x($_REQUEST,'start')  ? $_REQUEST['start']  : 0);
-		$count    = (x($_REQUEST,'count')  ? $_REQUEST['count']  : 500);
-		$search   = (x($_REQUEST,'search') ? $_REQUEST['search'] : '');
-		$type     = (x($_REQUEST,'type')   ? $_REQUEST['type']   : '');
-		$noforums = (x($_REQUEST,'n')      ? $_REQUEST['n']      : false);
+		$start    = (!empty($_REQUEST['start'])  ? $_REQUEST['start']  : 0);
+		$count    = (!empty($_REQUEST['count'])  ? $_REQUEST['count']  : 500);
+		$search   = (!empty($_REQUEST['search']) ? $_REQUEST['search'] : '');
+		$type     = (!empty($_REQUEST['type'])   ? $_REQUEST['type']   : '');
+		$noforums = (!empty($_REQUEST['n'])      ? $_REQUEST['n']      : false);
 
 
 		// $type =
@@ -53,7 +53,7 @@ class Acl extends \Zotlabs\Web\Controller {
 		// List of channels whose connections to also suggest,
 		// e.g. currently viewed channel or channels mentioned in a post
 
-		$extra_channels = (x($_REQUEST,'extra_channels') ? $_REQUEST['extra_channels'] : array());
+		$extra_channels = (!empty($_REQUEST['extra_channels']) ? $_REQUEST['extra_channels'] : []);
 
 		// The different autocomplete libraries use different names for the search text
 		// parameter. Internally we'll use $search to represent the search text no matter
@@ -416,7 +416,7 @@ class Acl extends \Zotlabs\Web\Controller {
 		}
 
 		$dirmode = intval(Config::Get('system','directory_mode'));
-		$search = ((x($_REQUEST,'search')) ? htmlentities($_REQUEST['search'],ENT_COMPAT,'UTF-8',false) : '');
+		$search = ((!empty($_REQUEST['search'])) ? htmlentities($_REQUEST['search'], ENT_COMPAT, 'UTF-8', false) : '');
 		if(! $search || mb_strlen($search) < 2)
 			return array();
 
@@ -446,7 +446,7 @@ class Acl extends \Zotlabs\Web\Controller {
 
 		$token = Config::Get('system','realm_token');
 
-		$count = (x($_REQUEST,'count') ?  $_REQUEST['count'] : 100);
+		$count = (!empty($_REQUEST['count']) ?  $_REQUEST['count'] : 100);
 		if($url) {
 			$query = $url . '?f=' . (($token) ? '&t=' . urlencode($token) : '');
 			$query .= '&name=' . urlencode($search) . "&limit=$count" . (($address) ? '&address=' . urlencode(punify($search)) : '');

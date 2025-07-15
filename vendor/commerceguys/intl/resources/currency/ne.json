@@ -425,7 +425,7 @@
 	"SGD": {
 		"name": "सिङ्गापुर डलर"
 	},
-	"SLL": {
+	"SLE": {
 		"name": "सियरा लियोनेन लियोन"
 	},
 	"SYP": {
@@ -482,20 +482,5 @@
 	},
 	"HNL": {
 		"name": "होन्डुरान लेम्पिरा"
-	},
-	"VED": {
-		"name": "Bolívar Soberano"
-	},
-	"SVC": {
-		"name": "Salvadoran Colón"
-	},
-	"SLE": {
-		"name": "Sierra Leonean Leone"
-	},
-	"UYW": {
-		"name": "Uruguayan Nominal Wage Index Unit"
-	},
-	"ZWL": {
-		"name": "Zimbabwean Dollar (2009)"
 	}
 }

@@ -4,8 +4,6 @@ namespace Zotlabs\Lib;
 
 use App;
 use Zotlabs\Access\AccessList;
-use Zotlabs\Lib\Apps;
-use Zotlabs\Lib\Config;
 
 require_once('include/text.php');
 
@@ -26,6 +24,7 @@ class ThreadItem {
 	private $parent = null;
 	private $conversation = null;
 	private $redirect_url = null;
+	private $owner_addr = '';
 	private $owner_url = '';
 	private $owner_photo = '';
 	private $owner_name = '';
@@ -35,14 +34,12 @@ class ThreadItem {
 	private $channel = null;
 	private $display_mode = 'normal';
 	private $reload = '';
-	private $mid_uuid_map = [];
-
 
 	public function __construct($data) {
 
 		$this->data = $data;
 		$this->toplevel = ($this->get_id() == $this->get_data_value('parent'));
-		$this->threaded = Config::Get('system','thread_allow');
+		$this->threaded = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
 
 		// Prepare the children
 		if(isset($data['children'])) {
@@ -65,8 +62,6 @@ class ThreadItem {
 			unset($this->data['children']);
 		}
 
-
-
 		// allow a site to configure the order and content of the reaction emoji list
 		if($this->toplevel) {
 			$x = Config::Get('system','reactions');
@@ -84,7 +79,7 @@ class ThreadItem {
 	 *      _ false on failure
 	 */
 
-	public function get_template_data($conv_responses, $mid_uuid_map, $thread_level=1, $conv_flags = []) {
+	public function get_template_data($thread_level=1, $conv_flags = []) {
 
 		$result = [];
 		$item = $this->get_data();
@@ -103,6 +98,8 @@ class ThreadItem {
  		$conv = $this->get_conversation();
 		$observer = $conv->get_observer();
 
+		$conv->mid_uuid_map[$item['mid']] = $item['uuid'];
+
 		$acl = new AccessList([]);
 		$acl->set($item);
 
@@ -114,7 +111,7 @@ class ThreadItem {
 		$locktype = intval($item['item_private']);
 
 		if ($locktype === 2) {
-			$lock = t('Direct message');
+			$lock = t('Private message');
 		}
 
 		// 0 = limited based on public policy
@@ -209,9 +206,9 @@ class ThreadItem {
 		}
 
 		if (in_array($item['obj_type'], ['Event', ACTIVITY_OBJ_EVENT])) {
-			$response_verbs[] = 'attendyes';
-			$response_verbs[] = 'attendno';
-			$response_verbs[] = 'attendmaybe';
+			$response_verbs[] = 'accept';
+			$response_verbs[] = 'reject';
+			$response_verbs[] = 'tentativeaccept';
 			if($this->is_commentable() && $observer) {
 				$isevent = true;
 				$attend = array( t('I will attend'), t('I will not attend'), t('I might attend'));
@@ -222,17 +219,8 @@ class ThreadItem {
 			$response_verbs[] = 'answer';
 		}
 
-		if (!feature_enabled($conv->get_profile_owner(),'dislike')) {
-			unset($conv_responses['dislike']);
-		}
-
-		$responses = get_responses($conv_responses,$response_verbs,$this,$item);
-
-		$my_responses = [];
-		foreach($response_verbs as $v) {
-			$my_responses[$v] = ((isset($conv_responses[$v][$item['mid'] . '-m'])) ? 1 : 0);
-		}
-
+		$response_verbs[] = 'comment';
+		$responses = get_responses($response_verbs, $item);
 
 		/*
 		 * We should avoid doing this all the time, but it depends on the conversation mode
@@ -242,7 +230,13 @@ class ThreadItem {
 
 		$this->check_wall_to_wall();
 
+		$children = $this->get_children();
+		$children_count = count($children);
+
 		if($this->is_toplevel()) {
+			$conv->comments_total = $responses['comment']['count'] ?? 0;
+			$conv->comments_loaded = $children_count;
+
 			if((local_channel() && $conv->get_profile_owner() === local_channel()) || (local_channel() && App::$module === 'pubstream')) {
 				$star = [
 					'toggle' => t("Toggle Star Status"),
@@ -253,7 +247,6 @@ class ThreadItem {
 		else {
 			$is_comment = true;
 		}
-
 
 		$verified = (intval($item['item_verified']) ? t('Message signature validated') : '');
 		$forged = ((($item['sig']) && (! intval($item['item_verified']))) ? t('Message signature incorrect') : '');
@@ -287,15 +280,11 @@ class ThreadItem {
 		if((in_array($item['obj_type'], ['Event', ACTIVITY_OBJ_EVENT])) && $conv->get_profile_owner() == local_channel())
 			$has_event = true;
 
-		$like = [];
-		$dislike = [];
 		$reply_to = [];
 		$reactions_allowed = false;
 
 		if($this->is_commentable() && $observer) {
-			$like = array( t("I like this \x28toggle\x29"), t("like"));
-			$dislike = array( t("I don't like this \x28toggle\x29"), t("dislike"));
-			$reply_to = array( t("Reply to this comment"), t("reply"), t("Reply to"));
+			$reply_to = array( t("Reply to this message"), t("reply"), t("Reply to"));
 			$reactions_allowed = true;
 		}
 
@@ -339,9 +328,8 @@ class ThreadItem {
 			$viewthread = z_root() . '/channel/' . $owner_address . '?f=&mid=' . urlencode(gen_link_id($item['mid']));
 
 		$comment_count_txt = ['label' => sprintf(tt('%d comment', '%d comments', $total_children), $total_children), 'count' => $total_children];
-		$list_unseen_txt = $unseen_comments ? ['label' => sprintf(t('%d unseen'), $unseen_comments), 'count' => $unseen_comments] : [];
 
-		$children = $this->get_children();
+		$list_unseen_txt = $unseen_comments ? ['label' => sprintf(t('%d unseen'), $unseen_comments), 'count' => $unseen_comments] : [];
 
 		$has_tags = (($body['tags'] || $body['categories'] || $body['mentions'] || $body['attachments'] || $body['folders']) ? true : false);
 
@@ -351,14 +339,7 @@ class ThreadItem {
 
 		$midb64 = $item['uuid'];
 		$mids = [ $item['uuid'] ];
-		$response_mids = [];
-		foreach($response_verbs as $v) {
-			if(isset($conv_responses[$v]['mids'][$item['mid']])) {
-				$response_mids = array_merge($response_mids, $conv_responses[$v]['mids'][$item['mid']]);
-			}
-		}
 
-		$mids = array_merge($mids, $response_mids);
 		$json_mids = json_encode($mids);
 
 		// Pinned item processing
@@ -370,6 +351,22 @@ class ThreadItem {
 
 		if(App::$contacts && array_key_exists($item['author_xchan'], App::$contacts)) {
 			$contact = App::$contacts[$item['author_xchan']];
+		}
+
+		$blog_mode = $this->get_display_mode() === 'list';
+		$load_more = false;
+		$load_more_title = '';
+		$comments_total_percent = 0;
+		if (($conv->comments_total > $conv->comments_loaded) || ($blog_mode && $conv->comments_total > 3)) {
+			// provide a load more comments button
+			$load_more = true;
+			$load_more_title = sprintf(t('Load the next few of total %d comments'), $conv->comments_total);
+			$comments_total_percent = round(100 * 3 / $conv->comments_total);
+		}
+
+		$expand = '';
+		if ($this->threaded && !empty($item['comment_count'] && !$this->is_toplevel())) {
+			$expand = t('Expand Replies');
 		}
 
 		$tmp_item = array(
@@ -384,9 +381,9 @@ class ThreadItem {
 			'folders' => $body['folders'],
 			'text' => strip_tags($body['html']),
 			'id' => $this->get_id(),
+			'parent' => $item['parent'],
 			'mid' => $midb64,
 			'mids' => $json_mids,
-			'parent' => $item['parent'],
 			'author_id' => (($item['author']['xchan_addr']) ? $item['author']['xchan_addr'] : $item['author']['xchan_url']),
 			'author_is_group_actor' => (($item['author']['xchan_pubforum']) ? t('Forum') : ''),
 			'isevent' => $isevent,
@@ -431,6 +428,7 @@ class ThreadItem {
 			'vote_title' => t('Voting Options'),
 			'is_comment' => $is_comment,
 			'is_new' => $is_new,
+			'owner_addr' => $this->get_owner_addr(),
 			'owner_url' => $this->get_owner_url(),
 			'owner_photo' => $this->get_owner_photo(),
 			'owner_name' => $this->get_owner_name(),
@@ -440,13 +438,12 @@ class ThreadItem {
 			'reactions' => $this->reactions,
 			// Item toolbar buttons
 			'emojis'	=> (($this->is_toplevel() && $this->is_commentable() && $observer && feature_enabled($conv->get_profile_owner(),'emojis')) ? '1' : ''),
-			'like'      => $like,
-			'dislike'   => ((feature_enabled($conv->get_profile_owner(),'dislike')) ? $dislike : ''),
-			'reply_to'	=> (((! $this->is_toplevel()) && feature_enabled($conv->get_profile_owner(),'reply_to')) ? $reply_to : ''),
+			'reply_to'	=> ((feature_enabled($conv->get_profile_owner(),'reply_to')) ? $reply_to : ''),
 			'top_hint'	=> t("Go to previous comment"),
 			'share'     => $share,
 			'embed'     => $embed,
 			'rawmid'	=> $item['mid'],
+			'parent_mid' => $item['parent_mid'],
 			'plink'     => get_plink($item),
 			'edpost'    => $edpost,
 			'star'      => ((feature_enabled($conv->get_profile_owner(),'star_posts') && ($item['item_type'] == ITEM_TYPE_POST)) ? $star : ''),
@@ -466,16 +463,17 @@ class ThreadItem {
 			'list_unseen_txt' => $list_unseen_txt,
 			'markseen' => t('Mark all comments seen'),
 			'responses' => $responses,
-			'my_responses' => $my_responses,
+		//	'my_responses' => $my_responses,
 			'modal_dismiss' => t('Close'),
 			'comment' => ($item['item_delayed'] ? '' : $this->get_comment_box()),
+			'comment_hidden' => feature_enabled($conv->get_profile_owner(),'reply_to'),
 			'no_comment' => (($item['item_thread_top'] && $item['item_nocomment'])? t('Comments disabled') : ''),
 			'previewing' => ($conv->is_preview() ? true : false ),
 			'preview_lbl' => t('This is an unsaved preview'),
 			'wait' => t('Please wait'),
 			'thread_level' => $thread_level,
 			'settings' => $settings,
-			'thr_parent_uuid' => (($item['parent_mid'] != $item['thr_parent']) ? $mid_uuid_map[$item['thr_parent']] : ''),
+			'thr_parent_uuid' => (($item['parent_mid'] !== $item['thr_parent'] && isset($conv->mid_uuid_map[$item['thr_parent']])) ? $conv->mid_uuid_map[$item['thr_parent']] : ''),
 			'contact_id' => (($contact) ? $contact['abook_id'] : ''),
 			'moderate' => ($item['item_blocked'] == ITEM_MODERATED),
 			'moderate_approve' => t('Approve'),
@@ -483,7 +481,25 @@ class ThreadItem {
 			'rtl' => in_array($item['lang'], rtl_languages()),
 			'reactions_allowed' => $reactions_allowed,
 			'reaction_str' => [t('Add yours'), t('Remove yours')],
-			'is_contained' => $this->is_toplevel() && str_contains($item['tgt_type'], 'Collection')
+			'is_contained' => $this->is_toplevel() && str_contains($item['tgt_type'], 'Collection'),
+			'observer_activity' => [
+				'like' => intval($item['observer_like_count'] ?? 0),
+				'dislike' => intval($item['observer_dislike_count'] ?? 0),
+				'announce' => intval($item['observer_announce_count'] ?? 0),
+				'comment' => intval($item['observer_comment_count'] ?? 0),
+				'accept' => intval($item['observer_accept_count'] ?? 0),
+				'reject' => intval($item['observer_reject_count'] ?? 0),
+				'tentativeaccept' => intval($item['observer_tentativeaccept_count'] ?? 0)
+			],
+			'threaded' => $this->threaded,
+			'blog_mode' => $blog_mode,
+			'collapse_comments' => t('show less'),
+			'expand_comments' =>  $this->threaded ? t('show more') : t('show all'),
+			'load_more' => $load_more,
+			'load_more_title' => $load_more_title,
+			'comments_total' => $conv->comments_total,
+			'comments_total_percent' => $comments_total_percent,
+			'expand' => $expand
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);
@@ -492,25 +508,19 @@ class ThreadItem {
 		$result = $arr['output'];
 
 		$result['children'] = array();
-		$nb_children = count($children);
 
-		$visible_comments = Config::Get('system', 'expanded_comments', 3);
+		$visible_comments = 3; // Config::Get('system', 'expanded_comments', 3);
 
-		if(($this->get_display_mode() === 'normal') && ($nb_children > 0)) {
+		if(($this->get_display_mode() === 'normal') && ($children_count > 0)) {
 			foreach($children as $child) {
-				$result['children'][] = $child->get_template_data($conv_responses, $mid_uuid_map, $thread_level + 1,$conv_flags);
+				$result['children'][] = $child->get_template_data($thread_level + 1, $conv_flags);
 			}
+
 			// Collapse
-			if(($nb_children > $visible_comments) || ($thread_level > 1)) {
+			if($thread_level === 1 && $children_count > $visible_comments) {
 				$result['children'][0]['comment_firstcollapsed'] = true;
 				$result['children'][0]['num_comments'] = $comment_count_txt['label'];
-				$result['children'][0]['hide_text'] = t('show all');
-				if($thread_level > 1) {
-					$result['children'][$nb_children - 1]['comment_lastcollapsed'] = true;
-				}
-				else {
-					$result['children'][$nb_children - ($visible_comments + 1)]['comment_lastcollapsed'] = true;
-				}
+				$result['children'][$children_count - ($visible_comments + 1)]['comment_lastcollapsed'] = true;
 			}
 		}
 
@@ -763,7 +773,7 @@ class ThreadItem {
 	 */
 	private function get_comment_box() {
 
-		if(!$this->is_toplevel() && !Config::Get('system','thread_allow')) {
+		if(!$this->is_toplevel()) {
 			return '';
 		}
 
@@ -803,7 +813,7 @@ class ThreadItem {
 			'$eduline' => t('Underline'),
 			'$edquote' => t('Quote'),
 			'$edcode' => t('Code'),
-			'$edimg' => t('Image'),
+			'$edimg' => t('Embed (existing) photo from your photo albums'),
 			'$edatt' => t('Attach/Upload file'),
 			'$edurl' => t('Insert Link'),
 			'$edvideo' => t('Video'),
@@ -834,6 +844,7 @@ class ThreadItem {
 		$conv = $this->get_conversation();
 		$this->wall_to_wall = false;
 		$this->owner_url = '';
+		$this->owner_addr = '';
 		$this->owner_photo = '';
 		$this->owner_name = '';
 
@@ -842,12 +853,14 @@ class ThreadItem {
 
 		if($this->is_toplevel() && ($this->get_data_value('author_xchan') != $this->get_data_value('owner_xchan'))) {
 			$this->owner_url = chanlink_hash($this->data['owner']['xchan_hash']);
+			$this->owner_addr = $this->data['owner']['xchan_addr'];
 			$this->owner_photo = $this->data['owner']['xchan_photo_s'];
 			$this->owner_name = $this->data['owner']['xchan_name'];
 			$this->wall_to_wall = true;
 		}
 		elseif($this->is_toplevel() && $this->get_data_value('verb') === 'Announce' && isset($this->data['source'])) {
 			$this->owner_url = chanlink_hash($this->data['source']['xchan_hash']);
+			$this->owner_addr = $this->data['source']['xchan_addr'];
 			$this->owner_photo = $this->data['source']['xchan_photo_s'];
 			$this->owner_name = $this->data['source']['xchan_name'];
 			$this->wall_to_wall = true;
@@ -860,6 +873,10 @@ class ThreadItem {
 
 	private function get_owner_url() {
 		return $this->owner_url;
+	}
+
+	private function get_owner_addr() {
+		return $this->owner_addr;
 	}
 
 	private function get_owner_photo() {

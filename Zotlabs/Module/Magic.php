@@ -41,11 +41,7 @@ class Magic extends Controller {
 			http_status_exit(400, 'Bad Request');
 		}
 
-		$basepath = unparse_url(array_filter(
-			$parsed,
-			fn (string $key) => in_array($key, ['scheme', 'host', 'port']),
-			ARRAY_FILTER_USE_KEY
-		));
+		$basepath = unparse_url($parsed, ['scheme', 'host', 'port']);
 
 		$owapath = SConfig::get($basepath, 'system', 'openwebauth', $basepath . '/owa');
 
@@ -142,12 +138,14 @@ class Magic extends Controller {
 						$o .= '<a href=' . $dest . '>' . $dest . '</a>';
 
 						echo $o;
+						killme();
+
 					}
 				}
 			}
 		}
 
-		killme();
+		goaway($dest);
 
 	}
 

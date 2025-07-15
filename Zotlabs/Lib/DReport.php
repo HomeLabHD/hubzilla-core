@@ -35,7 +35,7 @@ class DReport {
 	}
 
 	function addto_update($status) {
-		$this->status = $this->status . ' ' . $status;
+		$this->status = $this->status . ', ' . $status;
 	}
 
 
@@ -89,8 +89,14 @@ class DReport {
 		if(array_key_exists('reject',$dr) && intval($dr['reject']))
 			return false;
 
-		if(! ($dr['sender']))
+		if (!$dr['sender']) {
 			return false;
+		}
+
+		// do not store dismissed create activities
+		if ($dr['status'] === 'not a collection activity') {
+			return false;
+		}
 
 		// Is the sender one of our channels?
 

@@ -86,7 +86,7 @@ function deliverable_abook_xchans($channel_id, $filter = [], $flatten = true) {
 	$r = q("SELECT abook_xchan, xchan_network FROM abook LEFT JOIN xchan ON abook_xchan = xchan_hash WHERE
 		abook_channel = %d $filter_sql
 		AND abook_self = 0
-		AND abook_pending = 0
+		AND abook_blocked = 0
 		AND abook_archived = 0
 		AND abook_not_here = 0
 		AND xchan_network NOT IN ('anon', 'token', 'rss')",

@@ -4,6 +4,7 @@ namespace Zotlabs\Web;
 
 use App;
 use Zotlabs\Extend\Route;
+use Zotlabs\Render\Theme;
 use Zotlabs\Lib\Config;
 use Exception;
 
@@ -33,6 +34,7 @@ use Exception;
  * so within the module init and/or post functions and then invoke killme() to terminate
  * further processing.
  */
+
 class Router {
 
 	private $modname = '';
@@ -49,7 +51,7 @@ class Router {
 		$module = App::$module;
 		$modname = "Zotlabs\\Module\\" . ucfirst($module);
 
-		if(strlen($module)) {
+		if(!empty($module)) {
 
 			/*
 			 * We will always have a module name.
@@ -57,11 +59,11 @@ class Router {
 			 */
 
 			$routes = Route::get();
-			if($routes) {
+			if ($routes) {
 				foreach($routes as $route) {
-					if(is_array($route) && file_exists($route[0]) && strtolower($route[1]) === $module) {
+					if (is_array($route) && file_exists($route[0]) && strtolower($route[1]) === $module) {
 						include_once($route[0]);
-						if(class_exists($modname)) {
+						if (class_exists($modname)) {
 							$this->controller = new $modname;
 							$this->module_loaded = true;
 						}
@@ -71,14 +73,14 @@ class Router {
 
 			// legacy plugins - this can be removed when they have all been converted
 
-			if(! ($this->module_loaded)) {
-				if(is_array(App::$plugins) && in_array($module, App::$plugins) && file_exists("addon/{$module}/{$module}.php")) {
+			if (!$this->module_loaded) {
+				if (is_array(App::$plugins) && in_array($module, App::$plugins) && file_exists("addon/{$module}/{$module}.php")) {
 					include_once("addon/{$module}/{$module}.php");
-					if(class_exists($modname)) {
+					if (class_exists($modname)) {
 						$this->controller = new $modname;
 						$this->module_loaded = true;
 					}
-					elseif(function_exists($module . '_module')) {
+					elseif (function_exists($module . '_module')) {
 						$this->module_loaded = true;
 					}
 				}
@@ -89,7 +91,7 @@ class Router {
 			 * Otherwise, look for the standard program module
 			 */
 
-			if(! ($this->module_loaded)) {
+			if (!$this->module_loaded) {
 				try {
 					$filename = 'Zotlabs/SiteModule/'. ucfirst($module). '.php';
 					if(file_exists($filename)) {
@@ -105,15 +107,16 @@ class Router {
 							$this->module_loaded = true;
 						}
 					}
-					if(! $this->module_loaded)
+					if (!$this->module_loaded) {
 						throw new Exception('Module not found');
+					}
 				}
-				catch(Exception $e) {
-					if(file_exists("mod/site/{$module}.php")) {
+				catch (Exception $e) {
+					if (file_exists("mod/site/{$module}.php")) {
 						include_once("mod/site/{$module}.php");
 						$this->module_loaded = true;
 					}
-					elseif(file_exists("mod/{$module}.php")) {
+					elseif (file_exists("mod/{$module}.php")) {
 						include_once("mod/{$module}.php");
 						$this->module_loaded = true;
 					}
@@ -125,6 +128,7 @@ class Router {
 					'installed' => $this->module_loaded,
 					'controller' => $this->controller
 			];
+
 			/**
 			 * @hooks module_loaded
 			 *   Called when a module has been successfully locate to server a URL request.
@@ -138,7 +142,8 @@ class Router {
 			 *   * \e mixed \b controller - The initialized module object
 			 */
 			call_hooks('module_loaded', $x);
-			if($x['installed']) {
+
+			if ($x['installed']) {
 				$this->module_loaded = true;
 				$this->controller = $x['controller'];
 			}
@@ -147,7 +152,7 @@ class Router {
 			 * The URL provided does not resolve to a valid module.
 	 		 */
 
-			if(! ($this->module_loaded)) {
+			if (!$this->module_loaded) {
 
 				// undo the setting of a letsencrypt acme-challenge rewrite rule
 				// which blocks access to our .well-known routes.
@@ -155,8 +160,8 @@ class Router {
 				// for a custom .htaccess in the .well-known directory; but they should
 				// make the file read-only so letsencrypt doesn't modify it
 
-				if(strpos($_SERVER['REQUEST_URI'],'/.well-known/') === 0) {
-					if(file_exists('.well-known/.htaccess') && Config::Get('system','fix_apache_acme',true)) {
+				if (strpos($_SERVER['REQUEST_URI'],'/.well-known/') === 0) {
+					if (file_exists('.well-known/.htaccess') && Config::Get('system','fix_apache_acme',true)) {
 						rename('.well-known/.htaccess','.well-known/.htaccess.old');
 					}
 				}
@@ -166,16 +171,17 @@ class Router {
 					'installed' => $this->module_loaded,
 					'controller' => $this->controller
 				];
+
 				call_hooks('page_not_found',$x);
 
 				// Stupid browser tried to pre-fetch our Javascript img template.
 				// Don't log the event or return anything - just quietly exit.
 
-				if((x($_SERVER, 'QUERY_STRING')) && preg_match('/{[0-9]}/', $_SERVER['QUERY_STRING']) !== 0) {
+				if (!empty($_SERVER['QUERY_STRING']) && preg_match('/{[0-9]}/', $_SERVER['QUERY_STRING']) !== 0) {
 					killme();
 				}
 
-				if(Config::Get('system','log_404',true)) {
+				if (Config::Get('system','log_404',true)) {
 					logger("Module {$module} not found.", LOGGER_DEBUG, LOG_WARNING);
 					logger('index.php: page not found: ' . $_SERVER['REQUEST_URI']
 						. ' ADDRESS: ' . $_SERVER['REMOTE_ADDR'] . ' QUERY: '
@@ -206,7 +212,7 @@ class Router {
 		 * Call module functions
 		 */
 
-		if($this->module_loaded) {
+		if ($this->module_loaded) {
 
 			App::$page['page_title'] = App::$module;
 			$placeholder = '';
@@ -218,13 +224,18 @@ class Router {
 			 * to over-ride them.
 			 */
 
-			$arr = array('init' => true, 'replace' => false);
+			$arr = [
+				'init' => true,
+				'replace' => false
+			];
+
 			call_hooks(App::$module . '_mod_init', $arr);
-			if(! $arr['replace']) {
-				if($this->controller && method_exists($this->controller,'init')) {
+
+			if (!$arr['replace']) {
+				if ($this->controller && method_exists($this->controller,'init')) {
 					$this->controller->init();
 				}
-				elseif(function_exists(App::$module . '_init')) {
+				elseif (function_exists(App::$module . '_init')) {
 					$func = App::$module . '_init';
 					$func();
 				}
@@ -250,52 +261,58 @@ class Router {
 		 	 * load current theme info
 		 	 */
 
-			$current_theme = \Zotlabs\Render\Theme::current();
+			$current_theme = Theme::current();
 
 			$theme_info_file = 'view/theme/' . $current_theme[0] . '/php/theme.php';
 			if (file_exists($theme_info_file)){
 				require_once($theme_info_file);
 			}
 
-			if(function_exists(str_replace('-', '_', $current_theme[0]) . '_init')) {
+			if (function_exists(str_replace('-', '_', $current_theme[0]) . '_init')) {
 				$func = str_replace('-', '_', $current_theme[0]) . '_init';
 				$func();
 			}
-			elseif (x(App::$theme_info, 'extends') && file_exists('view/theme/' . App::$theme_info['extends'] . '/php/theme.php')) {
+			elseif (!empty(App::$theme_info['extends']) && file_exists('view/theme/' . App::$theme_info['extends'] . '/php/theme.php')) {
 				require_once('view/theme/' . App::$theme_info['extends'] . '/php/theme.php');
-				if(function_exists(str_replace('-', '_', App::$theme_info['extends']) . '_init')) {
+				if (function_exists(str_replace('-', '_', App::$theme_info['extends']) . '_init')) {
 					$func = str_replace('-', '_', App::$theme_info['extends']) . '_init';
 					$func();
 				}
 			}
 
-			if(($_SERVER['REQUEST_METHOD'] === 'POST') && (! App::$error) && (! x($_POST, 'auth-params'))) {
+			if ($_SERVER['REQUEST_METHOD'] === 'POST' && !App::$error && empty($_POST['auth-params'])) {
 				call_hooks(App::$module . '_mod_post', $_POST);
 
-				if($this->controller && method_exists($this->controller,'post')) {
+				if ($this->controller && method_exists($this->controller, 'post')) {
 					$this->controller->post();
 				}
-				elseif(function_exists(App::$module . '_post')) {
+				elseif (function_exists(App::$module . '_post')) {
 					$func = App::$module . '_post';
 					$func();
 				}
 			}
 
-			if(! App::$error) {
-				$arr = array('content' => App::$page['content'], 'replace' => false);
+			if (!App::$error) {
+				$arr = [
+					'content' => App::$page['content'],
+					'replace' => false
+				];
+
 				call_hooks(App::$module . '_mod_content', $arr);
 
-				if(! $arr['replace']) {
-					if($this->controller && method_exists($this->controller,'get')) {
+				if (!$arr['replace']) {
+					if ($this->controller && method_exists($this->controller, 'get')) {
 						$arr = array('content' => $this->controller->get());
 					}
-					elseif(function_exists(App::$module . '_content')) {
+					elseif (function_exists(App::$module . '_content')) {
 						$func = App::$module . '_content';
 						$arr = array('content' => $func());
 					}
 				}
+
 				call_hooks(App::$module . '_mod_aftercontent', $arr);
-				App::$page['content'] = ((isset($arr['replace'])) ? $arr['content'] : App::$page['content'] . $arr['content']);
+
+				App::$page['content'] = ((empty($arr['replace'])) ? App::$page['content'] . $arr['content'] : $arr['content']);
 			}
 		}
 	}

@@ -24,6 +24,10 @@ class ThreadStream {
 	private $prepared_item = '';
 	public $reload = '';
 	private $cipher = 'AES-128-CCM';
+	public $mid_uuid_map = [];
+	public $comments_total = 0;
+	public $comments_loaded = 0;
+
 
 	// $prepared_item is for use by alternate conversation structures such as photos
 	// wherein we've already prepared a top level item which doesn't look anything like
@@ -211,16 +215,15 @@ class ThreadStream {
 	 *      _ The data requested on success
 	 *      _ false on failure
 	 */
-	public function get_template_data($conv_responses, $mid_uuid_map) {
+	public function get_template_data() {
 		$result = array();
 
 		foreach($this->threads as $item) {
-
 			if(($item->get_data_value('id') == $item->get_data_value('parent')) && $this->prepared_item) {
 				$item_data = $this->prepared_item;
 			}
 			else {
-				$item_data = $item->get_template_data($conv_responses, $mid_uuid_map);
+				$item_data = $item->get_template_data();
 			}
 			if(!$item_data) {
 				logger('Failed to get item template data ('. $item->get_id() .').', LOGGER_DEBUG, LOG_ERR);

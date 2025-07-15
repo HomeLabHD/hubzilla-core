@@ -1,0 +1,3 @@
+### Wo Sie weitere Hilfe finden
+
+Wenn Sie auf Probleme stoßen oder  Fragen haben, die in dieser Dokumentation nicht behandelt werden, lassen Sie es uns bitte über den [Issue Tracker](https://framagit.org/hubzilla/core/issues) wissen. Bitte  beschreiben Sie Ihre Betriebsumgebung so genau wie möglich und geben Sie so viele Details wie möglich zu den Fehlermeldungen an, die Sie sehen,  damit wir diese in Zukunft vermeiden können. Aufgrund der großen  Vielfalt an Betriebssystemen und PHP-Plattformen haben wir nur begrenzte Möglichkeiten, Ihre PHP-Installation zu debuggen oder fehlende Module  zu beschaffen, aber wir werden unser Bestes tun, um allgemeine  Code-Probleme zu lösen.

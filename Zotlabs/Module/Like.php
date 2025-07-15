@@ -22,9 +22,9 @@ class Like extends Controller {
 			'like'        => 'Like',
 			'dislike'     => 'Dislike',
 			'announce'    => ACTIVITY_SHARE,
-			'attendyes'   => 'Accept',
-			'attendno'    => 'Reject',
-			'attendmaybe' => 'TentativeAccept'
+			'accept'   => 'Accept',
+			'reject'    => 'Reject',
+			'tentativeaccept' => 'TentativeAccept'
 		];
 
 		// unlike (etc.) reactions are an undo of positive reactions, rather than a negative action.
@@ -52,43 +52,31 @@ class Like extends Controller {
 			profile_load($parts[0]);
 		}
 
-		$item_normal = item_normal();
-
 		if ($page_mode === 'list') {
+			$item_normal = item_normal();
+
 			$items = q("SELECT item.*, item.id AS item_id FROM item
 				WHERE uid = %d $item_normal
 				AND parent = %d",
 				intval($arr['item']['uid']),
 				intval($arr['item']['parent'])
 			);
+
 			xchan_query($items, true);
 			$items = fetch_post_tags($items, true);
 			$items = conv_sort($items, 'commented');
 		}
 		else {
-			$activities = q("SELECT item.*, item.id AS item_id FROM item
-				WHERE uid = %d $item_normal
-				AND thr_parent = '%s'
-				AND verb IN ('%s', '%s', '%s', '%s', '%s', '%s', 'Accept', 'Reject', 'TentativeAccept')",
-				intval($arr['item']['uid']),
-				dbesc($arr['item']['mid']),
-				dbesc('Like'),
-				dbesc('Dislike'),
-				dbesc(ACTIVITY_SHARE),
-				dbesc(ACTIVITY_ATTEND),
-				dbesc(ACTIVITY_ATTENDNO),
-				dbesc(ACTIVITY_ATTENDMAYBE)
-			);
-			xchan_query($activities, true);
-			$items = array_merge([$arr['item']], $activities);
-			$items = fetch_post_tags($items, true);
+			$item = item_by_item_id($arr['item']['id'], $arr['item']['parent']);
+			xchan_query($item, true);
+			$item = fetch_post_tags($item, true);
 		}
 
 		$ret = [
 			'success' => 1,
 			'orig_id' => $arr['orig_item_id'], //this is required for pubstream items where $item_id != $item['id']
 			'id'      => $arr['item']['id'],
-			'html'    => conversation($items, $conv_mode, true, $page_mode),
+			'html'    => conversation($item, $conv_mode, true, $page_mode),
 		];
 
 		// mod photos
@@ -486,11 +474,11 @@ class Like extends Controller {
 			$bodyverb = t('%1$s likes %2$s\'s %3$s');
 		if ($verb === 'dislike')
 			$bodyverb = t('%1$s doesn\'t like %2$s\'s %3$s');
-		if ($verb === 'attendyes')
+		if ($verb === 'accept')
 			$bodyverb = t('%1$s is attending %2$s\'s %3$s');
-		if ($verb === 'attendno')
+		if ($verb === 'reject')
 			$bodyverb = t('%1$s is not attending %2$s\'s %3$s');
-		if ($verb === 'attendmaybe')
+		if ($verb === 'tentativeaccept')
 			$bodyverb = t('%1$s may attend %2$s\'s %3$s');
 
 		if (!isset($bodyverb))
@@ -573,7 +561,7 @@ class Like extends Controller {
 
 		call_hooks('post_local_end', $arr);
 
-		if ($is_rsvp && in_array($verb, ['attendyes', 'attendmaybe'])) {
+		if ($is_rsvp && in_array($verb, ['accept', 'tentativeaccept'])) {
 			event_addtocal($item_id, local_channel());
 		}
 

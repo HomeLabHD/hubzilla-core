@@ -5,6 +5,7 @@ namespace Zotlabs\Storage;
 use Sabre\DAV;
 use App;
 use Zotlabs\Lib\Config;
+use Zotlabs\Lib\Text;
 
 /**
  * @brief Provides a DAV frontend for the webbrowser.
@@ -260,13 +261,16 @@ class Browser extends DAV\Browser\Plugin {
 				}
 			}
 
+			$display_path_encoded = Text::rawurlencode_parts($data['display_path']);
+			$href_encoded = Text::rawurlencode_parts($href);
+
 			// put the array for this file together
 			$ft['attach_id'] = $id;
 			// $ft['icon'] = $icon;
 			$ft['photo_icon'] = $photo_icon;
 			$ft['is_creator'] = $is_creator;
-			$ft['rel_path'] = (($data) ? '/cloud/' . $nick .'/' . $data['display_path'] : $href);
-			$ft['full_path'] = z_root() . (($data) ? '/cloud/' . $nick .'/' . $data['display_path'] : $href);
+			$ft['rel_path'] = (($data) ? '/cloud/' . $nick .'/' . $display_path_encoded : $href_encoded);
+			$ft['full_path'] = z_root() . (($data) ? '/cloud/' . $nick .'/' . $display_path_encoded : $href_encoded);
 			$ft['name'] = $name;
 			$ft['type'] = $type;
 			$ft['size'] = $size;

@@ -7,10 +7,9 @@
 			{{/foreach}}
 			{{/if}}
 			<span id="contact-role-{{$contact.id}}" class="badge rounded-pill bg-warning text-dark me-1" title="{{$role_label}}">{{$contact.role}}</span>
-			<button type="button" class="btn btn-outline-secondary btn-sm contact-edit" title="{{$contact.edit_hover}}" data-id="{{$contact.id}}">
+			<button type="button" class="btn btn-outline-secondary btn-sm border-0 contact-edit" title="{{$contact.edit_hover}}" data-id="{{$contact.id}}">
 				<i class="bi bi-pencil contact-edit-icon-{{$contact.id}}"></i>
 				<div class="spinner-wrapper contact-edit-rotator-{{$contact.id}}" style="vertical-align: text-bottom; margin-right: 2px"><div class="spinner s"></div></div>
-				{{$contact.edit}}
 			</button>
 
 		</div>

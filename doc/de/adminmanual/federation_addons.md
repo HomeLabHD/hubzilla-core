@@ -1,0 +1,8 @@
+### Föderations Addons
+
+Verschiedene Web-Communities haben begonnen, sich unter Verwendung gemeinsamer Protokolle zusammenzuschließen. Die beteiligten Protokolle sind in ihren Möglichkeiten etwas eingeschränkt. Das Diaspora-Protokoll ist etwas restriktiv, was die erlaubten Kommunikationsarten angeht. Alle Kommentare müssen vom ursprünglichen Autor auf eine sehr eindeutige Weise signiert werden. Das ActivityPub-Protokoll wird ebenfalls unterstützt. Kein anderes existierendes Protokoll unterstützt nomadische Standorte (es gibt inzwischen die Unterstützung nomadischer Identitäten bei ActivityPub), wie sie in diesem Projekt verwendet werden. Dies stellt einige Herausforderungen an die Unterstützung, da einige Funktionen mit einigen Netzen funktionieren und mit anderen nicht. Nichtsdestotrotz ermöglichen die Föderationsprotokolle die Herstellung von Verbindungen zu einer viel größeren Gemeinschaft von Menschen weltweit. Sie werden als Addons bereitgestellt.
+
+- Diaspora Protocol - Das Diaspora-Protokoll wird von Diaspora und Friendica verwendet. Sie sollten zuerst 'Diaspora Statistics' (Statistiken) aktivieren, um alle verfügbaren Funktionen zu nutzen.
+- PubCrawl - Das ActivityPub-Protokoll, das von Mastodon, MIsskey, Friendica und allen Fediverse-Diensten unterstützt wird.
+
+Jedes Mitglied Ihrer Website muss selbst entscheiden, ob es diese Protokolle zulassen will oder nicht, da sie mit einigen wünschenswerten Kernfunktionen und Fähigkeiten dieser Software (wie z.B. Channel-Migration und Klonen) in Konflikt geraten können. Sie tun dies auf ihrer Seite „Einstellungen -> Feature/Addon-Einstellungen“.

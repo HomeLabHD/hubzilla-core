@@ -94,7 +94,7 @@ class Rpost extends \Zotlabs\Web\Controller {
 			'default_location'    => $channel['channel_location'],
 			'nickname'            => $channel['channel_address'],
 			'lockstate'           => (($acl->is_private()) ? 'lock' : 'unlock'),
-			'acl'                 => populate_acl($channel_acl, true, \Zotlabs\Lib\PermissionDescription::fromGlobalPermission('view_stream'), get_post_aclDialogDescription(), 'acl_dialog_post'),
+			'acl'                 => populate_acl($channel_acl, true, \Zotlabs\Lib\PermissionDescription::fromGlobalPermission('view_stream'), get_post_aclDialogDescription(), 'member/permissions'),
 			'permissions'         => $channel_acl,
 			'bang'                => '',
 			'visitor'             => true,

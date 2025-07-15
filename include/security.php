@@ -22,7 +22,7 @@ function authenticate_success($user_record, $channel = null, $login_initial = fa
 	$lastlog_updated = false;
 	$uid_to_load = null;
 
-	if (x($user_record, 'account_id')) {
+	if (!empty($user_record['account_id'])) {
 		App::$account = $user_record;
 		$_SESSION['account_id'] = $user_record['account_id'];
 		$_SESSION['authenticated'] = 1;
@@ -31,7 +31,7 @@ function authenticate_success($user_record, $channel = null, $login_initial = fa
 			$uid_to_load = $channel['channel_id'];
 
 		if (!$uid_to_load) {
-			$uid_to_load = (((x($_SESSION, 'uid')) && (intval($_SESSION['uid'])))
+			$uid_to_load = ((!empty($_SESSION['uid']))
 				? intval($_SESSION['uid'])
 				: intval(App::$account['account_default_channel'])
 			);
@@ -60,12 +60,12 @@ function authenticate_success($user_record, $channel = null, $login_initial = fa
 		// might want to log success here
 	}
 
-	if ($return || x($_SESSION, 'workflow')) {
+	if ($return || isset($_SESSION['workflow'])) {
 		unset($_SESSION['workflow']);
 		return;
 	}
 
-	if ((App::$module !== 'home') && x($_SESSION, 'login_return_url') && strlen($_SESSION['login_return_url'])) {
+	if (App::$module !== 'home' && !empty($_SESSION['login_return_url'])) {
 		$return_url = $_SESSION['login_return_url'];
 
 		// don't let members get redirected to a raw ajax page update - this can happen
@@ -432,7 +432,7 @@ function item_permissions_sql($owner_id, $remote_observer = null) {
 	 * default permissions - anonymous user
 	 */
 
-	$sql = " AND item_private = 0 ";
+	$sql = " AND item.item_private = 0 ";
 
 	/**
 	 * Profile owner - everything is visible
@@ -492,10 +492,10 @@ function item_permissions_sql($owner_id, $remote_observer = null) {
 
 			$regexop = db_getfunc('REGEXP');
 			$sql = sprintf(
-				" AND ( author_xchan = '%s' OR owner_xchan = '%s' OR
-				(( NOT (deny_cid $regexop '%s' OR deny_gid $regexop '%s')
-				AND ( allow_cid $regexop '%s' OR allow_gid $regexop '%s' OR ( allow_cid = '' AND allow_gid = '' AND item_private = 0 ))
-				)) OR ( item_private = 1 $scope ))
+				" AND ( item.author_xchan = '%s' OR item.owner_xchan = '%s' OR
+				(( NOT (item.deny_cid $regexop '%s' OR item.deny_gid $regexop '%s')
+				AND ( item.allow_cid $regexop '%s' OR item.allow_gid $regexop '%s' OR ( item.allow_cid = '' AND item.allow_gid = '' AND item.item_private = 0 ))
+				)) OR ( item.item_private = 1 $scope ))
 				",
 				dbesc($observer),
 				dbesc($observer),
@@ -518,11 +518,11 @@ function item_permissions_sql($owner_id, $remote_observer = null) {
 
 
 function scopes_sql($uid, $observer) {
-	$str = " and ( public_policy = 'authenticated' ";
+	$str = " and ( item.public_policy = 'authenticated' ";
 	if (!is_foreigner($observer))
-		$str .= " or public_policy = 'network: red' ";
+		$str .= " or item.public_policy = 'network: red' ";
 	if (local_channel())
-		$str .= " or public_policy = 'site: " . App::get_hostname() . "' ";
+		$str .= " or item.public_policy = 'site: " . App::get_hostname() . "' ";
 
 	$ab = q("select * from abook where abook_xchan = '%s' and abook_channel = %d limit 1",
 		dbesc($observer),
@@ -531,8 +531,8 @@ function scopes_sql($uid, $observer) {
 	if (!$ab)
 		return $str . " ) ";
 	if ($ab[0]['abook_pending'])
-		$str .= " or public_policy = 'any connections' ";
-	$str .= " or public_policy = 'contacts' ) ";
+		$str .= " or item.public_policy = 'any connections' ";
+	$str .= " or item.public_policy = 'contacts' ) ";
 	return $str;
 }
 
@@ -607,14 +607,14 @@ function public_permissions_sql($observer_hash) {
 function get_form_security_token($typename = '') {
 
 	$timestamp = time();
-	$guid = App::$observer['xchan_guid'] ?? '';
+	$guid = get_observer_guid();
 	$sec_hash = hash('whirlpool', $guid . ((local_channel()) ? App::$channel['channel_prvkey'] : '') . session_id() . $timestamp . $typename);
 
 	return $timestamp . '.' . $sec_hash;
 }
 
 function check_form_security_token($typename = '', $formname = 'form_security_token') {
-	if (!x($_REQUEST, $formname)) return false;
+	if (empty($_REQUEST[$formname])) return false;
 	$hash = $_REQUEST[$formname];
 
 	$max_livetime = 10800; // 3 hours
@@ -623,7 +623,7 @@ function check_form_security_token($typename = '', $formname = 'form_security_to
 	if (time() > (IntVal($x[0]) + $max_livetime))
 		return false;
 
-	$sec_hash = hash('whirlpool', App::$observer['xchan_guid'] . ((local_channel()) ? App::$channel['channel_prvkey'] : '') . session_id() . $x[0] . $typename);
+	$sec_hash = hash('whirlpool', get_observer_guid() . ((local_channel()) ? App::$channel['channel_prvkey'] : '') . session_id() . $x[0] . $typename);
 
 	return ($sec_hash == $x[1]);
 }
@@ -635,7 +635,7 @@ function check_form_security_std_err_msg() {
 
 function check_form_security_token_redirectOnErr($err_redirect, $typename = '', $formname = 'form_security_token') {
 	if (!check_form_security_token($typename, $formname)) {
-		logger('check_form_security_token failed: user ' . App::$observer['xchan_name'] . ' - form element ' . $typename);
+		logger('check_form_security_token failed: user ' . get_observer_name() . ' - form element ' . $typename);
 		logger('check_form_security_token failed: _REQUEST data: ' . print_r($_REQUEST, true), LOGGER_DATA);
 		notice(check_form_security_std_err_msg());
 		goaway(z_root() . $err_redirect);
@@ -644,7 +644,7 @@ function check_form_security_token_redirectOnErr($err_redirect, $typename = '', 
 
 function check_form_security_token_ForbiddenOnErr($typename = '', $formname = 'form_security_token') {
 	if (!check_form_security_token($typename, $formname)) {
-		logger('check_form_security_token failed: user ' . App::$observer['xchan_name'] . ' - form element ' . $typename);
+		logger('check_form_security_token failed: user ' . get_observer_name() . ' - form element ' . $typename);
 		logger('check_form_security_token failed: _REQUEST data: ' . print_r($_REQUEST, true), LOGGER_DATA);
 		header('HTTP/1.1 403 Forbidden');
 		killme();

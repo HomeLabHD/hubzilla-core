@@ -2,8 +2,8 @@
  * redbasic theme specific JavaScript
  */
 
-let redbasic_dark_mode = localStorage.getItem('redbasic_dark_mode');
-let redbasic_theme_color = localStorage.getItem('redbasic_theme_color');
+const redbasic_dark_mode = localStorage.getItem('redbasic_dark_mode');
+const redbasic_theme_color = localStorage.getItem('redbasic_theme_color');
 
 if (redbasic_dark_mode == 1) {
     document.documentElement.setAttribute('data-bs-theme', 'dark');
@@ -41,19 +41,19 @@ document.addEventListener('DOMContentLoaded', function () {
         darkElements.forEach(el => el.setAttribute('data-bs-theme', 'light'));
     }
 
-    let navBackgroundColor = document.querySelector('nav').style.backgroundColor;
+    const navBackgroundColor = document.querySelector('nav').style.backgroundColor;
     if (redbasic_theme_color !== navBackgroundColor) {
         document.querySelector('meta[name=theme-color]').setAttribute('content', navBackgroundColor);
         localStorage.setItem('redbasic_theme_color', navBackgroundColor);
     }
 
     // CSS3 calc() fallback (for unsupported browsers)
-    let testElem = document.createElement('div');
+    const testElem = document.createElement('div');
     testElem.style.width = 'calc(10px + 10px)';
     testElem.style.display = 'none';
     testElem.id = 'css3-calc';
     document.body.appendChild(testElem);
-    
+
     if (testElem.offsetWidth === 10) {
         window.addEventListener('resize', function () {
             if (window.innerWidth < 992) {
@@ -66,10 +66,20 @@ document.addEventListener('DOMContentLoaded', function () {
     testElem.remove(); // Remove the test element
 
     if (window.innerWidth < 1200) {
-        let rightAsideWrapper = document.getElementById("right_aside_wrapper");
-        let leftAsideWrapper = document.getElementById("left_aside_wrapper");
-        leftAsideWrapper.appendChild(...rightAsideWrapper.children);
-        document.getElementById('notifications_wrapper').classList.add('d-none');
+        const rightAsideWrapper = document.getElementById("right_aside_wrapper");
+        const leftAsideWrapper = document.getElementById("left_aside_wrapper");
+        const notificationsWrapper = document.getElementById("notifications_wrapper");
+
+        if (leftAsideWrapper && rightAsideWrapper) {
+            const children = rightAsideWrapper.children;
+            if (children.length) {
+                leftAsideWrapper.append(...children);
+            }
+        }
+
+        if (notificationsWrapper) {
+            notificationsWrapper.classList.add('d-none');
+        }
     }
 
     if (document.getElementById('region_1')) {
@@ -92,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.getElementById('theme-switch').addEventListener('click', function () {
-        let html = document.documentElement;
+        const html = document.documentElement;
         if (html.getAttribute('data-bs-theme') === 'dark') {
             let nav = document.querySelector('nav');
             if (nav.dataset.bsTheme === 'dark') {
@@ -118,21 +128,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.getElementById('menu-btn').addEventListener('click', function () {
-        let navCollapse = document.getElementById('navbar-collapse-1');
-        if (navCollapse.classList.contains('show')) {
+        const navCollapse = document.getElementById('navbar-collapse-1');
+        if (navCollapse && navCollapse.classList.contains('show')) {
             navCollapse.classList.remove('show');
         }
-    });
-
-    document.querySelectorAll('.notifications-btn').forEach(function (element) {
-        element.addEventListener('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            let navCollapse = document.getElementById('navbar-collapse-2');
-            if (navCollapse.classList.contains('show')) {
-                navCollapse.classList.remove('show');
-            }
-        });
     });
 
     $("input[data-role=cat-tagsinput]").tagsinput({
@@ -146,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    let doctitle = document.title;
+    const doctitle = document.title;
     function checkNotify() {
         let notifyUpdateElem = document.getElementById('notify-update');
         if (notifyUpdateElem && notifyUpdateElem.innerHTML !== '') {
@@ -159,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function () {
     setInterval(checkNotify, 10 * 1000);
 
     let touch_start = null;
-    let touch_max = window.innerWidth / 10;
+    const touch_max = window.innerWidth / 10;
 
     window.addEventListener('touchstart', function (e) {
         if (e.touches.length === 1) {
@@ -190,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function setStyle(element, cssProperty) {
-    for (var property in cssProperty) {
+    for (let property in cssProperty) {
         element.style[property] = cssProperty[property];
     }
 }
@@ -204,8 +203,8 @@ function stickyScroll(sticky, stickyTop, container, topOffset, bottomOffset) {
     }
 
     let stickyHeight = stickyElement.getBoundingClientRect().height;
-    let stickyTopElement = document.querySelector(stickyTop);
-    let content = document.querySelector(container);
+    const stickyTopElement = document.querySelector(stickyTop);
+    const content = document.querySelector(container);
     let diff = window.innerHeight - stickyHeight;
 
     let h = 0;

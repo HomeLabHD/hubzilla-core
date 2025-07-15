@@ -1,0 +1,5 @@
+### Tags
+
+Tags (auch thematische Tags, Hashtags oder topical tags genannt) Tags werden angezeigt, indem Sie dem Tagnamen das Zeichen "#" voranstellen. Dadurch wird im Beitrag ein Link zu einer  verallgemeinerten Website-Suche nach dem angegebenen Begriff erstellt.  Zum Beispiel, #cars stellt einen Suchlink für alle Beiträge bereit, die  „Autos“ auf Ihrer Website erwähnen. Aktuelle Tags sind in der Regel  mindestens drei Zeichen lang. Kürzere Suchbegriffe führen wahrscheinlich nicht zu Suchergebnissen, dies hängt jedoch von der  Datenbankkonfiguration ab.
+
+Thematische Tags werden normalerweise auch nicht verknüpft, wenn  sie rein numerisch sind, z. #1. Wenn Sie einen numerischen Hashtag  verwenden möchten, fügen Sie bitte einen beschreibenden Text wie z.B.  #2012-Wahlen oder das gesamte Tag in doppelte Anführungszeichen setzen  (z. B. #“2012″). Doppelte Anführungszeichen sind auch erforderlich, wenn das Tag Leerzeichen enthält (# „Mein Tag“) und möglicherweise  erforderlich, wenn das Tag Satzzeichen enthält (# „EndsWithPeriod.“ Oder # „Exciting !!!“).

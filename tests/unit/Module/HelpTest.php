@@ -76,13 +76,13 @@ class HelpTest extends \Zotlabs\Tests\Unit\Module\TestCase {
 	public function test_get_request_without_args_redirects_to_about_page(): void {
 		$this->stub_goaway();
 		$this->expectException(\Zotlabs\Tests\Unit\Module\RedirectException::class);
-		$this->expectExceptionMessage('about/about');
+		$this->expectExceptionMessage('about');
 
 		$this->get('help');
 	}
 
 	public function test_getting_locale_with_no_topic_should_redirect_to_about_page(): void {
-		$this->expectRedirectTo('help/about/about');
+		$this->expectRedirectTo('help/about');
 		$this->get('help/de');
 	}
 

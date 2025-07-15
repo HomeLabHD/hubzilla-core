@@ -508,8 +508,8 @@ footer {
 }
 
 .contact-block-img {
-	width: 2.94rem;
-	height: 2.94rem;
+	width: 2.92rem;
+	height: 2.92rem;
 	margin-bottom: 3px;
 }
 
@@ -953,6 +953,7 @@ a .drop-icons:hover {
 }
 
 .wall-item-pinned i {
+	display: inline-block;
 	transform: rotate(45deg);
 }
 

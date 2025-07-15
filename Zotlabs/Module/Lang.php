@@ -65,8 +65,22 @@ class Lang extends Controller {
 		}
 
 		nav_set_selected('Language');
-		return lang_selector();
+		return $this->lang_selector();
 
+	}
+
+	private function lang_selector(): string
+   	{
+		$lang_options = language_list();
+		array_unshift($lang_options, t('default'));
+
+		$tpl = get_markup_template('lang_selector.tpl');
+
+		return replace_macros($tpl, [
+			'$title' => t('Select an alternate language'),
+			'$langs' => array($lang_options, App::$language),
+
+		]);
 	}
 
 }

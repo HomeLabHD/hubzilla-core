@@ -1,3 +1,7 @@
+{{if $popup}}
+<div id="jot-popup" style="display:none">
+{{/if}}
+
 <input id="invisible-wall-file-upload" type="file" name="files" style="visibility:hidden;position:absolute;top:-50;left:-50;width:0;height:0;" multiple>
 <input id="invisible-comment-upload" type="file" name="files" style="visibility:hidden;position:absolute;top:-50;left:-50;width:0;height:0;" multiple>
 <form id="profile-jot-form" action="{{$action}}" method="post" class="acl-form" data-form_id="profile-jot-form" data-allow_cid='{{$allow_cid}}' data-allow_gid='{{$allow_gid}}' data-deny_cid='{{$deny_cid}}' data-deny_gid='{{$deny_gid}}' data-bang='{{$bang}}'>
@@ -128,14 +132,14 @@
 						<i id="wall-file-upload-icon" class="bi bi-paperclip jot-icons"></i>
 					</button>
 					{{/if}}
-					{{if $weblink}}
-					<button type="button" id="profile-link-wrapper" class="btn btn-outline-secondary btn-sm border-0" title="{{$weblink}}" ondragenter="linkdropper(event);" ondragover="linkdropper(event);" ondrop="linkdrop(event);"  onclick="jotGetLink(); return false;">
-						<i id="profile-link" class="bi bi-link-45deg jot-icons"></i>
-					</button>
-					{{/if}}
 					{{if $embedPhotos}}
 					<button type="button" id="embed-photo-wrapper" class="btn btn-outline-secondary btn-sm border-0" title="{{$embedPhotos}}" onclick="initializeEmbedPhotoDialog();return false;">
 						<i id="embed-photo" class="bi bi-file-image jot-icons"></i>
+					</button>
+					{{/if}}
+					{{if $weblink}}
+					<button type="button" id="profile-link-wrapper" class="btn btn-outline-secondary btn-sm border-0" title="{{$weblink}}" ondragenter="linkdropper(event);" ondragover="linkdropper(event);" ondrop="linkdrop(event);"  onclick="jotGetLink(); return false;">
+						<i id="profile-link" class="bi bi-link-45deg jot-icons"></i>
 					</button>
 					{{/if}}
 				</div>
@@ -190,11 +194,11 @@
 						{{if $writefiles}}
 						<a class="dropdown-item" id="wall-file-upload-sub" href="#" ><i class="bi bi-paperclip"></i>&nbsp;{{$attach}}</a>
 						{{/if}}
-						{{if $weblink}}
-						<a class="dropdown-item" href="#" onclick="jotGetLink(); return false;"><i class="bi bi-link-45deg"></i>&nbsp;{{$weblink}}</a>
-						{{/if}}
 						{{if $embedPhotos}}
 						<a class="dropdown-item" href="#" onclick="initializeEmbedPhotoDialog(); return false;"><i class="bi bi-file-image jot-icons"></i>&nbsp;{{$embedPhotos}}</a>
+						{{/if}}
+						{{if $weblink}}
+						<a class="dropdown-item" href="#" onclick="jotGetLink(); return false;"><i class="bi bi-link-45deg"></i>&nbsp;{{$weblink}}</a>
 						{{/if}}
 						{{if $setloc}}
 						<a class="dropdown-item" href="#" onclick="jotGetLocation(); return false;"><i class="bi bi-geo-alt-fill"></i>&nbsp;{{$setloc}}</a>
@@ -281,6 +285,10 @@
 <div id="jot-preview-content" style="display:none;"></div>
 
 {{$acl}}
+
+{{if $popup}}
+</div>
+{{/if}}
 
 {{if $feature_expire}}
 <!-- Modal for item expiry-->

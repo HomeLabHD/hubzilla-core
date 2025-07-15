@@ -10,26 +10,31 @@
 	document.addEventListener("DOMContentLoaded", function() {
 		let notificationsWrapper = document.getElementById('notifications_wrapper');
 		let notificationsParent = notificationsWrapper ? notificationsWrapper.parentElement.id : null;
-		let notificationsBtn = document.querySelector('.notifications-btn');
+		let notificationsBtn = document.querySelectorAll('.notifications-btn');
 
 		// Event listener for notifications button
 		if (notificationsBtn) {
-			notificationsBtn.addEventListener('click', function() {
-				// Remove the 'd-none' class to show the notifications wrapper
-				notificationsWrapper.classList.remove('d-none');
+			notificationsBtn.forEach(function (element) {
+				element.addEventListener('click', function(e) {
+					e.preventDefault();
+					e.stopPropagation();
 
-				// Check if the notifications wrapper has the 'fs' class
-				if (notificationsWrapper.classList.contains('fs')) {
-					// Prepend the notifications wrapper back to its original parent and hide it
-					document.getElementById(notificationsParent).appendChild(notificationsWrapper);
-					notificationsWrapper.classList.add('d-none');
-				} else {
-					// Otherwise, prepend the notifications wrapper to 'main'
-					document.querySelector('main').prepend(notificationsWrapper);
-				}
+					// Remove the 'd-none' class to show the notifications wrapper
+					notificationsWrapper.classList.remove('d-none');
 
-				// Toggle the 'fs' class
-				notificationsWrapper.classList.toggle('fs');
+					// Check if the notifications wrapper has the 'fs' class
+					if (notificationsWrapper.classList.contains('fs')) {
+						// Prepend the notifications wrapper back to its original parent and hide it
+						document.getElementById(notificationsParent).appendChild(notificationsWrapper);
+						notificationsWrapper.classList.add('d-none');
+					} else {
+						// Otherwise, prepend the notifications wrapper to 'main'
+						document.querySelector('main').prepend(notificationsWrapper);
+					}
+
+					// Toggle the 'fs' class
+					notificationsWrapper.classList.toggle('fs');
+				});
 			});
 		}
 
@@ -83,6 +88,7 @@
 		}
 		else {
 			if (!document.hidden) {
+				sse_fallback();
 				sse_fallback_interval = setInterval(sse_fallback, updateInterval);
 			}
 
@@ -613,26 +619,31 @@
 
 		// Update notification button icon based on the primary notification availability
 		let notificationIcon = document.querySelector('.notifications-btn-icon');
-		if (primary_available) {
-			notificationIcon.classList.remove('bi-exclamation-circle');
-			notificationIcon.classList.add('bi-exclamation-triangle');
-		} else {
-			notificationIcon.classList.remove('bi-exclamation-triangle');
-			notificationIcon.classList.add('bi-exclamation-circle');
+
+		if (notificationIcon) {
+			let iconClass = primary_available ? 'bi-exclamation-triangle' : 'bi-exclamation-circle';
+			let iconToRemove = primary_available ? 'bi-exclamation-circle' : 'bi-exclamation-triangle';
+			notificationIcon.classList.replace(iconToRemove, iconClass);
 		}
 
 		// Update visibility of notification button and sections
-		let notificationsBtn = document.querySelector('.notifications-btn');
+		let notificationsBtn = document.querySelectorAll('.notifications-btn');
 		let noNotifications = document.querySelector('#no_notifications');
 		let notifications = document.querySelector('#notifications');
 		let navbarCollapse = document.querySelector('#navbar-collapse-1');
 
 		if (any_available) {
-			notificationsBtn.style.opacity = 1;
+			notificationsBtn.forEach(btn => {
+				btn.style.opacity = 1;
+			});
 			noNotifications.style.display = 'none';
 			notifications.style.display = 'block';
 		} else {
-			notificationsBtn.style.opacity = 0.5;
+			if (notificationsBtn) {
+				notificationsBtn.forEach(btn => {
+					btn.style.opacity = 0.5;
+				});
+			}
 			if (navbarCollapse) navbarCollapse.classList.remove('show');
 			noNotifications.style.display = 'block';
 			notifications.style.display = 'none';
@@ -714,7 +725,7 @@
 					<div class="text-truncate pe-1">
 						<strong title="{2} - {3}">{2}</strong>
 					</div>
-					<small class="autotime-narrow opacity-75" title="{5}"></small>
+					<small class="autotime-narrow text-body-secondary" title="{5}"></small>
 				</div>
 				<div class="text-truncate">{4}</div>
 			</div>

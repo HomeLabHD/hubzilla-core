@@ -1,0 +1,9 @@
+### Direktnachrichten
+
+Direktnachrichten sind Nachrichten, die an eine oder mehrere  Einzelverbindungen adressiert sind. Sie sind über den Netzwerkstream  zugänglich. Ein Filter für Direktnachrichten wurde dem  Stream-Filter-Widget für den schnellen Zugriff hinzugefügt.
+
+Möchte man eine Direktnachricht an einen (oder mehrere) andere Nutzer  versenden (Direktnachrichten können nur von den Adressaten und vom  Versender gelesen werden), so verfasst man einen normalen Beitrag und  adressiert diesen per spezieller Erwähnung ausschließlich an den / die  Empfänger. Dies geschieht mit der privaten Erwähnung (Privacy-Tag). Ein  Privacy-Tag ist ein Name, dem die beiden Zeichen `@!`  vorangestellt sind und der zusätzlich zur Markierung dieser Kanäle auch  die Datenschutzberechtigungen des Beitrags so ändert, dass nur diese  berücksichtigt werden.
+
+Um auf eine DN auch wieder "privat", also als DN zu antworten, muss man  kein Privacy-Tag nutzen. Man antwortet einfach direkt auf die  eingegangene DN, wodurch die Antwort an alle ursprünglichen Adressaten verteilt wird.
+
+Alternativ zum Privacy-Tag kann man auch Kanäle oder Privacygruppen aus  dem [Privacy-Tool](/help/de/member/permissions_content.md) (🔒) auswählen. Dies ist der umständlichere Weg, der aber  auch funktioniert. Die Nutzung eines Privacy-Tags überschreibt  allerdings eine ggf. getroffene Auswahl im Privacy-Tool. Schreibt man also einen Beitrag, der als Direktnachricht verschickt  werden soll, kann man den Privacy-Tag weglassen und stattdessen auf das  Vorhangschloss-Symbol neben dem Button "Teilen" klicken, so dass man in  die Berechtigungs-Einstellungen gelangt.

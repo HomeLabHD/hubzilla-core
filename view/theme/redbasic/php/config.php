@@ -4,6 +4,7 @@ namespace Zotlabs\Theme;
 
 use ScssPhp\ScssPhp\Compiler;
 use ScssPhp\ScssPhp\OutputStyle;
+use ScssPhp\ScssPhp\ValueConverter;
 
 class RedbasicConfig {
 
@@ -68,85 +69,89 @@ class RedbasicConfig {
 		}
 
 		if (isset($_POST['redbasic-settings-submit'])) {
-			if (isset($_POST['redbasic_primary_color']) || isset($_POST['redbasic_radius'])) {
+			$primary_color = '';
+			$color_changed = false;
+			$success_color = '';
+			$info_color = '';
+			$warning_color = '';
+			$danger_color = '';
+			$radius = floatval($_POST['redbasic_radius']);
+			$radius_changed = $_POST['redbasic_radius'] !== get_pconfig(local_channel(),'redbasic', 'radius');
 
-				$primary_color = '';
-				$success_color = '';
-				$info_color = '';
-				$warning_color = '';
-				$danger_color = '';
-				$radius = floatval($_POST['redbasic_radius']);
-
-				if (preg_match('/^#([A-Fa-f0-9]{3}){1,2}$/', $_POST['redbasic_primary_color'])) {
-					$primary_color = $_POST['redbasic_primary_color'];
+			if (preg_match('/^#([A-Fa-f0-9]{3}){1,2}$/', $_POST['redbasic_primary_color'])) {
+				if (!$color_changed) {
+					$color_changed = $_POST['redbasic_primary_color'] !== get_pconfig(local_channel(),'redbasic', 'primary_color');
 				}
-				if (preg_match('/^#([A-Fa-f0-9]{3}){1,2}$/', $_POST['redbasic_success_color'])) {
-					$success_color = $_POST['redbasic_success_color'];
+				$primary_color = $_POST['redbasic_primary_color'];
+			}
+			if (preg_match('/^#([A-Fa-f0-9]{3}){1,2}$/', $_POST['redbasic_success_color'])) {
+				if (!$color_changed) {
+					$color_changed = $_POST['redbasic_success_color'] !== get_pconfig(local_channel(),'redbasic', 'success_color');
 				}
-				if (preg_match('/^#([A-Fa-f0-9]{3}){1,2}$/', $_POST['redbasic_info_color'])) {
-					$info_color = $_POST['redbasic_info_color'];
+				$success_color = $_POST['redbasic_success_color'];
+			}
+			if (preg_match('/^#([A-Fa-f0-9]{3}){1,2}$/', $_POST['redbasic_info_color'])) {
+				if (!$color_changed) {
+					$color_changed = $_POST['redbasic_info_color'] !== get_pconfig(local_channel(),'redbasic', 'info_color');
 				}
-				if (preg_match('/^#([A-Fa-f0-9]{3}){1,2}$/', $_POST['redbasic_warning_color'])) {
-					$warning_color = $_POST['redbasic_warning_color'];
+				$info_color = $_POST['redbasic_info_color'];
+			}
+			if (preg_match('/^#([A-Fa-f0-9]{3}){1,2}$/', $_POST['redbasic_warning_color'])) {
+				if (!$color_changed) {
+					$color_changed = $_POST['redbasic_warning_color'] !== get_pconfig(local_channel(),'redbasic', 'warning_color');
 				}
-				if (preg_match('/^#([A-Fa-f0-9]{3}){1,2}$/', $_POST['redbasic_danger_color'])) {
-					$danger_color = $_POST['redbasic_danger_color'];
+				$warning_color = $_POST['redbasic_warning_color'];
+			}
+			if (preg_match('/^#([A-Fa-f0-9]{3}){1,2}$/', $_POST['redbasic_danger_color'])) {
+				if (!$color_changed) {
+					$color_changed = $_POST['redbasic_danger_color'] !== get_pconfig(local_channel(),'redbasic', 'danger_color');
 				}
+				$danger_color = $_POST['redbasic_danger_color'];
+			}
 
-				if ($primary_color || $success_color || $info_color || $warning_color || $danger_color || $radius) {
+			if (!$primary_color && !$success_color && !$info_color && !$warning_color && !$danger_color && !$radius) {
+				set_pconfig(local_channel(), 'redbasic', 'bootstrap', '');
+			}
+			else if ($color_changed || $radius_changed) {
+				try {
+					$compiler = new Compiler();
+					$compiler->setImportPaths('vendor/twbs/bootstrap/scss');
+					$compiler->setOutputStyle(OutputStyle::COMPRESSED);
 
-					try {
-						$cache_dir = 'store/[data]/[scss]/';
-						if(!is_dir($cache_dir)) {
-							os_mkdir($cache_dir, STORAGE_DEFAULT_PERMISSIONS, true);
-						}
-
-						$options = [
-							'cacheDir' => $cache_dir,
-							'prefix' => 'redbasic_',
-							'forceRefresh' => false
-						];
-
-						$compiler = new Compiler($options);
-						$compiler->setImportPaths('vendor/twbs/bootstrap/scss');
-						$compiler->setOutputStyle(OutputStyle::COMPRESSED);
-
-						// Set Variables
-						if ($primary_color) {
-							$variables['$primary'] = $primary_color;
-						}
-						if ($success_color) {
-							$variables['$success'] = $success_color;
-						}
-						if ($info_color) {
-							$variables['$info'] = $info_color;
-						}
-						if ($warning_color) {
-							$variables['$warning'] = $warning_color;
-						}
-						if ($danger_color) {
-							$variables['$danger'] = $danger_color;
-						}
-						if ($radius) {
-							$variables['$border-radius'] = $radius . 'rem';
-							$variables['$border-radius-sm'] = $radius/1.5 . 'rem';
-							$variables['$border-radius-lg'] = $radius*1.333 . 'rem';
-							$variables['$border-radius-xl'] = $radius*2.666 . 'rem';
-							$variables['$border-radius-xxl'] = $radius*5.333 . 'rem';
-						}
-
-						// Replace Bootstrap Variables with Customizer Variables
-						$compiler->replaceVariables($variables);
-
-						$bs = $compiler->compileString('@import "bootstrap.scss";');
-
-						set_pconfig(local_channel(), 'redbasic', 'bootstrap', $bs->getCss());
-					} catch (\Exception $e) {
-						logger('scssphp: Unable to compile content');
+					// Set Variables
+					if ($primary_color) {
+						$variables['$primary'] = ValueConverter::parseValue($primary_color);
 					}
-				}
-				else {
-					set_pconfig(local_channel(), 'redbasic', 'bootstrap', '');
+					if ($success_color) {
+						$variables['$success'] = ValueConverter::parseValue($success_color);
+					}
+					if ($info_color) {
+						$variables['$info'] = ValueConverter::parseValue($info_color);
+					}
+					if ($warning_color) {
+						$variables['$warning'] = ValueConverter::parseValue($warning_color);
+					}
+					if ($danger_color) {
+						$variables['$danger'] = ValueConverter::parseValue($danger_color);
+					}
+					if ($radius) {
+						$variables['$border-radius'] = ValueConverter::parseValue($radius . 'rem');
+						$variables['$border-radius-sm'] = ValueConverter::parseValue($radius/1.5 . 'rem');
+						$variables['$border-radius-lg'] = ValueConverter::parseValue($radius*1.333 . 'rem');
+						$variables['$border-radius-xl'] = ValueConverter::parseValue($radius*2.666 . 'rem');
+						$variables['$border-radius-xxl'] = ValueConverter::parseValue($radius*5.333 . 'rem');
+					}
+
+					// Replace Bootstrap Variables with Customizer Variables
+					if ($variables) {
+						$compiler->replaceVariables($variables);
+					}
+
+					$bs = $compiler->compileString('@import "bootstrap.scss";');
+
+					set_pconfig(local_channel(), 'redbasic', 'bootstrap', $bs->getCss());
+				} catch (\Exception $e) {
+					logger('scssphp: Unable to compile content');
 				}
 			}
 

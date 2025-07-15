@@ -23,7 +23,7 @@ class Activity extends Controller {
 			if (! $item_id)
 				http_status_exit(404, 'Not found');
 
-			$portable_id = EMPTY_STR;
+			$portable_id = null;
 
 			$item_normal_extra = sprintf(" and not verb in ('Follow', 'Ignore', '%s', '%s') ",
 				dbesc(ACTIVITY_FOLLOW),
@@ -166,6 +166,7 @@ class Activity extends Controller {
 				return;
 			}
 
+			$portable_id = null;
 			$ob_authorize = false;
 			$item_uid = 0;
 

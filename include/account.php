@@ -17,10 +17,38 @@ require_once('include/crypto.php');
 require_once('include/channel.php');
 
 
-function get_account_by_id($account_id) {
-	$r = q("select * from account where account_id = %d",
-		intval($account_id)
-	);
+/**
+ * Returns the id of a locally logged in account or false.
+ *
+ * Returns the numeric account id of the current session if authenticated, or
+ * false otherwise.
+ *
+ * @note It is possible to be authenticated, and not connected to a channel.
+ *
+ * @return int|false Numeric account id or false.
+ */
+function get_account_id(): int|false {
+	if (isset($_SESSION['account_id'])) {
+		return intval($_SESSION['account_id']);
+	}
+
+	if (App::$account) {
+		return intval(App::$account['account_id']);
+	}
+
+	return false;
+}
+
+/**
+ * Get the account with the given id from the database.
+ *
+ * @param int $account_id	The numeric id of the account to fetch.
+ *
+ * @return array|false	An array containing the attributes of the requested
+ *		account, or false if it could not be retreived.
+ */
+function get_account_by_id(int $account_id): array|false {
+	$r = q("select * from account where account_id = %d", $account_id);
 	return (($r) ? $r[0] : false);
 }
 
@@ -117,11 +145,16 @@ function check_account_invite($invite_code) {
 }
 
 function check_account_admin($arr) {
-	if(is_site_admin())
+	if (is_site_admin()) {
 		return true;
+	}
+
 	$admin_email = trim(Config::Get('system','admin_email'));
-	if(strlen($admin_email) && $admin_email === trim($arr['email']))
+
+	if (strlen($admin_email) && $admin_email === trim($arr['reg_email'])) {
 		return true;
+	}
+
 	return false;
 }
 
@@ -130,167 +163,6 @@ function account_total() {
 	if(is_array($r))
 		return count($r);
 	return false;
-}
-
-// legacy
-function account_store_lowlevel_IS_OBSOLETE($arr) {
-
-    $store = [
-        'account_parent'           => ((array_key_exists('account_parent',$arr))           ? $arr['account_parent']           : '0'),
-        'account_default_channel'  => ((array_key_exists('account_default_channel',$arr))  ? $arr['account_default_channel']  : '0'),
-        'account_salt'             => ((array_key_exists('account_salt',$arr))             ? $arr['account_salt']             : ''),
-        'account_password'         => ((array_key_exists('account_password',$arr))         ? $arr['account_password']         : ''),
-        'account_email'            => ((array_key_exists('account_email',$arr))            ? $arr['account_email']            : ''),
-        'account_external'         => ((array_key_exists('account_external',$arr))         ? $arr['account_external']         : ''),
-        'account_language'         => ((array_key_exists('account_language',$arr))         ? $arr['account_language']         : 'en'),
-        'account_created'          => ((array_key_exists('account_created',$arr))          ? $arr['account_created']          : '0001-01-01 00:00:00'),
-        'account_lastlog'          => ((array_key_exists('account_lastlog',$arr))          ? $arr['account_lastlog']          : '0001-01-01 00:00:00'),
-        'account_flags'            => ((array_key_exists('account_flags',$arr))            ? $arr['account_flags']            : '0'),
-        'account_roles'            => ((array_key_exists('account_roles',$arr))            ? $arr['account_roles']            : '0'),
-        'account_reset'            => ((array_key_exists('account_reset',$arr))            ? $arr['account_reset']            : ''),
-        'account_expires'          => ((array_key_exists('account_expires',$arr))          ? $arr['account_expires']          : '0001-01-01 00:00:00'),
-        'account_expire_notified'  => ((array_key_exists('account_expire_notified',$arr))  ? $arr['account_expire_notified']  : '0001-01-01 00:00:00'),
-        'account_service_class'    => ((array_key_exists('account_service_class',$arr))    ? $arr['account_service_class']    : ''),
-        'account_level'            => '5',
-        'account_password_changed' => ((array_key_exists('account_password_changed',$arr)) ? $arr['account_password_changed'] : '0001-01-01 00:00:00')
-	];
-
-	// never ever is this a create table but a pdo insert into account
-	// strange function placement in text.php (obscure by design :-)
-	return create_table_from_array('account',$store);
-	// the TODO may be to adjust others using create_table_from_array():
-	// channel.php
-	// connections.php
-	// event.php
-	// hubloc.php
-	// import.php
-}
-
-
-
-// legacy
-function create_account_IS_OBSOLETE($arr) {
-
-	// Required: { email, password }
-
-	$result = array('success' => false, 'email' => '', 'password' => '', 'message' => '');
-
-	$invite_code = ((x($arr,'invite_code'))   ? notags(trim($arr['invite_code']))  : '');
-	$email       = ((x($arr,'email'))         ? notags(punify(trim($arr['email']))) : '');
-	$password    = ((x($arr,'password'))      ? trim($arr['password'])             : '');
-	$parent      = ((x($arr,'parent'))        ? intval($arr['parent'])             : 0 );
-	$flags       = ((x($arr,'account_flags')) ? intval($arr['account_flags'])      : ACCOUNT_OK);
-	$roles       = ((x($arr,'account_roles')) ? intval($arr['account_roles'])      : 0 );
-	$expires     = ((x($arr,'expires'))       ? intval($arr['expires'])            : NULL_DATE);
-
-	$default_service_class = Config::Get('system','default_service_class');
-
-	if($default_service_class === false)
-		$default_service_class = '';
-
-	if((! x($email)) || (! x($password))) {
-		$result['message'] = t('Please enter the required information.');
-		return $result;
-	}
-
-	// prevent form hackery
-
-	if($roles & ACCOUNT_ROLE_ADMIN) {
-		$admin_result = check_account_admin($arr);
-		if(! $admin_result) {
-			$roles = 0;
-		}
-	}
-
-	// allow the admin_email account to be admin, but only if it's the first account.
-
-	$c = account_total();
-	if (($c === 0) && (check_account_admin($arr)))
-		$roles |= ACCOUNT_ROLE_ADMIN;
-
-	// Ensure that there is a host keypair.
-
-	if ((! Config::Get('system', 'pubkey')) && (! Config::Get('system', 'prvkey'))) {
-		$hostkey = Crypto::new_keypair(4096);
-		Config::Set('system', 'pubkey', $hostkey['pubkey']);
-		Config::Set('system', 'prvkey', $hostkey['prvkey']);
-	}
-
-	$invite_result = check_account_invite($invite_code);
-	if($invite_result['error']) {
-		$result['message'] = $invite_result['message'];
-		return $result;
-	}
-
-	$email_result = check_account_email($email);
-
-	if($email_result['error']) {
-		$result['message'] = $email_result['message'];
-		return $result;
-	}
-
-	$password_result = check_account_password($password);
-
-	if($password_result['error']) {
-		$result['message'] = $password_result['message'];
-		return $result;
-	}
-
-	$salt = random_string(32);
-	$password_encoded = hash('whirlpool', $salt . $password);
-
-	$r = account_store_lowlevel(
-		[
-			'account_parent'        => intval($parent),
-			'account_salt'          => $salt,
-			'account_password'      => $password_encoded,
-			'account_email'         => $email,
-			'account_language'      => get_best_language(),
-			'account_created'       => datetime_convert(),
-			'account_flags'         => intval($flags),
-			'account_roles'         => intval($roles),
-			'account_level'         => 5,
-			'account_expires'       => $expires,
-			'account_service_class' => $default_service_class
-		]
-	);
-	if(! $r) {
-		logger('create_account: DB INSERT failed.');
-		$result['message'] = t('Failed to store account information.');
-		return($result);
-	}
-
-	$r = q("select * from account where account_email = '%s' and account_password = '%s' limit 1",
-		dbesc($email),
-		dbesc($password_encoded)
-	);
-	if($r && count($r)) {
-		$result['account'] = $r[0];
-	}
-	else {
-		logger('create_account: could not retrieve newly created account');
-	}
-
-	// Set the parent record to the current record_id if no parent was provided
-
-	if(! $parent) {
-		$r = q("update account set account_parent = %d where account_id = %d",
-			intval($result['account']['account_id']),
-			intval($result['account']['account_id'])
-		);
-		if(! $r) {
-			logger('create_account: failed to set parent');
-		}
-		$result['account']['parent'] = $result['account']['account_id'];
-	}
-
-	$result['success']  = true;
-	$result['email']    = $email;
-	$result['password'] = $password;
-
-	call_hooks('register_account',$result);
-
-	return $result;
 }
 
 /**
@@ -324,18 +196,18 @@ function create_account_from_register($arr) {
 	if($default_service_class === false)
 		$default_service_class = '';
 
-	$roles = 0;
-	// prevent form hackery
-	if($roles & ACCOUNT_ROLE_ADMIN) {
-		$admin_result = check_account_admin($arr);
-		if(! $admin_result) {
-			$roles = 0;
-		}
+	// any accounts available ?
+	$total = q("SELECT COUNT(*) AS total FROM account");
+
+	if ($total && intval($total[0]['total']) === 0 && !check_account_admin($register[0])) {
+		logger('create_account: first account is not admin');
+		$result['message'] = t('First account is not admin.');
+		return $result;
 	}
 
-	// any accounts available ?
-	$isa = q("SELECT COUNT(*) AS isa FROM account");
-	if ($isa && $isa[0]['isa'] == 0) {
+	$roles = 0;
+
+	if (check_account_admin($register[0])) {
 		$roles = ACCOUNT_ROLE_ADMIN;
 	}
 
@@ -445,76 +317,6 @@ function verify_email_address($arr) {
 
 	return $res;
 }
-
-function verify_email_addressNOP($arr) {
-
-	if(array_key_exists('resend',$arr)) {
-		$a = q("select * from account where account_email = '%s' limit 1",
-		    dbesc($arr['email'])
-		);
-		if(! ($a && ($a[0]['account_flags'] & ACCOUNT_UNVERIFIED))) {
-			return false;
-		}
-		$account = $a[0];
-		// [hilmar ->
-		$v = q("SELECT * FROM register WHERE reg_uid = %d AND reg_vital = 1 "
-									. " AND reg_pass = 'verify' LIMIT 1",
-			intval($account['account_id'])
-		);
-		// <- hilmar]
-		if($v) {
-			$hash = $v[0]['reg_hash'];
-		}
-		else {
-			return false;
-		}
-	}
-	else {
-		$hash = random_string(24);
-
-		// [hilmar ->
-		q("INSERT INTO register ( reg_hash, reg_created, reg_uid, reg_pass, reg_lang, reg_stuff ) "
-			." VALUES ( '%s', '%s', %d, '%s', '%s', '' ) ",
-			dbesc($hash),
-			dbesc(datetime_convert()),
-			intval($arr['account']['account_id']),
-			dbesc('verify'),
-			dbesc($arr['account']['account_language'])
-		);
-		// <- hilmar]
-		$account = $arr['account'];
-	}
-
-	push_lang(($account['account_language']) ? $account['account_language'] : 'en');
-
-	$email_msg = replace_macros(get_intltext_template('register_verify_member.tpl'),
-		[
-			'$sitename' => Config::Get('system','sitename'),
-			'$siteurl'  => z_root(),
-			'$email'    => $arr['email'],
-			'$uid'      => $account['account_id'],
-			'$hash'     => $hash,
-			'$details'  => ''
-	 	]
-	);
-
-	$res = z_mail(
-		[
-		'toEmail' => $arr['email'],
-		'messageSubject' => sprintf( t('Registration confirmation for %s'), Config::Get('system','sitename')),
-		'textVersion' => $email_msg,
-		]
-	);
-
-	pop_lang();
-
-	if(! $res)
-		logger('send_reg_approval_email: failed to account_id: ' . $arr['account']['account_id']);
-
-	return $res;
-}
-
-
 
 
 function send_reg_approval_email($arr) {

@@ -73,21 +73,21 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 	if($ciphers)
 		@curl_setopt($ch, CURLOPT_SSL_CIPHER_LIST, $ciphers);
 
-	if(x($opts,'filep')) {
+	if(!empty($opts['filep'])) {
 		@curl_setopt($ch, CURLOPT_FILE, $opts['filep']);
 		@curl_setopt($ch, CURLOPT_HEADER, false);
 	}
 
-	if(x($opts,'upload'))
+	if(!empty($opts['upload']))
 		@curl_setopt($ch, CURLOPT_UPLOAD, $opts['upload']);
 
-	if(x($opts,'infile'))
+	if(!empty($opts['infile']))
 		@curl_setopt($ch, CURLOPT_INFILE, $opts['infile']);
 
-	if(x($opts,'infilesize'))
+	if(!empty($opts['infilesize']))
 		@curl_setopt($ch, CURLOPT_INFILESIZE, $opts['infilesize']);
 
-	if(x($opts,'readfunc'))
+	if(!empty($opts['readfunc']))
 		@curl_setopt($ch, CURLOPT_READFUNCTION, $opts['readfunc']);
 
 	// When using the session option and fetching from our own site,
@@ -97,7 +97,7 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 
 	$instance_headers = ((array_key_exists('headers',$opts) && is_array($opts['headers'])) ? $opts['headers'] : []);
 
-	if(x($opts,'session')) {
+	if(!empty($opts['session'])) {
 		if(strpos($url,z_root()) === 0) {
 			$instance_headers[] = 'Cookie: PHPSESSID=' . session_id();
 		}
@@ -106,13 +106,13 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 		@curl_setopt($ch, CURLOPT_HTTPHEADER, $instance_headers);
 
 
-	if(x($opts,'nobody'))
+	if(!empty($opts['nobody']))
 		@curl_setopt($ch, CURLOPT_NOBODY, $opts['nobody']);
 
-	if(x($opts,'custom'))
+	if(!empty($opts['custom']))
 		@curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $opts['custom']);
 
-	if(x($opts,'timeout') && intval($opts['timeout'])) {
+	if(!empty($opts['timeout'])) {
 		@curl_setopt($ch, CURLOPT_TIMEOUT, intval($opts['timeout']));
 	}
 	else {
@@ -120,7 +120,7 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 		@curl_setopt($ch, CURLOPT_TIMEOUT, (($curl_time !== 0) ? $curl_time : 60));
 	}
 
-	if(x($opts,'connecttimeout') && intval($opts['connecttimeout'])) {
+	if(!empty($opts['connecttimeout'])) {
 		@curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, intval($opts['connecttimeout']));
 	}
 	else {
@@ -128,7 +128,7 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 		@curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, (($curl_contime !== 0) ? $curl_contime : 30));
 	}
 
-	if(x($opts,'http_auth')) {
+	if(!empty($opts['http_auth'])) {
 		// "username" . ':' . "password"
 		@curl_setopt($ch, CURLOPT_USERPWD, $opts['http_auth']);
 	}
@@ -136,16 +136,16 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 	if(array_key_exists('http_version',$opts))
 		@curl_setopt($ch,CURLOPT_HTTP_VERSION,$opts['http_version']);
 
-	if(x($opts,'cookiejar'))
+	if(!empty($opts['cookiejar']))
 		@curl_setopt($ch, CURLOPT_COOKIEJAR, $opts['cookiejar']);
-	if(x($opts,'cookiefile'))
+	if(!empty($opts['cookiefile']))
 		@curl_setopt($ch, CURLOPT_COOKIEFILE, $opts['cookiefile']);
 
-	if(x($opts,'cookie'))
+	if(!empty($opts['cookie']))
 		@curl_setopt($ch, CURLOPT_COOKIE, $opts['cookie']);
 
 	@curl_setopt($ch, CURLOPT_SSL_VERIFYPEER,
-		((x($opts,'novalidate') && intval($opts['novalidate'])) ? false : true));
+		((!empty($opts['novalidate'])) ? false : true));
 
 	$prx = @Config::Get('system','proxy');
 	if(strlen($prx)) {
@@ -205,7 +205,7 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 	$ret['header'] = $header;
 	$ret['request_target'] = $opts['request_target'];
 
-	if(x($opts,'debug')) {
+	if(!empty($opts['debug'])) {
 		$ret['debug'] = $curl_info;
 	}
 
@@ -433,7 +433,6 @@ function as_return_and_die($obj, $channel = []) {
 	$headers['Content-Type'] = 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"' ;
 	$headers['Date'] = datetime_convert('UTC','UTC', 'now', 'D, d M Y H:i:s \\G\\M\\T');
 	$headers['Digest'] = HTTPSig::generate_digest_header($ret);
-	$headers['(request-target)'] = strtolower($_SERVER['REQUEST_METHOD']) . ' ' . $_SERVER['REQUEST_URI'];
 
 	if ($channel) {
 		$h = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel));

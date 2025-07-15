@@ -66,6 +66,10 @@ class Portfolio {
 		//edit album name
 		$album_edit = null;
 
+
+		$ph = photo_factory('');
+		$phototypes = $ph->supportedTypes();
+
 		$photos = array();
 		if($r) {
 			$twist = 'rotright';

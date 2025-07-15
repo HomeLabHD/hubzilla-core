@@ -1542,6 +1542,7 @@ class Libzot {
 
 			$local_public = $public;
 			$item_result = null;
+			$parent = null;
 
 			$DR = new DReport(z_root(), $sender, $d, $arr['mid'], $arr['uuid']);
 
@@ -1996,7 +1997,7 @@ class Libzot {
 				}
 
 				$DR->addto_update('relayed');
-				$result[] = $DR->get();
+				$result = [$DR->get()];
 			}
 		}
 

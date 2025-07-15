@@ -177,9 +177,7 @@ function localize_item(&$item){
 			case ACTIVITY_OBJ_NOTE:
 			case 'Note':
 			default:
-				$post_type = t('post');
-				if(((isset($obj['parent']) && isset($obj['id']) && $obj['id'] != $obj['parent'])) || isset($obj['inReplyTo']))
-					$post_type = t('comment');
+				$post_type = t('message');
 				break;
 		}
 
@@ -347,20 +345,20 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 				. "<script> var profile_uid = " . $_SESSION['uid']
 				. "; var netargs = '" . substr(App::$cmd,8)
 				. '?f='
-				. ((x($_GET,'cid'))    ? '&cid='    . $_GET['cid']    : '')
-				. ((x($_GET,'search')) ? '&search=' . $_GET['search'] : '')
-				. ((x($_GET,'star'))   ? '&star='   . $_GET['star']   : '')
-				. ((x($_GET,'order'))  ? '&order='  . $_GET['order']  : '')
-				. ((x($_GET,'bmark'))  ? '&bmark='  . $_GET['bmark']  : '')
-				. ((x($_GET,'liked'))  ? '&liked='  . $_GET['liked']  : '')
-				. ((x($_GET,'conv'))   ? '&conv='   . $_GET['conv']   : '')
-				. ((x($_GET,'spam'))   ? '&spam='   . $_GET['spam']   : '')
-				. ((x($_GET,'nets'))   ? '&nets='   . $_GET['nets']   : '')
-				. ((x($_GET,'cmin'))   ? '&cmin='   . $_GET['cmin']   : '')
-				. ((x($_GET,'cmax'))   ? '&cmax='   . $_GET['cmax']   : '')
-				. ((x($_GET,'file'))   ? '&file='   . $_GET['file']   : '')
-				. ((x($_GET,'uri'))    ? '&uri='    . $_GET['uri']   : '')
-				. ((x($_GET,'pf'))     ? '&pf='     . $_GET['pf']   : '')
+				. (!empty($_GET['cid'])    ? '&cid='    . $_GET['cid']    : '')
+				. (!empty($_GET['search']) ? '&search=' . $_GET['search'] : '')
+				. (!empty($_GET['star'])   ? '&star='   . $_GET['star']   : '')
+				. (!empty($_GET['order'])  ? '&order='  . $_GET['order']  : '')
+				. (!empty($_GET['bmark'])  ? '&bmark='  . $_GET['bmark']  : '')
+				. (!empty($_GET['liked'])  ? '&liked='  . $_GET['liked']  : '')
+				. (!empty($_GET['conv'])   ? '&conv='   . $_GET['conv']   : '')
+				. (!empty($_GET['spam'])   ? '&spam='   . $_GET['spam']   : '')
+				. (!empty($_GET['nets'])   ? '&nets='   . $_GET['nets']   : '')
+				. (!empty($_GET['cmin'])   ? '&cmin='   . $_GET['cmin']   : '')
+				. (!empty($_GET['cmax'])   ? '&cmax='   . $_GET['cmax']   : '')
+				. (!empty($_GET['file'])   ? '&file='   . $_GET['file']   : '')
+				. (!empty($_GET['uri'])    ? '&uri='    . $_GET['uri']   : '')
+				. (!empty($_GET['pf'])     ? '&pf='     . $_GET['pf']     : '')
 				. "'; var profile_page = " . App::$pager['page'] . "; </script>\r\n";
 		}
 	}
@@ -467,17 +465,6 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 	$items = $cb['items'];
 
-	$conv_responses = [
-		'like' => ['title' => t('Likes','title')],
-		'dislike' => ['title' => t('Dislikes','title')],
-		'attendyes' => ['title' => t('Attending','title')],
-		'attendno' => ['title' => t('Not attending','title')],
-		'attendmaybe' => ['title' => t('Might attend','title')],
-		'answer' => [],
-		'announce' => ['title' => t('Repeats','title')],
-	];
-
-
 	// array with html for each thread (parent+comments)
 	$threads = array();
 	$threadsid = -1;
@@ -566,7 +553,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 				$shareable = false;
 
 				$verified = (intval($item['item_verified']) ? t('Message signature validated') : '');
-				$forged = ((($item['sig']) && (! intval($item['item_verified']))) ? t('Message signature incorrect') : '');
+				$forged = ((!empty($item['sig']) && !intval($item['item_verified'])) ? t('Message signature incorrect') : '');
 
 				$unverified = '';
 
@@ -704,13 +691,9 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 				$item = $x['item'];
 
-				builtin_activity_puller($item, $conv_responses);
-
-				if(! visible_activity($item)) {
+				if (!visible_activity($item)) {
 					continue;
 				}
-
-				$mid_uuid_map[$item['mid']] = $item['uuid'];
 
 				$item['pagedrop'] = $page_dropping;
 
@@ -720,7 +703,6 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 					$conv->add_thread($item_object);
 					if(($page_mode === 'list') || ($page_mode === 'pager_list')) {
-						$item_object->set_template('conv_list.tpl');
 						$item_object->set_display_mode('list');
 					}
 					if($mode === 'cards' || $mode === 'articles') {
@@ -730,7 +712,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 				}
 			}
 
-			$threads = $conv->get_template_data($conv_responses, $mid_uuid_map);
+			$threads = $conv->get_template_data();
 			if(!$threads) {
 				logger('[ERROR] conversation : Failed to get template data.', LOGGER_DEBUG);
 				$threads = array();
@@ -781,7 +763,7 @@ function best_link_url($item) {
 	$clean_url = isset($item['author-link']) ? normalise_link($item['author-link']) : '';
 
 	if($clean_url  && local_channel() && (local_channel() == $item['uid'])) {
-		if(isset(App::$contacts) && x(App::$contacts, $clean_url)) {
+		if(isset(App::$contacts) && !empty(App::$contacts[$clean_url])) {
 			if(App::$contacts[$clean_url]['network'] === NETWORK_DFRN) {
 				$best_url = z_root() . '/redir/' . App::$contacts[$clean_url]['id'];
 				$sparkle = true;
@@ -952,101 +934,6 @@ function thread_author_menu($item, $mode = '') {
 }
 
 
-
-
-
-/**
- * @brief Checks item to see if it is one of the builtin activities (like/dislike, event attendance, consensus items, etc.)
- *
- * Increments the count of each matching activity and adds a link to the author as needed.
- *
- * @param array $item
- * @param array &$conv_responses (already created with builtin activity structure)
- */
-function builtin_activity_puller($item, &$conv_responses) {
-
-	// if this item is a post or comment there's nothing for us to do here, just return.
-
-	if(activity_match($item['verb'], ['Create', ACTIVITY_POST]) && $item['obj_type'] !== 'Answer')
-		return;
-
-	foreach($conv_responses as $mode => $v) {
-
-		$url = '';
-
-		switch($mode) {
-			case 'like':
-				$verb = ['Like', ACTIVITY_LIKE];
-				break;
-			case 'dislike':
-				$verb = ['Dislike', ACTIVITY_DISLIKE];
-				break;
-			case 'attendyes':
-				$verb = ['Accept', ACTIVITY_ATTEND];
-				break;
-			case 'attendno':
-				$verb = ['Reject', ACTIVITY_ATTENDNO];
-				break;
-			case 'attendmaybe':
-				$verb = ['TentativeAccept', ACTIVITY_ATTENDMAYBE];
-				break;
-			case 'answer':
-				$verb = ['Create', ACTIVITY_POST];
-				break;
-			case 'announce':
-				$verb = 'Announce';
-				break;
-			default:
-				return;
-				break;
-		}
-
-		if((activity_match($item['verb'], $verb)) && ($item['id'] != $item['parent'])) {
-
-			$name = (($item['author']['xchan_name']) ? $item['author']['xchan_name'] : t('Unknown'));
-
-			$moderate = ((intval($item['item_blocked']) === ITEM_MODERATED) ? '<a href="moderate/' . $item['id'] . '/approve" onclick="moderate_approve(' . $item['id'] . '); return false;" class="text-success pe-2" title="' . t('Approve this item') . '"><i class="bi bi-check-lg" ></i></a><a href="moderate/' . $item['id'] . '/drop" onclick="moderate_drop(' . $item['id'] . '); return false;" class="text-danger pe-2" title="' . t('Delete this item') . '"><i class="bi bi-trash" ></i></a>' : '');
-
-			$url = (($item['author_xchan'] && $item['author']['xchan_photo_s'])
-				? '<div class="dropdown-item">' . $moderate . '<a href="' . chanlink_hash($item['author_xchan']) . '" class="text-reset">' . '<img class="menu-img-1" src="' . $item['author']['xchan_photo_s'] . '" alt="' . urlencode($name) . '" loading="lazy" /> ' . $name . '</a></div>'
-				: '<a class="dropdown-item" href="#" class="disabled">' . $name . '</a>'
-			);
-
-
-
-			if(! $item['thr_parent'])
-				$item['thr_parent'] = $item['parent_mid'];
-
-			$conv_responses[$mode]['mids'][$item['thr_parent']][] = $item['uuid'];
-
-			if($item['obj_type'] === 'Answer')
-				continue;
-
-			if(! ((isset($conv_responses[$mode][$item['thr_parent'] . '-l']))
-				&& (is_array($conv_responses[$mode][$item['thr_parent'] . '-l']))))
-				$conv_responses[$mode][$item['thr_parent'] . '-l'] = array();
-
-			// only list each unique author once
-			if(in_array($url,$conv_responses[$mode][$item['thr_parent'] . '-l']))
-				continue;
-
-			if(! isset($conv_responses[$mode][$item['thr_parent']]))
-				$conv_responses[$mode][$item['thr_parent']] = 1;
-			else
-				$conv_responses[$mode][$item['thr_parent']] ++;
-
-			$conv_responses[$mode][$item['thr_parent'] . '-l'][] = $url;
-			if(get_observer_hash() && get_observer_hash() === $item['author_xchan']) {
-				$conv_responses[$mode][$item['thr_parent'] . '-m'] = true;
-			}
-
-			// there can only be one activity verb per item so if we found anything, we can stop looking
-			return;
-		}
-	}
-}
-
-
 /**
  * @brief Format the like/dislike text for a profile item.
  *
@@ -1104,54 +991,52 @@ function status_editor($x, $popup = false, $module='') {
 
 function hz_status_editor($x, $popup = false) {
 
-	$o = '';
-
 	$c = channelx_by_n($x['profile_uid']);
 	if($c && $c['channel_moved'])
-		return $o;
+		return;
 
-	$webpage   = ((x($x,'webpage')) ? $x['webpage'] : '');
+	$webpage   = ((!empty($x['webpage'])) ? $x['webpage'] : '');
 	$plaintext = true;
 
 	$feature_nocomment = feature_enabled($x['profile_uid'], 'disable_comments');
-	if(x($x, 'disable_comments'))
+	if(!empty($x['disable_comments']))
 		$feature_nocomment = false;
 
 	$feature_expire = ((feature_enabled($x['profile_uid'], 'content_expire') && (! $webpage)) ? true : false);
-	if(x($x, 'hide_expire'))
+	if(!empty($x['hide_expire']))
 		$feature_expire = false;
 
 	$feature_future = ((feature_enabled($x['profile_uid'], 'delayed_posting') && (! $webpage)) ? true : false);
-	if(x($x, 'hide_future'))
+	if(!empty($x['hide_future']))
 		$feature_future = false;
 
 	$geotag = ((isset($x['allow_location']) && $x['allow_location']) ? replace_macros(get_markup_template('jot_geotag.tpl'), array()) : '');
 	$setloc = t('Set your location');
 	$clearloc = ((get_pconfig($x['profile_uid'], 'system', 'use_browser_location')) ? t('Clear browser location') : '');
-	if(x($x, 'hide_location'))
+	if(!empty($x['hide_location']))
 		$geotag = $setloc = $clearloc = '';
 
-	$mimetype = ((x($x,'mimetype')) ? $x['mimetype'] : 'text/bbcode');
+	$mimetype = ((!empty($x['mimetype'])) ? $x['mimetype'] : 'text/bbcode');
 
-	$mimeselect = ((x($x,'mimeselect')) ? $x['mimeselect'] : false);
+	$mimeselect = ((!empty($x['mimeselect'])) ? $x['mimeselect'] : false);
 	if($mimeselect)
 		$mimeselect = mimetype_select($x['profile_uid'], $mimetype);
 	else
 		$mimeselect = '<input type="hidden" name="mimetype" value="' . $mimetype . '" />';
 
 	$weblink = (($mimetype === 'text/bbcode') ? t('Insert web link') : false);
-	if(x($x, 'hide_weblink'))
+	if(!empty($x['hide_weblink']))
 		$weblink = false;
 
 	$embedPhotos = t('Embed (existing) photo from your photo albums');
 
 	$writefiles = (($mimetype === 'text/bbcode') ? perm_is_allowed($x['profile_uid'], get_observer_hash(), 'write_storage') : false);
-	if(x($x, 'hide_attach'))
+	if(!empty($x['hide_attach']))
 		$writefiles = false;
 
-	$layout = ((x($x,'layout')) ? $x['layout'] : '');
+	$layout = ((!empty($x['layout'])) ? $x['layout'] : '');
 
-	$layoutselect = ((x($x,'layoutselect')) ? $x['layoutselect'] : false);
+	$layoutselect = ((!empty($x['layoutselect'])) ? $x['layoutselect'] : false);
 	if($layoutselect)
 		$layoutselect = layout_select($x['profile_uid'], $layout);
 	else
@@ -1164,7 +1049,7 @@ function hz_status_editor($x, $popup = false) {
 	else
 		$id_select = '';
 
-	$reset = ((x($x,'reset')) ? $x['reset'] : '');
+	$reset = ((!empty($x['reset'])) ? $x['reset'] : '');
 
 	$feature_auto_save_draft = ((feature_enabled($x['profile_uid'], 'auto_save_draft')) ? "true" : "false");
 
@@ -1173,14 +1058,14 @@ function hz_status_editor($x, $popup = false) {
 	$tplmacros = [
 		'$baseurl' => z_root(),
 		'$editselect' => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
-		'$pretext' => ((x($x,'pretext')) ? $x['pretext'] : ''),
+		'$pretext' => ((!empty($x['pretext'])) ? $x['pretext'] : ''),
 		'$geotag' => $geotag,
 		'$nickname' => $x['nickname'],
 		'$linkurl' => t('Please enter a link URL:'),
 		'$term' => t('Tag term:'),
 		'$whereareu' => t('Where are you right now?'),
-		'$editor_autocomplete'=> ((x($x,'editor_autocomplete')) ? $x['editor_autocomplete'] : ''),
-		'$bbco_autocomplete'=> ((x($x,'bbco_autocomplete')) ? $x['bbco_autocomplete'] : ''),
+		'$editor_autocomplete'=> ((!empty($x['editor_autocomplete'])) ? $x['editor_autocomplete'] : ''),
+		'$bbco_autocomplete'=> ((!empty($x['bbco_autocomplete'])) ? $x['bbco_autocomplete'] : ''),
 		'$modalchooseimages' => t('Choose images to embed'),
 		'$modalchoosealbum' => t('Choose an album'),
 		'$modaldiffalbum' => t('Choose a different album...'),
@@ -1207,7 +1092,7 @@ function hz_status_editor($x, $popup = false) {
 	$tpl = get_markup_template('jot.tpl');
 
 	$preview = t('Preview');
-	if(x($x, 'hide_preview'))
+	if(!empty($x['hide_preview']))
 		$preview = '';
 
 	$defexpire = ((($z = get_pconfig($x['profile_uid'], 'system', 'default_post_expire')) && (! $webpage)) ? $z : '');
@@ -1235,21 +1120,21 @@ function hz_status_editor($x, $popup = false) {
 	call_hooks('jot_tool', $jotplugins);
 
 	$jotnets = '';
-	if(x($x,'jotnets')) {
+	if(!empty($x['jotnets'])) {
 		call_hooks('jot_networks', $jotnets);
 	}
 
-	$sharebutton = (x($x,'button') ? $x['button'] : t('Share'));
-	$placeholdtext = (x($x,'content_label') ? $x['content_label'] : $sharebutton);
+	$sharebutton = (!empty($x['button']) ? $x['button'] : t('Submit'));
+	$placeholdtext = (!empty($x['content_label']) ? $x['content_label'] : t('Start a conversation'));
 
 	$tplmacros = [
-		'$return_path' => ((x($x, 'return_path')) ? $x['return_path'] : App::$query_string),
+		'$return_path' => ((!empty($x['return_path'])) ? $x['return_path'] : App::$query_string),
 		'$action' =>  z_root() . '/item',
 		'$share' => $sharebutton,
 		'$placeholdtext' => $placeholdtext,
 		'$webpage' => $webpage,
-		'$placeholdpagetitle' => ((x($x,'ptlabel')) ? $x['ptlabel'] : t('Page link name')),
-		'$pagetitle' => (x($x,'pagetitle') ? $x['pagetitle'] : ''),
+		'$placeholdpagetitle' => ((!empty($x['ptlabel'])) ? $x['ptlabel'] : t('Page link name')),
+		'$pagetitle' => (!empty($x['pagetitle']) ? $x['pagetitle'] : ''),
 		'$id_select' => $id_select,
 		'$id_seltext' => t('Post as'),
 		'$writefiles' => $writefiles,
@@ -1278,18 +1163,18 @@ function hz_status_editor($x, $popup = false) {
 		'$feature_nocomment' => $feature_nocomment,
 		'$nocomment' => ((array_key_exists('item',$x)) ? $x['item']['item_nocomment'] : 0),
 		'$clearloc' => $clearloc,
-		'$title' => ((x($x, 'title')) ? htmlspecialchars($x['title'], ENT_COMPAT,'UTF-8') : ''),
-		'$summary' => ((x($x, 'summary')) ? htmlspecialchars($x['summary'], ENT_COMPAT,'UTF-8') : ''),
-		'$placeholdertitle' => ((x($x, 'placeholdertitle')) ? $x['placeholdertitle'] : t('Title (optional)')),
-		'$placeholdersummary' => ((x($x, 'placeholdersummary')) ? $x['placeholdersummary'] : t('Summary (optional)')),
+		'$title' => ((!empty($x['title'])) ? htmlspecialchars($x['title'], ENT_COMPAT,'UTF-8') : ''),
+		'$summary' => ((!empty($x['summary'])) ? htmlspecialchars($x['summary'], ENT_COMPAT,'UTF-8') : ''),
+		'$placeholdertitle' => ((!empty($x['placeholdertitle'])) ? $x['placeholdertitle'] : t('Title (optional)')),
+		'$placeholdersummary' => ((!empty($x['placeholdersummary'])) ? $x['placeholdersummary'] : t('Summary (optional)')),
 		'$catsenabled' => $catsenabled,
-		'$category' => ((x($x, 'category')) ? $x['category'] : ''),
+		'$category' => ((!empty($x['category'])) ? $x['category'] : ''),
 		'$placeholdercategory' => t('Categories (optional, comma-separated list)'),
 		'$permset' => t('Permission settings'),
-		'$ptyp' => ((x($x, 'ptyp')) ? $x['ptyp'] : ''),
-		'$content' => ((x($x,'body')) ? htmlspecialchars($x['body'], ENT_COMPAT,'UTF-8') : ''),
-		'$attachment' => ((x($x, 'attachment')) ? $x['attachment'] : ''),
-		'$post_id' => ((x($x, 'post_id')) ? $x['post_id'] : ''),
+		'$ptyp' => ((!empty($x['ptyp'])) ? $x['ptyp'] : ''),
+		'$content' => ((!empty($x['body'])) ? htmlspecialchars($x['body'], ENT_COMPAT,'UTF-8') : ''),
+		'$attachment' => ((!empty($x['attachment'])) ? $x['attachment'] : ''),
+		'$post_id' => ((!empty($x['post_id'])) ? $x['post_id'] : ''),
 		'$defloc' => $x['default_location'] ?? '',
 		'$visitor' => $x['visitor'] ?? '',
 		'$lockstate' => $x['lockstate'] ?? '',
@@ -1304,7 +1189,7 @@ function hz_status_editor($x, $popup = false) {
 		'$bang' => $x['bang'] ?? '',
 		'$profile_uid' => $x['profile_uid'],
 		'$preview' => $preview,
-		'$source' => ((x($x, 'source')) ? $x['source'] : ''),
+		'$source' => ((!empty($x['source'])) ? $x['source'] : ''),
 		'$jotplugins' => $jotplugins,
 		'$jotnets' => $jotnets,
 		'$jotnets_label' => t('Other networks and post services'),
@@ -1319,33 +1204,31 @@ function hz_status_editor($x, $popup = false) {
 		'$cipher' => $cipher,
 		'$expiryModalOK' => t('OK'),
 		'$expiryModalCANCEL' => t('Cancel'),
-		'$expanded' => ((x($x, 'expanded')) ? $x['expanded'] : false),
-		'$bbcode' => ((x($x, 'bbcode')) ? $x['bbcode'] : false),
+		'$expanded' => ((!empty($x['expanded'])) ? $x['expanded'] : false),
+		'$bbcode' => ((!empty($x['bbcode'])) ? $x['bbcode'] : false),
 		'$parent' => ((array_key_exists('parent',$x) && $x['parent']) ? $x['parent'] : 0),
 		'$reset' => $reset,
 		'$is_owner' => ((local_channel() && (local_channel() == $x['profile_uid'])) ? true : false),
 		'$customjotheaders' => '',
 		'$custommoretoolsdropdown' => '',
 		'$custommoretoolsbuttons' => '',
-		'$customsubmitright' => []
+		'$customsubmitright' => [],
+		'$popup' => $popup
 	];
 
 	call_hooks('jot_tpl_filter',$tplmacros);
 
-	$o .= replace_macros($tpl, $tplmacros);
-	if ($popup === true) {
-		$o = '<div id="jot-popup" style="display:none">' . $o . '</div>';
-	}
-
-	return $o;
+	return replace_macros($tpl, $tplmacros);
 }
 
 
 function get_item_children($arr, $parent) {
-	$children = array();
+	$children = [];
+	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
+
 	foreach($arr as $item) {
 		if($item['id'] != $item['parent']) {
-			if(Config::Get('system','thread_allow')) {
+			if ($thread_allow) {
 				// Fallback to parent_mid if thr_parent is not set
 				$thr_parent = $item['thr_parent'];
 				if($thr_parent == '')
@@ -1532,7 +1415,7 @@ function prepare_page($item) {
 	));
 }
 
-function get_responses($conv_responses,$response_verbs,$ob,$item) {
+function get_responses($response_verbs, $item) {
 
 	$ret = array();
 	foreach($response_verbs as $v) {
@@ -1542,12 +1425,8 @@ function get_responses($conv_responses,$response_verbs,$ob,$item) {
 			continue;
 		}
 
-		$ret[$v] = [];
-		$ret[$v]['count'] = $conv_responses[$v][$item['mid']] ?? 0;
-		$ret[$v]['list']  = ((isset($conv_responses[$v][$item['mid']])) ? $conv_responses[$v][$item['mid'] . '-l'] : '');
-		$ret[$v]['button'] = get_response_button_text($v, $ret[$v]['count']);
-		$ret[$v]['title'] = $conv_responses[$v]['title'] ?? '';
-		$ret[$v]['modal'] = (($ret[$v]['count'] > MAX_LIKERS) ? true : false);
+		$ret[$v]['count'] = $item[$v . '_count'] ?? 0;
+		$ret[$v]['button'] = get_response_button_text($v, $ret[$v]['count'], $item['item_thread_top']);
 	}
 
 //logger('ret: ' . print_r($ret,true));
@@ -1555,25 +1434,28 @@ function get_responses($conv_responses,$response_verbs,$ob,$item) {
 	return $ret;
 }
 
-function get_response_button_text($v,$count) {
+function get_response_button_text($v, $count = 0, $top_level = 0) {
 	switch($v) {
 		case 'like':
-			return ['label' => tt('Like','Likes',$count,'noun'), 'icon' => 'hand-thumbs-up', 'class' => 'like', 'onclick' => 'dolike'];
+			return ['label' => tt('Like','Likes',$count,'noun'), 'icon' => 'hand-thumbs-up', 'class' => 'like', 'action' => 'dolike'];
 			break;
 		case 'announce':
-			return ['label' => tt('Repeat','Repeats',$count,'noun'), 'icon' => 'repeat', 'class' => 'announce', 'onclick' => 'jotShare'];
+			return ['label' => tt('Repeat','Repeats',$count,'noun'), 'icon' => 'repeat', 'class' => 'announce', 'action' => 'jotShare'];
 			break;
 		case 'dislike':
-			return ['label' => tt('Dislike','Dislikes',$count,'noun'), 'icon' => 'hand-thumbs-down', 'class' => 'dislike', 'onclick' => 'dolike'];
+			return ['label' => tt('Dislike','Dislikes',$count,'noun'), 'icon' => 'hand-thumbs-down', 'class' => 'dislike', 'action' => 'dolike'];
 			break;
-		case 'attendyes':
-			return ['label' => tt('Attending','Attending',$count,'noun'), 'icon' => 'calendar-check', 'class' => 'attendyes', 'onclick' => 'dolike'];
+		case 'comment':
+			return ['label' => (($top_level) ? tt('Comment', 'Comments' ,$count, 'noun') : tt('Reply', 'Replies', $count, 'noun')), 'icon' => 'chat', 'class' => 'comment', 'action' => ''];
 			break;
-		case 'attendno':
-			return ['label' => tt('Not Attending','Not Attending',$count,'noun'), 'icon' => 'calendar-x', 'class' => 'attendno', 'onclick' => 'dolike'];
+		case 'accept':
+			return ['label' => tt('Attending','Attending',$count,'noun'), 'icon' => 'calendar-check', 'class' => 'accept', 'action' => 'dolike'];
 			break;
-		case 'attendmaybe':
-			return ['label' => tt('Undecided','Undecided',$count,'noun'), 'icon' => 'calendar', 'class' => 'attendmaybe', 'onclick' => 'dolike'];
+		case 'reject':
+			return ['label' => tt('Not attending','Not attending',$count,'noun'), 'icon' => 'calendar-x', 'class' => 'reject', 'action' => 'dolike'];
+			break;
+		case 'tentativeaccept':
+			return ['label' => tt('Undecided','Undecided',$count,'noun'), 'icon' => 'calendar', 'class' => 'tentativeaccept', 'action' => 'dolike'];
 			break;
 		default:
 			return [];

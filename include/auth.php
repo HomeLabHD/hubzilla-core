@@ -216,12 +216,11 @@ function requires_mfa_check(int $account_id, string $module, string $arg): bool 
  * also handles logout
  */
 
-if((isset($_SESSION)) && (x($_SESSION, 'authenticated')) &&
-	((! (x($_POST, 'auth-params'))) || ($_POST['auth-params'] !== 'login'))) {
+if(!empty($_SESSION['authenticated']) && (empty($_POST['auth-params']) || $_POST['auth-params'] !== 'login')) {
 
 	// process a logout request
 
-	if(((x($_POST, 'auth-params')) && ($_POST['auth-params'] === 'logout')) || (App::$module === 'logout')) {
+	if((!empty($_POST['auth-params']) && $_POST['auth-params'] === 'logout') || App::$module === 'logout') {
 		// process logout request
 		$args = array('channel_id' => local_channel());
 		call_hooks('logging_out', $args);
@@ -241,7 +240,7 @@ if((isset($_SESSION)) && (x($_SESSION, 'authenticated')) &&
 
 	// re-validate a visitor, optionally invoke "su" if permitted to do so
 
-	if(x($_SESSION, 'visitor_id') && (! x($_SESSION, 'uid'))) {
+	if(!empty($_SESSION['visitor_id']) && empty($_SESSION['uid'])) {
 		// if our authenticated guest is allowed to take control of the admin channel, make it so.
 		$admins = Config::Get('system', 'remote_admin');
 		if($admins && is_array($admins) && in_array($_SESSION['visitor_id'], $admins)) {
@@ -281,7 +280,7 @@ if((isset($_SESSION)) && (x($_SESSION, 'authenticated')) &&
 
 	// already logged in user returning
 
-	if(x($_SESSION, 'uid') || x($_SESSION, 'account_id')) {
+	if(!empty($_SESSION['uid']) || !empty($_SESSION['account_id'])) {
 
 		App::$session->return_check();
 
@@ -292,7 +291,7 @@ if((isset($_SESSION)) && (x($_SESSION, 'authenticated')) &&
 		if(($r) && (($r[0]['account_flags'] == ACCOUNT_OK) || ($r[0]['account_flags'] == ACCOUNT_UNVERIFIED))) {
 			App::$account = $r[0];
 			$login_refresh = false;
-			if(! x($_SESSION,'last_login_date')) {
+			if(empty($_SESSION['last_login_date'])) {
 				$_SESSION['last_login_date'] = datetime_convert('UTC','UTC');
 			}
 			if(strcmp(datetime_convert('UTC','UTC','now - 12 hours'), $_SESSION['last_login_date']) > 0 ) {
@@ -331,7 +330,7 @@ else {
 	if($password)
 		$encrypted = hash('whirlpool', trim($password));
 
-	if((x($_POST, 'auth-params')) && $_POST['auth-params'] === 'login') {
+	if(!empty($_POST['auth-params']) && $_POST['auth-params'] === 'login') {
 
 		$atoken  = null;
 		$account = null;
@@ -354,9 +353,6 @@ else {
 		elseif($atoken) {
 			atoken_login($atoken);
 		}
-		else {
-			notice( t('Failed authentication') . EOL);
-		}
 
 		if(! ($account || $atoken)) {
 			$error = 'authenticate: failed login attempt: ' . notags(trim($username)) . ' from IP ' . $_SERVER['REMOTE_ADDR'];
@@ -365,8 +361,8 @@ else {
 			$authlog = Config::Get('system', 'authlog');
 			if ($authlog)
 				@file_put_contents($authlog, datetime_convert() . ':' . session_id() . ' ' . $error . "\n", FILE_APPEND);
-			notice( t('Login failed.') . EOL );
-			goaway(z_root() . '/login');
+
+			goaway(z_root() . '/login?retry=1');
 		}
 
 		// If the user specified to remember the authentication, then change the cookie

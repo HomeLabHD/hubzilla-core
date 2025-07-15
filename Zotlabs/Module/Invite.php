@@ -310,9 +310,9 @@ class Invite extends Controller {
 
 	function get() {
 
-		// zai1
+		$channel_id = local_channel();
 
-		if(! local_channel()) {
+		if ($channel_id === false || $channel_id < 1) {
 			notice( 'ZAI0101E,' . t('Permission denied.') . EOL);
 			return;
 		}
@@ -330,15 +330,15 @@ class Invite extends Controller {
 			return $o;
 		}
 
-		// invitation_by_user may still not configured, the default 'na' will tell this
-		// if configured, 0 disables invitations by users, other numbers are how many invites a user may propagate
-		$invuser = Config::Get('system','invitation_by_user', 'na');
+		$ihave = $this->count_invites_by_user($channel_id);
 
-		// if the mortal user drives the invitation
-		If (! is_site_admin()) {
-
-			// when not configured, 4 is the default
-			$invuser = ($invuser === 'na') ? 4 : $invuser;
+		if (is_site_admin()) {
+			// Admins have unlimited invites
+			$invuser = '∞';
+		} else {
+			// invitation_by_user may still not configured, the default 'na' will tell this
+			// if configured, 0 disables invitations by users, other numbers are how many invites a user may propagate
+			$invuser = Config::Get('system','invitation_by_user', 4);
 
 			// a config value 0 disables invitation by users
 			if (!$invuser) {
@@ -350,12 +350,6 @@ class Invite extends Controller {
 				notice( 'ZAI0105W,' . t('You have no more invitations available') . EOL);
 				return '';
 			}
-
-		} else {
-			// general deity admin invite limit infinite (theoretical)
-			if ($invuser === 'na') Config::Set('system','invitation_by_user', 4);
-			// for display only
-			$invuser = '∞';
 		}
 
 		// xchan record of the page observer
@@ -394,17 +388,6 @@ class Invite extends Controller {
 			}
 		}
 
-		if ($wehave > $invmaxau) {
-			if (! is_site_admin()) {
-				$feedbk .= 'ZAI0200E,' . t('All users invitation limit exceeded.') . $eol;
-			}
-		}
-
-		// let see how many invites currently used by the user
-		$r = q("SELECT count(reg_id) AS n FROM register WHERE reg_vital = 1 AND reg_byc = %d",
-			 intval(local_channel()));
-		$ihave = $r ? $r[0]['n'] : 0;
-
 		$tpl = get_markup_template('invite.tpl');
 
 		$inv_rabots = array(
@@ -420,11 +403,11 @@ class Invite extends Controller {
 			 	'field' => 	array(
 			 		'name'  => 'expire',
 			 		'title' => t('duration up from now'),
-			 		'value' => ($invexpire_n ? $invexpire_n : 2),
+			 		'value' => 2,
 			 		'min'  => '1',
 			 		'max'  => '99',
 			 		'size' => '2',
-					'default' => ($invexpire_u ? $invexpire_u : 'd')
+					'default' => 'd',
 			 	),
 			 	'rabot'	=> 	$inv_rabots
 			 )
@@ -582,6 +565,19 @@ class Invite extends Controller {
 			return array( 'durn' => $durn, 'durq' => $durq, 'due' => $due);
 		}
 		return false;
+	}
+
+	/**
+	 * Find how many invites the given channel is currently using.
+	 *
+	 * @param int $channel_id		The id of the channel
+	 *
+	 * @return int	Number of invites this channel is currently using.
+	 */
+	private function count_invites_by_user(int $channel): int {
+		$r = q("SELECT count(reg_id) AS n FROM register WHERE reg_vital = 1 AND reg_byc = %d", $channel);
+
+		return $r ? $r[0]['n'] : 0;
 	}
 }
 

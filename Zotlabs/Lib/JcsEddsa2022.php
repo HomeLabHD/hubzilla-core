@@ -7,11 +7,28 @@ use StephenHill\Base58;
 
 class JcsEddsa2022 {
 
-	public  function  __construct() {
-		return $this;
-	}
-
+	/**
+	 * Sign arbitrary data with the keys of the provided channel.
+	 *
+	 * @param $data				The data to be signed.
+	 * @param array $channel	A channel as an array of key/value pairs.
+	 *
+	 * @return An array with the following fields:
+	 *		- `type`: The type of signature, always `DataIntegrityProof`.
+	 *		- `cryptosuite`: The cryptographic algorithm used, always `eddsa-jcs-2022`.
+	 *		- `created`: The UTC date and timestamp when the signature was created.
+	 *		- `verificationMethod`: The channel URL and the public key separated by a `#`.
+	 *		- `proofPurpose`: The purpose of the signature, always `assertionMethod`.
+	 *		- `proofValue`: The signature itself.
+	 *
+	 * @throws JcsEddsa2022SignatureException if the channel is missing, or
+	 * don't have valid keys.
+	 */
 	public function sign($data, $channel): array {
+		if (!is_array($channel) || !isset($channel['channel_epubkey'], $channel['channel_eprvkey'])) {
+			throw new JcsEddsa2022SignException('Invalid or missing channel provided.');
+		}
+
 		$base58 = new Base58();
 		$pubkey = (new Multibase())->publicKey($channel['channel_epubkey']);
 		$options = [

@@ -19,7 +19,7 @@ class SmartyInterface extends Smarty {
 		// The order is thus very important here
 
 		$template_dirs = array('theme' => "view/theme/$thname/tpl/");
-		if ( x(App::$theme_info,"extends") ) {
+		if (!empty(App::$theme_info['extends'])) {
 			$template_dirs = $template_dirs + array('extends' => "view/theme/" . App::$theme_info["extends"] . "/tpl/");
 		}
 		$template_dirs = $template_dirs + array('base' => 'view/tpl/');

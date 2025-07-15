@@ -2,7 +2,10 @@
 
 namespace Zotlabs\Web;
 
+use App;
 use Zotlabs\Lib\Text;
+use GuzzleHttp\Psr7\Request;
+
 
 class WebServer {
 
@@ -17,9 +20,10 @@ class WebServer {
 
 		$installed = sys_boot();
 
+		$this->createRequest();
 
-		\App::$language = get_best_language();
-		load_translation_table(\App::$language, !$installed);
+		App::$language = get_best_language();
+		load_translation_table(App::$language, !$installed);
 
 
 		/**
@@ -33,8 +37,8 @@ class WebServer {
 		 *
 		 */
 
-		if(\App::$session) {
-			\App::$session->start();
+		if(App::$session) {
+			App::$session->start();
 	  	}
   		else {
 			session_start();
@@ -53,13 +57,13 @@ class WebServer {
 				unset($_SESSION['language']);
 		}
 
-		if ((x($_SESSION, 'language')) && ($_SESSION['language'] !== \App::$language)) {
-			\App::$language = $_SESSION['language'];
+		if ((!empty($_SESSION['language'])) && ($_SESSION['language'] !== App::$language)) {
+			App::$language = $_SESSION['language'];
 			load_translation_table(\App::$language);
 		}
 
-		if (x($_GET,'zid') && $installed) {
-			\App::$query_string = strip_zids(\App::$query_string);
+		if (!empty($_GET['zid']) && $installed) {
+			App::$query_string = strip_zids(App::$query_string);
 			if(! local_channel()) {
 				if (!isset($_SESSION['my_address'])) {
 					$_SESSION['my_address'] = Text::escape_tags($_GET['zid']);
@@ -71,26 +75,28 @@ class WebServer {
 			}
 		}
 
-		if (x($_GET,'zat') && $installed) {
-			\App::$query_string = strip_zats(\App::$query_string);
+		if (!empty($_GET['zat']) && $installed) {
+			App::$query_string = strip_zats(App::$query_string);
 			if(! local_channel()) {
 				zat_init();
 			}
 		}
 
-		if (x($_REQUEST,'owt') && $installed) {
+		if (!empty($_REQUEST['owt']) && $installed) {
 			$token = $_REQUEST['owt'];
-			\App::$query_string = strip_query_param(\App::$query_string,'owt');
+			App::$query_string = strip_query_param(App::$query_string,'owt');
 			owt_init($token);
 		}
 
-		if((x($_SESSION, 'authenticated')) || (x($_POST, 'auth-params')) || (\App::$module === 'login'))
+		if(!empty($_SESSION['authenticated']) || !empty($_POST['auth-params']) || App::$module === 'login') {
 			require('include/auth.php');
+		}
 
 		if (!$installed) {
 			/* Allow an exception for the view module so that pcss will be interpreted during installation */
-			if(\App::$module != 'view')
-				\App::$module = 'setup';
+			if(App::$module != 'view') {
+				App::$module = 'setup';
+			}
 		}
 		else {
 
@@ -111,17 +117,7 @@ class WebServer {
 
 		$Router->Dispatch();
 
-		// TODO: this is not used for anything atm and messes up comanche templates by adding some javascript
-		//$this->set_homebase();
-
-		// now that we've been through the module content, see if the page reported
-		// a permission problem and if so, a 403 response would seem to be in order.
-
-		if(isset($_SESSION['sysmsg']) && is_array($_SESSION['sysmsg']) && stristr(implode("", $_SESSION['sysmsg']), t('Permission denied'))) {
-			header($_SERVER['SERVER_PROTOCOL'] . ' 403 ' . t('Permission denied.'));
-		}
-
-		call_hooks('page_end', \App::$page['content']);
+		call_hooks('page_end', App::$page['content']);
 
 		construct_page();
 
@@ -129,14 +125,49 @@ class WebServer {
 	}
 
 
+	public function createRequest()
+	{
+		$input = null;
+
+		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+			$input = file_get_contents('php://input');
+		}
+
+		$headers = [];
+
+		if (isset($_SERVER['CONTENT_TYPE'])) {
+			$headers['content-type'] = $_SERVER['CONTENT_TYPE'];
+		}
+
+		if (isset($_SERVER['CONTENT_LENGTH'])) {
+			$headers['content-length'] = $_SERVER['CONTENT_LENGTH'];
+		}
+
+		foreach ($_SERVER as $k => $v) {
+			if (str_starts_with($k, 'HTTP_')) {
+				$field = str_replace('_', '-', strtolower(substr($k, 5)));
+				$headers[$field] = $v;
+			}
+		}
+
+		App::$request = new Request(
+			$_SERVER['REQUEST_METHOD'],
+			z_root() . ((App::$originalRequest) ?? $_SERVER['REQUEST_URI']),
+			$headers,
+			$input
+		);
+
+	}
+
 	private function initialise_content() {
 
 		/* initialise content region */
 
-		if(! x(\App::$page, 'content'))
-			\App::$page['content'] = '';
+		if(empty(App::$page['content'])) {
+			App::$page['content'] = '';
+		}
 
-		call_hooks('page_content_top', \App::$page['content']);
+		call_hooks('page_content_top', App::$page['content']);
 
 	}
 
@@ -148,44 +179,24 @@ class WebServer {
 		 * to all protocol drivers; thus doing it here avoids duplication.
 		 */
 
-		if (( \App::$module === 'channel' ) && argc() > 1) {
-			\App::$channel_links = [
+		if (App::$module === 'channel' && argc() > 1) {
+			App::$channel_links = [
 				[
 					'rel'  => 'lrdd',
 					'type' => 'application/xrd+xml',
-					'url'  => z_root() . '/xrd?f=&uri=acct%3A' . argv(1) . '%40' . \App::get_hostname()
+					'url'  => z_root() . '/xrd?f=&uri=acct%3A' . argv(1) . '%40' . App::get_hostname()
 				],
 				[
 					'rel'  => 'jrd',
 					'type' => 'application/jrd+json',
-					'url'  => z_root() . '/.well-known/webfinger?f=&resource=acct%3A' . argv(1) . '%40' . \App::get_hostname()
+					'url'  => z_root() . '/.well-known/webfinger?f=&resource=acct%3A' . argv(1) . '%40' . App::get_hostname()
 				],
 			];
-			$x = [ 'channel_address' => argv(1), 'channel_links' => \App::$channel_links ];
+			$x = [ 'channel_address' => argv(1), 'channel_links' => App::$channel_links ];
 			call_hooks('channel_links', $x );
-			\App::$channel_links = $x['channel_links'];
+			App::$channel_links = $x['channel_links'];
 			header('Link: ' . \App::get_channel_links());
 		}
 	}
-
-
-	private function set_homebase() {
-
-		// If you're just visiting, let javascript take you home
-
-		if(x($_SESSION, 'visitor_home')) {
-			$homebase = $_SESSION['visitor_home'];
-		}
-		elseif(local_channel()) {
-			$homebase = z_root() . '/channel/' . \App::$channel['channel_address'];
-		}
-
-		if(isset($homebase)) {
-			\App::$page['content'] .= '<script>var homebase = "' . $homebase . '";</script>';
-		}
-
-	}
-
-
 
 }

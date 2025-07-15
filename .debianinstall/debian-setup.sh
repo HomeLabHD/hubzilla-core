@@ -160,8 +160,8 @@ function install_composer {
     print_info "We check if Composer is already downloaded"
     if [ ! -f /usr/local/bin/composer ]
     then
-        EXPECTED_CHECKSUM="$(php -r 'copy("https://composer.github.io/installer.sig", "php://stdout");')"
-        php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+        EXPECTED_CHECKSUM="`wget -qO- https://composer.github.io/installer.sig`"
+        wget https://getcomposer.org/installer -O composer-setup.php
         ACTUAL_CHECKSUM="$(php -r "echo hash_file('sha384', 'composer-setup.php');")"
         if [ "$EXPECTED_CHECKSUM" != "$ACTUAL_CHECKSUM" ]
         then
@@ -171,6 +171,7 @@ function install_composer {
         fi
         php composer-setup.php --quiet
         RESULT=$?
+        composer --version
         rm composer-setup.php
         # exit $RESULT
         # We install Composer globally
@@ -181,7 +182,7 @@ function install_composer {
     fi
     cd $install_path
     export COMPOSER_ALLOW_SUPERUSER=1;
-    /usr/local/bin/composer install --no-dev
+    /usr/local/bin/composer install --no-dev --quiet
     /usr/local/bin/composer show
     export COMPOSER_ALLOW_SUPERUSER=0;
 }
@@ -307,10 +308,19 @@ function install_run_selfhost {
         # https://carol.selfhost.de/update?username=123456&password=supersafe
         #
         # the prefered way
-        wget --output-document=$selfhostdir/$selfhostscript http://jonaspasche.de/selfhost-updater
-        echo "router" > $selfhostdir/device
-        echo "$selfhost_user" > $selfhostdir/user
-        echo "$selfhost_pass" > $selfhostdir/pass
+        if [ ! -f $selfhostdir/$selfhostscript ]
+        then
+            wget --output-document=$selfhostdir/$selfhostscript https://jonaspasche.de/selfhost-updater
+            if [ ! -s $selfhostdir/$selfhostscript ]
+            then
+                die "Failed to download selfHOST file for dynDNS"
+            fi
+            echo "router" > $selfhostdir/device
+            echo "$selfhost_user" > $selfhostdir/user
+            echo "$selfhost_pass" > $selfhostdir/pass
+            print_info "Wrote file to update dynamic IP. File: $selfhostdir/$selfhostscript"
+        fi
+        print_info "executing $selfhostdir/$selfhostscript update..."
         bash $selfhostdir/$selfhostscript update
     fi
 }
@@ -386,7 +396,7 @@ function install_letsencrypt {
     then
         die "Failed to install let's encrypt: 'le_email' is empty in $configfile"
     fi
-    nocheck_install "certbot python-certbot-apache"
+    nocheck_install "certbot python3-certbot-apache"
     print_info "run certbot ..."
     certbot --apache -w $install_path -d $le_domain -m $le_email --agree-tos --non-interactive --redirect --hsts --uir
     service apache2 restart
@@ -441,7 +451,7 @@ function configure_cron_daily {
     echo "echo \" \"" >> /var/www/$cron_job
     echo "echo \"\$(date) - stopping apache and mysql...\"" >> /var/www/$cron_job
     echo "service apache2 stop" >> /var/www/$cron_job
-    echo "/etc/init.d/mysql stop # to avoid inconsistencies" >> /var/www/$cron_job
+    echo "systemctl stop  mysql.service # to avoid inconsistencies" >> /var/www/$cron_job
     echo "#" >> /var/www/$cron_job
     echo "echo \"\$(date) - renew certificate...\"" >> /var/www/$cron_job
     echo "certbot renew --noninteractive" >> /var/www/$cron_job

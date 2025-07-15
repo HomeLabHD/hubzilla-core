@@ -528,49 +528,59 @@ class ActivityStreams {
 	}
 
 	public function checkEddsaSignature() {
+		$publicKey = null;
 		$signer = $this->get_property_obj('verificationMethod', $this->sig);
 
-		$parseUrl = parse_url($signer);
-
-		if (isset($parseUrl['fragment'])) {
-			if (str_starts_with($parseUrl['fragment'], 'z6Mk')) {
-				$publicKey = $parseUrl['fragment'];
-			}
-			unset($parseUrl['fragment']);
-		}
-
-		if (isset($parseUrl['query'])) {
-			unset($parseUrl['query']);
-		}
-
-		$url = unparse_url($parseUrl);
-
-		$hublocs = Activity::get_actor_hublocs($url);
-
-		$hasStoredKey = false;
-		if ($hublocs) {
-			foreach ($hublocs as $hubloc) {
-				if ($publicKey && $hubloc['xchan_epubkey'] === $publicKey) {
-					$hasStoredKey = true;
-					break;
-				}
+		if ($signer && str_starts_with($signer, 'did:key:')) {
+			$publicKey = str_replace('did:key:', '', $signer);
+			$this->signer = ['id' => $signer];
+			if (strpos($publicKey, '#') !== false) {
+				$publicKey = substr($publicKey,0, strpos($publicKey, '#'));
 			}
 		}
+        else {
+			$parseUrl = parse_url($signer);
 
-		if (!$hasStoredKey) {
-			$this->signer = Activity::get_actor($url);
-
-			if (isset($this->signer['assertionMethod'])) {
-				if (!isset($this->signer['assertionMethod'][0])) {
-					$this->signer['assertionMethod'] = [$this->signer['assertionMethod']];
+			if (isset($parseUrl['fragment'])) {
+				if (str_starts_with($parseUrl['fragment'], 'z6Mk')) {
+					$publicKey = $parseUrl['fragment'];
 				}
+				unset($parseUrl['fragment']);
+			}
 
-				foreach($this->signer['assertionMethod'] as $am) {
-					if ($url === $am['controller'] &&
-						$am['type'] === 'Multikey' &&
-						str_starts_with($am['publicKeyMultibase'], 'z6Mk')
-					) {
-						$publicKey = $am['publicKeyMultibase'];
+			if (isset($parseUrl['query'])) {
+				unset($parseUrl['query']);
+			}
+
+			$url = unparse_url($parseUrl);
+
+			$hublocs = Activity::get_actor_hublocs($url);
+
+			$hasStoredKey = false;
+			if ($hublocs) {
+				foreach ($hublocs as $hubloc) {
+					if ($publicKey && $hubloc['xchan_epubkey'] === $publicKey) {
+						$hasStoredKey = true;
+						break;
+					}
+				}
+			}
+
+			if (!$hasStoredKey) {
+				$this->signer = Activity::get_actor($url);
+
+				if (isset($this->signer['assertionMethod'])) {
+					if (!isset($this->signer['assertionMethod'][0])) {
+						$this->signer['assertionMethod'] = [$this->signer['assertionMethod']];
+					}
+
+					foreach($this->signer['assertionMethod'] as $am) {
+						if ($url === $am['controller'] &&
+							$am['type'] === 'Multikey' &&
+							str_starts_with($am['publicKeyMultibase'], 'z6Mk')
+						) {
+							$publicKey = $am['publicKeyMultibase'];
+						}
 					}
 				}
 			}

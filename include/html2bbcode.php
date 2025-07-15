@@ -176,7 +176,7 @@ function html2bbcode($message)
 	//node2bbcode($doc, 'span', array('style'=>'/.*font-size:\s*(\d+)[,;].*/'), '[size=$1]', '[/size]');
 	//node2bbcode($doc, 'span', array('style'=>'/.*font-size:\s*(.+?)[,;].*/'), '[size=$1]', '[/size]');
 
-	node2bbcode($doc, 'span', array('style'=>'/.*color:\s*(.+?)[,;].*/'), '[color="$1"]', '[/color]');
+	node2bbcode($doc, 'span', array('style'=>'/.*color:\s*(.+?)[,;].*/'), '[color=$1]', '[/color]');
 	//node2bbcode($doc, 'span', array('style'=>'/.*font-family:\s*(.+?)[,;].*/'), '[font=$1]', '[/font]');
 
 	//node2bbcode($doc, 'div', array('style'=>'/.*font-family:\s*(.+?)[,;].*font-size:\s*(\d+?)pt.*/'), '[font=$1][size=$2]', '[/size][/font]');

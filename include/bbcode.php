@@ -420,12 +420,12 @@ function getAttachmentData($body) {
 	$type = "";
 	preg_match("/type='(.*?)'/ism", $attributes, $matches);
 
-	if (x($matches, 1)) {
+	if (!empty($matches[1])) {
 		$type = strtolower($matches[1]);
 	}
 
 	preg_match('/type=\&quot\;(.*?)\&quot\;/ism', $attributes, $matches);
-	if (x($matches, 1)) {
+	if (!empty($matches[1])) {
 		$type = strtolower($matches[1]);
 	}
 
@@ -442,12 +442,12 @@ function getAttachmentData($body) {
 	}
 	$url = "";
 	preg_match("/url='(.*?)'/ism", $attributes, $matches);
-	if (x($matches, 1)) {
+	if (!empty($matches[1])) {
 		$url = $matches[1];
 	}
 
 	preg_match('/url=\&quot\;(.*?)\&quot\;/ism', $attributes, $matches);
-	if (x($matches, 1)) {
+	if (!empty($matches[1])) {
 		$url = $matches[1];
 	}
 
@@ -457,12 +457,12 @@ function getAttachmentData($body) {
 
 	$title = "";
 	preg_match("/title='(.*?)'/ism", $attributes, $matches);
-	if (x($matches, 1)) {
+	if (!empty($matches[1])) {
 		$title = $matches[1];
 	}
 
 	preg_match('/title=\&quot\;(.*?)\&quot\;/ism', $attributes, $matches);
-	if (x($matches, 1)) {
+	if (!empty($matches[1])) {
 		$title = $matches[1];
 	}
 	if ($title != "") {
@@ -473,12 +473,12 @@ function getAttachmentData($body) {
 
 	$image = "";
 	preg_match("/image='(.*?)'/ism", $attributes, $matches);
-	if (x($matches, 1)) {
+	if (!empty($matches[1])) {
 		$image = $matches[1];
 	}
 
 	preg_match('/image=\&quot\;(.*?)\&quot\;/ism', $attributes, $matches);
-	if (x($matches, 1)) {
+	if (!empty($matches[1])) {
 		$image = $matches[1];
 	}
 
@@ -488,12 +488,12 @@ function getAttachmentData($body) {
 
 	$preview = "";
 	preg_match("/preview='(.*?)'/ism", $attributes, $matches);
-	if (x($matches, 1)) {
+	if (!empty($matches[1])) {
 		$preview = $matches[1];
 	}
 
 	preg_match('/preview=\&quot\;(.*?)\&quot\;/ism', $attributes, $matches);
-	if (x($matches, 1)) {
+	if (!empty($matches[1])) {
 		$preview = $matches[1];
 	}
 	if ($preview != "") {
@@ -1190,7 +1190,7 @@ function bbcode($text, $options = []) {
 	$cache       = ((array_key_exists('cache',$options)) ? $options['cache'] : false);
 	$newwin      = ((array_key_exists('newwin',$options)) ? $options['newwin'] : true);
 
-	$target = (($newwin) ? ' target="_blank" ' : '');
+	$target = (($newwin) ? 'target="_blank"' : '');
 
 	/**
 	 * @hooks bbcode_filter
@@ -1332,19 +1332,29 @@ function bbcode($text, $options = []) {
 		$text = str_replace('[observer.photo]','', $text);
 	}
 
-
-
 	// Perform URL Search
-
 	$urlchars = '[a-zA-Z0-9\pL\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,\@\(\)]';
 
 	if (strpos($text,'http') !== false) {
 		if($tryoembed) {
 			$text = preg_replace_callback("/([^\]\='".'"'."\;\/]|^|\#\^)(https?\:\/\/$urlchars+)/ismu", 'tryoembed', $text);
 		}
-		// Is this still desired?
-		// We already turn naked URLs into links during creation time cleanup_bbcode()
+
 		$text = preg_replace("/([^\]\='".'"'."\;\/]|^|\#\^)(https?\:\/\/$urlchars+)/ismu", '$1<a href="$2" ' . $target . ' rel="nofollow noopener">$2</a>', $text);
+	}
+
+	// Turn naked geo URIs into clickable links
+	if (str_contains($text, 'geo:')) {
+		$text = preg_replace_callback(
+			'/([^\]\=\'";\/]|^|\#\^)(geo:([A-Za-z0-9:.,;_+\-?&=%]+)(?:\(([^)]+)\))?)/ismu',
+			function ($matches) {
+				$before = $matches[1];
+				$geo_uri = $matches[2];
+				$label = ((!empty($matches[4])) ? '📍' . urldecode($matches[4]) : $geo_uri);
+				return $before . '<a href="' . htmlspecialchars($geo_uri) . '" target="_blank" rel="nofollow noopener">' . htmlspecialchars($label) . '</a>';
+			},
+			$text
+		);
 	}
 
 	$count = 0;
@@ -1360,23 +1370,23 @@ function bbcode($text, $options = []) {
 	}
 
 	if (strpos($text,'[/url]') !== false) {
-		$text = preg_replace("/\#\^\[url\]([$URLSearchString]*)\[\/url\]/ism", '<span class="bookmark-identifier">#^</span><a class="bookmark" href="$1" ' . $target . ' rel="nofollow noopener" >$1</a>', $text);
-		$text = preg_replace("/\#\^\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '<span class="bookmark-identifier">#^</span><a class="bookmark" href="$1" ' . $target . ' rel="nofollow noopener" >$2</a>', $text);
-		$text = preg_replace("/\[url\]([$URLSearchString]*)\[\/url\]/ism", '<a href="$1" ' . $target . ' rel="nofollow noopener" >$1</a>', $text);
-		$text = preg_replace("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '<a href="$1" ' . $target . ' rel="nofollow noopener" >$2</a>', $text);
+		$text = preg_replace("/\#\^\[url\]([$URLSearchString]*)\[\/url\]/ism", '<span class="bookmark-identifier">#^</span><a class="bookmark" href="$1" ' . $target . ' rel="nofollow noopener">$1</a>', $text);
+		$text = preg_replace("/\#\^\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '<span class="bookmark-identifier">#^</span><a class="bookmark" href="$1" ' . $target . ' rel="nofollow noopener">$2</a>', $text);
+		$text = preg_replace("/\[url\]([$URLSearchString]*)\[\/url\]/ism", '<a href="$1" ' . $target . ' rel="nofollow noopener">$1</a>', $text);
+		$text = preg_replace("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '<a href="$1" ' . $target . ' rel="nofollow noopener">$2</a>', $text);
 	}
 
 	if (strpos($text,'[/zrl]') !== false) {
-		$text = preg_replace("/\#\^\[zrl\]([$URLSearchString]*)\[\/zrl\]/ism", '<span class="bookmark-identifier">#^</span><a class="zrl bookmark" href="$1" ' . $target . ' rel="nofollow noopener" >$1</a>', $text);
-		$text = preg_replace("/\#\^\[zrl\=([$URLSearchString]*)\](.*?)\[\/zrl\]/ism", '<span class="bookmark-identifier">#^</span><a class="zrl bookmark" href="$1" ' . $target . ' rel="nofollow noopener" >$2</a>', $text);
-		$text = preg_replace("/\[zrl\]([$URLSearchString]*)\[\/zrl\]/ism", '<a class="zrl" href="$1" ' . $target . ' rel="nofollow noopener" >$1</a>', $text);
-		$text = preg_replace("/\[zrl\=([$URLSearchString]*)\](.*?)\[\/zrl\]/ism", '<a class="zrl" href="$1" ' . $target . ' rel="nofollow noopener" >$2</a>', $text);
+		$text = preg_replace("/\#\^\[zrl\]([$URLSearchString]*)\[\/zrl\]/ism", '<span class="bookmark-identifier">#^</span><a class="zrl bookmark" href="$1" ' . $target . ' rel="nofollow noopener">$1</a>', $text);
+		$text = preg_replace("/\#\^\[zrl\=([$URLSearchString]*)\](.*?)\[\/zrl\]/ism", '<span class="bookmark-identifier">#^</span><a class="zrl bookmark" href="$1" ' . $target . ' rel="nofollow noopener">$2</a>', $text);
+		$text = preg_replace("/\[zrl\]([$URLSearchString]*)\[\/zrl\]/ism", '<a class="zrl" href="$1" ' . $target . ' rel="nofollow noopener">$1</a>', $text);
+		$text = preg_replace("/\[zrl\=([$URLSearchString]*)\](.*?)\[\/zrl\]/ism", '<a class="zrl" href="$1" ' . $target . ' rel="nofollow noopener">$2</a>', $text);
 	}
 
 	// Perform MAIL Search
 	if (strpos($text,'[/mail]') !== false) {
-		$text = preg_replace("/\[mail\]([$MAILSearchString]*)\[\/mail\]/", '<a href="mailto:$1" ' . $target . ' rel="nofollow noopener" >$1</a>', $text);
-		$text = preg_replace("/\[mail\=([$MAILSearchString]*)\](.*?)\[\/mail\]/", '<a href="mailto:$1" ' . $target . ' rel="nofollow noopener" >$2</a>', $text);
+		$text = preg_replace("/\[mail\]([$MAILSearchString]*)\[\/mail\]/", '<a href="mailto:$1" ' . $target . ' rel="nofollow noopener">$1</a>', $text);
+		$text = preg_replace("/\[mail\=([$MAILSearchString]*)\](.*?)\[\/mail\]/", '<a href="mailto:$1" ' . $target . ' rel="nofollow noopener">$2</a>', $text);
 	}
 
 
@@ -1401,6 +1411,9 @@ function bbcode($text, $options = []) {
 	// Check for bold text
 	if (strpos($text,'[b]') !== false) {
 		$text = preg_replace("(\[b\](.*?)\[\/b\])ism", '<strong>$1</strong>', $text);
+	}
+	if (strpos($text,'[strong]') !== false) {
+		$text = preg_replace("(\[strong\](.*?)\[\/strong\])ism", '<strong>$1</strong>', $text);
 	}
 	// Check for Italics text
 	if (strpos($text,'[i]') !== false) {
@@ -1734,17 +1747,17 @@ function bbcode($text, $options = []) {
 
 	// if video couldn't be embedded, link to it instead.
 	if (strpos($text,'[/video]') !== false) {
-		$text = preg_replace("/\[video\](.*?)\[\/video\]/", '<a href="$1" ' . $target . ' rel="nofollow noopener" >$1</a>', $text);
+		$text = preg_replace("/\[video\](.*?)\[\/video\]/", '<a href="$1" ' . $target . ' rel="nofollow noopener">$1</a>', $text);
 	}
 	if (strpos($text,'[/audio]') !== false) {
-		$text = preg_replace("/\[audio\](.*?)\[\/audio\]/", '<a href="$1" ' . $target . ' rel="nofollow noopener" >$1</a>', $text);
+		$text = preg_replace("/\[audio\](.*?)\[\/audio\]/", '<a href="$1" ' . $target . ' rel="nofollow noopener">$1</a>', $text);
 	}
 
 	if (strpos($text,'[/zvideo]') !== false) {
-		$text = preg_replace("/\[zvideo\](.*?)\[\/zvideo\]/", '<a class="zid" href="$1" ' . $target . ' rel="nofollow noopener" >$1</a>', $text);
+		$text = preg_replace("/\[zvideo\](.*?)\[\/zvideo\]/", '<a class="zid" href="$1" ' . $target . ' rel="nofollow noopener">$1</a>', $text);
 	}
 	if (strpos($text,'[/zaudio]') !== false) {
-		$text = preg_replace("/\[zaudio\](.*?)\[\/zaudio\]/", '<a class="zid" href="$1" ' . $target . ' rel="nofollow noopener" >$1</a>', $text);
+		$text = preg_replace("/\[zaudio\](.*?)\[\/zaudio\]/", '<a class="zid" href="$1" ' . $target . ' rel="nofollow noopener">$1</a>', $text);
 	}
 
 	// oembed tag
@@ -1758,7 +1771,7 @@ function bbcode($text, $options = []) {
 	// Summary (e.g. title) is required, earlier revisions only required description (in addition to
 	// start which is always required). Allow desc with a missing summary for compatibility.
 
-	if ((x($ev,'desc') || x($ev,'summary')) && x($ev,'dtstart')) {
+	if ((!empty($ev['desc']) || !empty($ev['summary'])) && !empty($ev['dtstart'])) {
 
 		$sub = format_event_html($ev);
 
@@ -1810,9 +1823,13 @@ function bbcode($text, $options = []) {
 		$text = preg_replace("/\<(.*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism", '<$1$2=$3&$4>', $text);
 
 	// This is subtle - it's an XSS filter. It only accepts links with a protocol scheme and where
-	// the scheme begins with z (zhttp), h (http(s)), f (ftp(s)), m (mailto), t (tel) and named anchors.
+	// the scheme begins with http:, https:, mailto:, tel:, geo: and named anchors.
 
-	$text = preg_replace("/\<(.*?)(src|href)=\"[^zhfmt#](.*?)\>/ism", '<$1$2="">', $text);
+	$text = preg_replace(
+		'/(<[^>]*?\b(?:src|href)\s*=\s*([\'"])\s*)(?!https?:|geo:|mailto:|tel:|#)[^\'"]*?\2/iu',
+		'$1$2$2',
+		$text
+	);
 
 	$text = bb_replace_images($text, $saved_images);
 
