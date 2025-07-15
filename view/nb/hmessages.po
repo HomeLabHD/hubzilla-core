@@ -5331,15 +5331,15 @@ msgstr "Vis"
 #: ../../addon/wiki/Mod_Wiki.php:217 ../../Zotlabs/Module/Manage.php:137
 #: ../../Zotlabs/Module/Profiles.php:852
 msgid "Create New"
-msgstr "Lag ny profil"
+msgstr "Lag ny"
 
 #: ../../addon/wiki/Mod_Wiki.php:219
 msgid "Wiki name"
-msgstr ""
+msgstr "Navn på wikien"
 
 #: ../../addon/wiki/Mod_Wiki.php:220
 msgid "Content type"
-msgstr ""
+msgstr "Formatering"
 
 #: ../../addon/wiki/Mod_Wiki.php:222 ../../Zotlabs/Storage/Browser.php:386
 msgid "Type"
@@ -5347,28 +5347,28 @@ msgstr "Type"
 
 #: ../../addon/wiki/Mod_Wiki.php:223
 msgid "Any&nbsp;type"
-msgstr ""
+msgstr "Fleksibel"
 
 #: ../../addon/wiki/Mod_Wiki.php:230
 msgid "Lock content type"
-msgstr ""
+msgstr "Lås formatering"
 
 #: ../../addon/wiki/Mod_Wiki.php:231
 msgid "Create a status post for this wiki"
-msgstr ""
+msgstr "Lag en statusoppdatering for denne wikien"
 
 #: ../../addon/wiki/Mod_Wiki.php:232
 msgid "Edit Wiki Name"
-msgstr ""
+msgstr "Rediger wikinavn"
 
 #: ../../addon/wiki/Mod_Wiki.php:277
 #, fuzzy
 msgid "Wiki not found"
-msgstr "Fant ikke wikien."
+msgstr "Fant ikke wikien"
 
 #: ../../addon/wiki/Mod_Wiki.php:303
 msgid "Rename page"
-msgstr ""
+msgstr "Endre navn på siden"
 
 #: ../../addon/wiki/Mod_Wiki.php:304 ../../addon/hsse/hsse.php:186
 #: ../../Zotlabs/Lib/ThreadItem.php:294 ../../Zotlabs/Widget/Cdav.php:142
@@ -5379,15 +5379,15 @@ msgstr "Del"
 
 #: ../../addon/wiki/Mod_Wiki.php:318
 msgid "Error retrieving page content"
-msgstr ""
+msgstr "Feil ved henting av sidens innhold"
 
 #: ../../addon/wiki/Mod_Wiki.php:326 ../../addon/wiki/Mod_Wiki.php:328
 msgid "New page"
-msgstr ""
+msgstr "Ny side"
 
 #: ../../addon/wiki/Mod_Wiki.php:363
 msgid "Revision Comparison"
-msgstr ""
+msgstr "Sammenlign versjoner"
 
 #: ../../addon/wiki/Mod_Wiki.php:364
 #: ../../addon/wiki/Lib/NativeWikiPage.php:595
@@ -5397,15 +5397,15 @@ msgstr "Tilbakestill"
 
 #: ../../addon/wiki/Mod_Wiki.php:371
 msgid "Short description of your changes (optional)"
-msgstr ""
+msgstr "Kort beskrivelse av endringene (valgfritt)"
 
 #: ../../addon/wiki/Mod_Wiki.php:391
 msgid "New page name"
-msgstr ""
+msgstr "Nytt navn"
 
 #: ../../addon/wiki/Mod_Wiki.php:396
 msgid "Embed image from photo albums"
-msgstr ""
+msgstr "Bygg inn bilde fra fotoalbumene dine"
 
 #: ../../addon/wiki/Mod_Wiki.php:402 ../../Zotlabs/Module/Cover_photo.php:390
 #: ../../Zotlabs/Module/Profile_photo.php:557
@@ -5414,59 +5414,59 @@ msgstr "Velg et annet album"
 
 #: ../../addon/wiki/Mod_Wiki.php:407
 msgid "History"
-msgstr ""
+msgstr "Historikk"
 
 #: ../../addon/wiki/Mod_Wiki.php:485
 msgid "Error creating wiki. Invalid name."
-msgstr ""
+msgstr "Feil ved oppretting av wiki. Ugyldig navn."
 
 #: ../../addon/wiki/Mod_Wiki.php:492
 msgid "A wiki with this name already exists."
-msgstr ""
+msgstr "En wiki med samme navn finnes allerede."
 
 #: ../../addon/wiki/Mod_Wiki.php:505
 msgid "Wiki created, but error creating Home page."
-msgstr ""
+msgstr "Wiki opprettet, men det oppstod en feil ved opprettelsen av wikiens hjemmeside."
 
 #: ../../addon/wiki/Mod_Wiki.php:512
 msgid "Error creating wiki"
-msgstr ""
+msgstr "Feil ved opprettelsen av wikien"
 
 #: ../../addon/wiki/Mod_Wiki.php:536
 msgid "Error updating wiki. Invalid name."
-msgstr ""
+msgstr "Feil ved endring av wiki. Ugyldig navn."
 
 #: ../../addon/wiki/Mod_Wiki.php:555
 msgid "Error updating wiki"
-msgstr ""
+msgstr "Feil ved endring av wiki"
 
 #: ../../addon/wiki/Mod_Wiki.php:570
 msgid "Wiki delete permission denied."
-msgstr ""
+msgstr "Du har ikke lov til å slette denne wikien."
 
 #: ../../addon/wiki/Mod_Wiki.php:580
 msgid "Error deleting wiki"
-msgstr ""
+msgstr "Feil ved sletting av wiki"
 
 #: ../../addon/wiki/Mod_Wiki.php:613
 msgid "New page created"
-msgstr ""
+msgstr "Ny side opprettet"
 
 #: ../../addon/wiki/Mod_Wiki.php:739
 msgid "Cannot delete Home"
-msgstr ""
+msgstr "Du kan ikke slette wikiens hjemmeside"
 
 #: ../../addon/wiki/Mod_Wiki.php:815
 msgid "Current Revision"
-msgstr ""
+msgstr "Gjeldende versjon"
 
 #: ../../addon/wiki/Mod_Wiki.php:815
 msgid "Selected Revision"
-msgstr ""
+msgstr "Valgt versjon"
 
 #: ../../addon/wiki/Mod_Wiki.php:870
 msgid "You must be authenticated."
-msgstr ""
+msgstr "Du må være autentisert."
 
 #: ../../addon/wiki/Mod_Wiki.php:899 ../../addon/wiki/Widget/Wiki_pages.php:64
 msgid "Add new page"
