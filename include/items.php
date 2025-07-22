@@ -4198,25 +4198,20 @@ function delete_item_lowlevel($item, $stage = DROPITEM_NORMAL) {
  */
 function first_post_date($uid, $wall = false) {
 
-	$sql_extra = '';
-
 	switch(App::$module) {
 		case 'articles':
-			$sql_extra .= " and item_type = 7 ";
 			$item_normal = " and item.item_hidden = 0 and item.item_type = 7 and item.item_deleted = 0
 				and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_pending_remove = 0
 				and item.item_blocked = 0 ";
 			break;
-		case 'channel':
-			$sql_extra = " and item_wall = 1 ";
 		default:
 			$item_normal = item_normal();
 			break;
 	}
 
 	$r = q("select id, created from item
-		where uid = %d and id = parent $item_normal $sql_extra
-		order by created asc limit 1",
+		where uid = %d and id = parent $item_normal
+		order by created limit 1",
 		intval($uid)
 	);
 
