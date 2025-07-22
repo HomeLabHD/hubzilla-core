@@ -190,7 +190,8 @@ function tagadelic($uid, $count = 0, $authors = '', $owner = '', $flags = 0, $re
 	// Fetch tags
 	$r = q("select term, count(term) as total from term left join item on term.oid = item.id
 		where term.uid = %d and term.ttype = %d
-		and otype = %d and item_type = %d
+		and term.otype = %d and item.item_type = %d
+		and item.id = item.parent
 		$sql_options $item_normal
 		group by term order by total desc %s",
 		intval($uid),
