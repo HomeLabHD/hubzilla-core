@@ -1838,7 +1838,6 @@ function doreply(parent, ident, owner, hint) {
 	if (textarea) {
 		let commentBody = localStorage.getItem('comment_body-' + ident);
 		if (commentBody) {
-			console.log('localstorage')
 			textarea.value = commentBody;
 		}
 		else {
