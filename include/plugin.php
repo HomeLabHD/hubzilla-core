@@ -769,7 +769,8 @@ function get_theme_info($theme){
 		'experimental' => false,
 		'unsupported' => false,
 		'theme_color' => '',
-		'background_color' => ''
+		'background_color' => '',
+		'extends' => '',
 	);
 
 	if(file_exists("view/theme/$theme/experimental"))
@@ -1077,10 +1078,11 @@ function theme_include($file, $root = '') {
 		$root = $root . '/';
 	$theme_info = App::$theme_info;
 
-	if(array_key_exists('extends',$theme_info))
-		$parent = $theme_info['extends'];
-	else
+	if(empty($theme_info['extends'])) {
 		$parent = 'NOPATH';
+	} else {
+		$parent = $theme_info['extends'];
+	}
 
 	$theme = Zotlabs\Render\Theme::current();
 	$thname = $theme[0];
