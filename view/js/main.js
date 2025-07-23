@@ -1771,6 +1771,7 @@ function doprofilelike(ident, verb) {
 
 function doreply(parent, ident, owner, hint) {
 	const modal = new bootstrap.Modal('#reactions');
+	const modal_container = document.getElementById('reactions')
 	const modal_content = document.getElementById('reactions_body');
 	const modal_title = document.getElementById('reactions_title');
 	const modal_action = document.getElementById('reactions_action');
@@ -1779,10 +1780,12 @@ function doreply(parent, ident, owner, hint) {
 	modal_title.innerHTML = hint;
 
 	const preview = document.getElementById('comment-edit-preview-' + parent.toString());
-	preview.innerHTML = '';
+	if (preview) preview.innerHTML = '';
+
+	const form_container = document.getElementById('comment-edit-wrapper-' + parent.toString());
 
 	// Get the form element by ID
-	const form = document.getElementById('comment-edit-wrapper-' + parent.toString());
+	const form = document.getElementById('comment-edit-form-' + parent.toString());
 	if (!form) return;
 
 	modal_content.innerHTML = '';
@@ -1790,12 +1793,14 @@ function doreply(parent, ident, owner, hint) {
 
 	// Set the value of the input named 'parent'
 	const parentInput = form.querySelector('input[name=parent]');
+
 	if (parentInput) {
 		parentInput.value = ident;
 	}
 
 	// Find the submit button and update its HTML
 	const submitBtn = form.querySelector('button[type=submit]');
+
 	if (submitBtn) {
 		const btnText = submitBtn.innerHTML.replace(/<[^>]*>/g, '').trim();
 		submitBtn.innerHTML = '<i class="bi bi-arrow-90deg-left"></i> ' + btnText;
@@ -1808,6 +1813,7 @@ function doreply(parent, ident, owner, hint) {
 	// Check if the selection is inside the correct element
 	let isInSel = false;
 	const anchorNode = window.getSelection().anchorNode;
+
 	if (anchorNode) {
 		let node = anchorNode.nodeType === 3 ? anchorNode.parentNode : anchorNode;
 		while (node) {
@@ -1821,15 +1827,26 @@ function doreply(parent, ident, owner, hint) {
 
 	modal.show();
 
+	modal_container.addEventListener('hide.bs.modal', event => {
+		// move form back to where it was
+		form_container.append(form);
+	});
+
 	// Set the textarea value
 	const textarea = form.querySelector('textarea');
+
 	if (textarea) {
 		let commentBody = localStorage.getItem('comment_body-' + ident);
 		if (commentBody) {
+			console.log('localstorage')
 			textarea.value = commentBody;
 		}
 		else {
-			textarea.value = "@{" + owner + "}" + ((!isInSel || quote.length === 0) ? " " : "\n[quote]" + quote + "[/quote]\n");
+			textarea.value = '@{' + owner + '} ';
+
+			if (quote && isInSel) {
+				textarea.value += "\n[quote]" + quote + "[/quote]\n";
+			}
 		}
 
 		textarea.focus();
