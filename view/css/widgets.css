@@ -14,8 +14,13 @@
 
 .tags {
 	word-wrap: break-word;
+  display: flex;
+  justify-content: center;
 }
 
+.tag {
+  margin-right: 0.3rem;
+}
 .widget-nav-pills-icons {
 	opacity: 0;
 	float: right;

@@ -484,11 +484,14 @@ function wtagblock($uid,$count = 0,$authors = '',$owner = '', $flags = 0,$restri
 			intval($uid)
 		);
 
-		$o = '<div class="tagblock widget"><h3>' . t('Tags') . '</h3><div class="tags" align="center">';
-		foreach($r as $rr) {
-		  $o .= '<span class="tag' . $rr[2] . '">#</span><a href="channel/' . $c[0]['channel_address'] . '?f=&tag=' . urlencode($rr[0]).'" class="tag'.$rr[2].'">'.$rr[0].'</a> ' . "\r\n";
-		}
-		$o .= '</div></div>';
+	  $channel = App::get_channel();
+	  $url = z_root() . '/channel/' . $channel['channel_address'].'/?f=&tag=';
+    $tpl = get_markup_template('tagcloud.tpl');
+    $o .= replace_macros($tpl, [
+      '$title' => t('Tags'),
+      '$baseurl' => $url,
+      '$tags' => $r,
+    ]);
 	}
 
 	return $o;
@@ -564,13 +567,14 @@ function dir_tagblock($link,$r) {
 		$r = App::$data['directory_keywords'] ?? [];
 
 	if($r) {
-		$o = '<div class="dirtagblock widget"><h3>' . t('Keywords') . '</h3><div class="tags" align="center">';
-		foreach($r as $rr) {
-			$o .= '<a href="'.$link .'/' . '?f=&keywords=' . urlencode($rr['term']).'" class="tag'.$rr['normalise'].'" rel="nofollow" >'.$rr['term'].'</a> ' . "\r\n";
-		}
-		$o .= '</div></div>';
+	  $url = $link . '/?f=&keywords=';
+    $tpl = get_markup_template('dirtagcloud.tpl');
+    $o .= replace_macros($tpl, [
+      '$title' => t('Keywords'),
+      '$baseurl' => $url,
+      '$tags' => $r,
+    ]);
 	}
-
 	return $o;
 }
 
