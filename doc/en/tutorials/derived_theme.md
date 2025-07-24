@@ -38,7 +38,9 @@ Inside it, put the following information - edit as needed
  */
 ```
 
-Remember to rename the `mytheme_init` function with your theme name. In this case we will be extending the theme 'redbasic'.
+The top comment in the file makes up the information that is used by $Projectname for the information about the theme. Each of the lines is a kayword followed by a colon and a value. Notice the last line in the comment: `Extends: redbasic`. This is what tells $Projectname that this is a derived theme, and that it should get any elements missing from this theme from the parent theme. In this case we will be extending the theme 'redbasic'.
+
+We don't need any further code in this file for now, so just leave it empty.
 
 #### The PCSS file and style.css
 
