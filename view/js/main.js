@@ -1790,6 +1790,7 @@ function doreply(parent, ident, owner, hint) {
 
 	modal_content.innerHTML = '';
 	modal_content.append(form);
+	modal_content.append(preview);
 
 	// Set the value of the input named 'parent'
 	const parentInput = form.querySelector('input[name=parent]');
@@ -1830,6 +1831,7 @@ function doreply(parent, ident, owner, hint) {
 	modal_container.addEventListener('hide.bs.modal', event => {
 		// move form back to where it was
 		form_container.append(form);
+		form_container.append(preview);
 	});
 
 	// Set the textarea value
@@ -2070,6 +2072,10 @@ function post_comment(id) {
 				$("#comment-edit-preview-" + id).hide();
 				$("#comment-edit-text-" + id).val('').blur().attr('placeholder', aStr.comment);
 				$('#wall-item-sub-thread-wrapper-' + data.thr_parent_id).append(data.html);
+
+				const comment = document.getElementById('wall-item-content-wrapper-' + data.id);
+				comment.classList.add('item-highlight-fade');
+				comment.scrollIntoView();
 
 				updateRelativeTime('.autotime');
 				$('body').css('cursor', 'unset');
