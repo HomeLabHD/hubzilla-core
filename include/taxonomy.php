@@ -323,12 +323,14 @@ function pubtagblock($net,$site,$limit,$recent = 0,$safemode = 1, $type = TERM_H
 
 	$link = z_root() . '/pubstream';
 
-	if($r) {
-		$o = '<div class="tagblock widget"><h3>' . (($recent) ? t('Trending') : t('Tags')) . '</h3><div class="tags" align="center">';
-		foreach($r as $rr) {
-		  $o .= '<span class="tag'.$rr[2].'">#</span><a href="'.$link . '?tag=' . urlencode($rr[0]).'" class="tag'.$rr[2].'">'.$rr[0].'</a> ' . "\r\n";
-		}
-		$o .= '</div></div>';
+  if($r) {
+	  $url = $link . '?tag=';
+    $tpl = get_markup_template('tagcloud.tpl');
+    $o .= replace_macros($tpl, [
+      '$title' => t('Trending'),
+      '$baseurl' => $url,
+      '$tags' => $r,
+    ]);
 	}
 
 	return $o;
@@ -508,11 +510,13 @@ function catblock($uid,$count = 0,$authors = '',$owner = '', $flags = 0,$restric
 			intval($uid)
 		);
 
-		$o = '<div class="tagblock widget"><h3>' . t('Categories') . '</h3><div class="tags" align="center">';
-		foreach($r as $rr) {
-			$o .= '<a href="channel/' . $c[0]['channel_address']. '?f=&cat=' . urlencode($rr[0]).'" class="tag'.$rr[2].'">'.$rr[0].'</a> ' . "\r\n";
-		}
-		$o .= '</div></div>';
+	  $url = z_root() . '/channel/' . $c[0]['channel_address'].'/?f=&cat=';
+    $tpl = get_markup_template('tagcloud.tpl');
+    $o .= replace_macros($tpl, [
+      '$title' => t('Categories'),
+      '$baseurl' => $url,
+      '$tags' => $r,
+    ]);
 	}
 
 	return $o;
