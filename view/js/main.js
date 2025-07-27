@@ -2050,10 +2050,11 @@ function post_comment(id) {
 	$('body').css('cursor', 'wait');
 	$("#comment-preview-inp-" + id).val("0");
 
-	if(typeof conv_mode == typeof undefined)
+	if (typeof conv_mode == typeof undefined) {
 		conv_mode = '';
+	}
 
-	var form_data =	$("#comment-edit-form-" + id).serialize();
+	const form_data = $("#comment-edit-form-" + id).serialize();
 
 	$.post(
 		"item",
@@ -2085,7 +2086,7 @@ function post_comment(id) {
 				collapseHeight();
 				commentBusy = false;
 
-				var tarea = document.getElementById("comment-edit-text-" + id);
+				const tarea = document.getElementById("comment-edit-text-" + id);
 				if (tarea) {
 					commentClose(tarea, id);
 					$(document).off( "click.commentOpen");
