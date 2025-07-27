@@ -2075,7 +2075,10 @@ function post_comment(id) {
 
 				const comment = document.getElementById('wall-item-content-wrapper-' + data.id);
 				comment.classList.add('item-highlight-fade');
-				comment.scrollIntoView();
+				comment.scrollIntoView({
+					behavior: 'smooth',
+					block: 'center'
+				});
 
 				updateRelativeTime('.autotime');
 				$('body').css('cursor', 'unset');
