@@ -12,6 +12,6 @@ The content of custom_emojis.json should look as follows:
     "another_emoji": {
         "shortname": ":another_emoji:",
         "filepath": "images/emoji/custom/another_emoji.png"
-    },
+    }
 }
 ```
