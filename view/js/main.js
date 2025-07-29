@@ -971,6 +971,7 @@ function imagesLoaded(elements, callback) {
 	let loadedCount = 0;
 	let totalImages = 0;
 	let timeoutId;
+	let timedOut = false;
 	const timeout = 10000;
 	const processed = new Set(); // Use a Set for efficient lookup
 
@@ -982,6 +983,10 @@ function imagesLoaded(elements, callback) {
 	}
 
 	function checkComplete(src) {
+		// If preloading timed out make sure to not call the callback again
+		// in case a load event listener fires later.
+		if (timedOut) return;
+
 		// Skip processing if image has already been processed
 		if (processed.has(src)) return;
 
@@ -1029,7 +1034,9 @@ function imagesLoaded(elements, callback) {
 	// Set timeout for the loading process
 	timeoutId = setTimeout(() => {
 		console.warn(`Image loading timed out after ${timeout}ms`);
+		document.getElementById('image_counter').innerText = '';
 		callback(false);
+		timedOut = true;
 	}, timeout);
 
 	// Iterate through images to add load and error event listeners
