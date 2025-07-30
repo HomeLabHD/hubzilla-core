@@ -323,14 +323,14 @@ function pubtagblock($net,$site,$limit,$recent = 0,$safemode = 1, $type = TERM_H
 
 	$link = z_root() . '/pubstream';
 
-  if($r) {
-	  $url = $link . '?tag=';
-    $tpl = get_markup_template('tagcloud.tpl');
-    $o .= replace_macros($tpl, [
-      '$title' => t('Trending'),
-      '$baseurl' => $url,
-      '$tags' => $r,
-    ]);
+	if ($r) {
+		$url = $link . '?tag=';
+		$tpl = get_markup_template('tagcloud.tpl');
+		$o .= replace_macros($tpl, [
+			'$title' => t('Trending'),
+			'$baseurl' => $url,
+			'$tags' => $r,
+		]);
 	}
 
 	return $o;
@@ -371,9 +371,10 @@ function pub_tagadelic($net, $site, $limit, $recent, $safemode, $type) {
 		$arr = [
 			"SELECT term, count(term) AS total FROM term LEFT JOIN item ON term.oid = item.id
 			WHERE term.ttype = %d
-			AND otype = %d
-			AND item_type = %d
-			AND item_private = 0
+			AND term.otype = %d
+			AND item.item_type = %d
+			AND item.item_private = 0
+			AND item.id = item.parent
 			$uids $item_normal $site_firehose_sql $sql_extra
 			GROUP BY term ORDER BY total DESC %s",
 			intval($type),

@@ -137,7 +137,7 @@ class Pubstream extends \Zotlabs\Web\Controller {
 				'$page'    => ((\App::$pager['page'] != 1) ? \App::$pager['page'] : 1),
 				'$search'  => '',
 				'$xchan'   => '',
-				'$order'   => 'comment',
+				'$order'   => 'post',
 				'$file'    => '',
 				'$cats'    => '',
 				'$tags'    => (($hashtags) ? urlencode($hashtags) : ''),
@@ -173,17 +173,15 @@ class Pubstream extends \Zotlabs\Web\Controller {
 			$site_firehose_sql = " and owner_xchan in (select channel_hash from channel where channel_system = 0 and channel_removed = 0) ";
 		}
 
-		if(Config::Get('system','public_list_mode'))
-			$page_mode = 'list';
-		else
-			$page_mode = 'client';
+		$page_mode = 'client';
+		$blog_mode = Config::Get('system',' public_list_mode');
 
+		if ($blog_mode) {
+			$page_mode = 'list';
+		}
 
 		if(x($hashtags)) {
 			$sql_extra .= protect_sprintf(term_query('item', $hashtags, TERM_HASHTAG, TERM_COMMUNITYTAG));
-			$sql_extra_order = " ORDER BY item.created DESC ";
-			$thread_top = '';
-
 		}
 
 		$net_query2 = (($net) ? " and xchan_network = '" . protect_sprintf(dbesc($net)) . "' " : '');
@@ -247,30 +245,20 @@ class Pubstream extends \Zotlabs\Web\Controller {
 				}
 			}
 
-			// Then fetch all the children of the parents that are on this page
-			$parents_str = '';
-
 			if($r) {
-				$items = items_by_parent_ids($r);
+				$items = items_by_parent_ids($r, blog_mode: $blog_mode);
 
 				// use effective_uid param of xchan_query to help sort out comment permission
 				// for sys_channel owned items.
 
 				xchan_query($items, true, local_channel());
 				$items = fetch_post_tags($items,true);
-
-				if (!$hashtags) {
-					$items = conv_sort($items, $ordering);
-				}
-
-
+				$items = conv_sort($items, $ordering);
 			}
 
 		}
 
-		$mode = (($hashtags) ? 'pubstream-new' : 'pubstream');
-
-		$o .= conversation($items,$mode,$update,$page_mode);
+		$o .= conversation($items, 'pubstream', $update, $page_mode);
 
 		if($mid)
 			$o .= '<div id="content-complete"></div>';
