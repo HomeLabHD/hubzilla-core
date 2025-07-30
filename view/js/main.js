@@ -942,14 +942,11 @@ function updateConvItems(mode, data) {
 		mediaPlaying = event.type === 'playing';
 	}
 
-	imagesLoaded(document.querySelectorAll('.wall-item-body img, .wall-photo-item img'), function () {
-		if (bParam_mid && mode === 'replace') {
-			scrollToItem();
-		}
-		else {
-			collapseHeight();
-		}
-	});
+	if (bParam_mid && mode === 'replace') {
+		scrollToItem();
+	}
+
+	collapseHeight();
 
 	// reset rotators and cursors we may have set before reaching this place
 	let pageSpinner = document.getElementById("page-spinner");
