@@ -2634,24 +2634,22 @@ function attach_move($channel_id, $resource_id, $new_folder_hash, $newname = '',
 			dbesc($resource_id)
 		);
 
-		if ($recurse) {
-			foreach($ps as $p) {
-				q("update photo set album = '%s', filename = '%s', os_path = '%s', display_path = '%s', content = '%s'
-					where resource_id = '%s' and imgscale = %d and uid = %d",
-					dbesc($newalbumname),
-					dbesc($filename),
-					dbesc($x['os_path']),
-					dbesc($x['path']),
-					dbescbin($newstorepath . ((intval($p['imgscale']) > 0) ? '-' . $p['imgscale'] : '')),
-					dbesc($resource_id),
-					intval($p['imgscale']),
-					intval($channel_id)
-				);
+		foreach($ps as $p) {
+			q("update photo set album = '%s', filename = '%s', os_path = '%s', display_path = '%s', content = '%s'
+				where resource_id = '%s' and imgscale = %d and uid = %d",
+				dbesc($newalbumname),
+				dbesc($filename),
+				dbesc($x['os_path']),
+				dbesc($x['path']),
+				dbescbin($newstorepath . ((intval($p['imgscale']) > 0) ? '-' . $p['imgscale'] : '')),
+				dbesc($resource_id),
+				intval($p['imgscale']),
+				intval($channel_id)
+			);
 
-				// the original should have been copied already
-				if (intval($p['imgscale']) > 0) {
-					rename($oldstorepath . '-' . $p['imgscale'], $newstorepath . '-' . $p['imgscale']);
-				}
+			// the original should have been copied already
+			if ($recurse && intval($p['imgscale']) > 0) {
+				rename($oldstorepath . '-' . $p['imgscale'], $newstorepath . '-' . $p['imgscale']);
 			}
 		}
 	}
