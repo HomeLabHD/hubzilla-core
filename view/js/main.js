@@ -946,13 +946,16 @@ function updateConvItems(mode, data) {
 		scrollToItem();
 	}
 
-	collapseHeight();
+	// A slight delay to give the browser time to render images.
+	// Otherwise height calculation might not be accurate.
+	setTimeout(collapseHeight, 10);
 
-	// reset rotators and cursors we may have set before reaching this place
+	// Reset rotators and cursors we may have set before reaching this place
 	let pageSpinner = document.getElementById("page-spinner");
 	if (pageSpinner) {
 		pageSpinner.style.display = 'none';
 	}
+
 	let profileJotTextLoading = document.getElementById("profile-jot-text-loading");
 	if (profileJotTextLoading) {
 		profileJotTextLoading.style.display = 'none';
