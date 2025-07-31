@@ -942,20 +942,20 @@ function updateConvItems(mode, data) {
 		mediaPlaying = event.type === 'playing';
 	}
 
-	imagesLoaded(document.querySelectorAll('.wall-item-body img, .wall-photo-item img'), function () {
-		if (bParam_mid && mode === 'replace') {
-			scrollToItem();
-		}
-		else {
-			collapseHeight();
-		}
-	});
+	if (bParam_mid && mode === 'replace') {
+		scrollToItem();
+	}
 
-	// reset rotators and cursors we may have set before reaching this place
+	// A slight delay to give the browser time to render images.
+	// Otherwise height calculation might not be accurate.
+	setTimeout(collapseHeight, 10);
+
+	// Reset rotators and cursors we may have set before reaching this place
 	let pageSpinner = document.getElementById("page-spinner");
 	if (pageSpinner) {
 		pageSpinner.style.display = 'none';
 	}
+
 	let profileJotTextLoading = document.getElementById("profile-jot-text-loading");
 	if (profileJotTextLoading) {
 		profileJotTextLoading.style.display = 'none';
@@ -971,6 +971,7 @@ function imagesLoaded(elements, callback) {
 	let loadedCount = 0;
 	let totalImages = 0;
 	let timeoutId;
+	let timedOut = false;
 	const timeout = 10000;
 	const processed = new Set(); // Use a Set for efficient lookup
 
@@ -982,6 +983,10 @@ function imagesLoaded(elements, callback) {
 	}
 
 	function checkComplete(src) {
+		// If preloading timed out make sure to not call the callback again
+		// in case a load event listener fires later.
+		if (timedOut) return;
+
 		// Skip processing if image has already been processed
 		if (processed.has(src)) return;
 
@@ -1029,7 +1034,9 @@ function imagesLoaded(elements, callback) {
 	// Set timeout for the loading process
 	timeoutId = setTimeout(() => {
 		console.warn(`Image loading timed out after ${timeout}ms`);
+		document.getElementById('image_counter').innerText = '';
 		callback(false);
+		timedOut = true;
 	}, timeout);
 
 	// Iterate through images to add load and error event listeners
@@ -1771,6 +1778,7 @@ function doprofilelike(ident, verb) {
 
 function doreply(parent, ident, owner, hint) {
 	const modal = new bootstrap.Modal('#reactions');
+	const modal_container = document.getElementById('reactions')
 	const modal_content = document.getElementById('reactions_body');
 	const modal_title = document.getElementById('reactions_title');
 	const modal_action = document.getElementById('reactions_action');
@@ -1779,23 +1787,28 @@ function doreply(parent, ident, owner, hint) {
 	modal_title.innerHTML = hint;
 
 	const preview = document.getElementById('comment-edit-preview-' + parent.toString());
-	preview.innerHTML = '';
+	if (preview) preview.innerHTML = '';
+
+	const form_container = document.getElementById('comment-edit-wrapper-' + parent.toString());
 
 	// Get the form element by ID
-	const form = document.getElementById('comment-edit-wrapper-' + parent.toString());
+	const form = document.getElementById('comment-edit-form-' + parent.toString());
 	if (!form) return;
 
 	modal_content.innerHTML = '';
 	modal_content.append(form);
+	modal_content.append(preview);
 
 	// Set the value of the input named 'parent'
 	const parentInput = form.querySelector('input[name=parent]');
+
 	if (parentInput) {
 		parentInput.value = ident;
 	}
 
 	// Find the submit button and update its HTML
 	const submitBtn = form.querySelector('button[type=submit]');
+
 	if (submitBtn) {
 		const btnText = submitBtn.innerHTML.replace(/<[^>]*>/g, '').trim();
 		submitBtn.innerHTML = '<i class="bi bi-arrow-90deg-left"></i> ' + btnText;
@@ -1808,6 +1821,7 @@ function doreply(parent, ident, owner, hint) {
 	// Check if the selection is inside the correct element
 	let isInSel = false;
 	const anchorNode = window.getSelection().anchorNode;
+
 	if (anchorNode) {
 		let node = anchorNode.nodeType === 3 ? anchorNode.parentNode : anchorNode;
 		while (node) {
@@ -1821,15 +1835,26 @@ function doreply(parent, ident, owner, hint) {
 
 	modal.show();
 
+	modal_container.addEventListener('hide.bs.modal', event => {
+		// move form back to where it was
+		form_container.append(form);
+		form_container.append(preview);
+	});
+
 	// Set the textarea value
 	const textarea = form.querySelector('textarea');
+
 	if (textarea) {
 		let commentBody = localStorage.getItem('comment_body-' + ident);
 		if (commentBody) {
 			textarea.value = commentBody;
 		}
 		else {
-			textarea.value = "@{" + owner + "}" + ((!isInSel || quote.length === 0) ? " " : "\n[quote]" + quote + "[/quote]\n");
+			textarea.value = '@{' + owner + '} ';
+
+			if (quote && isInSel) {
+				textarea.value += "\n[quote]" + quote + "[/quote]\n";
+			}
 		}
 
 		textarea.focus();
@@ -2032,10 +2057,11 @@ function post_comment(id) {
 	$('body').css('cursor', 'wait');
 	$("#comment-preview-inp-" + id).val("0");
 
-	if(typeof conv_mode == typeof undefined)
+	if (typeof conv_mode == typeof undefined) {
 		conv_mode = '';
+	}
 
-	var form_data =	$("#comment-edit-form-" + id).serialize();
+	const form_data = $("#comment-edit-form-" + id).serialize();
 
 	$.post(
 		"item",
@@ -2055,12 +2081,19 @@ function post_comment(id) {
 				$("#comment-edit-text-" + id).val('').blur().attr('placeholder', aStr.comment);
 				$('#wall-item-sub-thread-wrapper-' + data.thr_parent_id).append(data.html);
 
+				const comment = document.getElementById('wall-item-content-wrapper-' + data.id);
+				comment.classList.add('item-highlight-fade');
+				comment.scrollIntoView({
+					behavior: 'smooth',
+					block: 'center'
+				});
+
 				updateRelativeTime('.autotime');
 				$('body').css('cursor', 'unset');
 				collapseHeight();
 				commentBusy = false;
 
-				var tarea = document.getElementById("comment-edit-text-" + id);
+				const tarea = document.getElementById("comment-edit-text-" + id);
 				if (tarea) {
 					commentClose(tarea, id);
 					$(document).off( "click.commentOpen");

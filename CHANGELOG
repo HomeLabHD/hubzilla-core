@@ -1,3 +1,19 @@
+Hubzilla 10.4.1 (2025-07-31)
+	- Fix regression in pubstream tag view
+	- Fix photos meta data not updated when renaming folder in files app
+	- Fix syntax error in custom emoji sample code
+	- Fix rendering issue when image load event triggered after timeout
+	- Fix comment preview not always displayed
+	- Fix new created comment rendering offscreen
+	- Update derived theme tutorial and add it to the help index
+	- Add 'extends' attribute to theme info
+	- Fix reply modal remaining hidden after reactions loaded
+	- Refactor tagcloud to use smarty template file
+	- Fix regression in tagadelic
+	- Fix possible performance issue with archive widget
+	- Fix various addons which still used the deprecated $a global
+
+
 Hubzilla 10.4 (2025-07-15)
 	- Add support for did:key verification method to checkEddsaSignature()
 	- Introduce util/init_sys_channel to create the sys channel if required

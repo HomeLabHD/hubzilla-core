@@ -323,12 +323,14 @@ function pubtagblock($net,$site,$limit,$recent = 0,$safemode = 1, $type = TERM_H
 
 	$link = z_root() . '/pubstream';
 
-	if($r) {
-		$o = '<div class="tagblock widget"><h3>' . (($recent) ? t('Trending') : t('Tags')) . '</h3><div class="tags" align="center">';
-		foreach($r as $rr) {
-		  $o .= '<span class="tag'.$rr[2].'">#</span><a href="'.$link . '?tag=' . urlencode($rr[0]).'" class="tag'.$rr[2].'">'.$rr[0].'</a> ' . "\r\n";
-		}
-		$o .= '</div></div>';
+	if ($r) {
+		$url = $link . '?tag=';
+		$tpl = get_markup_template('tagcloud.tpl');
+		$o .= replace_macros($tpl, [
+			'$title' => t('Trending'),
+			'$baseurl' => $url,
+			'$tags' => $r,
+		]);
 	}
 
 	return $o;
@@ -369,9 +371,10 @@ function pub_tagadelic($net, $site, $limit, $recent, $safemode, $type) {
 		$arr = [
 			"SELECT term, count(term) AS total FROM term LEFT JOIN item ON term.oid = item.id
 			WHERE term.ttype = %d
-			AND otype = %d
-			AND item_type = %d
-			AND item_private = 0
+			AND term.otype = %d
+			AND item.item_type = %d
+			AND item.item_private = 0
+			AND item.id = item.parent
 			$uids $item_normal $site_firehose_sql $sql_extra
 			GROUP BY term ORDER BY total DESC %s",
 			intval($type),
@@ -484,11 +487,14 @@ function wtagblock($uid,$count = 0,$authors = '',$owner = '', $flags = 0,$restri
 			intval($uid)
 		);
 
-		$o = '<div class="tagblock widget"><h3>' . t('Tags') . '</h3><div class="tags" align="center">';
-		foreach($r as $rr) {
-		  $o .= '<span class="tag' . $rr[2] . '">#</span><a href="channel/' . $c[0]['channel_address'] . '?f=&tag=' . urlencode($rr[0]).'" class="tag'.$rr[2].'">'.$rr[0].'</a> ' . "\r\n";
-		}
-		$o .= '</div></div>';
+	  $channel = App::get_channel();
+	  $url = z_root() . '/channel/' . $channel['channel_address'].'/?f=&tag=';
+    $tpl = get_markup_template('tagcloud.tpl');
+    $o .= replace_macros($tpl, [
+      '$title' => t('Tags'),
+      '$baseurl' => $url,
+      '$tags' => $r,
+    ]);
 	}
 
 	return $o;
@@ -505,11 +511,13 @@ function catblock($uid,$count = 0,$authors = '',$owner = '', $flags = 0,$restric
 			intval($uid)
 		);
 
-		$o = '<div class="tagblock widget"><h3>' . t('Categories') . '</h3><div class="tags" align="center">';
-		foreach($r as $rr) {
-			$o .= '<a href="channel/' . $c[0]['channel_address']. '?f=&cat=' . urlencode($rr[0]).'" class="tag'.$rr[2].'">'.$rr[0].'</a> ' . "\r\n";
-		}
-		$o .= '</div></div>';
+	  $url = z_root() . '/channel/' . $c[0]['channel_address'].'/?f=&cat=';
+    $tpl = get_markup_template('tagcloud.tpl');
+    $o .= replace_macros($tpl, [
+      '$title' => t('Categories'),
+      '$baseurl' => $url,
+      '$tags' => $r,
+    ]);
 	}
 
 	return $o;
@@ -564,13 +572,14 @@ function dir_tagblock($link,$r) {
 		$r = App::$data['directory_keywords'] ?? [];
 
 	if($r) {
-		$o = '<div class="dirtagblock widget"><h3>' . t('Keywords') . '</h3><div class="tags" align="center">';
-		foreach($r as $rr) {
-			$o .= '<a href="'.$link .'/' . '?f=&keywords=' . urlencode($rr['term']).'" class="tag'.$rr['normalise'].'" rel="nofollow" >'.$rr['term'].'</a> ' . "\r\n";
-		}
-		$o .= '</div></div>';
+	  $url = $link . '/?f=&keywords=';
+    $tpl = get_markup_template('dirtagcloud.tpl');
+    $o .= replace_macros($tpl, [
+      '$title' => t('Keywords'),
+      '$baseurl' => $url,
+      '$tags' => $r,
+    ]);
 	}
-
 	return $o;
 }
 
