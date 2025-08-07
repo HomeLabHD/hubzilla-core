@@ -3849,7 +3849,7 @@ function item_expire($uid,$days,$comment_days = 7) {
 
 	$sql_extra = ((intval($expire_network_only)) ? " AND item_wall = 0 " : "");
 
-	$expire_limit = Config::Get('system','expire_limit', 1000);
+	$expire_limit = Config::Get('system','expire_limit', 100);
 
 	$item_normal = item_normal();
 
@@ -4002,7 +4002,7 @@ function drop_item($id, $stage = DROPITEM_NORMAL, $force = false, $uid = 0, $obs
 // activity and delete it. And vice versa.
 
 function drop_related($item, $stage = DROPITEM_NORMAL, $force = false, $uid = 0, $observer_hash = '', $expire = false, $recurse = false) {
-	$allRelated = q("select * from item where parent_mid = '%s' and uid = %d",
+	$allRelated = q("select id, mid, verb, tgt_type, obj from item where parent_mid = '%s' and uid = %d",
 		dbesc($item['parent_mid']),
 		intval($item['uid'])
 	);
