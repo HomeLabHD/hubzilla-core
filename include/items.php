@@ -240,7 +240,7 @@ function comments_are_now_closed($item) {
 	return false;
 }
 
-function item_normal($profile_uid = null, $prefix = 'item') {
+function item_normal($profile_uid = null, $prefix = 'item', $type = ITEM_TYPE_POST) {
 	if ($profile_uid === null) {
 		$profile_uid = App::$profile['profile_uid'] ?? App::$profile_uid ?? null;
 	}
@@ -248,7 +248,7 @@ function item_normal($profile_uid = null, $prefix = 'item') {
 	$uid = local_channel();
 	$is_owner = ($uid && intval($profile_uid) === $uid);
 
-	$sql = " and $prefix.item_hidden = 0 and $prefix.item_type = 0 and $prefix.item_deleted = 0
+	$sql = " and $prefix.item_hidden = 0 and $prefix.item_type = $type and $prefix.item_deleted = 0
 		and $prefix.item_unpublished = 0 and $prefix.item_pending_remove = 0";
 
 	if ($is_owner) {
@@ -5360,17 +5360,18 @@ function set_activity_mid($string) {
  * including activity counts.
  * @param int $id
  * @param int $parent
+ * @param int $type (optional) - defaults to ITEM_TYPE_POST
  */
 
-function item_by_item_id(int $id, int $parent): array
+function item_by_item_id(int $id, int $parent, int $type = ITEM_TYPE_POST): array
 {
 	if (!$id && !$parent && !local_channel()) {
 		return [];
 	}
 
-	$item_normal_sql = item_normal();
+	$item_normal_sql = item_normal(type: $type);
 
-	$reaction = item_reaction_sql($parent);
+	$reaction = item_reaction_sql($parent, type: $type);
 	$reaction_cte_sql = $reaction['cte'];
 	$reaction_select_sql = $reaction['select'];
 	$reaction_join_sql = $reaction['join'];
@@ -5401,9 +5402,10 @@ function item_by_item_id(int $id, int $parent): array
  * @param null|array $thr_parents (optional) - thr_parent mids which will be included
  * @param string $permission_sql (optional) - SQL as provided by item_permission_sql() from the calling module
  * @param bool $blog_mode (optional) - if set to yes only the parent items will be returned
+ * @param int $type (optional) - defaults to ITEM_TYPE_POST
  */
 
-function items_by_parent_ids(array $parents, null|array $thr_parents = null, string $permission_sql = '', bool $blog_mode = false): array
+function items_by_parent_ids(array $parents, null|array $thr_parents = null, string $permission_sql = '', bool $blog_mode = false, int $type = ITEM_TYPE_POST): array
 {
 	if (!$parents) {
 		return [];
@@ -5411,7 +5413,7 @@ function items_by_parent_ids(array $parents, null|array $thr_parents = null, str
 
 	$ids = ids_to_querystr($parents, 'item_id');
 	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
-	$item_normal_sql = item_normal();
+	$item_normal_sql = item_normal(type: $type);
 	$limit = $thread_allow ? 3 : 1000;
 
 	$thr_parent_sql = (($thread_allow) ? " AND item.thr_parent = item.parent_mid " : '');
@@ -5421,7 +5423,7 @@ function items_by_parent_ids(array $parents, null|array $thr_parents = null, str
 		$thr_parent_sql = " AND item.thr_parent IN (" . protect_sprintf($thr_parent_str) . ") ";
 	}
 
-	$reaction = item_reaction_sql($ids, $permission_sql, 'final_selection', $blog_mode);
+	$reaction = item_reaction_sql($ids, $permission_sql, 'final_selection', $blog_mode, $type);
 	$reaction_cte_sql = $reaction['cte'];
 	$reaction_select_sql = $reaction['select'];
 	$reaction_join_sql = $reaction['join'];
@@ -5499,11 +5501,12 @@ function items_by_parent_ids(array $parents, null|array $thr_parents = null, str
  * @param string $ids
  * @param string $permission_sql (optional) - SQL provided by item_permission_sql()
  * @param string $join_prefix (optional) - prefix for the join part defaults to 'item'
+ * @param int $type (optional) - defaults to ITEM_TYPE_POST
  */
 
-function item_reaction_sql(string $ids, string $permission_sql = '', string $join_prefix = 'item', bool $blog_mode = false): array
+function item_reaction_sql(string $ids, string $permission_sql = '', string $join_prefix = 'item', bool $blog_mode = false, int $type = ITEM_TYPE_POST): array
 {
-	$item_normal_sql = item_normal();
+	$item_normal_sql = item_normal(type: $type);
 	$observer = get_observer_hash();
 
 	$verbs = [
@@ -5686,7 +5689,7 @@ function item_activity_xchans(string $mid, int $parent, string $verb): array
 	);
 
 	$owner_uid = intval($parent_item[0]['uid']);
-	$item_normal = item_normal($owner_uid);
+	$item_normal = item_normal($owner_uid, type: $parent_item[0]['item_type']);
 
 	if (local_channel() === $owner_uid) {
 		$ret = q("SELECT item.id, item.item_blocked, xchan.xchan_hash, xchan.xchan_name as name, xchan.xchan_url as url, xchan.xchan_photo_s as photo FROM item
