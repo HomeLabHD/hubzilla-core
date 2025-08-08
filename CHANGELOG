@@ -1,3 +1,15 @@
+Hubzilla 10.4.2 (2025-08-08)
+	- Implement item_custom_display hook in mod HQ
+	- Refactor item fetching functions to reflect item_normal() changes
+	- Refactor item_normal() to optionally deal with various item types
+	- Fix missing reactions modal in threaded_conversation.tpl
+	- Improve memory consumption in drop_related() to fix deleting of big threads
+	- Fix PHP error with the potential to stuff up the queueworker
+	- Update the contact edit header so that both, image and text are linked to the profile
+	- Articles: refactor to reflect item_normal() changes
+	- Cards: refactor to reflect item_normal() changes
+
+
 Hubzilla 10.4.1 (2025-07-31)
 	- Fix regression in pubstream tag view
 	- Fix photos meta data not updated when renaming folder in files app

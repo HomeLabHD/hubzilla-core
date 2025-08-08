@@ -53,12 +53,12 @@ class Item extends Controller {
 
 
 		if (argc() > 1 && argv(1) !== 'drop') {
-			$x = q("select uid, item_wall, llink, uuid from item where uuid = '%s' order by item_wall desc",
+			$x = q("select uid, item_wall, item_type, llink, uuid from item where uuid = '%s' order by item_wall desc",
 				dbesc(argv(1))
 			);
 
 			if ($x) {
-				if ($x[0]['item_wall']) {
+				if ($x[0]['item_wall'] && $x[0]['item_type'] === ITEM_TYPE_POST) {
 					$c = channelx_by_n($x[0]['uid']);
 					if ($c) {
 						goaway(z_root() . '/channel/' . $c['channel_address'] . '?mid=' . $x[0]['uuid']);

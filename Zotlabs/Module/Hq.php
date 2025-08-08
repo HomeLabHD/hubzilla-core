@@ -60,6 +60,9 @@ class Hq extends \Zotlabs\Web\Controller {
 
 			if($r) {
 				$target_item = $r[0];
+
+				call_hooks('item_custom_display', $target_item);
+
 				if (intval($target_item['uid']) === intval($sys['channel_id'])) {
 					$sys_item = true;
 				}

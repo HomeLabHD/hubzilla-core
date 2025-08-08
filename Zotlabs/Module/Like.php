@@ -67,7 +67,7 @@ class Like extends Controller {
 			$items = conv_sort($items, 'commented');
 		}
 		else {
-			$item = item_by_item_id($arr['item']['id'], $arr['item']['parent']);
+			$item = item_by_item_id($arr['item']['id'], $arr['item']['parent'], type: $arr['item']['item_type']);
 			xchan_query($item, true);
 			$item = fetch_post_tags($item, true);
 		}
@@ -127,7 +127,7 @@ class Like extends Controller {
 		$extended_like = false;
 		$object        = $target = null;
 		$post_type     = EMPTY_STR;
-		$obj_type       = EMPTY_STR;
+		$obj_type      = EMPTY_STR;
 
 		if (argc() == 3) {
 
@@ -305,8 +305,6 @@ class Like extends Controller {
 			// parent, copy that as well.
 
 			if ($r) {
-				$obj_type = $r[0]['obj_type'];
-
 				if ($r[0]['uid'] === $sys_channel['channel_id'] && local_channel()) {
 					$r = [copy_of_pubitem(App::get_channel(), $r[0]['mid'])];
 				}
@@ -322,6 +320,8 @@ class Like extends Controller {
 			$item      = $r[0];
 			$owner_uid = $r[0]['uid'];
 			$owner_aid = $r[0]['aid'];
+			$obj_type  = $r[0]['obj_type'];
+			$item_type = $r[0]['item_type'];
 
 			if ((array_key_exists('owner', $item)) && intval($item['owner']['abook_self']))
 				$can_comment = perm_is_allowed($item['uid'], $observer['xchan_hash'], 'post_comments');
@@ -362,7 +362,7 @@ class Like extends Controller {
 				$multi_undo = true;
 			}
 
-			$item_normal = item_normal();
+			$item_normal = item_normal(type: $item_type);
 
 			$r = q("SELECT id, parent, uid, verb FROM item WHERE verb in ( $verbs ) $item_normal
 				AND author_xchan = '%s' AND thr_parent = '%s' and uid = %d ",
