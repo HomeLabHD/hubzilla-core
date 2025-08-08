@@ -487,14 +487,14 @@ function wtagblock($uid,$count = 0,$authors = '',$owner = '', $flags = 0,$restri
 			intval($uid)
 		);
 
-	  $channel = App::get_channel();
-	  $url = z_root() . '/channel/' . $channel['channel_address'].'/?f=&tag=';
-    $tpl = get_markup_template('tagcloud.tpl');
-    $o .= replace_macros($tpl, [
-      '$title' => t('Tags'),
-      '$baseurl' => $url,
-      '$tags' => $r,
-    ]);
+		$url = z_root() . '/channel/' . $c[0]['channel_address'].'/?f=&tag=';
+		$tpl = get_markup_template('tagcloud.tpl');
+
+		$o .= replace_macros($tpl, [
+			'$title' => t('Tags'),
+			'$baseurl' => $url,
+			'$tags' => $r,
+		]);
 	}
 
 	return $o;
@@ -511,13 +511,14 @@ function catblock($uid,$count = 0,$authors = '',$owner = '', $flags = 0,$restric
 			intval($uid)
 		);
 
-	  $url = z_root() . '/channel/' . $c[0]['channel_address'].'/?f=&cat=';
-    $tpl = get_markup_template('tagcloud.tpl');
-    $o .= replace_macros($tpl, [
-      '$title' => t('Categories'),
-      '$baseurl' => $url,
-      '$tags' => $r,
-    ]);
+		$url = z_root() . '/channel/' . $c[0]['channel_address'].'/?f=&cat=';
+		$tpl = get_markup_template('tagcloud.tpl');
+
+		$o .= replace_macros($tpl, [
+			'$title' => t('Categories'),
+			'$baseurl' => $url,
+			'$tags' => $r,
+		]);
 	}
 
 	return $o;
