@@ -386,8 +386,8 @@ class Channel extends Controller {
 
 			if ($noscript_content || $load) {
 				if ($mid) {
-					$r = q("SELECT *, parent AS item_id from item where $identifier = '%s' and uid = %d $item_normal
-						AND item_wall = 1 $permission_sql $sql_extra limit 1",
+					$r = q("SELECT item.parent AS item_id, item.verb from item where $identifier = '%s' and item.uid = %d $item_normal
+						AND item.item_wall = 1 $permission_sql $sql_extra limit 1",
 						dbesc($mid),
 						intval(App::$profile['profile_uid'])
 					);
@@ -396,7 +396,7 @@ class Channel extends Controller {
 					}
 				}
 				else {
-					$r = q("SELECT parent AS item_id, $ordering FROM item
+					$r = q("SELECT item.parent AS item_id, item.verb, $ordering FROM item
 						LEFT JOIN abook ON (item.author_xchan = abook.abook_xchan $abook_uids)
 						WHERE item.uid = %d
 						AND item.id = item.parent
@@ -417,6 +417,11 @@ class Channel extends Controller {
 			}
 		}
 		if ($r) {
+
+			// 11.08.2025 start transition deprecated AS1 item.verb vocabulary to AS2 on demand.
+			// Keep this until we officially deprecate AS1 data.
+			AS1_to_AS2_verbs($r);
+
 			$thr_parents = null;
 			if ($mid) {
 				$thr_parents = get_recursive_thr_parents($r[0]);

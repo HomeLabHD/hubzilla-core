@@ -5771,3 +5771,29 @@ function get_recursive_thr_parents(array $item): array|null
 
 	return $thr_parents;
 }
+
+/**
+ * @brief updates most common AS1 verbs to their AS2 equivalent.
+ * @param array $items an array of items where at least item_id (the parent id) and verb should be set.
+ *
+ */
+function AS1_to_AS2_verbs($items) {
+	$replaceable = [
+		ACTIVITY_POST
+	];
+
+	foreach($items as $item) {
+		if (isset($item['verb'], $item['item_id']) && in_array($item['verb'], $replaceable)) {
+			q("UPDATE item
+				SET verb = CASE
+					WHEN verb = 'http://activitystrea.ms/schema/1.0/post' THEN 'Create'
+					WHEN verb = 'http://activitystrea.ms/schema/1.0/like' THEN 'Like'
+					WHEN verb = 'http://activitystrea.ms/schema/1.0/dislike' THEN 'Dislike'
+					ELSE verb  -- Keep the current
+				END
+				WHERE parent = %d",
+				intval($item['item_id'])
+			);
+		}
+	}
+}
