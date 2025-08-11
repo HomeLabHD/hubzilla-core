@@ -92,6 +92,7 @@ class Vote extends Controller {
 			$item['owner_xchan'] = $fetch[0]['author_xchan'];
 			$item['allow_cid'] = '<' . $fetch[0]['author_xchan'] . '>';
 			$item['item_private'] = 1;
+			$item['item_unseen'] = 0;
 			$item['obj_type'] = 'Note';
 			$item['author'] = channelx_by_n($channel['channel_id']);
 			$item['obj'] = Activity::encode_item($item);
