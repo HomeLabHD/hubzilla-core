@@ -1,3 +1,10 @@
+Hubzilla 10.4.3 (2025-08-15)
+	- Refactor module vote to prohibit double votes at the sender side
+	- Fix vote answers counted as comments
+	- Start transition of deprecated AS1 item.verb vocabulary to AS2 on demand in mod channel, articles and cards
+	- Fix regression in retrieving channel address in wtagblock() and whitespace fixes
+
+
 Hubzilla 10.4.2 (2025-08-08)
 	- Implement item_custom_display hook in mod HQ
 	- Refactor item fetching functions to reflect item_normal() changes
