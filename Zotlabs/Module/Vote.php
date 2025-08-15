@@ -20,26 +20,34 @@ class Vote extends Controller {
 			json_return_and_die($ret);
 		}
 
-
-		$fetch = null;
 		$id = argv(1);
-		$response = $_REQUEST['answer'];
 
-		if ($id) {
-			$fetch = q("select * from item where id = %d limit 1",
-				intval($id)
-			);
+		if (!$id) {
+			$ret['message'] = t('Missing poll id.');
+			json_return_and_die($ret);
 		}
 
+		$answer = q("select * from item where parent = %d and uid = %d and obj_type = 'Answer' limit 1",
+			intval($id),
+			intval($channel['channel_id'])
+		);
 
-		if ($fetch && $fetch[0]['obj_type'] === 'Question') {
-			$obj = json_decode($fetch[0]['obj'],true);
-
+		if ($answer) {
+			$ret['message'] = t('You have already submitted your vote for this poll.');
+			json_return_and_die($ret);
 		}
-		else {
+
+		$poll = q("select * from item where id = %d limit 1",
+			intval($id)
+		);
+
+		if (!$poll && $poll[0]['obj_type'] !== 'Question') {
 			$ret['message'] = t('Poll not found.');
 			json_return_and_die($ret);
 		}
+
+		$response = $_REQUEST['answer'];
+		$obj = json_decode($poll[0]['obj'],true);
 
 		$valid = false;
 
@@ -81,17 +89,18 @@ class Vote extends Controller {
 			$item['aid'] = $channel['channel_account_id'];
 			$item['uid'] = $channel['channel_id'];
 			$item['item_origin'] = 1;
-			$item['parent'] = $fetch[0]['id'];
-			$item['parent_mid'] = $fetch[0]['mid'];
-			$item['thr_parent'] = $fetch[0]['mid'];
+			$item['parent'] = $poll[0]['id'];
+			$item['parent_mid'] = $poll[0]['mid'];
+			$item['thr_parent'] = $poll[0]['mid'];
 			$item['uuid'] = new_uuid();
 			$item['mid'] = z_root() . '/item/' . $item['uuid'];
 			$item['verb'] = 'Create';
 			$item['title'] = $res;
 			$item['author_xchan'] = $channel['channel_hash'];
-			$item['owner_xchan'] = $fetch[0]['author_xchan'];
-			$item['allow_cid'] = '<' . $fetch[0]['author_xchan'] . '>';
+			$item['owner_xchan'] = $poll[0]['author_xchan'];
+			$item['allow_cid'] = '<' . $poll[0]['author_xchan'] . '>';
 			$item['item_private'] = 1;
+			$item['item_unseen'] = 0;
 			$item['obj_type'] = 'Note';
 			$item['author'] = channelx_by_n($channel['channel_id']);
 			$item['obj'] = Activity::encode_item($item);
@@ -104,7 +113,7 @@ class Vote extends Controller {
 
 			$x = item_store($item);
 
-			retain_item($fetch[0]['id']);
+			retain_item($poll[0]['id']);
 
 			if($x['success']) {
 				Master::Summon(['Notifier', 'like', $x['item_id']]);
@@ -125,7 +134,7 @@ class Vote extends Controller {
 		}
 
 		$ret['success'] = true;
-		$ret['message'] = t('Response submitted. Updates may not appear instantly.');
+		$ret['message'] = t('Your vote has been submitted. Updates may not appear instantly.');
 		json_return_and_die($ret);
 	}
 }

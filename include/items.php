@@ -272,7 +272,6 @@ function item_forwardable($item) {
 		str_contains($item['postopts'], 'nodeliver') ||
 		// actor not fetchable
 		(isset($item['author']['xchan_network']) && in_array($item['author']['xchan_network'], ['rss', 'anon', 'token']))
-
 	) {
 		return false;
 	}
@@ -5387,6 +5386,7 @@ function item_by_item_id(int $id, int $parent, int $type = ITEM_TYPE_POST): arra
 			item.id = %d
 			AND item.uid = %d
 			AND item.verb IN ('Create', 'Update', 'EmojiReact')
+			AND item.obj_type NOT IN ('Answer')
 			$item_normal_sql",
 		intval($id),
 		intval(local_channel())
@@ -5472,6 +5472,7 @@ function items_by_parent_ids(array $parents, null|array $thr_parents = null, str
 			FROM item
 			WHERE item.parent IN ($ids)
 				AND item.verb IN ('Create', 'Update', 'EmojiReact')
+				AND item.obj_type NOT IN ('Answer')
 				AND item.item_thread_top = 0
 				$thr_parent_sql
 				$permission_sql
@@ -5550,6 +5551,7 @@ function item_reaction_sql(string $ids, string $permission_sql = '', string $joi
 					$observer_sql
 				FROM item
 				WHERE item.verb IN ($verbs_str)
+					AND item.obj_type NOT IN ('Answer')
 					AND item.item_thread_top = 0
 					AND item.parent IN ($ids)
 					$item_normal_sql
@@ -5625,6 +5627,7 @@ function items_by_thr_parent(string $mid, int $parent, int|null $offset = null):
 				item.thr_parent = '%s'
 				AND item.uid = %d
 				AND item.verb IN ('Create', 'Update', 'EmojiReact')
+				AND item.obj_type NOT IN ('Answer')
 				AND item.item_thread_top = 0
 				$item_normal_sql
 			$order_sql",
@@ -5652,6 +5655,7 @@ function items_by_thr_parent(string $mid, int $parent, int|null $offset = null):
 				item.thr_parent = '%s'
 				AND item.uid = %d
 				AND item.verb IN ('Create', 'Update', 'EmojiReact')
+				AND item.obj_type NOT IN ('Answer')
 				AND item.item_thread_top = 0
 				$permission_sql
 				$item_normal_sql
@@ -5770,4 +5774,30 @@ function get_recursive_thr_parents(array $item): array|null
 	}
 
 	return $thr_parents;
+}
+
+/**
+ * @brief updates most common AS1 verbs to their AS2 equivalent.
+ * @param array $items an array of items where at least item_id (the parent id) and verb should be set.
+ *
+ */
+function AS1_to_AS2_verbs($items) {
+	$replaceable = [
+		ACTIVITY_POST
+	];
+
+	foreach($items as $item) {
+		if (isset($item['verb'], $item['item_id']) && in_array($item['verb'], $replaceable)) {
+			q("UPDATE item
+				SET verb = CASE
+					WHEN verb = 'http://activitystrea.ms/schema/1.0/post' THEN 'Create'
+					WHEN verb = 'http://activitystrea.ms/schema/1.0/like' THEN 'Like'
+					WHEN verb = 'http://activitystrea.ms/schema/1.0/dislike' THEN 'Dislike'
+					ELSE verb  -- Keep the current
+				END
+				WHERE parent = %d",
+				intval($item['item_id'])
+			);
+		}
+	}
 }
