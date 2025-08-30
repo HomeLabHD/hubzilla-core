@@ -11,11 +11,17 @@
     <env name="HZ_TEST_DB_CHARSET" value="UTF8"/>
   </php>
   <testsuites>
-    <testsuite name="Hubzilla default Test Suite">
+    <testsuite name="Hubzilla core unit tests">
       <directory suffix="Test.php">./unit/</directory>
     </testsuite>
-    <testsuite name="API Test Suite">
-      <directory suffix="Test.php" prefix="API">./unit/</directory>
+    <testsuite name="Hubzilla addons unit tests">
+      <directory suffix="Test.php">../extend/addon/*/*/tests/unit/</directory>
+    </testsuite>
+    <testsuite name="Hubzilla themes unit tests">
+      <directory suffix="Test.php">../extend/theme/*/*/tests/unit/</directory>
+    </testsuite>
+    <testsuite name="Hubzilla widgets unit tests">
+      <directory suffix="Test.php">../extend/widget/*/*/tests/unit/</directory>
     </testsuite>
   </testsuites>
   <source>
