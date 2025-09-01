@@ -1370,17 +1370,17 @@ function bbcode($text, $options = []) {
 	}
 
 	if (strpos($text,'[/url]') !== false) {
-		$text = preg_replace("/\#\^\[url\]([$URLSearchString]*)\[\/url\]/ism", '<span class="bookmark-identifier">#^</span><a class="bookmark" href="$1" ' . $target . ' rel="nofollow noopener">$1</a>', $text);
-		$text = preg_replace("/\#\^\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '<span class="bookmark-identifier">#^</span><a class="bookmark" href="$1" ' . $target . ' rel="nofollow noopener">$2</a>', $text);
-		$text = preg_replace("/\[url\]([$URLSearchString]*)\[\/url\]/ism", '<a href="$1" ' . $target . ' rel="nofollow noopener">$1</a>', $text);
-		$text = preg_replace("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '<a href="$1" ' . $target . ' rel="nofollow noopener">$2</a>', $text);
+		$text = preg_replace("/\#\^\[url\](.*?)\[\/url\]/ism", '<span class="bookmark-identifier">#^</span><a class="bookmark" href="$1" ' . $target . ' rel="nofollow noopener">$1</a>', $text);
+		$text = preg_replace("/\#\^\[url\=(.*)\](.*?)\[\/url\]/ism", '<span class="bookmark-identifier">#^</span><a class="bookmark" href="$1" ' . $target . ' rel="nofollow noopener">$2</a>', $text);
+		$text = preg_replace("/\[url\](.*?)\[\/url\]/ism", '<a href="$1" ' . $target . ' rel="nofollow noopener">$1</a>', $text);
+		$text = preg_replace("/\[url\=(.*)\](.*?)\[\/url\]/ism", '<a href="$1" ' . $target . ' rel="nofollow noopener">$2</a>', $text);
 	}
 
 	if (strpos($text,'[/zrl]') !== false) {
-		$text = preg_replace("/\#\^\[zrl\]([$URLSearchString]*)\[\/zrl\]/ism", '<span class="bookmark-identifier">#^</span><a class="zrl bookmark" href="$1" ' . $target . ' rel="nofollow noopener">$1</a>', $text);
-		$text = preg_replace("/\#\^\[zrl\=([$URLSearchString]*)\](.*?)\[\/zrl\]/ism", '<span class="bookmark-identifier">#^</span><a class="zrl bookmark" href="$1" ' . $target . ' rel="nofollow noopener">$2</a>', $text);
-		$text = preg_replace("/\[zrl\]([$URLSearchString]*)\[\/zrl\]/ism", '<a class="zrl" href="$1" ' . $target . ' rel="nofollow noopener">$1</a>', $text);
-		$text = preg_replace("/\[zrl\=([$URLSearchString]*)\](.*?)\[\/zrl\]/ism", '<a class="zrl" href="$1" ' . $target . ' rel="nofollow noopener">$2</a>', $text);
+		$text = preg_replace("/\#\^\[zrl\](.*?)\[\/zrl\]/ism", '<span class="bookmark-identifier">#^</span><a class="zrl bookmark" href="$1" ' . $target . ' rel="nofollow noopener">$1</a>', $text);
+		$text = preg_replace("/\#\^\[zrl\=(.*)\](.*?)\[\/zrl\]/ism", '<span class="bookmark-identifier">#^</span><a class="zrl bookmark" href="$1" ' . $target . ' rel="nofollow noopener">$2</a>', $text);
+		$text = preg_replace("/\[zrl\](.*?)\[\/zrl\]/ism", '<a class="zrl" href="$1" ' . $target . ' rel="nofollow noopener">$1</a>', $text);
+		$text = preg_replace("/\[zrl\=(.*)\](.*?)\[\/zrl\]/ism", '<a class="zrl" href="$1" ' . $target . ' rel="nofollow noopener">$2</a>', $text);
 	}
 
 	// Perform MAIL Search

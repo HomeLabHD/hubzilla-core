@@ -24,6 +24,7 @@
 namespace Zotlabs\Tests\Unit\includes;
 
 use App;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Zotlabs\Tests\Unit\UnitTestCase;
 
 class BBCodeTest extends UnitTestCase {
@@ -74,6 +75,55 @@ class BBCodeTest extends UnitTestCase {
 		// Now verify that the right part is shown to users _in_ a channel
 		\App::$channel = [42];
 		$this->assertBBCode('This is only for channels', $src);
+	}
+
+	#[DataProvider('bbcode_url_provider')]
+	public function test_bbcode_url_parsing(string $url): void {
+		$url_escaped = preg_quote($url, '|');
+
+		foreach (['url', 'zrl'] as $tag) {
+			$html = bbcode("[{$tag}]{$url}[/{$tag}]");
+			$this->assertMatchesRegularExpression(
+				"|<a\s+(?:class=\"{$tag}\"\s+)?href=\"{$url_escaped}\"[^>]*>{$url_escaped}</a>|",
+				$html,
+				"url surrounded by [{$tag}] tags"
+			);
+
+			$html = bbcode("[{$tag}={$url}]Link description[/{$tag}]");
+			$this->assertMatchesRegularExpression(
+				"|<a\s+(?:class=\"{$tag}\"\s+)?href=\"{$url_escaped}\"[^>]*>Link description</a>|",
+				$html,
+				"{$tag} tag with link as param"
+			);
+
+			$html = bbcode("[{$tag}]{$url}[/{$tag}][{$tag}={$url}]Link[/{$tag}]");
+			$this->assertMatchesRegularExpression(
+				"|<a\s+(?:class=\"{$tag}\"\s+)?href=\"{$url_escaped}\"[^>]*>{$url_escaped}</a><a\s+(?:class=\"{$tag}\"\s+)?href=\"{$url_escaped}\"[^>]*>Link</a>|",
+				$html,
+				"multiple {$tag} tags"
+			);
+
+			$html = bbcode("#^[{$tag}]{$url}[/{$tag}]");
+			$this->assertMatchesRegularExpression(
+				"|<span\s+class=\"bookmark-identifier\">\#\^</span><a\s+class=\"(?:{$tag}\s+)?bookmark\"\s+href=\"{$url_escaped}\"[^>]*>{$url_escaped}</a>|",
+				$html,
+				"bookmark {$tag}"
+			);
+
+			$html = bbcode("#^[{$tag}={$url}]Link[/{$tag}]");
+			$this->assertMatchesRegularExpression(
+				"|<span\s+class=\"bookmark-identifier\">\#\^</span><a\s+class=\"(?:{$tag}\s+)?bookmark\"\s+href=\"{$url_escaped}\"[^>]*>Link</a>|",
+				$html,
+				"bookmark {$tag} with link in param"
+			);
+
+			$html = bbcode("#^[{$tag}]{$url}[/{$tag}]#^[{$tag}={$url}]Link[/{$tag}]");
+			$this->assertMatchesRegularExpression(
+				"|<span\s+class=\"bookmark-identifier\">\#\^</span><a\s+class=\"(?:{$tag}\s+)?bookmark\"\s+href=\"{$url_escaped}\"[^>]*>{$url_escaped}</a><span class=\"bookmark-identifier\">\#\^</span><a\s+class=\"(?:{$tag}\s+)?bookmark\"\s+href=\"{$url_escaped}\"[^>]*>Link</a>|",
+				$html,
+				"multiple {$tag} bookmarks"
+			);
+		}
 	}
 
 	/**
@@ -229,6 +279,14 @@ class BBCodeTest extends UnitTestCase {
 				false,
 				'en',
 				'',
+			],
+		];
+	}
+
+	public static function bbcode_url_provider(): array {
+		return [
+			'IPv6 URL (RFC 2732)' => [
+				'http://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80/index.html',
 			],
 		];
 	}
