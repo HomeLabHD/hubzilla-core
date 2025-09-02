@@ -222,6 +222,10 @@ class BBCodeTest extends UnitTestCase {
 				'example url: geo:37.78918,-122.40335(Wikimedia+Foundation)',
 				'example url: <a href="geo:37.78918,-122.40335(Wikimedia+Foundation)" target="_blank" rel="nofollow noopener">📍Wikimedia Foundation</a>'
 			],
+			'naked IPv6 uri' => [
+				'example url: http://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80/index.html',
+				'example url: <a href="http://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80/index.html" target="_blank" rel="nofollow noopener">http://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80/index.html</a>'
+			],
 		];
 	}
 

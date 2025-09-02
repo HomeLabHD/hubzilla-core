@@ -1333,7 +1333,7 @@ function bbcode($text, $options = []) {
 	}
 
 	// Perform URL Search
-	$urlchars = '[a-zA-Z0-9\pL\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,\@\(\)]';
+	$urlchars = '[a-zA-Z0-9\pL\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,\@\(\)\[\]]';
 
 	if (strpos($text,'http') !== false) {
 		if($tryoembed) {
