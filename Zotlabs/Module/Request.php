@@ -25,7 +25,7 @@ class Request extends Controller
 	}
 
 
-	private function processSubthreadRequest() : string
+	private function processSubthreadRequest(): void
 	{
 		$mid = $_GET['mid'];
 		$parent = intval($_GET['parent']);
@@ -52,11 +52,11 @@ class Request extends Controller
 		json_return_and_die($ret);
 	}
 
-	public function get() : string
+	public function init() : void
 	{
 
 		if (in_array($_GET['verb'], ['comment', 'load'])) {
-			return self::processSubthreadRequest();
+			self::processSubthreadRequest();
 		}
 
 		$verb = self::mapVerb($_GET['verb']);
