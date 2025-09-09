@@ -570,6 +570,7 @@ function change_channel_keys($channel) {
 	$key = Crypto::new_keypair(4096);
 
 	$sig = base64url_encode(Crypto::sign($channel['channel_guid'],$key['prvkey']));
+	// @phpstan-ignore function.notFound
 	$hash = make_xchan_hash($channel['channel_guid'],$sig);
 
 	$stored['old_guid']     = $channel['channel_guid'];
