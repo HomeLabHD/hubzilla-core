@@ -323,7 +323,6 @@ class Register extends Controller {
 					$did2  = $email;
 					$didx  = 'e';
 
-					push_lang(($reg['lang']) ? $reg['lang'] : App::$language);
 					$reonar['from'] = Config::Get('system', 'from_email');
 					$reonar['to'] = $email;
 					$reonar['subject'] = sprintf( t('Registration confirmation for %s'), Config::Get('system','sitename'));
@@ -338,7 +337,6 @@ class Register extends Controller {
 						'$hash'      => $empin
 				 		]
 					);
-					pop_lang();
 					zar_reg_mail($reonar);
 
 				} else {
