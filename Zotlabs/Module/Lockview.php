@@ -110,7 +110,7 @@ class Lockview extends Controller {
 			// as unknown specific recipients. The sender will have the visibility list and will fall through to the
 			// next section.
 
-			echo '<div class="dropdown-item-text">' . translate_scope((!$item['public_policy']) ? 'specific' : $item['public_policy']) . '</div>';
+			echo '<div class="dropdown-item-text">' . escape_tags(translate_scope((!$item['public_policy']) ? 'specific' : $item['public_policy'])) . '</div>';
 			killme();
 		}
 
