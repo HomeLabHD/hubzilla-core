@@ -215,6 +215,10 @@ function create_account_from_register($arr) {
 	$salt = $password_parts[0];
 	$password_encoded = $password_parts[1];
 
+	// Hierarchical accounts are not supported, explicitly hardcode to 0 for
+	// now.
+	$parent = 0;
+
 	$ri = q(
 		"INSERT INTO account ("
 		. " account_parent, account_salt, account_password, account_email, "
