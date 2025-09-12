@@ -243,7 +243,7 @@ class Channel extends Controller {
 			// search terms header
 			if ($search) {
 				$o .= replace_macros(get_markup_template("section_title.tpl"), [
-					'$title' => t('Search Results For:') . ' ' . htmlspecialchars($search, ENT_COMPAT, 'UTF-8')
+					'$title' => t('Searching for:') . ' ' . htmlspecialchars($search, ENT_COMPAT, 'UTF-8')
 				]);
 			}
 
@@ -444,7 +444,7 @@ class Channel extends Controller {
 			$items = [];
 		}
 
-		$mode = (($search) ? 'search' : 'channel');
+		$mode = 'channel';
 
 		if ((!$update) && (!$load)) {
 
