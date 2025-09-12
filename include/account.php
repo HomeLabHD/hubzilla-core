@@ -266,7 +266,7 @@ function create_account_from_register($arr) {
 
 	$result['success']  = true;
 
-	//call_hooks('register_account',$result);
+	call_hooks('register_account',$result);
 
 	return $result;
 }
