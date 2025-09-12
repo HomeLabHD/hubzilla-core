@@ -53,10 +53,10 @@ before_script:
     HZ_TEST_DB_DATABASE: $MYSQL_DATABASE
   script:
     # Import hubzilla's DB schema
-    - echo "USE $MYSQL_DATABASE; $(cat ./install/schema_mysql.sql)" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host="$DB_HOST" "$MYSQL_DATABASE"
+    - echo "USE $MYSQL_DATABASE; $(cat ./install/schema_mysql.sql)" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host="$DB_HOST" --skip-ssl "$MYSQL_DATABASE"
     # Show databases and relations/tables of hubzilla's database
-    - echo "SHOW DATABASES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host="$DB_HOST" "$MYSQL_DATABASE"
-    - echo "USE $MYSQL_DATABASE; SHOW TABLES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host="$DB_HOST" "$MYSQL_DATABASE"
+    - echo "SHOW DATABASES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host="$DB_HOST" --skip-ssl "$MYSQL_DATABASE"
+    - echo "USE $MYSQL_DATABASE; SHOW TABLES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host="$DB_HOST" --skip-ssl "$MYSQL_DATABASE"
     # Run the actual tests
     - touch dbfail.out
     - vendor/bin/phpunit -d memory_limit=256M --configuration tests/phpunit.xml --no-progress --stop-on-error --coverage-text --colors=never --log-junit tests/results/junit.xml || exit_code=$?
