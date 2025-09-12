@@ -436,8 +436,6 @@ class Network extends \Zotlabs\Web\Controller {
 			$page_mode = 'list';
 		}
 
-		$parents_str = '';
-
 		// This fixes a very subtle bug so I'd better explain it. You wake up in the morning or return after a day
 		// or three and look at your matrix page - after opening up your browser. The first page loads just as it
 		// should. All of a sudden a few seconds later, page 2 will get inserted at the beginning of the page
@@ -468,10 +466,6 @@ class Network extends \Zotlabs\Web\Controller {
 				$net_query2
 				ORDER BY item.created DESC $pager_sql "
 			);
-
-			$parents_str = ids_to_querystr($items, 'item_id');
-
-			require_once('include/items.php');
 
 			xchan_query($items);
 
