@@ -16,13 +16,13 @@ class Archive {
 
 		$o = '';
 
-		if(!App::$profile) {
+		if (!App::$profile) {
 			return '';
 		}
 
 		$uid = App::$profile['profile_uid'];
 
-		if(!feature_enabled($uid, 'archives')) {
+		if (!feature_enabled($uid, 'archives')) {
 			return '';
 		}
 
