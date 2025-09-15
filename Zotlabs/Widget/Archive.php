@@ -8,6 +8,7 @@
 
 namespace Zotlabs\Widget;
 
+use App;
 
 class Archive {
 
@@ -15,37 +16,40 @@ class Archive {
 
 		$o = '';
 
-		if(! \App::$profile_uid) {
+		if(!App::$profile) {
 			return '';
 		}
 
-		$uid = \App::$profile_uid;
+		$uid = App::$profile['profile_uid'];
 
-		if(! feature_enabled($uid,'archives'))
+		if(!feature_enabled($uid, 'archives')) {
 			return '';
+		}
 
-		if(! perm_is_allowed($uid,get_observer_hash(),'view_stream'))
+		if (!perm_is_allowed($uid,get_observer_hash(),'view_stream')) {
 			return '';
+		}
 
 		$wall = ((array_key_exists('wall', $arr)) ? intval($arr['wall']) : 0);
 		$wall = ((array_key_exists('articles', $arr)) ? 2 : $wall);
 
 		$style = ((array_key_exists('style', $arr)) ? $arr['style'] : 'select');
-		$showend = ((get_pconfig($uid,'system','archive_show_end_date')) ? true : false);
-		$mindate = get_pconfig($uid,'system','archive_mindate');
-		$visible_years = get_pconfig($uid,'system','archive_visible_years',5);
+		$showend = ((get_pconfig($uid, 'system', 'archive_show_end_date')) ? true : false);
+		$mindate = get_pconfig($uid, 'system', 'archive_mindate');
+		$visible_years = get_pconfig($uid, 'system', 'archive_visible_years', 5);
 
-		$url = z_root() . '/' . \App::$cmd;
+		$url = z_root() . '/' . App::$module . '/' . App::$profile['channel_address'];
 
 		$ret = list_post_dates($uid,$wall,$mindate);
 
-		if(! count($ret))
+		if (empty($ret)) {
 			return '';
+		}
 
 		$cutoff_year = intval(datetime_convert('',date_default_timezone_get(),'now','Y')) - $visible_years;
-		$cutoff = ((array_key_exists($cutoff_year,$ret))? true : false);
+		$cutoff = ((array_key_exists($cutoff_year,$ret)) ? true : false);
 
-		$o = replace_macros(get_markup_template('posted_date_widget.tpl'),array(
+		return replace_macros(get_markup_template('posted_date_widget.tpl'), [
 			'$title' => t('Archives'),
 			'$size' => $visible_years,
 			'$cutoff_year' => $cutoff_year,
@@ -54,8 +58,8 @@ class Archive {
 			'$style' => $style,
 			'$showend' => $showend,
 			'$dates' => $ret
-		));
-		return $o;
+		]);
+
 	}
 }
 
