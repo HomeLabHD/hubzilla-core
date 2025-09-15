@@ -487,7 +487,7 @@ function wtagblock($uid,$count = 0,$authors = '',$owner = '', $flags = 0,$restri
 			intval($uid)
 		);
 
-		$url = z_root() . '/channel/' . $c[0]['channel_address'].'/?f=&tag=';
+		$url = z_root() . '/channel/' . $c[0]['channel_address'].'?tag=';
 		$tpl = get_markup_template('tagcloud.tpl');
 
 		$o .= replace_macros($tpl, [
