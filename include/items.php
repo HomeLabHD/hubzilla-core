@@ -1272,7 +1272,7 @@ function map_scope($scope, $strip = false) {
  * @param string $scope
  * @return string translated string describing the scope
  */
-function translate_scope($scope) {
+function translate_scope($scope): string {
 	if(! $scope || $scope === 'public')
 		return t('Visible to anybody on the internet.');
 	if(strpos($scope,'self') === 0)
@@ -1289,6 +1289,9 @@ function translate_scope($scope) {
 		return t('Visible to approved connections.');
 	if(strpos($scope,'specific') === 0)
 		return t('Visible to specific connections.');
+
+	// Fall through and return untranslated scope
+	return $scope;
 }
 
 /**

@@ -1,5 +1,9 @@
 <?php
 
+function escape_s($match){
+	return str_replace('$','\$',$match[0]);
+}
+
 function po2php_run($argc,$argv) {
 
 	if ($argc < 2) {
@@ -41,10 +45,6 @@ function po2php_run($argc,$argv) {
 	$ink = False;
 	$inv = False;
 	$escape_s_exp = '|[^\\\\]\$[a-z]|';
-
-	function escape_s($match){
-		return str_replace('$','\$',$match[0]);
-	}
 
 	foreach ($infile as $l) {
 		$l = str_replace(array('$projectname','$Projectname'),array('\$projectname','\$Projectname'),$l);

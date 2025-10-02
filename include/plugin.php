@@ -82,6 +82,8 @@ function uninstall_plugin($plugin) {
 		dbesc($plugin)
 	);
 
+	return true;
+
 }
 
 /**
@@ -123,7 +125,7 @@ function install_plugin($plugin) {
 		);
 	}
 
-	load_plugin($plugin);
+	return load_plugin($plugin);
 }
 
 /**

@@ -215,6 +215,10 @@ function create_account_from_register($arr) {
 	$salt = $password_parts[0];
 	$password_encoded = $password_parts[1];
 
+	// Hierarchical accounts are not supported, explicitly hardcode to 0 for
+	// now.
+	$parent = 0;
+
 	$ri = q(
 		"INSERT INTO account ("
 		. " account_parent, account_salt, account_password, account_email, "
@@ -272,48 +276,46 @@ function create_account_from_register($arr) {
 }
 
 /**
- *	@brief as far to see, email validation for register account verification
- *	@param array (account)
- *	@param array ('resend' => true, 'email' = > email)
+ * Send email verification to user pending registration.
  *
+ * @param string $email		The email address of the registration
+ *
+ * @return bool `true` if the email was sucessfully sent, otherwise `false`.
  */
+function verify_email_address(string $email): bool {
 
-function verify_email_address($arr) {
+	$reg = q("SELECT * FROM register WHERE reg_vital = 1 AND reg_email = '%s' ",
+		dbesc($email)
+	);
 
-		// $hash = random_string(24);
+	if ( ! $reg)
+		return false;
 
-		// [hilmar ->
-		$reg = q("SELECT * FROM register WHERE reg_vital = 1 AND reg_email = 's%' ",
-				dbesc($arr['email'])
-			);
-		if ( ! $reg)
-			return false;
-
-	push_lang(($reg[0]['email']) ? $reg[0]['email'] : 'en');
+	push_lang(($reg[0]['reg_lang']) ? $reg[0]['reg_lang'] : 'en');
 
 	$email_msg = replace_macros(get_intltext_template('register_verify_member.tpl'),
 		[
 			'$sitename' => Config::Get('system','sitename'),
 			'$siteurl'  => z_root(),
-			'$email'    => $arr['email'],
+			'$email'    => $email,
 			'$uid'      => 1,
-			'$hash'     => $hash,
+			'$mail'     => bin2hex($email) . 'e',
+			'$hash'     => $reg[0]['reg_hash'],
+			'$ko'       => bin2hex(substr($reg[0]['reg_hash'], 0, 4)),
 			'$details'  => ''
 	 	]
 	);
 
-	$res = z_mail(
-		[
-		'toEmail' => $arr['email'],
+	$res = z_mail([
+		'toEmail' => $email,
 		'messageSubject' => sprintf( t('Registration confirmation for %s'), Config::Get('system','sitename')),
 		'textVersion' => $email_msg,
-		]
-	);
+	]);
 
 	pop_lang();
 
 	if(! $res)
-		logger('send_reg_approval_email: failed to account_id: ' . $arr['account']['account_id']);
+		logger("send_reg_approval_email: failed sending email to: {$email}");
 
 	return $res;
 }

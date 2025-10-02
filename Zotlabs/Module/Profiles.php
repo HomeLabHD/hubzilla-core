@@ -841,7 +841,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 						'$alt' => t('Profile Image'),
 						'$profile_name' => $rr['profile_name'],
 						'$visible' => (($rr['is_default'])
-							? '<strong>' . translate_scope(map_scope(\Zotlabs\Access\PermissionLimits::Get($channel['channel_id'],'view_profile'))) . '</strong>'
+							? '<strong>' . escape_tags(translate_scope(map_scope(\Zotlabs\Access\PermissionLimits::Get($channel['channel_id'],'view_profile')))) . '</strong>'
 							: '<a href="' . z_root() . '/profperm/' . $rr['id'] . '" />' . t('Edit visibility') . '</a>')
 					));
 				}
