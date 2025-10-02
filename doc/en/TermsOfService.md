@@ -1,11 +1,11 @@
 Privacy Policy
 ==============
 
-#include doc/gdpr1.md;
+#include doc/en/gdpr1.md;
 
 
 Terms of Service
 ================
 
-#include doc/SiteTOS.md;
+#include doc/en/SiteTOS.md;
 
