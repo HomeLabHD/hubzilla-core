@@ -3589,8 +3589,7 @@ class Activity {
 			$act = new ActivityStreams($a);
 
 			if ($act->is_valid()) {
-				$content = self::get_content($act->obj);
-				$url = $act->obj['url'] ?? $act->obj['id'];
+				$decoded = self::decode_note($act);
 
 				$bbcode = "[share author='" . urlencode($act->actor['name'] ?? $act->actor['preferredUsername']) .
 					"' profile='" . $act->actor['id'] .
@@ -3600,11 +3599,11 @@ class Activity {
 					"' posted='" . $act->obj['published'] .
 					"' message_id='" . $act->obj['id'] .
 					"']";
-				$bbcode  .= self::bb_content($content, 'content');
+				$bbcode  .= $decoded['body'];
 				$bbcode  .= '[/share]';
 
 				$ret['bbcode'] = $bbcode;
-				$ret['url'] = $url;
+				$ret['url'] = $decoded['plink'];
 
 			}
 		}
