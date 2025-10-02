@@ -2288,17 +2288,17 @@ class Activity {
 		$quote_url = $act->obj['quote'] ?? $act->obj['quoteUrl'] ?? $act->obj['quoteUri'] ?? $act->obj['_misskey_quote'] ?? null;
 
 		if ($quote_url) {
-			$quote_bbcode = self::get_quote_bbcode($quote_url);
+			$quote = self::get_quote($quote_url);
 
-			if (str_contains($s['body'], 'RE: [url=' . $quote_url . ']' . $quote_url . '[/url]')) {
-				$s['body'] = str_replace('RE: [url=' . $quote_url . ']' . $quote_url . '[/url]', $quote_bbcode, $s['body']);
+			if (str_contains($s['body'], 'RE: [url=' . $quote['url'] . ']' . $quote['url'] . '[/url]')) {
+				$s['body'] = str_replace(['RE: [url=' . $quote['url'] . ']' . $quote['url'] . '[/url]' . "\n", 'RE: [url=' . $quote['url'] . ']' . $quote['url'] . '[/url]'], $quote['bbcode'], $s['body']);
 			}
 			else {
 				if ($s['body']) {
 					$s['body'] .= "\r\n\r\n";
 				}
 
-				$s['body'] .= $quote_bbcode;
+				$s['body'] .= $quote['bbcode'];
 			}
 		}
 
@@ -3581,8 +3581,8 @@ class Activity {
 		return $ret;
 	}
 
-	static function get_quote_bbcode($url) {
-		$ret = '';
+	static function get_quote($url) {
+		$ret = ['url', 'bbcode'];
 		$a = self::fetch($url);
 
 		if ($a) {
@@ -3590,17 +3590,22 @@ class Activity {
 
 			if ($act->is_valid()) {
 				$content = self::get_content($act->obj);
+				$url = $act->obj['url'] ?? $act->obj['id'];
 
-				$ret .= "[share author='" . urlencode($act->actor['name'] ?? $act->actor['preferredUsername']) .
+				$bbcode = "[share author='" . urlencode($act->actor['name'] ?? $act->actor['preferredUsername']) .
 					"' profile='" . $act->actor['id'] .
 					"' avatar='" . ($act->actor['icon']['url'] ?? z_root() . '/' . get_default_profile_photo(80)) .
-					"' link='" . $act->obj['id'] .
+					"' link='" . $url .
 					"' auth='" . ((is_matrix_url($act->actor['id'])) ? 'true' : 'false') .
 					"' posted='" . $act->obj['published'] .
 					"' message_id='" . $act->obj['id'] .
 					"']";
-				$ret  .= self::bb_content($content, 'content');
-				$ret  .= '[/share]';
+				$bbcode  .= self::bb_content($content, 'content');
+				$bbcode  .= '[/share]';
+
+				$ret['bbcode'] = $bbcode;
+				$ret['url'] = $url;
+
 			}
 		}
 
