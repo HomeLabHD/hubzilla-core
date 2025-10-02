@@ -2285,14 +2285,21 @@ class Activity {
 			$s['body'] = markdown_to_bb($act->objprop('content'));
 		}
 
-		if ($act->objprop('quoteUrl')) {
-			$quote_bbcode = self::get_quote_bbcode($act->obj['quoteUrl']);
+		$quote_url = $act->obj['quote'] ?? $act->obj['quoteUrl'] ?? $act->obj['quoteUri'] ?? $act->obj['_misskey_quote'] ?? null;
 
-			if ($s['body']) {
-				$s['body'] .= "\r\n\r\n";
+		if ($quote_url) {
+			$quote_bbcode = self::get_quote_bbcode($quote_url);
+
+			if (str_contains($s['body'], 'RE: [url=' . $quote_url . ']' . $quote_url . '[/url]')) {
+				$s['body'] = str_replace('RE: [url=' . $quote_url . ']' . $quote_url . '[/url]', $quote_bbcode, $s['body']);
 			}
+			else {
+				if ($s['body']) {
+					$s['body'] .= "\r\n\r\n";
+				}
 
-			$s['body'] .= $quote_bbcode;
+				$s['body'] .= $quote_bbcode;
+			}
 		}
 
 		$s['verb'] = self::activity_mapper($act->type);
@@ -2666,6 +2673,7 @@ class Activity {
 		return $hookinfo['s'];
 
 	}
+
 	static function store($channel, $observer_hash, $act, $item, $fetch_parents = true, $force = false, $is_collection_operation = false) {
 		$is_sys_channel = is_sys_channel($channel['channel_id']);
 		$is_child_node  = false;
@@ -3574,10 +3582,9 @@ class Activity {
 	}
 
 	static function get_quote_bbcode($url) {
-
 		$ret = '';
-
 		$a = self::fetch($url);
+
 		if ($a) {
 			$act = new ActivityStreams($a);
 
