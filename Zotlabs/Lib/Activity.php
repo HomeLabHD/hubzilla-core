@@ -2300,6 +2300,8 @@ class Activity {
 
 				$s['body'] .= $quote['bbcode'];
 			}
+
+			$s['term'] = $quote['term'];
 		}
 
 		$s['verb'] = self::activity_mapper($act->type);
@@ -2347,7 +2349,13 @@ class Activity {
 			$a = self::decode_taxonomy($act->obj);
 
 			if ($a) {
-				$s['term'] = $a;
+				if (isset($s['term'])) {
+					// term might contain content from a quote post
+					$s['term'] = array_merge($s['term'], $a);
+				}
+				else {
+					$s['term'] = $a;
+				}
 			}
 
 			$a = self::decode_attachment($act->obj);
@@ -3582,7 +3590,7 @@ class Activity {
 	}
 
 	static function get_quote($url) {
-		$ret = ['url', 'bbcode'];
+		$ret = ['url', 'bbcode', 'term'];
 		$a = self::fetch($url);
 
 		if ($a) {
@@ -3604,6 +3612,7 @@ class Activity {
 
 				$ret['bbcode'] = $bbcode;
 				$ret['url'] = $decoded['plink'];
+				$ret['term'] = $decoded['term'] ?? [];
 
 			}
 		}
