@@ -91,6 +91,8 @@ class Activity {
 
 		logger('fetch: ' . $url, LOGGER_DEBUG);
 
+hz_syslog(print_r($url,true));
+
 		if (strpos($url, 'x-zot:') === 0) {
 			$x = ZotURL::fetch($url, $channel);
 		}
@@ -2285,23 +2287,33 @@ class Activity {
 			$s['body'] = markdown_to_bb($act->objprop('content'));
 		}
 
-		$quote_url = $act->obj['quote'] ?? $act->obj['quoteUrl'] ?? $act->obj['quoteUri'] ?? $act->obj['_misskey_quote'] ?? null;
+		$quote_urls = $act->obj['quote'] ?? $act->obj['quoteUrl'] ?? $act->obj['quoteUri'] ?? $act->obj['_misskey_quote'] ?? null;
 
-		if ($quote_url) {
-			$quote = self::get_quote($quote_url);
-
-			if (str_contains($s['body'], 'RE: [url=' . $quote['url'] . ']' . $quote['url'] . '[/url]')) {
-				$s['body'] = str_replace(['RE: [url=' . $quote['url'] . ']' . $quote['url'] . '[/url]' . "\n", 'RE: [url=' . $quote['url'] . ']' . $quote['url'] . '[/url]'], $quote['bbcode'], $s['body']);
+		if ($quote_urls) {
+			if (is_string($quote_urls)) {
+				$quote_urls = [$quote_urls];
 			}
-			else {
-				if ($s['body']) {
-					$s['body'] .= "\r\n\r\n";
+
+			foreach($quote_urls as $quote_url) {
+				$quote = self::get_quote($quote_url);
+
+				if (!$quote) {
+					continue;
 				}
 
-				$s['body'] .= $quote['bbcode'];
-			}
+				if (str_contains($s['body'], 'RE: [url=' . $quote['url'] . ']' . $quote['url'] . '[/url]')) {
+					$s['body'] = str_replace(['RE: [url=' . $quote['url'] . ']' . $quote['url'] . '[/url]' . "\n", 'RE: [url=' . $quote['url'] . ']' . $quote['url'] . '[/url]'], $quote['bbcode'], $s['body']);
+				}
+				else {
+					if ($s['body']) {
+						$s['body'] .= "\r\n\r\n";
+					}
 
-			$s['term'] = $quote['term'];
+					$s['body'] .= $quote['bbcode'];
+				}
+
+				$s['term'] = $quote['term'];
+			}
 		}
 
 		$s['verb'] = self::activity_mapper($act->type);
@@ -3590,7 +3602,7 @@ class Activity {
 	}
 
 	static function get_quote($url) {
-		$ret = ['url', 'bbcode', 'term'];
+		$ret = [];
 		$a = self::fetch($url);
 
 		if ($a) {
