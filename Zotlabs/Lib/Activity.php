@@ -91,8 +91,6 @@ class Activity {
 
 		logger('fetch: ' . $url, LOGGER_DEBUG);
 
-hz_syslog(print_r($url,true));
-
 		if (strpos($url, 'x-zot:') === 0) {
 			$x = ZotURL::fetch($url, $channel);
 		}
