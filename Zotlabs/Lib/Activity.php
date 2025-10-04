@@ -2351,8 +2351,13 @@ class Activity {
 					continue;
 				}
 
-				if (str_contains($s['body'], 'RE: ' . $quote['url'])) {
-					$s['body'] = str_replace(['RE: ' . $quote['url'] . "\n", 'RE: ' . $quote['url']], $quote['bbcode'], $s['body']);
+				if (str_contains($s['body'], 'RE: ' . $quote['url']) || str_contains($s['body'], 'RE: [url=' . $quote['url'] . ']' . $quote['url'] . '[/url]')) {
+					$s['body'] = str_replace([
+						'RE: [url=' . $quote['url'] . ']' . $quote['url'] . '[/url]' . "\n",
+						'RE: [url=' . $quote['url'] . ']' . $quote['url'] . '[/url]',
+						'RE: ' . $quote['url'] . "\n",
+						'RE: ' . $quote['url']
+						], $quote['bbcode'], $s['body']);
 				}
 				else {
 					if ($s['body']) {
