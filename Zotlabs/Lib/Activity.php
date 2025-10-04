@@ -620,6 +620,15 @@ class Activity {
 			$ret['context'] = $cnv;
 		}
 
+		if ($i['mimetype'] === 'text/bbcode') {
+			if ($i['title'])
+				$ret['name'] = unescape_tags($i['title']);
+			if ($i['summary'])
+				$ret['summary'] = unescape_tags($i['summary']);
+			$ret['content'] = bbcode(unescape_tags($i['body']), ['cache' => true]);
+			$ret['source']  = ['content' => unescape_tags($i['body']), 'mediaType' => 'text/bbcode'];
+		}
+
 		$actor = self::encode_person($i['author'], false);
 		if ($actor)
 			$ret['actor'] = $actor;
@@ -635,53 +644,6 @@ class Activity {
 			}
 
 			$ret['tag'] = $t;
-		}
-
-		if (str_contains($i['body'], '[/share]')) {
-			preg_match_all('/\[share(.*?)\[\/share\]/ism', $i['body'], $all_shares, PREG_SET_ORDER);
-
-			$quote_urls = [];
-
-			foreach ($all_shares as $share) {
-				// Extract the link attribute from each [share] block
-				if (preg_match("/link='(.*?)'/ism", $share[1], $match)) {
-					$url = $match[1];
-					$quote_urls[] = $url;
-
-					$quote_name = 'RE: ' . $url;
-
-					// Replace this share block with a formatted URL reference
-					$i['body'] = str_replace($share[0], $quote_name, $i['body']);
-
-					$obj_links[] = [
-						'type' => 'Link',
-						'mediaType' => 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
-						'href' => $url,
-						'name' => $quote_name
-					];
-				}
-			}
-
-			if ($quote_urls) {
-				$ret['quoteUrl'] = $quote_urls[0];
-
-				if (empty($ret['tag'])) {
-					$ret['tag'] = $obj_links;
-				}
-				else {
-					$ret['tag'] = array_merge($ret['tag'], $obj_links);
-				}
-			}
-
-		}
-
-		if ($i['mimetype'] === 'text/bbcode') {
-			if ($i['title'])
-				$ret['name'] = unescape_tags($i['title']);
-			if ($i['summary'])
-				$ret['summary'] = unescape_tags($i['summary']);
-			$ret['content'] = bbcode(unescape_tags($i['body']));
-			$ret['source']  = ['content' => unescape_tags($i['body']), 'mediaType' => 'text/bbcode'];
 		}
 
 		$a = self::encode_attachment($i);
@@ -2323,27 +2285,13 @@ class Activity {
 			$s['body'] = markdown_to_bb($act->objprop('content'));
 		}
 
-		$quote_urls = [];
+		$quote_urls = $act->obj['quote'] ?? $act->obj['quoteUrl'] ?? $act->obj['quoteUri'] ?? $act->obj['_misskey_quote'] ?? null;
 
-		if (isset($act->obj['tag'])) {
-			foreach($act->obj['tag'] as $t) {
-				if (is_array($t) && $t['type'] === 'Link' && $t['mediaType'] === 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"') {
-					$quote_urls[] = $t['href'];
-				}
+		if ($quote_urls) {
+			if (is_string($quote_urls)) {
+				$quote_urls = [$quote_urls];
 			}
-		}
 
-		if (!$quote_urls) {
-			$quote_url = $act->obj['quoteUrl'] ?? $act->obj['quoteUri'] ?? $act->obj['_misskey_quote'] ?? $act->obj['quote'] ??  null;
-		}
-
-		if ($quote_url) {
-			$quote_urls = [$quote_url];
-		}
-
-		// Backwards compatibility: only process quote items if there is no share tag in them.
-		// Otherwise they will appear doubled.
-		if ($quote_urls && !str_contains($s['body'], '[/share]')) {
 			foreach($quote_urls as $quote_url) {
 				$quote = self::get_quote($quote_url);
 
@@ -2351,8 +2299,8 @@ class Activity {
 					continue;
 				}
 
-				if (str_contains($s['body'], 'RE: ' . $quote['url'])) {
-					$s['body'] = str_replace(['RE: ' . $quote['url'] . "\n", 'RE: ' . $quote['url']], $quote['bbcode'], $s['body']);
+				if (str_contains($s['body'], 'RE: [url=' . $quote['url'] . ']' . $quote['url'] . '[/url]')) {
+					$s['body'] = str_replace(['RE: [url=' . $quote['url'] . ']' . $quote['url'] . '[/url]' . "\n", 'RE: [url=' . $quote['url'] . ']' . $quote['url'] . '[/url]'], $quote['bbcode'], $s['body']);
 				}
 				else {
 					if ($s['body']) {
@@ -3669,7 +3617,6 @@ class Activity {
 					"' posted='" . $act->obj['published'] .
 					"' message_id='" . $act->obj['id'] .
 					"']";
-
 				$bbcode  .= $decoded['body'];
 				$bbcode  .= '[/share]';
 
@@ -3756,9 +3703,7 @@ class Activity {
 			'guid'             => 'diaspora:guid',
 
 			'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
-			'Hashtag'          => 'as:Hashtag',
-
-			'quoteUrl'         => 'as:quoteUrl',
+			'Hashtag'          => 'as:Hashtag'
 		];
 
 	}

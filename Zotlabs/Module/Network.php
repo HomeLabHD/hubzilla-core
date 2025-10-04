@@ -389,9 +389,17 @@ class Network extends \Zotlabs\Web\Controller {
 			$sql_extra .= " AND ( author_xchan = '" . dbesc($channel['channel_hash']) . "' OR item_mentionsme = 1 ) ";
 		}
 
-		$itemspage = get_pconfig(local_channel(), 'system', 'itemspage');
-		App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 10));
-		$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(App::$pager['itemspage']), intval(App::$pager['start']));
+		if($update && ! $load) {
+
+			// only setup pagination on initial page view
+			$pager_sql = '';
+
+		}
+		else {
+			$itemspage = get_pconfig(local_channel(), 'system', 'itemspage');
+			App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 10));
+			$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(App::$pager['itemspage']), intval(App::$pager['start']));
+		}
 
 		// cmin and cmax are both -1 when the affinity tool is disabled
 
