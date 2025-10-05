@@ -2351,22 +2351,7 @@ class Activity {
 					continue;
 				}
 
-				if (str_contains($s['body'], 'RE: ' . $quote['url']) || str_contains($s['body'], 'RE: [url=' . $quote['url'] . ']' . $quote['url'] . '[/url]')) {
-					$s['body'] = str_replace([
-						'RE: [url=' . $quote['url'] . ']' . $quote['url'] . '[/url]' . "\n",
-						'RE: [url=' . $quote['url'] . ']' . $quote['url'] . '[/url]',
-						'RE: ' . $quote['url'] . "\n",
-						'RE: ' . $quote['url']
-						], $quote['bbcode'], $s['body']);
-				}
-				else {
-					if ($s['body']) {
-						$s['body'] .= "\r\n\r\n";
-					}
-
-					$s['body'] .= $quote['bbcode'];
-				}
-
+				$s['body'] = self::pasteQuote($s['body'], $quote);
 				$s['term'] = $quote['term'];
 			}
 		}
@@ -3693,6 +3678,7 @@ class Activity {
 
 				$ret['bbcode'] = $bbcode;
 				$ret['url'] = $decoded['plink'];
+				$ret['mid'] = $decoded['mid'];
 				$ret['term'] = $decoded['term'] ?? [];
 
 			}
@@ -3960,6 +3946,35 @@ class Activity {
 		return $act->objprop('uuid', null)
 			?? $act->objprop('diaspora:guid', null)
 			?? '';
+	}
+
+	public static function pasteQuote(string $body, array $quote): string {
+		// Escape URLs for regex safety
+		$urls = array_map('preg_quote', [$quote['url'], $quote['mid']], array_fill(0, 2, '/'));
+
+		$patterns = [];
+		foreach ($urls as $url) {
+			// Match both plain and BBCode-style references, with optional line breaks or spaces
+			$patterns[] = '/RE:\s*(?:\[url=' . $url . '\]' . $url . '\[\/url\]|' . $url . ')\s*/i';
+		}
+
+		$found = false;
+		foreach ($patterns as $pattern) {
+			if (preg_match($pattern, $body)) {
+				$found = true;
+				$body = preg_replace($pattern, $quote['bbcode'], $body);
+				break;
+			}
+		}
+
+		if (!$found) {
+			if (!empty($body)) {
+				$body .= "\r\n\r\n";
+			}
+			$body .= $quote['bbcode'];
+		}
+
+		return $body;
 	}
 
 }
