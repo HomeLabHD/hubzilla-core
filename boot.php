@@ -662,7 +662,7 @@ function sys_boot(): bool {
 		@include('.htpreconfig.php');
 	}
 
-	if (array_key_exists('default_timezone', get_defined_vars())) {
+	if (isset($default_timezone)) {
 		App::$config['system']['timezone'] = $default_timezone;
 	}
 
