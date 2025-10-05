@@ -3948,7 +3948,8 @@ class Activity {
 			?? '';
 	}
 
-	public static function pasteQuote(string $body, array $quote): string {
+	public static function pasteQuote(string $body, array $quote): string
+	{
 		// Escape URLs for regex safety
 		$urls = array_map('preg_quote', [$quote['url'], $quote['mid']], array_fill(0, 2, '/'));
 
