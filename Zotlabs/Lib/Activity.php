@@ -3658,7 +3658,20 @@ class Activity {
 
 	static function get_quote($url) {
 		$ret = [];
-		$a = self::fetch($url);
+		$a = null;
+
+		$cached = ASCache::Get($url);
+		if ($cached) {
+			// logger('cached: ' . $url);
+			$a = unserialise($cached);
+		}
+		else {
+			// logger('fetching: ' . $url);
+			$a = self::fetch($url);
+			if ($a) {
+				ASCache::Set($url, serialise($a));
+			}
+		}
 
 		if ($a) {
 			$act = new ActivityStreams($a);
