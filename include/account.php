@@ -145,10 +145,6 @@ function check_account_invite($invite_code) {
 }
 
 function check_account_admin($arr) {
-	if (is_site_admin()) {
-		return true;
-	}
-
 	$admin_email = trim(Config::Get('system','admin_email'));
 
 	if (strlen($admin_email) && $admin_email === trim($arr['reg_email'])) {
