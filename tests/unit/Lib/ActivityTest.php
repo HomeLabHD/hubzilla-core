@@ -335,7 +335,7 @@ class ActivityTest extends UnitTestCase {
 		$this->assertSame($expected, $result);
 	}
 
-	public function pasteQuoteProvider(): array
+	public static function pasteQuoteProvider(): array
 	{
 		return [
 			'plain url replacement' => [
