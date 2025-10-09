@@ -1,4 +1,5 @@
 stages:
+  - pretest
   - test
   - deploy
 
@@ -100,6 +101,12 @@ before_script:
     paths:
       - tests/results/
 
+phpstan:
+  image: php:8.1
+  stage: pretest
+  script:
+    - touch .htconfig.php
+    - vendor/bin/phpstan --memory-limit=512M
 
 # PHP8.1 with MySQL 8.0
 php8.1_mysql8.0.22:
@@ -118,11 +125,11 @@ php8.1_mariadb10.6:
   <<: *job_definition_mysql
   <<: *artifacts_template
 
-# PHP8.1 with PostgreSQL 12
-php8.1_postgres12:
+# PHP8.1 with PostgreSQL 13
+php8.1_postgres13:
   image: php:8.1
   services:
-    - postgres:12-alpine
+    - postgres:13-alpine
   <<: *job_definition_postgres
   <<: *artifacts_template
 
