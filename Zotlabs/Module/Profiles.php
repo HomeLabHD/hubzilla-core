@@ -759,7 +759,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 				'$profile_id'   => $r[0]['id'],
 				'$profile_name' => array('profile_name', t('Profile name'), $r[0]['profile_name'], t('Required'), '*'),
 				'$is_default'   => $is_default,
-				'$default'      => t('This is your default profile.') . EOL . translate_scope(map_scope(\Zotlabs\Access\PermissionLimits::Get($channel['channel_id'],'view_profile'))),
+				'$default'      => t('This is your default profile.') . ' ' . translate_scope(map_scope(\Zotlabs\Access\PermissionLimits::Get($channel['channel_id'],'view_profile'))),
 				'$advanced'     => $advanced,
 				'$name'         => array('name', t('Your full name'), $r[0]['fullname'], t('Required'), '*'),
 				'$pdesc'        => array('pdesc', t('Short title/description'), $r[0]['pdesc'], t('Maximal 190 characters'), '', 'maxlength="190"'),
