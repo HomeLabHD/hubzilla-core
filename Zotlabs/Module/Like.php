@@ -433,7 +433,7 @@ class Like extends Controller {
 			$arr['item_wall']       = 1;
 		}
 		else {
-			switch ($item['object_type']) {
+			switch ($item['obj_type']) {
 				case 'Image':
 					$post_type = t('image');
 					break;
