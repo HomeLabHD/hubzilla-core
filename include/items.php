@@ -5388,7 +5388,7 @@ function item_by_item_id(int $id, int $parent, int $type = ITEM_TYPE_POST): arra
 		WHERE
 			item.id = %d
 			AND item.uid = %d
-			AND item.verb IN ('Create', 'Update', 'EmojiReact')
+			AND item.verb IN ('Create', 'Update', 'EmojiReact', 'Announce')
 			AND item.obj_type NOT IN ('Answer')
 			$item_normal_sql",
 		intval($id),
