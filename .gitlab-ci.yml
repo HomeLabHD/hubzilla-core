@@ -101,6 +101,14 @@ before_script:
     paths:
       - tests/results/
 
+
+check_templates:
+  image: php:8.1
+  stage: pretest
+  script:
+    - touch .htconfig.php
+    - php util/precompile_smarty3.php
+
 phpstan:
   image: php:8.1
   stage: pretest
