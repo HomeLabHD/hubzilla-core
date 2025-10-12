@@ -135,7 +135,6 @@ class Network extends \Zotlabs\Web\Controller {
 
 		$status_editor = '';
 
-
 		if (Apps::system_app_installed(local_channel(), 'Affinity Tool')) {
 			$affinity_locked = intval(get_pconfig(local_channel(), 'affinity', 'lock', 1));
 			if ($affinity_locked) {
@@ -272,18 +271,6 @@ class Network extends \Zotlabs\Web\Controller {
 				if(!$pf && $nouveau) {
 					// This is for nouveau view cid queries (not a public forum)
 					$sql_extra = " AND author_xchan = '" . dbesc($cid_r[0]['abook_xchan']) . "' ";
-				}
-				elseif($pf && $unseen && $nouveau) {
-
-					$vnotify = get_pconfig(local_channel(), 'system', 'vnotify');
-					$likes_sql = '';
-					if (!($vnotify & VNOTIFY_LIKE)) {
-						$likes_sql = " AND verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
-					}
-
-					// This is for nouveau view public forum cid queries (if a forum notification is clicked)
-					$sql_extra = " AND item.parent IN (SELECT DISTINCT parent FROM item WHERE uid = " . intval(local_channel()) . " AND ( author_xchan = '" . dbesc($cid_r[0]['abook_xchan']) . "' OR owner_xchan = '" . dbesc($cid_r[0]['abook_xchan']) . "' ) $item_normal) AND item_unseen = 1 AND verb != 'Announce' $likes_sql ";
-
 				}
 				else {
 					// This is for threaded view cid queries (e.g. if a forum is selected from the forum filter)

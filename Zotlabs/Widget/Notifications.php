@@ -12,7 +12,6 @@ class Notifications {
 
 	function widget($arr) {
 
-		$channel = \App::get_channel();
 		$notifications = [];
 
 		if(local_channel()) {
@@ -35,7 +34,6 @@ class Notifications {
 				]
 			];
 
-
 			$notifications[] = [
 				'type' => 'home',
 				'icon' => 'house',
@@ -43,7 +41,7 @@ class Notifications {
 				'label' => t('Channel'),
 				'title' => t('Unseen channel activity'),
 				'viewall' => [
-					'url' => 'channel/' . $channel['channel_address'],
+					'url' => 'channel',
 					'label' => t('Channel stream')
 				],
 				'markall' => [
@@ -124,16 +122,17 @@ class Notifications {
 				]
 			];
 
-			$notifications[] = [
-				'type' => 'forums',
-				'icon' => 'chat-quote',
-				'severity' => 'secondary',
-				'label' => t('Forums'),
-				'title' => t('Unseen forums activity'),
-				'filter' => [
-					'name_label' => t('Filter by name or address')
-				]
-			];
+			$forums = get_forum_channels(local_channel());
+			foreach($forums as $forum) {
+				$notifications[] = [
+					'type' => 'forum_' . $forum['abook_id'],
+					'icon' => 'chat-quote',
+					'severity' => 'secondary',
+					'label' => $forum['xchan_name'],
+					'title' => t('Unseen forum activity')
+				];
+			}
+
 		}
 
 		if(local_channel() && is_site_admin()) {
@@ -157,11 +156,6 @@ class Notifications {
 					'url' => 'pubstream',
 					'label' => t('Public stream')
 				],
-				/*
-				'markall' => [
-					'label' => t('Mark all notifications seen')
-				],
-				*/
 				'filter' => [
 					'posts_label' => t('Conversation starters'),
 					'name_label' => t('Filter by name or address')
@@ -169,15 +163,12 @@ class Notifications {
 			];
 		}
 
-		$o = replace_macros(get_markup_template('notifications_widget.tpl'), [
+		return replace_macros(get_markup_template('notifications_widget.tpl'), [
 			'$notifications' => $notifications,
 			'$no_notifications' => t('Sorry, you have got no notifications at the moment'),
 			'$loading' => t('Loading'),
 			'$sys_only' => empty($arr['sys_only']) ? 0 : 1
-
 		]);
-
-		return $o;
 
 	}
 }

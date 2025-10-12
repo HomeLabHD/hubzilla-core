@@ -135,7 +135,6 @@
 
 							sse_bs_active = false;
 							sse_partial_result = true;
-							sse_offset = obj[sse_type].offset;
 							if (sse_offset < 0) {
 								document.getElementById("nav-" + sse_type + "-loading").style.display = 'none';
 							}
@@ -297,7 +296,7 @@
 	});
 
 	document.addEventListener('hz:sse_setNotificationsStatus', function(e) {
-		sse_setNotificationsStatus(e.detail);
+		sse_setNotificationsStatus(e.detail, null);
 	});
 
 	document.addEventListener('hz:sse_bs_init', function() {
@@ -414,7 +413,6 @@
 					sse_bs_active = false;
 					sse_rmids = [];
 					document.getElementById("nav-" + sse_type + "-loading").style.display = 'none';
-					sse_offset = obj[sse_type].offset;
 					sse_handleNotifications(obj, replace, followup);
 				})
 				.catch(error => {
@@ -430,6 +428,7 @@
 	}
 
 	function sse_handleNotifications(obj, replace, followup) {
+
 		// Notice and info notifications
 		if (obj.notice) {
 			obj.notice.notifications.forEach(notification => {
@@ -447,9 +446,7 @@
 			return;
 		}
 
-		let primary_notifications = ['dm', 'home', 'intros', 'register', 'notify', 'files'];
-		let secondary_notifications = ['network', 'forums', 'all_events', 'pubs'];
-		let all_notifications = [...primary_notifications, ...secondary_notifications];
+		let	all_notifications = Object.keys(obj);
 
 		all_notifications.forEach(type => {
 			if (typeof obj[type] === 'undefined') {
@@ -476,7 +473,7 @@
 				if (subElement) subElement.classList.remove('show');
 				if (buttonElement) {
 					buttonElement.style.display = 'none'; // Fade-out effect replaced by display none
-					sse_setNotificationsStatus();
+					sse_setNotificationsStatus(null, null);
 				}
 			}
 
@@ -485,24 +482,23 @@
 			}
 		});
 
-		sse_setNotificationsStatus();
+		sse_setNotificationsStatus(null, all_notifications);
 
-		// Load more notifications if visible notifications count becomes low
-		if (sse_type && sse_offset !== -1) {
-			let menu = document.getElementById('nav-' + sse_type + '-menu');
-			if (menu && menu.children.length < 15) {
-				sse_bs_notifications(sse_type, false, true);
+		if (typeof obj[sse_type] !== 'undefined') {
+			sse_offset = obj[sse_type].offset;
+
+			// Load more notifications if visible notifications count becomes low
+			if (sse_type && sse_offset !== -1) {
+				let menu = document.getElementById('nav-' + sse_type + '-menu');
+				if (menu && menu.children.length < 15) {
+					sse_bs_notifications(sse_type, false, true);
+				}
 			}
 		}
 	}
 
 	function sse_handleNotificationsItems(notifyType, data, replace, followup) {
-
-		// Get the template, adjust based on the notification type
-		let notifications_tpl = (notifyType === 'forums')
-			? decodeURIComponent(document.querySelector("#nav-notifications-forums-template[rel=template]").innerHTML.replace('data-src', 'src'))
-			: decodeURIComponent(document.querySelector("#nav-notifications-template[rel=template]").innerHTML.replace('data-src', 'src'));
-
+		let notifications_tpl = decodeURIComponent(document.querySelector("#nav-notifications-template[rel=template]").innerHTML.replace('data-src', 'src'));
 		let notify_menu = document.getElementById("nav-" + notifyType + "-menu");
 		let notify_loading = document.getElementById("nav-" + notifyType + "-loading");
 		let notify_count = document.getElementsByClassName(notifyType + "-update");
@@ -598,10 +594,14 @@
 	}
 
 
-	function sse_setNotificationsStatus(data) {
+	function sse_setNotificationsStatus(data, all_notifications) {
 		let primary_notifications = ['dm', 'home', 'intros', 'register', 'notify', 'files'];
+
 		let secondary_notifications = ['network', 'forums', 'all_events', 'pubs'];
-		let all_notifications = primary_notifications.concat(secondary_notifications);
+
+		if (!all_notifications) {
+			all_notifications = primary_notifications.concat(secondary_notifications);
+		}
 
 		let primary_available = false;
 		let any_available = false;
@@ -650,46 +650,17 @@
 		}
 
 		// Handle specific notifications if 'data' is provided
-		if (typeof data !== 'undefined') {
+		if (data) {
 			data.forEach(function (nmid) {
 				sse_rmids.push(nmid);
 
 				// Handle regular notifications
 				let notification = document.querySelector(`.notification[data-b64mid='${nmid}']`);
+
 				if (notification) {
 					let parentId = notification.parentElement.id.split('-')[1];
 					sse_updateNotifications(parentId, nmid);
 				}
-
-				// Special handling for forum notifications
-				let forumNotifications = document.querySelectorAll('.notification-forum');
-				forumNotifications.forEach(function (forumNotification) {
-					let fmids = decodeURIComponent(forumNotification.dataset.b64mids);
-					let parentId = forumNotification.parentElement.id.split('-')[1];
-
-					if (fmids.indexOf(nmid) > -1) {
-						let updateElem = document.querySelector(`.${parentId}-update`);
-						let fcount = Number(updateElem.innerText);
-						fcount--;
-						updateElem.innerText = fcount;
-
-						if (fcount < 1) {
-							let button = document.querySelector(`.${parentId}-button`);
-							button.style.display = 'none';
-							let subMenu = document.querySelector(`#nav-${parentId}-sub`);
-							if (subMenu) subMenu.classList.remove('show');
-						}
-
-						let countElem = forumNotification.querySelector('.bg-secondary');
-						let count = Number(countElem.innerText);
-						count--;
-						countElem.innerText = count;
-
-						if (count < 1) {
-							forumNotification.remove();
-						}
-					}
-				});
 			});
 		}
 	}
@@ -729,15 +700,6 @@
 				</div>
 				<div class="text-truncate">{4}</div>
 			</div>
-		</a>
-	</div>
-	<div id="nav-notifications-forums-template" rel="template" class="d-none">
-		<a class="list-group-item list-group-item-action justify-content-between align-items-center d-flex notification notification-forum" href="{0}" title="{4} - {3}" data-b64mid="{7}" data-notify_id="{8}" data-thread_top="{9}" data-contact_name="{2}" data-contact_addr="{3}" data-b64mids='{12}'>
-			<div>
-				<img class="menu-img-1" data-src="{1}" loading="lazy">
-				<span>{2}</span>
-			</div>
-			<span class="badge bg-secondary">{10}</span>
 		</a>
 	</div>
 	<div id="notifications" class="border border-top-0 rounded navbar-nav collapse">

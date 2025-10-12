@@ -91,8 +91,14 @@ class Sse_bs extends Controller {
 			default:
 		}
 
+		$selected_forum_id = null;
+		if (str_starts_with(argv(1), 'forum_')) {
+			$selected_forum_id = argv(1);
+			$f = 'bs_forums';
+		}
+
 		if(self::$offset && $f) {
-			$result = self::$f(true);
+			$result = self::$f($selected_forum_id ?? true);
 			json_return_and_die($result);
 		}
 
@@ -102,7 +108,7 @@ class Sse_bs extends Controller {
 			self::bs_home($home),
 			self::bs_notify(),
 			self::bs_intros(),
-			self::bs_forums(),
+			self::bs_forums($selected_forum_id),
 			self::bs_pubs($pubs),
 			self::bs_files(),
 			self::bs_all_events(),
@@ -610,69 +616,94 @@ class Sse_bs extends Controller {
 
 	}
 
-	function bs_forums() {
+	function bs_forums($selected_forum_id) {
 
-		$result['forums']['notifications'] = [];
-		$result['forums']['count'] = 0;
-		$result['forums']['offset'] = -1;
-
-		if(! self::$uid)
+		if(!self::$uid || !(self::$vnotify & VNOTIFY_FORUMS)) {
+			$result['forum']['notifications'] = [];
+			$result['forum']['count'] = 0;
+			$result['forum']['offset'] = -1;
 			return $result;
-
-		if(! (self::$vnotify & VNOTIFY_FORUMS))
-			return $result;
+		}
 
 		$forums = get_forum_channels(self::$uid);
 
 		if($forums) {
-			$item_normal = item_normal();
-			$p_sql = '';
-
-			$sql_extra = '';
-			if(! (self::$vnotify & VNOTIFY_LIKE))
-				$sql_extra = " AND verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
-
 			$fcount = count($forums);
-			$i = 0;
 
 			for($x = 0; $x < $fcount; $x ++) {
 
-				$r = q("select count(*) as total from item
-					where uid = %d and (owner_xchan = '%s' or author_xchan = '%s') and author_xchan != '%s' and verb != 'Announce' and item_unseen = 1 $sql_extra $item_normal",
+				$forum_id = 'forum_' . $forums[$x]['abook_id'];
+
+				$result[$forum_id]['notifications'] = [];
+				$result[$forum_id]['count'] = 0;
+
+				$limit = intval(self::$limit);
+				$offset = self::$offset;
+
+				$sql_extra = '';
+				if (!(self::$vnotify & VNOTIFY_LIKE)) {
+					$sql_extra = " AND item.verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+				}
+				elseif (!feature_enabled(self::$uid, 'dislike')) {
+					$sql_extra = " AND item.verb NOT IN ('Dislike', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+				}
+
+				$item_normal = item_normal();
+
+				// Filter internal follow activities and strerams add/remove activities
+				$item_normal .= " AND item.verb NOT IN ('Add', 'Remove', 'Follow', 'Ignore', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
+
+				if ($forum_id === $selected_forum_id) {
+					$items = q("SELECT item.*, tp.uuid AS thr_parent_uuid FROM item
+						LEFT JOIN item tp ON item.thr_parent = tp.mid AND item.uid = tp.uid
+						WHERE item.uid = %d
+						AND item.created <= '%s'
+						AND item.owner_xchan = '%s'
+						AND item.item_unseen = 1 AND item.item_wall = 0 AND item.item_private IN (0, 1)
+						AND item.obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
+						AND NOT (item.verb = 'Announce' AND item.item_thread_top = 1) -- only show the announce activity and not the resulting item
+						AND NOT item.author_xchan = '%s'
+						$item_normal
+						$sql_extra
+						ORDER BY item.created DESC LIMIT $limit OFFSET $offset",
+						intval(self::$uid),
+						dbescdate($_SESSION['sse_loadtime']),
+						dbescdate($forums[$x]['xchan_hash']),
+						dbesc(self::$ob_hash)
+					);
+
+					if ($items) {
+						$result[$forum_id]['offset'] = ((count($items) == $limit) ? intval($offset + $limit) : -1);
+						xchan_query($items);
+						foreach($items as $item) {
+							$parsed = Enotify::format($item);
+							if($parsed) {
+								$result[$forum_id]['notifications'][] = $parsed;
+							}
+						}
+					}
+					else {
+						$result[$forum_id]['offset'] = -1;
+					}
+
+				}
+
+				$r = q("SELECT id FROM item
+					WHERE uid = %d and item_unseen = 1 AND item_wall = 0 AND item_private IN (0, 1)
+					AND obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
+					AND author_xchan != '%s'
+					AND item.owner_xchan = '%s'
+					$item_normal
+					$sql_extra LIMIT 100",
 					intval(self::$uid),
-					dbesc($forums[$x]['xchan_hash']),
-					dbesc($forums[$x]['xchan_hash']),
-					dbesc(self::$ob_hash)
+					dbesc(self::$ob_hash),
+					dbesc($forums[$x]['xchan_hash'])
 				);
 
-				if($r[0]['total']) {
-
-					$forums[$x]['notify_link'] = z_root() . '/network/?f=&pf=1&unseen=1&cid=' . $forums[$x]['abook_id'];
-					$forums[$x]['name'] = $forums[$x]['xchan_name'];
-					$forums[$x]['addr'] = $forums[$x]['xchan_addr'] ?? $forums[$x]['xchan_url'];
-					$forums[$x]['url'] = $forums[$x]['xchan_url'];
-					$forums[$x]['photo'] = $forums[$x]['xchan_photo_s'];
-					$forums[$x]['unseen'] = $r[0]['total'];
-					$forums[$x]['private_forum'] = ((isset($forums[$x]['private_forum']) && $forums[$x]['private_forum']) ? 'lock' : '');
-					$forums[$x]['message'] = ((isset($forums[$x]['private_forum']) && $forums[$x]['private_forum']) ? t('Private forum') : t('Public forum'));
-
-					unset($forums[$x]['abook_id']);
-					unset($forums[$x]['xchan_hash']);
-					unset($forums[$x]['xchan_name']);
-					unset($forums[$x]['xchan_url']);
-					unset($forums[$x]['xchan_photo_s']);
-
-					$i = $i + $r[0]['total'];
-
-				}
-				else {
-					unset($forums[$x]);
+				if ($r) {
+					$result[$forum_id]['count'] = count($r);
 				}
 			}
-
-			$result['forums']['count'] = $i;
-			$result['forums']['notifications'] = array_values($forums);
-
 		}
 
 		return $result;
