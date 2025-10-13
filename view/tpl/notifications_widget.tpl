@@ -41,7 +41,6 @@
 		// Event listener for clicking a notification
 		document.addEventListener('click', function(event) {
 			if (event.target.closest('a') && event.target.closest('a').classList.contains('notification')) {
-				console.log(1)
 				if (notificationsWrapper.classList.contains('fs')) {
 					// Move notifications wrapper back to its original parent and hide it
 					notificationsWrapper.classList.remove('fs');
