@@ -413,6 +413,11 @@
 					sse_bs_active = false;
 					sse_rmids = [];
 					document.getElementById("nav-" + sse_type + "-loading").style.display = 'none';
+
+					if (typeof obj[sse_type] !== 'undefined') {
+						sse_offset = obj[sse_type].offset;
+					}
+
 					sse_handleNotifications(obj, replace, followup);
 				})
 				.catch(error => {
@@ -485,8 +490,6 @@
 		sse_setNotificationsStatus(null, all_notifications);
 
 		if (typeof obj[sse_type] !== 'undefined') {
-			sse_offset = obj[sse_type].offset;
-
 			// Load more notifications if visible notifications count becomes low
 			if (sse_type && sse_offset !== -1) {
 				let menu = document.getElementById('nav-' + sse_type + '-menu');
@@ -502,6 +505,10 @@
 		let notify_menu = document.getElementById("nav-" + notifyType + "-menu");
 		let notify_loading = document.getElementById("nav-" + notifyType + "-loading");
 		let notify_count = document.getElementsByClassName(notifyType + "-update");
+
+		if (notify_menu === null) {
+			return;
+		}
 
 		if (replace && !followup) {
 			notify_menu.innerHTML = '';  // Clear menu
