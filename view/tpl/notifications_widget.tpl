@@ -584,19 +584,21 @@
 	}
 
 
-	function sse_updateNotifications(type, mid) {
+	function sse_updateNotifications(mid) {
+		// Find the notification elements based on its 'data-b64mid' or href attribute.
+		// The latter will match reactions where b64mid will contain the uuid of its thread parent (reacted on) instead of its own.
+		let notifications = document.querySelectorAll(`.notification[data-b64mid='${mid}'], .notification[href*='display/${mid}']`);
 
-		// Skip processing if the type is 'notify' and the conditions don't match
-		if (type === 'notify' && (mid !== bParam_mid || sse_type !== 'notify')) {
-			return true;
-		}
+		notifications.forEach(notification => {
+			let type = notification.parentElement.id.split('-')[1];
 
-		// Find the notification element based on its 'data-b64mid' attribute
-		let notification = document.querySelector(`#nav-${type}-menu .notification[data-b64mid='${mid}']`);
+			// Skip processing if the type is 'notify' and the conditions don't match
+			if (type === 'notify' && (mid !== bParam_mid || sse_type !== 'notify')) {
+				return true;
+			}
 
-		if (notification) {
 			notification.remove();
-		}
+		});
 	}
 
 
@@ -659,14 +661,7 @@
 		if (data) {
 			data.forEach(function (nmid) {
 				sse_rmids.push(nmid);
-
-				// Handle regular notifications
-				let notification = document.querySelector(`.notification[data-b64mid='${nmid}']`);
-
-				if (notification) {
-					let parentId = notification.parentElement.id.split('-')[1];
-					sse_updateNotifications(parentId, nmid);
-				}
+				sse_updateNotifications(nmid);
 			});
 		}
 	}
