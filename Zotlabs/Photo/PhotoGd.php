@@ -12,6 +12,7 @@ class PhotoGd extends PhotoDriver {
 
 	/**
 	 * {@inheritDoc}
+	 *
 	 * @see \Zotlabs\Photo\PhotoDriver::supportedTypes()
 	 */
 	public function supportedTypes() {
@@ -31,12 +32,15 @@ class PhotoGd extends PhotoDriver {
 		return $t;
 	}
 
+	/**
+	 * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
+	 */
 	protected function load($data, $type) {
 		$this->valid = false;
 		if(! $data)
 			return;
 
-		$this->image = @imagecreatefromstring($data);
+		$this->image = imagecreatefromstring($data);
 		if($this->image !== false) {
 			$this->valid  = true;
 			$this->setDimensions();
@@ -147,6 +151,7 @@ class PhotoGd extends PhotoDriver {
 
 	/**
 	 * {@inheritDoc}
+	 *
 	 * @see \Zotlabs\Photo\PhotoDriver::imageString()
 	 */
 	public function imageString() {
@@ -168,7 +173,7 @@ class PhotoGd extends PhotoDriver {
 				}
 
 				if (function_exists('imagepng')) {
-					\imagepng($this->image, NULL, $quality);
+					\imagepng($this->image, null, $quality);
 				}
 
 				break;
@@ -181,7 +186,7 @@ class PhotoGd extends PhotoDriver {
 				}
 
 				if (function_exists('imagewebp')) {
-					\imagewebp($this->image, NULL, $quality);
+					\imagewebp($this->image, null, $quality);
 				}
 
 			    break;
@@ -194,7 +199,7 @@ class PhotoGd extends PhotoDriver {
 				}
 
 				if (function_exists('imageavif')) {
-					\imageavif($this->image, NULL, $quality);
+					\imageavif($this->image, null, $quality);
 				}
 
 			    break;
@@ -210,7 +215,7 @@ class PhotoGd extends PhotoDriver {
 				}
 
 				if (function_exists('imagejpeg')) {
-					\imagejpeg($this->image, NULL, $quality);
+					\imagejpeg($this->image, null, $quality);
 				}
 
 				break;
