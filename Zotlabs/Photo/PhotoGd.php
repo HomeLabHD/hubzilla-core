@@ -159,65 +159,36 @@ class PhotoGd extends PhotoDriver {
 		if(! $this->is_valid())
 			return false;
 
-		$quality = false;
+		$quality = $this->getQuality();
 
 		ob_start();
 
 		switch($this->getType()){
 
+			case 'image/avif':
+				if (function_exists('imageavif')) {
+					imageavif($this->image, null, $quality->value);
+				}
+			    break;
+
 			case 'image/png':
-				$quality = Config::Get('system', 'png_quality');
-
-				if((! $quality) || ($quality > 9)) {
-					$quality = PNG_QUALITY;
-				}
-
 				if (function_exists('imagepng')) {
-					\imagepng($this->image, null, $quality);
+					imagepng($this->image, null, $quality->value);
 				}
-
 				break;
 
 			case 'image/webp':
-			    $quality = Config::Get('system', 'webp_quality');
-
-			    if((! $quality) || ($quality > 100)) {
-			        $quality = WEBP_QUALITY;
-				}
-
 				if (function_exists('imagewebp')) {
-					\imagewebp($this->image, null, $quality);
+					imagewebp($this->image, null, $quality->value);
 				}
-
 			    break;
 
-			case 'image/avif':
-			    $quality = Config::Get('system', 'avif_quality');
-
-			    if((! $quality) || ($quality > 100)) {
-			        $quality = AVIF_QUALITY;
-				}
-
-				if (function_exists('imageavif')) {
-					\imageavif($this->image, null, $quality);
-				}
-
-			    break;
-
-			case 'image/jpeg':
 			// gd can lack imagejpeg(), but we verify during installation it is available
-
+			case 'image/jpeg':
 			default:
-				$quality = Config::Get('system', 'jpeg_quality');
-
-				if((! $quality) || ($quality > 100)) {
-					$quality = JPEG_QUALITY;
-				}
-
 				if (function_exists('imagejpeg')) {
-					\imagejpeg($this->image, null, $quality);
+					imagejpeg($this->image, null, $quality->value);
 				}
-
 				break;
 		}
 
@@ -225,6 +196,25 @@ class PhotoGd extends PhotoDriver {
 		ob_end_clean();
 
 		return $string;
+	}
+
+	/**
+	 * Return the default image quality for the given mime type.
+	 *
+	 * If the setting has been overridden in the database, we use that value,
+	 * otherwise the hardcoded defaults.
+	 *
+	 * @return ImageQuality		The image quality value for the current mime type.
+	 */
+	private function getQuality(): ImageQuality {
+		$key = match($this->getType()) {
+			'image/avif' => 'avif_quality',
+			'image/jpeg' => 'jpeg_quality',
+			'image/png' => 'png_quality',
+			'image/webp' => 'webp_quality',
+		};
+
+		return new ImageQuality($this->getType(), Config::Get('system', $key));
 	}
 
 }
