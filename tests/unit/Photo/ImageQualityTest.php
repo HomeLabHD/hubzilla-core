@@ -15,14 +15,14 @@ use Zotlabs\Tests\Unit\UnitTestCase;
 class ImageQualityTest extends UnitTestCase
 {
 	private const DEFAULT_VALUE = [
-		'image/jpg' => JPEG_QUALITY,
+		'image/jpeg' => JPEG_QUALITY,
 		'image/png' => PNG_QUALITY,
 		'image/avif' => AVIF_QUALITY,
 		'image/webp' => WEBP_QUALITY,
 	];
 
-	#[TestWith(['image/jpg', 55])]
-	#[TestWith(['image/jpg', 100])]
+	#[TestWith(['image/jpeg', 55])]
+	#[TestWith(['image/jpeg', 100])]
 	#[TestWith(['image/png', 8])]
 	#[TestWith(['image/png', 0])]
 	#[TestWith(['image/avif', 99])]
@@ -32,8 +32,8 @@ class ImageQualityTest extends UnitTestCase
 		$this->assertEquals($value, $q->value);
 	}
 
-	#[TestWith(['image/jpg', 0])]
-	#[TestWith(['image/jpg', 101])]
+	#[TestWith(['image/jpeg', 0])]
+	#[TestWith(['image/jpeg', 101])]
 	#[TestWith(['image/png', -1])]
 	#[TestWith(['image/png', 11])]
 	#[TestWith(['image/avif', 0])]

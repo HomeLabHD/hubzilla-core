@@ -3,7 +3,7 @@
         'name' => 'zotlabs/hubzilla',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '49e65902d770ed404ad01490358c15c9a87f1687',
+        'reference' => '48433c9479a5de3837e9cf85e8644d7407ad635e',
         'type' => 'application',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -499,7 +499,7 @@
         'zotlabs/hubzilla' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '49e65902d770ed404ad01490358c15c9a87f1687',
+            'reference' => '48433c9479a5de3837e9cf85e8644d7407ad635e',
             'type' => 'application',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

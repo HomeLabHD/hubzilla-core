@@ -17,7 +17,7 @@ class ImageQuality
 	readonly int $value;
 
 	private const DEFAULT_VALUE = [
-		'image/jpg' => JPEG_QUALITY,
+		'image/jpeg' => JPEG_QUALITY,
 		'image/png' => PNG_QUALITY,
 		'image/avif' => AVIF_QUALITY,
 		'image/webp' => WEBP_QUALITY,
