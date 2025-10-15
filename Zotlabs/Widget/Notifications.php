@@ -8,6 +8,8 @@
 
 namespace Zotlabs\Widget;
 
+use App;
+
 class Notifications {
 
 	function widget($arr) {
@@ -34,6 +36,7 @@ class Notifications {
 				]
 			];
 
+			$channel = App::get_channel();
 			$notifications[] = [
 				'type' => 'home',
 				'icon' => 'house',
@@ -41,7 +44,7 @@ class Notifications {
 				'label' => t('Channel'),
 				'title' => t('Unseen channel activity'),
 				'viewall' => [
-					'url' => 'channel',
+					'url' => 'channel/' . $channel['channel_address'],
 					'label' => t('Channel stream')
 				],
 				'markall' => [
