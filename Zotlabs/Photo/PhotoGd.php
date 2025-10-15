@@ -175,6 +175,10 @@ class PhotoGd extends PhotoDriver {
 				imagewebp($this->image, null, $this->getQuality()->value);
 			    break;
 
+			case 'image/gif':
+				imagegif($this->image);
+				break;
+
 			// gd can lack imagejpeg(), but we verify during installation it is available
 			case 'image/jpeg':
 			default:
