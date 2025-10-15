@@ -165,7 +165,7 @@ class PhotoGd extends PhotoDriver {
 
 			case 'image/avif':
 				imageavif($this->image, null, $this->getQuality()->value);
-			    break;
+				break;
 
 			case 'image/png':
 				imagepng($this->image, null, $this->getQuality()->value);
@@ -173,7 +173,7 @@ class PhotoGd extends PhotoDriver {
 
 			case 'image/webp':
 				imagewebp($this->image, null, $this->getQuality()->value);
-			    break;
+				break;
 
 			case 'image/gif':
 				imagegif($this->image);
