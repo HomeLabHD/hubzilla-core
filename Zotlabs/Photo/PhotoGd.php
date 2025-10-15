@@ -159,28 +159,26 @@ class PhotoGd extends PhotoDriver {
 		if(! $this->is_valid())
 			return false;
 
-		$quality = $this->getQuality();
-
 		ob_start();
 
 		switch($this->getType()){
 
 			case 'image/avif':
-				imageavif($this->image, null, $quality->value);
+				imageavif($this->image, null, $this->getQuality()->value);
 			    break;
 
 			case 'image/png':
-				imagepng($this->image, null, $quality->value);
+				imagepng($this->image, null, $this->getQuality()->value);
 				break;
 
 			case 'image/webp':
-				imagewebp($this->image, null, $quality->value);
+				imagewebp($this->image, null, $this->getQuality()->value);
 			    break;
 
 			// gd can lack imagejpeg(), but we verify during installation it is available
 			case 'image/jpeg':
 			default:
-				imagejpeg($this->image, null, $quality->value);
+				imagejpeg($this->image, null, $this->getQuality()->value);
 				break;
 		}
 
