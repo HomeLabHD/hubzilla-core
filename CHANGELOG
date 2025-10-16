@@ -1,3 +1,11 @@
+Hubzilla 10.4.4 (2025-10-06)
+	- Fix issue when confirming pending registrations
+	- Fix TOS headings
+	- Fix TOS paths
+	- Add english TermsOfService.md
+	- CI: skip ssl check
+
+
 Hubzilla 10.4.3 (2025-08-15)
 	- Refactor module vote to prohibit double votes at the sender side
 	- Fix vote answers counted as comments
