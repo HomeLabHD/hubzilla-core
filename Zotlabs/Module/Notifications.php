@@ -61,7 +61,8 @@ class Notifications extends \Zotlabs\Web\Controller {
 					);
 					break;
 				case 'pubs':
-					unset($_SESSION['static_loadtime']);
+					$_SESSION['sse_loadtime'] = datetime_convert();
+					$_SESSION['static_loadtime'] = datetime_convert();
 					break;
 				default:
 					break;

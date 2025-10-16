@@ -20,6 +20,8 @@ class Sse_bs extends Controller {
 	public static $limit;
 	public static $offset;
 	public static $xchans;
+	public static $direction;
+	public static $count_limit;
 
 	function init() {
 		self::$uid = local_channel();
@@ -41,6 +43,8 @@ class Sse_bs extends Controller {
 		self::$limit = 30;
 		self::$offset = 0;
 		self::$xchans = '';
+		self::$direction = get_pconfig(self::$uid, 'system', 'invert_notifications_order', false) ? 'ASC' : 'DESC';
+		self::$count_limit = get_pconfig(self::$uid, 'system', 'notifications_count_limit', 100);
 
 		if (!empty($_REQUEST['sse_rmids'])) {
 			self::mark_read(explode(',', $_REQUEST['sse_rmids']));
@@ -63,7 +67,6 @@ class Sse_bs extends Controller {
 		else {
 			$_SESSION['sse_loadtime'] = datetime_convert();
 		}
-
 
 		$network = false;
 		$dm = false;
@@ -211,6 +214,8 @@ class Sse_bs extends Controller {
 
 		$limit = intval(self::$limit);
 		$offset = self::$offset;
+		$direction = self::$direction;
+		$count_limit = intval(self::$count_limit);
 
 		$sql_extra = '';
 		if (!(self::$vnotify & VNOTIFY_LIKE)) {
@@ -241,7 +246,7 @@ class Sse_bs extends Controller {
 				$item_normal
 				$sql_extra
 				$sql_extra2
-				ORDER BY item.created DESC LIMIT $limit OFFSET $offset",
+				ORDER BY item.created $direction LIMIT $limit OFFSET $offset",
 				intval(self::$uid),
 				dbescdate($_SESSION['sse_loadtime']),
 				dbesc(self::$ob_hash)
@@ -268,7 +273,7 @@ class Sse_bs extends Controller {
 			AND obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
 			AND author_xchan != '%s'
 			$item_normal
-			$sql_extra LIMIT 100",
+			$sql_extra LIMIT $count_limit",
 			intval(self::$uid),
 			dbesc(self::$ob_hash)
 		);
@@ -296,6 +301,8 @@ class Sse_bs extends Controller {
 
 		$limit = intval(self::$limit);
 		$offset = self::$offset;
+		$direction = self::$direction;
+		$count_limit = intval(self::$count_limit);
 
 		$sql_extra = '';
 		if (!(self::$vnotify & VNOTIFY_LIKE)) {
@@ -326,7 +333,7 @@ class Sse_bs extends Controller {
 				$item_normal
 				$sql_extra
 				$sql_extra2
-				ORDER BY created DESC LIMIT $limit OFFSET $offset",
+				ORDER BY created $direction LIMIT $limit OFFSET $offset",
 				intval(self::$uid),
 				dbescdate($_SESSION['sse_loadtime']),
 				dbesc(self::$ob_hash)
@@ -352,7 +359,7 @@ class Sse_bs extends Controller {
 			WHERE uid = %d and item_unseen = 1 AND item_private = 2
 			$item_normal
 			$sql_extra
-			AND author_xchan != '%s' LIMIT 100",
+			AND author_xchan != '%s' LIMIT $count_limit",
 			intval(self::$uid),
 			dbesc(self::$ob_hash)
 		);
@@ -380,6 +387,8 @@ class Sse_bs extends Controller {
 
 		$limit = intval(self::$limit);
 		$offset = self::$offset;
+		$direction = self::$direction;
+		$count_limit = intval(self::$count_limit);
 
 		$sql_extra = '';
 		if (!(self::$vnotify & VNOTIFY_LIKE)) {
@@ -411,7 +420,7 @@ class Sse_bs extends Controller {
 				$item_normal
 				$sql_extra
 				$sql_extra2
-				ORDER BY item.created DESC LIMIT $limit OFFSET $offset",
+				ORDER BY item.created $direction LIMIT $limit OFFSET $offset",
 				intval(self::$uid),
 				dbescdate($_SESSION['sse_loadtime']),
 				dbesc(self::$ob_hash)
@@ -437,7 +446,7 @@ class Sse_bs extends Controller {
 			WHERE uid = %d and item_unseen = 1 AND item_wall = 1 AND item_private IN (0, 1)
 			$item_normal
 			$sql_extra
-			AND author_xchan != '%s' LIMIT 100",
+			AND author_xchan != '%s' LIMIT $count_limit",
 			intval(self::$uid),
 			dbesc(self::$ob_hash)
 		);
@@ -476,6 +485,8 @@ class Sse_bs extends Controller {
 
 		$limit = intval(self::$limit);
 		$offset = self::$offset;
+		$direction = self::$direction;
+		$count_limit = intval(self::$count_limit);
 
 		$sys = get_sys_channel();
 		$sql_extra = '';
@@ -521,9 +532,9 @@ class Sse_bs extends Controller {
 				$sql_extra
 				$sql_extra2
 				$sql_extra3
-				ORDER BY item.created DESC LIMIT $limit OFFSET $offset",
+				ORDER BY item.created $direction LIMIT $limit OFFSET $offset",
 				dbescdate($_SESSION['sse_loadtime']),
-				dbescdate($_SESSION['last_login_date'] ?? $_SESSION['static_loadtime']),
+				dbescdate($_SESSION['static_loadtime']),
 				dbesc(self::$ob_hash)
 			);
 
@@ -549,9 +560,9 @@ class Sse_bs extends Controller {
 			$item_normal
 			$sql_extra
 			$sql_extra3
-			AND author_xchan != '%s' LIMIT 100",
+			AND author_xchan != '%s' LIMIT $count_limit",
 			dbescdate($_SESSION['sse_loadtime']),
-			dbescdate($_SESSION['last_login_date'] ?? $_SESSION['static_loadtime']),
+			dbescdate($_SESSION['static_loadtime']),
 			dbesc(self::$ob_hash)
 		);
 
@@ -574,7 +585,9 @@ class Sse_bs extends Controller {
 		if(! (self::$vnotify & VNOTIFY_SYSTEM))
 			return $result;
 
-		$r = q("SELECT * FROM notify WHERE uid = %d AND seen = 0 ORDER BY created DESC",
+		$direction = self::$direction;
+
+		$r = q("SELECT * FROM notify WHERE uid = %d AND seen = 0 ORDER BY created $direction",
 			intval(self::$uid)
 		);
 
@@ -601,7 +614,9 @@ class Sse_bs extends Controller {
 		if(! (self::$vnotify & VNOTIFY_INTRO))
 			return $result;
 
-		$r = q("SELECT * FROM abook left join xchan on abook.abook_xchan = xchan.xchan_hash where abook_channel = %d and abook_pending = 1 and abook_self = 0 and abook_ignored = 0 and xchan_deleted = 0 and xchan_orphan = 0 ORDER BY abook_created DESC LIMIT 50",
+		$direction = self::$direction;
+
+		$r = q("SELECT * FROM abook left join xchan on abook.abook_xchan = xchan.xchan_hash where abook_channel = %d and abook_pending = 1 and abook_self = 0 and abook_ignored = 0 and xchan_deleted = 0 and xchan_orphan = 0 ORDER BY abook_created $direction LIMIT 50",
 			intval(self::$uid)
 		);
 
@@ -639,6 +654,8 @@ class Sse_bs extends Controller {
 
 				$limit = intval(self::$limit);
 				$offset = self::$offset;
+				$direction = self::$direction;
+				$count_limit = intval(self::$count_limit);
 
 				$sql_extra = '';
 				if (!(self::$vnotify & VNOTIFY_LIKE)) {
@@ -665,7 +682,7 @@ class Sse_bs extends Controller {
 						AND NOT item.author_xchan = '%s'
 						$item_normal
 						$sql_extra
-						ORDER BY item.created DESC LIMIT $limit OFFSET $offset",
+						ORDER BY item.created $direction LIMIT $limit OFFSET $offset",
 						intval(self::$uid),
 						dbescdate($_SESSION['sse_loadtime']),
 						dbescdate($forums[$x]['xchan_hash']),
@@ -694,7 +711,7 @@ class Sse_bs extends Controller {
 					AND author_xchan != '%s'
 					AND item.owner_xchan = '%s'
 					$item_normal
-					$sql_extra LIMIT 100",
+					$sql_extra LIMIT $count_limit",
 					intval(self::$uid),
 					dbesc(self::$ob_hash),
 					dbesc($forums[$x]['xchan_hash'])
@@ -734,7 +751,7 @@ class Sse_bs extends Controller {
 			AND author_xchan != '%s'
 			AND item_unseen = 1
 			$item_normal
-			ORDER BY created DESC",
+			ORDER BY created $direction",
 			dbesc(ACTIVITY_POST),
 			intval(self::$uid),
 			dbesc(self::$ob_hash)
@@ -769,7 +786,7 @@ class Sse_bs extends Controller {
 		$r = q("SELECT * FROM event left join xchan on event_xchan = xchan_hash
 			WHERE event.uid = %d AND dtstart < '%s' AND dtstart > '%s' and dismissed = 0
 			and etype in ( 'event', 'birthday' )
-			ORDER BY dtstart DESC",
+			ORDER BY dtstart $direction",
 			intval(self::$uid),
 			dbesc(datetime_convert('UTC', date_default_timezone_get(), 'now + ' . intval(self::$evdays) . ' days')),
 			dbesc(datetime_convert('UTC', date_default_timezone_get(), 'now - 1 days'))

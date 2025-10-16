@@ -173,7 +173,10 @@ class Notifications {
 				'filter' => [
 					'posts_label' => t('Conversation starters'),
 					'name_label' => t('Filter by name or address')
-				]
+				],
+				'markall' => [
+					'label' => t('Mark all seen')
+				],
 			];
 		}
 
@@ -181,7 +184,9 @@ class Notifications {
 			'$notifications' => $notifications,
 			'$no_notifications' => t('Sorry, you have got no notifications at the moment'),
 			'$loading' => t('Loading'),
-			'$sys_only' => empty($arr['sys_only']) ? 0 : 1
+			'$sys_only' => empty($arr['sys_only']) ? 0 : 1,
+			'$invert_notifications_order' => get_pconfig(local_channel(), 'system', 'invert_notifications_order', false),
+			'$count_limit' => get_pconfig(local_channel(), 'system', 'notifications_count_limit', 100)
 		]);
 
 	}
