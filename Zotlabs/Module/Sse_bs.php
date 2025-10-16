@@ -739,6 +739,7 @@ class Sse_bs extends Controller {
 		if(! (self::$vnotify & VNOTIFY_FILES))
 			return $result;
 
+		$direction = self::$direction;
 		$item_normal = item_normal();
 
 		// Filter internal follow activities and strerams add/remove activities
@@ -782,6 +783,8 @@ class Sse_bs extends Controller {
 
 		if(! (self::$vnotify & VNOTIFY_EVENT))
 			return $result;
+
+		$direction = self::$direction;
 
 		$r = q("SELECT * FROM event left join xchan on event_xchan = xchan_hash
 			WHERE event.uid = %d AND dtstart < '%s' AND dtstart > '%s' and dismissed = 0
