@@ -28,7 +28,7 @@ class Notifications {
 					'label' => t('Network stream')
 				],
 				'markall' => [
-					'label' => t('Mark all read')
+					'label' => t('Mark all seen')
 				],
 				'filter' => [
 					'posts_label' => t('Conversation starters'),
@@ -67,7 +67,7 @@ class Notifications {
 					'label' => t('Private stream')
 				],
 				'markall' => [
-					'label' => t('Mark all read')
+					'label' => t('Mark all seen')
 				],
 				'filter' => [
 					'posts_label' => t('Conversation starters'),
@@ -132,7 +132,18 @@ class Notifications {
 					'icon' => 'chat-quote',
 					'severity' => 'secondary',
 					'label' => $forum['xchan_name'],
-					'title' => t('Unseen forum activity')
+					'title' => t('Unseen forum activity'),
+					'filter' => [
+						'posts_label' => t('Conversation starters'),
+						'name_label' => t('Filter by name or address')
+					],
+					'viewall' => [
+						'url' => 'network?pf=1&cid=' . $forum['abook_id'],
+						'label' => t('View all')
+					],
+					'markall' => [
+						'label' => t('Mark all seen')
+					],
 				];
 			}
 

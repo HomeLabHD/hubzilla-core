@@ -134,6 +134,8 @@
 
 							sse_bs_active = false;
 							sse_partial_result = true;
+							sse_offset = obj[sse_type].offset;
+
 							if (sse_offset < 0) {
 								document.getElementById("nav-" + sse_type + "-loading").style.display = 'none';
 							}
@@ -196,11 +198,6 @@
 				let element = e.target.closest('div');
 				let menu = document.querySelector('#nav-{{$notification.type}}-menu');
 				let notifications = menu.querySelectorAll('.notification[data-thread_top="false"]');
-
-				// Function to check if an element is visible
-				function isVisible(el) {
-					return el.offsetWidth > 0 && el.offsetHeight > 0;
-				}
 
 				if (element.classList.contains('active') && element.classList.contains('sticky-top')) {
 					notifications.forEach(function(notification) {
@@ -306,6 +303,11 @@
 		sse_bs_counts();
 	});
 
+
+	// Function to check if an element is visible
+	function isVisible(el) {
+		return el.offsetWidth > 0 && el.offsetHeight > 0;
+	}
 
 	function sse_bs_init() {
 		// Check if 'notification_open' exists in sessionStorage or if sse_type is defined
@@ -492,7 +494,7 @@
 			// Load more notifications if visible notifications count becomes low
 			if (sse_type && sse_offset !== -1) {
 				let menu = document.getElementById('nav-' + sse_type + '-menu');
-				if (menu && menu.children.length < 15) {
+				if (menu && Array.from(menu.querySelectorAll('.notification')).filter(isVisible).length < 15) {
 					sse_bs_notifications(sse_type, false, true);
 				}
 			}
