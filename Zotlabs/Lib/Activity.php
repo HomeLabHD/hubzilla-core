@@ -2335,10 +2335,10 @@ class Activity {
 
 		if (!$quote_urls) {
 			$quote_url = $act->obj['quoteUrl'] ?? $act->obj['quoteUri'] ?? $act->obj['_misskey_quote'] ?? $act->obj['quote'] ??  null;
-		}
 
-		if ($quote_url) {
-			$quote_urls = [$quote_url];
+			if ($quote_url) {
+				$quote_urls = [$quote_url];
+			}
 		}
 
 		// Backwards compatibility: only process quote items if there is no share tag in them.
