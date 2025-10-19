@@ -20,7 +20,6 @@ class Helpindex {
 
 		$this->determine_help_language();
 		$this->find_help_file('toc', $this->lang['language']);
-    logger('Helpindex file_name=' . var_export($this->file_name,true));
 
 		$sections = [];
 		$this->contents = '';
@@ -33,10 +32,7 @@ class Helpindex {
 			if (is_array($decoded)) {
 				$sections = $decoded;
 			}
-		} else {
-			$this->contents = '<em>' . t('No documentation index found.') . '</em>';
 		}
-    logger('Helpindex file_name=' . $this->contents); 
 		$tpl = get_markup_template('help-index.tpl');
 
 		return replace_macros($tpl, [
