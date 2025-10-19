@@ -20,15 +20,30 @@ class Helpindex {
 
 		$this->determine_help_language();
 		$this->find_help_file('toc', $this->lang['language']);
+    logger('Helpindex file_name=' . var_export($this->file_name,true));
 
-		if (! empty($this->file_name)) {
-			$this->contents = translate_projectname(
-				file_get_contents($this->file_name)
-			);
+		$sections = [];
+		$this->contents = '';
+
+		if (!empty($this->file_name) && is_readable($this->file_name)) {
+			$json = file_get_contents($this->file_name);
+			$this->contents = translate_projectname($json);
+
+			$decoded = json_decode($json, true);
+			if (is_array($decoded)) {
+				$sections = $decoded;
+			}
+		} else {
+			$this->contents = '<em>' . t('No documentation index found.') . '</em>';
 		}
+    logger('Helpindex file_name=' . $this->contents); 
+		$tpl = get_markup_template('help-index.tpl');
 
-		$tpl = get_markup_template('widget.tpl');
-		return replace_macros($tpl, [ '$widget' => $this ]);
+		return replace_macros($tpl, [
+			'$title'    => t('Documentation Index'),
+			'$sections' => $sections,
+			'$contents' => $this->contents
+		]);
 	}
 
 	public function title(): string {
