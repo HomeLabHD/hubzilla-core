@@ -368,7 +368,7 @@ class HttpMessageSigner
             // The $interface has no single method to extract the target-uri, so build it from
             // the available components.
             $targetUri = $interface->getUri()->getScheme() . '://' . $this->getAuthority($interface)
-                . $interface->getUri()->getPath() . $interface->getUri()->getQuery();
+                . $interface->getUri()->getPath() . (($interface->getUri()->getQuery()) ? '?' . $interface->getUri()->getQuery() : '');
 
             $value = match ($fieldName) {
                 '@signature-params' => ['', ''],
@@ -405,7 +405,7 @@ class HttpMessageSigner
     {
         if (method_exists($interface, 'getUri')) {
             $authority = strtolower($interface->getUri()->getAuthority());
-            $authority = explode($authority, ':');
+            $authority = explode(':', $authority);
             return $authority[0];
         }
         throw new UnprocessableSignatureException('Unable to extract authority from MessageInterface');
