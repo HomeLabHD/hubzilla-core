@@ -17,9 +17,9 @@ use Zotlabs\Lib\Config;
  *   uninstall plugin on error
  */
 function handleerrors_plugin($plugin, $notice, $log, $uninstall = false){
-	logger("Addons: [" . $plugin . "] Error: ".$log, LOGGER_ERROR);
+	logger("Addons: [" . $plugin . "] Error: ".$log, LOGGER_NORMAL);
 	if ($notice != '') {
-			notice("[" . $plugin . "] Error: ".$notice, LOGGER_ERROR);
+			notice("[" . $plugin . "] Error: ".$notice);
 	}
 
 	if ($uninstall) {
