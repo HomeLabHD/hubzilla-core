@@ -9,7 +9,7 @@ trait HelpHelperTrait {
 	// PHP versions before 8.2 does not support trait constants,
 	// Leave this commented out until we drop support for PHP 8.1.
 	//
-	// const VALID_FILE_EXT = ['md', 'bb', 'html'];
+	// const VALID_FILE_EXT = ['md', 'bb', 'html', 'json'];
 
 	private string $file_name = '';
 	private string $file_type = '';
@@ -58,7 +58,7 @@ trait HelpHelperTrait {
 	private function find_help_file(string $base_path, string $lang): void {
 
 		// Use local variable until we can use trait constants.
-		$valid_file_ext = ['md', 'bb', 'html'];
+		$valid_file_ext = ['md', 'bb', 'html', 'json'];
 
 		$base_path_with_lang = "doc/{$lang}/${base_path}";
 
