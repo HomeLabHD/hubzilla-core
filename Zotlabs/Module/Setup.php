@@ -504,12 +504,11 @@ class Setup extends \Zotlabs\Web\Controller {
 		}
 		$this->check_add($checks, t('Generate ed25519 encryption keys'), $res, true, $help);
 
-		$res1 = extension_loaded('bcmath');
-		$res2 = extension_loaded('gmp');
-		if (! ($res1 || $res2)) {
-			$help = t('Error: one of "bcmath" or "gmp" (bigmath library) extensions are required.') . EOL;
+		$res = extension_loaded('gmp');
+		if (!$res) {
+			$help = t('Error: "gmp" (bigmath library) extension is required.') . EOL;
 		}
-		$this->check_add($checks, t('Bigmath library (either bcmath or gmp)'), $res1||$res2, $help);
+		$this->check_add($checks, t('Bigmath library gmp'), $res, $help);
 	}
 
 	/**

@@ -33,7 +33,7 @@
         "ext-json": "*",
         "ext-posix": "*",
         "ext-sodium": "*",
-        "ext-bcmath": "*",
+        "ext-gmp": "*",
         "sabre/dav": "^4.0",
         "michelf/php-markdown": "^2.0",
         "bshaffer/oauth2-server-php": "^1.9",
@@ -57,7 +57,7 @@
         "mmccook/php-json-canonicalization-scheme": "^1.0",
         "scssphp/scssphp": "^2.0.1",
         "twbs/bootstrap-icons": "^1.11",
-        "macgirvin/http-message-signer": "^0.2"
+        "macgirvin/http-message-signer": "^0.2.6"
     },
     "require-dev": {
         "ext-yaml": "*",
