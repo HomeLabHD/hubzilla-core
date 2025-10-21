@@ -632,15 +632,14 @@ class Sse_bs extends Controller {
 	}
 
 	function bs_forums($selected_forum_id) {
+		$forums = get_forum_channels(self::$uid);
 
-		if(!self::$uid || !(self::$vnotify & VNOTIFY_FORUMS)) {
+		if(!self::$uid || !(self::$vnotify & VNOTIFY_FORUMS) || !$forums) {
 			$result['forum']['notifications'] = [];
 			$result['forum']['count'] = 0;
 			$result['forum']['offset'] = -1;
 			return $result;
 		}
-
-		$forums = get_forum_channels(self::$uid);
 
 		if($forums) {
 			$fcount = count($forums);
