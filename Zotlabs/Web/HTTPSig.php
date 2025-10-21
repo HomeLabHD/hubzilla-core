@@ -124,6 +124,10 @@ class HTTPSig {
 			$alg = ($found) ? $matches[1] : null;
 
 			$keyInfo = self::get_key($key, $keytype, $keyId);
+			if (!$keyInfo) {
+				return $result;
+			}
+
 			$publicKey = $keyInfo['public_key'];
 
 			$messageSigner = new HttpMessageSigner();
