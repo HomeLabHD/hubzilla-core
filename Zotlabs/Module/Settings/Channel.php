@@ -153,14 +153,6 @@ class Channel {
 		Master::Summon(['Directory', local_channel()]);
 		Libsync::build_sync_packet();
 
-		$email_changed = false;
-		if ($email_changed && App::$config['system']['register_policy'] == REGISTER_VERIFY) {
-
-			// FIXME - set to un-verified, blocked and redirect to logout
-			// Q: Why? Are we verifying people or email addresses?
-			// A: the policy is to verify email addresses
-		}
-
 		goaway(z_root() . '/settings');
 		return; // NOTREACHED
 	}
