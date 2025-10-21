@@ -1410,7 +1410,7 @@ function decode_tags($t) {
 					$tag['ttype'] = TERM_FILE;
 					break;
 				case 'search':
-					$tag['ttype'] = TERM_SEARCH;
+					$tag['ttype'] = TERM_SAVEDSEARCH;
 					break;
 				case 'thing':
 					$tag['ttype'] = TERM_THING;

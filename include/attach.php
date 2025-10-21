@@ -1316,8 +1316,8 @@ function attach_mkdir($channel, $observer_hash, $arr = null) {
 				$ret['data'] = $z[0];
 		}
 		else {
-			logger('attach_mkdir: ' . mkdir . ' ' . $os_basepath . $os_path . ' failed.');
-			$ret['message'] = t('mkdir failed.');
+			logger('attach_mkdir: os_mkdir ' . $os_basepath . $os_path . ' failed.');
+			$ret['message'] = t('os_mkdir failed.');
 		}
 	}
 	else {
