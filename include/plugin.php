@@ -1045,7 +1045,7 @@ function head_get_main_js() {
 	$sources = array('main.js');
 	if(count($sources))
 		foreach($sources as $source)
-			$str .= format_js_if_exists($source,true);
+			$str .= format_js_if_exists($source);
 
 	return $str;
 }
