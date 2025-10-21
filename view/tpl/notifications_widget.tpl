@@ -211,7 +211,7 @@
 					element.classList.add('active', 'sticky-top');
 
 					// Count the visible notifications
-					let visibleNotifications = Array.from(menu.querySelectorAll('.notification')).filter(isVisible).length;
+					let visibleNotifications = menu.querySelectorAll('.notification:not(.tt-filter-active):not(.cn-filter-active)').length;
 
 					// Load more notifications if the visible count is low
 					if (sse_type && sse_offset !== -1 && visibleNotifications < 15) {
@@ -303,11 +303,6 @@
 		sse_bs_counts();
 	});
 
-
-	// Function to check if an element is visible
-	function isVisible(el) {
-		return el.offsetWidth > 0 && el.offsetHeight > 0;
-	}
 
 	function sse_bs_init() {
 		// Check if 'notification_open' exists in sessionStorage or if sse_type is defined
@@ -494,7 +489,7 @@
 			// Load more notifications if visible notifications count becomes low
 			if (sse_type && sse_offset !== -1) {
 				let menu = document.getElementById('nav-' + sse_type + '-menu');
-				if (menu && Array.from(menu.querySelectorAll('.notification')).filter(isVisible).length < 15) {
+				if (menu && menu.querySelectorAll('.notification:not(.tt-filter-active):not(.cn-filter-active)').length < 15) {
 					sse_bs_notifications(sse_type, false, true);
 				}
 			}
@@ -512,7 +507,7 @@
 		}
 
 		{{if $invert_notifications_order}}
-		if (!replace && !followup && Array.from(notify_menu.querySelectorAll('.notification')).filter(isVisible).length >= 30) {
+		if (!replace && !followup && notify_menu.querySelectorAll('.notification:not(.tt-filter-active):not(.cn-filter-active)').length >= 30) {
 			return;
 		}
 		{{/if}}
@@ -621,7 +616,7 @@
 	function sse_setNotificationsStatus(data, all_notifications) {
 		let primary_notifications = ['dm', 'home', 'intros', 'register', 'notify', 'files'];
 
-		let secondary_notifications = ['network', 'forums', 'all_events', 'pubs'];
+		let secondary_notifications = ['network', 'all_events', 'pubs'];
 
 		if (!all_notifications) {
 			all_notifications = primary_notifications.concat(secondary_notifications);
