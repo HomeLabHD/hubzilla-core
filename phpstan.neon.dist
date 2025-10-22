@@ -9,8 +9,3 @@ parameters:
 		- library
 	ignoreErrors:
 		- '#Method [\w:\(\)_\\]+ should return (object|string) but return statement is missing.#'
-		- message: '#Constant NULL_DATE not found#'
-		- message: '#Constant TQUOT not found#'
-		- message: '#Constant ACTIVE_DBTYPE not found#'
-		- message: '#Constant DEFAULT_NOTIFY_ICON not found#'
-		- message: '#Constant DEFAULT_PLATFORM_ICON not found#'
