@@ -34,7 +34,7 @@ before_script:
   - pecl install xdebug yaml
   - docker-php-ext-enable xdebug yaml
   - docker-php-ext-configure gd --with-jpeg=/usr/include/
-  - docker-php-ext-install gd bcmath intl pdo_mysql pdo_pgsql zip exif
+  - docker-php-ext-install gd gmp intl pdo_mysql pdo_pgsql zip exif
 
   # Install composer
   - curl -sS https://getcomposer.org/installer | php
