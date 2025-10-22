@@ -620,7 +620,7 @@
 		let any_available = false;
 
 		// Loop through all notifications and check their visibility
-		nlinks.forEach(function (nlink) {
+		nlinks.forEach(nlink => {
 			let type = nlink.dataset.sse_type;
 			let button = document.querySelector(`.${type}-button`);
 			if (button && getComputedStyle(button).display === 'block') {
@@ -631,13 +631,16 @@
 			}
 		});
 
-		// Update notification button icon based on the primary notification availability
-		let notificationIcon = document.querySelector('.notifications-btn-icon');
+		// Update notification button icons based on the primary notification availability
+		let notificationIcons = document.querySelectorAll('.notifications-btn-icon');
 
-		if (notificationIcon) {
+		if (notificationIcons) {
 			let iconClass = primary_available ? 'bi-exclamation-triangle' : 'bi-exclamation-circle';
 			let iconToRemove = primary_available ? 'bi-exclamation-circle' : 'bi-exclamation-triangle';
-			notificationIcon.classList.replace(iconToRemove, iconClass);
+
+			notificationIcons.forEach(notificationIcon => {
+				notificationIcon.classList.replace(iconToRemove, iconClass);
+			});
 		}
 
 		// Update visibility of notification button and sections
