@@ -292,7 +292,7 @@
 	});
 
 	document.addEventListener('hz:sse_setNotificationsStatus', function(e) {
-		sse_setNotificationsStatus(e.detail, null);
+		sse_setNotificationsStatus(e.detail);
 	});
 
 	document.addEventListener('hz:sse_bs_init', function() {
@@ -474,7 +474,7 @@
 				if (subElement) subElement.classList.remove('show');
 				if (buttonElement) {
 					buttonElement.style.display = 'none'; // Fade-out effect replaced by display none
-					sse_setNotificationsStatus(null, null);
+					sse_setNotificationsStatus(null);
 				}
 			}
 
@@ -483,7 +483,7 @@
 			}
 		});
 
-		sse_setNotificationsStatus(null, all_notifications);
+		sse_setNotificationsStatus(null);
 
 		if (typeof obj[sse_type] !== 'undefined') {
 			// Load more notifications if visible notifications count becomes low
@@ -613,20 +613,15 @@
 	}
 
 
-	function sse_setNotificationsStatus(data, all_notifications) {
+	function sse_setNotificationsStatus(data) {
 		let primary_notifications = ['dm', 'home', 'intros', 'register', 'notify', 'files'];
-
-		let secondary_notifications = ['network', 'all_events', 'pubs'];
-
-		if (!all_notifications) {
-			all_notifications = primary_notifications.concat(secondary_notifications);
-		}
-
+		let nlinks = document.getElementById('notifications').querySelectorAll('.notification-link');
 		let primary_available = false;
 		let any_available = false;
 
 		// Loop through all notifications and check their visibility
-		all_notifications.forEach(function (type) {
+		nlinks.forEach(function (nlink) {
+			let type = nlink.dataset.sse_type;
 			let button = document.querySelector(`.${type}-button`);
 			if (button && getComputedStyle(button).display === 'block') {
 				any_available = true;
