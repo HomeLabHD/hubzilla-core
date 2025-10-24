@@ -2633,7 +2633,7 @@ class Activity {
 			}
 		}
 
-		if (in_array($act->objprop('type'), ['Note', 'Article', 'Page'])) {
+		if (in_array($act->objprop('type'), ['Note', 'Article', 'Page', 'Question'])) {
 			$ptr = null;
 
 			if (array_key_exists('url', $act->obj)) {
@@ -3658,6 +3658,7 @@ class Activity {
 			}
 		}
 
+
 		if ($a) {
 			$act = new ActivityStreams($a);
 
@@ -3956,7 +3957,7 @@ class Activity {
 		$patterns = [];
 		foreach ($urls as $url) {
 			// Match both plain and BBCode-style references, with optional line breaks or spaces
-			$patterns[] = '/RE:\s*(?:\[url=' . $url . '\]' . $url . '\[\/url\]|' . $url . ')\s*/i';
+			$patterns[] = '/RE:\s*(?:\[url=' . $url . '\]' . $url . '\[\/url\]|' . $url . ')\s/i';
 		}
 
 		$found = false;
