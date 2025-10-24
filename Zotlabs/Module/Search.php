@@ -71,7 +71,13 @@ class Search extends Controller {
 				$url = unpack_link_id(basename($url));
 			}
 
-			$f = Libzot::fetch_conversation(App::get_channel(), punify($url), true);
+			$parsed = parse_url($url);
+			if (isset($parsed['host'])) {
+				$parsed['host'] = punify($parsed['host']);
+				$url = unparse_url($parsed);
+			}
+
+			$f = Libzot::fetch_conversation(App::get_channel(), $url, true);
 
 			if ($f) {
 				$uuid = $f[0]['message_uuid'];
@@ -87,7 +93,7 @@ class Search extends Controller {
 			else {
 				// try other fetch providers (e.g. diaspora, pubcrawl)
 				$hookdata = [
-					'url' => punify($url)
+					'url' => $url
 				];
 				call_hooks('fetch_provider', $hookdata);
 			}
