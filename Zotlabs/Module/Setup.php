@@ -504,11 +504,6 @@ class Setup extends \Zotlabs\Web\Controller {
 		}
 		$this->check_add($checks, t('Generate ed25519 encryption keys'), $res, true, $help);
 
-		$res = extension_loaded('gmp');
-		if (!$res) {
-			$help = t('Error: "gmp" (bigmath library) extension is required.') . EOL;
-		}
-		$this->check_add($checks, t('Bigmath library gmp'), $res, $help);
 	}
 
 	/**
@@ -533,6 +528,7 @@ class Setup extends \Zotlabs\Web\Controller {
 		$this->check_add($ck_funcs, t('xml PHP module'), true, true);
 		$this->check_add($ck_funcs, t('zip PHP module'), true, true);
 		$this->check_add($ck_funcs, t('intl PHP module'), true, true);
+		$this->check_add($ck_funcs, t('gmp PHP module'), true, true);
 
 		if(function_exists('apache_get_modules')){
 			if(! in_array('mod_rewrite', apache_get_modules())) {
@@ -589,9 +585,15 @@ class Setup extends \Zotlabs\Web\Controller {
 			$ck_funcs[6]['status'] = false;
 			$ck_funcs[6]['help'] = t('Error: zip PHP module required but not installed.');
 		}
-		if(! extension_loaded('intl')) {
-			$ck_funcs[6]['status'] = false;
-			$ck_funcs[6]['help'] = t('Error: intl PHP module required but not installed.');
+
+		if (!extension_loaded('intl')) {
+			$ck_funcs[7]['status'] = false;
+			$ck_funcs[7]['help'] = t('Error: intl PHP module required but not installed.');
+		}
+
+		if (!extension_loaded('gmp')) {
+			$ck_funcs[8]['status'] = false;
+			$ck_funcs[8]['help'] = t('Error: gmp PHP module required but not installed.');
 		}
 
 		$checks = array_merge($checks, $ck_funcs);
