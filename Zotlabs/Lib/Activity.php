@@ -3957,7 +3957,7 @@ class Activity {
 		$patterns = [];
 		foreach ($urls as $url) {
 			// Match both plain and BBCode-style references, with optional line breaks or spaces
-			$patterns[] = '/RE:\s*(?:\[url=' . $url . '\]' . $url . '\[\/url\]|' . $url . ')\s/i';
+			$patterns[] = '/RE:\s*(?:\[url=' . $url . '\]' . $url . '\[\/url\]|' . $url . ')[\s\r\n]?/i';
 		}
 
 		$found = false;
