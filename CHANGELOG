@@ -1,3 +1,53 @@
+Hubzilla 10.6 (2025-??-??)
+	Features
+	- Implement ASCache in ASCollection to improve performance
+	- Add json support for help index widget and add a new template
+	- Implement hidden pconfig system.notifications_count_limit
+	- Implement hidden pconfig system.invert_notifications_order
+	- Implement mark seen button for unseen pubstream notifications
+	- Iplemented per forum unseen items notifications
+	- Intoduce Activity::pasteQuote() to paste the quote into the body at the right place if applicable and add test
+	- Implement ASCache in Activity::get_quote()
+	- Display webfinger address instead of channel URL in HQ widget notifications tab for consistency with other tabs
+	- Implement FEP-e232 object links
+
+	Maintenance
+	- Enable gmp PHP extension in gitlab-ci
+	- Update composer libs which now require gpm PHP extension
+	- HTTPSig: return early if we got no key info
+	- Removed deprecated conv_list template
+	- Refactor PhotoGd::imageString to reduce complexity
+	- Add ImageQuality class to hold quality values
+	- CI: Introduce a quick test to check that smarty templates compile in the pretest stage
+	- CI: Upgrade to postgres 13
+	- CI: Add pretest step and run PHPStan
+	- Updated Spanish strings
+	- Remove redundant f arg in tagcloud widget
+	- Remove dead code in handle_tag()
+	- Enable unit tests for extensions
+	- Remove obsolete phpunit configurations
+	- Code cleanup
+
+	Bugfixes
+	- Fix setup check for zip PHP extension
+	- Fix issue where remote channels could post to wall if they had write_storage permission - issue #1940
+	- Fix not all notification icons updated
+	- Fix notification icon not updated on medium screen size
+	- Fix image/gif not handled in PhotoGd::imageString()
+	- Fix issue where not all seen items where removed from the unseen notifications
+	- Fix item_by_item_id() not returning Announce items - issue #1936
+	- Fix archive widget not returning results if in single item mode - issue #1911
+	- Fix db query in verify_email_address()
+	- Fix search in mod channel only returning single post items - issue #1929
+	- Fix commented out register_account hook breaking notify admin addon
+
+	Addon
+	- Wiki: fix photo embed buton for markdown
+	- Pubcrawl: return early if we could not find an AS actor id and add some logging
+	- Cart: adapt logic to fetch tpl from theme folder first
+	- Cavatar: remove redundant arg from cavatar_init()
+
+
 Hubzilla 10.4.4 (2025-10-06)
 	- Fix issue when confirming pending registrations
 	- Fix TOS headings
