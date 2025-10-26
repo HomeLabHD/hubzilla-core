@@ -34,7 +34,7 @@ class ASCollection {
 			$cached = ASCache::Get($obj);
 			if ($cached) {
 				// logger('cached: ' . $obj);
-				$data = unserialise($cached);
+				$data = $cached;
 			}
 			else {
 				// logger('fetching: ' . $obj);

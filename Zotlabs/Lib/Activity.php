@@ -3104,19 +3104,9 @@ class Activity {
 
 			sync_an_item($channel['channel_id'], $x['item_id']);
 
-			// if the thread owner is a connnection, we will already receive any additional comments to their posts
-			// but if they are not we can try to fetch others in the background
-			$connected = q("SELECT abook.*, xchan.* FROM abook left join xchan on abook_xchan = xchan_hash
-				WHERE abook_channel = %d and abook_xchan = '%s' LIMIT 1",
-				intval($channel['channel_id']),
-				dbesc($x['item']['owner_xchan'])
-			);
-
-			if (!$connected) {
-				if (isset($act->obj['replies']['id'])) {
-					App::$cache['as_fetch_collection'][$act->obj['replies']['id']]['channels'][] = $channel['channel_id'];
-					App::$cache['as_fetch_collection'][$act->obj['replies']['id']]['force'] = intval($force);
-				}
+			if (isset($act->obj['replies']['id'])) {
+				App::$cache['as_fetch_collection'][$act->obj['replies']['id']]['channels'][] = $channel['channel_id'];
+				App::$cache['as_fetch_collection'][$act->obj['replies']['id']]['force'] = intval($force);
 			}
 		}
 	}
@@ -3808,12 +3798,12 @@ class Activity {
 			}
 		}
 
-		if (isset(App::$cache['as_fetch_objects'])) {
-			if (!$observer_hash) {
-				logger('Attempt to initiate Fetchparents daemon without observer');
-				return;
-			}
+		if (!$observer_hash) {
+			logger('Attempt to initiate Fetchparents or Convo daemon without observer');
+			return;
+		}
 
+		if (isset(App::$cache['as_fetch_objects'])) {
 			foreach (App::$cache['as_fetch_objects'] as $mid => $info) {
 				$force = $info['force'];
 				$channels_str = '';
@@ -3830,13 +3820,20 @@ class Activity {
 		}
 
 		if (isset(App::$cache['as_fetch_collection'])) {
-			if (!$observer_hash) {
-				logger('Attempt to initiate Convo daemon without observer');
-				return;
-			}
+			$connected = q("SELECT abook_id FROM abook
+				WHERE abook_xchan = '%s' LIMIT 1",
+				dbesc($observer_hash)
+			);
 
 			foreach (App::$cache['as_fetch_collection'] as $mid => $info) {
 				$force = $info['force'];
+
+				if ($connected && !$force) {
+					// If the sender is a connnection with someone on the hub,
+					// we will already receive any additional comments to their posts
+					continue;
+				}
+
 				$channels_str = '';
 
 				foreach ($info['channels'] as $c) {
@@ -3845,6 +3842,7 @@ class Activity {
 					}
 					$channels_str .= $c;
 				}
+
 				Master::Summon(['Convo', $channels_str, $observer_hash, $mid, $force]);
 			}
 		}
