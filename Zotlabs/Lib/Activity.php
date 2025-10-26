@@ -3103,29 +3103,19 @@ class Activity {
 			send_status_notifications($x['item_id'], $x['item']);
 
 			sync_an_item($channel['channel_id'], $x['item_id']);
-		}
 
-		if ($fetch_parents && $parent && !intval($parent[0]['item_private'])) {
-			logger('topfetch', LOGGER_DEBUG);
 			// if the thread owner is a connnection, we will already receive any additional comments to their posts
 			// but if they are not we can try to fetch others in the background
 			$connected = q("SELECT abook.*, xchan.* FROM abook left join xchan on abook_xchan = xchan_hash
 				WHERE abook_channel = %d and abook_xchan = '%s' LIMIT 1",
 				intval($channel['channel_id']),
-				dbesc($parent[0]['owner_xchan'])
+				dbesc($x['item']['owner_xchan'])
 			);
+
 			if (!$connected) {
-				// determine if the top-level post provides a replies collection
-				if ($parent[0]['obj']) {
-					$parent[0]['obj'] = json_decode($parent[0]['obj'], true);
-				}
-				logger('topfetch: ' . print_r($parent[0], true), LOGGER_ALL);
-				$id = ((array_path_exists('obj/replies/id', $parent[0])) ? $parent[0]['obj']['replies']['id'] : false);
-				if (!$id) {
-					$id = ((array_path_exists('obj/replies', $parent[0]) && is_string($parent[0]['obj']['replies'])) ? $parent[0]['obj']['replies'] : false);
-				}
-				if ($id) {
-					Master::Summon(['Convo', $id, $channel['channel_id'], $observer_hash]);
+				if (isset($act->obj['replies']['id'])) {
+					App::$cache['as_fetch_collection'][$act->obj['replies']['id']]['channels'][] = $channel['channel_id'];
+					App::$cache['as_fetch_collection'][$act->obj['replies']['id']]['force'] = intval($force);
 				}
 			}
 		}
@@ -3175,7 +3165,7 @@ class Activity {
 			$cached = ASCache::Get($current_item['parent_mid']);
 			if ($cached) {
 				// logger('cached: ' . $current_item['parent_mid']);
-				$n = unserialise($cached);
+				$n = $cached;
 			}
 			else {
 				// logger('fetching: ' . $current_item['parent_mid']);
@@ -3183,7 +3173,7 @@ class Activity {
 				if (!$n) {
 					break;
 				}
-				ASCache::Set($current_item['parent_mid'], serialise($n));
+				ASCache::Set($current_item['parent_mid'], $n);
 			}
 
 			$a = new ActivityStreams($n);
@@ -3654,7 +3644,7 @@ class Activity {
 			// logger('fetching: ' . $url);
 			$a = self::fetch($url);
 			if ($a) {
-				ASCache::Set($url, serialise($a));
+				ASCache::Set($url, $a);
 			}
 		}
 
@@ -3803,10 +3793,9 @@ class Activity {
 
 	public static function init_background_fetch(string $observer_hash = '') {
 		if (isset(App::$cache['zot_fetch_objects'])) {
-			$channels_str = '';
-
 			foreach (App::$cache['zot_fetch_objects'] as $mid => $info) {
 				$force = $info['force'];
+				$channels_str = '';
 
 				foreach ($info['channels'] as $c) {
 					if ($channels_str) {
@@ -3825,10 +3814,9 @@ class Activity {
 				return;
 			}
 
-			$channels_str = '';
-
 			foreach (App::$cache['as_fetch_objects'] as $mid => $info) {
 				$force = $info['force'];
+				$channels_str = '';
 
 				foreach ($info['channels'] as $c) {
 					if ($channels_str) {
@@ -3840,6 +3828,27 @@ class Activity {
 				Master::Summon(['Fetchparents', $channels_str, $observer_hash, $mid, $force]);
 			}
 		}
+
+		if (isset(App::$cache['as_fetch_collection'])) {
+			if (!$observer_hash) {
+				logger('Attempt to initiate Convo daemon without observer');
+				return;
+			}
+
+			foreach (App::$cache['as_fetch_collection'] as $mid => $info) {
+				$force = $info['force'];
+				$channels_str = '';
+
+				foreach ($info['channels'] as $c) {
+					if ($channels_str) {
+						$channels_str .= ',';
+					}
+					$channels_str .= $c;
+				}
+				Master::Summon(['Convo', $channels_str, $observer_hash, $mid, $force]);
+			}
+		}
+
 	}
 
 	public static function addToCollection($channel, $object, $target, $sourceItem = null, $deliver = true) {
