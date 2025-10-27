@@ -2735,7 +2735,7 @@ class Activity {
 	}
 
 	static function store($channel, $observer_hash, $act, $item, $fetch_parents = true, $force = false, $is_collection_operation = false) {
-		$is_sys_channel = is_sys_channel($channel['channel_id']);
+		$is_sys_channel = $channel['channel_system'];
 		$is_child_node  = false;
 		$parent = null;
 
@@ -2958,7 +2958,7 @@ class Activity {
 		if (!$item['author_xchan'] || !$item['owner_xchan'])
 			return;
 
-		if ($channel['channel_system']) {
+		if ($is_sys_channel) {
 			$incl = Config::Get('system','pubstream_incl');
 			$excl = Config::Get('system','pubstream_excl');
 
