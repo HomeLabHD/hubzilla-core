@@ -36,6 +36,8 @@ class Fetchparents {
 			Activity::fetch_and_store_parents($channel, $observer_hash, $mid, null, $force);
 		}
 
+		Activity::init_background_fetch($observer_hash);
+
 		return;
 
 	}

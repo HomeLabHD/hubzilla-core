@@ -5,6 +5,7 @@ namespace Zotlabs\Daemon;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\ActivityStreams;
 use Zotlabs\Lib\ASCollection;
+use Zotlabs\Lib\ASCache;
 
 class Convo {
 
@@ -46,12 +47,25 @@ class Convo {
 
 			foreach ($messages as $message) {
 				if (is_string($message)) {
-					$message = Activity::fetch($message, $channel);
+					$cached = ASCache::Get($message);
+					if ($cached) {
+						// logger('convo_cached: ' . $message);
+						$data = $cached;
+					}
+					else {
+						// logger('convo_fetching: ' . $message);
+						$data = Activity::fetch($message, $channel);
+						if ($data) {
+							ASCache::Set($message, $data);
+						}
+					}
+
+				}
+				else {
+					$data = $message;
 				}
 
-				// set client flag because comments will probably just be objects and not full blown activities
-				// and that lets us use implied_create
-				$AS = new ActivityStreams($message);
+				$AS = new ActivityStreams($data);
 				if ($AS->is_valid() && is_array($AS->obj)) {
 					$item = Activity::decode_note($AS);
 					$item['item_fetched'] = true;

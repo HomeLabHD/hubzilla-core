@@ -3104,7 +3104,12 @@ class Activity {
 
 			sync_an_item($channel['channel_id'], $x['item_id']);
 
-			if (isset($act->obj['replies']['id'])) {
+			// Only store replies collection for background fetching if the item has been fetched.
+			// A message that has just been posted usually will not have any replies yet.
+			// Also dismiss duplicates.
+			$attempt_replies_fetch = isset($act->obj['replies']['id']) && !empty($item['item_fetched']) && !in_array($channel['channel_id'], App::$cache['as_fetch_collection'][$act->obj['replies']['id']]['channels'] ?? []);
+
+			if ($attempt_replies_fetch) {
 				App::$cache['as_fetch_collection'][$act->obj['replies']['id']]['channels'][] = $channel['channel_id'];
 				App::$cache['as_fetch_collection'][$act->obj['replies']['id']]['force'] = intval($force);
 			}
@@ -3796,6 +3801,7 @@ class Activity {
 
 				Master::Summon(['Zotconvo', $channels_str, $mid, $force]);
 			}
+			unset(App::$cache['zot_fetch_objects']);
 		}
 
 		if (!$observer_hash) {
@@ -3817,6 +3823,7 @@ class Activity {
 
 				Master::Summon(['Fetchparents', $channels_str, $observer_hash, $mid, $force]);
 			}
+			unset(App::$cache['as_fetch_objects']);
 		}
 
 		if (isset(App::$cache['as_fetch_collection'])) {
@@ -3845,6 +3852,7 @@ class Activity {
 
 				Master::Summon(['Convo', $channels_str, $observer_hash, $mid, $force]);
 			}
+			unset(App::$cache['as_fetch_collection']);
 		}
 
 	}
