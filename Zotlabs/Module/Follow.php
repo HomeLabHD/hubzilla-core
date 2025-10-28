@@ -53,7 +53,14 @@ class Follow extends Controller {
 		}
 
 		$uid = local_channel();
-		$url = notags(punify(trim($_REQUEST['url'])));
+		$url = notags(trim($_REQUEST['url']));
+
+		$parsed = parse_url($url);
+		if (isset($parsed['host'])) {
+			$parsed['host'] = punify($parsed['host']);
+			$url = unparse_url($parsed);
+		}
+
 		$return_url = $_SESSION['return_url'];
 		$interactive = $_REQUEST['interactive'] ?? 1;
 		$channel = App::get_channel();
