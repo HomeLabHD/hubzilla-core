@@ -2782,7 +2782,9 @@ class Activity {
 						$force = true;
 					}
 
-					if ($fetch_parents) {
+					$attempt_parents_fetch = $fetch_parents && !in_array($channel['channel_id'], App::$cache['as_fetch_objects'][$item['mid']]['channels'] ?? []);
+
+					if ($attempt_parents_fetch) {
 						App::$cache['as_fetch_objects'][$item['mid']]['channels'][] = $channel['channel_id'];
 						App::$cache['as_fetch_objects'][$item['mid']]['force'] = intval($force);
 						return;
@@ -3108,7 +3110,6 @@ class Activity {
 			// A message that has just been posted usually will not have any replies yet.
 			// Also dismiss duplicates.
 			$attempt_replies_fetch = isset($act->obj['replies']['id']) && !empty($item['item_fetched']) && !in_array($channel['channel_id'], App::$cache['as_fetch_collection'][$act->obj['replies']['id']]['channels'] ?? []);
-
 			if ($attempt_replies_fetch) {
 				App::$cache['as_fetch_collection'][$act->obj['replies']['id']]['channels'][] = $channel['channel_id'];
 				App::$cache['as_fetch_collection'][$act->obj['replies']['id']]['force'] = intval($force);
@@ -3801,7 +3802,6 @@ class Activity {
 
 				Master::Summon(['Zotconvo', $channels_str, $mid, $force]);
 			}
-			unset(App::$cache['zot_fetch_objects']);
 		}
 
 		if (!$observer_hash) {
@@ -3823,24 +3823,11 @@ class Activity {
 
 				Master::Summon(['Fetchparents', $channels_str, $observer_hash, $mid, $force]);
 			}
-			unset(App::$cache['as_fetch_objects']);
 		}
 
 		if (isset(App::$cache['as_fetch_collection'])) {
-			$connected = q("SELECT abook_id FROM abook
-				WHERE abook_xchan = '%s' LIMIT 1",
-				dbesc($observer_hash)
-			);
-
 			foreach (App::$cache['as_fetch_collection'] as $mid => $info) {
 				$force = $info['force'];
-
-				if ($connected && !$force) {
-					// If the sender is a connnection with someone on the hub,
-					// we will already receive any additional comments to their posts
-					continue;
-				}
-
 				$channels_str = '';
 
 				foreach ($info['channels'] as $c) {
@@ -3852,7 +3839,6 @@ class Activity {
 
 				Master::Summon(['Convo', $channels_str, $observer_hash, $mid, $force]);
 			}
-			unset(App::$cache['as_fetch_collection']);
 		}
 
 	}
