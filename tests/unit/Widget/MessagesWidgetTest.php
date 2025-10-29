@@ -9,12 +9,20 @@
 namespace Zotlabs\Tests\Unit\Widget;
 
 use App;
+use PHPUnit\Framework\Attributes\Before;
 use Zotlabs\Widget\Messages;
 use Zotlabs\Tests\Unit\Module\TestCase;
 
 class MessagesWidgetTest extends TestCase
 {
+	private string $output;
+
 	use \phpmock\phpunit\PHPMock;
+
+	#[Before]
+	public function setup(): void {
+		$this->output = '';
+	}
 
 	/**
 	 * List of file tags should be empty if there are no file tags.
