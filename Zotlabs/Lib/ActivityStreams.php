@@ -413,7 +413,7 @@ class ActivityStreams {
 			$cached = ASCache::Get($x);
 			if ($cached) {
 				// logger('AS cached: ' . $x);
-				$y = unserialise($cached);
+				$y = $cached;
 			}
 			else {
 				// logger('AS fetching: ' . $x);
