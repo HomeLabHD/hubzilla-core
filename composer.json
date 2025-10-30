@@ -54,10 +54,10 @@
         "spomky-labs/otphp": "^11.1",
         "patrickschur/language-detection": "^5.3",
         "stephenhill/base58": "^1.1",
-        "mmccook/php-json-canonicalization-scheme": "^1.0",
         "scssphp/scssphp": "^2.0.1",
         "twbs/bootstrap-icons": "^1.11",
-        "macgirvin/http-message-signer": "^0.2.6"
+        "macgirvin/http-message-signer": "^0.2.6",
+        "root23/php-json-canonicalization": "^1.0"
     },
     "require-dev": {
         "ext-yaml": "*",
