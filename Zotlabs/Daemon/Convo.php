@@ -5,6 +5,7 @@ namespace Zotlabs\Daemon;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\ActivityStreams;
 use Zotlabs\Lib\ASCollection;
+use Zotlabs\Lib\ASCache;
 
 class Convo {
 
@@ -12,52 +13,66 @@ class Convo {
 
 		logger('convo invoked: ' . print_r($argv, true));
 
-		if ($argc != 4) {
+		if ($argc < 4) {
 			return;
 		}
 
-		$id           = $argv[1];
-		$channel_id   = intval($argv[2]);
-		$contact_hash = $argv[3];
-
-		$channel = channelx_by_n($channel_id);
-		if (!$channel) {
+		$channels = explode(',', $argv[1]);
+		if (!$channels) {
 			return;
 		}
 
-		$r = q("SELECT abook.*, xchan.* FROM abook left join xchan on abook_xchan = xchan_hash
-			WHERE abook_channel = %d and abook_xchan = '%s' LIMIT 1",
-			intval($channel_id),
-			dbesc($contact_hash)
-		);
-
-		if (!$r) {
+		$observer_hash = $argv[2];
+		if (!$observer_hash) {
 			return;
 		}
 
-		$contact = array_shift($r);
-
-		$obj = new ASCollection($id, $channel);
-
-		$messages = $obj->get();
-
-		if (!$messages) {
+		$mid = $argv[3];
+		if (!$mid) {
 			return;
 		}
 
-		foreach ($messages as $message) {
-			if (is_string($message)) {
-				$message = Activity::fetch($message, $channel);
+		$force = $argv[4] ?? false;
+
+		foreach ($channels as $channel_id) {
+			$channel = channelx_by_n($channel_id);
+
+			$obj = new ASCollection($mid, $channel);
+
+			$messages = $obj->get();
+
+			if (!$messages) {
+				continue;
 			}
 
-			// set client flag because comments will probably just be objects and not full blown activities
-			// and that lets us use implied_create
-			$AS = new ActivityStreams($message);
-			if ($AS->is_valid() && is_array($AS->obj)) {
-				$item = Activity::decode_note($AS);
-				$item['item_fetched'] = true;
-				Activity::store($channel, $contact['abook_xchan'], $AS, $item);
+			foreach ($messages as $message) {
+				if (is_string($message)) {
+					$cached = ASCache::Get($message);
+					if ($cached) {
+						// logger('convo_cached: ' . $message);
+						$data = $cached;
+					}
+					else {
+						// logger('convo_fetching: ' . $message);
+						$data = Activity::fetch($message, $channel);
+						if ($data) {
+							ASCache::Set($message, $data);
+						}
+					}
+
+				}
+				else {
+					$data = $message;
+				}
+
+				$AS = new ActivityStreams($data);
+				if ($AS->is_valid() && is_array($AS->obj)) {
+					$item = Activity::decode_note($AS);
+					$item['item_fetched'] = true;
+					Activity::store($channel, $observer_hash, $AS, $item, false, $force);
+				}
 			}
+
 		}
 
 		return;

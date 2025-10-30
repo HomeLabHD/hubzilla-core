@@ -26,23 +26,6 @@ variables:
   POSTGRES_USER: ci-user
   POSTGRES_PASSWORD: ci-pass
 
-
-before_script:
-  # Install & enable Xdebug for code coverage reports
-  - apt-get update
-  - apt-get install -yqq libicu-dev libjpeg-dev libpng-dev libpq-dev libyaml-dev libgmp-dev libzip-dev mariadb-client postgresql-client unzip zip
-  - pecl install xdebug yaml
-  - docker-php-ext-enable xdebug yaml
-  - docker-php-ext-configure gd --with-jpeg=/usr/include/
-  - docker-php-ext-install gd gmp intl pdo_mysql pdo_pgsql zip exif
-
-  # Install composer
-  - curl -sS https://getcomposer.org/installer | php
-  # Install dev libraries from composer
-  - php ./composer.phar install --no-progress
-  # php.ini settings
-  - echo 'xdebug.mode=coverage' >> /usr/local/etc/php/php.ini
-
 # hidden job definition with template for MySQL/MariaDB
 .job_template_mysql: &job_definition_mysql
   stage: test
@@ -101,43 +84,55 @@ before_script:
     paths:
       - tests/results/
 
+default:
+  image: php:8.2
+  before_script:
+    # Install & enable Xdebug for code coverage reports
+    - apt-get update
+    - apt-get install -yqq libicu-dev libjpeg-dev libpng-dev libpq-dev libyaml-dev libgmp-dev libzip-dev mariadb-client postgresql-client unzip zip
+    - pecl install xdebug yaml
+    - docker-php-ext-enable xdebug yaml
+    - docker-php-ext-configure gd --with-jpeg=/usr/include/
+    - docker-php-ext-install gd gmp intl pdo_mysql pdo_pgsql zip exif
+
+    # Install composer
+    - curl -sS https://getcomposer.org/installer | php
+    # Install dev libraries from composer
+    - php ./composer.phar install --no-progress
+    # php.ini settings
+    - echo 'xdebug.mode=coverage' >> /usr/local/etc/php/php.ini
 
 check_templates:
-  image: php:8.1
   stage: pretest
   script:
     - touch .htconfig.php
     - php util/precompile_smarty3.php
 
 phpstan:
-  image: php:8.1
   stage: pretest
   script:
     - touch .htconfig.php
     - vendor/bin/phpstan --memory-limit=512M
 
-# PHP8.1 with MySQL 8.0
-php8.1_mysql8.0.22:
-  image: php:8.1
+# PHP8.2 with MySQL 8.0
+php8.2_mysql8.0.22:
   services:
     - mysql:8.0
   <<: *job_definition_mysql
   <<: *artifacts_template
 
-# PHP8.1 with MariaDB 10.6
-php8.1_mariadb10.6:
-  image: php:8.1
+# PHP8.2 with MariaDB 10.6
+php8.2_mariadb10.6:
   services:
     - name: mariadb:10.6
       alias: mysql
   <<: *job_definition_mysql
   <<: *artifacts_template
 
-# PHP8.1 with PostgreSQL 13
-php8.1_postgres13:
-  image: php:8.1
+# PHP8.2 with PostgreSQL 14
+php8.2_postgres14:
   services:
-    - postgres:13-alpine
+    - postgres:14-alpine
   <<: *job_definition_postgres
   <<: *artifacts_template
 

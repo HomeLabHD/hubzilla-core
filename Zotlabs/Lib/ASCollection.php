@@ -34,13 +34,13 @@ class ASCollection {
 			$cached = ASCache::Get($obj);
 			if ($cached) {
 				// logger('cached: ' . $obj);
-				$data = unserialise($cached);
+				$data = $cached;
 			}
 			else {
 				// logger('fetching: ' . $obj);
 				$data = Activity::fetch($obj, $channel);
 				if ($data) {
-					ASCache::Set($obj, serialise($data));
+					ASCache::Set($obj, $data);
 				}
 			}
 
@@ -108,13 +108,13 @@ class ASCollection {
 			$cached = ASCache::Get($this->nextpage);
 			if ($cached) {
 				// logger('cached: ' . $this->nextpage);
-				$data = unserialise($cached);
+				$data = $cached;
 			}
 			else {
 				$data = Activity::fetch($this->nextpage, $this->channel);
 				if ($data) {
 					// logger('fetching: ' . $this->nextpage);
-					ASCache::Set($this->nextpage, serialise($data));
+					ASCache::Set($this->nextpage, $data);
 				}
 			}
 
