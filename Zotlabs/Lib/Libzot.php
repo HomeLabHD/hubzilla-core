@@ -116,10 +116,12 @@ class Libzot {
 		}
 
 		if ($msg) {
+			/*
 			$actors = get_hubloc_id_urls_by_x($channel['channel_hash']);
 			if ($encoding === 'activitystreams' && array_key_exists('actor', $msg) && is_string($msg['actor']) && in_array($msg['actor'], $actors)) {
 				$msg = JSalmon::sign($msg, $actors[0], $channel['channel_prvkey']);
 			}
+			*/
 			$data['data'] = $msg;
 		}
 		else {
