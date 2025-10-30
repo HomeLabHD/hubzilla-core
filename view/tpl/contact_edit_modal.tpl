@@ -30,18 +30,17 @@
 	let sub_section;
 
 	$(document).ready(function() {
-		let path_parts = window.location.pathname.split('/').filter(Boolean);
-
-		if (window.location.hash && path_parts[0] === 'connections') {
+		if (window.location.hash) {
 			poi = window.location.hash.substr(1);
 			init_contact_edit(poi);
-
-			window.onhashchange = function() {
-				poi = window.location.hash.substr(1);
-				init_contact_edit(poi);
-			};
 		}
 
+		window.onhashchange = function() {
+			if (window.location.hash) {
+				poi = window.location.hash.substr(1);
+				init_contact_edit(poi);
+			}
+		};
 	});
 
 	$(document).on('click', '.contact-edit', function (e) {
