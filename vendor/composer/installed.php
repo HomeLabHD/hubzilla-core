@@ -3,7 +3,7 @@
         'name' => 'zotlabs/hubzilla',
         'pretty_version' => 'dev-10.6RC',
         'version' => 'dev-10.6RC',
-        'reference' => '7cf7aa397e26ebad0262b6ce5e4c46895de16d78',
+        'reference' => 'd11b05de71d84416aa085abd8570c038b1dc618a',
         'type' => 'application',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -181,15 +181,6 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-        'mmccook/php-json-canonicalization-scheme' => array(
-            'pretty_version' => '1.0.0',
-            'version' => '1.0.0.0',
-            'reference' => 'cd6d3e7645a2c1e62574a9a2437d68e9e74e799f',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../mmccook/php-json-canonicalization-scheme',
-            'aliases' => array(),
-            'dev_requirement' => false,
-        ),
         'paragonie/constant_time_encoding' => array(
             'pretty_version' => 'v3.1.3',
             'version' => '3.1.3.0',
@@ -354,6 +345,15 @@
             'replaced' => array(
                 0 => '4.9.1',
             ),
+        ),
+        'root23/php-json-canonicalization' => array(
+            'pretty_version' => '1.0.1',
+            'version' => '1.0.1.0',
+            'reference' => 'be888e03a171c2b9667265d03924bd6bfc3fe85a',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../root23/php-json-canonicalization',
+            'aliases' => array(),
+            'dev_requirement' => false,
         ),
         'sabre/dav' => array(
             'pretty_version' => '4.7.0',
@@ -544,7 +544,7 @@
         'zotlabs/hubzilla' => array(
             'pretty_version' => 'dev-10.6RC',
             'version' => 'dev-10.6RC',
-            'reference' => '7cf7aa397e26ebad0262b6ce5e4c46895de16d78',
+            'reference' => 'd11b05de71d84416aa085abd8570c038b1dc618a',
             'type' => 'application',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

@@ -2,7 +2,7 @@
 
 namespace Zotlabs\Lib;
 
-use Mmccook\JsonCanonicalizator\JsonCanonicalizatorFactory;
+use Root23\JsonCanonicalizer\JsonCanonicalizer;
 use StephenHill\Base58;
 
 class JcsEddsa2022 {
@@ -102,8 +102,8 @@ class JcsEddsa2022 {
 	}
 
 	public function canonicalize($data) {
-		$canonicalization = JsonCanonicalizatorFactory::getInstance();
-		return $canonicalization->canonicalize($data);
+		$canonicalizer = new JsonCanonicalizer();
+		return $canonicalizer->canonicalize($data);
 	}
 
 }

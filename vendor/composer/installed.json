@@ -1370,67 +1370,6 @@
             "install-path": "../michelf/php-markdown"
         },
         {
-            "name": "mmccook/php-json-canonicalization-scheme",
-            "version": "1.0.0",
-            "version_normalized": "1.0.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/mmccook/php-json-canonicalization-scheme.git",
-                "reference": "cd6d3e7645a2c1e62574a9a2437d68e9e74e799f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/mmccook/php-json-canonicalization-scheme/zipball/cd6d3e7645a2c1e62574a9a2437d68e9e74e799f",
-                "reference": "cd6d3e7645a2c1e62574a9a2437d68e9e74e799f",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.1"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.13",
-                "pestphp/pest": "^1.20",
-                "phpstan/phpstan": "^1.10",
-                "spatie/ray": "^1.28"
-            },
-            "time": "2023-08-07T18:12:27+00:00",
-            "type": "library",
-            "installation-source": "dist",
-            "autoload": {
-                "psr-4": {
-                    "Mmccook\\JsonCanonicalizator\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Mark M. McCook",
-                    "email": "mark.mccook@gmail.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "This is my package php-json-canonicalization-scheme",
-            "homepage": "https://github.com/mmccook/php-json-canonicalization-scheme",
-            "keywords": [
-                "mmccook",
-                "php-json-canonicalization-scheme"
-            ],
-            "support": {
-                "issues": "https://github.com/mmccook/php-json-canonicalization-scheme/issues",
-                "source": "https://github.com/mmccook/php-json-canonicalization-scheme/tree/1.0.0"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/mmccook",
-                    "type": "github"
-                }
-            ],
-            "install-path": "../mmccook/php-json-canonicalization-scheme"
-        },
-        {
             "name": "paragonie/constant_time_encoding",
             "version": "v3.1.3",
             "version_normalized": "3.1.3.0",
@@ -2498,6 +2437,45 @@
                 "source": "https://github.com/ramsey/uuid/tree/4.9.1"
             },
             "install-path": "../ramsey/uuid"
+        },
+        {
+            "name": "root23/php-json-canonicalization",
+            "version": "1.0.1",
+            "version_normalized": "1.0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/root23/php-json-canonicalization.git",
+                "reference": "be888e03a171c2b9667265d03924bd6bfc3fe85a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/root23/php-json-canonicalization/zipball/be888e03a171c2b9667265d03924bd6bfc3fe85a",
+                "reference": "be888e03a171c2b9667265d03924bd6bfc3fe85a",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^v3.27.0",
+                "phpstan/phpstan": "^1.10",
+                "phpunit/phpunit": "^9"
+            },
+            "time": "2023-09-27T08:27:25+00:00",
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "Root23\\JsonCanonicalizer\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "description": "Serialize data into canonical way, based on RFC-8785.",
+            "support": {
+                "issues": "https://github.com/root23/php-json-canonicalization/issues",
+                "source": "https://github.com/root23/php-json-canonicalization/tree/1.0.1"
+            },
+            "install-path": "../root23/php-json-canonicalization"
         },
         {
             "name": "sabre/dav",

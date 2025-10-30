@@ -65,6 +65,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         ),
         'R' => 
         array (
+            'Root23\\JsonCanonicalizer\\' => 25,
             'Ramsey\\Uuid\\' => 12,
             'Ramsey\\Collection\\' => 18,
         ),
@@ -83,7 +84,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         ),
         'M' => 
         array (
-            'Mmccook\\JsonCanonicalizator\\' => 28,
             'Michelf\\' => 8,
             'Mdanter\\Ecc\\' => 12,
         ),
@@ -211,6 +211,10 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         array (
             0 => __DIR__ . '/..' . '/sabre/dav/lib',
         ),
+        'Root23\\JsonCanonicalizer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/root23/php-json-canonicalization/src',
+        ),
         'Ramsey\\Uuid\\' => 
         array (
             0 => __DIR__ . '/..' . '/ramsey/uuid/src',
@@ -247,10 +251,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'OTPHP\\' => 
         array (
             0 => __DIR__ . '/..' . '/spomky-labs/otphp/src',
-        ),
-        'Mmccook\\JsonCanonicalizator\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/mmccook/php-json-canonicalization-scheme/src',
         ),
         'Michelf\\' => 
         array (
@@ -945,10 +945,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Michelf\\Markdown' => __DIR__ . '/..' . '/michelf/php-markdown/Michelf/Markdown.php',
         'Michelf\\MarkdownExtra' => __DIR__ . '/..' . '/michelf/php-markdown/Michelf/MarkdownExtra.php',
         'Michelf\\MarkdownInterface' => __DIR__ . '/..' . '/michelf/php-markdown/Michelf/MarkdownInterface.php',
-        'Mmccook\\JsonCanonicalizator\\JsonCanonicalizator' => __DIR__ . '/..' . '/mmccook/php-json-canonicalization-scheme/src/JsonCanonicalizator.php',
-        'Mmccook\\JsonCanonicalizator\\JsonCanonicalizatorFactory' => __DIR__ . '/..' . '/mmccook/php-json-canonicalization-scheme/src/JsonCanonicalizatorFactory.php',
-        'Mmccook\\JsonCanonicalizator\\JsonCanonicalizatorInterface' => __DIR__ . '/..' . '/mmccook/php-json-canonicalization-scheme/src/JsonCanonicalizatorInterface.php',
-        'Mmccook\\JsonCanonicalizator\\Utils' => __DIR__ . '/..' . '/mmccook/php-json-canonicalization-scheme/src/Utils.php',
         'OAuth2\\Autoloader' => __DIR__ . '/..' . '/bshaffer/oauth2-server-php/src/OAuth2/Autoloader.php',
         'OAuth2\\ClientAssertionType\\ClientAssertionTypeInterface' => __DIR__ . '/..' . '/bshaffer/oauth2-server-php/src/OAuth2/ClientAssertionType/ClientAssertionTypeInterface.php',
         'OAuth2\\ClientAssertionType\\HttpBasic' => __DIR__ . '/..' . '/bshaffer/oauth2-server-php/src/OAuth2/ClientAssertionType/HttpBasic.php',
@@ -1247,6 +1243,10 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Ramsey\\Uuid\\UuidInterface' => __DIR__ . '/..' . '/ramsey/uuid/src/UuidInterface.php',
         'Ramsey\\Uuid\\Validator\\GenericValidator' => __DIR__ . '/..' . '/ramsey/uuid/src/Validator/GenericValidator.php',
         'Ramsey\\Uuid\\Validator\\ValidatorInterface' => __DIR__ . '/..' . '/ramsey/uuid/src/Validator/ValidatorInterface.php',
+        'Root23\\JsonCanonicalizer\\ArrayHelperTrait' => __DIR__ . '/..' . '/root23/php-json-canonicalization/src/ArrayHelperTrait.php',
+        'Root23\\JsonCanonicalizer\\Converter' => __DIR__ . '/..' . '/root23/php-json-canonicalization/src/Converter.php',
+        'Root23\\JsonCanonicalizer\\JsonCanonicalizer' => __DIR__ . '/..' . '/root23/php-json-canonicalization/src/JsonCanonicalizer.php',
+        'Root23\\JsonCanonicalizer\\JsonCanonicalizerInterface' => __DIR__ . '/..' . '/root23/php-json-canonicalization/src/JsonCanonicalizerInterface.php',
         'Sabre\\CalDAV\\Backend\\AbstractBackend' => __DIR__ . '/..' . '/sabre/dav/lib/CalDAV/Backend/AbstractBackend.php',
         'Sabre\\CalDAV\\Backend\\BackendInterface' => __DIR__ . '/..' . '/sabre/dav/lib/CalDAV/Backend/BackendInterface.php',
         'Sabre\\CalDAV\\Backend\\NotificationSupport' => __DIR__ . '/..' . '/sabre/dav/lib/CalDAV/Backend/NotificationSupport.php',
