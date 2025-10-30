@@ -1,5 +1,7 @@
 Hubzilla 10.6 (2025-??-??)
 	Features
+	- Improved background fetching of replies collection
+	- Refactor ASCache and implement ASCache::isCacheable()
 	- Implement ASCache in ASCollection to improve performance
 	- Add json support for help index widget and add a new template
 	- Implement hidden pconfig system.notifications_count_limit
@@ -12,15 +14,16 @@ Hubzilla 10.6 (2025-??-??)
 	- Implement FEP-e232 object links
 
 	Maintenance
+	- CI: up PHP images to version 8.2
 	- Enable gmp PHP extension in gitlab-ci
 	- Update composer libs which now require gpm PHP extension
 	- HTTPSig: return early if we got no key info
 	- Removed deprecated conv_list template
-	- Refactor PhotoGd::imageString to reduce complexity
+	- Refactor PhotoGd::imageString() to reduce complexity
 	- Add ImageQuality class to hold quality values
-	- CI: Introduce a quick test to check that smarty templates compile in the pretest stage
-	- CI: Upgrade to postgres 13
-	- CI: Add pretest step and run PHPStan
+	- CI: introduce a quick test to check that smarty templates compile in the pretest stage
+	- CI: upgrade to postgres 13
+	- CI: add pretest step and run PHPStan
 	- Updated Spanish strings
 	- Remove redundant f arg in tagcloud widget
 	- Remove dead code in handle_tag()
@@ -29,6 +32,9 @@ Hubzilla 10.6 (2025-??-??)
 	- Code cleanup
 
 	Bugfixes
+	- Fix deprecation notice in MessagesWidgetTest
+	- Fix whole URL punified in mod follow
+	- Fix whole URL punified in mod search
 	- Fix setup check for zip PHP extension
 	- Fix issue where remote channels could post to wall if they had write_storage permission - issue #1940
 	- Fix not all notification icons updated
@@ -42,6 +48,7 @@ Hubzilla 10.6 (2025-??-??)
 	- Fix commented out register_account hook breaking notify admin addon
 
 	Addon
+	- Superblock: add tests
 	- Wiki: fix photo embed buton for markdown
 	- Pubcrawl: return early if we could not find an AS actor id and add some logging
 	- Cart: adapt logic to fetch tpl from theme folder first
