@@ -33,6 +33,9 @@ Hubzilla 10.6 (2025-??-??)
 	- Code cleanup
 
 	Bugfixes
+	- Fix encoding for webpage, layout and block title and body when editing - issue #1946
+	- Fix issues which prevented files and photos to be updated correctly after rename via DAV
+	- Fix contact edit modal logic hijacking URL fragment on pages other than /connections
 	- Fix deprecation notice in MessagesWidgetTest
 	- Fix whole URL punified in mod follow
 	- Fix whole URL punified in mod search
