@@ -1985,6 +1985,7 @@ function attach_store_item($channel, $observer, $file) {
 	$arr['item_origin'] = 1;
 	$arr['item_thread_top'] = 1;
 	$arr['item_private'] = (($file['allow_cid'] || $file['allow_gid'] || $file['deny_cid'] || $file['deny_gid']) ? 1 : 0);
+	$arr['item_blocked'] = ((perm_is_allowed($channel['channel_id'], $observer['xchan_hash'], 'post_wall')) ? 0 : ITEM_MODERATED);
 	$arr['verb'] = 'Create';
 	$arr['target'] = $target;
 	$arr['target_type'] = 'Collection';

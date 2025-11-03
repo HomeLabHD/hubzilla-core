@@ -866,7 +866,7 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 				$path = $path . '/' . $r[0]['filename'];
 			}
 			if (! $r) {
-				$r = q("select id, uid, hash, filename, filetype, filesize, revision, folder, flags, is_dir, os_storage, created, edited from attach
+				$r = q("select id, uid, hash, filename, filetype, filesize, revision, folder, flags, is_dir, is_photo, os_storage, created, edited from attach
 					where folder = '%s' and filename = '%s' and uid = %d $perms order by filename limit 1",
 					dbesc($folder),
 					dbesc(basename($file)),
@@ -875,7 +875,7 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 			}
 			if (! $r) {
 				$errors = true;
-				$r = q("select id, uid, hash, filename, filetype, filesize, revision, folder, flags, is_dir, os_storage, created, edited from attach
+				$r = q("select id, uid, hash, filename, filetype, filesize, revision, folder, flags, is_dir, is_photo, os_storage, created, edited from attach
 					where folder = '%s' and filename = '%s' and uid = %d order by filename limit 1",
 					dbesc($folder),
 					dbesc(basename($file)),
