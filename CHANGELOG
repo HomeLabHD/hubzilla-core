@@ -17,7 +17,7 @@ Hubzilla 10.6 (2025-??-??)
 	- Use a better supported json canonicalization library
 	- CI: up PHP images to version 8.2
 	- Enable gmp PHP extension in gitlab-ci
-	- Update composer libs which now require gpm PHP extension
+	- Update composer libs which now require gmp PHP extension
 	- HTTPSig: return early if we got no key info
 	- Removed deprecated conv_list template
 	- Refactor PhotoGd::imageString() to reduce complexity
