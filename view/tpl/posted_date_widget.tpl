@@ -32,7 +32,7 @@ function toggle_posted_date_button() {
 			<ul class="posted-date-selector-months nav nav-pills flex-column">
 				{{foreach $arr as $d}}
 				<li class="nav-item">
-					<a class="nav-link" href="#" onclick="dateSubmit('{{$url}}?f=&dend={{$d.1}}{{if $showend}}&dbegin={{$d.2}}{{/if}}'); return false;">{{$d.0}}</a>
+					<a class="nav-link" href="#" onclick="dateSubmit('{{$url}}?dend={{$d.1}}{{if $showend}}&dbegin={{$d.2}}{{/if}}'); return false;">{{$d.0}}</a>
 				</li>
 				{{/foreach}}
 			</ul>

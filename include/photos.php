@@ -475,6 +475,7 @@ function photo_upload($channel, $observer, $args) {
 				}
 				$force = true;
 			}
+
 			$r = q("select id, edited from item where mid = '%s' and uid = %d limit 1",
 				dbesc($item['mid']),
 				intval($channel['channel_id'])
@@ -541,6 +542,9 @@ function photo_upload($channel, $observer, $args) {
 			'item_origin'     => 1,
 			'item_thread_top' => 1,
 			'item_private'    => intval($acl->is_private()),
+			// If $observer has write_storage permission but does not have post_wall permission,
+			// we will let you moderate the item.
+			'item_blocked'    => ((perm_is_allowed($channel_id, $observer['xchan_hash'], 'post_wall')) ? 0 : ITEM_MODERATED),
 			'body'            => $summary,
 			'plink'           => $mid
 		];

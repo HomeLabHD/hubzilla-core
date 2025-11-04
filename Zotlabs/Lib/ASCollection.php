@@ -31,7 +31,19 @@ class ASCollection {
 		}
 
 		if (is_string($obj)) {
-			$data            = Activity::fetch($obj, $channel);
+			$cached = ASCache::Get($obj);
+			if ($cached) {
+				// logger('cached: ' . $obj);
+				$data = $cached;
+			}
+			else {
+				// logger('fetching: ' . $obj);
+				$data = Activity::fetch($obj, $channel);
+				if ($data) {
+					ASCache::Set($obj, $data);
+				}
+			}
+
 			$this->history[] = $obj;
 		}
 
@@ -92,7 +104,20 @@ class ASCollection {
 				// recursion detected
 				return false;
 			}
-			$data            = Activity::fetch($this->nextpage, $this->channel);
+
+			$cached = ASCache::Get($this->nextpage);
+			if ($cached) {
+				// logger('cached: ' . $this->nextpage);
+				$data = $cached;
+			}
+			else {
+				$data = Activity::fetch($this->nextpage, $this->channel);
+				if ($data) {
+					// logger('fetching: ' . $this->nextpage);
+					ASCache::Set($this->nextpage, $data);
+				}
+			}
+
 			$this->history[] = $this->nextpage;
 		}
 

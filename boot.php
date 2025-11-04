@@ -70,7 +70,7 @@ require_once('include/security.php');
 
 
 define('PLATFORM_NAME', 'hubzilla');
-define('STD_VERSION', '10.4.4');
+define('STD_VERSION', '10.6');
 define('ZOT_REVISION', '6.0');
 
 define('DB_UPDATE_VERSION', 1264);
@@ -662,7 +662,7 @@ function sys_boot(): bool {
 		@include('.htpreconfig.php');
 	}
 
-	if (array_key_exists('default_timezone', get_defined_vars())) {
+	if (isset($default_timezone)) {
 		App::$config['system']['timezone'] = $default_timezone;
 	}
 

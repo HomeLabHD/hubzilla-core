@@ -1,8 +1,6 @@
 <style>
 {{if $size == 'hz_large'}}
 .hz_card {
-/*	-moz-transform: translate(-{{$translate}}%, -{{$translate}}%) scale({{$scale}}, {{$scale}}); 
-	transform: translate(-{{$translate}}%, -{{$translate}}%) scale({{$scale}}, {{$scale}}); */
 	font-family: sans-serif, arial, freesans;
 }
 .hz_cover_photo {
@@ -38,19 +36,16 @@
 	font-size: 24px;
     text-rendering: optimizelegibility;
     text-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
-}	
+}
 {{elseif $size == 'hz_medium'}}
 .hz_card {
-/*	-moz-transform: translate(-{{$translate}}%, -{{$translate}}%) scale({{$scale}}, {{$scale}}); 
-	transform: translate(-{{$translate}}%, -{{$translate}}%) scale({{$scale}}, {{$scale}}); */
 	font-family: sans-serif, arial, freesans;
 	width: 100%;
-	overflow: hidden; 
-	height: 390px; 
+	overflow: hidden;
+	height: 390px;
 }
 .hz_cover_photo img {
 	width: {{$maxwidth}}px;
-/*	max-width: 100%; */
 }
 .hz_profile_photo {
 	position: relative;
@@ -87,13 +82,11 @@
 	font-size: 18px;
     text-rendering: optimizelegibility;
     text-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
-}	
+}
 
 
 {{else}}
 .hz_card {
-/*	-moz-transform: translate(-{{$translate}}%, -{{$translate}}%) scale({{$scale}}, {{$scale}}); 
-	transform: translate(-{{$translate}}%, -{{$translate}}%) scale({{$scale}}, {{$scale}}); */
 	font-family: sans-serif, arial, freesans;
 }
 .hz_cover_photo {
@@ -105,8 +98,6 @@
 	left: 20px;
 	background-color: white;
 	border: 1px solid #ddd;
-/*	border-radius: 5px;
-	-moz-border-radius: 5px; */
 	padding: 3px;
 	width: 80px;
 	height: 80px;
@@ -129,7 +120,7 @@
 	font-size: 10px;
     text-rendering: optimizelegibility;
     text-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
-}	
+}
 {{/if}}
 
 </style>

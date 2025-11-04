@@ -37,13 +37,19 @@ class HelpindexTest extends \Zotlabs\Tests\Unit\Module\TestCase {
 		$this->output = '';
 	}
 
-	public function test_loading_toc(): void {
+	public function test_loading_toc_from_html(): void {
 		// Stub `file_get_contents` to plant our own content.
 		$fgc_stub = $this->getFunctionMock('Zotlabs\Widget', 'file_get_contents');
 		$fgc_stub
 			->expects($this->once())
 			->with($this->equalTo('doc/en/toc.html'))
 			->willReturn('toc');
+
+		// Stub `is_readable` to only return true for the english toc file
+		$is_readable_stub = $this->getFunctionMock('Zotlabs\Widget', 'is_readable');
+		$is_readable_stub
+			->expects($this->any())
+			->willReturnCallback(fn (string $path) => $path === 'doc/en/toc.html' );
 
 		// Stub `file_exists` to only return true for the english toc file
 		$fe_stub = $this->getFunctionMock('Zotlabs\Lib\Traits', 'file_exists');
@@ -53,7 +59,6 @@ class HelpindexTest extends \Zotlabs\Tests\Unit\Module\TestCase {
 
 		$this->render_widget();
 		$this->assertOutputContains('toc');
-		//$this->assertOutputContains('Help Content');
 	}
 
 	public function test_that_result_is_empty_when_toc_not_present(): void {

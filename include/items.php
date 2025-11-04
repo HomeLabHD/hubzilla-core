@@ -1272,7 +1272,7 @@ function map_scope($scope, $strip = false) {
  * @param string $scope
  * @return string translated string describing the scope
  */
-function translate_scope($scope) {
+function translate_scope($scope): string {
 	if(! $scope || $scope === 'public')
 		return t('Visible to anybody on the internet.');
 	if(strpos($scope,'self') === 0)
@@ -1289,6 +1289,9 @@ function translate_scope($scope) {
 		return t('Visible to approved connections.');
 	if(strpos($scope,'specific') === 0)
 		return t('Visible to specific connections.');
+
+	// Fall through and return untranslated scope
+	return $scope;
 }
 
 /**
@@ -1407,7 +1410,7 @@ function decode_tags($t) {
 					$tag['ttype'] = TERM_FILE;
 					break;
 				case 'search':
-					$tag['ttype'] = TERM_SEARCH;
+					$tag['ttype'] = TERM_SAVEDSEARCH;
 					break;
 				case 'thing':
 					$tag['ttype'] = TERM_THING;
@@ -5385,7 +5388,7 @@ function item_by_item_id(int $id, int $parent, int $type = ITEM_TYPE_POST): arra
 		WHERE
 			item.id = %d
 			AND item.uid = %d
-			AND item.verb IN ('Create', 'Update', 'EmojiReact')
+			AND item.verb IN ('Create', 'Update', 'EmojiReact', 'Announce')
 			AND item.obj_type NOT IN ('Answer')
 			$item_normal_sql",
 		intval($id),

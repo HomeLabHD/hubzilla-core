@@ -41,7 +41,6 @@
 		// Event listener for clicking a notification
 		document.addEventListener('click', function(event) {
 			if (event.target.closest('a') && event.target.closest('a').classList.contains('notification')) {
-				console.log(1)
 				if (notificationsWrapper.classList.contains('fs')) {
 					// Move notifications wrapper back to its original parent and hide it
 					notificationsWrapper.classList.remove('fs');
@@ -136,6 +135,7 @@
 							sse_bs_active = false;
 							sse_partial_result = true;
 							sse_offset = obj[sse_type].offset;
+
 							if (sse_offset < 0) {
 								document.getElementById("nav-" + sse_type + "-loading").style.display = 'none';
 							}
@@ -199,11 +199,6 @@
 				let menu = document.querySelector('#nav-{{$notification.type}}-menu');
 				let notifications = menu.querySelectorAll('.notification[data-thread_top="false"]');
 
-				// Function to check if an element is visible
-				function isVisible(el) {
-					return el.offsetWidth > 0 && el.offsetHeight > 0;
-				}
-
 				if (element.classList.contains('active') && element.classList.contains('sticky-top')) {
 					notifications.forEach(function(notification) {
 						notification.classList.remove('tt-filter-active');
@@ -216,7 +211,7 @@
 					element.classList.add('active', 'sticky-top');
 
 					// Count the visible notifications
-					let visibleNotifications = Array.from(menu.querySelectorAll('.notification')).filter(isVisible).length;
+					let visibleNotifications = menu.querySelectorAll('.notification:not(.tt-filter-active):not(.cn-filter-active)').length;
 
 					// Load more notifications if the visible count is low
 					if (sse_type && sse_offset !== -1 && visibleNotifications < 15) {
@@ -414,7 +409,11 @@
 					sse_bs_active = false;
 					sse_rmids = [];
 					document.getElementById("nav-" + sse_type + "-loading").style.display = 'none';
-					sse_offset = obj[sse_type].offset;
+
+					if (typeof obj[sse_type] !== 'undefined') {
+						sse_offset = obj[sse_type].offset;
+					}
+
 					sse_handleNotifications(obj, replace, followup);
 				})
 				.catch(error => {
@@ -430,6 +429,7 @@
 	}
 
 	function sse_handleNotifications(obj, replace, followup) {
+
 		// Notice and info notifications
 		if (obj.notice) {
 			obj.notice.notifications.forEach(notification => {
@@ -447,9 +447,7 @@
 			return;
 		}
 
-		let primary_notifications = ['dm', 'home', 'intros', 'register', 'notify', 'files'];
-		let secondary_notifications = ['network', 'forums', 'all_events', 'pubs'];
-		let all_notifications = [...primary_notifications, ...secondary_notifications];
+		let	all_notifications = Object.keys(obj);
 
 		all_notifications.forEach(type => {
 			if (typeof obj[type] === 'undefined') {
@@ -466,17 +464,17 @@
 			if (count) {
 				if (buttonElement) buttonElement.style.display = 'block';  // Fade-in effect replaced by display block
 				if (replace || followup) {
-					updateElement.textContent = count >= 100 ? '99+' : count;
+					updateElement.textContent = count >= {{$count_limit}} ? '{{$count_limit - 1}}+' : count;
 				} else {
 					count = count + Number(updateElement.textContent.replace(/\++$/, ''));
-					updateElement.textContent = count >= 100 ? '99+' : count;
+					updateElement.textContent = count >= {{$count_limit}} ? '{{$count_limit - 1}}+' : count;
 				}
 			} else {
 				if (updateElement) updateElement.textContent = '0';
 				if (subElement) subElement.classList.remove('show');
 				if (buttonElement) {
 					buttonElement.style.display = 'none'; // Fade-out effect replaced by display none
-					sse_setNotificationsStatus();
+					sse_setNotificationsStatus(null);
 				}
 			}
 
@@ -485,27 +483,34 @@
 			}
 		});
 
-		sse_setNotificationsStatus();
+		sse_setNotificationsStatus(null);
 
-		// Load more notifications if visible notifications count becomes low
-		if (sse_type && sse_offset !== -1) {
-			let menu = document.getElementById('nav-' + sse_type + '-menu');
-			if (menu && menu.children.length < 15) {
-				sse_bs_notifications(sse_type, false, true);
+		if (typeof obj[sse_type] !== 'undefined') {
+			// Load more notifications if visible notifications count becomes low
+			if (sse_type && sse_offset !== -1) {
+				let menu = document.getElementById('nav-' + sse_type + '-menu');
+				if (menu && menu.querySelectorAll('.notification:not(.tt-filter-active):not(.cn-filter-active)').length < 15) {
+					sse_bs_notifications(sse_type, false, true);
+				}
 			}
 		}
 	}
 
 	function sse_handleNotificationsItems(notifyType, data, replace, followup) {
-
-		// Get the template, adjust based on the notification type
-		let notifications_tpl = (notifyType === 'forums')
-			? decodeURIComponent(document.querySelector("#nav-notifications-forums-template[rel=template]").innerHTML.replace('data-src', 'src'))
-			: decodeURIComponent(document.querySelector("#nav-notifications-template[rel=template]").innerHTML.replace('data-src', 'src'));
-
+		let notifications_tpl = decodeURIComponent(document.querySelector("#nav-notifications-template[rel=template]").innerHTML.replace('data-src', 'src'));
 		let notify_menu = document.getElementById("nav-" + notifyType + "-menu");
 		let notify_loading = document.getElementById("nav-" + notifyType + "-loading");
 		let notify_count = document.getElementsByClassName(notifyType + "-update");
+
+		if (notify_menu === null) {
+			return;
+		}
+
+		{{if $invert_notifications_order}}
+		if (!replace && !followup && notify_menu.querySelectorAll('.notification:not(.tt-filter-active):not(.cn-filter-active)').length >= 30) {
+			return;
+		}
+		{{/if}}
 
 		if (replace && !followup) {
 			notify_menu.innerHTML = '';  // Clear menu
@@ -543,13 +548,21 @@
 		// Sort notifications by date
 		if (!replace && !followup) {
 			let notifications = Array.from(notify_menu.getElementsByClassName('notification'));
+
 			notifications.sort((a, b) => {
-				let dateA = new Date(a.dataset.when);
-				let dateB = new Date(b.dataset.when);
-				return dateA > dateB ? -1 : dateA < dateB ? 1 : 0;
+				let dateA = new Date(a.dataset.when).getTime();
+				let dateB = new Date(b.dataset.when).getTime();
+
+				{{if $invert_notifications_order}}
+				return dateA - dateB; // Sort in ascending order
+				{{else}}
+				return dateB - dateA; // Sort in descending order
+				{{/if}}
 			});
+
 			notifications.forEach(notification => notify_menu.appendChild(notification));
 		}
+
 
 		// Filter thread_top notifications if the filter is active
 		let filterThreadTop = document.getElementById('tt-' + notifyType + '-only');
@@ -582,32 +595,33 @@
 	}
 
 
-	function sse_updateNotifications(type, mid) {
+	function sse_updateNotifications(mid) {
+		// Find the notification elements based on its 'data-b64mid' or href attribute.
+		// The latter will match reactions where b64mid will contain the uuid of its thread parent (reacted on) instead of its own.
+		let notifications = document.querySelectorAll(`.notification[data-b64mid='${mid}'], .notification[href*='display/${mid}']`);
 
-		// Skip processing if the type is 'notify' and the conditions don't match
-		if (type === 'notify' && (mid !== bParam_mid || sse_type !== 'notify')) {
-			return true;
-		}
+		notifications.forEach(notification => {
+			let type = notification.parentElement.id.split('-')[1];
 
-		// Find the notification element based on its 'data-b64mid' attribute
-		let notification = document.querySelector(`#nav-${type}-menu .notification[data-b64mid='${mid}']`);
+			// Skip processing if the type is 'notify' and the conditions don't match
+			if (type === 'notify' && (mid !== bParam_mid || sse_type !== 'notify')) {
+				return true;
+			}
 
-		if (notification) {
 			notification.remove();
-		}
+		});
 	}
 
 
 	function sse_setNotificationsStatus(data) {
 		let primary_notifications = ['dm', 'home', 'intros', 'register', 'notify', 'files'];
-		let secondary_notifications = ['network', 'forums', 'all_events', 'pubs'];
-		let all_notifications = primary_notifications.concat(secondary_notifications);
-
+		let nlinks = document.getElementById('notifications').querySelectorAll('.notification-link');
 		let primary_available = false;
 		let any_available = false;
 
 		// Loop through all notifications and check their visibility
-		all_notifications.forEach(function (type) {
+		nlinks.forEach(nlink => {
+			let type = nlink.dataset.sse_type;
 			let button = document.querySelector(`.${type}-button`);
 			if (button && getComputedStyle(button).display === 'block') {
 				any_available = true;
@@ -617,13 +631,16 @@
 			}
 		});
 
-		// Update notification button icon based on the primary notification availability
-		let notificationIcon = document.querySelector('.notifications-btn-icon');
+		// Update notification button icons based on the primary notification availability
+		let notificationIcons = document.querySelectorAll('.notifications-btn-icon');
 
-		if (notificationIcon) {
+		if (notificationIcons) {
 			let iconClass = primary_available ? 'bi-exclamation-triangle' : 'bi-exclamation-circle';
 			let iconToRemove = primary_available ? 'bi-exclamation-circle' : 'bi-exclamation-triangle';
-			notificationIcon.classList.replace(iconToRemove, iconClass);
+
+			notificationIcons.forEach(notificationIcon => {
+				notificationIcon.classList.replace(iconToRemove, iconClass);
+			});
 		}
 
 		// Update visibility of notification button and sections
@@ -650,46 +667,10 @@
 		}
 
 		// Handle specific notifications if 'data' is provided
-		if (typeof data !== 'undefined') {
+		if (data) {
 			data.forEach(function (nmid) {
 				sse_rmids.push(nmid);
-
-				// Handle regular notifications
-				let notification = document.querySelector(`.notification[data-b64mid='${nmid}']`);
-				if (notification) {
-					let parentId = notification.parentElement.id.split('-')[1];
-					sse_updateNotifications(parentId, nmid);
-				}
-
-				// Special handling for forum notifications
-				let forumNotifications = document.querySelectorAll('.notification-forum');
-				forumNotifications.forEach(function (forumNotification) {
-					let fmids = decodeURIComponent(forumNotification.dataset.b64mids);
-					let parentId = forumNotification.parentElement.id.split('-')[1];
-
-					if (fmids.indexOf(nmid) > -1) {
-						let updateElem = document.querySelector(`.${parentId}-update`);
-						let fcount = Number(updateElem.innerText);
-						fcount--;
-						updateElem.innerText = fcount;
-
-						if (fcount < 1) {
-							let button = document.querySelector(`.${parentId}-button`);
-							button.style.display = 'none';
-							let subMenu = document.querySelector(`#nav-${parentId}-sub`);
-							if (subMenu) subMenu.classList.remove('show');
-						}
-
-						let countElem = forumNotification.querySelector('.bg-secondary');
-						let count = Number(countElem.innerText);
-						count--;
-						countElem.innerText = count;
-
-						if (count < 1) {
-							forumNotification.remove();
-						}
-					}
-				});
+				sse_updateNotifications(nmid);
 			});
 		}
 	}
@@ -729,15 +710,6 @@
 				</div>
 				<div class="text-truncate">{4}</div>
 			</div>
-		</a>
-	</div>
-	<div id="nav-notifications-forums-template" rel="template" class="d-none">
-		<a class="list-group-item list-group-item-action justify-content-between align-items-center d-flex notification notification-forum" href="{0}" title="{4} - {3}" data-b64mid="{7}" data-notify_id="{8}" data-thread_top="{9}" data-contact_name="{2}" data-contact_addr="{3}" data-b64mids='{12}'>
-			<div>
-				<img class="menu-img-1" data-src="{1}" loading="lazy">
-				<span>{2}</span>
-			</div>
-			<span class="badge bg-secondary">{10}</span>
 		</a>
 	</div>
 	<div id="notifications" class="border border-top-0 rounded navbar-nav collapse">

@@ -44,7 +44,7 @@ class Browser extends DAV\Browser\Plugin {
 	 */
 	public function __construct(&$auth) {
 		$this->auth = $auth;
-		parent::__construct(true, false);
+		parent::__construct();
 	}
 
 	/**

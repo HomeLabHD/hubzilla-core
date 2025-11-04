@@ -570,6 +570,7 @@ function change_channel_keys($channel) {
 	$key = Crypto::new_keypair(4096);
 
 	$sig = base64url_encode(Crypto::sign($channel['channel_guid'],$key['prvkey']));
+	// @phpstan-ignore function.notFound
 	$hash = make_xchan_hash($channel['channel_guid'],$sig);
 
 	$stored['old_guid']     = $channel['channel_guid'];
@@ -2407,9 +2408,6 @@ function get_zcard($channel, $observer_hash = '', $args = array()) {
 		$pphoto = array('mimetype' => $channel['xchan_photo_mimetype'], 'width' => 300 , 'height' => 300, 'href' => $channel['xchan_photo_l'].'?rev='.strtotime($channel['xchan_photo_date']));
 	}
 
-//	$scale = (float) $maxwidth / $width;
-//	$translate = intval(($scale / 1.0) * 100);
-
 	$zcard['chan'] = [
 		'xchan_name' => $channel['xchan_name'],
 		'xchan_url' => $channel['xchan_url'],
@@ -2432,8 +2430,6 @@ function get_zcard($channel, $observer_hash = '', $args = array()) {
 
 	return replace_macros(get_markup_template('zcard.tpl'), array(
 		'$maxwidth' => $maxwidth,
-		'$scale' => $scale,
-		'$translate' => $translate,
 		'$size' => $size,
 		'$cover' => $cover,
 		'$pphoto' => $pphoto,

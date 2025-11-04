@@ -386,7 +386,7 @@ class Regate extends \Zotlabs\Web\Controller {
 						}
 						else {
 							zar_log('ZAR1135E not awaited url parameter received');
-							goaway(z_root);
+							goaway(z_root());
 						}
 					}
 					else {

@@ -317,7 +317,48 @@ class ActivityTest extends UnitTestCase {
 				['zot6', 'activitypub', 'diaspora']
 			],
 		];
-
-
 	}
+
+
+	private array $quote = [
+		'url' => 'https://example.tld/display/1c8f5ba3-bd6e-4ea2-a403-e5b1c8627d4b',
+		'mid' => 'https://example.tld/item/1c8f5ba3-bd6e-4ea2-a403-e5b1c8627d4b',
+		'bbcode' => "[share author='test' profile='https://example.tld/channel/test' avatar='https://example.tld/photo/profile/l/1?rev=1705823482' link='https://example.tld/item/1c8f5ba3-bd6e-4ea2-a403-e5b1c8627d4b' auth='true' posted='2025-10-05T15:47:40Z' message_id='https://example.tld/item/1c8f5ba3-bd6e-4ea2-a403-e5b1c8627d4b']test[/share]"
+	];
+
+	/**
+	 * @dataProvider pasteQuoteProvider
+	 */
+	public function testPasteQuote(string $body, string $expected)
+	{
+		$result = Activity::pasteQuote($body, $this->quote);
+		$this->assertSame($expected, $result);
+	}
+
+	public static function pasteQuoteProvider(): array
+	{
+		return [
+			'plain url replacement' => [
+				'RE: https://example.tld/display/1c8f5ba3-bd6e-4ea2-a403-e5b1c8627d4b',
+				"[share author='test' profile='https://example.tld/channel/test' avatar='https://example.tld/photo/profile/l/1?rev=1705823482' link='https://example.tld/item/1c8f5ba3-bd6e-4ea2-a403-e5b1c8627d4b' auth='true' posted='2025-10-05T15:47:40Z' message_id='https://example.tld/item/1c8f5ba3-bd6e-4ea2-a403-e5b1c8627d4b']test[/share]"
+			],
+			'bbcode url replacement' => [
+				'RE: [url=https://example.tld/display/1c8f5ba3-bd6e-4ea2-a403-e5b1c8627d4b]https://example.tld/display/1c8f5ba3-bd6e-4ea2-a403-e5b1c8627d4b[/url]',
+				"[share author='test' profile='https://example.tld/channel/test' avatar='https://example.tld/photo/profile/l/1?rev=1705823482' link='https://example.tld/item/1c8f5ba3-bd6e-4ea2-a403-e5b1c8627d4b' auth='true' posted='2025-10-05T15:47:40Z' message_id='https://example.tld/item/1c8f5ba3-bd6e-4ea2-a403-e5b1c8627d4b']test[/share]"
+			],
+			'append when no match' => [
+				'This is my message.',
+				"This is my message.\r\n\r\n[share author='test' profile='https://example.tld/channel/test' avatar='https://example.tld/photo/profile/l/1?rev=1705823482' link='https://example.tld/item/1c8f5ba3-bd6e-4ea2-a403-e5b1c8627d4b' auth='true' posted='2025-10-05T15:47:40Z' message_id='https://example.tld/item/1c8f5ba3-bd6e-4ea2-a403-e5b1c8627d4b']test[/share]"
+			],
+			'append when empty body' => [
+				'',
+				"[share author='test' profile='https://example.tld/channel/test' avatar='https://example.tld/photo/profile/l/1?rev=1705823482' link='https://example.tld/item/1c8f5ba3-bd6e-4ea2-a403-e5b1c8627d4b' auth='true' posted='2025-10-05T15:47:40Z' message_id='https://example.tld/item/1c8f5ba3-bd6e-4ea2-a403-e5b1c8627d4b']test[/share]"
+			],
+			'alternate url replacement' => [
+				'RE: https://example.tld/item/1c8f5ba3-bd6e-4ea2-a403-e5b1c8627d4b',
+				"[share author='test' profile='https://example.tld/channel/test' avatar='https://example.tld/photo/profile/l/1?rev=1705823482' link='https://example.tld/item/1c8f5ba3-bd6e-4ea2-a403-e5b1c8627d4b' auth='true' posted='2025-10-05T15:47:40Z' message_id='https://example.tld/item/1c8f5ba3-bd6e-4ea2-a403-e5b1c8627d4b']test[/share]"
+			]
+		];
+	}
+
 }

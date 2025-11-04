@@ -97,7 +97,7 @@ class ActivityStreams {
 			}
 
 			// cache for future use
-			ASCache::Set($this->id, 'json:' . $this->raw);
+			ASCache::Set($this->id, $this->data);
 
 			$this->type   = $this->get_primary_type();
 			$this->actor  = $this->get_actor('actor', '', '');
@@ -413,13 +413,13 @@ class ActivityStreams {
 			$cached = ASCache::Get($x);
 			if ($cached) {
 				// logger('AS cached: ' . $x);
-				$y = unserialise($cached);
+				$y = $cached;
 			}
 			else {
 				// logger('AS fetching: ' . $x);
 				$y = $this->fetch_property($x);
 				if ($y) {
-					ASCache::Set($x, serialise($y));
+					ASCache::Set($x, $y);
 				}
 			}
 			if (is_array($y)) {

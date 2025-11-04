@@ -872,21 +872,21 @@ function updateConvItems(mode, data) {
 					localStorage.removeItem("comment_body-" + convId);
 				}
 			}
+		}
 
-			if ((mode === 'append' || mode === 'replace') && loadingPage) {
-				loadingPage = false;
-			}
+		if ((mode === 'append' || mode === 'replace') && loadingPage) {
+			loadingPage = false;
+		}
 
-			// if single thread view and the item has a title, display it in the title bar
-			if (mode === 'replace') {
-				if (window.location.search.includes("mid=") || window.location.pathname.includes("display")) {
-					let titleElem = document.querySelector(".wall-item-title");
-					if (titleElem) {
-						let title = titleElem.textContent.trim();
-						if (title) {
-							savedTitle = title + ' ' + savedTitle;
-							document.title = title;
-						}
+		// if single thread view and the item has a title, display it in the title bar
+		if (mode === 'replace') {
+			if (window.location.search.includes("mid=") || window.location.pathname.includes("display")) {
+				let titleElem = document.querySelector(".wall-item-title");
+				if (titleElem) {
+					let title = titleElem.textContent.trim();
+					if (title) {
+						savedTitle = title + ' ' + savedTitle;
+						document.title = title;
 					}
 				}
 			}
@@ -1327,9 +1327,11 @@ function liveUpdate(notify_id) {
 			liveRecurse ++;
 			if(liveRecurse < 10) {
 				liveUpdate(notify_id);
+				return;
 			}
 			else {
 				console.log('Incomplete data. Too many attempts. Giving up.');
+				return;
 			}
 		}
 
@@ -1380,9 +1382,11 @@ function cache_next_page() {
 			liveRecurse++;
 			if(liveRecurse < 10) {
 				liveUpdate();
+				return;
 			}
 			else {
 				console.log('Incomplete data. Too many attempts. Giving up.');
+				return;
 			}
 		}
 

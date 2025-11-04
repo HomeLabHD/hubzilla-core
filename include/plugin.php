@@ -17,9 +17,9 @@ use Zotlabs\Lib\Config;
  *   uninstall plugin on error
  */
 function handleerrors_plugin($plugin, $notice, $log, $uninstall = false){
-	logger("Addons: [" . $plugin . "] Error: ".$log, LOGGER_ERROR);
+	logger("Addons: [" . $plugin . "] Error: ".$log, LOGGER_NORMAL);
 	if ($notice != '') {
-			notice("[" . $plugin . "] Error: ".$notice, LOGGER_ERROR);
+			notice("[" . $plugin . "] Error: ".$notice);
 	}
 
 	if ($uninstall) {
@@ -82,6 +82,8 @@ function uninstall_plugin($plugin) {
 		dbesc($plugin)
 	);
 
+	return true;
+
 }
 
 /**
@@ -123,7 +125,7 @@ function install_plugin($plugin) {
 		);
 	}
 
-	load_plugin($plugin);
+	return load_plugin($plugin);
 }
 
 /**
@@ -1043,7 +1045,7 @@ function head_get_main_js() {
 	$sources = array('main.js');
 	if(count($sources))
 		foreach($sources as $source)
-			$str .= format_js_if_exists($source,true);
+			$str .= format_js_if_exists($source);
 
 	return $str;
 }

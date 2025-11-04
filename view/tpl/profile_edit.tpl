@@ -42,7 +42,7 @@
 			<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 
 			{{if $is_default}}
-			<div class="section-content-info-wrapper">{{$default}}</div>
+			<div class="section-content-info-wrapper">{{$default|escape:'html'}}</div>
 			{{/if}}
 
 			<div class="panel-group" id="profile-edit-wrapper" role="tablist" aria-multiselectable="true">

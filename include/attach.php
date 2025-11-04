@@ -1316,8 +1316,8 @@ function attach_mkdir($channel, $observer_hash, $arr = null) {
 				$ret['data'] = $z[0];
 		}
 		else {
-			logger('attach_mkdir: ' . mkdir . ' ' . $os_basepath . $os_path . ' failed.');
-			$ret['message'] = t('mkdir failed.');
+			logger('attach_mkdir: os_mkdir ' . $os_basepath . $os_path . ' failed.');
+			$ret['message'] = t('os_mkdir failed.');
 		}
 	}
 	else {
@@ -1985,6 +1985,7 @@ function attach_store_item($channel, $observer, $file) {
 	$arr['item_origin'] = 1;
 	$arr['item_thread_top'] = 1;
 	$arr['item_private'] = (($file['allow_cid'] || $file['allow_gid'] || $file['deny_cid'] || $file['deny_gid']) ? 1 : 0);
+	$arr['item_blocked'] = ((perm_is_allowed($channel['channel_id'], $observer['xchan_hash'], 'post_wall')) ? 0 : ITEM_MODERATED);
 	$arr['verb'] = 'Create';
 	$arr['target'] = $target;
 	$arr['target_type'] = 'Collection';

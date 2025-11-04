@@ -228,11 +228,13 @@ function xchan_change_key($oldx,$newx,$data) {
 		'chat'         => 'chat_xchan',
 		'chatpresence' => 'cp_xchan',
 		'event'        => 'event_xchan',
-		'item'         => 'owner_xchan',
-		'item'         => 'author_xchan',
+		// PHP Arrays can't have duplicate keys.
+		// 'item'         => 'owner_xchan',
+		// 'item'         => 'author_xchan',
 		'item'         => 'source_xchan',
 		'shares'       => 'share_xchan',
-		'source'       => 'src_channel_xchan',
+		// PHP Arrays can't have duplicate keys.
+		// 'source'       => 'src_channel_xchan',
 		'source'       => 'src_xchan',
 		'xchat'        => 'xchat_xchan',
 		'xconfig'      => 'xchan',

@@ -323,7 +323,6 @@ class Register extends Controller {
 					$did2  = $email;
 					$didx  = 'e';
 
-					push_lang(($reg['lang']) ? $reg['lang'] : App::$language);
 					$reonar['from'] = Config::Get('system', 'from_email');
 					$reonar['to'] = $email;
 					$reonar['subject'] = sprintf( t('Registration confirmation for %s'), Config::Get('system','sitename'));
@@ -338,7 +337,6 @@ class Register extends Controller {
 						'$hash'      => $empin
 				 		]
 					);
-					pop_lang();
 					zar_reg_mail($reonar);
 
 				} else {
@@ -445,7 +443,7 @@ class Register extends Controller {
 		if(intval(Config::Get('system','register_policy')) == REGISTER_APPROVE) {
 			$register_msg = ['register_msg', t('Why do you want to join this hub?'), ((x($_REQUEST,'register_msg')) ? $_REQUEST['register_msg'] : ''), t('This will help to review your registration')];
 			$registration_is = t('Registration on this hub is by approval only.');
-			$other_sites = '<a href="pubsites">' . t('Register at another affiliated hub in case when prefered') . '</a>';
+			$other_sites = '<a href="pubsites">' . t('Register at another affiliated hub if preferred') . '</a>';
 		}
 
 		$duty = zar_register_dutystate();

@@ -144,7 +144,7 @@ class Editwebpage extends \Zotlabs\Web\Controller {
 			'hide_location' => true,
 			'hide_voting' => true,
 			'ptyp' => $itm[0]['type'],
-			'body' => undo_post_tagging($content),
+			'body' => htmlspecialchars_decode(undo_post_tagging($content), ENT_COMPAT),
 			'post_id' => $post_id,
 			'visitor' => ($is_owner) ? true : false,
 			'acl' => populate_acl($itm[0],false,\Zotlabs\Lib\PermissionDescription::fromGlobalPermission('view_pages')),
@@ -154,7 +154,7 @@ class Editwebpage extends \Zotlabs\Web\Controller {
 			'mimeselect' => true,
 			'layout' => $layout,
 			'layoutselect' => true,
-			'title' => htmlspecialchars($itm[0]['title'],ENT_COMPAT,'UTF-8'),
+			'title' => htmlspecialchars_decode($itm[0]['title'], ENT_COMPAT),
 			'lockstate' => (((strlen($itm[0]['allow_cid'])) || (strlen($itm[0]['allow_gid'])) || (strlen($itm[0]['deny_cid'])) || (strlen($itm[0]['deny_gid']))) ? 'lock' : 'unlock'),
 			'profile_uid' => (intval($owner)),
 			'bbcode' => (($mimetype  == 'text/bbcode') ? true : false)

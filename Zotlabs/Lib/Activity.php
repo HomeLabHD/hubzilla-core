@@ -620,15 +620,6 @@ class Activity {
 			$ret['context'] = $cnv;
 		}
 
-		if ($i['mimetype'] === 'text/bbcode') {
-			if ($i['title'])
-				$ret['name'] = unescape_tags($i['title']);
-			if ($i['summary'])
-				$ret['summary'] = unescape_tags($i['summary']);
-			$ret['content'] = bbcode(unescape_tags($i['body']), ['cache' => true]);
-			$ret['source']  = ['content' => unescape_tags($i['body']), 'mediaType' => 'text/bbcode'];
-		}
-
 		$actor = self::encode_person($i['author'], false);
 		if ($actor)
 			$ret['actor'] = $actor;
@@ -644,6 +635,53 @@ class Activity {
 			}
 
 			$ret['tag'] = $t;
+		}
+
+		if (str_contains($i['body'], '[/share]')) {
+			preg_match_all('/\[share(.*?)\[\/share\]/ism', $i['body'], $all_shares, PREG_SET_ORDER);
+
+			$quote_urls = [];
+
+			foreach ($all_shares as $share) {
+				// Extract the link attribute from each [share] block
+				if (preg_match("/link='(.*?)'/ism", $share[1], $match)) {
+					$url = $match[1];
+					$quote_urls[] = $url;
+
+					$quote_name = 'RE: ' . $url;
+
+					// Replace this share block with a formatted URL reference
+					$i['body'] = str_replace($share[0], $quote_name, $i['body']);
+
+					$obj_links[] = [
+						'type' => 'Link',
+						'mediaType' => 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+						'href' => $url,
+						'name' => $quote_name
+					];
+				}
+			}
+
+			if ($quote_urls) {
+				$ret['quoteUrl'] = $quote_urls[0];
+
+				if (empty($ret['tag'])) {
+					$ret['tag'] = $obj_links;
+				}
+				else {
+					$ret['tag'] = array_merge($ret['tag'], $obj_links);
+				}
+			}
+
+		}
+
+		if ($i['mimetype'] === 'text/bbcode') {
+			if ($i['title'])
+				$ret['name'] = unescape_tags($i['title']);
+			if ($i['summary'])
+				$ret['summary'] = unescape_tags($i['summary']);
+			$ret['content'] = bbcode(unescape_tags($i['body']));
+			$ret['source']  = ['content' => unescape_tags($i['body']), 'mediaType' => 'text/bbcode'];
 		}
 
 		$a = self::encode_attachment($i);
@@ -2285,14 +2323,37 @@ class Activity {
 			$s['body'] = markdown_to_bb($act->objprop('content'));
 		}
 
-		if ($act->objprop('quoteUrl')) {
-			$quote_bbcode = self::get_quote_bbcode($act->obj['quoteUrl']);
+		$quote_urls = [];
 
-			if ($s['body']) {
-				$s['body'] .= "\r\n\r\n";
+		if (isset($act->obj['tag'])) {
+			foreach($act->obj['tag'] as $t) {
+				if (is_array($t) && $t['type'] === 'Link' && $t['mediaType'] === 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"') {
+					$quote_urls[] = $t['href'];
+				}
 			}
+		}
 
-			$s['body'] .= $quote_bbcode;
+		if (!$quote_urls) {
+			$quote_url = $act->obj['quoteUrl'] ?? $act->obj['quoteUri'] ?? $act->obj['_misskey_quote'] ?? $act->obj['quote'] ??  null;
+
+			if ($quote_url) {
+				$quote_urls = [$quote_url];
+			}
+		}
+
+		// Backwards compatibility: only process quote items if there is no share tag in them.
+		// Otherwise they will appear doubled.
+		if ($quote_urls && !str_contains($s['body'], '[/share]')) {
+			foreach($quote_urls as $quote_url) {
+				$quote = self::get_quote($quote_url);
+
+				if (!$quote) {
+					continue;
+				}
+
+				$s['body'] = self::pasteQuote($s['body'], $quote);
+				$s['term'] = $quote['term'];
+			}
 		}
 
 		$s['verb'] = self::activity_mapper($act->type);
@@ -2340,7 +2401,13 @@ class Activity {
 			$a = self::decode_taxonomy($act->obj);
 
 			if ($a) {
-				$s['term'] = $a;
+				if (isset($s['term'])) {
+					// term might contain content from a quote post
+					$s['term'] = array_merge($s['term'], $a);
+				}
+				else {
+					$s['term'] = $a;
+				}
 			}
 
 			$a = self::decode_attachment($act->obj);
@@ -2566,7 +2633,7 @@ class Activity {
 			}
 		}
 
-		if (in_array($act->objprop('type'), ['Note', 'Article', 'Page'])) {
+		if (in_array($act->objprop('type'), ['Note', 'Article', 'Page', 'Question'])) {
 			$ptr = null;
 
 			if (array_key_exists('url', $act->obj)) {
@@ -2666,8 +2733,9 @@ class Activity {
 		return $hookinfo['s'];
 
 	}
+
 	static function store($channel, $observer_hash, $act, $item, $fetch_parents = true, $force = false, $is_collection_operation = false) {
-		$is_sys_channel = is_sys_channel($channel['channel_id']);
+		$is_sys_channel = $channel['channel_system'];
 		$is_child_node  = false;
 		$parent = null;
 
@@ -2714,7 +2782,9 @@ class Activity {
 						$force = true;
 					}
 
-					if ($fetch_parents) {
+					$attempt_parents_fetch = $fetch_parents && !in_array($channel['channel_id'], App::$cache['as_fetch_objects'][$item['mid']]['channels'] ?? []);
+
+					if ($attempt_parents_fetch) {
 						App::$cache['as_fetch_objects'][$item['mid']]['channels'][] = $channel['channel_id'];
 						App::$cache['as_fetch_objects'][$item['mid']]['force'] = intval($force);
 						return;
@@ -2890,7 +2960,7 @@ class Activity {
 		if (!$item['author_xchan'] || !$item['owner_xchan'])
 			return;
 
-		if ($channel['channel_system']) {
+		if ($is_sys_channel) {
 			$incl = Config::Get('system','pubstream_incl');
 			$excl = Config::Get('system','pubstream_excl');
 
@@ -3035,30 +3105,14 @@ class Activity {
 			send_status_notifications($x['item_id'], $x['item']);
 
 			sync_an_item($channel['channel_id'], $x['item_id']);
-		}
 
-		if ($fetch_parents && $parent && !intval($parent[0]['item_private'])) {
-			logger('topfetch', LOGGER_DEBUG);
-			// if the thread owner is a connnection, we will already receive any additional comments to their posts
-			// but if they are not we can try to fetch others in the background
-			$connected = q("SELECT abook.*, xchan.* FROM abook left join xchan on abook_xchan = xchan_hash
-				WHERE abook_channel = %d and abook_xchan = '%s' LIMIT 1",
-				intval($channel['channel_id']),
-				dbesc($parent[0]['owner_xchan'])
-			);
-			if (!$connected) {
-				// determine if the top-level post provides a replies collection
-				if ($parent[0]['obj']) {
-					$parent[0]['obj'] = json_decode($parent[0]['obj'], true);
-				}
-				logger('topfetch: ' . print_r($parent[0], true), LOGGER_ALL);
-				$id = ((array_path_exists('obj/replies/id', $parent[0])) ? $parent[0]['obj']['replies']['id'] : false);
-				if (!$id) {
-					$id = ((array_path_exists('obj/replies', $parent[0]) && is_string($parent[0]['obj']['replies'])) ? $parent[0]['obj']['replies'] : false);
-				}
-				if ($id) {
-					Master::Summon(['Convo', $id, $channel['channel_id'], $observer_hash]);
-				}
+			// Only store replies collection for background fetching if the item has been fetched.
+			// A message that has just been posted usually will not have any replies yet.
+			// Also dismiss duplicates.
+			$attempt_replies_fetch = isset($act->obj['replies']['id']) && !empty($item['item_fetched']) && !in_array($channel['channel_id'], App::$cache['as_fetch_collection'][$act->obj['replies']['id']]['channels'] ?? []);
+			if ($attempt_replies_fetch) {
+				App::$cache['as_fetch_collection'][$act->obj['replies']['id']]['channels'][] = $channel['channel_id'];
+				App::$cache['as_fetch_collection'][$act->obj['replies']['id']]['force'] = intval($force);
 			}
 		}
 	}
@@ -3107,7 +3161,7 @@ class Activity {
 			$cached = ASCache::Get($current_item['parent_mid']);
 			if ($cached) {
 				// logger('cached: ' . $current_item['parent_mid']);
-				$n = unserialise($cached);
+				$n = $cached;
 			}
 			else {
 				// logger('fetching: ' . $current_item['parent_mid']);
@@ -3115,7 +3169,7 @@ class Activity {
 				if (!$n) {
 					break;
 				}
-				ASCache::Set($current_item['parent_mid'], serialise($n));
+				ASCache::Set($current_item['parent_mid'], $n);
 			}
 
 			$a = new ActivityStreams($n);
@@ -3573,27 +3627,47 @@ class Activity {
 		return $ret;
 	}
 
-	static function get_quote_bbcode($url) {
+	static function get_quote($url) {
+		$ret = [];
+		$a = null;
 
-		$ret = '';
+		$cached = ASCache::Get($url);
+		if ($cached) {
+			// logger('cached: ' . $url);
+			$a = unserialise($cached);
+		}
+		else {
+			// logger('fetching: ' . $url);
+			$a = self::fetch($url);
+			if ($a) {
+				ASCache::Set($url, $a);
+			}
+		}
 
-		$a = self::fetch($url);
+
 		if ($a) {
 			$act = new ActivityStreams($a);
 
 			if ($act->is_valid()) {
-				$content = self::get_content($act->obj);
+				$decoded = self::decode_note($act);
 
-				$ret .= "[share author='" . urlencode($act->actor['name'] ?? $act->actor['preferredUsername']) .
+				$bbcode = "[share author='" . urlencode($act->actor['name'] ?? $act->actor['preferredUsername']) .
 					"' profile='" . $act->actor['id'] .
 					"' avatar='" . ($act->actor['icon']['url'] ?? z_root() . '/' . get_default_profile_photo(80)) .
-					"' link='" . $act->obj['id'] .
+					"' link='" . $url .
 					"' auth='" . ((is_matrix_url($act->actor['id'])) ? 'true' : 'false') .
 					"' posted='" . $act->obj['published'] .
 					"' message_id='" . $act->obj['id'] .
 					"']";
-				$ret  .= self::bb_content($content, 'content');
-				$ret  .= '[/share]';
+
+				$bbcode  .= $decoded['body'];
+				$bbcode  .= '[/share]';
+
+				$ret['bbcode'] = $bbcode;
+				$ret['url'] = $decoded['plink'];
+				$ret['mid'] = $decoded['mid'];
+				$ret['term'] = $decoded['term'] ?? [];
+
 			}
 		}
 
@@ -3673,7 +3747,9 @@ class Activity {
 			'guid'             => 'diaspora:guid',
 
 			'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
-			'Hashtag'          => 'as:Hashtag'
+			'Hashtag'          => 'as:Hashtag',
+
+			'quoteUrl'         => 'as:quoteUrl',
 		];
 
 	}
@@ -3713,10 +3789,9 @@ class Activity {
 
 	public static function init_background_fetch(string $observer_hash = '') {
 		if (isset(App::$cache['zot_fetch_objects'])) {
-			$channels_str = '';
-
 			foreach (App::$cache['zot_fetch_objects'] as $mid => $info) {
 				$force = $info['force'];
+				$channels_str = '';
 
 				foreach ($info['channels'] as $c) {
 					if ($channels_str) {
@@ -3729,16 +3804,15 @@ class Activity {
 			}
 		}
 
+		if (!$observer_hash) {
+			logger('Attempt to initiate Fetchparents or Convo daemon without observer');
+			return;
+		}
+
 		if (isset(App::$cache['as_fetch_objects'])) {
-			if (!$observer_hash) {
-				logger('Attempt to initiate Fetchparents daemon without observer');
-				return;
-			}
-
-			$channels_str = '';
-
 			foreach (App::$cache['as_fetch_objects'] as $mid => $info) {
 				$force = $info['force'];
+				$channels_str = '';
 
 				foreach ($info['channels'] as $c) {
 					if ($channels_str) {
@@ -3750,6 +3824,23 @@ class Activity {
 				Master::Summon(['Fetchparents', $channels_str, $observer_hash, $mid, $force]);
 			}
 		}
+
+		if (isset(App::$cache['as_fetch_collection'])) {
+			foreach (App::$cache['as_fetch_collection'] as $mid => $info) {
+				$force = $info['force'];
+				$channels_str = '';
+
+				foreach ($info['channels'] as $c) {
+					if ($channels_str) {
+						$channels_str .= ',';
+					}
+					$channels_str .= $c;
+				}
+
+				Master::Summon(['Convo', $channels_str, $observer_hash, $mid, $force]);
+			}
+		}
+
 	}
 
 	public static function addToCollection($channel, $object, $target, $sourceItem = null, $deliver = true) {
@@ -3857,6 +3948,36 @@ class Activity {
 		return $act->objprop('uuid', null)
 			?? $act->objprop('diaspora:guid', null)
 			?? '';
+	}
+
+	public static function pasteQuote(string $body, array $quote): string
+	{
+		// Escape URLs for regex safety
+		$urls = array_map('preg_quote', [$quote['url'], $quote['mid']], array_fill(0, 2, '/'));
+
+		$patterns = [];
+		foreach ($urls as $url) {
+			// Match both plain and BBCode-style references, with optional line breaks or spaces
+			$patterns[] = '/RE:\s*(?:\[url=' . $url . '\]' . $url . '\[\/url\]|' . $url . ')[\s\r\n]?/i';
+		}
+
+		$found = false;
+		foreach ($patterns as $pattern) {
+			if (preg_match($pattern, $body)) {
+				$found = true;
+				$body = preg_replace($pattern, $quote['bbcode'], $body);
+				break;
+			}
+		}
+
+		if (!$found) {
+			if (!empty($body)) {
+				$body .= "\r\n\r\n";
+			}
+			$body .= $quote['bbcode'];
+		}
+
+		return $body;
 	}
 
 }

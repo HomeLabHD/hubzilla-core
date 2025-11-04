@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<psalm
+    name="Easy-ECC"
+    ensureOverrideAttribute="false"
+    useDocblockTypes="true"
+>
+    <projectFiles>
+        <directory name="src" />
+        <ignoreFiles>
+            <directory name="vendor" />
+        </ignoreFiles>
+    </projectFiles>
+
+    <issueHandlers>
+        <InvalidDocblock errorLevel="info" />
+        <PossiblyUnusedMethod errorLevel="info" />
+        <PropertyNotSetInConstructor errorLevel="suppress" />
+        <UnusedClass errorLevel="info" />
+    </issueHandlers>
+</psalm>

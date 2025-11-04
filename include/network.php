@@ -1866,7 +1866,7 @@ function scrape_vcard($url) {
 		foreach($lines as $line) {
 			// don't try and run feeds through the html5 parser
 			if(stristr($line,'content-type:') && ((stristr($line,'application/atom+xml')) || (stristr($line,'application/rss+xml'))))
-				return ret;
+				return $ret;
 		}
 	}
 

@@ -865,7 +865,7 @@ function dlogger($msg, $level = 0) {
 
 
 function profiler($t1,$t2,$label) {
-	if(file_exists('profiler.out') && $t1 && t2)
+	if(file_exists('profiler.out') && $t1 && $t2)
 		@file_put_contents('profiler.out', sprintf('%01.4f %s',$t2 - $t1,$label) . PHP_EOL, FILE_APPEND);
 }
 
@@ -3146,35 +3146,6 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 						$body = preg_replace('/(?<![a-zA-Z0-9=\/])' . preg_quote($tag, '/') . '/', $newtag, $body);
 						// $body = str_replace('@' . (($exclusive) ? '!' : '') . $name, $newtag, $body);
 					}
-				}
-			}
-
-
-			// if there is a url for this channel
-
-			if(isset($profile)) {
-				$replaced = true;
-				//create profile link
-				$profile = str_replace(',','%2c',$profile);
-				$url = $profile;
-/*
-				if($termtype === TERM_FORUM) {
-					$newtag = '!' . (($exclusive) ? '!' : '') . '[zrl=' . $profile . ']' . $newname	. '[/zrl]';
-					$body = str_replace('!' . (($exclusive) ? '!' : '') . $name, $newtag, $body);
-				}
-*/
-				if ($termtype === TERM_MENTION) {
-					$newtag = '@' . (($exclusive) ? '!' : '') . '[zrl=' . $profile . ']' . $newname	. '[/zrl]';
-					// Replace tag but make sure to not replace something in the middle of a word
-					$body = preg_replace('/(?<![a-zA-Z0-9=\/])' . preg_quote($tag, '/') . '/', $newtag, $body);
-					// $body = str_replace('@' . (($exclusive) ? '!' : '') . $name, $newtag, $body);
-				}
-
-				// append tag to str_tags
-				if(! stristr($str_tags,$newtag)) {
-					if(strlen($str_tags))
-						$str_tags .= ',';
-					$str_tags .= $newtag;
 				}
 			}
 

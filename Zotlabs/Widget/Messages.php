@@ -309,11 +309,13 @@ class Messages {
 		$author_sql = '';
 
 		if($author_url) {
-			$author_sql = " AND url = '" . protect_sprintf(dbesc($author_url)) . "' ";
+			$author_sql = " AND notify.url = '" . protect_sprintf(dbesc($author_url)) . "' ";
 		}
 
-		$notices = q("SELECT * FROM notify WHERE uid = %d $author_sql
-			ORDER BY created DESC LIMIT $limit OFFSET $offset",
+		$notices = q("SELECT notify.*, xchan.xchan_addr FROM notify
+			LEFT JOIN xchan ON notify.url = xchan.xchan_url
+			WHERE uid = %d $author_sql
+			GROUP BY notify.id ORDER BY created DESC LIMIT $limit OFFSET $offset",
 			intval(local_channel())
 		);
 
@@ -329,7 +331,7 @@ class Messages {
 			}
 
 			$entries[$i]['author_name'] = $notice['xname'];
-			$entries[$i]['author_addr'] = $notice['url'];
+			$entries[$i]['author_addr'] = $notice['xchan_addr'];
 			$entries[$i]['author_img'] = $notice['photo'];// $item['author']['xchan_photo_s'];
 			$entries[$i]['info'] = '';
 			$entries[$i]['created'] = datetime_convert('UTC', date_default_timezone_get(), $notice['created']);

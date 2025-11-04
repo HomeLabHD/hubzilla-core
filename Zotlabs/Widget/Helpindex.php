@@ -21,14 +21,25 @@ class Helpindex {
 		$this->determine_help_language();
 		$this->find_help_file('toc', $this->lang['language']);
 
-		if (! empty($this->file_name)) {
-			$this->contents = translate_projectname(
-				file_get_contents($this->file_name)
-			);
-		}
+		$sections = [];
+		$this->contents = '';
 
-		$tpl = get_markup_template('widget.tpl');
-		return replace_macros($tpl, [ '$widget' => $this ]);
+		if (!empty($this->file_name) && is_readable($this->file_name)) {
+			$json = file_get_contents($this->file_name);
+			$this->contents = translate_projectname($json);
+
+			$decoded = json_decode($json, true);
+			if (is_array($decoded)) {
+				$sections = $decoded;
+			}
+		}
+		$tpl = get_markup_template('help-index.tpl');
+
+		return replace_macros($tpl, [
+			'$title'    => t('Documentation Index'),
+			'$sections' => $sections,
+			'$contents' => $this->contents
+		]);
 	}
 
 	public function title(): string {

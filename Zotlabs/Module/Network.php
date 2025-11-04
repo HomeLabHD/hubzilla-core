@@ -135,7 +135,6 @@ class Network extends \Zotlabs\Web\Controller {
 
 		$status_editor = '';
 
-
 		if (Apps::system_app_installed(local_channel(), 'Affinity Tool')) {
 			$affinity_locked = intval(get_pconfig(local_channel(), 'affinity', 'lock', 1));
 			if ($affinity_locked) {
@@ -273,18 +272,6 @@ class Network extends \Zotlabs\Web\Controller {
 					// This is for nouveau view cid queries (not a public forum)
 					$sql_extra = " AND author_xchan = '" . dbesc($cid_r[0]['abook_xchan']) . "' ";
 				}
-				elseif($pf && $unseen && $nouveau) {
-
-					$vnotify = get_pconfig(local_channel(), 'system', 'vnotify');
-					$likes_sql = '';
-					if (!($vnotify & VNOTIFY_LIKE)) {
-						$likes_sql = " AND verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
-					}
-
-					// This is for nouveau view public forum cid queries (if a forum notification is clicked)
-					$sql_extra = " AND item.parent IN (SELECT DISTINCT parent FROM item WHERE uid = " . intval(local_channel()) . " AND ( author_xchan = '" . dbesc($cid_r[0]['abook_xchan']) . "' OR owner_xchan = '" . dbesc($cid_r[0]['abook_xchan']) . "' ) $item_normal) AND item_unseen = 1 AND verb != 'Announce' $likes_sql ";
-
-				}
 				else {
 					// This is for threaded view cid queries (e.g. if a forum is selected from the forum filter)
 					$sql_extra = " AND item.parent IN (SELECT DISTINCT parent FROM item WHERE uid = " . intval(local_channel()) . " AND ( author_xchan = '" . dbesc($cid_r[0]['abook_xchan']) . "' OR owner_xchan = '" . dbesc($cid_r[0]['abook_xchan']) . "' ) $item_normal) ";
@@ -389,17 +376,9 @@ class Network extends \Zotlabs\Web\Controller {
 			$sql_extra .= " AND ( author_xchan = '" . dbesc($channel['channel_hash']) . "' OR item_mentionsme = 1 ) ";
 		}
 
-		if($update && ! $load) {
-
-			// only setup pagination on initial page view
-			$pager_sql = '';
-
-		}
-		else {
-			$itemspage = get_pconfig(local_channel(), 'system', 'itemspage');
-			App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 10));
-			$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(App::$pager['itemspage']), intval(App::$pager['start']));
-		}
+		$itemspage = get_pconfig(local_channel(), 'system', 'itemspage');
+		App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 10));
+		$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(App::$pager['itemspage']), intval(App::$pager['start']));
 
 		// cmin and cmax are both -1 when the affinity tool is disabled
 
@@ -436,8 +415,6 @@ class Network extends \Zotlabs\Web\Controller {
 			$page_mode = 'list';
 		}
 
-		$parents_str = '';
-
 		// This fixes a very subtle bug so I'd better explain it. You wake up in the morning or return after a day
 		// or three and look at your matrix page - after opening up your browser. The first page loads just as it
 		// should. All of a sudden a few seconds later, page 2 will get inserted at the beginning of the page
@@ -468,10 +445,6 @@ class Network extends \Zotlabs\Web\Controller {
 				$net_query2
 				ORDER BY item.created DESC $pager_sql "
 			);
-
-			$parents_str = ids_to_querystr($items, 'item_id');
-
-			require_once('include/items.php');
 
 			xchan_query($items);
 

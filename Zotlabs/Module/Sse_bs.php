@@ -20,6 +20,8 @@ class Sse_bs extends Controller {
 	public static $limit;
 	public static $offset;
 	public static $xchans;
+	public static $direction;
+	public static $count_limit;
 
 	function init() {
 		self::$uid = local_channel();
@@ -41,6 +43,8 @@ class Sse_bs extends Controller {
 		self::$limit = 30;
 		self::$offset = 0;
 		self::$xchans = '';
+		self::$direction = get_pconfig(self::$uid, 'system', 'invert_notifications_order', false) ? 'ASC' : 'DESC';
+		self::$count_limit = get_pconfig(self::$uid, 'system', 'notifications_count_limit', 100);
 
 		if (!empty($_REQUEST['sse_rmids'])) {
 			self::mark_read(explode(',', $_REQUEST['sse_rmids']));
@@ -63,7 +67,6 @@ class Sse_bs extends Controller {
 		else {
 			$_SESSION['sse_loadtime'] = datetime_convert();
 		}
-
 
 		$network = false;
 		$dm = false;
@@ -91,8 +94,14 @@ class Sse_bs extends Controller {
 			default:
 		}
 
+		$selected_forum_id = null;
+		if (str_starts_with(argv(1), 'forum_')) {
+			$selected_forum_id = argv(1);
+			$f = 'bs_forums';
+		}
+
 		if(self::$offset && $f) {
-			$result = self::$f(true);
+			$result = self::$f($selected_forum_id ?? true);
 			json_return_and_die($result);
 		}
 
@@ -102,7 +111,7 @@ class Sse_bs extends Controller {
 			self::bs_home($home),
 			self::bs_notify(),
 			self::bs_intros(),
-			self::bs_forums(),
+			self::bs_forums($selected_forum_id),
 			self::bs_pubs($pubs),
 			self::bs_files(),
 			self::bs_all_events(),
@@ -205,6 +214,8 @@ class Sse_bs extends Controller {
 
 		$limit = intval(self::$limit);
 		$offset = self::$offset;
+		$direction = self::$direction;
+		$count_limit = intval(self::$count_limit);
 
 		$sql_extra = '';
 		if (!(self::$vnotify & VNOTIFY_LIKE)) {
@@ -235,7 +246,7 @@ class Sse_bs extends Controller {
 				$item_normal
 				$sql_extra
 				$sql_extra2
-				ORDER BY item.created DESC LIMIT $limit OFFSET $offset",
+				ORDER BY item.created $direction LIMIT $limit OFFSET $offset",
 				intval(self::$uid),
 				dbescdate($_SESSION['sse_loadtime']),
 				dbesc(self::$ob_hash)
@@ -262,7 +273,7 @@ class Sse_bs extends Controller {
 			AND obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
 			AND author_xchan != '%s'
 			$item_normal
-			$sql_extra LIMIT 100",
+			$sql_extra LIMIT $count_limit",
 			intval(self::$uid),
 			dbesc(self::$ob_hash)
 		);
@@ -290,6 +301,8 @@ class Sse_bs extends Controller {
 
 		$limit = intval(self::$limit);
 		$offset = self::$offset;
+		$direction = self::$direction;
+		$count_limit = intval(self::$count_limit);
 
 		$sql_extra = '';
 		if (!(self::$vnotify & VNOTIFY_LIKE)) {
@@ -320,7 +333,7 @@ class Sse_bs extends Controller {
 				$item_normal
 				$sql_extra
 				$sql_extra2
-				ORDER BY created DESC LIMIT $limit OFFSET $offset",
+				ORDER BY created $direction LIMIT $limit OFFSET $offset",
 				intval(self::$uid),
 				dbescdate($_SESSION['sse_loadtime']),
 				dbesc(self::$ob_hash)
@@ -346,7 +359,7 @@ class Sse_bs extends Controller {
 			WHERE uid = %d and item_unseen = 1 AND item_private = 2
 			$item_normal
 			$sql_extra
-			AND author_xchan != '%s' LIMIT 100",
+			AND author_xchan != '%s' LIMIT $count_limit",
 			intval(self::$uid),
 			dbesc(self::$ob_hash)
 		);
@@ -374,6 +387,8 @@ class Sse_bs extends Controller {
 
 		$limit = intval(self::$limit);
 		$offset = self::$offset;
+		$direction = self::$direction;
+		$count_limit = intval(self::$count_limit);
 
 		$sql_extra = '';
 		if (!(self::$vnotify & VNOTIFY_LIKE)) {
@@ -405,7 +420,7 @@ class Sse_bs extends Controller {
 				$item_normal
 				$sql_extra
 				$sql_extra2
-				ORDER BY item.created DESC LIMIT $limit OFFSET $offset",
+				ORDER BY item.created $direction LIMIT $limit OFFSET $offset",
 				intval(self::$uid),
 				dbescdate($_SESSION['sse_loadtime']),
 				dbesc(self::$ob_hash)
@@ -431,7 +446,7 @@ class Sse_bs extends Controller {
 			WHERE uid = %d and item_unseen = 1 AND item_wall = 1 AND item_private IN (0, 1)
 			$item_normal
 			$sql_extra
-			AND author_xchan != '%s' LIMIT 100",
+			AND author_xchan != '%s' LIMIT $count_limit",
 			intval(self::$uid),
 			dbesc(self::$ob_hash)
 		);
@@ -470,6 +485,8 @@ class Sse_bs extends Controller {
 
 		$limit = intval(self::$limit);
 		$offset = self::$offset;
+		$direction = self::$direction;
+		$count_limit = intval(self::$count_limit);
 
 		$sys = get_sys_channel();
 		$sql_extra = '';
@@ -515,9 +532,9 @@ class Sse_bs extends Controller {
 				$sql_extra
 				$sql_extra2
 				$sql_extra3
-				ORDER BY item.created DESC LIMIT $limit OFFSET $offset",
+				ORDER BY item.created $direction LIMIT $limit OFFSET $offset",
 				dbescdate($_SESSION['sse_loadtime']),
-				dbescdate($_SESSION['last_login_date'] ?? $_SESSION['static_loadtime']),
+				dbescdate($_SESSION['static_loadtime']),
 				dbesc(self::$ob_hash)
 			);
 
@@ -543,9 +560,9 @@ class Sse_bs extends Controller {
 			$item_normal
 			$sql_extra
 			$sql_extra3
-			AND author_xchan != '%s' LIMIT 100",
+			AND author_xchan != '%s' LIMIT $count_limit",
 			dbescdate($_SESSION['sse_loadtime']),
-			dbescdate($_SESSION['last_login_date'] ?? $_SESSION['static_loadtime']),
+			dbescdate($_SESSION['static_loadtime']),
 			dbesc(self::$ob_hash)
 		);
 
@@ -568,7 +585,9 @@ class Sse_bs extends Controller {
 		if(! (self::$vnotify & VNOTIFY_SYSTEM))
 			return $result;
 
-		$r = q("SELECT * FROM notify WHERE uid = %d AND seen = 0 ORDER BY created DESC",
+		$direction = self::$direction;
+
+		$r = q("SELECT * FROM notify WHERE uid = %d AND seen = 0 ORDER BY created $direction",
 			intval(self::$uid)
 		);
 
@@ -595,7 +614,9 @@ class Sse_bs extends Controller {
 		if(! (self::$vnotify & VNOTIFY_INTRO))
 			return $result;
 
-		$r = q("SELECT * FROM abook left join xchan on abook.abook_xchan = xchan.xchan_hash where abook_channel = %d and abook_pending = 1 and abook_self = 0 and abook_ignored = 0 and xchan_deleted = 0 and xchan_orphan = 0 ORDER BY abook_created DESC LIMIT 50",
+		$direction = self::$direction;
+
+		$r = q("SELECT * FROM abook left join xchan on abook.abook_xchan = xchan.xchan_hash where abook_channel = %d and abook_pending = 1 and abook_self = 0 and abook_ignored = 0 and xchan_deleted = 0 and xchan_orphan = 0 ORDER BY abook_created $direction LIMIT 50",
 			intval(self::$uid)
 		);
 
@@ -610,69 +631,95 @@ class Sse_bs extends Controller {
 
 	}
 
-	function bs_forums() {
-
-		$result['forums']['notifications'] = [];
-		$result['forums']['count'] = 0;
-		$result['forums']['offset'] = -1;
-
-		if(! self::$uid)
-			return $result;
-
-		if(! (self::$vnotify & VNOTIFY_FORUMS))
-			return $result;
-
+	function bs_forums($selected_forum_id) {
 		$forums = get_forum_channels(self::$uid);
 
+		if(!self::$uid || !(self::$vnotify & VNOTIFY_FORUMS) || !$forums) {
+			$result['forum']['notifications'] = [];
+			$result['forum']['count'] = 0;
+			$result['forum']['offset'] = -1;
+			return $result;
+		}
+
 		if($forums) {
-			$item_normal = item_normal();
-			$p_sql = '';
-
-			$sql_extra = '';
-			if(! (self::$vnotify & VNOTIFY_LIKE))
-				$sql_extra = " AND verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
-
 			$fcount = count($forums);
-			$i = 0;
 
 			for($x = 0; $x < $fcount; $x ++) {
 
-				$r = q("select count(*) as total from item
-					where uid = %d and (owner_xchan = '%s' or author_xchan = '%s') and author_xchan != '%s' and verb != 'Announce' and item_unseen = 1 $sql_extra $item_normal",
+				$forum_id = 'forum_' . $forums[$x]['abook_id'];
+
+				$result[$forum_id]['notifications'] = [];
+				$result[$forum_id]['count'] = 0;
+
+				$limit = intval(self::$limit);
+				$offset = self::$offset;
+				$direction = self::$direction;
+				$count_limit = intval(self::$count_limit);
+
+				$sql_extra = '';
+				if (!(self::$vnotify & VNOTIFY_LIKE)) {
+					$sql_extra = " AND item.verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+				}
+				elseif (!feature_enabled(self::$uid, 'dislike')) {
+					$sql_extra = " AND item.verb NOT IN ('Dislike', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+				}
+
+				$item_normal = item_normal();
+
+				// Filter internal follow activities and strerams add/remove activities
+				$item_normal .= " AND item.verb NOT IN ('Add', 'Remove', 'Follow', 'Ignore', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
+
+				if ($forum_id === $selected_forum_id) {
+					$items = q("SELECT item.*, tp.uuid AS thr_parent_uuid FROM item
+						LEFT JOIN item tp ON item.thr_parent = tp.mid AND item.uid = tp.uid
+						WHERE item.uid = %d
+						AND item.created <= '%s'
+						AND item.owner_xchan = '%s'
+						AND item.item_unseen = 1 AND item.item_wall = 0 AND item.item_private IN (0, 1)
+						AND item.obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
+						AND NOT (item.verb = 'Announce' AND item.item_thread_top = 1) -- only show the announce activity and not the resulting item
+						AND NOT item.author_xchan = '%s'
+						$item_normal
+						$sql_extra
+						ORDER BY item.created $direction LIMIT $limit OFFSET $offset",
+						intval(self::$uid),
+						dbescdate($_SESSION['sse_loadtime']),
+						dbescdate($forums[$x]['xchan_hash']),
+						dbesc(self::$ob_hash)
+					);
+
+					if ($items) {
+						$result[$forum_id]['offset'] = ((count($items) == $limit) ? intval($offset + $limit) : -1);
+						xchan_query($items);
+						foreach($items as $item) {
+							$parsed = Enotify::format($item);
+							if($parsed) {
+								$result[$forum_id]['notifications'][] = $parsed;
+							}
+						}
+					}
+					else {
+						$result[$forum_id]['offset'] = -1;
+					}
+
+				}
+
+				$r = q("SELECT id FROM item
+					WHERE uid = %d and item_unseen = 1 AND item_wall = 0 AND item_private IN (0, 1)
+					AND obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
+					AND author_xchan != '%s'
+					AND item.owner_xchan = '%s'
+					$item_normal
+					$sql_extra LIMIT $count_limit",
 					intval(self::$uid),
-					dbesc($forums[$x]['xchan_hash']),
-					dbesc($forums[$x]['xchan_hash']),
-					dbesc(self::$ob_hash)
+					dbesc(self::$ob_hash),
+					dbesc($forums[$x]['xchan_hash'])
 				);
 
-				if($r[0]['total']) {
-
-					$forums[$x]['notify_link'] = z_root() . '/network/?f=&pf=1&unseen=1&cid=' . $forums[$x]['abook_id'];
-					$forums[$x]['name'] = $forums[$x]['xchan_name'];
-					$forums[$x]['addr'] = $forums[$x]['xchan_addr'] ?? $forums[$x]['xchan_url'];
-					$forums[$x]['url'] = $forums[$x]['xchan_url'];
-					$forums[$x]['photo'] = $forums[$x]['xchan_photo_s'];
-					$forums[$x]['unseen'] = $r[0]['total'];
-					$forums[$x]['private_forum'] = ((isset($forums[$x]['private_forum']) && $forums[$x]['private_forum']) ? 'lock' : '');
-					$forums[$x]['message'] = ((isset($forums[$x]['private_forum']) && $forums[$x]['private_forum']) ? t('Private forum') : t('Public forum'));
-
-					unset($forums[$x]['abook_id']);
-					unset($forums[$x]['xchan_hash']);
-					unset($forums[$x]['xchan_name']);
-					unset($forums[$x]['xchan_url']);
-					unset($forums[$x]['xchan_photo_s']);
-
-					$i = $i + $r[0]['total'];
-
-				}
-				else {
-					unset($forums[$x]);
+				if ($r) {
+					$result[$forum_id]['count'] = count($r);
 				}
 			}
-
-			$result['forums']['count'] = $i;
-			$result['forums']['notifications'] = array_values($forums);
-
 		}
 
 		return $result;
@@ -691,6 +738,7 @@ class Sse_bs extends Controller {
 		if(! (self::$vnotify & VNOTIFY_FILES))
 			return $result;
 
+		$direction = self::$direction;
 		$item_normal = item_normal();
 
 		// Filter internal follow activities and strerams add/remove activities
@@ -703,7 +751,7 @@ class Sse_bs extends Controller {
 			AND author_xchan != '%s'
 			AND item_unseen = 1
 			$item_normal
-			ORDER BY created DESC",
+			ORDER BY created $direction",
 			dbesc(ACTIVITY_POST),
 			intval(self::$uid),
 			dbesc(self::$ob_hash)
@@ -735,10 +783,12 @@ class Sse_bs extends Controller {
 		if(! (self::$vnotify & VNOTIFY_EVENT))
 			return $result;
 
+		$direction = self::$direction;
+
 		$r = q("SELECT * FROM event left join xchan on event_xchan = xchan_hash
 			WHERE event.uid = %d AND dtstart < '%s' AND dtstart > '%s' and dismissed = 0
 			and etype in ( 'event', 'birthday' )
-			ORDER BY dtstart DESC",
+			ORDER BY dtstart $direction",
 			intval(self::$uid),
 			dbesc(datetime_convert('UTC', date_default_timezone_get(), 'now + ' . intval(self::$evdays) . ' days')),
 			dbesc(datetime_convert('UTC', date_default_timezone_get(), 'now - 1 days'))

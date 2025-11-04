@@ -12,6 +12,7 @@ class PhotoGd extends PhotoDriver {
 
 	/**
 	 * {@inheritDoc}
+	 *
 	 * @see \Zotlabs\Photo\PhotoDriver::supportedTypes()
 	 */
 	public function supportedTypes() {
@@ -31,12 +32,15 @@ class PhotoGd extends PhotoDriver {
 		return $t;
 	}
 
+	/**
+	 * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
+	 */
 	protected function load($data, $type) {
 		$this->valid = false;
 		if(! $data)
 			return;
 
-		$this->image = @imagecreatefromstring($data);
+		$this->image = imagecreatefromstring($data);
 		if($this->image !== false) {
 			$this->valid  = true;
 			$this->setDimensions();
@@ -147,6 +151,7 @@ class PhotoGd extends PhotoDriver {
 
 	/**
 	 * {@inheritDoc}
+	 *
 	 * @see \Zotlabs\Photo\PhotoDriver::imageString()
 	 */
 	public function imageString() {
@@ -154,65 +159,30 @@ class PhotoGd extends PhotoDriver {
 		if(! $this->is_valid())
 			return false;
 
-		$quality = false;
-
 		ob_start();
 
 		switch($this->getType()){
 
+			case 'image/avif':
+				imageavif($this->image, null, $this->getQuality()->value);
+				break;
+
 			case 'image/png':
-				$quality = Config::Get('system', 'png_quality');
-
-				if((! $quality) || ($quality > 9)) {
-					$quality = PNG_QUALITY;
-				}
-
-				if (function_exists('imagepng')) {
-					\imagepng($this->image, NULL, $quality);
-				}
-
+				imagepng($this->image, null, $this->getQuality()->value);
 				break;
 
 			case 'image/webp':
-			    $quality = Config::Get('system', 'webp_quality');
+				imagewebp($this->image, null, $this->getQuality()->value);
+				break;
 
-			    if((! $quality) || ($quality > 100)) {
-			        $quality = WEBP_QUALITY;
-				}
+			case 'image/gif':
+				imagegif($this->image);
+				break;
 
-				if (function_exists('imagewebp')) {
-					\imagewebp($this->image, NULL, $quality);
-				}
-
-			    break;
-
-			case 'image/avif':
-			    $quality = Config::Get('system', 'avif_quality');
-
-			    if((! $quality) || ($quality > 100)) {
-			        $quality = AVIF_QUALITY;
-				}
-
-				if (function_exists('imageavif')) {
-					\imageavif($this->image, NULL, $quality);
-				}
-
-			    break;
-
-			case 'image/jpeg':
 			// gd can lack imagejpeg(), but we verify during installation it is available
-
+			case 'image/jpeg':
 			default:
-				$quality = Config::Get('system', 'jpeg_quality');
-
-				if((! $quality) || ($quality > 100)) {
-					$quality = JPEG_QUALITY;
-				}
-
-				if (function_exists('imagejpeg')) {
-					\imagejpeg($this->image, NULL, $quality);
-				}
-
+				imagejpeg($this->image, null, $this->getQuality()->value);
 				break;
 		}
 
@@ -220,6 +190,25 @@ class PhotoGd extends PhotoDriver {
 		ob_end_clean();
 
 		return $string;
+	}
+
+	/**
+	 * Return the default image quality for the given mime type.
+	 *
+	 * If the setting has been overridden in the database, we use that value,
+	 * otherwise the hardcoded defaults.
+	 *
+	 * @return ImageQuality		The image quality value for the current mime type.
+	 */
+	private function getQuality(): ImageQuality {
+		$key = match($this->getType()) {
+			'image/avif' => 'avif_quality',
+			'image/jpeg' => 'jpeg_quality',
+			'image/png' => 'png_quality',
+			'image/webp' => 'webp_quality',
+		};
+
+		return new ImageQuality($this->getType(), Config::Get('system', $key));
 	}
 
 }
