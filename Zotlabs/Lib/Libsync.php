@@ -199,8 +199,7 @@ class Libsync {
 				dbesc($sender)
 			);
 
-			$mid = 'sync';
-
+			$mid = $arr['item'][0]['message_id'] ?? 'sync';
 
 			$DR = new DReport(z_root(), $sender, $d, $mid);
 
@@ -306,7 +305,6 @@ class Libsync {
 
 			if (array_key_exists('item', $arr) && $arr['item']) {
 				sync_items($channel, $arr['item'], ((array_key_exists('relocate', $arr)) ? $arr['relocate'] : null));
-				$mid = $arr['item'][0]['message_id'] . '#sync';
 			}
 
 			// deprecated, maintaining for a few months for upward compatibility
@@ -757,12 +755,11 @@ class Libsync {
 			 */
 			call_hooks('process_channel_sync_delivery', $addon);
 
-			$DR = new DReport(z_root(), $d, $d, $mid, 'channel sync processed');
-
-			$DR->set_name($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
+			$DR->update('channel sync processed');
 
 			$result[] = $DR->get();
 		}
+
 		return $result;
 	}
 
