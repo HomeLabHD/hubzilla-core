@@ -307,12 +307,6 @@ class Libsync {
 				sync_items($channel, $arr['item'], ((array_key_exists('relocate', $arr)) ? $arr['relocate'] : null));
 			}
 
-			// deprecated, maintaining for a few months for upward compatibility
-			// this should sync webpages, but the logic is a bit subtle
-
-			//if (array_key_exists('item_id', $arr) && $arr['item_id'])
-			//	sync_items($channel, $arr['item_id']);
-
 			if (array_key_exists('menu', $arr) && $arr['menu'])
 				sync_menus($channel, $arr['menu']);
 
