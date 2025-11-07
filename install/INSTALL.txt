@@ -83,14 +83,14 @@ web server platforms.
 	Example config scripts are available for these platforms in the install
 	directory. Apache and nginx have the most support.
 
-    - PHP 8.1 or later.
+    - PHP 8.2 or later.
 
     - PHP *command line* access with register_argc_argv set to true in the
     php.ini file - and with no hosting provider restrictions on the use of
     exec() and proc_open().
 
     - curl, gd (with at least jpeg and png support), mysqli, mbstring, xml,
-    xmlreader (FreeBSD), zip, openssl, iconv, intl, sodium, bcmath (or gmp) extensions.
+    xmlreader (FreeBSD), zip, openssl, iconv, intl, sodium, gmp extensions.
     The imagick extension MAY be used instead of gd, but is not required and MAY also be disabled via
     configuration option.
 
