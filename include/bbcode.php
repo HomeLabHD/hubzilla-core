@@ -278,11 +278,6 @@ function bb_parse_crypt($match) {
 
 	$onclick = 'onclick="sodium_decrypt(\'' . $payload . '\',\'#' . $x . '\');"';
 
-	if (in_array($algorithm, ['AES-128-CCM', 'rot13', 'triple-rot13'])) {
-		// backwards compatibility
-		$onclick = 'onclick="hz_decrypt(\'' . $algorithm . '\',\'' . $hint . '\',\'' . $payload . '\',\'#' . $x . '\');"';
-	}
-
 	$label = t('Encrypted content');
 
 	$text = '<div id="' . $x . '" class="encrypted-content"><img class="cursor-pointer" src="' . z_root() . '/images/lock_icon.svg" ' . $onclick . ' alt="' . $label . '" title="' . $label . '" /></div>';
