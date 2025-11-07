@@ -26,7 +26,7 @@ then
     FINDSTARTDIR="."
     FINDOPTS=
 else
-    cd "$FULLPATH/../view/en/"
+    cd "$FULLPATH/../view/lang/en/"
     OUTFILE="$FULLPATH/hmessages.po"
     FINDSTARTDIR="../../"
     # skip addon folder                                                                                         
@@ -76,7 +76,7 @@ then
 	sed -i '/^\"Plural-Forms/d' "$OUTFILE"
 else
     sed -i "s/SOME DESCRIPTIVE TITLE./$PROJECTNAME/g" "$OUTFILE"
-    sed -i "s/YEAR THE PACKAGE'S COPYRIGHT HOLDER/2012-2016 $PROJECTNAME/g" "$OUTFILE"
+    sed -i "s/YEAR THE PACKAGE'S COPYRIGHT HOLDER/2012-2025 $PROJECTNAME/g" "$OUTFILE"
     sed -i "s/FIRST AUTHOR <EMAIL@ADDRESS>, YEAR./Mike Macgirvin, 2012/g" "$OUTFILE"
     sed -i "s/PACKAGE VERSION/$F9KVERSION/g" "$OUTFILE"
     sed -i "s/PACKAGE/$PROJECTNAME/g" "$OUTFILE"
