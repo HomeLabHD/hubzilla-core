@@ -1,8 +1,8 @@
 <div class="generic-content-wrapper">
 	<div class="section-title-wrapper">
 		<div class="float-end">
-			<button id="fullscreen-btn" type="button" class="btn btn-outline-secondary btn-sm" onclick="makeFullScreen();"><i class="bi fa-expand"></i></button>
-			<button id="inline-btn" type="button" class="btn btn-outline-secondary btn-sm" onclick="makeFullScreen(false);"><i class="bi fa-compress"></i></button>
+			<button id="fullscreen-btn" type="button" class="btn btn-outline-secondary btn-sm" onclick="makeFullScreen();"><i class="bi bi-arrows-angle-expand"></i></button>
+			<button id="inline-btn" type="button" class="btn btn-outline-secondary btn-sm" onclick="makeFullScreen(false);"><i class="bi bi-arrows-angle-contract"></i></button>
 		</div>
 		<h2>{{$title}}</h2>
 	</div>
