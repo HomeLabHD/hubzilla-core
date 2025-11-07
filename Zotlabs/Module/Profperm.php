@@ -44,6 +44,7 @@ class Profperm extends \Zotlabs\Web\Controller {
 		if($switchtotext === false)
 			$switchtotext = 400;
 
+		$change = 0;
 
 		if((argc() > 2) && intval(argv(1)) && intval(argv(2))) {
 			$r = q("SELECT abook_id FROM abook WHERE abook_id = %d and abook_channel = %d limit 1",
@@ -74,10 +75,11 @@ class Profperm extends \Zotlabs\Web\Controller {
 				dbesc($profile['profile_guid'])
 			);
 
-			$ingroup = array();
-			if($r)
+			$ingroup = [];
+			if($r) {
 				foreach($r as $member)
 					$ingroup[] = $member['abook_id'];
+			}
 
 			$members = $r;
 
@@ -104,68 +106,57 @@ class Profperm extends \Zotlabs\Web\Controller {
 				);
 
 				$members = $r;
-
-				$ingroup = array();
-				if(count($r))
+				$ingroup = [];
+				if($r) {
 					foreach($r as $member)
 						$ingroup[] = $member['abook_id'];
-			}
-
-			$o .= '<h2>' . t('Profile Visibility Editor') . '</h2>';
-
-			$o .= '<h3>' . t('Profile') . ' \'' . $profile['profile_name'] . '\'</h3>';
-
-			$o .= '<div id="prof-edit-desc">' . t('Click on a contact to add or remove.') . '</div>';
-
-		}
-
-		$o .= '<div id="prof-update-wrapper">';
-		if($change)
-			$o = '';
-
-		$o .= '<div id="prof-members-title">';
-		$o .= '<h3>' . t('Visible To') . '</h3>';
-		$o .= '</div>';
-		$o .= '<div id="prof-members">';
-
-		$textmode = (($switchtotext && (count($members) > $switchtotext)) ? true : false);
-
-		foreach($members as $member) {
-			if($member['xchan_url']) {
-				$member['click'] = 'profChangeMember(' . $profile['id'] . ',' . $member['abook_id'] . '); return false;';
-				$o .= micropro($member,true,'mpprof', $textmode);
-			}
-		}
-		$o .= '</div><div id="prof-members-end"></div>';
-		$o .= '<hr id="prof-separator" />';
-
-		$o .= '<div id="prof-all-contcts-title">';
-		$o .= '<h3>' . t("All Connections") . '</h3>';
-		$o .= '</div>';
-		$o .= '<div id="prof-all-contacts">';
-
-			$r = abook_connections(local_channel());
-
-			if($r) {
-				$textmode = (($switchtotext && (count($r) > $switchtotext)) ? true : false);
-				foreach($r as $member) {
-					if(! in_array($member['abook_id'],$ingroup)) {
-						$member['click'] = 'profChangeMember(' . $profile['id'] . ',' . $member['abook_id'] . '); return false;';
-						$o .= micropro($member,true,'mpprof',$textmode);
-					}
 				}
 			}
 
-			$o .= '</div><div id="prof-all-contacts-end"></div>';
+			$o .= '<h2>' . t('Profile Visibility Editor') . '</h2>';
+			$o .= '<h3>' . t('Profile') . ' \'' . $profile['profile_name'] . '\'</h3>';
+			$o .= '<div id="prof-edit-desc">' . t('Click on a contact to add or remove.') . '</div>';
+		}
+
+		// Build template data
+		$members_tpl = [];
+		$textmode = (($switchtotext && (count($members) > $switchtotext)) ? true : false);
+		if($members) {
+			foreach($members as $member) {
+				if($member['xchan_url']) {
+					$member['click'] = 'profChangeMember(' . $profile['id'] . ',' . $member['abook_id'] . '); return false;';
+					$members_tpl[] = [ 'micro' => micropro($member, true, 'mpprof', $textmode) ];
+				}
+			}
+		}
+
+		$all_members_tpl = [];
+		$r = abook_connections(local_channel());
+		if($r) {
+			$textmode = (($switchtotext && (count($r) > $switchtotext)) ? true : false);
+			foreach($r as $member) {
+				if(! in_array($member['abook_id'], $ingroup)) {
+					$member['click'] = 'profChangeMember(' . $profile['id'] . ',' . $member['abook_id'] . '); return false;';
+					$all_members_tpl[] = [ 'micro' => micropro($member, true, 'mpprof', $textmode) ];
+				}
+			}
+		}
+
+		// Use tpl for the inner part
+		$inner_html = replace_macros(get_markup_template('profile_members.tpl'), [
+			'$visible_to'      => t('Visible To'),
+			'$all_connections' => t('All Connections'),
+			'$members'         => $members_tpl,
+			'$all_members'     => $all_members_tpl,
+		]);
 
 		if($change) {
-			echo $o;
+			echo $inner_html;
 			killme();
 		}
-		$o .= '</div>';
+
+		$o .= $inner_html;
 		return $o;
-
 	}
-
-
 }
+
