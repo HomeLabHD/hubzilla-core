@@ -68,7 +68,7 @@ function get_best_language() {
 	if(isset($langs) && count($langs)) {
 		foreach ($langs as $lang => $v) {
 			$lang = strtolower($lang);
-			if(is_dir("view/$lang")) {
+			if(is_dir("view/lang/$lang")) {
 				$preferred = $lang;
 				break;
 			}
@@ -93,7 +93,7 @@ function get_best_language() {
 				}
 				/* Check the base */
 				$lang = strtolower(substr($lang,0,2));
-				if(is_dir("view/$lang")) {
+				if(is_dir("view/lang/$lang")) {
 					$preferred = $lang;
 					break;
 				}
@@ -160,11 +160,11 @@ function load_translation_table($lang, $install = false) {
 
 	App::$strings = array();
 
-	if(file_exists("view/$lang/hstrings.php")) {
-		include("view/$lang/hstrings.php");
+	if(file_exists("view/lang/$lang/hstrings.php")) {
+		include("view/lang/$lang/hstrings.php");
 	}
-	elseif(file_exists("view/$lang/strings.php")) {
-		include("view/$lang/strings.php");
+	elseif(file_exists("view/lang/$lang/strings.php")) {
+		include("view/lang/$lang/strings.php");
 	}
 
 	if(! $install) {
@@ -185,11 +185,11 @@ function load_translation_table($lang, $install = false) {
 	// Allow individual strings to be over-ridden on this site
 	// Either for the default language or for all languages
 
-	if(file_exists("view/local-$lang/hstrings.php")) {
-		include("view/local-$lang/hstrings.php");
+	if(file_exists("view/lang/local-$lang/hstrings.php")) {
+		include("view/lang/local-$lang/hstrings.php");
 	}
-	elseif(file_exists("view/local-$lang/strings.php")) {
-		include("view/local-$lang/strings.php");
+	elseif(file_exists("view/lang/local-$lang/strings.php")) {
+		include("view/lang/local-$lang/strings.php");
 	}
 }
 
@@ -387,16 +387,16 @@ function get_language_name($s, $l = null) {
 
 function language_list() {
 
-	$langs = glob('view/*/hstrings.php');
+	$langs = glob('view/lang/*/hstrings.php');
 
 	$lang_options = array();
 
 	if(is_array($langs) && count($langs)) {
-		if(! in_array('view/en/hstrings.php',$langs))
-			$langs[] = 'view/en/';
+		if(! in_array('view/lang/en/hstrings.php',$langs))
+			$langs[] = 'view/lang/en/';
 		asort($langs);
 		foreach($langs as $l) {
-			$ll = substr($l,5);
+			$ll = substr($l,10);
 			$ll = substr($ll,0,strrpos($ll,'/'));
 			$lang_options[$ll] = get_language_name($ll, $ll) . " ($ll)";
 		}
