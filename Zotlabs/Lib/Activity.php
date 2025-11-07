@@ -637,7 +637,9 @@ class Activity {
 			$ret['tag'] = $t;
 		}
 
-		if (str_contains($i['body'], '[/share]')) {
+		// TODO: Do not replace the if the owner is a forum.
+		// Receivers will not be able to fetch the original in that case.
+		if (str_contains($i['body'], '[/share]') && !$i['owner']['xchan_pubforum']) {
 			preg_match_all('/\[share(.*?)\[\/share\]/ism', $i['body'], $all_shares, PREG_SET_ORDER);
 
 			$quote_urls = [];
