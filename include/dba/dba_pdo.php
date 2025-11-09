@@ -260,6 +260,13 @@ class dba_pdo extends dba_driver {
 				$id = $data[$id_col];
 			}
 
+			$res = $this->q("SELECT * FROM {$table} WHERE {$id_col} = '{$id}'");
+
+			if (is_a($res, PDOStatement::class)) {
+				db_logger('dba_pdo: PDOStatement returned, did not expect that.');
+				return false;
+			}
+
 			$st = $this->db->prepare("SELECT * FROM {$table} WHERE {$id_col} = ?");
 			$st->execute([$id]);
 		} else {
