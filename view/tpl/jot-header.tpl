@@ -222,17 +222,11 @@
 			window.location.href = 'rpost?f=&post_id='+id;
 		}
 		else {
-
 			if ($('#jot-popup').length != 0) $('#jot-popup').show();
 
-			$('#like-rotator-' + id).show();
-			$.get('{{$baseurl}}/embed/' + id, function(data) {
-				if (!editor) $("#profile-jot-text").val("");
-				initEditor(function(){
-					addeditortext(data);
-					$('#like-rotator-' + id).hide();
-					$(window).scrollTop(0);
-				});
+			initEditor(function(){
+				addeditortext('[share=' + id + '][/share]');
+				$(window).scrollTop(0);
 			});
 		}
 	}

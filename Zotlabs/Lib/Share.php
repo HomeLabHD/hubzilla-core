@@ -118,13 +118,8 @@ class Share {
 			$photo_bb = $object['body'];
 		}
 
-		if (str_contains($this->item['body'], '[/share]')) {
-			preg_match_all('/\[share(.*?)\[\/share\]/ism', $this->item['body'], $all_shares, PREG_SET_ORDER);
-			foreach ($all_shares as $share) {
-				$bb .= $share[0] . "\r\n";
-			}
-		} else {
-			$bb = "[share author='".urlencode($this->item['author']['xchan_name']).
+		if (!str_contains($this->item['body'], '[/share]')) {
+			$bb .= "[share author='".urlencode($this->item['author']['xchan_name']).
 				"' profile='"    . $this->item['author']['xchan_url'] .
 				"' avatar='"     . $this->item['author']['xchan_photo_s'] .
 				"' link='"       . $this->item['plink'] .
@@ -139,7 +134,6 @@ class Share {
 		}
 
 		return $bb;
-
 	}
 
 }
