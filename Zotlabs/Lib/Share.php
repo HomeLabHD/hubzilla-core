@@ -118,20 +118,26 @@ class Share {
 			$photo_bb = $object['body'];
 		}
 
-		$bb = "[share author='".urlencode($this->item['author']['xchan_name']).
-			"' profile='"    . $this->item['author']['xchan_url'] .
-			"' avatar='"     . $this->item['author']['xchan_photo_s'] .
-			"' link='"       . $this->item['plink'] .
-			"' auth='"       . (($this->item['author']['xchan_network'] === 'zot6') ? 'true' : 'false') .
-			"' posted='"     . $this->item['created'] .
-			"' message_id='" . $this->item['mid'] .
-		"']";
-		if($this->item['title'])
-			$bb .= '[h3][b]'.$this->item['title'].'[/b][/h3]'."\r\n";
-		$bb .= (($is_photo) ? $photo_bb . "\r\n" . $this->item['body'] : $this->item['body']);
-		$bb .= "[/share]";
+		if (strpos($this->item['body'], "[/share]") !== false) {
+			$pos = strpos($this->item['body'], "[share");
+			$bb = substr($this->item['body'], $pos);
+		} else {
+			$bb = "[share author='".urlencode($this->item['author']['xchan_name']).
+				"' profile='"    . $this->item['author']['xchan_url'] .
+				"' avatar='"     . $this->item['author']['xchan_photo_s'] .
+				"' link='"       . $this->item['plink'] .
+				"' auth='"       . (($this->item['author']['xchan_network'] === 'zot6') ? 'true' : 'false') .
+				"' posted='"     . $this->item['created'] .
+				"' message_id='" . $this->item['mid'] .
+			"']";
+			if($this->item['title'])
+				$bb .= '[h3][b]'.$this->item['title'].'[/b][/h3]'."\r\n";
+			$bb .= (($is_photo) ? $photo_bb . "\r\n" . $this->item['body'] : $this->item['body']);
+			$bb .= "[/share]";
+		}
 
 		return $bb;
+
 	}
 
 }
