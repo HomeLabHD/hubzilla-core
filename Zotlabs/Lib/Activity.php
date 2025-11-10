@@ -637,11 +637,11 @@ class Activity {
 			$ret['tag'] = $t;
 		}
 
-		// TODO: Do not replace the if the owner is a forum.
+		// Keep the share tag tag if the owner is a forum.
 		// Receivers will not be able to fetch the original in that case.
 		if (str_contains($i['body'], '[/share]') && !$i['owner']['xchan_pubforum']) {
-			preg_match_all('/\[share(.*?)\[\/share\]/ism', $i['body'], $all_shares, PREG_SET_ORDER);
-
+			// Match all occurences of share tag, disregard the nested ones
+			preg_match_all('/\[share(?>[^\[]|\[(?!\/share\]))*\[\/share\]/ism', $i['body'], $all_shares, PREG_SET_ORDER);
 			$quote_urls = [];
 
 			foreach ($all_shares as $share) {
@@ -674,7 +674,6 @@ class Activity {
 					$ret['tag'] = array_merge($ret['tag'], $obj_links);
 				}
 			}
-
 		}
 
 		if ($i['mimetype'] === 'text/bbcode') {
