@@ -120,7 +120,7 @@ class ThreadItem {
 			$locktype = 0;
 		}
 
-		$shareable = ((local_channel() && $conv->get_profile_owner() == local_channel()) && (intval($item['item_private']) === 0) && !str_contains('[/share]', $item['body']));
+		$shareable = ((local_channel() && $conv->get_profile_owner() == local_channel()) && (intval($item['item_private']) === 0) && !str_contains($item['body'], '[/share]'));
 
 		// allow an exemption for sharing stuff from your private feeds
 		if ($item['author']['xchan_network'] === 'rss')
