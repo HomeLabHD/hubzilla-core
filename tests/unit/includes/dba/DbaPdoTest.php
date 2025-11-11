@@ -37,7 +37,14 @@ class DbaPdoTest extends UnitTestCase
 	public function testInsertThrowsOnDuplicateId(string $table, array $data): void
 	{
 		$this->expectException(PDOException::class);
-		$this->expectExceptionCode(23000);
+		if (DBA::$dba->is_postgres()) {
+			// Postgres uses 23505 to signal a unique violation
+			$this->expectExceptionCode(23505);
+		} else {
+			// MySQL and MariaDB just signal a constraint violation without
+			// being more specific
+			$this->expectExceptionCode(23000);
+		}
 
 		$res1 = DBA::$dba->insert($table, $data);
 		$this->assertIsArray($res1);
