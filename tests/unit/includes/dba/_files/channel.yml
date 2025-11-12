@@ -1,0 +1,173 @@
+---
+channel:
+  -
+    channel_account_id: 0
+    channel_primary: 1
+    channel_name: System
+    channel_address: sys
+    channel_guid: uGp_IvDBQ7b_-s3HV7IehysbKFyx1w0oG4dm1Q3-trFlnw01H-rJhNRQ8QNdDRSiolJmIMizCiexogrHy3_kpg
+    channel_guid_sig: sha256.bawP2sNBcfnjpKx2OCMlISbLJBByejs0KkbWcKvFj_vfQ_TnKvTZ9PvfxPz0puUkSqaJVskwz7mY59d56aRqc3kTCniuuR_3L8padNElwkyqoPLgIBQlffeqoa0ax0R_kF667_MmlUj6F6RyQHuCNeElWRfy0LW4SzIsn72ogHevvbOa5gh27jDcjUqkY5C0i8wyxEHzI5Ue4zNwJ7JS6WETZVL_z2WgFemKagZ8SWNVdFQfHCmhJ-scBZZK9rM0rdLf1O9HjkxgdvzImSHH3ODT-qOfE-IKwlum0hCUJqmGwOQAHTydRHKn-pdEHX1eFE_Y15lwBPToyQW1zTso9PPzwRXKqJkrqapO6hqerRCWqI5dtgE_6Up3AFolWCU82h5to0Y5LT2iEvMids9x64laGKNw-bzdYpJtKZZqgxejchIuYoqZZJp4ivGzHeJktBveTCluP2lRXw2W1TupMOVADlfUGPFMTYj2LPPIp3CTD6RsSZobh9VvT22J1SzwwTFvHG2VoZbezOPKvWj-PHRb3iBTSYoQAgL8ecI4oWnn9HK-KHwUsoWOtIXDSKVRiySun3AXGjI8iIVI7ORk7-33aVrxuVuh76_ni7LEadFFGClbxZtzoM44QizkPDHVS4rYl1fsuYDbxr93FvG7_QCBsOzgfWgE2eN65poE7mU
+    channel_hash: de3-bhcFpdY5PZ-ef4vy-6PpSeGrEHB8DNQFC6uP9lG-RkPaMceUMdvIRYHvHIvRzjJ0RPII2sJ1ffz4ATQOHQ
+    channel_portable_id: ""
+    channel_timezone: ~
+    channel_location: ""
+    channel_theme: ""
+    channel_startpage: ""
+    channel_pubkey: |
+      -----BEGIN PUBLIC KEY-----
+      MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAzdcYmePsZG3vIX1Ksj4a
+      JU9muAU7aZJfGlW2Fskr+LDZ/uHWEHwLmPc1+9uEXmItuTUxZRow3QicdB0zanGR
+      +v0HHpMqGV0icJN6nlUhhlEk1nBOiOEjwpA0+fMeNmjk4JKV+jpYEfdzsf9dbQN9
+      V2JstjXLA2ydKkzcs9Ph+xDqdyGAVkwNx1zMkFJ91WDsUhy8ECet4OxRmkjx7hTU
+      1mqDSj4DmhWAxBlwknZYmagtqMejnjR/D31Pkn8yPymQlF8ZBYkNm9HBUT3zzbIn
+      it92pjXOfg9KI+MbWsnBVyiv67cXq0QF6omy97YNrltSIwlyp7UbfsThpakIFcCW
+      1y9ez+i7ehgm8yYaV6MXvZjhQcH8WWVeNFRu+EySY8XBfvQVEw9k5KAJf+PAKGKq
+      qLqIVeTI1Au6fZ/dJncVawbyXV9J1om/Uf4KXlRBmbCShZxSC0Kj7gq25pDiH1iF
+      xPuunUCz3fnb57JOJNUayF2PzKyX+IBjzCIKTKsvd9qvDlRrVP/DZhGLNQsNk39R
+      adF4P+4Xpvp+U3GsgcvdKyWVSgBmLrspXd7XloaEpVK9h2cMV/cB2Mu+y5eXMLOf
+      6lcK1ULClDfWSE0llGK0BxM5Fui/GSg+aKlBjlB4wVm2nmBICNLbZmcecOReMT7Z
+      xU1Z9tjiAry3iytaMw+PltcCAwEAAQ==
+      -----END PUBLIC KEY-----
+    channel_prvkey: |
+      -----BEGIN PRIVATE KEY-----
+      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
+      cwjOehvlYGk3uT9lTJj3caXJRpT2Iw==
+      -----END PRIVATE KEY-----
+    channel_epubkey: oL9v8o6hEezGrl/D9hVc0y5JlcQ2wOOZrhjoR49RkmI
+    channel_eprvkey: CQACkQ7oK6un8a8b3ZHuylDWD7qGxDW3LAFRFZ5CTzKgv2/yjqER7MauX8P2FVzTLkmVxDbA45muGOhHj1GSYg
+    channel_notifyflags: "65535"
+    channel_pageflags: 0
+    channel_dirdate: "0001-01-01 00:00:00"
+    channel_lastpost: "0001-01-01 00:00:00"
+    channel_deleted: "0001-01-01 00:00:00"
+    channel_active: "0001-01-01 00:00:00"
+    channel_max_anon_mail: "10"
+    channel_max_friend_req: "10"
+    channel_expire_days: 0
+    channel_passwd_reset: ""
+    channel_default_group: ""
+    channel_allow_cid: ""
+    channel_allow_gid: ""
+    channel_deny_cid: ""
+    channel_deny_gid: ""
+    channel_removed: "0"
+    channel_system: 1
+    channel_moved: ""
+    channel_password: ""
+    channel_salt: ""
+  -
+    channel_account_id: 42
+    channel_primary: "1"
+    channel_name: "Test Channel"
+    channel_address: "test"
+    channel_guid: "NTHCKiCblxvlLxdlu5SpOqoC_EWtKFqHEg6nc2Ps5X_UGJAfPBzENdOagS_IBC75RIQNtAYizZeobnpv0CEinA"
+    channel_guid_sig: "sha256.cLzCjVb_kgDUsXg-SM2qnn-DQ55cRcXlbPeigeWtnT_pjlCD7Pg6trcLa12s3iPup4dudG9MIZkjuwBUUBv25mVER9w97NGYCqLx1OGFbjuuAuZJzYHMZLiWSfv4PNzjvkB4sOAsCY6CBCcpg6rno55FxFhJNz10zTYkaqJQbS2zKnBnxqseXEwULKDgBbU8yapP1BX505FedcJR3MyVMYg0teiINOFywTjKQHOm_Pe6mmU_wblOy7eWLfoWXU9lq_Z9D47UTgeJd0IB89btcF0WsfyUhg3NNLE_kpfk2Ow-DBO9Joz64qoBe8Ri68pnom5LPgGTWwGWJnSud123ZfTDLzFg1h9sFMcJMiMzvJnvFm4puKKu4K0jYNkAp0DROnaqadreACU5y_vOQyCT0aiicIX3uPkKGhNbwSjcquOylzricqgaZeK6iOOb_iHRLuQd4lJgYShr9xqBk2LU31QnWO3QUmBVlVPpM26YeoulmwVsoOSxC7QcLjYmQCgYpGOUaWWxGlJSwDyvm4DKiG88hp_clzN4MDilycVmS_JvmYxsw1Do_RDeDRxq0xLnqtBZpnafEjm-LXkZGVYJ5kqvEtl3DmPai2Wzrnyb24XxGmAhOZo1NvfjrvRWtFN-uNXLHKDZEcEqogmiqMUd20XMh1YGLqH2IsvbPyYShXo"
+    channel_hash: "LAOCZBv-Cj6QVab_EpMFV6HIDmsUSDybKfSnH9I5cwYAkar4UvBcsj9ofsaIejYLTfgMy9BcGPWjy9-7Uk7rlQ"
+    channel_portable_id: ""
+    channel_timezone: "UTC"
+    channel_location: "The Internet"
+    channel_theme: ""
+    channel_startpage: ""
+    channel_pubkey: |
+      -----BEGIN PUBLIC KEY-----
+      MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAn2ads2RKygqTbN0kxuGI
+      3Vuh/1SSvHls2cYMXZJpwqix5+y2/zqqzAVUayMCPt1ZHLfc+uG0Z97+XmWNuuIo
+      RCBB5Os29NKo4+K66prYlfBFeuvji9tV1zGwBMYMC2RabITIjH9yazE+Tox54iV+
+      kw/IYPsnv4vPIcuC8dnvZ0v7/Kkhm6Hp0ZrGRNKccHuinJeiuhvfXXG3xrrBrMY7
+      iw7I3i2hvw/BSFdJ1RnuMGlr2W3qcZQvlqCWIGAzEpmXom9bwBKo/ZZ2MSJCgEVY
+      KKPqjLs/7IKRzlzUFIuk8Uibrhoxmc0NaqIeQOUtyelFdc/P3p2fEjwJd7sr8dzo
+      NFVgUMHGiqu0C5fZ90KnfLNrXJcMb4VjsvGFyIDt0AZY5w4rjoKmjlB/p4/CRfyz
+      qFnp2ZK4eRPqurmGwnSArsjPLMhWjlc7NRXtQ1nyMNAEi4RRhlJyjmvJIRrdeVu2
+      Nq6ZknBq0SeDlH/3uRfNPwHxqgDFNTCgsg4/Lgj2au1XbaEBlgRq3PDAh4a3H+fO
+      iGKinJy2/p9TGvrKTcO3mremHbuVg41G6FjxvzuZKx3P7ssN4KBlCJ9L/tJX5RDn
+      4m5u4ZdaPZBXxjgXj24SDLETaz+K0DxwtjGQ7kTpC0zv6hLcEGxS2220cX7Msgih
+      pWX+ItWfet/uLkmfyCpaxt0CAwEAAQ==
+      -----END PUBLIC KEY-----
+    channel_prvkey: |
+      -----BEGIN PRIVATE KEY-----
+      MIIJQwIBADANBgkqhkiG9w0BAQEFAASCCS0wggkpAgEAAoICAQCfZp2zZErKCpNs
+      3STG4YjdW6H/VJK8eWzZxgxdkmnCqLHn7Lb/OqrMBVRrIwI+3Vkct9z64bRn3v5e
+      ZY264ihEIEHk6zb00qjj4rrqmtiV8EV66+OL21XXMbAExgwLZFpshMiMf3JrMT5O
+      jHniJX6TD8hg+ye/i88hy4Lx2e9nS/v8qSGboenRmsZE0pxwe6Kcl6K6G99dcbfG
+      usGsxjuLDsjeLaG/D8FIV0nVGe4waWvZbepxlC+WoJYgYDMSmZeib1vAEqj9lnYx
+      IkKARVgoo+qMuz/sgpHOXNQUi6TxSJuuGjGZzQ1qoh5A5S3J6UV1z8/enZ8SPAl3
+      uyvx3Og0VWBQwcaKq7QLl9n3Qqd8s2tclwxvhWOy8YXIgO3QBljnDiuOgqaOUH+n
+      j8JF/LOoWenZkrh5E+q6uYbCdICuyM8syFaOVzs1Fe1DWfIw0ASLhFGGUnKOa8kh
+      Gt15W7Y2rpmScGrRJ4OUf/e5F80/AfGqAMU1MKCyDj8uCPZq7VdtoQGWBGrc8MCH
+      hrcf586IYqKcnLb+n1Ma+spNw7eat6Ydu5WDjUboWPG/O5krHc/uyw3goGUIn0v+
+      0lflEOfibm7hl1o9kFfGOBePbhIMsRNrP4rQPHC2MZDuROkLTO/qEtwQbFLbbbRx
+      fsyyCKGlZf4i1Z963+4uSZ/IKlrG3QIDAQABAoICAAGXQ9gpllXVYgV1CzwBPhKI
+      KqynyAN3CnHS+EZ1IraVZJnTYuaBtqOCIxv4Sw+xua+1GxDARhgU9utzboUbYuT+
+      gGyGjMjH6HUbyxtHz9pmkz7ykesQVZc9UPZ/O9lfl0fG0dHrJ2BwAEvxkCQvFR1m
+      doIXR50xtJpvqPR9JRaeFhtTsc5B667n8Ut4YaTSwGZOh3UoODllxucwxSQ9DJTq
+      9nDB5P/JP7fXMoQHYKPy4
+    channel_epubkey: "cBYhT+C+ZzzXDLlZh1hEsWzz5HI06TwW6o8HgfyLlFo"
+    channel_eprvkey: "/ClTxXKn7Lts+O6CgqJ2cCe0FlKpNSZfrBLPaB1Bq2twFiFP4L5nPNcMuVmHWESxbPPkcjTpPBbqjweB/IuUWg"
+    channel_notifyflags: 65535
+    channel_pageflags: 0
+    channel_dirdate: '0001-01-01 00:00:00'
+    channel_lastpost: '0001-01-01 00:00:00'
+    channel_deleted: '0001-01-01 00:00:00'
+    channel_active: '0001-01-01 00:00:00'
+    channel_max_anon_mail: 10
+    channel_max_friend_req: 10
+    channel_expire_days: 0
+    channel_passwd_reset: ''
+    channel_default_group: "1e2d888c-5b77-46d4-a058-12fadb0a5c24"
+    channel_allow_cid: ""
+    channel_allow_gid: ""
+    channel_deny_cid: ""
+    channel_deny_gid: ""
+    channel_removed: 0
+    channel_system: 0
+    channel_moved: ''
+    channel_password: "password"
+    channel_salt: "balle"
