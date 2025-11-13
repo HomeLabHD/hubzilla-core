@@ -78,7 +78,7 @@ class dba_pdo extends dba_driver {
 
 		$result = false;
 		$this->error = '';
-		$select = stripos($sql, 'select') === 0 || stripos($sql, 'with') === 0 || stripos($sql, 'returning ') > 0;
+		$select = stripos($sql, 'select') === 0 || stripos($sql, 'with') === 0;
 
 		try {
 			$result = $this->db->query($sql, PDO::FETCH_ASSOC);
@@ -132,14 +132,11 @@ class dba_pdo extends dba_driver {
 	 *
 	 * @param string $table		The table to insert the row into.
 	 * @param array $data		The data to insert as an array of column name => value pairs.
-	 * @param string $idcol		The column name for the primary key of the table. We need to
-	 *                          specify this since we don't have a consistent naming of primary
-	 *                          id for tables.
 	 *
 	 * @return array|bool	The complete record as read back from the database, or false if we
 	 *                      could not fetch it.
 	 */
-	public function insert(string $table, array $data, string $idcol): array|bool {
+	public function insert(string $table, array $data): array|bool {
 		$keys = array_keys($data);
 		$values = array_map(
 			fn ($v) => is_numeric($v) ? $v : "'" . dbesc($v) . "'",
@@ -150,39 +147,58 @@ class dba_pdo extends dba_driver {
 			. implode(', ', $keys) . ') VALUES ('
 			. implode(', ', $values) . ')';
 
-		// MySQL is the only supported DB that don't support the returning
-		// clause. Since the driver type is 'mysql' also for MariaDB, we need
-		// to check the actual server version to be sure we only exclude actual
-		// MySQL systems.
-		if ($this->driver_dbtype !== 'mysql' || stripos($this->server_version, 'mariadb') !== false) {
-			$query .= ' RETURNING *';
-		}
+		if ($this->is_mysql()) {
+			$this->db->exec($query);
 
-		$res = $this->q($query);
-
-		if (is_a($res, PDOStatement::class)) {
+			// MySQL don't support INSERT ... RETURNING, so we have to fetch
+			// the inserted data manually.
 			//
 			// Calling PDO::lastInsertId should be safe here.
-			// The last inserted id is kept for each connection, so we're not risking
-			// a race condition wrt inserts by other requests that happen simultaneously.
+			//
+			// The last inserted id is kept for each connection, so we're not
+			// risking a race condition wrt inserts by other requests that
+			// happen simultaneously.
 			//
 			$id = $this->db->lastInsertId($table);
+			$id_col = $this->get_id_col($table);
 
-			$res = $this->q("SELECT * FROM {$table} WHERE {$idcol} = {$id}");
-
-			if (is_a($res, PDOStatement::class)) {
-				db_logger('dba_pdo: PDOStatement returned, did not expect that.');
-				return false;
+			// LAST_INSERT_ID() will return 0 or null if the id column was
+			// specified in the INSERT statement. Use the specified id to
+			// reload from the db.
+			if (intval($id) == 0) {
+				$id = $data[$id_col];
 			}
+
+			$st = $this->db->prepare("SELECT * FROM {$table} WHERE {$id_col} = ?");
+			$st->execute([$id]);
+		} else {
+			// Postgres and MariaDB support retruning the data immediately, so
+			// add the RETURNING clause to the query
+			$query .= ' RETURNING *';
+
+			$st = $this->db->query($query);
 		}
 
-		if (is_array($res)) {
-			// Since we should never have more than one result, unwrap the array
-			// so we only have the resulting row.
-			$res = $res[0];
+		return $st->fetch(PDO::FETCH_ASSOC);
+	}
+
+	/**
+	 * Return the name of the column for the primary key for a given table.
+	 *
+	 * @param string $table		The table whose primary key column we want.
+	 *
+	 * @return string	The name of the column for the primary key.
+	 */
+	private function get_id_col(string $table): string {
+		$id_col = '';
+
+		$st = $this->db->query("SHOW INDEX from {$table} WHERE key_name = 'PRIMARY'");
+		if ($st !== false) {
+			$res = $st->fetch(PDO::FETCH_ASSOC);
+			$id_col = $res['Column_name'];
 		}
 
-		return $res;
+		return $id_col;
 	}
 
 	/**
@@ -300,4 +316,24 @@ class dba_pdo extends dba_driver {
 		return 'pdo';
 	}
 
+	/**
+	 * Return true if this we're running on a MySQL server.
+	 *
+	 * Note, this will return `false` on MariaDB.
+	 *
+	 * @return	true if the database is a MySQL server instance.
+	 */
+	public function is_mysql(): bool {
+		return $this->driver_dbtype === 'mysql' &&
+			stripos($this->server_version, 'mariadb') === false;
+	}
+
+	/**
+	 * Return true if we're running on a PostgreSQL server.
+	 *
+	 * @return	true if the database is a PostgreSQL server instance.
+	 */
+	public function is_postgres(): bool {
+		return $this->driver_dbtype === 'pgsql';
+	}
 }

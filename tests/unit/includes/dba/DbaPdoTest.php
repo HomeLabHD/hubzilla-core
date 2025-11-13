@@ -12,39 +12,16 @@ namespace Zotlabs\Tests\Unit\includes;
 
 use DBA;
 use PDO;
-use PDOStatement;
+use PDOException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Zotlabs\Tests\Unit\UnitTestCase;
 
 class DbaPdoTest extends UnitTestCase
 {
-	public function testInsertingRowWithRturningClauseReturnsInsertedRow(): void
-	{
-		// MySQL does not support the `returning` clause, so we skip the test
-		// for that DB backend.
-		$this->skipIfMySQL();
-
-		// Let's manually insert a row in the config table.
-		// This is just because it's a conventient table to test
-		// against
-		$res = q(<<<SQL
-			INSERT INTO config (cat, k, v)
-				VALUES ('test', 'a key', 'A value')
-				RETURNING *
-			SQL);
-
-		$this->assertIsArray($res);
-		$this->assertIsArray($res[0]);
-		$this->assertTrue($res[0]['id'] > 0);
-		$this->assertEquals('test', $res[0]['cat']);
-		$this->assertEquals('a key', $res[0]['k']);
-		$this->assertEquals('A value', $res[0]['v']);
-	}
-
 	#[DataProvider('insertRowProvider')]
 	public function testInsertRow(string $table, array $data, string $id): void
 	{
-		$res = DBA::$dba->insert($table, $data, $id);
+		$res = DBA::$dba->insert($table, $data);
 
 		$this->assertIsArray($res);
 
@@ -57,18 +34,23 @@ class DbaPdoTest extends UnitTestCase
 	}
 
 	#[DataProvider('insertRowProvider')]
-	public function testInsertShouldReturnFalseIfInsertFails(
-		string $table,
-		array $data,
-		string $id
-		): void
+	public function testInsertThrowsOnDuplicateId(string $table, array $data): void
 	{
-		$res1 = DBA::$dba->insert($table, $data, $id);
+		$this->expectException(PDOException::class);
+		if (DBA::$dba->is_postgres()) {
+			// Postgres uses 23505 to signal a unique violation
+			$this->expectExceptionCode(23505);
+		} else {
+			// MySQL and MariaDB just signal a constraint violation without
+			// being more specific
+			$this->expectExceptionCode(23000);
+		}
+
+		$res1 = DBA::$dba->insert($table, $data);
 		$this->assertIsArray($res1);
 
-		// Inserting the same row again should fail.
-		$res2 = DBA::$dba->insert($table, $data, $id);
-		$this->assertFalse($res2);
+		// Inserting the same row again should throw a PDOException.
+		$res2 = DBA::$dba->insert($table, $data);
 	}
 
 	/**
