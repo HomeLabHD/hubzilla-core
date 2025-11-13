@@ -1,7 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
-
+use Zotlabs\Lib\Activity;
 
 class Viewsrc extends \Zotlabs\Web\Controller {
 
@@ -28,13 +28,16 @@ class Viewsrc extends \Zotlabs\Web\Controller {
 		$item_normal = item_normal_search();
 
 		if(local_channel() && $item_id) {
-			$r = q("select id, mid, uuid, item_flags, mimetype, item_obscured, body, llink, plink from item where uid in (%d , %d) and id = %d $item_normal limit 1",
+			$r = q("select * from item where uid in (%d , %d) and id = %d $item_normal limit 1",
 				intval(local_channel()),
 				intval($sys['channel_id']),
 				intval($item_id)
 			);
 
 			if($r) {
+				xchan_query($r, true);
+				$r = fetch_post_tags($r);
+
 				if(intval($r[0]['item_obscured']))
 					$dload = true;
 
@@ -45,9 +48,23 @@ class Viewsrc extends \Zotlabs\Web\Controller {
 					killme();
 				}
 
+				$obj = get_iconfig($r[0], 'activitypub', 'rawmsg');
 
-				$content = escape_tags($r[0]['body']);
-				$o = (($json) ? json_encode($content) : $content);
+				if ($obj) {
+					$obj = json_decode(htmlspecialchars($obj, ENT_NOQUOTES), true);
+				}
+				else {
+					$obj = Activity::encode_activity($r[0]);
+				}
+
+				if ($obj) {
+					$content = '<pre>' . escape_tags(json_encode($obj, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)) . '</pre>';
+				}
+				else {
+					$content = escape_tags($r[0]['body']);
+				}
+
+				$o = (($json) ? json_encode($content) : str_replace("\n", '<br>', $content));
 			}
 		}
 
