@@ -38,6 +38,7 @@ class Viewsrc extends \Zotlabs\Web\Controller {
 				xchan_query($r, true);
 				$r = fetch_post_tags($r);
 
+
 				if(intval($r[0]['item_obscured']))
 					$dload = true;
 
@@ -50,10 +51,7 @@ class Viewsrc extends \Zotlabs\Web\Controller {
 
 				$obj = get_iconfig($r[0], 'activitypub', 'rawmsg');
 
-				if ($obj) {
-					$obj = json_decode(htmlspecialchars($obj, ENT_NOQUOTES), true);
-				}
-				else {
+				if (!$obj) {
 					$obj = Activity::encode_activity($r[0]);
 				}
 
