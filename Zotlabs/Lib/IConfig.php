@@ -44,12 +44,24 @@ class IConfig {
 			dbesc($family),
 			dbesc($key)
 		);
+
 		if($r) {
-			$r[0]['v'] = ((preg_match('|^a:[0-9]+:{.*}$|s',$r[0]['v'])) ? unserialize($r[0]['v']) : $r[0]['v']);
-			if($is_item)
+			if (str_starts_with($r[0]['v'], 'json:')) {
+				$r[0]['v'] = unserialise($r[0]['v']);
+			} else if (preg_match('|^a:[0-9]+:{.*}$|s', $r[0]['v'])) {
+				// Unserialize in inherently unsafe. Try to mitigate by not
+				// allowing unserializing objects. Only kept for backwards
+				// compatibility. JSON serialization should be prefered.
+				$r[0]['v'] = unserialize($r[0]['v'], ['allowed_classes' => false]);
+			}
+
+			if ($is_item) {
 				$item['iconfig'][] = $r[0];
+			}
+
 			return $r[0]['v'];
 		}
+
 		return $default;
 
 	}
@@ -73,7 +85,7 @@ class IConfig {
 
 	static public function Set(&$item, $family, $key, $value, $sharing = false) {
 
-		$dbvalue = ((is_array($value))  ? serialize($value) : $value);
+		$dbvalue = ((is_array($value))  ? serialise($value) : $value);
 		$dbvalue = ((is_bool($dbvalue)) ? intval($dbvalue)  : $dbvalue);
 
 		$is_item = false;

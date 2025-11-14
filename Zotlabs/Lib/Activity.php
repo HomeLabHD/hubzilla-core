@@ -829,8 +829,7 @@ class Activity {
 		if ($iconfig && array_key_exists('iconfig', $item) && is_array($item['iconfig'])) {
 			foreach ($item['iconfig'] as $att) {
 				if ($att['sharing']) {
-					$value = ((is_string($att['v']) && preg_match('|^a:[0-9]+:{.*}$|s', $att['v'])) ? unserialize($att['v']) : $att['v']);
-					$ret[] = ['type' => 'PropertyValue', 'name' => 'zot.' . $att['cat'] . '.' . $att['k'], 'value' => $value];
+					$ret[] = ['type' => 'PropertyValue', 'name' => 'zot.' . $att['cat'] . '.' . $att['k'], 'value' => unserialise($att['v'])];
 				}
 			}
 		}
@@ -2674,8 +2673,8 @@ class Activity {
 			$s['item_private'] = 2;
 		}
 
-		$ap_rawmsg = '';
-		$diaspora_rawmsg = '';
+		$ap_rawmsg = [];
+		$diaspora_rawmsg = [];
 		$raw_arr = [];
 
 		$raw_arr = json_decode($act->raw, true);
@@ -2704,14 +2703,14 @@ class Activity {
 
 		if (!$ap_rawmsg && array_key_exists('signed', $raw_arr)) {
 			// zap
-			$ap_rawmsg = json_encode($act->data, JSON_UNESCAPED_SLASHES);
+			$ap_rawmsg = $act->data;
 		}
 
 		if ($ap_rawmsg) {
 			IConfig::Set($s, 'activitypub', 'rawmsg', $ap_rawmsg, 1);
 		}
 		elseif (!array_key_exists('signed', $raw_arr)) {
-			IConfig::Set($s, 'activitypub', 'rawmsg', $act->raw, 1);
+			IConfig::Set($s, 'activitypub', 'rawmsg', $raw_arr, 1);
 		}
 
 		if ($diaspora_rawmsg) {

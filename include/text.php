@@ -4098,7 +4098,7 @@ function unserialise($x) {
 	if (is_array($x)) {
 		return $x;
 	}
-	$y = ((substr($x,0,5) === 'json:') ? json_decode(substr($x,5),true) : '');
+	$y = ((str_starts_with($x, 'json:')) ? json_decode(substr($x, 5), true) : '');
 	return ((is_array($y)) ? $y : $x);
 }
 
