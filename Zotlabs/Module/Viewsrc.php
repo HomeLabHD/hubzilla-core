@@ -49,14 +49,16 @@ class Viewsrc extends \Zotlabs\Web\Controller {
 					killme();
 				}
 
+				$cached = true;
 				$obj = get_iconfig($r[0], 'activitypub', 'rawmsg');
 
 				if (!$obj) {
+					$cached = false;
 					$obj = Activity::encode_activity($r[0]);
 				}
 
 				if ($obj) {
-					$content = '<pre>' . escape_tags(json_encode($obj, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)) . '</pre>';
+					$content = (($cached) ? 'Cached: ' : '') . '<pre>' . escape_tags(json_encode($obj, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)) . '</pre>';
 				}
 				else {
 					$content = escape_tags($r[0]['body']);
