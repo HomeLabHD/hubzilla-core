@@ -2675,13 +2675,11 @@ class Activity {
 
 		$ap_rawmsg = [];
 		$diaspora_rawmsg = [];
-		$raw_arr = [];
 
-		$raw_arr = json_decode($act->raw, true);
-
-		// This is a zot6 packet and the raw activitypub or diaspora message json
-		// is possibly available in the attachement.
-		if (array_key_exists('signed', $raw_arr) && isset($act->data['attachment']) && is_array($act->data['attachment'])) {
+		// If it is a zot6 packet, the raw activitypub or diaspora message json
+		// might be available in the activities attachement.
+		// TODO: this logic should probably be moved each to their addon.
+		if (isset($act->data['attachment']) && is_array($act->data['attachment'])) {
 			foreach($act->data['attachment'] as $a) {
 				if (
 					isset($a['type']) && $a['type'] === 'PropertyValue' &&
@@ -2700,17 +2698,11 @@ class Activity {
 			}
 		}
 
-
-		if (!$ap_rawmsg && array_key_exists('signed', $raw_arr)) {
-			// zap
-			$ap_rawmsg = $act->data;
-		}
-
 		if ($ap_rawmsg) {
 			IConfig::Set($s, 'activitypub', 'rawmsg', $ap_rawmsg, 1);
 		}
-		elseif (!array_key_exists('signed', $raw_arr)) {
-			IConfig::Set($s, 'activitypub', 'rawmsg', $raw_arr, 1);
+		else {
+			IConfig::Set($s, 'activitypub', 'rawmsg', $act->data, 1);
 		}
 
 		if ($diaspora_rawmsg) {
