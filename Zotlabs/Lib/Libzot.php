@@ -1298,9 +1298,9 @@ class Libzot {
 					$item['comment_policy'] = 'authenticated';
 				}
 
-				if (isset($AS->meta['signed_data']) && $AS->meta['signed_data']) {
-					IConfig::Set($item, 'activitypub', 'signed_data', $AS->meta['signed_data'], false);
-				}
+				// We currently do this in Activity::decode_note().
+				// TODO: what do we do if this part moves to addons? Or maybe be we should not?
+				// IConfig::Set($item, 'activitypub', 'rawmsg', $AS->data, false);
 
 				logger('Activity received: ' . print_r($item, true), LOGGER_DATA, LOG_DEBUG);
 				logger('Activity recipients: ' . print_r($deliveries, true), LOGGER_DATA, LOG_DEBUG);
