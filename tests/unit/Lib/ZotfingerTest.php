@@ -104,15 +104,9 @@ class ZotfingerTest extends UnitTestCase
 		$_SERVER['CONTENT_LENGTH'] = 42;
 
 
-		$result = create_identity([
-			'account_id' => $this->fixtures['account'][0]['account_id'],
-			'name' => 'Test User',
-			'nickname' => 'testuser',
-		]);
+		$channel = $this->fixtures['channel'][0];
 
-		$this->assertTrue($result['success']);
-
-		$testresult = Zotfinger::exec('https://example.test/some-resource', $result['channel']);
+		$testresult = Zotfinger::exec('https://example.test/some-resource', $channel);
 
 		//
 		// Verify that the json payload has been decoded
