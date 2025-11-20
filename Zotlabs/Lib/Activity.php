@@ -501,8 +501,8 @@ class Activity {
 			}
 		}
 
-		$ret['id']            = ((strpos($i['mid'], 'http') === 0) ? $i['mid'] : z_root() . '/item/' . urlencode($i['mid']));
-		$ret['diaspora:guid'] = $i['uuid'];
+		$ret['id'] = ((strpos($i['mid'], 'http') === 0) ? $i['mid'] : z_root() . '/item/' . urlencode($i['mid']));
+		$ret['uuid'] = $i['uuid'];
 
 		$images = [];
 		$audios = [];
@@ -996,7 +996,7 @@ class Activity {
 			$ret['id'] = ((strpos($i['mid'], 'http') === 0) ? $i['mid'] : z_root() . '/activity/' . urlencode($i['mid']));
 		}
 
-		$ret['diaspora:guid'] = $i['uuid'];
+		$ret['uuid'] = $i['uuid'];
 
 		if (!empty($i['title']))
 			$ret['name'] = html2plain(bbcode($i['title']));
@@ -2673,42 +2673,6 @@ class Activity {
 			$s['item_private'] = 2;
 		}
 
-		$ap_rawmsg = [];
-		$diaspora_rawmsg = [];
-
-		// If it is a zot6 packet, the raw activitypub or diaspora message json
-		// might be available in the activities attachement.
-		// TODO: this logic should probably be moved each to their addon.
-		if (isset($act->data['attachment']) && is_array($act->data['attachment'])) {
-			foreach($act->data['attachment'] as $a) {
-				if (
-					isset($a['type']) && $a['type'] === 'PropertyValue' &&
-					isset($a['name']) && $a['name'] === 'zot.activitypub.rawmsg' &&
-					isset($a['value'])
-				) {
-					$ap_rawmsg = $a['value'];
-				}
-				if (
-					isset($a['type']) && $a['type'] === 'PropertyValue' &&
-					isset($a['name']) && $a['name'] === 'zot.diaspora.fields' &&
-					isset($a['value'])
-				) {
-					$diaspora_rawmsg = $a['value'];
-				}
-			}
-		}
-
-		if ($ap_rawmsg) {
-			IConfig::Set($s, 'activitypub', 'rawmsg', $ap_rawmsg, 1);
-		}
-		else {
-			IConfig::Set($s, 'activitypub', 'rawmsg', $act->data, 1);
-		}
-
-		if ($diaspora_rawmsg) {
-			IConfig::Set($s, 'diaspora', 'fields', $diaspora_rawmsg, 1);
-		}
-
 		if ($act->raw_recips) {
 			IConfig::Set($s, 'activitypub', 'recips', $act->raw_recips);
 		}
@@ -2716,6 +2680,8 @@ class Activity {
 		if ($act->objprop('type') === 'Event' && $act->objprop('timezone')) {
 			IConfig::Set($s, 'event', 'timezone', $act->objprop('timezone'), true);
 		}
+
+		IConfig::Set($s, 'activitypub', 'rawmsg', $act->data);
 
 		$hookinfo = [
 			'act' => $act,
@@ -3736,8 +3702,6 @@ class Activity {
 			'uuid'             => 'schema:identifier',
 
 			'conversation'     => 'ostatus:conversation',
-
-			'guid'             => 'diaspora:guid',
 
 			'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
 			'Hashtag'          => 'as:Hashtag',

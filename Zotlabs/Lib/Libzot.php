@@ -1298,10 +1298,6 @@ class Libzot {
 					$item['comment_policy'] = 'authenticated';
 				}
 
-				if (isset($AS->meta['signed_data']) && $AS->meta['signed_data']) {
-					IConfig::Set($item, 'activitypub', 'signed_data', $AS->meta['signed_data'], false);
-				}
-
 				logger('Activity received: ' . print_r($item, true), LOGGER_DATA, LOG_DEBUG);
 				logger('Activity recipients: ' . print_r($deliveries, true), LOGGER_DATA, LOG_DEBUG);
 
