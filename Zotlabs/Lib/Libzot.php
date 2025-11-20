@@ -6,7 +6,6 @@ use App;
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Access\Permissions;
 use Zotlabs\Daemon\Master;
-use Zotlabs\Lib\Config;
 use Zotlabs\Web\HTTPSig;
 
 require_once('include/crypto.php');
@@ -2140,10 +2139,9 @@ class Libzot {
 			}
 
 			if (isset($AS->meta['signed_data'])) {
-				IConfig::Set($arr, 'activitypub', 'signed_data', $AS->meta['signed_data'], false);
 				$j = json_decode($AS->meta['signed_data'], true);
 				if ($j) {
-					IConfig::Set($arr, 'activitypub', 'rawmsg', json_encode(JSalmon::unpack($j['data'])), true);
+					ObjCache::Set($arr['mid'], json_encode(JSalmon::unpack($j['data'])));
 				}
 			}
 

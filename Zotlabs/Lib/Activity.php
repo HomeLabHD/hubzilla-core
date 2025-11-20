@@ -382,7 +382,12 @@ class Activity {
 		if ($items) {
 			$x = [];
 			foreach ($items as $i) {
-				$m = IConfig::Get($i['id'], 'activitypub', 'rawmsg');
+				$m = ObjCache::Get($i['mid']);
+
+				if (!$m) {
+					$m = IConfig::Get($i['id'], 'activitypub', 'rawmsg');
+				}
+
 				if ($m) {
 					if (is_string($m))
 						$t = json_decode($m, true);
@@ -2681,7 +2686,7 @@ class Activity {
 			IConfig::Set($s, 'event', 'timezone', $act->objprop('timezone'), true);
 		}
 
-		IConfig::Set($s, 'activitypub', 'rawmsg', $act->data);
+		ObjCache::Set($s['mid'], $act->data);
 
 		$hookinfo = [
 			'act' => $act,
@@ -2846,7 +2851,7 @@ class Activity {
 
 		if (tgroup_check($channel['channel_id'], $item) && (!$is_child_node)) {
 			// for forum deliveries, make sure we keep a copy of the signed original
-			IConfig::Set($item, 'activitypub', 'rawmsg', $act->raw, 1);
+			ObjCache::Set($item['mid'], $act->data);
 			$allowed = true;
 		}
 

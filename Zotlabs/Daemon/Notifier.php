@@ -4,6 +4,8 @@ namespace Zotlabs\Daemon;
 
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\Config;
+use Zotlabs\Lib\IConfig;
+use Zotlabs\Lib\ObjCache;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Queue;
 
@@ -317,7 +319,12 @@ class Notifier {
 				return;
 			}
 
-			$m = get_iconfig($target_item, 'activitypub', 'rawmsg');
+			$m = ObjCache::Get($target_item['mid']);
+
+			if (!$m) {
+				$m = IConfig::Get($target_item, 'activitypub', 'rawmsg');
+			}
+
 			// Re-use existing signature unless the activity type changed to a Tombstone, which won't verify.
 			if ($m && (!intval($target_item['item_deleted']))) {
 				self::$encoded_item = $m;

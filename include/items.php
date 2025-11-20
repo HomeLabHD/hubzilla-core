@@ -10,6 +10,7 @@ use Zotlabs\Lib\Enotify;
 use Zotlabs\Lib\MarkdownSoap;
 use Zotlabs\Lib\MessageFilter;
 use Zotlabs\Lib\ThreadListener;
+use Zotlabs\Lib\ObjCache;
 use Zotlabs\Lib\IConfig;
 use Zotlabs\Lib\PConfig;
 use Zotlabs\Lib\Activity;
@@ -4178,6 +4179,15 @@ function delete_item_lowlevel($item, $stage = DROPITEM_NORMAL) {
 	q("delete from iconfig where iid = %d",
 		intval($item['id'])
 	);
+
+	$n = q("SELECT count(id) AS total FROM item WHERE mid = '%s'",
+		dbesc($item['mid'])
+	);
+
+	if (!$n[0]['total']) {
+		ObjCache::Delete($item['mid']);
+		ObjCache::Delete($item['mid'], 'diaspora');
+	}
 
 	q("delete from term where oid = %d and otype = %d",
 		intval($item['id']),

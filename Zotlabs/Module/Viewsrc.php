@@ -2,6 +2,8 @@
 namespace Zotlabs\Module;
 
 use Zotlabs\Lib\Activity;
+use Zotlabs\Lib\IConfig;
+use Zotlabs\Lib\ObjCache;
 
 class Viewsrc extends \Zotlabs\Web\Controller {
 
@@ -38,7 +40,6 @@ class Viewsrc extends \Zotlabs\Web\Controller {
 				xchan_query($r, true);
 				$r = fetch_post_tags($r);
 
-
 				if(intval($r[0]['item_obscured']))
 					$dload = true;
 
@@ -50,7 +51,20 @@ class Viewsrc extends \Zotlabs\Web\Controller {
 				}
 
 				$cached = true;
-				$obj = get_iconfig($r[0], 'activitypub', 'rawmsg');
+
+				$obj = ObjCache::Get($r[0]['mid']);
+
+				if (!$obj) {
+					$obj = IConfig::Get($r[0], 'activitypub', 'rawmsg');
+				}
+
+				if (in_array($r[0]['owner']['xchan_network'], ['diaspora'])) {
+					$obj = ObjCache::Get($r[0]['mid'], 'diaspora');
+
+					if (!$obj) {
+						$obj = IConfig::Get($r[0], 'diaspora', 'fields');
+					}
+				}
 
 				if (!$obj) {
 					$cached = false;
