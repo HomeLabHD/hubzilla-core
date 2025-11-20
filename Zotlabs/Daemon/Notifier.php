@@ -317,10 +317,10 @@ class Notifier {
 				return;
 			}
 
-			$m = get_iconfig($target_item, 'activitypub', 'signed_data');
+			$m = get_iconfig($target_item, 'activitypub', 'rawmsg');
 			// Re-use existing signature unless the activity type changed to a Tombstone, which won't verify.
 			if ($m && (!intval($target_item['item_deleted']))) {
-				self::$encoded_item = json_decode($m, true);
+				self::$encoded_item = $m;
 			}
 			else {
 				$activity = Activity::encode_activity($target_item);

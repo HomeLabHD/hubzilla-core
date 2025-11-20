@@ -35,13 +35,15 @@ class IConfig {
 		if(is_array($item) && array_key_exists('iconfig',$item) && is_array($item['iconfig'])) {
 			foreach($item['iconfig'] as $c) {
 				if (isset($c['iid']) && $c['iid'] == $iid && isset($c['cat']) && $c['cat'] == $family && isset($c['k']) && $c['k'] == $key) {
-					if (str_starts_with($c['v'], 'json:')) {
-						$c['v'] = unserialise($c['v']);
-					} else if (preg_match('|^a:[0-9]+:{.*}$|s', $c['v'])) {
-						// Unserialize in inherently unsafe. Try to mitigate by not
-						// allowing unserializing objects. Only kept for backwards
-						// compatibility. JSON serialization should be prefered.
-						$c['v'] = unserialize($c['v'], ['allowed_classes' => false]);
+					if (is_string($c['v'])) {
+						if (str_starts_with($c['v'], 'json:')) {
+							$c['v'] = unserialise($c['v']);
+						} else if (preg_match('|^a:[0-9]+:{.*}$|s', $c['v'])) {
+							// Unserialize in inherently unsafe. Try to mitigate by not
+							// allowing unserializing objects. Only kept for backwards
+							// compatibility. JSON serialization should be prefered.
+							$c['v'] = unserialize($c['v'], ['allowed_classes' => false]);
+						}
 					}
 
 					return $c['v'];
