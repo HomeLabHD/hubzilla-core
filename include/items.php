@@ -3415,7 +3415,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		$arr['target'] = [
 			'id' => str_replace('/item/', '/conversation/', $arr['parent_mid']),
 			'type' => 'Collection',
-			'attributedTo' => channel_url($channel['channel_address'])
+			'attributedTo' => channel_url($channel)
 		];
 
 		$arr['term'] = $item['term'];
