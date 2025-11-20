@@ -76,13 +76,6 @@ class MagicTest extends TestCase {
 			'xchan_hash' => 'foreign hash',
 		]);
 
-		// Create the channel the foreign observer wants to access
-		$result = create_identity([
-			'account_id' => $this->fixtures['account'][0]['account_id'],
-			'nickname' => 'testuser',
-			'name' => 'Trish Testuser',
-		]);
-
 		// Shortcut the permission checks, by saying this observer is allowed
 		// the delegate privilege over the target channel
 		insert_hook('perm_is_allowed', function (array &$perm) {
@@ -101,18 +94,20 @@ class MagicTest extends TestCase {
 		// assertions after the redirect is thrown.
 		$this->stub_goaway();
 
+		$channel = $this->fixtures['channel'][1];
+
 		try {
 			// Send a request to get delegate privileges for the `testuser` channel
 			// on the local hub.
 			$this->get('magic', [
 				'bdest' => bin2hex($dest_url),
-				'delegate' => 'testuser@hubzilla.test']
-			);
+				'delegate' => channel_reddress($channel)
+			]);
 		} catch (RedirectException $e) {
 			$this->assertEquals($dest_url, $e->getMessage());
-			$this->assertEquals($result['channel']['channel_id'], App::$channel['channel_id']);
+			$this->assertEquals($channel['channel_id'], App::$channel['channel_id']);
 			$this->assertEquals($original_session, $_SESSION['delegate_push']);
-			$this->assertEquals($result['channel']['channel_id'], $_SESSION['delegate_channel']);
+			$this->assertEquals($channel['channel_id'], $_SESSION['delegate_channel']);
 			$this->assertEquals('foreign hash', $_SESSION['delegate']);
 			$this->assertEquals($this->fixtures['account'][0]['account_id'], $_SESSION['account_id']);
 		}
