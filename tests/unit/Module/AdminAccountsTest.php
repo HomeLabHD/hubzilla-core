@@ -8,6 +8,7 @@
 
 namespace Zotlabs\Tests\Unit\Module;
 
+use App;
 use PHPUnit\Framework\Attributes\Before;
 
 class AdminAccountsTest extends TestCase {
@@ -75,11 +76,13 @@ class AdminAccountsTest extends TestCase {
 		$this->assertEquals('2 account blocked/unblocked', $this->notice[0]);
 	}
 
-	public function test_deleting_accouns_remove_them_from_db(): void {
+	public function test_deleting_accounts_remove_them_from_db(): void {
 		$params = [
 			'user' => [ 42, 44 ],
 			'page_accounts_delete' => true,
 		];
+
+		App::$account = $this->fixtures['account'][0];
 
 		try {
 			$this->post('admin/accounts', [], $params);
