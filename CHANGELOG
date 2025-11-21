@@ -1,3 +1,8 @@
+Hubzilla 10.6.1 (2025-11-21)
+	- Fix insufficient target attribution for forums
+	- Fix reshare regression in forum logic
+
+
 Hubzilla 10.6 (2025-11-04)
 	Features
 	- Improved background fetching of replies collection
