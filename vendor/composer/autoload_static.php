@@ -50,7 +50,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
             'Symfony\\Polyfill\\Mbstring\\' => 26,
             'Symfony\\Polyfill\\Ctype\\' => 23,
             'Symfony\\Component\\Filesystem\\' => 29,
-            'StephenHill\\Benchmarks\\' => 23,
             'StephenHill\\' => 12,
             'SourceSpan\\' => 11,
             'Smarty\\' => 7,
@@ -162,10 +161,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Symfony\\Component\\Filesystem\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/filesystem',
-        ),
-        'StephenHill\\Benchmarks\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/stephenhill/base58/benchmarks',
         ),
         'StephenHill\\' => 
         array (
@@ -2142,10 +2137,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'SourceSpan\\Util' => __DIR__ . '/..' . '/scssphp/source-span/src/Util.php',
         'StephenHill\\BCMathService' => __DIR__ . '/..' . '/stephenhill/base58/src/BCMathService.php',
         'StephenHill\\Base58' => __DIR__ . '/..' . '/stephenhill/base58/src/Base58.php',
-        'StephenHill\\Benchmarks\\Base16Event' => __DIR__ . '/..' . '/stephenhill/base58/benchmarks/Base16Event.php',
-        'StephenHill\\Benchmarks\\Base58BCMathEvent' => __DIR__ . '/..' . '/stephenhill/base58/benchmarks/Base58BCMathEvent.php',
-        'StephenHill\\Benchmarks\\Base58GMPEvent' => __DIR__ . '/..' . '/stephenhill/base58/benchmarks/Base58GMPEvent.php',
-        'StephenHill\\Benchmarks\\Base64Event' => __DIR__ . '/..' . '/stephenhill/base58/benchmarks/Base64Event.php',
         'StephenHill\\GMPService' => __DIR__ . '/..' . '/stephenhill/base58/src/GMPService.php',
         'StephenHill\\ServiceInterface' => __DIR__ . '/..' . '/stephenhill/base58/src/ServiceInterface.php',
         'Symfony\\Component\\Filesystem\\Exception\\ExceptionInterface' => __DIR__ . '/..' . '/symfony/filesystem/Exception/ExceptionInterface.php',
@@ -2263,6 +2254,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Lib\\MarkdownSoap' => __DIR__ . '/../..' . '/Zotlabs/Lib/MarkdownSoap.php',
         'Zotlabs\\Lib\\MessageFilter' => __DIR__ . '/../..' . '/Zotlabs/Lib/MessageFilter.php',
         'Zotlabs\\Lib\\Multibase' => __DIR__ . '/../..' . '/Zotlabs/Lib/Multibase.php',
+        'Zotlabs\\Lib\\ObjCache' => __DIR__ . '/../..' . '/Zotlabs/Lib/ObjCache.php',
         'Zotlabs\\Lib\\PConfig' => __DIR__ . '/../..' . '/Zotlabs/Lib/PConfig.php',
         'Zotlabs\\Lib\\Permcat' => __DIR__ . '/../..' . '/Zotlabs/Lib/Permcat.php',
         'Zotlabs\\Lib\\PermissionDescription' => __DIR__ . '/../..' . '/Zotlabs/Lib/PermissionDescription.php',
@@ -2346,7 +2338,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Module\\Editwebpage' => __DIR__ . '/../..' . '/Zotlabs/Module/Editwebpage.php',
         'Zotlabs\\Module\\Email_resend' => __DIR__ . '/../..' . '/Zotlabs/Module/Email_resend.php',
         'Zotlabs\\Module\\Email_validation' => __DIR__ . '/../..' . '/Zotlabs/Module/Email_validation.php',
-        'Zotlabs\\Module\\Embed' => __DIR__ . '/../..' . '/Zotlabs/Module/Embed.php',
         'Zotlabs\\Module\\Embedphotos' => __DIR__ . '/../..' . '/Zotlabs/Module/Embedphotos.php',
         'Zotlabs\\Module\\Emoji' => __DIR__ . '/../..' . '/Zotlabs/Module/Emoji.php',
         'Zotlabs\\Module\\Event' => __DIR__ . '/../..' . '/Zotlabs/Module/Event.php',
