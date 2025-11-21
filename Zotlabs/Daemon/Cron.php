@@ -249,7 +249,7 @@ class Cron {
 						}
 
 						elseif (str_starts_with($result['v'], 'json:')) {
-							$result['v'] = unserialise($result['v']);
+							$result['v'] = json_unserialize($result['v']);
 						}
 
 						elseif (preg_match('|^a:[0-9]+:{.*}$|s', $result['v'])) {
@@ -282,7 +282,7 @@ class Cron {
 						}
 
 						elseif (str_starts_with($result['v'], 'json:')) {
-							$result['v'] = unserialise($result['v']);
+							$result['v'] = json_unserialize($result['v']);
 						}
 
 						elseif (preg_match('|^a:[0-9]+:{.*}$|s', $result['v'])) {

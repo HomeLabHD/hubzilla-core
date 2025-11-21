@@ -834,7 +834,7 @@ class Activity {
 		if ($iconfig && array_key_exists('iconfig', $item) && is_array($item['iconfig'])) {
 			foreach ($item['iconfig'] as $att) {
 				if ($att['sharing']) {
-					$ret[] = ['type' => 'PropertyValue', 'name' => 'zot.' . $att['cat'] . '.' . $att['k'], 'value' => unserialise($att['v'])];
+					$ret[] = ['type' => 'PropertyValue', 'name' => 'zot.' . $att['cat'] . '.' . $att['k'], 'value' => $att['v']];
 				}
 			}
 		}
@@ -3598,7 +3598,7 @@ class Activity {
 		$cached = ASCache::Get($url);
 		if ($cached) {
 			// logger('cached: ' . $url);
-			$a = unserialise($cached);
+			$a = $cached;
 		}
 		else {
 			// logger('fetching: ' . $url);
@@ -3607,7 +3607,6 @@ class Activity {
 				ASCache::Set($url, $a);
 			}
 		}
-
 
 		if ($a) {
 			$act = new ActivityStreams($a);

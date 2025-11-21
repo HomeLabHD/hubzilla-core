@@ -1223,7 +1223,7 @@ function encode_item($item,$mirror = false,$zap_compat = false) {
 		if ($zap_compat) {
 			for ($y = 0; $y < count($item['iconfig']); $y ++) {
 				if (preg_match('|^a:[0-9]+:{.*}$|s', $item['iconfig'][$y]['v'])) {
-					$item['iconfig'][$y]['v'] = serialise(unserialize($item['iconfig'][$y]['v']));
+					$item['iconfig'][$y]['v'] = json_serialize(unserialize($item['iconfig'][$y]['v']));
 				}
 			}
 		}

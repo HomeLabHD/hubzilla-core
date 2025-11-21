@@ -37,7 +37,7 @@ class IConfig {
 				if (isset($c['iid']) && $c['iid'] == $iid && isset($c['cat']) && $c['cat'] == $family && isset($c['k']) && $c['k'] == $key) {
 					if (is_string($c['v'])) {
 						if (str_starts_with($c['v'], 'json:')) {
-							$c['v'] = unserialise($c['v']);
+							$c['v'] = json_unserialize($c['v']);
 						} else if (preg_match('|^a:[0-9]+:{.*}$|s', $c['v'])) {
 							// Unserialize in inherently unsafe. Try to mitigate by not
 							// allowing unserializing objects. Only kept for backwards
@@ -59,7 +59,7 @@ class IConfig {
 
 		if($r) {
 			if (str_starts_with($r[0]['v'], 'json:')) {
-				$r[0]['v'] = unserialise($r[0]['v']);
+				$r[0]['v'] = json_unserialize($r[0]['v']);
 			} else if (preg_match('|^a:[0-9]+:{.*}$|s', $r[0]['v'])) {
 				// Unserialize in inherently unsafe. Try to mitigate by not
 				// allowing unserializing objects. Only kept for backwards
@@ -97,7 +97,7 @@ class IConfig {
 
 	static public function Set(&$item, $family, $key, $value, $sharing = false) {
 
-		$dbvalue = ((is_array($value))  ? serialise($value) : $value);
+		$dbvalue = ((is_array($value))  ? json_serialize($value) : $value);
 		$dbvalue = ((is_bool($dbvalue)) ? intval($dbvalue)  : $dbvalue);
 
 		$is_item = false;

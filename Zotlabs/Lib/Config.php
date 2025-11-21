@@ -133,7 +133,7 @@ class Config {
 
 			if (! is_array($value)) {
 				if (str_starts_with($value, 'json:')) {
-					return unserialise($value);
+					return json_unserialize($value);
 				} else if (preg_match('|^a:[0-9]+:{.*}$|s', $value)) {
 					// Unserialize in inherently unsafe. Try to mitigate by not
 					// allowing unserializing objects. Only kept for backwards
