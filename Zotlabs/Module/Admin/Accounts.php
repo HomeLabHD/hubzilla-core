@@ -341,29 +341,27 @@ class Accounts {
 	 * @SuppressWarnings(PHPMD.ShortVariable)
 	 */
 	private function block_unblock_accounts(): void {
-		if (!isset($_POST['user']) || !isset($_POST['blocked'])) {
+		if (!isset($_POST['user'])) {
 			return;
 		}
 
 		$users = $_POST['user'];
-		$blocked = $_POST['blocked'];
 
-		if (!is_array($users) || !is_array($blocked)) {
+		if (!is_array($users)) {
 			return;
 		}
 
-		foreach($users as $i => $id) {
-			// if account is blocked remove blocked bit-flag, otherwise add blocked bit-flag
-			$op = $blocked[$i] ? '& ~' : '| ';
+		$xor = db_getfunc('^');
 
-			q("UPDATE account SET account_flags = (account_flags $op%d) WHERE account_id = %d",
+		foreach($users as $id) {
+			q("UPDATE account SET account_flags = (account_flags $xor %d) WHERE account_id = %d",
 				intval(ACCOUNT_BLOCKED),
 				intval($id)
 			);
 		}
 
 		$count = count($users);
-		$fmt = tt("%s account blocked/unblocked", "%s account blocked/unblocked", $count);
+		$fmt = tt("%s account blocked/unblocked", "%s accounts blocked/unblocked", $count);
 		notice(sprintf($fmt, $count));
 	}
 

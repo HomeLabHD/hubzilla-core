@@ -76,12 +76,12 @@
 						<td class="login_date">{{$u.account_lastlog}}</td>
 						<td class="account_expires">{{$u.account_expires}}</td>
 						<td class="service_class">{{$u.account_service_class}}</td>
-						<td class="checkbox_bulkedit"><input type="checkbox" class="users_ckbx p-1" id="id_user_{{$u.account_id}}" name="user[]" value="{{$u.account_id}}"><input type="hidden" name="blocked[]" value="{{$u.blocked}}"></td>
+						<td class="checkbox_bulkedit"><input type="checkbox" class="users_ckbx p-1" id="id_user_{{$u.account_id}}" name="user[]" value="{{$u.account_id}}"></td>
 						<td class="tools">
 							<a href="{{$baseurl}}/admin/accounts/delete/{{$u.account_id}}?t={{$form_security_token}}" class="p-1 text-reset" title='{{$delete}}' onclick="return confirm_delete('{{$u.name}}')"><i class="bi bi-trash admin-icons"></i></a>
 						</td>
 						<td class="tools">
-							<a href="{{$baseurl}}/admin/accounts/{{if ($u.blocked)}}un{{/if}}block/{{$u.account_id}}?t={{$form_security_token}}" class="p-1 text-reset" title='{{if ($u.blocked)}}{{$unblock}}{{else}}{{$block}}{{/if}}'><i class="bi fa-ban admin-icons{{if ($u.blocked)}} dim{{/if}}"></i></a>
+							<a href="{{$baseurl}}/admin/accounts/{{if ($u.blocked)}}un{{/if}}block/{{$u.account_id}}?t={{$form_security_token}}" class="p-1 text-reset" title='{{if ($u.blocked)}}{{$unblock}}{{else}}{{$block}}{{/if}}'><i class="bi bi-ban admin-icons{{if ($u.blocked)}} dim{{/if}}"></i></a>
 						</td>
 					</tr>
 				{{/foreach}}
