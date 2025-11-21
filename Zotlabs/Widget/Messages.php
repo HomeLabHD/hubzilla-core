@@ -312,10 +312,10 @@ class Messages {
 			$author_sql = " AND notify.url = '" . protect_sprintf(dbesc($author_url)) . "' ";
 		}
 
-		$notices = q("SELECT notify.*, xchan.xchan_addr FROM notify
-			LEFT JOIN xchan ON notify.url = xchan.xchan_url
-			WHERE uid = %d $author_sql
-			GROUP BY notify.id ORDER BY created DESC LIMIT $limit OFFSET $offset",
+		$notices = q("SELECT notify.*, max(hubloc.hubloc_addr) as hubloc_addr FROM notify
+			LEFT JOIN hubloc ON notify.url = hubloc.hubloc_id_url
+			WHERE notify.uid = %d $author_sql AND hubloc.hubloc_primary = 1
+			GROUP BY notify.id ORDER BY notify.created DESC LIMIT $limit OFFSET $offset",
 			intval(local_channel())
 		);
 
@@ -331,7 +331,7 @@ class Messages {
 			}
 
 			$entries[$i]['author_name'] = $notice['xname'];
-			$entries[$i]['author_addr'] = $notice['xchan_addr'];
+			$entries[$i]['author_addr'] = $notice['hubloc_addr'];
 			$entries[$i]['author_img'] = $notice['photo'];// $item['author']['xchan_photo_s'];
 			$entries[$i]['info'] = '';
 			$entries[$i]['created'] = datetime_convert('UTC', date_default_timezone_get(), $notice['created']);
