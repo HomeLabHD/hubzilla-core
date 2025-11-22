@@ -2622,7 +2622,7 @@ function tag_deliver($uid, $item_id) {
 
 	$i = q("select * from item where id = %d and uid = %d and item_type = %d",
 		intval($item_id),
-		intval($uid)
+		intval($uid),
 		intval(ITEM_TYPE_POST)
 	);
 
