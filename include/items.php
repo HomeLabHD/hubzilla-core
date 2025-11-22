@@ -2615,15 +2615,20 @@ function tag_deliver($uid, $item_id) {
 	$u = q("select * from channel left join xchan on channel_hash = xchan_hash where channel_id = %d limit 1",
 		intval($uid)
 	);
-	if(! $u)
-		return;
 
-	$i = q("select * from item where id = %d and uid = %d limit 1",
+	if (!$u) {
+		return;
+	}
+
+	$i = q("select * from item where id = %d and uid = %d and item_type = %d",
 		intval($item_id),
 		intval($uid)
+		intval(ITEM_TYPE_POST)
 	);
-	if(! $i)
+
+	if (!$i) {
 		return;
+	}
 
 	xchan_query($i,true);
 	$i = fetch_post_tags($i);
@@ -3143,6 +3148,11 @@ function i_am_mentioned($channel, $item, $check_groups = false) {
  * @return void
  */
 function start_delivery_chain($channel, $item, $item_id, $parent, $group = false, $edit = false) {
+
+	if ($item['item_type'] !== ITEM_TYPE_POST) {
+		logger('undeliverable item type: ' . $item['item_type']);
+		return;
+	}
 
 	if ($item['author_xchan'] === $channel['channel_hash'] && in_array($item['verb'], ['Add', 'Remove'])) {
 		logger('delivery chain already started');

@@ -185,7 +185,8 @@ class Item extends Controller {
 		$obj_type      = ((!empty($_POST['obj_type'])) ? escape_tags($_POST['obj_type']) : 'Note');
 
 		// allow API to bulk load a bunch of imported items with sending out a bunch of posts.
-		$nopush = ((!empty($_POST['nopush'])) ? intval($_POST['nopush']) : 0);
+		$nopush = ((!empty($_POST['nopush'])) ? intval($_POST['nopush']) : $item_type !== ITEM_TYPE_POST);
+
 
 		/*
 		 * Check service class limits
