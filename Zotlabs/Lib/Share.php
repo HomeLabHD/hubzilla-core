@@ -119,16 +119,22 @@ class Share {
 		}
 
 		if (!str_contains($this->item['body'], '[/share]')) {
-			$bb .= "[share author='".urlencode($this->item['author']['xchan_name']).
-				"' profile='"    . $this->item['author']['xchan_url'] .
-				"' avatar='"     . $this->item['author']['xchan_photo_s'] .
-				"' link='"       . $this->item['plink'] .
-				"' auth='"       . (($this->item['author']['xchan_network'] === 'zot6') ? 'true' : 'false') .
-				"' posted='"     . $this->item['created'] .
-				"' message_id='" . $this->item['mid'] .
-			"']";
-			if($this->item['title'])
+			$quote = in_array($this->item['author']['xchan_network'], ['zot6', 'activitypub']) ? "quote='true'" : '';
+
+			$bb .= "[share author='" . urlencode($this->item['author']['xchan_name']) . "'
+				profile='" . $this->item['author']['xchan_url'] . "'
+				avatar='" . $this->item['author']['xchan_photo_s'] . "'
+				link='" . $this->item['plink'] . "'
+				auth='" . (($this->item['author']['xchan_network'] === 'zot6') ? 'true' : 'false') . "'
+				posted='" . $this->item['created'] . "'
+				message_id='" . $this->item['mid'] . "'
+				$quote
+			]";
+
+			if ($this->item['title']) {
 				$bb .= '[h3][b]'.$this->item['title'].'[/b][/h3]'."\r\n";
+			}
+
 			$bb .= (($is_photo) ? $photo_bb . "\r\n" . $this->item['body'] : $this->item['body']);
 			$bb .= "[/share]";
 		}

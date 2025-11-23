@@ -644,14 +644,14 @@ class Activity {
 
 		// TODO: Do not replace the if the owner is a forum.
 		// Receivers will not be able to fetch the original in that case.
-		if (str_contains($i['body'], '[/share]') && !$i['owner']['xchan_pubforum']) {
-			preg_match_all('/\[share(.*?)\[\/share\]/ism', $i['body'], $all_shares, PREG_SET_ORDER);
+		if (str_contains($i['body'], '[/share]')) {
+			preg_match_all('/\[share(.*?)\](.*?)\[\/share\]/ism', $i['body'], $all_shares, PREG_SET_ORDER);
 
 			$quote_urls = [];
 
 			foreach ($all_shares as $share) {
-				// Extract the link attribute from each [share] block
-				if (preg_match("/link='(.*?)'/ism", $share[1], $match)) {
+				// Extract the link attribute from each [share] block if slated for quote
+				if (str_contains($share[1], "quote='true'") && preg_match("/link='(.*?)'/ism", $share[1], $match)) {
 					$url = $match[1];
 					$quote_urls[] = $url;
 
