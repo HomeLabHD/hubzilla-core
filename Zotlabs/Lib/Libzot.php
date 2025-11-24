@@ -1297,6 +1297,8 @@ class Libzot {
 					$item['comment_policy'] = 'authenticated';
 				}
 
+				ObjCache::Set($item['mid'], $AS->data);
+
 				logger('Activity received: ' . print_r($item, true), LOGGER_DATA, LOG_DEBUG);
 				logger('Activity recipients: ' . print_r($deliveries, true), LOGGER_DATA, LOG_DEBUG);
 

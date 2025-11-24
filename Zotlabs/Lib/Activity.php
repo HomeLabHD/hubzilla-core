@@ -2686,8 +2686,6 @@ class Activity {
 			IConfig::Set($s, 'event', 'timezone', $act->objprop('timezone'), true);
 		}
 
-		ObjCache::Set($s['mid'], $act->data);
-
 		$hookinfo = [
 			'act' => $act,
 			's'   => $s
@@ -2850,8 +2848,6 @@ class Activity {
 		}
 
 		if (tgroup_check($channel['channel_id'], $item) && (!$is_child_node)) {
-			// for forum deliveries, make sure we keep a copy of the signed original
-			ObjCache::Set($item['mid'], $act->data);
 			$allowed = true;
 		}
 
@@ -3033,6 +3029,8 @@ class Activity {
 			dbesc($item['mid']),
 			intval($item['uid'])
 		);
+
+		ObjCache::Set($item['mid'], $act->data);
 
 		if ($r) {
 			if ($item['edited'] > $r[0]['edited']) {
