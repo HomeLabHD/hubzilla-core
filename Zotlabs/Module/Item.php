@@ -756,7 +756,7 @@ class Item extends Controller {
 			$cats = explode(',', $categories);
 			foreach ($cats as $cat) {
 
-				$catlink = $owner_xchan['xchan_url'] . '?f=&cat=' . urlencode(trim($cat));
+				$catlink = channel_url($channel) . '?cat=' . urlencode(trim($cat));
 
 				$post_tags[] = [
 					'uid'   => $profile_uid,
