@@ -1297,11 +1297,11 @@ class Libzot {
 					$item['comment_policy'] = 'authenticated';
 				}
 
-				$existing = q("SELECT owner_xchan, author_xchan FROM item WHERE mid = '%s'",
+				$existing = q("SELECT owner_xchan, author_xchan FROM item WHERE mid = '%s' LIMIT 1",
 					dbesc($item['mid'])
 				);
 
-				if (!$existing || ($existing && in_array($env['sender'], [$existing[0]['owner_xchan'], $existing[0]['author_xchan']]))) {
+				if ((!$existing && in_array($item['verb'], ['Create'])) || ($existing && in_array($env['sender'], [$existing[0]['owner_xchan'], $existing[0]['author_xchan']]))) {
 					ObjCache::Set($item['mid'], $AS->data);
 				}
 

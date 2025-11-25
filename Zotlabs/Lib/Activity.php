@@ -3030,7 +3030,7 @@ class Activity {
 			intval($item['uid'])
 		);
 
-		if (!$r || ($r && in_array($observer_hash, [$r[0]['owner_xchan'], $r[0]['author_xchan']]))) {
+		if ((!$r && in_array($item['verb'], ['Create'])) || ($r && in_array($observer_hash, [$r[0]['owner_xchan']]))) {
 			ObjCache::Set($item['mid'], $act->data);
 		}
 
