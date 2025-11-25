@@ -3025,12 +3025,14 @@ class Activity {
 		// TODO: not implemented
 		// self::rewrite_mentions($item);
 
-		$r = q("select id, created, edited from item where mid = '%s' and uid = %d limit 1",
+		$r = q("select id, created, edited, owner_xchan, author_xchan from item where mid = '%s' and uid = %d limit 1",
 			dbesc($item['mid']),
 			intval($item['uid'])
 		);
 
-		ObjCache::Set($item['mid'], $act->data);
+		if (!$r || ($r && in_array($observer_hash, [$r[0]['owner_xchan'], $r[0]['author_xchan']]))) {
+			ObjCache::Set($item['mid'], $act->data);
+		}
 
 		if ($r) {
 			if ($item['edited'] > $r[0]['edited']) {
