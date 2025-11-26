@@ -1301,9 +1301,10 @@ class Libzot {
 					ObjCache::Set($item['mid'], $AS->data);
 				}
 				else {
-					$existing = q("SELECT owner_xchan, author_xchan FROM item WHERE mid = '%s'",
+					$existing = q("SELECT owner_xchan, author_xchan FROM item WHERE mid = '%s' LIMIT 1",
 						dbesc($item['mid'])
 					);
+
 					if ($existing && in_array($env['sender'], [$existing[0]['owner_xchan'], $existing[0]['author_xchan']])) {
 						ObjCache::Set($item['mid'], $AS->data);
 					}
