@@ -3025,16 +3025,21 @@ class Activity {
 		// TODO: not implemented
 		// self::rewrite_mentions($item);
 
+		if (!ObjCache::Get($item['mid'])) {
+			ObjCache::Set($item['mid'], $act->data);
+		}
+
 		$r = q("select id, created, edited, owner_xchan, author_xchan from item where mid = '%s' and uid = %d limit 1",
 			dbesc($item['mid']),
 			intval($item['uid'])
 		);
 
-		if (!$force && (!$r || ($r && in_array($observer_hash, [$r[0]['owner_xchan'], $r[0]['author_xchan']])))) {
-			ObjCache::Set($item['mid'], $act->data);
-		}
-
 		if ($r) {
+			// Only update the object cache sender is author or owner.
+			if (in_array($observer_hash, [$r[0]['owner_xchan'], $r[0]['author_xchan']])) {
+				ObjCache::Set($item['mid'], $act->data);
+			}
+
 			if ($item['edited'] > $r[0]['edited']) {
 				$item['id'] = $r[0]['id'];
 				$x = item_store_update($item, deliver: false);
