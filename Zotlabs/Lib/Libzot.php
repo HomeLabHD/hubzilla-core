@@ -1305,7 +1305,7 @@ class Libzot {
 						dbesc($item['mid'])
 					);
 
-					if ($existing && in_array($env['sender'], [$existing[0]['owner_xchan'], $existing[0]['author_xchan']])) {
+					if ($existing && $existing[0]['owner_xchan'] === $item['owner_xchan'] && $existing[0]['author_xchan'] === $item['author_xchan']) {
 						ObjCache::Set($item['mid'], $AS->data);
 					}
 				}

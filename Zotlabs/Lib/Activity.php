@@ -2130,7 +2130,6 @@ class Activity {
 	}
 
 	static function decode_note($act) {
-
 		$response_activity = false;
 		$s = [];
 
@@ -3035,8 +3034,8 @@ class Activity {
 		);
 
 		if ($r) {
-			// Only update the object cache sender is author or owner.
-			if (in_array($observer_hash, [$r[0]['owner_xchan'], $r[0]['author_xchan']])) {
+			// Only update the object cache if there is no owner/author mismatch.
+			if ($r[0]['owner_xchan'] === $item['owner_xchan'] && $r[0]['author_xchan'] === $item['author_xchan']) {
 				ObjCache::Set($item['mid'], $act->data);
 			}
 
