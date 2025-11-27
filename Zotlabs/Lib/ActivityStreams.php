@@ -553,6 +553,7 @@ class ActivityStreams {
 			}
 
 			$url = unparse_url($parseUrl);
+			$this->signer = ['id' => $url];
 
 			$hublocs = Activity::get_actor_hublocs($url);
 
