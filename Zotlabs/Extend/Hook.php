@@ -1,15 +1,57 @@
 <?php
+/*
+ * SPDX-FileCopyrightText: 2025 The Hubzilla Community
+ * SPDX-FileContributor: redmatrix
+ * SPDX-FileContributor: Klaus Weidenbach
+ * SPDX-FileContributor: zotlabs
+ * SPDX-FileContributor: Harald Eilertsen <haraldei@anduin.net>
+ *
+ * SPDX-License-Identifier: MIT
+ */
 
 namespace Zotlabs\Extend;
 
 use App;
 
 /**
- * @brief Hook class.
+ * A class for hooking into Hubzilla.
  *
+ * Hooks are functions that Hubzilla will invoke at certain points in the code
+ * during execution. An addon can register a callback  handler that will be
+ * called whenever the specified hook is invoked. A callback handler is a
+ * function that takes a reference to an array containing the callback
+ * arguments as it's only argument.
+ *
+ * @see call_hooks
+ * @see load_hooks
  */
 class Hook {
 
+	/**
+	 * Register a callback handler for a hook.
+	 *
+	 * A callback handler is a function that takes a reference to an array
+	 * containing the callback arguments as it's only argument.
+	 *
+	 * The contents and meaning of the array depends on the hook invoked. By
+	 * modifying the contents of the array the hook can pass data back to the
+	 * caller.
+	 *
+	 * Once the `Hook::register` function has been called, the callback may be
+	 * invoked.
+	 *
+	 * @param string $hook		The name of the hook to register a handler for.
+	 * @param string $file		The source file of the callback handler.
+	 * @param string|array $function
+	 *                          The function name of the callback handler, as a
+	 *                          string or an array.
+	 * @param int $version		Hook interface version, allways 1.
+	 * @param int $priority		The priority of the callback handler, higher
+	 *                          numbers takes precedence.
+	 *
+	 * @return true if the handler was already registered, otherwise the result
+	 *		from inserting the hook in the database.
+	 */
 	static public function register($hook,$file,$function,$version = 1,$priority = 0) {
 		if(is_array($function)) {
 			$function = serialize($function);
@@ -45,6 +87,14 @@ class Hook {
 		return $r;
 	}
 
+	/**
+	 * Register an array of hook callback handlers.
+	 *
+	 * All of the handlers must be in the same source file.
+	 *
+	 * @param string $file	The source file of the callback handlers.
+	 * @param array $arr	An array of `hookname => functionname` pairs.
+	 */
 	static public function register_array($file,$arr) {
 		if($arr) {
 			foreach($arr as $k => $v) {
@@ -54,6 +104,20 @@ class Hook {
 	}
 
 
+	/**
+	 * Unregister a hook callback handler.
+	 *
+	 * @param string $hook		The name of the hook to register a callback handler for.
+	 * @param string $file		The source file of the hook callback handler.
+	 * @param string|array $function
+	 *                          The function name of the callback handler, as a
+	 *                          string or an array.
+	 * @param int $version		Hook interface version, allways 1.
+	 * @param int $priority		The priority of the callback handler, higher
+	 *                          numbers takes precedence.
+	 *
+	 * @return The result of the database delete operation.
+	 */
 	static public function unregister($hook,$file,$function,$version = 1,$priority = 0) {
 		if(is_array($function)) {
 			$function = serialize($function);
@@ -70,11 +134,13 @@ class Hook {
 	}
 
 	/**
-	 * @brief Unregister all hooks with this file component.
+	 * Unregister all hooks handlers from a given source file.
 	 *
 	 * Useful for addon upgrades where you want to clean out old interfaces.
 	 *
-	 * @param string $file
+	 * @param string $file		The source file where the hook handlers were defined.
+	 *
+	 * @return The result from the database delete operation.
 	 */
 	static public function unregister_by_file($file) {
 		$r = q("DELETE FROM hook WHERE file = '%s' ",
@@ -85,25 +151,20 @@ class Hook {
 	}
 
 	/**
-	 * @brief Inserts a hook into a page request.
+	 * Inserts a hook into a page request.
 	 *
-	 * Insert a short-lived hook into the running page request.
-	 * Hooks are normally persistent so that they can be called
-	 * across asynchronous processes such as delivery and poll
-	 * processes.
+	 * Insert a short-lived hook into the running page request. Hooks are
+	 * normally persistent so that they can be called across asynchronous
+	 * processes such as delivery and poll processes.
 	 *
-	 * insert_hook lets you attach a hook callback immediately
-	 * which will not persist beyond the life of this page request
-	 * or the current process.
+	 * This function lets you attach a hook callback immediately which will not
+	 * persist beyond the life of this page request or the current process.
 	 *
-	 * @param string $hook
-	 *     name of hook to attach callback
-	 * @param string $fn
-	 *     function name of callback handler
-	 * @param int $version
-	 *     hook interface version, 0 uses two callback params, 1 uses one callback param
-	 * @param int $priority
-	 *     currently not implemented in this function, would require the hook array to be resorted
+	 * @param string $hook		Name of hook to attach callback.
+	 * @param string|array $fn	Name of callback handler as a string or array.
+	 * @param int $version		Hook interface version, allways 1.
+	 * @param int $priority		Currently not implemented in this function,
+	 *                          would require the hook array to be resorted.
 	 */
 	static public function insert($hook, $fn, $version = 0, $priority = 0) {
 		if(is_array($fn)) {

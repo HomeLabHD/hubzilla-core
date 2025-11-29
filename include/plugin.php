@@ -382,14 +382,19 @@ function unregister_hook($hook, $file, $function) {
 }
 
 /**
- * @brief loads all active hooks into memory
- * alters: App::$hooks
- * Called during initialisation
+ * Loads all active hooks into memory.
+ *
+ * Called during initialisation.
  * Duplicated hooks are removed and the duplicates ignored
  *
  * It might not be obvious but themes can manually add hooks to the App::$hooks
  * array in their theme_init() and use this to customise the app behaviour.
  * use insert_hook($hookname,$function_name) to do this.
+ *
+ * @sideeffect Alters global variable `App::$hooks`
+ *
+ * @see Zotlabs::Extend::Hook
+ * @see call_hooks
  */
 function load_hooks() {
 
@@ -453,13 +458,16 @@ function insert_hook($hook, $fn, $version = 0, $priority = 0) {
 }
 
 /**
- * @brief Calls a hook.
+ * Call all registered callbacks for a named hook.
  *
- * Use this function when you want to be able to allow a hook to manipulate
- * the provided data.
+ * Use this function when you want to be able to allow a hook to manipulate the
+ * provided data.
  *
- * @param string $name of the hook to call
- * @param[in,out] string|array &$data to transmit to the callback handler
+ * @param string $name					Name of the hook to call.
+ * @param[in,out] string|array &$data	Data to transmit to the callback handler.
+ *
+ * @see Zotlabs::Extend::Hook
+ * @see load_hooks
  */
 function call_hooks($name, &$data = null) {
 	if (isset(App::$hooks[$name])) {
