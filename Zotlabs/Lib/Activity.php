@@ -671,6 +671,7 @@ class Activity {
 
 			if ($quote_urls) {
 				$ret['quoteUrl'] = $quote_urls[0];
+				$ret['quoteUri'] = $quote_urls[0];
 
 				if (empty($ret['tag'])) {
 					$ret['tag'] = $obj_links;
@@ -3710,6 +3711,7 @@ class Activity {
 			'Hashtag'          => 'as:Hashtag',
 
 			'quoteUrl'         => 'as:quoteUrl',
+			'quoteUri'         => 'http://fedibird.com/ns#quoteUri'
 		];
 
 	}
