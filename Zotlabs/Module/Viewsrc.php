@@ -84,7 +84,7 @@ class Viewsrc extends \Zotlabs\Web\Controller {
 
 		if(is_ajax()) {
 			echo '<div class="p-1">';
-			echo '<div>id: ' . $r[0]['id'] . ' | <a href="' . $r[0]['plink'] . '" target="_blank">plink</a> | <a href="' . $r[0]['llink'] . '" target="_blank">llink</a><br>mid: ' . $r[0]['mid'] . '<br>uuid: ' . $r[0]['uuid'] . '</div>';
+			echo '<div>id: ' . $r[0]['id'] . ' | <a href="' . $r[0]['plink'] . '" target="_blank">plink</a> | <a href="' . $r[0]['llink'] . '" target="_blank">llink</a><br>mid: ' . $r[0]['mid'] . '<br>hashpath: ' . hash('sha256', $r[0]['mid']) . '<br>uuid: ' . $r[0]['uuid'] . '</div>';
 			echo '<hr>';
 			echo '<pre class="p-1">' . $o . '</pre>';
 			echo '</div>';

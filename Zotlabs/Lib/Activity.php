@@ -2419,11 +2419,6 @@ class Activity {
 			if ($a) {
 				$s['attach'] = $a;
 			}
-
-			$a = self::decode_iconfig($act->data);
-			if ($a) {
-				$s['iconfig'] = $a;
-			}
 		}
 
 
