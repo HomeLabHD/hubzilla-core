@@ -225,7 +225,6 @@ function comments_are_now_closed($item) {
 	 *   * \e array \b item
 	 *   * \e boolean \b closed - return value
 	 */
-
 	call_hooks('comments_are_now_closed', $x);
 
 	if ($x['closed'] != 'unset') {
@@ -1296,7 +1295,7 @@ function translate_scope($scope): string {
 }
 
 /**
- * @brief
+ * Encode an xchan structure for an item
  *
  * @param array $xchan
  * @return array an associative array
@@ -1317,11 +1316,31 @@ function encode_item_xchan($xchan) {
 		'encoded_xchan' => $ret
 	];
 
+	/**
+	 * @hooks encode_item_xchan
+	 *     Called when encoding an xchan structure.
+	 *       * \e array \b encoded_xchan: An array containing the following members:
+	 *         - \e string \b name - The xchan_name field
+	 *         - \e string \b address - The xchan_addr field
+	 *         - \e string \b url - The xchan_url field
+	 *         - \e string \b network - The xchan_network field
+	 *         - \e array \b photo - Array containing the `mimetype` and `src`
+	 *         attributes of the profile photo.
+	 *         - \e string \b id - The xchan_guid field
+	 *         - \e string \b id_sid - The xchan_guid_sig field
+	 *         - \e string \b key - The xchan_pubkey field
+	 */
 	call_hooks('encode_item_xchan', $hookdata);
 
 	return $hookdata['encoded_xchan'];
 }
 
+/**
+ * Encode item terms
+ *
+ * @param array $terms        The terms to encode.
+ * @param bool $mirror        Whether `TERM_PCATEGORY` and `TERM_FILE` is allowed.
+ */
 function encode_item_terms($terms,$mirror = false) {
 	$ret = array();
 
@@ -1624,7 +1643,7 @@ function item_json_encapsulate($arr, $k)  {
 }
 
 /**
- * @brief Stores an item type record.
+ * Stores an item type record.
  *
  * @param array $arr
  * @param boolean $allow_exec (optional) default false
@@ -1642,10 +1661,10 @@ function item_store($arr, $allow_exec = false, $deliver = true, $addAndSync = tr
 	];
 
 	/**
-	 * @hooks item_store
-	 *   Called when item_store() stores a record of type item.
-	 *   * \e array \b item
-	 *   * \e boolean \b allow_exec
+	 * @hooks item_store_before
+	 *   Called before item_store() stores a record of type item.
+	 *   * \e array \b item                The item about to be stored.
+	 *   * \e boolean \b allow_exec        `true` if item is allowed to contain php.
 	 */
 	call_hooks('item_store_before', $d);
 
