@@ -247,10 +247,6 @@ class Pubstream extends \Zotlabs\Web\Controller {
 
 			if($r) {
 				$items = items_by_parent_ids($r, blog_mode: $blog_mode);
-
-				// use effective_uid param of xchan_query to help sort out comment permission
-				// for sys_channel owned items.
-
 				xchan_query($items);
 				$items = fetch_post_tags($items,true);
 				$items = conv_sort($items, $ordering);
