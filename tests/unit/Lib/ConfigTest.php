@@ -1,6 +1,9 @@
 <?php
 declare(strict_types=1);
 
+use PHPUnit\Framework\Attributes\BackupStaticProperties;
+use Zotlabs\Tests\Unit\UnitTestCase;
+
 /**
  * Tests for the Zotlabs\Lib\Config class.
  *
@@ -8,6 +11,7 @@ declare(strict_types=1);
  * method for now. This should be improved once the database test framework is
  * merged.
  */
+#[BackupStaticProperties(true)]
 class ConfigTest extends Zotlabs\Tests\Unit\UnitTestCase {
 	/*
 	 * Hardcode a config that we can test against, and that we can

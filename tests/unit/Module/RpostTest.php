@@ -8,6 +8,8 @@
  * SPDX-License-Identifier: MIT
  */
 
+use PHPUnit\Framework\Attributes\BackupStaticProperties;
+
 class RpostTest extends \Zotlabs\Tests\Unit\Module\TestCase {
 
 	/**
@@ -59,6 +61,7 @@ class RpostTest extends \Zotlabs\Tests\Unit\Module\TestCase {
 	 *
 	 * @param array $query	An associative array of query parameters.
 	 */
+	#[BackupStaticProperties(App::class)]
 	private function get_authenticated(array $query = []): void {
 		// Mock `local_chanel()` to emulate a valid logged in channel
 		$lc_mock = $this->getFunctionMock('Zotlabs\Module', 'local_channel')
