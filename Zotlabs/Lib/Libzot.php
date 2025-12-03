@@ -1897,11 +1897,13 @@ class Libzot {
 				else {
 					$DR->update('update ignored');
 					$result[] = $DR->get();
-
 					// We need this line to ensure wall-to-wall comments and add/remove activities are relayed (by falling through to the relay bit),
 					// and at the same time not relay any other relayable posts more than once, because to do so is very wasteful.
-					if (!intval($r[0]['item_origin']))
+
+					// The second part should prevent possible items that come back to us from channels that source our channel from being relayed again (sender != owner or author).
+					if (!intval($r[0]['item_origin']) || (intval($r[0]['item_origin']) && !in_array($sender, [$r[0]['owner_xchan'], $r[0]['author_xchan']]))) {
 						continue;
+					}
 				}
 
 

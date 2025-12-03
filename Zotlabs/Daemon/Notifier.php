@@ -266,7 +266,6 @@ class Notifier {
 			}
 
 			if (!item_forwardable($target_item)) {
-				//hz_syslog(print_r($target_item,true));
 				logger('notifier: target item not forwardable', LOGGER_DEBUG);
 				return;
 			}
