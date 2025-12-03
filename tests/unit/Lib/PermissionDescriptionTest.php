@@ -23,7 +23,9 @@
 
 namespace Zotlabs\Tests\Unit\Lib;
 
+use App;
 use phpmock\phpunit\PHPMock;
+use PHPUnit\Framework\Attributes\BackupStaticProperties;
 use Zotlabs\Tests\Unit\UnitTestCase;
 use Zotlabs\Lib\PermissionDescription;
 
@@ -56,6 +58,7 @@ class PermissionDescriptionTest extends UnitTestCase {
 	/**
 	 * Test fetching permission descriptions for the current channel.
 	 */
+	#[BackupStaticProperties(App::class)]
 	public function testFromGlobalPermission() {
 		// Initiate the global App with a channel_id
 		\App::$channel = array(

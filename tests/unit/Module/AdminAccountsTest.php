@@ -9,6 +9,7 @@
 namespace Zotlabs\Tests\Unit\Module;
 
 use App;
+use PHPUnit\Framework\Attributes\BackupStaticProperties;
 use PHPUnit\Framework\Attributes\Before;
 
 class AdminAccountsTest extends TestCase {
@@ -76,6 +77,7 @@ class AdminAccountsTest extends TestCase {
 		$this->assertEquals('2 accounts blocked/unblocked', $this->notice[0]);
 	}
 
+	#[BackupStaticProperties(App::class)]
 	public function test_deleting_accounts_remove_them_from_db(): void {
 		$params = [
 			'user' => [ 42, 44 ],
