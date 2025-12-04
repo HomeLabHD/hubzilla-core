@@ -1833,9 +1833,7 @@ class Libzot {
 				}
 
 				if (intval($arr['item_private']) === 2) {
-					if (!perm_is_allowed($channel['channel_id'], $sender, 'post_mail')) {
-						$allowed = false;
-					}
+					$allowed = perm_is_allowed($channel['channel_id'], $sender, 'post_mail');
 				}
 
 				if (!$allowed) {
