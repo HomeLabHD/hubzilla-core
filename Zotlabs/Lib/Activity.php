@@ -856,6 +856,10 @@ class Activity {
 				$entry = [];
 				if (isset($att['type']) && $att['type'] === 'PropertyValue') {
 					if (isset($att['name'])) {
+						if (in_array($att['name'], ['zot.activitypub.rawmsg', 'zot.diaspora.fields'])) {
+							continue;
+						}
+
 						$key = explode('.', $att['name']);
 						if (count($key) === 3 && $key[0] === 'zot') {
 							$entry['cat']     = $key[1];
@@ -2419,6 +2423,11 @@ class Activity {
 			$a = self::decode_attachment($act->obj);
 			if ($a) {
 				$s['attach'] = $a;
+			}
+
+			$a = self::decode_iconfig($act->data);
+			if ($a) {
+				$s['iconfig'] = $a;
 			}
 		}
 
