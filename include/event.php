@@ -101,7 +101,6 @@ function format_event_obj($jobject) {
 
 	if (is_array($object) && (array_key_exists('summary', $object) || array_key_exists('name', $object))) {
 
-		$dtend = ((array_key_exists('endTime', $object)) ? $object['endTime'] : NULL_DATE);
 
 		$title = $object['name'] ?? '';
 		$content = html2bbcode($object['content']);
@@ -112,33 +111,46 @@ function format_event_obj($jobject) {
 			$content = $bbdescription[1];
 		}
 
-		// mobilizon sets a timezone in the object
+		$dtstart_obj = new DateTime($object['startTime']);
+
 		// we will assume that events with an timezone should be adjusted
 		$tz = $object['timezone'] ?? '';
+		if ($tz === 'UTC') {
+			$tz = '';
+		}
 
 		// friendica has its own flag for adjust
 		$dfrn_adjust = $object['dfrn:adjust'] ?? '';
 
-		$adjust = ((strpos($object['startTime'], 'Z') !== false) || $tz || $dfrn_adjust);
+		$adjust = ((strpos($object['startTime'], 'Z') !== false) || $tz || $dfrn_adjust || $dtstart_obj->getOffset());
 
 		$allday = (($adjust) ? false : true);
 
-		$dtstart = new DateTime($object['startTime']);
-		$dtend_obj = new DateTime($dtend);
-
-		$dtdiff = $dtstart->diff($dtend_obj);
+		$dtend = $object['endTime'] ?? null;
 
 		$oneday = false;
-		if($allday && ($dtdiff->days < 2))
-			$oneday = true;
-
-		if($allday && !$oneday) {
-			// Subtract one day from the end date so we can use the "first day - last day" format for display.
-			$dtend_obj->modify('-1 day');
-			$dtend = datetime_convert('UTC', 'UTC', $dtend_obj->format('Y-m-d H:i:s'));
-		}
 
 		$bd_format = (($allday) ? t('l F d, Y') : t('l F d, Y \@ g:i A')); // Friday January 18, 2011 @ 8:01 AM or Friday January 18, 2011 for allday events
+
+		$dtend_title = '';
+		$dtend_dt = '';
+
+		if ($dtend) {
+			$dtend_obj = new DateTime($dtend);
+			$dtdiff = $dtstart_obj->diff($dtend_obj);
+
+			if($allday && ($dtdiff->days < 2))
+				$oneday = true;
+
+			if($allday && !$oneday) {
+				// Subtract one day from the end date so we can use the "first day - last day" format for display.
+				$dtend_obj->modify('-1 day');
+				$dtend = datetime_convert('UTC', 'UTC', $dtend_obj->format('Y-m-d H:i:s'));
+			}
+
+			$dtend_title = datetime_convert('UTC', 'UTC', $dtend, ((strpos($object['startTime'], 'Z')) ? ATOM_TIME : 'Y-m-d\TH:i:s' ));
+			$dtend_dt = (($adjust) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), $dtend, $bd_format)) :  day_translate(datetime_convert('UTC', 'UTC', $dtend, $bd_format)));
+		}
 
 		$event['header'] = replace_macros(get_markup_template('event_item_header.tpl'), array(
 			'$title'          => $title,
@@ -147,8 +159,8 @@ function format_event_obj($jobject) {
 			'$dtstart_dt'    => (($adjust) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), $object['startTime'], $bd_format)) : day_translate(datetime_convert('UTC', 'UTC', $object['startTime'], $bd_format))),
 			'$finish'        => ((array_key_exists('endTime', $object)) ? true : false),
 			'$dtend_label'   => t('End:'),
-			'$dtend_title'   => datetime_convert('UTC', 'UTC', $dtend, ((strpos($object['startTime'], 'Z')) ? ATOM_TIME : 'Y-m-d\TH:i:s' )),
-			'$dtend_dt'      => (($adjust) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), $dtend, $bd_format)) :  day_translate(datetime_convert('UTC', 'UTC', $dtend, $bd_format))),
+			'$dtend_title'   => $dtend_title,
+			'$dtend_dt'      => $dtend_dt,
 			'$allday'        => $allday,
 			'$oneday'        => $oneday,
 			'$event_tz'      => ['label' => t('Timezone'), 'value' => (($tz === date_default_timezone_get()) ? '' : $tz)]
