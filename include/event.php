@@ -122,9 +122,10 @@ function format_event_obj($jobject) {
 		// friendica has its own flag for adjust
 		$dfrn_adjust = $object['dfrn:adjust'] ?? '';
 
-		$adjust = ((strpos($object['startTime'], 'Z') !== false) || $tz || $dfrn_adjust || $dtstart_obj->getOffset());
+		$adjust = str_contains($object['startTime'], 'Z') || $tz || $dfrn_adjust || $dtstart_obj->getOffset();
 
-		$allday = (($adjust) ? false : true);
+		// This is ugly but it looks like there is no better way for now.
+		$allday = !$adjust && str_contains($object['startTime'], 'T00:00:00') && str_contains($object['endTime'], 'T00:00:00');
 
 		$dtend = $object['endTime'] ?? null;
 
