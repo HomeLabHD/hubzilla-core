@@ -17,6 +17,7 @@ use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Libsync;
 use Zotlabs\Lib\ThreadListener;
 use Zotlabs\Access\PermissionRoles;
+use Zotlabs\Lib\ObjCache;
 
 require_once('include/crypto.php');
 require_once('include/items.php');
@@ -1042,22 +1043,15 @@ class Item extends Controller {
 
 			$x = item_store_update($datarray, $execflag);
 
-			if ($x['success']) {
+			if ($x['success'] && intval($item_type) === ITEM_TYPE_POST) {
+				$item = [$x['item']];
+				xchan_query($item);
+				$item = fetch_post_tags($item);
+				$encoded_item = Activity::build_packet(Activity::encode_activity($item[0]), $channel, false);
+				ObjCache::Set($item[0]['mid'], $encoded_item);
+
 				$this->add_listeners($datarray);
 			}
-
-			/* sync this is done in item_store_update()
-			if (!$parent) {
-				$r = q("select * from item where id = %d",
-					intval($post_id)
-				);
-				if ($r) {
-					xchan_query($r);
-					$sync_item = fetch_post_tags($r);
-					Libsync::build_sync_packet($profile_uid, ['item' => [encode_item($sync_item[0], true)]]);
-				}
-			}
-			*/
 
 			if (!$nopush) {
 				Master::Summon(['Notifier', 'edit_post', $post_id]);
@@ -1083,7 +1077,13 @@ class Item extends Controller {
 
 		$post = item_store($datarray, $execflag);
 
-		if ($post['success']) {
+		if ($post['success'] && intval($item_type) === ITEM_TYPE_POST) {
+			$item = [$post['item']];
+			xchan_query($item);
+			$item = fetch_post_tags($item);
+			$encoded_item = Activity::build_packet(Activity::encode_activity($item[0]), $channel, false);
+			ObjCache::Set($item[0]['mid'], $encoded_item);
+
 			$this->add_listeners($datarray);
 		}
 
@@ -1163,19 +1163,6 @@ class Item extends Controller {
 			killme();
 		}
 
-		/* sync this is done in item_store_update()
-		if ($parent || $datarray['item_private'] == 1) {
-			$r = q("select * from item where id = %d",
-				intval($post_id)
-			);
-			if ($r) {
-				xchan_query($r);
-				$sync_item = fetch_post_tags($r);
-				Libsync::build_sync_packet($profile_uid, ['item' => [encode_item($sync_item[0], true)]]);
-			}
-		}
-		*/
-
 		$datarray['id']    = $post_id;
 		$datarray['llink'] = z_root() . '/display/' . $datarray['uuid'];
 
@@ -1213,11 +1200,6 @@ class Item extends Controller {
 
 		if ($mode === 'channel')
 			profile_load($channel['channel_address']);
-
-		$item[]            = $datarray;
-		$item[0]['owner']  = $owner_xchan;
-		$item[0]['author'] = $observer;
-		$item[0]['attach'] = $datarray['attach'];
 
 		$json = [
 			'success' => 1,
