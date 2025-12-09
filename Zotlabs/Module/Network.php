@@ -346,15 +346,15 @@ class Network extends \Zotlabs\Web\Controller {
 			// The name 'verb' is a holdover from the earlier XML
 			// ActivityStreams specification.
 
-			if (substr($verb, 0, 1) === '.') {
+			if (str_starts_with($verb, '.')) {
 				$sql_verb = substr($verb, 1);
-				$sql_extra .= sprintf(" AND item.obj_type like '%s' ",
-					dbesc(protect_sprintf('%' . $sql_verb . '%'))
+				$sql_extra .= sprintf(" AND item.obj_type = '%s' AND item.verb IN ('Create', 'Update', 'Invite') ",
+					dbesc(protect_sprintf($sql_verb))
 				);
 			}
 			else {
-				$sql_extra .= sprintf(" AND item.verb like '%s' ",
-					dbesc(protect_sprintf('%' . $verb . '%'))
+				$sql_extra .= sprintf(" AND item.verb = '%s' ",
+					dbesc(protect_sprintf($verb))
 				);
 			}
 		}
