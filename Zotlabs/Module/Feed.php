@@ -25,7 +25,7 @@ class Feed extends Controller {
 		$params['end'] = $_REQUEST['date_end'] ?? '';
 		$params['type'] = 'xml';
 		$params['pages'] = ((!empty($_REQUEST['pages'])) ? intval($_REQUEST['pages']) : 0);
-		$params['top'] = ((!empty($_REQUEST['top'])) ? intval($_REQUEST['top']) : PConfig::Get($channel['channel_id'], 'system', 'channel_simple_feed', 1));
+		$params['top'] = ((array_key_exists('top', $_REQUEST)) ? intval($_REQUEST['top']) : PConfig::Get($channel['channel_id'], 'system', 'channel_simple_feed', 1));
 		$params['start'] = ((!empty($_REQUEST['start'])) ? intval($_REQUEST['start']) : 0);
 		$params['records'] = ((!empty($_REQUEST['records'])) ? intval($_REQUEST['records']) : 10);
 		$params['cat'] = ((!empty($_REQUEST['cat'])) ? escape_tags($_REQUEST['cat']) : '');

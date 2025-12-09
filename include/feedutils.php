@@ -160,6 +160,10 @@ function get_feed_for($channel, $observer_hash, $params) {
 			if($item['item_private'])
 				continue;
 
+			if (in_array($item['verb'], ['Add', 'Remove'])) {
+				continue;
+			}
+
 			$atom .= atom_entry($item, $type, null, $channel, true, '', $params['compat']);
 		}
 	}
