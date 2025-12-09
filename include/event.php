@@ -111,23 +111,20 @@ function format_event_obj($jobject) {
 			$content = $bbdescription[1];
 		}
 
-		$dtstart_obj = new DateTime($object['startTime']);
-
-		// we will assume that events with an timezone should be adjusted
+		// We will assume that events with a timezone set should be adjusted except if the timezone is UTC in which case we will unset it.
 		$tz = $object['timezone'] ?? '';
 		if ($tz === 'UTC') {
 			$tz = '';
 		}
 
-		// friendica has its own flag for adjust
+		// Friendica has its own flag for adjust
 		$dfrn_adjust = $object['dfrn:adjust'] ?? '';
 
-		$adjust = str_contains($object['startTime'], 'Z') || $tz || $dfrn_adjust || $dtstart_obj->getOffset();
+		$dtstart_obj = new DateTime($object['startTime']);
 
-		// This is ugly but it looks like there is no better way for now.
-		$allday = !$adjust && str_contains($object['startTime'], 'T00:00:00') && str_contains($object['endTime'], 'T00:00:00');
+		$adjust = str_contains($object['startTime'], 'Z') || $tz || $dfrn_adjust || $dtstart_obj->getOffset() || (!$dtstart_obj->getOffset() && !str_contains($object['startTime'], 'T00:00:00') && !str_contains($object['endTime'], 'T00:00:00'));
 
-		$dtend = $object['endTime'] ?? null;
+		$allday = !$adjust;
 
 		$oneday = false;
 
@@ -135,6 +132,7 @@ function format_event_obj($jobject) {
 
 		$dtend_title = '';
 		$dtend_dt = '';
+		$dtend = $object['endTime'] ?? null;
 
 		if ($dtend) {
 			$dtend_obj = new DateTime($dtend);
