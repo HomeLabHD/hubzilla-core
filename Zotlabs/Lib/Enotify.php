@@ -511,7 +511,7 @@ class Enotify {
 */
 
 
-	$hash = ((in_array($params['verb'], ['Create', 'Update'])) ? $params['item']['uuid']  : $params['item']['thr_parent_uuid']);
+	$hash = ((in_array($params['verb'], ['Create', 'Update', 'Invite'])) ? $params['item']['uuid']  : $params['item']['thr_parent_uuid']);
 
 	if (!$hash) {
 		$hash = new_uuid();
