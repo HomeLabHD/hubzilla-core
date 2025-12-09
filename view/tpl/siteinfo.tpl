@@ -21,6 +21,15 @@
 	{{/foreach}}
 </ul>
 {{/if}}
+{{if $themes.1}}
+<br>
+<h3>{{$themes.0}}</h3>
+<ul>
+	{{foreach $themes.1 as $theme}}
+	<li>{{$theme}}</li>
+	{{/foreach}}
+</ul>
+{{/if}}
 
 {{if $blocked_sites.1}}
 <br>
