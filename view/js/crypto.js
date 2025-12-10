@@ -1,8 +1,4 @@
 async function sodium_encrypt(element) {
-	if (!window.sodium) {
-		window.sodium = await SodiumPlus.auto();
-	}
-
 	if (typeof tinyMCE !== typeof undefined) {
 		tinyMCE.triggerSave(false,true);
 	}
@@ -21,27 +17,28 @@ async function sodium_encrypt(element) {
 
 	let hint = bin2hex(prompt(aStr['passhint']));
 
-	let salt = await sodium.randombytes_buf(16);
-	let nonce = await sodium.randombytes_buf(24);
+	let salt = await sodium.randombytes_buf(sodium.crypto_pwhash_SALTBYTES);
+	let nonce = await sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
 
 	let key = await sodium.crypto_pwhash(
-		32,
+		sodium.crypto_secretbox_KEYBYTES,
 		password,
 		salt,
-		sodium.CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
-		sodium.CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
+		sodium.crypto_pwhash_OPSLIMIT_INTERACTIVE,
+		sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE,
+		sodium.crypto_pwhash_ALG_DEFAULT
 	);
 
 	// Message can be a string, buffer, array, etc.
-	let ciphertext = await sodium.crypto_secretbox(message, nonce, key);
+	let ciphertext = await sodium.crypto_secretbox_easy(message, nonce, key);
 	delete message, password, key;
 
 	let payload = {
 		hint: hint,
 		alg: 'XSalsa20',
-		salt: await sodium.sodium_bin2hex(salt),
-		nonce: await sodium.sodium_bin2hex(nonce),
-		ciphertext: await sodium.sodium_bin2hex(ciphertext)
+		salt: await sodium.to_hex(salt),
+		nonce: await sodium.to_hex(nonce),
+		ciphertext: await sodium.to_hex(ciphertext)
 	};
 
 	let val = "[crypt]" + window.btoa(JSON.stringify(payload)) + '[/crypt]';
@@ -50,10 +47,6 @@ async function sodium_encrypt(element) {
 }
 
 async function sodium_decrypt(payload, element) {
-	if (!window.sodium) {
-		window.sodium = await SodiumPlus.auto();
-	}
-
 	let arr = JSON.parse(window.atob(payload));
 
 	if (arr.alg !== 'XSalsa20') {
@@ -67,26 +60,26 @@ async function sodium_decrypt(payload, element) {
 		return false;
 	}
 
-	let salt = await sodium.sodium_hex2bin(arr.salt);
-	let nonce = await sodium.sodium_hex2bin(arr.nonce);
-	let ciphertext = await sodium.sodium_hex2bin(arr.ciphertext);
+	let salt = await sodium.from_hex(arr.salt);
+	let nonce = await sodium.from_hex(arr.nonce);
+	let ciphertext = await sodium.from_hex(arr.ciphertext);
 
 	let key = await sodium.crypto_pwhash(
-		32,
+		sodium.crypto_secretbox_KEYBYTES,
 		password,
 		salt,
-		sodium.CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
-		sodium.CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
+		sodium.crypto_pwhash_OPSLIMIT_INTERACTIVE,
+		sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE,
+		sodium.crypto_pwhash_ALG_DEFAULT
 	);
 
-	let decrypted = await sodium.crypto_secretbox_open(ciphertext, nonce, key);
+	let decrypted = await sodium.crypto_secretbox_open_easy(ciphertext, nonce, key);
 	delete password, key;
 
 	if ($(element).css('display') === 'none' && typeof tinyMCE !== typeof undefined) {
-		tinyMCE.activeEditor.setContent(decrypted.toString('utf-8'));
+		tinyMCE.activeEditor.setContent(sodium.to_string(decrypted));
 	}
 	else {
-		$(element).html(decrypted.toString('utf-8'));
+		$(element).html(sodium.to_string(decrypted));
 	}
 }
-
