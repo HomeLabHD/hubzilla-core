@@ -3,24 +3,29 @@ async function sodium_encrypt(element) {
 		tinyMCE.triggerSave(false,true);
 	}
 
-	let message = $(element).val();
+	const message = $(element).val();
 
 	if (!message) {
 		return false;
 	}
 
-	let password = prompt(aStr['passphrase']);
+	const password = prompt(aStr['passphrase']);
 
 	if (!password) {
 		return false;
 	}
 
-	let hint = bin2hex(prompt(aStr['passhint']));
+	const hint = bin2hex(prompt(aStr['passhint']));
 
-	let salt = await sodium.randombytes_buf(sodium.crypto_pwhash_SALTBYTES);
-	let nonce = await sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
+/* This (Argon2) is more secure against bruteforce attacks than PBKDF2 but is overkill for javascript according to author
+ * https://github.com/jedisct1/libsodium.js/issues/250#issuecomment-685971738
+ *
+ * It does not work in chromium mobile at all (freezing)
+ *
+ * This functions requires the browser-sumo/sodium.js
 
-	let key = await sodium.crypto_pwhash(
+	const salt = await sodium.randombytes_buf(sodium.crypto_pwhash_SALTBYTES);
+	const key = await sodium.crypto_pwhash(
 		sodium.crypto_secretbox_KEYBYTES,
 		password,
 		salt,
@@ -28,12 +33,18 @@ async function sodium_encrypt(element) {
 		sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE,
 		sodium.crypto_pwhash_ALG_DEFAULT
 	);
+*/
+
+	const salt = crypto.getRandomValues(new Uint8Array(32)); // Generate a random salt (32 bytes)
+	const key = await derivePBKDF2Hash(password, salt);
+
+	const nonce = await sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
 
 	// Message can be a string, buffer, array, etc.
-	let ciphertext = await sodium.crypto_secretbox_easy(message, nonce, key);
+	const ciphertext = await sodium.crypto_secretbox_easy(message, nonce, key);
 	delete message, password, key;
 
-	let payload = {
+	const payload = {
 		hint: hint,
 		alg: 'XSalsa20',
 		salt: await sodium.to_hex(salt),
@@ -41,30 +52,31 @@ async function sodium_encrypt(element) {
 		ciphertext: await sodium.to_hex(ciphertext)
 	};
 
-	let val = "[crypt]" + window.btoa(JSON.stringify(payload)) + '[/crypt]';
+	const val = "[crypt]" + window.btoa(JSON.stringify(payload)) + '[/crypt]';
 
 	$(element).val(val);
 }
 
 async function sodium_decrypt(payload, element) {
-	let arr = JSON.parse(window.atob(payload));
+	const arr = JSON.parse(window.atob(payload));
 
 	if (arr.alg !== 'XSalsa20') {
 		alert('Unsupported algorithm');
 		return false;
 	}
 
-	let password = prompt((arr.hint.length) ? hex2bin(arr.hint) : aStr['passphrase']);
+	const password = prompt((arr.hint.length) ? hex2bin(arr.hint) : aStr['passphrase']);
 
 	if (!password) {
 		return false;
 	}
 
-	let salt = await sodium.from_hex(arr.salt);
-	let nonce = await sodium.from_hex(arr.nonce);
-	let ciphertext = await sodium.from_hex(arr.ciphertext);
+	const salt = await sodium.from_hex(arr.salt);
+	const nonce = await sodium.from_hex(arr.nonce);
+	const ciphertext = await sodium.from_hex(arr.ciphertext);
 
-	let key = await sodium.crypto_pwhash(
+/* See sodium_encrypt()
+	const key = await sodium.crypto_pwhash(
 		sodium.crypto_secretbox_KEYBYTES,
 		password,
 		salt,
@@ -72,8 +84,11 @@ async function sodium_decrypt(payload, element) {
 		sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE,
 		sodium.crypto_pwhash_ALG_DEFAULT
 	);
+*/
 
-	let decrypted = await sodium.crypto_secretbox_open_easy(ciphertext, nonce, key);
+	const key = await derivePBKDF2Hash(password, salt);
+
+	const decrypted = await sodium.crypto_secretbox_open_easy(ciphertext, nonce, key);
 	delete password, key;
 
 	if ($(element).css('display') === 'none' && typeof tinyMCE !== typeof undefined) {
@@ -82,4 +97,32 @@ async function sodium_decrypt(payload, element) {
 	else {
 		$(element).html(sodium.to_string(decrypted));
 	}
+}
+
+
+async function derivePBKDF2Hash(password, salt) {
+	const encoder = new TextEncoder();
+	const passwordBuffer = encoder.encode(password);
+	const saltBuffer = encoder.encode(salt);
+
+	const key = await crypto.subtle.importKey(
+		'raw', // key format
+		passwordBuffer, // password as raw data
+		{ name: 'PBKDF2' }, // algorithm
+		false, // whether the key can be exported
+		['deriveBits'] // key usages
+	);
+
+	const derivedBits = await crypto.subtle.deriveBits(
+		{
+			name: 'PBKDF2',
+			salt: saltBuffer,
+			iterations: 100000, // The higher the more secure should be at least 100000
+			hash: 'SHA-256', // could also be SHA-512
+		},
+		key,
+		256 // derived key length in bits (32 bytes)
+	);
+
+	return new Uint8Array(derivedBits);
 }
