@@ -50,6 +50,10 @@ async function sodium_encrypt(element) {
 }
 
 async function sodium_decrypt(payload, element) {
+	if (!window.sodium) {
+		window.sodium = await SodiumPlus.auto();
+	}
+
 	let arr = JSON.parse(window.atob(payload));
 
 	if (arr.alg !== 'XSalsa20') {
