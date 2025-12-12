@@ -2923,12 +2923,17 @@ class Activity {
 			return;
 
 		if ($is_sys_channel) {
-			$incl = Config::Get('system','pubstream_incl');
-			$excl = Config::Get('system','pubstream_excl');
+			$incl = Config::Get('system', 'pubstream_incl', '');
+			$excl = Config::Get('system', 'pubstream_excl', '');
 
-			if(($incl || $excl) && !MessageFilter::evaluate($item, $incl, $excl)) {
-				logger('post is filtered');
-				return;
+			if ($incl || $excl) {
+				$plaintext = prepare_text($item['body'], ((isset($item['mimetype'])) ? $item['mimetype'] : 'text/bbcode'));
+				$plaintext = html2plain((isset($item['title']) && $item['title']) ? $item['title'] . ' ' . $plaintext : $plaintext);
+
+				if (!(new MessageFilter($item, $incl, $excl, ['plaintext' => $plaintext]))->evaluate()) {
+					logger('post is filtered');
+					return;
+				}
 			}
 		}
 

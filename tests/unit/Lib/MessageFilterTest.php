@@ -37,7 +37,7 @@ class MessageFilterTest extends UnitTestCase {
 			'created' => '2025-04-18 20:50:00'
 		];
 
-		$this->assertEquals($result, MessageFilter::evaluate($item, $incl, $excl));
+		$this->assertEquals($result, (new MessageFilter($item, $incl, $excl))->evaluate());
 	}
 
 	public static function evaluate_provider() : array {
@@ -60,6 +60,11 @@ class MessageFilterTest extends UnitTestCase {
 			'lang=en in incl' => [
 				'lang=en',
 				'',
+				true
+			],
+			'lang!=en in excl' => [
+				'',
+				'lang!=en',
 				true
 			],
 			'lang=en in excl' => [
@@ -201,6 +206,47 @@ class MessageFilterTest extends UnitTestCase {
 				'?+!sensitive',
 				'',
 				true
+			],
+			// provided by issue #1957
+			'item is public, and item is not a comment' => [
+				'?item_private > 0 || ?item_thread_top == 0',
+				'',
+				false
+			],
+			'body does not contain any of two keywords in incl' => [
+				'?body ~= rosencrantz || ?body ~= guildenstern',
+				'',
+				false
+			],
+			'body does not contain keyword in incl, item is public, item is not a comment' => [
+				'?body ~= rosencrantz || ?item_private > 0 || ?item_thread_top == 0',
+				'',
+				false
+			],
+			'body does not contain any of two keywords in incl, item is public, item is not a comment' => [
+				'?body ~= rosencrantz || ?body ~= guildenstern || ?item_private > 0 || ?item_thread_top == 0',
+				'',
+				false
+			],
+			'item is public, and item is not a comment, repeat in excl' => [
+				'?item_private > 0 || ?item_thread_top == 0',
+				'?verb == Announce',
+				false
+			],
+			'body does not contain any of two keywords in incl, repeat in excl' => [
+				'?body ~= rosencrantz || ?body ~= guildenstern',
+				'?verb == Announce',
+				false
+			],
+			'body does not contain keyword in incl, item is public, item is not a comment, repeat in excl' => [
+				'?body ~= rosencrantz || ?item_private > 0 || ?item_thread_top == 0',
+				'?verb == Announce',
+				false
+			],
+			'body does not contain any of two keywords in incl, item is public, item is not a comment, repeat in excl' => [
+				'?body ~= rosencrantz || ?body ~= guildenstern || ?item_private > 0 || ?item_thread_top == 0',
+				'?verb == Announce',
+				false
 			],
 		];
 	}

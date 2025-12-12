@@ -1649,12 +1649,18 @@ class Libzot {
 			if (intval($channel['channel_system']) && (!$arr['item_private']) && (!$relay)) {
 				$local_public = true;
 
-				$incl = Config::Get('system','pubstream_incl');
-				$excl = Config::Get('system','pubstream_excl');
+				$incl = Config::Get('system','pubstream_incl', '');
+				$excl = Config::Get('system','pubstream_excl', '');
 
-				if(($incl || $excl) && !MessageFilter::evaluate($arr, $incl, $excl)) {
-					$local_public = false;
-					continue;
+				if ($incl || $excl) {
+					$plaintext = prepare_text($arr['body'], ((isset($arr['mimetype'])) ? $arr['mimetype'] : 'text/bbcode'));
+					$plaintext = html2plain((isset($arr['title']) && $arr['title']) ? $arr['title'] . ' ' . $plaintext : $plaintext);
+
+					if (!(new MessageFilter($arr, $incl, $excl, ['plaintext' => $plaintext]))->evaluate()) {
+						logger('post is filtered');
+						$local_public = false;
+						continue;
+					}
 				}
 
 				$r = q("select xchan_selfcensored, xchan_censored from xchan where xchan_hash = '%s'",
@@ -1663,6 +1669,7 @@ class Libzot {
 
 				// don't import sys channel posts from selfcensored or censored authors
 				if ($r && ($r[0]['xchan_selfcensored'] || $r[0]['xchan_censored'])) {
+					logger('author is censored');
 					$local_public = false;
 					continue;
 				}
