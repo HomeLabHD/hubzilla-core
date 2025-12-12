@@ -3077,13 +3077,20 @@ class Activity {
 
 			sync_an_item($channel['channel_id'], $x['item_id']);
 
+			$replies_id = null;
+
+			if (isset($act->obj['replies'])) {
+				$replies_id = is_array($act->obj['replies']) ? $act->obj['replies']['id'] : $act->obj['replies'];
+			}
+
 			// Only store replies collection for background fetching if the item has been fetched.
 			// A message that has just been posted usually will not have any replies yet.
 			// Also dismiss duplicates.
-			$attempt_replies_fetch = isset($act->obj['replies']['id']) && !empty($item['item_fetched']) && !in_array($channel['channel_id'], App::$cache['as_fetch_collection'][$act->obj['replies']['id']]['channels'] ?? []);
+
+			$attempt_replies_fetch = $replies_id && !empty($item['item_fetched']) && !in_array($channel['channel_id'], App::$cache['as_fetch_collection'][$act->obj['replies']['id']]['channels'] ?? []);
 			if ($attempt_replies_fetch) {
-				App::$cache['as_fetch_collection'][$act->obj['replies']['id']]['channels'][] = $channel['channel_id'];
-				App::$cache['as_fetch_collection'][$act->obj['replies']['id']]['force'] = intval($force);
+				App::$cache['as_fetch_collection'][$replies_id]['channels'][] = $channel['channel_id'];
+				App::$cache['as_fetch_collection'][$replies_id]['force'] = intval($force);
 			}
 		}
 	}
