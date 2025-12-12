@@ -20,8 +20,8 @@ class MessageFilter
     public function __construct($item, $include = '', $exclude = '', $options = [])
     {
         $this->item = $item;
-        $this->include = $include;
-        $this->exclude = $exclude;
+        $this->include = html_entity_decode($include);
+        $this->exclude = html_entity_decode($exclude);
         $this->options = $options;
 
         $this->setup();
