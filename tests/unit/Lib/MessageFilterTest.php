@@ -162,6 +162,11 @@ class MessageFilterTest extends UnitTestCase {
 				"?item_thread_top == 1 && ?item_private < 1 ",
 				false
 			],
+			'item.item_thread_top = 1 and item.item_private < 1 in excl encoded' => [
+				'',
+				"?item_thread_top == 1 &amp;&amp; ?item_private &lt; 1 ",
+				false
+			],
 			'item.item_thread_top = 1 or item.item_private = 0 in excl' => [
 				'',
 				"?item_thread_top == 1 && ?item_private == 0",
