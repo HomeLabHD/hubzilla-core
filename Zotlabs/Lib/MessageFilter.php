@@ -184,8 +184,8 @@ class MessageFilter
                 }
             }
             // hashtag count match
-            if (substr($ruleText, 1, 4) === '&gt;') {
-                $hashtagLimit = (int)substr($ruleText, 5);
+            if (substr($ruleText, 1, 1) === '>') {
+                $hashtagLimit = (int)substr($ruleText, 2);
                 $hashtagCount = 0;
                 foreach ($this->tags as $t) {
                     if ($t['ttype'] == TERM_HASHTAG || $t['ttype'] == TERM_COMMUNITYTAG) {
@@ -206,8 +206,8 @@ class MessageFilter
                 }
             }
             // mention count match
-            if (substr($ruleText, 1, 4) === '&gt;') {
-                $mentionLimit = (int)substr($ruleText, 5);
+            if (substr($ruleText, 1, 1) === '>') {
+                $mentionLimit = (int)substr($ruleText, 2);
                 $mentionCount = 0;
                 foreach ($this->tags as $t) {
                     if ($t['ttype'] == TERM_MENTION) {

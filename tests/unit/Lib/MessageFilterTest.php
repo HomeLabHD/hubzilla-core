@@ -117,6 +117,16 @@ class MessageFilterTest extends UnitTestCase {
 				'#*',
 				false
 			],
+			'max 1 hashtags (we got 3) in excl' => [
+				'',
+				'#>1',
+				false
+			],
+			'max 4 hashtags (we got 3) in excl' => [
+				'',
+				'#>4',
+				true
+			],
 			'item.body contains substring hopper in excl' => [
 				'',
 				'?body ~= hopper',
