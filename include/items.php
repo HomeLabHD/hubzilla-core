@@ -3604,7 +3604,7 @@ function check_item_source($uid, $item) {
 		return true;
 	}
 
-	if (MessageFilter::evaluate($item, $r[0]['src_patt'], EMPTY_STR)) {
+	if ((new MessageFilter($item, $r[0]['src_patt'], EMPTY_STR))->evaluate()) {
 		logger('source: text filter success');
 		return true;
 	}
@@ -3626,9 +3626,11 @@ function post_is_importable($channel_id, $item, $abook) {
 	$incl = PConfig::get($channel_id, 'system', 'message_filter_incl', EMPTY_STR);
 	$excl = PConfig::get($channel_id, 'system', 'message_filter_excl', EMPTY_STR);
 
+	$plaintext = prepare_text($item['body'], ((isset($item['mimetype'])) ? $item['mimetype'] : 'text/bbcode'));
+	$plaintext = html2plain((isset($item['title']) && $item['title']) ? $item['title'] . ' ' . $plaintext : $plaintext);
+
 	if ($incl || $excl) {
-		$x = MessageFilter::evaluate($item, $incl, $excl);
-		if (! $x) {
+		if (!(new MessageFilter($item, $incl, $excl, ['plaintext' => $plaintext]))->evaluate()) {
 			logger('MessageFilter: channel blocked content', LOGGER_DEBUG, LOG_INFO);
 			return false;
 		}
@@ -3647,14 +3649,13 @@ function post_is_importable($channel_id, $item, $abook) {
 		if (intval($ab['abook_self'])) {
 			continue;
 		}
-		if (! ($ab['abook_incl'] || $ab['abook_excl'])) {
+
+		if (!($ab['abook_incl'] || $ab['abook_excl'])) {
 			continue;
 		}
 
-		$evaluator = MessageFilter::evaluate($item, $ab['abook_incl'], $ab['abook_excl']);
-		// A negative assessment for any individual connections
-		// is an instant fail
-		if (! $evaluator) {
+		// A negative assessment for any individual connections is an instant fail
+		if (!(new MessageFilter($item, $ab['abook_incl'], $ab['abook_excl'], ['plaintext' => $plaintext]))->evaluate()) {
 			logger('MessageFilter: connection blocked content', LOGGER_DEBUG, LOG_INFO);
 			return false;
 		}

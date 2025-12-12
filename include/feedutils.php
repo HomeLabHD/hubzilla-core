@@ -5,6 +5,7 @@
  */
 
 use Zotlabs\Lib\Config;
+use Zotlabs\Lib\MessageFilter;
 
 /**
  * @brief Return an Atom feed for channel.
@@ -1347,8 +1348,17 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 					// but save the thread_parent in case we need to refer to it later.
 
 					if($importer['channel_system']) {
-						if( ! \Zotlabs\Lib\MessageFilter::evaluate($datarray,Config::Get('system','pubstream_incl'),Config::Get('system','pubstream_excl'))) {
-							continue;
+						$incl = Config::Get('system','pubstream_incl', '');
+						$excl = Config::Get('system','pubstream_excl', '');
+
+						if ($incl || $excl) {
+							$plaintext = prepare_text($datarray['body'], ((isset($datarray['mimetype'])) ? $datarray['mimetype'] : 'text/bbcode'));
+							$plaintext = html2plain((isset($datarray['title']) && $datarray['title']) ? $datarray['title'] . ' ' . $plaintext : $plaintext);
+
+							if (!(new MessageFilter($datarray, $incl, $excl, ['plaintext' => $plaintext]))->evaluate()) {
+								logger('post is filtered');
+								continue;
+							}
 						}
 					}
 
@@ -1508,8 +1518,17 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 				}
 
 				if($importer['channel_system']) {
-					if( ! \Zotlabs\Lib\MessageFilter::evaluate($datarray,Config::Get('system','pubstream_incl'),Config::Get('system','pubstream_excl'))) {
-						continue;
+					$incl = Config::Get('system','pubstream_incl', '');
+					$excl = Config::Get('system','pubstream_excl', '');
+
+					if ($incl || $excl) {
+						$plaintext = prepare_text($datarray['body'], ((isset($datarray['mimetype'])) ? $datarray['mimetype'] : 'text/bbcode'));
+						$plaintext = html2plain((isset($datarray['title']) && $datarray['title']) ? $datarray['title'] . ' ' . $plaintext : $plaintext);
+
+						if (!(new MessageFilter($datarray, $incl, $excl, ['plaintext' => $plaintext]))->evaluate()) {
+							logger('post is filtered');
+							continue;
+						}
 					}
 				}
 
