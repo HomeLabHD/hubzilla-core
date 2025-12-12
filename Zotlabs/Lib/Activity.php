@@ -3092,7 +3092,7 @@ class Activity {
 			// A message that has just been posted usually will not have any replies yet.
 			// Also dismiss duplicates.
 
-			$attempt_replies_fetch = $replies_id && !empty($item['item_fetched']) && !in_array($channel['channel_id'], App::$cache['as_fetch_collection'][$act->obj['replies']['id']]['channels'] ?? []);
+			$attempt_replies_fetch = $replies_id && !empty($item['item_fetched']) && !in_array($channel['channel_id'], App::$cache['as_fetch_collection'][$replies_id]['channels'] ?? []);
 			if ($attempt_replies_fetch) {
 				App::$cache['as_fetch_collection'][$replies_id]['channels'][] = $channel['channel_id'];
 				App::$cache['as_fetch_collection'][$replies_id]['force'] = intval($force);
