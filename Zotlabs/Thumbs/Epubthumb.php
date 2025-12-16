@@ -54,9 +54,6 @@ class Epubthumb {
 			imagecopyresampled($dest, $image, 0, 0, 0, 0, $width, $height, $srcwidth, $srcheight);
 
 			imagejpeg($dest, "{$file}.thumb");
-
-			imagedestroy($image);
-			imagedestroy($dest);
 		}
 	}
 

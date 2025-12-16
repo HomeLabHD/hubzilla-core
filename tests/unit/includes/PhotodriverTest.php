@@ -29,13 +29,11 @@ class PhotodriverTest extends UnitTestCase {
 			case 'png':
 				$im = imagecreatetruecolor(10, 10);
 				imagepng($im, $tmp);
-				imagedestroy($im);
 				break;
 			case 'jpeg':
 			default:
 				$im = imagecreatetruecolor(10, 10);
 				imagejpeg($im, $tmp);
-				imagedestroy($im);
 				break;
 		}
 		return $tmp;
