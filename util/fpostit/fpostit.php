@@ -58,7 +58,7 @@ if ((isset($title)) && (isset($text)) && (isset($url))) {
 }
 
 if (isset($_POST['submit'])) {
-	
+
 	if (($_POST["friendika_acct_name"] != '') && ($_POST["friendika_password"] != '')) {
 		$acctname = $_POST["friendika_acct_name"];
 		$tmp_account_array = explode("@", $acctname);
@@ -71,31 +71,30 @@ if (isset($_POST['submit'])) {
 
 		$url = "http://" . $hostname . '/api/statuses/update';
 		$data = array('status' => $content);
-		
+
 		// echo "posting to: $url<br/>";
 
 		$c = curl_init();
-		curl_setopt($c, CURLOPT_URL, $url); 
+		curl_setopt($c, CURLOPT_URL, $url);
 		curl_setopt($c, CURLOPT_USERPWD, "$username:$password");
-		curl_setopt($c, CURLOPT_POSTFIELDS, $data); 
-		curl_setopt($c, CURLOPT_RETURNTRANSFER, true); 
+		curl_setopt($c, CURLOPT_POSTFIELDS, $data);
+		curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($c, CURLOPT_FOLLOWLOCATION, true);
-		$c_result = curl_exec($c); 
-		if(curl_errno($c)){ 
+		$c_result = curl_exec($c);
+		if(curl_errno($c)){
 			$error = curl_error($c);
 			showForm($error, $content);
 		}
-		
-		curl_close($c);
+
 		if (!isset($error)) {
 			echo '<script language="javascript" type="text/javascript">window.close();</script>';
 		}
-		
+
 	} else {
 		$error = "Missing account name and/or password...try again please";
 		showForm($error, $content);
 	}
-	
+
 } else {
 	showForm(null, $content);
 }
@@ -103,7 +102,7 @@ if (isset($_POST['submit'])) {
 function showForm($error, $content) {
 	$username_cookie = $_COOKIE['username'];
 	$password_cookie = $_COOKIE['password'];
-	
+
 	echo <<<EOF
 	<div class='wrap1'>
 		<h2><img class='logo' src='friendika-32.png' align='middle';/>
@@ -121,7 +120,7 @@ function showForm($error, $content) {
 		<p></p>
 	</div>
 EOF;
-	
+
 }
 ?>
 

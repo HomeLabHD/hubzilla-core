@@ -25,18 +25,18 @@ class Img_filesize {
 
 
 	static function getLocalFileSize($url) {
-	
+
 		$fname = basename($url);
 		$resolution = 0;
-	
+
 		if(strpos($fname,'.') !== false)
 			$fname = substr($fname,0,strpos($fname,'.'));
-	
+
 		if(substr($fname,-2,1) == '-') {
 			$resolution = intval(substr($fname,-1,1));
 			$fname = substr($fname,0,-2);
 		}
-			
+
 		$r = q("SELECT filesize FROM photo WHERE resource_id = '%s' AND imgscale = %d LIMIT 1",
 			dbesc($fname),
 			intval($resolution)
@@ -116,7 +116,6 @@ function getRemoteFileSize($url)
 
     curl_exec($ch);
     curl_getinfo($ch);
-	curl_close($ch);
 
     return $size;
 }
