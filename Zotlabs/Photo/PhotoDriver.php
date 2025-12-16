@@ -115,9 +115,10 @@ abstract class PhotoDriver {
 	 */
 	public function __construct($data, $type = '') {
 		$this->types = $this->supportedTypes();
-		if(! array_key_exists($type, $this->types)) {
+		if(!$type || !array_key_exists($type, $this->types)) {
 			$type = 'image/jpeg';
 		}
+
 		$this->type = $type;
 		$this->valid = false;
 		$this->load($data, $type);
