@@ -2928,9 +2928,10 @@ class Activity {
 
 			if ($incl || $excl) {
 				$plaintext = prepare_text($item['body'], ((isset($item['mimetype'])) ? $item['mimetype'] : 'text/bbcode'));
+				$plaintext = html2plain((isset($item['summary']) && $item['summary']) ? $item['summary'] . ' ' . $plaintext : $plaintext);
 				$plaintext = html2plain((isset($item['title']) && $item['title']) ? $item['title'] . ' ' . $plaintext : $plaintext);
 
-				if (!(new MessageFilter($item, $incl, $excl, ['plaintext' => $plaintext]))->evaluate()) {
+				if (!(new MessageFilter($item, html_entity_decode($incl), html_entity_decode($excl), ['plaintext' => $plaintext]))->evaluate()) {
 					logger('post is filtered');
 					return;
 				}

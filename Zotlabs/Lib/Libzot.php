@@ -1654,9 +1654,10 @@ class Libzot {
 
 				if ($incl || $excl) {
 					$plaintext = prepare_text($arr['body'], ((isset($arr['mimetype'])) ? $arr['mimetype'] : 'text/bbcode'));
+					$plaintext = html2plain((isset($arr['summary']) && $arr['summary']) ? $arr['summary'] . ' ' . $plaintext : $plaintext);
 					$plaintext = html2plain((isset($arr['title']) && $arr['title']) ? $arr['title'] . ' ' . $plaintext : $plaintext);
 
-					if (!(new MessageFilter($arr, $incl, $excl, ['plaintext' => $plaintext]))->evaluate()) {
+					if (!(new MessageFilter($arr, html_entity_decode($incl), html_entity_decode($excl), ['plaintext' => $plaintext]))->evaluate()) {
 						logger('post is filtered');
 						$local_public = false;
 						continue;

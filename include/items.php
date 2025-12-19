@@ -3604,7 +3604,7 @@ function check_item_source($uid, $item) {
 		return true;
 	}
 
-	if ((new MessageFilter($item, $r[0]['src_patt'], EMPTY_STR))->evaluate()) {
+	if ((new MessageFilter($item, html_entity_decode($r[0]['src_patt']), EMPTY_STR))->evaluate()) {
 		logger('source: text filter success');
 		return true;
 	}
@@ -3627,10 +3627,11 @@ function post_is_importable($channel_id, $item, $abook) {
 	$excl = PConfig::get($channel_id, 'system', 'message_filter_excl', EMPTY_STR);
 
 	$plaintext = prepare_text($item['body'], ((isset($item['mimetype'])) ? $item['mimetype'] : 'text/bbcode'));
+	$plaintext = html2plain((isset($item['summary']) && $item['summary']) ? $item['summary'] . ' ' . $plaintext : $plaintext);
 	$plaintext = html2plain((isset($item['title']) && $item['title']) ? $item['title'] . ' ' . $plaintext : $plaintext);
 
 	if ($incl || $excl) {
-		if (!(new MessageFilter($item, $incl, $excl, ['plaintext' => $plaintext]))->evaluate()) {
+		if (!(new MessageFilter($item, html_entity_decode($incl), html_entity_decode($excl), ['plaintext' => $plaintext]))->evaluate()) {
 			logger('MessageFilter: channel blocked content', LOGGER_DEBUG, LOG_INFO);
 			return false;
 		}
@@ -3655,7 +3656,7 @@ function post_is_importable($channel_id, $item, $abook) {
 		}
 
 		// A negative assessment for any individual connections is an instant fail
-		if (!(new MessageFilter($item, $ab['abook_incl'], $ab['abook_excl'], ['plaintext' => $plaintext]))->evaluate()) {
+		if (!(new MessageFilter($item, html_entity_decode($ab['abook_incl']), html_entity_decode($ab['abook_excl']), ['plaintext' => $plaintext]))->evaluate()) {
 			logger('MessageFilter: connection blocked content', LOGGER_DEBUG, LOG_INFO);
 			return false;
 		}
