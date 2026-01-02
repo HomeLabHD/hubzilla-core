@@ -930,12 +930,13 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 		);
 	}
 	elseif($options === 'update') {
-		$r = q("update attach set filename = '%s', filetype = '%s', folder = '%s', edited = '%s', os_storage = %d, is_photo = %d, os_path = '%s',
+		$r = q("update attach set filename = '%s', filetype = '%s', filesize = %d, folder = '%s', edited = '%s', os_storage = %d, is_photo = %d, os_path = '%s',
 			display_path = '%s', allow_cid = '%s', allow_gid = '%s', deny_cid = '%s', deny_gid  = '%s' where id = %d and uid = %d",
 			dbesc((array_key_exists('filename',$arr))  ? $arr['filename']  : $x[0]['filename']),
 			dbesc((array_key_exists('filetype',$arr))  ? $arr['filetype']  : $x[0]['filetype']),
+			dbesc((array_key_exists('filesize',$arr))  ? $arr['filesize']  : $x[0]['filesize']),
 			dbesc(($folder_hash) ? $folder_hash : $x[0]['folder']),
-			dbesc($created),
+			dbesc($edited),
 			dbesc((array_key_exists('os_storage',$arr))  ? $arr['os_storage']  : $x[0]['os_storage']),
 			dbesc((array_key_exists('is_photo',$arr))  ? $arr['is_photo']  : $x[0]['is_photo']),
 			dbesc((array_key_exists('os_path',$arr))   ? $arr['os_path']   : $x[0]['os_path']),

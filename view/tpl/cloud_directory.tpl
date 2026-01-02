@@ -147,7 +147,7 @@
 				{{/if}}
 			</td>
 			<td><i class="bi {{$item.icon_from_type}} generic-icons" title="{{$item.type}}"></i></td>
-			<td><a href="{{$item.rel_path}}" class="p-2" draggable="false">{{$item.name}}</a></td>
+			<td><a href="{{$item.rel_path}}" class="p-2 file_link" draggable="false" data-id="{{$item.attach_id}}" data-type="{{$item.type}}">{{$item.name}}</a></td>
 			<td>{{$item.terms}}</td>
 			<td class="cloud-index-tool p-2">
 				{{if $item.lockstate == 'lock'}}

@@ -3209,7 +3209,7 @@ function getIconFromType($type) {
 		'text/uri-list' => 'bi-box-arrow-up-right',
 		'application/msword' => 'bi-file-earmark-word',
 		'application/pdf' => 'bi-file-earmark-pdf',
-		'application/vnd.oasis.opendocument.text' => 'bifile--earmark-text',
+		'application/vnd.oasis.opendocument.text' => 'bi-file-earmark-text',
 		'application/epub+zip' => 'bi-file-earmark-text',
 		//Spreadsheet
 		'application/vnd.oasis.opendocument.spreadsheet' => 'bi-file-earmark-spreadsheet',
