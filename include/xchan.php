@@ -166,7 +166,7 @@ function xchan_fetch($arr) {
 	if(! $key)
 		return false;
 
-	$r = q("select * from xchan where $key = '$v' limit 1");
+	$r = q("select * from xchan where $key = '%s' limit 1", dbesc($v));
 	if(! $r)
 		return false;
 
