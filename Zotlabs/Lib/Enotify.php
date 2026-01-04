@@ -431,7 +431,7 @@ class Enotify {
 
 	elseif (isset($params['type']) && $params['type'] === NOTIFY_INTRO) {
 		$subject = sprintf( t('[$Projectname:Notify] Introduction received'));
-		$preamble = sprintf( t('You\'ve received an new connection request from \'%1$s\' at %2$s'), $sender['xchan_name'], $sitename);
+		$preamble = sprintf( t('You\'ve received a new connection request from \'%1$s\' at %2$s'), $sender['xchan_name'], $sitename);
 		$epreamble = sprintf( t('You\'ve received [zrl=%1$s]a new connection request[/zrl] from %2$s.'),
 			$siteurl . '/connections/ifpending',
 			'[zrl=' . $sender['xchan_url'] . ']' . $sender['xchan_name'] . '[/zrl]');
