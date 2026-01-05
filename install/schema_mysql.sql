@@ -171,7 +171,7 @@ CREATE TABLE IF NOT EXISTS `attach` (
   `hash` char(191) NOT NULL DEFAULT '',
   `creator` char(191) NOT NULL DEFAULT '',
   `filename` char(191) NOT NULL DEFAULT '',
-  `filetype` char(191) NOT NULL DEFAULT '',
+  `filetype` char(128) NOT NULL DEFAULT '',
   `filesize` int(10) unsigned NOT NULL DEFAULT 0 ,
   `revision` int(10) unsigned NOT NULL DEFAULT 0 ,
   `folder` char(191) NOT NULL DEFAULT '',

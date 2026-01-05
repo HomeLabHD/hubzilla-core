@@ -101,14 +101,10 @@ function z_mime_content_type($filename) {
 
 	// ms office
 	'doc' => 'application/msword',
-	// FIXME: this is the correct mime type for docx but it is too long to store in DB (postrges) as of 2026-01-05
-	// 'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-	'docx' => 'application/vnd.ms-word',
+	'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 	'rtf' => 'application/rtf',
 	'xls' => 'application/vnd.ms-excel',
-	// FIXME: this is the correct mime type for xlsx but it is too long to store in DB (postrges) as of 2026-01-05
-	//'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-	'xlsx' => 'application/vnd.ms-excel',
+	'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 	'ppt' => 'application/vnd.ms-powerpoint',
 
 	// open office
@@ -893,6 +889,18 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 		$edited = $arr['edited'];
 	else
 		$edited = $created;
+
+	// Until here we either used the provided mime type or set mimetype by extension.
+	// Both variants are inherently unsafe hence try to find and set the real mimetype before storage.
+
+	if (class_exists('finfo') && is_file($os_basepath . $os_relpath)) {
+		$finfo = new finfo(FILEINFO_MIME_TYPE);
+		$mimetype = $finfo->file($os_basepath . $os_relpath);
+
+		if ($mimetype === false) {
+			$mimetype = 'application/octet-stream';
+		}
+	}
 
 	if($options === 'replace') {
 		$r = q("update attach set filename = '%s', filetype = '%s', folder = '%s', filesize = %d, os_storage = %d, is_photo = %d, content = '%s', edited = '%s', os_path = '%s', display_path = '%s' where id = %d and uid = %d",

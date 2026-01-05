@@ -168,7 +168,7 @@ CREATE TABLE "attach" (
   "hash" varchar(64) NOT NULL DEFAULT '',
   "creator" varchar(128) NOT NULL DEFAULT '',
   "filename" text NOT NULL DEFAULT '',
-  "filetype" varchar(64) NOT NULL DEFAULT '',
+  "filetype" varchar(128) NOT NULL DEFAULT '',
   "filesize" bigint  NOT NULL DEFAULT '0',
   "revision" bigint  NOT NULL DEFAULT '0',
   "folder" varchar(64) NOT NULL DEFAULT '',
