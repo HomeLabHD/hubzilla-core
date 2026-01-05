@@ -101,8 +101,14 @@ function z_mime_content_type($filename) {
 
 	// ms office
 	'doc' => 'application/msword',
+	// FIXME: this is the correct mime type for docx but it is too long to store in DB (postrges) as of 2026-01-05
+	// 'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+	'docx' => 'application/vnd.ms-word',
 	'rtf' => 'application/rtf',
 	'xls' => 'application/vnd.ms-excel',
+	// FIXME: this is the correct mime type for xlsx but it is too long to store in DB (postrges) as of 2026-01-05
+	//'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+	'xlsx' => 'application/vnd.ms-excel',
 	'ppt' => 'application/vnd.ms-powerpoint',
 
 	// open office
