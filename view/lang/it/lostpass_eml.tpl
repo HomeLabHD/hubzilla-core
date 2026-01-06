@@ -1,24 +1,24 @@
 
 Ciao {{$username}},
-	Su {{$sitename}} è arrivata la richiesta di azzerare la password del tuo account. 
-Per dare conferma, devi cliccare sul link di verifica che trovi qua sotto,
-oppure puoi copiarlo e incollarlo sul tuo browser. 
+	Recentemente è stata ricevuta una richiesta su {{$sitename}} per reimpostare il tuo account. 
+password. Per confermare questa richiesta, clicca sul link di verifica
+qui sotto o incollalo nella barra degli indirizzi del tuo browser web. 
 
-Se NON hai richiesto tu il cambio password, NON cliccare assolutamente il link
-e ignora (o cancella) questo messaggio. 
+Se NON hai richiesto questa modifica, NON seguire il link.
+fornito e ignora e/o cancella questa e-mail. 
 
-Così la tua password non cambierà finché non sarà certo
-che la richiesta venga realmente da te! 
+La tua password non verrà modificata a meno che non siamo in grado di verificare che tu
+ne abbia fatto richiesta. 
 
-Questo è il link per confermare e verificare la tua identità:
+Segui questo link per verificare la tua identità:
 
 {{$reset_link}}
 
-Dopo riceverai un messaggio che conterrà la nuova password.
+Riceverai quindi un messaggio di follow-up contenente la nuova password.
 
-Naturalmente potrai cambiarla dalla pagina delle 'Impostazioni' dopo aver effettuato l'accesso.
+Puoi modificare la password dalla pagina delle impostazioni del tuo account dopo aver effettuato l'accesso.
 
-I dettagli del tuo account:
+I dati di accesso sono i seguenti:
 
 Sito:	{{$siteurl}}
 Nome utente:	{{$email}}
@@ -26,7 +26,10 @@ Nome utente:	{{$email}}
 
 
 
-Con affetto,
-	L'amministratore di {{$sitename}}
+Cordiali saluti,
+	L'amministratore di {{$sitename}} 
 
+--
+Termini di servizio:
+{{$siteurl}}/aiuto/TerminiDiServizio
  

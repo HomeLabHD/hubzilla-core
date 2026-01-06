@@ -1,20 +1,25 @@
 
 Ciao {{$username}},
-	Come richiesto, la tua password è stata cambiata. 
- Prendi nota di questo cambiamento oppure  
-sostituisci subito la password con quella che preferisci.
+	La tua password è stata modificata come richiesto. Ti preghiamo di conservare questa 
+informazione per i tuo archivio (o cambia immediatamente la password in 
+qualcosa che ricorderai).
 
 
-Questi sono i dati che ti serviranno a effettuare l'accesso:
+I tuoi dati di accesso sono i seguenti:
 
 Sito:	{{$siteurl}}
 Nome utente:	{{$email}}
 Password:	{{$new_password}}
 
-Ricorda che potrai cambiare la password dalla pagina delle 'Impostazioni' dopo aver effettuato l'accesso.
+Puoi modificare la password dalla pagina delle impostazioni del tuo account dopo aver effettuato l'accesso.
 
 
-Saluti,
+Cordiali saluti,
 	L'amministratore di {{$sitename}}
 
  
+
+--
+Termini di servizio:
+{{$siteurl}}/Aiuto/TerminiDiServizio
+
