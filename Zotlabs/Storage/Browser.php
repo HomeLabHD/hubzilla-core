@@ -272,7 +272,7 @@ class Browser extends DAV\Browser\Plugin {
 			$ft['rel_path'] = (($data) ? '/cloud/' . $nick .'/' . $display_path_encoded : $href_encoded);
 			$ft['full_path'] = z_root() . (($data) ? '/cloud/' . $nick .'/' . $display_path_encoded : $href_encoded);
 			$ft['name'] = $name;
-			$ft['type'] = $data['filetype'];
+			$ft['type'] = $type;
 			$ft['size'] = $size;
 			$ft['collection'] = (($type === 'Collection') ? true : false);
 			$ft['size_formatted'] = userReadableSize($size);
