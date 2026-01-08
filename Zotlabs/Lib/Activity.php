@@ -2353,7 +2353,7 @@ class Activity {
 					continue;
 				}
 
-				$s['body'] = self::pasteQuote($s['body'], $quote);
+				$s['body'] = self::pasteQuote($s['body'] ?? EMPTY_STR, $quote);
 				$s['term'] = $quote['term'];
 			}
 		}
