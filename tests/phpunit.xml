@@ -15,13 +15,13 @@
       <directory suffix="Test.php">./unit/</directory>
     </testsuite>
     <testsuite name="Hubzilla addons unit tests">
-      <directory suffix="Test.php">../extend/addon/*/*/tests/unit/</directory>
+      <directory suffix="Test.php">../extend/addon/*/*/tests/</directory>
     </testsuite>
     <testsuite name="Hubzilla themes unit tests">
-      <directory suffix="Test.php">../extend/theme/*/*/tests/unit/</directory>
+      <directory suffix="Test.php">../extend/theme/*/*/tests/</directory>
     </testsuite>
     <testsuite name="Hubzilla widgets unit tests">
-      <directory suffix="Test.php">../extend/widget/*/*/tests/unit/</directory>
+      <directory suffix="Test.php">../extend/widget/*/*/tests/</directory>
     </testsuite>
   </testsuites>
   <source>
