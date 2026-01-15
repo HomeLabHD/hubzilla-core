@@ -83,37 +83,31 @@ class Bookmarks extends \Zotlabs\Web\Controller {
 
 		$channel = \App::get_channel();
 
-		$o = '';
-
-		$o .= '<div class="generic-content-wrapper-styled">';
-
-		$o .= '<h3>' . t('Bookmarks') . '</h3>';
-
-		$x = menu_list(local_channel(),'',MENU_BOOKMARK);
-
-		if($x) {
-			foreach($x as $xx) {
-				$y = menu_fetch($xx['menu_name'],local_channel(),get_observer_hash());
-				$o .= menu_render($y,'',true);
+		$bookmarks = [];
+		$x = menu_list(local_channel(), '', MENU_BOOKMARK);
+		if ($x) {
+			foreach ($x as $xx) {
+				$y = menu_fetch($xx['menu_name'], local_channel(), get_observer_hash());
+				$bookmarks[] = menu_render($y, '', true);
 			}
 		}
 
-		$o .= '<h3>' . t('My Connections Bookmarks') . '</h3>';
-
-
-		$x = menu_list(local_channel(),'',MENU_SYSTEM|MENU_BOOKMARK);
-
-		if($x) {
-			foreach($x as $xx) {
-				$y = menu_fetch($xx['menu_name'],local_channel(),get_observer_hash());
-				$o .= menu_render($y,'',true);
+		$conn_bookmarks = [];
+		$x = menu_list(local_channel(), '', MENU_SYSTEM | MENU_BOOKMARK);
+		if ($x) {
+			foreach ($x as $xx) {
+				$y = menu_fetch($xx['menu_name'], local_channel(), get_observer_hash());
+				$conn_bookmarks[] = menu_render($y, '', true);
 			}
 		}
 
-		$o .= '</div>';
-
-		return $o;
-
+		return replace_macros(get_markup_template('bookmarks.tpl'), [
+			'$title1' => t('Bookmarks'),
+			'$title2' => t('My Connections Bookmarks'),
+			'$bookmarks' => $bookmarks,
+			'$conn_bookmarks' => $conn_bookmarks,
+		]);
+		
 	}
 
 
