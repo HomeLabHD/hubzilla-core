@@ -1,24 +1,37 @@
 
-Grazie per la tua registrazione su {{$sitename}}!
+Grazie per esserti registrato su {{$sitename}}.
 
-Questi sono i dati per effettuare l'accesso:
+I tuoi dati di accesso sono i seguenti:
 
 Sito:	{{$siteurl}}
 Nome utente:	{{$email}}
 
-Dovrai inserire la password che hai scelto al momento della registrazione.
+Accedi con la password che hai scelto al momento della registrazione.
 
-Ricorda però che è necessario verificare l'indirizzo email perché tu possa avere l'accesso completo.
+Abbiamo bisogno di verificare il tuo indirizzo e-mail per concederti l'accesso completo.
 
-Se l'account è stato creato da te, allora visita questo link di verifica:
+Il tuo token di verifica è
 
-{{$siteurl}}/regver/allow/{{$hash}} 
+{{$hash}}
 
-
-Se preferisci cancellare la richiesta e rimuovere l'account, allora clicca su quest'altro link:
-
-
-{{$siteurl}}/regver/deny/{{$hash}}
+{{if $timeframe}}
+Questo token è valido dalle {{$timeframe.0}} UTC alle {{$timeframe.1}} UTC.
 
 
-Grazie.
+{{/if}}
+Se hai registrato questo account, inserisci il codice di convalida quando richiesto o visita il seguente link:
+
+{{$siteurl}}/regate/{{$mail}}
+
+
+Per rifiutare la richiesta e rimuovere l'account, visita:
+
+{{$siteurl}}/regate/{{$mail}}{{if $ko}}/{{$ko}}{{/if}}
+
+
+Grazie!
+
+
+--
+Termini di servizio:
+{{$siteurl}}/help/TermsOfService
