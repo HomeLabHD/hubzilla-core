@@ -261,7 +261,7 @@ class Browser extends DAV\Browser\Plugin {
 				}
 			}
 
-			$display_path_encoded = Text::rawurlencode_parts($data['display_path']);
+			$display_path_encoded = Text::rawurlencode_parts($data['display_path'] ?? '');
 			$href_encoded = Text::rawurlencode_parts($href);
 
 			// put the array for this file together
