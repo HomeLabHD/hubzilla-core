@@ -25,10 +25,6 @@ class Channel_activities {
 		self::$uid = local_channel();
 		self::$channel = App::get_channel();
 
-		$o = '<div id="channel-activities" class="d-none overflow-hidden">';
-		$o .= '<h2 class="mb-4">' . t('Welcome') . ' ' . self::$channel['channel_name'] . '!</h2>';
-		//$o .= 'Last login date: ' . get_pconfig(self::$uid, 'system', 'stored_login_date') . ' from ' . get_pconfig(self::$uid, 'system', 'stored_login_addr');
-
 		self::get_photos_activity();
 		self::get_files_activity();
 		self::get_webpages_activity();
@@ -42,28 +38,33 @@ class Channel_activities {
 
 		call_hooks('channel_activities_widget', $hookdata);
 
-		if (!$hookdata['activities']) {
-			$o .= '<h3>' . t('No recent activities') . '</h3>';
-			$o .= '</div>';
-			return $o;
+		if ($hookdata['activities']) {
+			$keys = array_column($hookdata['activities'], 'date');
+			array_multisort($keys, SORT_DESC, $hookdata['activities']);
+
+			foreach ($hookdata['activities'] as $a) {
+				$activity_html .= replace_macros(
+					get_markup_template($a['tpl']),
+					[
+						'$url'   => $a['url'],
+						'$icon'  => $a['icon'],
+						'$label' => $a['label'],
+						'$items' => $a['items']
+					]
+				);
+			}
 		}
 
-		$keys = array_column($hookdata['activities'], 'date');
+		$tpl = get_markup_template('channel_activities_widget.tpl');
 
-		array_multisort($keys, SORT_DESC, $hookdata['activities']);
+		return replace_macros($tpl, [
+			'$welcome'        => t('Welcome'),
+			'$channel_name'  => self::$channel['channel_name'],
+			'$no_activities' => t('No recent activities'),
+			'$activities'    => $hookdata['activities'],
+			'$activity_html' => $activity_html
+		]);
 
-		foreach($hookdata['activities'] as $a) {
-			$o .= replace_macros(get_markup_template($a['tpl']), [
-				'$url' => $a['url'],
-				'$icon' => $a['icon'],
-				'$label' => $a['label'],
-				'$items' => $a['items']
-			]);
-		}
-
-		$o .= '</div>';
-
-		return $o;
 	}
 
 	private static function get_photos_activity() {
