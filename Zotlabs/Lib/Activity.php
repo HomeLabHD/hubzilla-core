@@ -3316,6 +3316,12 @@ class Activity {
 			return true;
 		}
 
+		// FIXME: it appears sometimes $s is an array (needs invetigation)
+		if (!is_string($s)) {
+			btlogger('Not a string: ' . print_r($s, true));
+			return true;
+		}
+
 		$s_alt = htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
 
 		if (
