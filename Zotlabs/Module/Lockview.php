@@ -232,25 +232,17 @@ class Lockview extends Controller {
 			}
 		}
 
-		$access_list_header = '<div class="dropdown-header text-uppercase h6">' . t('Access') . '</div>';
-		$guest_access_list_header = '<div class="dropdown-header text-uppercase h6">' . t('Guest access') . '</div>';
-		$ocap_access_list_header = '<div class="dropdown-header text-uppercase h6">' . t('OCAP access') . '</div>';
-		$divider = '<div class="dropdown-divider"></div>';
-		$str = '';
+		$tpl = get_markup_template('access_dropdown.tpl');
 
-		if ($access_list) {
-			$str .= $access_list_header . implode($access_list);
-		}
+		echo replace_macros($tpl, [
+			'$access_header'        => t('Access'),
+			'$guest_access_header'  => t('Guest access'),
+			'$ocap_access_header'   => t('OCAP access'),
 
-		if ($guest_access_list) {
-			$str .= $divider . $guest_access_list_header . implode($guest_access_list);
-		}
-
-		if ($ocap_access_list) {
-			$str .= $divider . $ocap_access_list_header . implode($ocap_access_list);
-		}
-
-		echo $str;
+			'$access_list'         => $access_list ? implode($access_list) : '',
+			'$guest_access_list'   => $guest_access_list ? implode($guest_access_list) : '',
+			'$ocap_access_list'    => $ocap_access_list ? implode($ocap_access_list) : '',
+		]);
 		killme();
 
 	}
