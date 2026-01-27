@@ -402,17 +402,17 @@ function send_reg_approval_email($arr) {
  * This function sends email to admin(s).
  *
  */
-function send_reg_approval_email_from_register($arr) {
+function send_reg_approval_email_from_register(int $reg_id): array {
 
-	$result = array('success' => false, 'message' => 'rid:' . $arr['reg_id']);
+	$result = array('success' => false, 'message' => 'rid:' . $reg_id);
 	$now = datetime_convert();
 
 	$register = q("SELECT * FROM register WHERE reg_id = %d",
-				intval($arr['reg_id'])
+				intval($reg_id)
 	);
 
-	if(! ($register && count($register))) {
-        logger('send_reg_approval_email: could not find data for reg_id ' . $arr['reg_id']);
+	if (empty($register)) {
+        logger('send_reg_approval_email: could not find data for reg_id ' . $reg_id);
 		return $result;
     }
 
@@ -423,32 +423,31 @@ function send_reg_approval_email_from_register($arr) {
 	$admins = array();
 
 	foreach($r as $rr) {
-		if(strlen($rr['account_email'])) {
+		if (strlen($rr['account_email'])) {
 			$admins[] = array('email' => $rr['account_email'], 'lang' => $rr['account_lang']);
 		}
 	}
 
-	if(! count($admins)) {
-        logger('send_reg_approval_email: could not find any admins to notify for reg_id ' . $arr['reg_id']);
+	if (empty($admins)) {
+        logger('send_reg_approval_email: could not find any admins to notify for reg_id ' . $reg_id);
 		return $result;
     }
 
 	$delivered = 0;
 
 	foreach($admins as $admin) {
-		if(strlen($admin['lang']))
+		if (strlen($admin['lang'])) {
 			push_lang($admin['lang']);
-		else
+		} else {
 			push_lang('en');
+		}
 
-		$email_msg = replace_macros(get_intltext_template('register_verify_eml.tpl'), array(
+		$email_msg = replace_macros(get_intltext_template('register_verify_eml_no_links.tpl'), array(
 			'$sitename' => Config::Get('system','sitename'),
 			'$siteurl'  =>  z_root(),
 			'$email'    => $register[0]['reg_email'],
-			'$uid'      => $arr['reg_id'],
-			'$hash'     => $register[0]['reg_hash'],
 			'$details'  => $register[0]['reg_atip']
-		 ));
+		));
 
 		$res = z_mail(
 			[
@@ -458,7 +457,7 @@ function send_reg_approval_email_from_register($arr) {
 			]
 		);
 
-		if($res) {
+		if ($res) {
 			$delivered ++;
 		} else {
 			logger('send_reg_approval_email: failed to ' . $admin['email'] . 'reg_email: ' . $register[0]['reg_email']);

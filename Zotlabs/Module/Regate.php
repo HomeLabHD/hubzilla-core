@@ -142,7 +142,7 @@ class Regate extends \Zotlabs\Web\Controller {
 
 								if (($flags & ACCOUNT_PENDING ) == ACCOUNT_PENDING) {
 									$nextpage = 'regate/' . bin2hex($did2) . $didx;
-									$approve = send_reg_approval_email_from_register([ 'reg_id' => $r['reg_id'] ]);
+									$approve = send_reg_approval_email_from_register($r['reg_id']);
 									if ($approve['success']) {
 										q("COMMIT");
 									} else {
