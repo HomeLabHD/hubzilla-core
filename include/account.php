@@ -332,7 +332,7 @@ function send_reg_confirmation_email_from_register(int $reg_id): bool {
 
 	if (empty($register)) {
         logger('send_reg_confirmation_email_from_register: could not find email address for for reg_id ' . $reg_id);
-		return $result;
+		return false;
 	} else {
 		logger('send_reg_confirmation_email_from_register: sending confirmation email to ' . $register[0]['reg_email']);
 	}
