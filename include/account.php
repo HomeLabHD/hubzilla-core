@@ -326,9 +326,7 @@ function verify_email_address(string $email): bool {
  */
 function send_reg_confirmation_email_from_register(int $reg_id): bool {
 
-	$register = q("SELECT reg_email, reg_lang FROM register WHERE reg_id = '%s' ",
-		intval($reg_id)
-	);
+	$register = q("SELECT reg_email, reg_lang FROM register WHERE reg_id = %d", $reg_id);
 
 	if (empty($register)) {
         logger('send_reg_confirmation_email_from_register: could not find email address for for reg_id ' . $reg_id);
