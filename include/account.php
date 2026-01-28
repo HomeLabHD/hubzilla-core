@@ -264,9 +264,10 @@ function create_account_from_register($arr) {
 		$result['account']['parent'] = $result['account']['account_id'];
 	}
 
-	$result['success']  = true;
-
-	call_hooks('register_account',$result);
+	if ( send_reg_confirmation_email_from_register($arr['reg_id']) ) {
+		$result['success']  = true;
+		call_hooks('register_account',$result);
+	}
 
 	return $result;
 }
@@ -314,6 +315,56 @@ function verify_email_address(string $email): bool {
 		logger("send_reg_approval_email: failed sending email to: {$email}");
 
 	return $res;
+}
+
+/**
+ * Send email to user confirming approved registration.
+ *
+ * @param int $reg_id		The reg_id of the user (from register table)
+ *
+ * @return bool `true` if the email was sucessfully sent, otherwise `false`.
+ */
+function send_reg_confirmation_email_from_register(int $reg_id): bool {
+
+	$register = q("SELECT reg_email, reg_lang FROM register WHERE reg_id = '%s' ",
+		intval($reg_id)
+	);
+
+	if (empty($register)) {
+        logger('send_reg_confirmation_email_from_register: could not find email address for for reg_id ' . $reg_id);
+		return $result;
+	} else {
+		logger('send_reg_confirmation_email_from_register: sending confirmation email to ' . $register[0]['reg_email']);
+	}
+
+	if(strlen($register['reg_lang'])) {
+		push_lang($register['reg_lang']);
+	} else {
+		push_lang('en');
+	}
+
+	$email_msg = replace_macros(get_intltext_template('register_approved_eml.tpl'), array(
+		'$sitename' => Config::Get('system','sitename'),
+		'$siteurl'  =>  z_root(),
+		'$email'    => $register[0]['reg_email'],
+	));
+
+	$res = z_mail(
+		[
+		'toEmail' => $register[0]['reg_email'],
+		'messageSubject' => sprintf( t('Registration approved at %s'), Config::Get('system','sitename')),
+		'textVersion' => $email_msg,
+		]
+	);
+
+	pop_lang();
+
+	if ($res) {
+		return true;
+	} else {
+		logger('send_reg_confirmation_email_from_register: failed to send confirmation email to ' . $register[0]['reg_email']);
+		return false;
+	}
 }
 
 
