@@ -59,6 +59,7 @@ Hubzilla 11.0 (2026-??-??)
 	- Deprecate outbound JSalmon signatures
 
 	Bugfixes
+	- Fix reply-to button not diplayed for anonymous visitors allthough permission is granted
 	- Fix wrong icon class in mod cloud
 	- Fix bulk deleting files
 	- Fix cloud root folder shows unknown error
