@@ -11,6 +11,7 @@ Hubzilla 11.0 (2026-??-??)
 	- Implement OWA2
 
 	Maintenance
+	- Move mod search HTML to template
 	- Move channel activities HTML to template
 	- Update util/run_xgettext.sh to ignore not relevant directories
 	- Update composer libs
