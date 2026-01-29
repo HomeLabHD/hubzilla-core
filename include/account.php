@@ -311,7 +311,7 @@ function verify_email_address(string $email): bool {
 	pop_lang();
 
 	if(! $res)
-		logger("send_reg_approval_email: failed sending email to: {$email}");
+		logger("send_reg_verification_email: failed sending email to: {$email}");
 
 	return $res;
 }
@@ -391,6 +391,88 @@ function send_reg_approval_email($arr) {
 
 	return($delivered ? true : false);
 }
+
+
+/**
+ * send_reg_approval_email_from_register
+ * @author ltning
+ * @since  2026-01-25
+ *
+ * Account approval after verification based on table register.
+ * This function sends email to admin(s).
+ *
+ */
+function send_reg_approval_email_from_register(int $reg_id): array {
+
+	$result = array('success' => false, 'message' => 'rid:' . $reg_id);
+	$now = datetime_convert();
+
+	$register = q("SELECT * FROM register WHERE reg_id = %d",
+				intval($reg_id)
+	);
+
+	if (empty($register)) {
+        logger('send_reg_approval_email: could not find data for reg_id ' . $reg_id);
+		return $result;
+    }
+
+	$r = q("select * from account where (account_roles & %d) >= 4096",
+		 intval(ACCOUNT_ROLE_ADMIN)
+	);
+
+	$admins = array();
+
+	foreach($r as $rr) {
+		if (strlen($rr['account_email'])) {
+			$admins[] = array('email' => $rr['account_email'], 'lang' => $rr['account_lang']);
+		}
+	}
+
+	if (empty($admins)) {
+        logger('send_reg_approval_email: could not find any admins to notify for reg_id ' . $reg_id);
+		return $result;
+    }
+
+	$delivered = 0;
+
+	foreach($admins as $admin) {
+		if (strlen($admin['lang'])) {
+			push_lang($admin['lang']);
+		} else {
+			push_lang('en');
+		}
+
+		$email_msg = replace_macros(get_intltext_template('register_verify_eml_no_links.tpl'), array(
+			'$sitename' => Config::Get('system','sitename'),
+			'$siteurl'  =>  z_root(),
+			'$email'    => $register[0]['reg_email'],
+			'$details'  => $register[0]['reg_atip']
+		));
+
+		$res = z_mail(
+			[
+			'toEmail' => $admin['email'],
+			'messageSubject' => sprintf( t('Registration request at %s'), Config::Get('system','sitename')),
+			'textVersion' => $email_msg,
+			]
+		);
+
+		if ($res) {
+			$delivered ++;
+		} else {
+			logger('send_reg_approval_email: failed to ' . $admin['email'] . 'reg_email: ' . $register[0]['reg_email']);
+        }
+
+		pop_lang();
+	}
+
+    $result['delivered'] = $delivered;
+    if($delivered > 0) {
+		$result['success'] = true;
+    }
+	return $result;
+}
+
 
 function send_register_success_email($email,$password) {
 
