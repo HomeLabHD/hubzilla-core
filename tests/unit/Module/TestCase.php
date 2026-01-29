@@ -35,17 +35,21 @@ class TestCase extends UnitTestCase {
 		$this->goaway_stub = null;
 	}
 
-	protected function do_request(string $method, string $uri, array $query = [], array $params = []): void {
-		$_GET['q'] = $uri;
-		$_GET = array_merge($_GET, $query);
-		$_POST = $params;
+	protected function do_request(array $args): void {
+		// string $uri, array $query = [], array $params = []): void {
+		$_GET['q'] = $args['uri'];
+		$_GET = array_merge($_GET, $args['query'] ?? []);
+		$_POST = $args['post_params'] ?? [];
 
-		$_SERVER['REQUEST_METHOD'] = $method;
+		$_SERVER['REQUEST_METHOD'] = $args['method'];
 		$_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
-		$_SERVER['QUERY_STRING'] = "q={$uri}";
-		$_SERVER['REQUEST_URI'] = $uri;
-		$_SERVER['HTTP_CONTENT_TYPE'] = 'text/html';
-		$_SERVER['HTTP_CONTENT_LENGTH'] = 0;
+		$_SERVER['QUERY_STRING'] = "q={$args['uri']}";
+		$_SERVER['REQUEST_URI'] = $args['uri'];
+		$_SERVER['HTTP_CONTENT_TYPE'] = $args['content_type'] ?? 'text/html';
+		$_SERVER['HTTP_CONTENT_LENGTH'] = strlen($args['body'] ?? 0);
+		if (!empty($args['body'])) {
+			$_SERVER['HTTP_POST_BODY'] = $args['body'];
+		}
 
 		// phpcs:disable Generic.PHP.DisallowRequestSuperglobal.Found
 		$_REQUEST = array_merge($_GET, $_POST);
@@ -58,6 +62,15 @@ class TestCase extends UnitTestCase {
 		$router->Dispatch();
 	}
 
+	protected function ajax_request(string $method, string $uri, array $params): void {
+		$this->do_request([
+			'method' => $method,
+			'uri' => $uri,
+			'content_type' => 'application/json',
+			'body' => json_encode($params),
+		]);
+	}
+
 	/**
 	 * Emulate a GET request.
 	 *
@@ -67,7 +80,11 @@ class TestCase extends UnitTestCase {
 	 *						as keys.
 	 */
 	protected function get(string $uri, array $query = []): void {
-		$this->do_request('GET', $uri, $query);
+		$this->do_request([
+			'method' => 'GET',
+			'uri' => $uri,
+			'query' => $query
+		]);
 	}
 
 	/**
@@ -81,7 +98,12 @@ class TestCase extends UnitTestCase {
 	 *						as keys.
 	 */
 	protected function post(string $uri, array $query = [], array $params = []): void {
-		$this->do_request('POST', $uri, $query, $params);
+		$this->do_request([
+			'method' => 'POST',
+			'uri' => $uri,
+			'query' => $query,
+			'post_params' => $params
+		]);
 	}
 
 	/**
