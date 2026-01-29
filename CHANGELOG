@@ -59,6 +59,8 @@ Hubzilla 11.0 (2026-??-??)
 	- Deprecate outbound JSalmon signatures
 
 	Bugfixes
+	- Fix wrong icon class in mod cloud
+	- Fix bulk deleting files
 	- Fix cloud root folder shows unknown error
 	- Fix edited timestamp in attach_store() in case of update
 	- Fix grammar in Lib/Enotify::submit()
