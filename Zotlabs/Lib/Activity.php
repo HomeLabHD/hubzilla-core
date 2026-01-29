@@ -2355,6 +2355,12 @@ class Activity {
 		// Otherwise they will appear doubled.
 		if ($quote_urls && !str_contains($s['body'], '[/share]')) {
 			foreach($quote_urls as $quote_url) {
+				if (!is_string($quote_url)) {
+					// FIXME: requires investigation
+					logger('Not a string: ' . print_r($quote_url,true));
+					continue;
+				}
+
 				$quote = self::get_quote($quote_url);
 
 				if (!$quote) {
