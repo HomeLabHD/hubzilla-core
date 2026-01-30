@@ -382,7 +382,12 @@ class Activity {
 		if ($items) {
 			$x = [];
 			foreach ($items as $i) {
-				$m = IConfig::Get($i['id'], 'activitypub', 'rawmsg');
+				$m = ObjCache::Get($i['mid']);
+
+				if (!$m) {
+					$m = IConfig::Get($i['id'], 'activitypub', 'rawmsg');
+				}
+
 				if ($m) {
 					if (is_string($m))
 						$t = json_decode($m, true);
@@ -501,8 +506,8 @@ class Activity {
 			}
 		}
 
-		$ret['id']            = ((strpos($i['mid'], 'http') === 0) ? $i['mid'] : z_root() . '/item/' . urlencode($i['mid']));
-		$ret['diaspora:guid'] = $i['uuid'];
+		$ret['id'] = ((strpos($i['mid'], 'http') === 0) ? $i['mid'] : z_root() . '/item/' . urlencode($i['mid']));
+		$ret['uuid'] = $i['uuid'];
 
 		$images = [];
 		$audios = [];
@@ -639,14 +644,14 @@ class Activity {
 
 		// TODO: Do not replace the if the owner is a forum.
 		// Receivers will not be able to fetch the original in that case.
-		if (str_contains($i['body'], '[/share]') && !$i['owner']['xchan_pubforum']) {
-			preg_match_all('/\[share(.*?)\[\/share\]/ism', $i['body'], $all_shares, PREG_SET_ORDER);
+		if (str_contains($i['body'], '[/share]')) {
+			preg_match_all('/\[share(.*?)\](.*?)\[\/share\]/ism', $i['body'], $all_shares, PREG_SET_ORDER);
 
 			$quote_urls = [];
 
 			foreach ($all_shares as $share) {
-				// Extract the link attribute from each [share] block
-				if (preg_match("/link='(.*?)'/ism", $share[1], $match)) {
+				// Extract the link attribute from each [share] block if slated for quote
+				if (str_contains($share[1], "quote='true'") && preg_match("/link='(.*?)'/ism", $share[1], $match)) {
 					$url = $match[1];
 					$quote_urls[] = $url;
 
@@ -666,6 +671,7 @@ class Activity {
 
 			if ($quote_urls) {
 				$ret['quoteUrl'] = $quote_urls[0];
+				$ret['quoteUri'] = $quote_urls[0];
 
 				if (empty($ret['tag'])) {
 					$ret['tag'] = $obj_links;
@@ -829,8 +835,7 @@ class Activity {
 		if ($iconfig && array_key_exists('iconfig', $item) && is_array($item['iconfig'])) {
 			foreach ($item['iconfig'] as $att) {
 				if ($att['sharing']) {
-					$value = ((is_string($att['v']) && preg_match('|^a:[0-9]+:{.*}$|s', $att['v'])) ? unserialize($att['v']) : $att['v']);
-					$ret[] = ['type' => 'PropertyValue', 'name' => 'zot.' . $att['cat'] . '.' . $att['k'], 'value' => $value];
+					$ret[] = ['type' => 'PropertyValue', 'name' => 'zot.' . $att['cat'] . '.' . $att['k'], 'value' => $att['v']];
 				}
 			}
 		}
@@ -851,6 +856,10 @@ class Activity {
 				$entry = [];
 				if (isset($att['type']) && $att['type'] === 'PropertyValue') {
 					if (isset($att['name'])) {
+						if (in_array($att['name'], ['zot.activitypub.rawmsg', 'zot.diaspora.fields'])) {
+							continue;
+						}
+
 						$key = explode('.', $att['name']);
 						if (count($key) === 3 && $key[0] === 'zot') {
 							$entry['cat']     = $key[1];
@@ -997,7 +1006,7 @@ class Activity {
 			$ret['id'] = ((strpos($i['mid'], 'http') === 0) ? $i['mid'] : z_root() . '/activity/' . urlencode($i['mid']));
 		}
 
-		$ret['diaspora:guid'] = $i['uuid'];
+		$ret['uuid'] = $i['uuid'];
 
 		if (!empty($i['title']))
 			$ret['name'] = html2plain(bbcode($i['title']));
@@ -2126,7 +2135,6 @@ class Activity {
 	}
 
 	static function decode_note($act) {
-
 		$response_activity = false;
 		$s = [];
 
@@ -2680,50 +2688,6 @@ class Activity {
 			$s['item_private'] = 2;
 		}
 
-		$ap_rawmsg = '';
-		$diaspora_rawmsg = '';
-		$raw_arr = [];
-
-		$raw_arr = json_decode($act->raw, true);
-
-		// This is a zot6 packet and the raw activitypub or diaspora message json
-		// is possibly available in the attachement.
-		if (array_key_exists('signed', $raw_arr) && isset($act->data['attachment']) && is_array($act->data['attachment'])) {
-			foreach($act->data['attachment'] as $a) {
-				if (
-					isset($a['type']) && $a['type'] === 'PropertyValue' &&
-					isset($a['name']) && $a['name'] === 'zot.activitypub.rawmsg' &&
-					isset($a['value'])
-				) {
-					$ap_rawmsg = $a['value'];
-				}
-				if (
-					isset($a['type']) && $a['type'] === 'PropertyValue' &&
-					isset($a['name']) && $a['name'] === 'zot.diaspora.fields' &&
-					isset($a['value'])
-				) {
-					$diaspora_rawmsg = $a['value'];
-				}
-			}
-		}
-
-
-		if (!$ap_rawmsg && array_key_exists('signed', $raw_arr)) {
-			// zap
-			$ap_rawmsg = json_encode($act->data, JSON_UNESCAPED_SLASHES);
-		}
-
-		if ($ap_rawmsg) {
-			IConfig::Set($s, 'activitypub', 'rawmsg', $ap_rawmsg, 1);
-		}
-		elseif (!array_key_exists('signed', $raw_arr)) {
-			IConfig::Set($s, 'activitypub', 'rawmsg', $act->raw, 1);
-		}
-
-		if ($diaspora_rawmsg) {
-			IConfig::Set($s, 'diaspora', 'fields', $diaspora_rawmsg, 1);
-		}
-
 		if ($act->raw_recips) {
 			IConfig::Set($s, 'activitypub', 'recips', $act->raw_recips);
 		}
@@ -2894,15 +2858,11 @@ class Activity {
 		}
 
 		if (tgroup_check($channel['channel_id'], $item) && (!$is_child_node)) {
-			// for forum deliveries, make sure we keep a copy of the signed original
-			IConfig::Set($item, 'activitypub', 'rawmsg', $act->raw, 1);
 			$allowed = true;
 		}
 
 		if (intval($item['item_private']) === 2) {
-			if (perm_is_allowed($channel['channel_id'], $observer_hash, 'post_mail')) {
-				$allowed = true;
-			}
+			$allowed = perm_is_allowed($channel['channel_id'], $observer_hash, 'post_mail');
 		}
 
 		if ($is_sys_channel) {
@@ -2969,12 +2929,18 @@ class Activity {
 			return;
 
 		if ($is_sys_channel) {
-			$incl = Config::Get('system','pubstream_incl');
-			$excl = Config::Get('system','pubstream_excl');
+			$incl = Config::Get('system', 'pubstream_incl', '');
+			$excl = Config::Get('system', 'pubstream_excl', '');
 
-			if(($incl || $excl) && !MessageFilter::evaluate($item, $incl, $excl)) {
-				logger('post is filtered');
-				return;
+			if ($incl || $excl) {
+				$plaintext = prepare_text($item['body'], ((isset($item['mimetype'])) ? $item['mimetype'] : 'text/bbcode'));
+				$plaintext = html2plain((isset($item['summary']) && $item['summary']) ? $item['summary'] . ' ' . $plaintext : $plaintext);
+				$plaintext = html2plain((isset($item['title']) && $item['title']) ? $item['title'] . ' ' . $plaintext : $plaintext);
+
+				if (!(new MessageFilter($item, html_entity_decode($incl), html_entity_decode($excl), ['plaintext' => $plaintext]))->evaluate()) {
+					logger('post is filtered');
+					return;
+				}
 			}
 		}
 
@@ -3073,13 +3039,22 @@ class Activity {
 		// TODO: not implemented
 		// self::rewrite_mentions($item);
 
-		$r = q("select id, created, edited from item where mid = '%s' and uid = %d limit 1",
+		if (!ObjCache::Get($item['mid'])) {
+			ObjCache::Set($item['mid'], $act->data);
+		}
+
+		$r = q("select id, created, edited, owner_xchan, author_xchan from item where mid = '%s' and uid = %d limit 1",
 			dbesc($item['mid']),
 			intval($item['uid'])
 		);
 
 		if ($r) {
 			if ($item['edited'] > $r[0]['edited']) {
+				// Only update the object cache if there is no owner/author mismatch.
+				if ($r[0]['owner_xchan'] === $item['owner_xchan'] && $r[0]['author_xchan'] === $item['author_xchan']) {
+					ObjCache::Set($item['mid'], $act->data);
+				}
+
 				$item['id'] = $r[0]['id'];
 				$x = item_store_update($item, deliver: false);
 			}
@@ -3114,13 +3089,20 @@ class Activity {
 
 			sync_an_item($channel['channel_id'], $x['item_id']);
 
+			$replies_id = null;
+
+			if (isset($act->obj['replies'])) {
+				$replies_id = is_array($act->obj['replies']) ? $act->obj['replies']['id'] : $act->obj['replies'];
+			}
+
 			// Only store replies collection for background fetching if the item has been fetched.
 			// A message that has just been posted usually will not have any replies yet.
 			// Also dismiss duplicates.
-			$attempt_replies_fetch = isset($act->obj['replies']['id']) && !empty($item['item_fetched']) && !in_array($channel['channel_id'], App::$cache['as_fetch_collection'][$act->obj['replies']['id']]['channels'] ?? []);
+
+			$attempt_replies_fetch = $replies_id && !empty($item['item_fetched']) && !in_array($channel['channel_id'], App::$cache['as_fetch_collection'][$replies_id]['channels'] ?? []);
 			if ($attempt_replies_fetch) {
-				App::$cache['as_fetch_collection'][$act->obj['replies']['id']]['channels'][] = $channel['channel_id'];
-				App::$cache['as_fetch_collection'][$act->obj['replies']['id']]['force'] = intval($force);
+				App::$cache['as_fetch_collection'][$replies_id]['channels'][] = $channel['channel_id'];
+				App::$cache['as_fetch_collection'][$replies_id]['force'] = intval($force);
 			}
 		}
 	}
@@ -3648,7 +3630,7 @@ class Activity {
 		$cached = ASCache::Get($url);
 		if ($cached) {
 			// logger('cached: ' . $url);
-			$a = unserialise($cached);
+			$a = $cached;
 		}
 		else {
 			// logger('fetching: ' . $url);
@@ -3657,7 +3639,6 @@ class Activity {
 				ASCache::Set($url, $a);
 			}
 		}
-
 
 		if ($a) {
 			$act = new ActivityStreams($a);
@@ -3758,12 +3739,11 @@ class Activity {
 
 			'conversation'     => 'ostatus:conversation',
 
-			'guid'             => 'diaspora:guid',
-
 			'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
 			'Hashtag'          => 'as:Hashtag',
 
 			'quoteUrl'         => 'as:quoteUrl',
+			'quoteUri'         => 'http://fedibird.com/ns#quoteUri'
 		];
 
 	}

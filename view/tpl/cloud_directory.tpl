@@ -21,7 +21,7 @@
 		{{foreach $entries as $item}}
 		<div class="col mb-4">
 			<div class="card h-100">
-				<a href="{{$item.rel_path}}" title="{{$item.name}}" class="text-decoration-none">
+				<a href="{{$item.rel_path}}" title="{{$item.name}}" class="text-decoration-none stretched-link file_link" data-id="{{$item.attach_id}}" data-type="{{$item.type}}">
 					<div class="d-flex align-items-center justify-content-center m-1" style="height: 4.5rem;">
 						{{if $item.photo_icon}}
 						<img src="{{$item.photo_icon}}" class="rounded" alt="{{$item.photo_icon}}" title="{{$item.size_formatted}}" style="max-height: 4rem; width: auto; max-width: 100%;">
@@ -75,14 +75,14 @@
 				{{if $is_owner}}
 				<div class="dropdown">
 					<button class="btn btn-warning btn-sm" id="multi-dropdown-button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						<i class="bi fa-ellipsis-v d-table-cell"></i><span class="d-none d-md-table-cell">{{$bulk_actions_label}}</span>
+						<i class="bi bi-three-dots-vertical d-table-cell"></i><span class="d-none d-md-table-cell">{{$bulk_actions_label}}</span>
 					</button>
 					<div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-button">
 						{{if $is_owner}}
 						<a id="cloud-multi-tool-perms-btn" class="dropdown-item" href="#"><i class="bi bi-lock"></i> {{$adjust_permissions_label}}</a>
 						{{/if}}
-						<a id="cloud-multi-tool-move-btn" class="dropdown-item" href="#"><i class="bi fa-copy"></i> {{$move_copy_label}}</a>
-						<a id="cloud-multi-tool-categories-btn" class="dropdown-item" href="#"><i class="bi fa-asterisk"></i> {{$categories_label}}</a>
+						<a id="cloud-multi-tool-move-btn" class="dropdown-item" href="#"><i class="bi bi-copy"></i> {{$move_copy_label}}</a>
+						<a id="cloud-multi-tool-categories-btn" class="dropdown-item" href="#"><i class="bi bi-asterisk"></i> {{$categories_label}}</a>
 						<a id="cloud-multi-tool-download-btn" class="dropdown-item" href="#"><i class="bi bi-download"></i> {{$download_label}}</a>
 						<a id="cloud-multi-tool-delete-btn" class="dropdown-item" href="#"><i class="bi bi-trash"></i> {{$delete_label}}</a>
 					</div>
@@ -90,7 +90,7 @@
 				{{else if $is_admin}}
 				<div class="dropdown">
 					<button class="btn btn-warning btn-sm" id="multi-dropdown-button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						<i class="bi fa-ellipsis-v d-table-cell"></i><span class="d-none d-md-table-cell">{{$bulk_actions_label}}</span>
+						<i class="bi bi-three-dots-vertical d-table-cell"></i><span class="d-none d-md-table-cell">{{$bulk_actions_label}}</span>
 					</button>
 					<div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-button">
 						<a id="cloud-multi-tool-delete-btn" class="dropdown-item" href="#"><i class="bi bi-trash"></i> {{$admin_delete_label}}</a>
@@ -147,7 +147,7 @@
 				{{/if}}
 			</td>
 			<td><i class="bi {{$item.icon_from_type}} generic-icons" title="{{$item.type}}"></i></td>
-			<td><a href="{{$item.rel_path}}" class="p-2" draggable="false">{{$item.name}}</a></td>
+			<td><a href="{{$item.rel_path}}" class="p-2 file_link" draggable="false" data-id="{{$item.attach_id}}" data-type="{{$item.type}}">{{$item.name}}</a></td>
 			<td>{{$item.terms}}</td>
 			<td class="cloud-index-tool p-2">
 				{{if $item.lockstate == 'lock'}}

@@ -120,10 +120,10 @@ class ThreadItem {
 			$locktype = 0;
 		}
 
-		$shareable = ((local_channel() && $conv->get_profile_owner() == local_channel()) && (intval($item['item_private']) === 0));
+		$shareable = ((local_channel() && $conv->get_profile_owner() == local_channel()) && (intval($item['item_private']) === 0) && !str_contains($item['body'], '[/share]'));
 
 		// allow an exemption for sharing stuff from your private feeds
-		if($item['author']['xchan_network'] === 'rss')
+		if ($item['author']['xchan_network'] === 'rss')
 			$shareable = true;
 
 		$repeatable = ((local_channel() && $conv->get_profile_owner() == local_channel()) && intval($item['item_private']) === 0 && in_array($item['author']['xchan_network'], ['zot6', 'activitypub']));
@@ -283,9 +283,12 @@ class ThreadItem {
 		$reply_to = [];
 		$reactions_allowed = false;
 
-		if($this->is_commentable() && $observer) {
+		if($this->is_commentable()) {
 			$reply_to = array( t("Reply to this message"), t("reply"), t("Reply to"));
-			$reactions_allowed = true;
+
+			if ($observer) {
+				$reactions_allowed = true;
+			}
 		}
 
 		$share = [];

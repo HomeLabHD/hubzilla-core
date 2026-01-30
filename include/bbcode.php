@@ -278,11 +278,6 @@ function bb_parse_crypt($match) {
 
 	$onclick = 'onclick="sodium_decrypt(\'' . $payload . '\',\'#' . $x . '\');"';
 
-	if (in_array($algorithm, ['AES-128-CCM', 'rot13', 'triple-rot13'])) {
-		// backwards compatibility
-		$onclick = 'onclick="hz_decrypt(\'' . $algorithm . '\',\'' . $hint . '\',\'' . $payload . '\',\'#' . $x . '\');"';
-	}
-
 	$label = t('Encrypted content');
 
 	$text = '<div id="' . $x . '" class="encrypted-content"><img class="cursor-pointer" src="' . z_root() . '/images/lock_icon.svg" ' . $onclick . ' alt="' . $label . '" title="' . $label . '" /></div>';
@@ -557,13 +552,6 @@ function bb_ShareAttributes($match) {
 
 	$rnd = mt_rand();
 
-	$reldate = '<span class="autotime" title="' . datetime_convert('UTC', date_default_timezone_get(), $posted, 'c') . '" >' . datetime_convert('UTC', date_default_timezone_get(), $posted, 'r') . '</span>';
-
-	$headline = '<div id="shared_container_' . $rnd . '" class="shared_container"> <div id="shared_header_' . $rnd . '" class="shared_header">';
-
-	if ($avatar != "")
-		$headline .= '<a href="' . (($auth) ? zid($profile) : $profile) . '" ><img src="' . $avatar . '" alt="' . $author . '" height="32" width="32" loading="lazy" /></a>';
-
 	if(strpos($link,'/cards/'))
 		$type = t('card');
 	elseif(strpos($link,'/articles/'))
@@ -571,19 +559,23 @@ function bb_ShareAttributes($match) {
 	else
 		$type = t('post');
 
-	// Bob Smith wrote the following post 2 hours ago
+	$author_url = (($auth) ? zid($profile) : $profile);
+	$post_url   = (($auth) ? zid($link) : $link);
+	$reldate     = datetime_convert('UTC', date_default_timezone_get(), $posted, 'r');
+	$reldate_iso = datetime_convert('UTC', date_default_timezone_get(), $posted, 'c');
 
-	$fmt = sprintf( t('%1$s wrote the following %2$s %3$s'),
-		'<a href="' . (($auth) ? zid($profile) : $profile) . '" ><bdi>' . $author . '</bdi></a>',
-		'<a href="' . (($auth) ? zid($link) : $link) . '" >' . $type . '</a>',
-		$reldate
-	);
-
-	$headline .= '<span>' . $fmt . '</span></div>';
-
-	$text = $headline . '<div id="reshared-content-' . $rnd . '" class="reshared-content">' . trim($match[2]) . '</div></div>';
-
-	return $text;
+	return replace_macros(get_markup_template('bb_share.tpl'), [
+		'$rnd'          => $rnd,
+		'$avatar'       => $avatar,
+		'$text'         => t(' wrote the following '),
+		'$author'       => $author,
+		'$author_url'   => $author_url,
+		'$post_url'     => $post_url,
+		'$type'         => $type,
+		'$reldate'      => $reldate,
+		'$reldate_iso'  => $reldate_iso,
+		'$content'      => trim($match[2]),
+	]);
 }
 
 function bb_location($match) {

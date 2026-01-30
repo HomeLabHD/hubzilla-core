@@ -1,206 +1,128 @@
-function str_rot13 (str) {
-  // http://kevin.vanzonneveld.net
-  // +   original by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
-  // +   improved by: Ates Goral (http://magnetiq.com)
-  // +   bugfixed by: Onno Marsman
-  // +   improved by: Rafa? Kukawski (http://blog.kukawski.pl)
-  // *     example 1: str_rot13('Kevin van Zonneveld');
-  // *     returns 1: 'Xriva ina Mbaariryq'
-  // *     example 2: str_rot13('Xriva ina Mbaariryq');
-  // *     returns 2: 'Kevin van Zonneveld'
-  // *     example 3: str_rot13(33);
-  // *     returns 3: '33'
-	return (str + '').replace(/[a-z]/gi, function (s) {
-		return String.fromCharCode(s.charCodeAt(0) + (s.toLowerCase() < 'n' ? 13 : -13));
-	});
-}
-
 async function sodium_encrypt(element) {
-	if (!window.sodium) {
-		window.sodium = await SodiumPlus.auto();
-	}
-
 	if (typeof tinyMCE !== typeof undefined) {
 		tinyMCE.triggerSave(false,true);
 	}
 
-	let message = $(element).val();
+	const message = $(element).val();
 
 	if (!message) {
 		return false;
 	}
 
-	let password = prompt(aStr['passphrase']);
+	const password = prompt(aStr['passphrase']);
 
 	if (!password) {
 		return false;
 	}
 
-	let hint = bin2hex(prompt(aStr['passhint']));
+	const hint = bin2hex(prompt(aStr['passhint']));
 
-	let salt = await sodium.randombytes_buf(16);
-	let nonce = await sodium.randombytes_buf(24);
+/* This (Argon2) is more secure against bruteforce attacks than PBKDF2 but is overkill for javascript according to author
+ * https://github.com/jedisct1/libsodium.js/issues/250#issuecomment-685971738
+ *
+ * It does not work in chromium mobile at all (freezing)
+ *
+ * This functions requires the browser-sumo/sodium.js
 
-	let key = await sodium.crypto_pwhash(
-		32,
+	const salt = await sodium.randombytes_buf(sodium.crypto_pwhash_SALTBYTES);
+	const key = await sodium.crypto_pwhash(
+		sodium.crypto_secretbox_KEYBYTES,
 		password,
 		salt,
-		sodium.CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
-		sodium.CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
+		sodium.crypto_pwhash_OPSLIMIT_INTERACTIVE,
+		sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE,
+		sodium.crypto_pwhash_ALG_DEFAULT
 	);
+*/
+
+	const salt = crypto.getRandomValues(new Uint8Array(32)); // Generate a random salt (32 bytes)
+	const key = await derivePBKDF2Hash(password, salt);
+
+	const nonce = await sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
 
 	// Message can be a string, buffer, array, etc.
-	let ciphertext = await sodium.crypto_secretbox(message, nonce, key);
+	const ciphertext = await sodium.crypto_secretbox_easy(message, nonce, key);
 	delete message, password, key;
 
-	let payload = {
+	const payload = {
 		hint: hint,
 		alg: 'XSalsa20',
-		salt: await sodium.sodium_bin2hex(salt),
-		nonce: await sodium.sodium_bin2hex(nonce),
-		ciphertext: await sodium.sodium_bin2hex(ciphertext)
+		salt: await sodium.to_hex(salt),
+		nonce: await sodium.to_hex(nonce),
+		ciphertext: await sodium.to_hex(ciphertext)
 	};
 
-	let val = "[crypt]" + window.btoa(JSON.stringify(payload)) + '[/crypt]';
+	const val = "[crypt]" + window.btoa(JSON.stringify(payload)) + '[/crypt]';
 
 	$(element).val(val);
 }
 
 async function sodium_decrypt(payload, element) {
-	let arr = JSON.parse(window.atob(payload));
+	const arr = JSON.parse(window.atob(payload));
 
 	if (arr.alg !== 'XSalsa20') {
 		alert('Unsupported algorithm');
 		return false;
 	}
 
-	let password = prompt((arr.hint.length) ? hex2bin(arr.hint) : aStr['passphrase']);
+	const password = prompt((arr.hint.length) ? hex2bin(arr.hint) : aStr['passphrase']);
 
 	if (!password) {
 		return false;
 	}
 
-	let salt = await sodium.sodium_hex2bin(arr.salt);
-	let nonce = await sodium.sodium_hex2bin(arr.nonce);
-	let ciphertext = await sodium.sodium_hex2bin(arr.ciphertext);
+	const salt = await sodium.from_hex(arr.salt);
+	const nonce = await sodium.from_hex(arr.nonce);
+	const ciphertext = await sodium.from_hex(arr.ciphertext);
 
-	let key = await sodium.crypto_pwhash(
-		32,
+/* See sodium_encrypt()
+	const key = await sodium.crypto_pwhash(
+		sodium.crypto_secretbox_KEYBYTES,
 		password,
 		salt,
-		sodium.CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
-		sodium.CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
+		sodium.crypto_pwhash_OPSLIMIT_INTERACTIVE,
+		sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE,
+		sodium.crypto_pwhash_ALG_DEFAULT
 	);
+*/
 
-	let decrypted = await sodium.crypto_secretbox_open(ciphertext, nonce, key);
+	const key = await derivePBKDF2Hash(password, salt);
+
+	const decrypted = await sodium.crypto_secretbox_open_easy(ciphertext, nonce, key);
 	delete password, key;
 
 	if ($(element).css('display') === 'none' && typeof tinyMCE !== typeof undefined) {
-		tinyMCE.activeEditor.setContent(decrypted.toString('utf-8'));
+		tinyMCE.activeEditor.setContent(sodium.to_string(decrypted));
 	}
 	else {
-		$(element).html(decrypted.toString('utf-8'));
+		$(element).html(sodium.to_string(decrypted));
 	}
 }
 
-function hz_encrypt(alg, elem) {
-	var enc_text = '';
-	var newdiv = '';
 
-	if(typeof tinyMCE !== "undefined")
-		tinyMCE.triggerSave(false,true);
+async function derivePBKDF2Hash(password, salt) {
+	const encoder = new TextEncoder();
+	const passwordBuffer = encoder.encode(password);
+	const saltBuffer = encoder.encode(salt);
 
-	var text = $(elem).val();
+	const key = await crypto.subtle.importKey(
+		'raw', // key format
+		passwordBuffer, // password as raw data
+		{ name: 'PBKDF2' }, // algorithm
+		false, // whether the key can be exported
+		['deriveBits'] // key usages
+	);
 
-	// key and hint need to be localised
+	const derivedBits = await crypto.subtle.deriveBits(
+		{
+			name: 'PBKDF2',
+			salt: saltBuffer,
+			iterations: 100000, // The higher the more secure should be at least 100000
+			hash: 'SHA-256', // could also be SHA-512
+		},
+		key,
+		256 // derived key length in bits (32 bytes)
+	);
 
-        var passphrase = prompt(aStr['passphrase']);
-        // let the user cancel this dialogue
-        if (passphrase == null)
-                return false;
-        var enc_key = bin2hex(passphrase);
-
-	// If you don't provide a key you get rot13, which doesn't need a key
-	// but consequently isn't secure.
-
-	if(! enc_key)
-		alg = 'rot13';
-
-	if((alg == 'rot13') || (alg == 'triple-rot13'))
-		newdiv = "[crypt alg='rot13']" + window.btoa(str_rot13(text)) + '[/crypt]';
-
-	if(alg == 'AES-128-CCM') {
-
-			// This is the prompt we're going to use when the receiver tries to open it.
-			// Maybe "Grandma's maiden name" or "our secret place" or something.
-
-			var enc_hint = bin2hex(prompt(aStr['passhint']));
-
-			enc_text = sjcl.encrypt(enc_key, text);
-
-			encrypted = enc_text.toString();
-
-			newdiv = "[crypt alg='AES-128-CCM' hint='" + enc_hint + "']" + window.btoa(encrypted) + '[/crypt]';
-	}
-
-	enc_key = '';
-
-	// This might be a comment box on a page with a tinymce editor
-	// so check if there is a tinymce editor but also check the display
-	// property of our source element - because a tinymce instance
-	// will have display "none". If a normal textarea such as in a comment
-	// box has display "none" you wouldn't be able to type in it.
-
-	if($(elem).css('display') == 'none' && typeof tinyMCE !== "undefined") {
-		tinyMCE.activeEditor.setContent(newdiv);
-	}
-	else {
-		$(elem).val(newdiv);
-	}
-
+	return new Uint8Array(derivedBits);
 }
-
-function hz_decrypt(alg, hint, text, elem) {
-
-	var dec_text = '';
-
-	var supported = ['AES-128-CCM', 'rot13', 'triple-rot13'];
-
-	if(supported.indexOf(alg) < 0) {
-		alert('Sorry, this encryption type is not supported anymore.\r\nConsider asking your admin to install the cryptojs addon for legacy crypto support.');
-		return;
-	}
-
-	text = window.atob(text);
-
-	if(alg == 'rot13' || alg == 'triple-rot13')
-		dec_text = str_rot13(text);
-	else {
-		var enc_key = bin2hex(prompt((hint.length) ? hex2bin(hint) : aStr['passphrase']));
-	}
-
-	if(alg == 'AES-128-CCM') {
-		dec_text = sjcl.decrypt(enc_key, text);
-	}
-
-	enc_key = '';
-
-	// Not sure whether to drop this back in the conversation display.
-	// It probably needs a lightbox or popup window because any conversation
-	// updates could
-	// wipe out the text and make you re-enter the key if it was in the
-	// conversation. For now we do that so you can read it.
-
-	var dec_result = dec_text.toString();
-	delete dec_text;
-
-	// incorrect decryptions *usually* but don't always have zero length
-	// If the person typo'd let them try again without reloading the page
-	// otherwise they'll have no "padlock" to click to try again.
-
-	if(dec_result.length) {
-		$(elem).html(b2h(dec_result));
-		dec_result = '';
-	}
-}
-

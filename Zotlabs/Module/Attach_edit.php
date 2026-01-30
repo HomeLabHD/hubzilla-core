@@ -82,7 +82,7 @@ class Attach_edit extends Controller {
 			$admin_delete = false;
 
 			$is_creator = (($creator == $observer_hash) ? true : false);
-			$move = ((! $copy && ($folder !== $newfolder || (($single) ? $filename !== $newfilename : false))) ? true : false);
+			$move = ((!$delete && !$copy && ($folder !== $newfolder || (($single) ? $filename !== $newfilename : false))) ? true : false);
 
 			$perms = get_all_perms($channel_id, $observer_hash);
 

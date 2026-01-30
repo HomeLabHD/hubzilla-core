@@ -101,8 +101,10 @@ function z_mime_content_type($filename) {
 
 	// ms office
 	'doc' => 'application/msword',
+	'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 	'rtf' => 'application/rtf',
 	'xls' => 'application/vnd.ms-excel',
+	'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 	'ppt' => 'application/vnd.ms-powerpoint',
 
 	// open office
@@ -888,6 +890,18 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 	else
 		$edited = $created;
 
+	// Until here we either used the provided mime type or set mimetype by extension.
+	// Both variants are inherently unsafe hence try to find and set the real mimetype before storage.
+
+	if (class_exists('finfo') && is_file($os_basepath . $os_relpath)) {
+		$finfo = new finfo(FILEINFO_MIME_TYPE);
+		$mimetype = $finfo->file($os_basepath . $os_relpath);
+
+		if ($mimetype === false) {
+			$mimetype = 'application/octet-stream';
+		}
+	}
+
 	if($options === 'replace') {
 		$r = q("update attach set filename = '%s', filetype = '%s', folder = '%s', filesize = %d, os_storage = %d, is_photo = %d, content = '%s', edited = '%s', os_path = '%s', display_path = '%s' where id = %d and uid = %d",
 			dbesc($filename),
@@ -930,12 +944,13 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 		);
 	}
 	elseif($options === 'update') {
-		$r = q("update attach set filename = '%s', filetype = '%s', folder = '%s', edited = '%s', os_storage = %d, is_photo = %d, os_path = '%s',
+		$r = q("update attach set filename = '%s', filetype = '%s', filesize = %d, folder = '%s', edited = '%s', os_storage = %d, is_photo = %d, os_path = '%s',
 			display_path = '%s', allow_cid = '%s', allow_gid = '%s', deny_cid = '%s', deny_gid  = '%s' where id = %d and uid = %d",
 			dbesc((array_key_exists('filename',$arr))  ? $arr['filename']  : $x[0]['filename']),
 			dbesc((array_key_exists('filetype',$arr))  ? $arr['filetype']  : $x[0]['filetype']),
+			dbesc((array_key_exists('filesize',$arr))  ? $arr['filesize']  : $x[0]['filesize']),
 			dbesc(($folder_hash) ? $folder_hash : $x[0]['folder']),
-			dbesc($created),
+			dbesc($edited),
 			dbesc((array_key_exists('os_storage',$arr))  ? $arr['os_storage']  : $x[0]['os_storage']),
 			dbesc((array_key_exists('is_photo',$arr))  ? $arr['is_photo']  : $x[0]['is_photo']),
 			dbesc((array_key_exists('os_path',$arr))   ? $arr['os_path']   : $x[0]['os_path']),

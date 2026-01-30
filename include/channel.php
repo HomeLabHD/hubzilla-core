@@ -931,7 +931,7 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 								continue;
 							}
 							if (preg_match('|^a:[0-9]+:{.*}$|s', $abc['v'])) {
-								$abc['v'] = serialise(unserialize($abc['v']));
+								$abc['v'] = json_serialize(unserialize($abc['v']));
 							}
 							$newconfig[] = $abc;
 						}
@@ -988,7 +988,7 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 			if ($zap_compat) {
 				for($x = 0; $x < count($r); $x ++) {
 					if (preg_match('|^a:[0-9]+:{.*}$|s', $r[$x]['v'])) {
-						$r[$x]['v'] = serialise(unserialize($r[$x]['v']));
+						$r[$x]['v'] = json_serialize(unserialize($r[$x]['v']));
 					}
 				}
 			}

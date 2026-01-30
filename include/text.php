@@ -3209,11 +3209,13 @@ function getIconFromType($type) {
 		'text/uri-list' => 'bi-box-arrow-up-right',
 		'application/msword' => 'bi-file-earmark-word',
 		'application/pdf' => 'bi-file-earmark-pdf',
-		'application/vnd.oasis.opendocument.text' => 'bifile--earmark-text',
+		'application/vnd.oasis.opendocument.text' => 'bi-file-earmark-text',
+		'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'bi-file-earmark-text',
 		'application/epub+zip' => 'bi-file-earmark-text',
 		//Spreadsheet
 		'application/vnd.oasis.opendocument.spreadsheet' => 'bi-file-earmark-spreadsheet',
 		'application/vnd.ms-excel' => 'bi-file-earmark-spreadsheet',
+		'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'bi-file-earmark-spreadsheet',
 		//Image
 		'image/jpeg' => 'bi-file-earmark-image',
 		'image/png' => 'bi-file-earmark-image',
@@ -4088,17 +4090,17 @@ function svg2bb($s) {
 	return EMPTY_STR;
 }
 
-
-
-function serialise($x) {
+function json_serialize($x) {
 	return ((is_array($x)) ? 'json:' . json_encode($x) : $x);
 }
 
-function unserialise($x) {
+function json_unserialize($x) {
 	if (is_array($x)) {
 		return $x;
 	}
-	$y = ((substr($x,0,5) === 'json:') ? json_decode(substr($x,5),true) : '');
+
+	$y = ((str_starts_with($x, 'json:')) ? json_decode(substr($x, 5), true) : '');
+
 	return ((is_array($y)) ? $y : $x);
 }
 

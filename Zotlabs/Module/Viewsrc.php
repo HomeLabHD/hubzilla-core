@@ -1,7 +1,9 @@
 <?php
 namespace Zotlabs\Module;
 
-
+use Zotlabs\Lib\Activity;
+use Zotlabs\Lib\IConfig;
+use Zotlabs\Lib\ObjCache;
 
 class Viewsrc extends \Zotlabs\Web\Controller {
 
@@ -28,13 +30,16 @@ class Viewsrc extends \Zotlabs\Web\Controller {
 		$item_normal = item_normal_search();
 
 		if(local_channel() && $item_id) {
-			$r = q("select id, mid, uuid, item_flags, mimetype, item_obscured, body, llink, plink from item where uid in (%d , %d) and id = %d $item_normal limit 1",
+			$r = q("select * from item where uid in (%d , %d) and id = %d $item_normal limit 1",
 				intval(local_channel()),
 				intval($sys['channel_id']),
 				intval($item_id)
 			);
 
 			if($r) {
+				xchan_query($r, true);
+				$r = fetch_post_tags($r);
+
 				if(intval($r[0]['item_obscured']))
 					$dload = true;
 
@@ -45,15 +50,41 @@ class Viewsrc extends \Zotlabs\Web\Controller {
 					killme();
 				}
 
+				$cached = true;
 
-				$content = escape_tags($r[0]['body']);
-				$o = (($json) ? json_encode($content) : $content);
+				$obj = ObjCache::Get($r[0]['mid']);
+
+				if (!$obj) {
+					$obj = IConfig::Get($r[0], 'activitypub', 'rawmsg');
+				}
+
+				if (in_array($r[0]['owner']['xchan_network'], ['diaspora'])) {
+					$obj = ObjCache::Get($r[0]['mid'], 'diaspora');
+
+					if (!$obj) {
+						$obj = IConfig::Get($r[0], 'diaspora', 'fields');
+					}
+				}
+
+				if (!$obj) {
+					$cached = false;
+					$obj = Activity::encode_activity($r[0]);
+				}
+
+				if ($obj) {
+					$content = (($cached) ? 'Cached: ' : '') . '<pre>' . escape_tags(json_encode($obj, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)) . '</pre>';
+				}
+				else {
+					$content = escape_tags($r[0]['body']);
+				}
+
+				$o = (($json) ? json_encode($content) : str_replace("\n", '<br>', $content));
 			}
 		}
 
 		if(is_ajax()) {
 			echo '<div class="p-1">';
-			echo '<div>id: ' . $r[0]['id'] . ' | <a href="' . $r[0]['plink'] . '" target="_blank">plink</a> | <a href="' . $r[0]['llink'] . '" target="_blank">llink</a><br>mid: ' . $r[0]['mid'] . '<br>uuid: ' . $r[0]['uuid'] . '</div>';
+			echo '<div>id: ' . $r[0]['id'] . ' | <a href="' . $r[0]['plink'] . '" target="_blank">plink</a> | <a href="' . $r[0]['llink'] . '" target="_blank">llink</a><br>mid: ' . $r[0]['mid'] . '<br>hashpath: ' . hash('sha256', $r[0]['mid']) . '<br>uuid: ' . $r[0]['uuid'] . '</div>';
 			echo '<hr>';
 			echo '<pre class="p-1">' . $o . '</pre>';
 			echo '</div>';

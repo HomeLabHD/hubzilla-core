@@ -38,7 +38,6 @@ class PermissionRoles {
 				];
 				$ret['limits'] = PermissionLimits::Std_Limits();
 				$ret['limits']['post_comments'] = PERMS_AUTHED;
-				$ret['limits']['post_mail'] = PERMS_AUTHED;
 				$ret['limits']['post_like'] = PERMS_AUTHED;
 				$ret['limits']['chat'] = PERMS_AUTHED;
 				break;

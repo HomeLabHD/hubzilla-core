@@ -696,10 +696,9 @@ class Profiles extends \Zotlabs\Web\Controller {
 				$show_presence = ['show_presence', t('Reveal my online status'), $show_presence_val, '', [t('No'), t('Yes')]];
 			}
 
+			$extra_fields = array();
 			$q = q("select * from profdef where true");
 			if($q) {
-				$extra_fields = array();
-
 				foreach($q as $qq) {
 					$mine = q("select v from profext where k = '%s' and hash = '%s' and channel_id = %d limit 1",
 						dbesc($qq['field_name']),
@@ -832,6 +831,8 @@ class Profiles extends \Zotlabs\Web\Controller {
 				intval(local_channel())
 			);
 			if($r) {
+
+				$profiles = '';
 
 				$tpl = get_markup_template('profile_entry.tpl');
 				foreach($r as $rr) {

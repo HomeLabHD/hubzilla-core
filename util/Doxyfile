@@ -25,6 +25,7 @@ ALIASES += "TODO=\todo"
 ALIASES += "BUG=\bug"
 ALIASES += "hooks=\xrefitem hooks \"Hooks\" \"Hooks List\""
 ALIASES += "HOOKS=\hooks"
+ALIASES += sideeffect="\par Side effect^^"
 # Output
 QUIET = YES
 WARNINGS = YES

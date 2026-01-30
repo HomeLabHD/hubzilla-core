@@ -22,6 +22,7 @@
 
 namespace Zotlabs\Tests\Unit;
 
+use DBA;
 use PHPUnit\Framework\Attributes\{Before, After};
 use PHPUnit\Framework\TestCase;
 
@@ -182,16 +183,11 @@ class UnitTestCase extends TestCase {
 	 */
 	private function loadFixture($file) : void {
 		$table_name = basename($file, '.yml');
-		$this->fixtures[$table_name] = yaml_parse_file($file)[$table_name];
+		$data = yaml_parse_file($file)[$table_name];
 
-		foreach ($this->fixtures[$table_name] as $entry) {
-			$query = 'INSERT INTO ' . dbesc($table_name) . '('
-				. implode(',', array_keys($entry))
-				. ') VALUES('
-				. implode(',', array_map(fn($val) => "'{$val}'", array_values($entry)))
-				. ')';
-
-			q($query);
+		foreach ($data as $entry) {
+			$row = DBA::$dba->insert($table_name, $entry);
+			$this->fixtures[$table_name][] = $row;
 		}
 	}
 }

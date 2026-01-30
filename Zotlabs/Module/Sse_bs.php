@@ -131,7 +131,7 @@ class Sse_bs extends Controller {
 		$str = '';
 		$slice = 0;
 
-		$mids_all = isset($_SESSION['sse_mids_all']) ? unserialise($_SESSION['sse_mids_all']) : [];
+		$mids_all = isset($_SESSION['sse_mids_all']) ? json_unserialize($_SESSION['sse_mids_all']) : [];
 
 		if (count($mids_all) > 3000) {
 			$slice = count($mids_all) - 3000;
@@ -177,7 +177,7 @@ class Sse_bs extends Controller {
 			$mids_all = array_merge($mids_all, $activities_arr);
 		}
 
-		$_SESSION['sse_mids_all'] = serialise(array_unique($mids_all));
+		$_SESSION['sse_mids_all'] = json_serialize(array_unique($mids_all));
 
 		if(! self::$uid) {
 			return;
@@ -502,7 +502,7 @@ class Sse_bs extends Controller {
 			$sql_extra2 = " AND CASE WHEN item.verb = '" . ACTIVITY_SHARE . "' THEN item.owner_xchan ELSE item.author_xchan END IN (" . self::$xchans . ") ";
 
 		$sql_extra3 = '';
-		$sse_mids_all = isset($_SESSION['sse_mids_all']) ? unserialise($_SESSION['sse_mids_all']) : [];
+		$sse_mids_all = isset($_SESSION['sse_mids_all']) ? json_unserialize($_SESSION['sse_mids_all']) : [];
 		if ($sse_mids_all) {
 			$sql_extra3 = " AND item.uuid NOT IN (" . protect_sprintf(implode(',', $sse_mids_all)) . ") ";
 		}

@@ -141,11 +141,13 @@ function getIconFromType(type) {
 		'text/html': 'bi-filetype-html',
 		'application/msword': 'bi-file-earmark-word',
 		'application/pdf': 'bi-file-earmark-pdf',
-		'application/vnd.oasis.opendocument.text': 'bifile--earmark-text',
+		'application/vnd.oasis.opendocument.text': 'bi-file-earmark-text',
+		'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'bi-file-earmark-text',
 		'application/epub+zip': 'bi-file-earmark-text',
 		//Spreadsheet
 		'application/vnd.oasis.opendocument.spreadsheet': 'bi-file-earmark-spreadsheet',
 		'application/vnd.ms-excel': 'bi-file-earmark-spreadsheet',
+		'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'bi-file-earmark-spreadsheet',
 		//Image
 		'image/jpeg': 'bi-file-earmark-image',
 		'image/png': 'bi-file-earmark-image',

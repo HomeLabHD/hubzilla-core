@@ -72,7 +72,7 @@ class SmartyTemplate implements TemplateEngine {
 		if ($root != '' && substr($root,-1) != '/' ) {
 			$root .= '/';
 		}
-		foreach ( [ $root . "view/$lang/$file", $root . "view/en/$file", '' ] as $template_file) {
+		foreach ( [ $root . "view/lang/$lang/$file", $root . "view/lang/en/$file", '' ] as $template_file) {
 			if (is_file($template_file)) {
 				break;
 			}

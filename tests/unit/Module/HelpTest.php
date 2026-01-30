@@ -6,6 +6,8 @@
  * SPDX-License-Identifier: MIT
  */
 
+use PHPUnit\Framework\Attributes\BackupStaticProperties;
+
 class HelpTest extends \Zotlabs\Tests\Unit\Module\TestCase {
 
 	use \phpmock\phpunit\PHPMock;
@@ -103,6 +105,7 @@ class HelpTest extends \Zotlabs\Tests\Unit\Module\TestCase {
 		$this->get('help/first');
 	}
 
+	#[BackupStaticProperties(App::class)]
 	public function test_fall_back_to_english_if_localized_topic_dont_exist(): void {
 		\App::$language = 'nb';
 

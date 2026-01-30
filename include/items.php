@@ -10,6 +10,7 @@ use Zotlabs\Lib\Enotify;
 use Zotlabs\Lib\MarkdownSoap;
 use Zotlabs\Lib\MessageFilter;
 use Zotlabs\Lib\ThreadListener;
+use Zotlabs\Lib\ObjCache;
 use Zotlabs\Lib\IConfig;
 use Zotlabs\Lib\PConfig;
 use Zotlabs\Lib\Activity;
@@ -1222,7 +1223,7 @@ function encode_item($item,$mirror = false,$zap_compat = false) {
 		if ($zap_compat) {
 			for ($y = 0; $y < count($item['iconfig']); $y ++) {
 				if (preg_match('|^a:[0-9]+:{.*}$|s', $item['iconfig'][$y]['v'])) {
-					$item['iconfig'][$y]['v'] = serialise(unserialize($item['iconfig'][$y]['v']));
+					$item['iconfig'][$y]['v'] = json_serialize(unserialize($item['iconfig'][$y]['v']));
 				}
 			}
 		}
@@ -2614,15 +2615,20 @@ function tag_deliver($uid, $item_id) {
 	$u = q("select * from channel left join xchan on channel_hash = xchan_hash where channel_id = %d limit 1",
 		intval($uid)
 	);
-	if(! $u)
-		return;
 
-	$i = q("select * from item where id = %d and uid = %d limit 1",
-		intval($item_id),
-		intval($uid)
-	);
-	if(! $i)
+	if (!$u) {
 		return;
+	}
+
+	$i = q("select * from item where id = %d and uid = %d and item_type = %d",
+		intval($item_id),
+		intval($uid),
+		intval(ITEM_TYPE_POST)
+	);
+
+	if (!$i) {
+		return;
+	}
 
 	xchan_query($i,true);
 	$i = fetch_post_tags($i);
@@ -3143,6 +3149,11 @@ function i_am_mentioned($channel, $item, $check_groups = false) {
  */
 function start_delivery_chain($channel, $item, $item_id, $parent, $group = false, $edit = false) {
 
+	if ($item['item_type'] !== ITEM_TYPE_POST) {
+		logger('undeliverable item type: ' . $item['item_type']);
+		return;
+	}
+
 	if ($item['author_xchan'] === $channel['channel_hash'] && in_array($item['verb'], ['Add', 'Remove'])) {
 		logger('delivery chain already started');
 		return;
@@ -3593,7 +3604,7 @@ function check_item_source($uid, $item) {
 		return true;
 	}
 
-	if (MessageFilter::evaluate($item, $r[0]['src_patt'], EMPTY_STR)) {
+	if ((new MessageFilter($item, html_entity_decode($r[0]['src_patt']), EMPTY_STR))->evaluate()) {
 		logger('source: text filter success');
 		return true;
 	}
@@ -3615,9 +3626,12 @@ function post_is_importable($channel_id, $item, $abook) {
 	$incl = PConfig::get($channel_id, 'system', 'message_filter_incl', EMPTY_STR);
 	$excl = PConfig::get($channel_id, 'system', 'message_filter_excl', EMPTY_STR);
 
+	$plaintext = prepare_text($item['body'], ((isset($item['mimetype'])) ? $item['mimetype'] : 'text/bbcode'));
+	$plaintext = html2plain((isset($item['summary']) && $item['summary']) ? $item['summary'] . ' ' . $plaintext : $plaintext);
+	$plaintext = html2plain((isset($item['title']) && $item['title']) ? $item['title'] . ' ' . $plaintext : $plaintext);
+
 	if ($incl || $excl) {
-		$x = MessageFilter::evaluate($item, $incl, $excl);
-		if (! $x) {
+		if (!(new MessageFilter($item, html_entity_decode($incl), html_entity_decode($excl), ['plaintext' => $plaintext]))->evaluate()) {
 			logger('MessageFilter: channel blocked content', LOGGER_DEBUG, LOG_INFO);
 			return false;
 		}
@@ -3636,14 +3650,13 @@ function post_is_importable($channel_id, $item, $abook) {
 		if (intval($ab['abook_self'])) {
 			continue;
 		}
-		if (! ($ab['abook_incl'] || $ab['abook_excl'])) {
+
+		if (!($ab['abook_incl'] || $ab['abook_excl'])) {
 			continue;
 		}
 
-		$evaluator = MessageFilter::evaluate($item, $ab['abook_incl'], $ab['abook_excl']);
-		// A negative assessment for any individual connections
-		// is an instant fail
-		if (! $evaluator) {
+		// A negative assessment for any individual connections is an instant fail
+		if (!(new MessageFilter($item, html_entity_decode($ab['abook_incl']), html_entity_decode($ab['abook_excl']), ['plaintext' => $plaintext]))->evaluate()) {
 			logger('MessageFilter: connection blocked content', LOGGER_DEBUG, LOG_INFO);
 			return false;
 		}
@@ -4178,6 +4191,15 @@ function delete_item_lowlevel($item, $stage = DROPITEM_NORMAL) {
 	q("delete from iconfig where iid = %d",
 		intval($item['id'])
 	);
+
+	$n = q("SELECT count(id) AS total FROM item WHERE mid = '%s'",
+		dbesc($item['mid'])
+	);
+
+	if (!$n[0]['total']) {
+		ObjCache::Delete($item['mid']);
+		ObjCache::Delete($item['mid'], 'diaspora');
+	}
 
 	q("delete from term where oid = %d and otype = %d",
 		intval($item['id']),

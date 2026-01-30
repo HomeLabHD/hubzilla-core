@@ -1,0 +1,60 @@
+---
+hubloc:
+  - # sys channel
+    hubloc_guid: uGp_IvDBQ7b_-s3HV7IehysbKFyx1w0oG4dm1Q3-trFlnw01H-rJhNRQ8QNdDRSiolJmIMizCiexogrHy3_kpg
+    hubloc_guid_sig: sha256.bawP2sNBcfnjpKx2OCMlISbLJBByejs0KkbWcKvFj_vfQ_TnKvTZ9PvfxPz0puUkSqaJVskwz7mY59d56aRqc3kTCniuuR_3L8padNElwkyqoPLgIBQlffeqoa0ax0R_kF667_MmlUj6F6RyQHuCNeElWRfy0LW4SzIsn72ogHevvbOa5gh27jDcjUqkY5C0i8wyxEHzI5Ue4zNwJ7JS6WETZVL_z2WgFemKagZ8SWNVdFQfHCmhJ-scBZZK9rM0rdLf1O9HjkxgdvzImSHH3ODT-qOfE-IKwlum0hCUJqmGwOQAHTydRHKn-pdEHX1eFE_Y15lwBPToyQW1zTso9PPzwRXKqJkrqapO6hqerRCWqI5dtgE_6Up3AFolWCU82h5to0Y5LT2iEvMids9x64laGKNw-bzdYpJtKZZqgxejchIuYoqZZJp4ivGzHeJktBveTCluP2lRXw2W1TupMOVADlfUGPFMTYj2LPPIp3CTD6RsSZobh9VvT22J1SzwwTFvHG2VoZbezOPKvWj-PHRb3iBTSYoQAgL8ecI4oWnn9HK-KHwUsoWOtIXDSKVRiySun3AXGjI8iIVI7ORk7-33aVrxuVuh76_ni7LEadFFGClbxZtzoM44QizkPDHVS4rYl1fsuYDbxr93FvG7_QCBsOzgfWgE2eN65poE7mU
+    hubloc_hash: de3-bhcFpdY5PZ-ef4vy-6PpSeGrEHB8DNQFC6uP9lG-RkPaMceUMdvIRYHvHIvRzjJ0RPII2sJ1ffz4ATQOHQ
+    hubloc_id_url: https://hubzilla.test/channel/sys
+    hubloc_addr: sys@hubzilla.test
+    hubloc_primary: 1
+    hubloc_url: https://hubzilla.test
+    hubloc_url_sig: sha256.ORRyOWqsjER4i_Vx2HN5u_4u6djHb7NDEixTssCK9L-tpfBcbDmJD32pVgQvGs4UPexqlvIj7AwE-_fju2xlc_ZaI7UfII20Re0DWYfZR5xiexPxSbxtoUu-VuHoFNLjfnAwvj3Xleg_TQ4UBc5ap1_F0B7FsctOpx6P9ot_0tD7qDmyeiyU3OCCqDhAUASRYoXbkxzAZCSMHHT0Dnjz0IDJ8avi2FvrUns-ThKypxqyXzPz1Ie-Fz9XzdTCohrXUFixcIhIkUBtrL_pUe-Al6SVjICTqtoXNITqN5DEQLDEX5ObFiVotKZztg_IJxx6bzVta6e-9_Wu3ikM4DwFM-i_Lyybxoc745BnKVtZUfk4X3HF4_z0JLFW9YobcLzKU4KJgP4fMbmjEznqk4UXB_pGm-EgW90vou18Yi0_m4pGvQJgW2xRgioEDUNrkcBo6O_ej8Y71hsDfkv6SDNxqC-eZ6YFLYN5cJ2TKS05GXYCMdOrmtvH4TMEyxbwe0lfZa5eBSZby2qp26Ler51kft-VaZeXDowtK5Qr6Gg3YNCYHjBdeJz_ks9M9JUJqV-SHsRV2mC9OnFxkMGIzV1oRhn91wgJKMDJn6tEZDCXHVCcuC-4l7GstKRT-UbpqtkV__NYWuE9L3yvwXEDT9FXBw0hljBIn5EsG2CPkvFrf0U
+    hubloc_site_id: xJFCfYhhPGPqHeDsNQKjaY9EdS0iLJmV5lvuR3rFi09LOwwt0uN6adhJND5gyzs-3EEILSG_OY7zPAUKSnMa6w
+    hubloc_host: hubzilla.test
+    hubloc_callback: https://hubzilla.test/zot
+    hubloc_sitekey: |
+      -----BEGIN PUBLIC KEY-----
+      MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAquJ4YP2qctsfxG2nTmGU
+      /yIojix38qGkDyEarmtLUfn7Rm+sg1zT1IjW3Zvw/q4rmK8zfC9doCFR6Z9zU6/v
+      XlFDCY+EJ2vdw5U+D/OijvnDLABkOS1iKRII9225olh1ZbB2QpLq3tC1SbE04Wy6
+      fTuyehBrufrvqDXX+CyUYYbCiVtMv01v6Lr8Qc498afASlOJd2spoGcppeNlqL8u
+      6Ipf+fMoo89oIn5JOk3aLvKu+33i1NbVzC3NrVRjWV+D7MQgCroDAYHujNA1Kkuw
+      QxYlxy+exeSnHD6YzZ1lAFHZSc+xPXQVc6wCFMuruk9KymrGNh5V4lFoU+Bm1bLw
+      5berLIpQn8jKffZulSPeWcPw0cBQWgKMk3uEW1H6vJggepjunnjINDW7RvP7Thma
+      wVmU45EUeL3uzZR2JO+gX+Ay3oLCBTNCFrIa1U/cgrdXgTLBKT6JVfLaVPWMxqfA
+      n7f9e9DryEcB2pIq1l1CfUPMZdSYCI3pAT53io4imaUsB2HzWO39Ie1fGaHOo1Mk
+      MCSny0ySLRTGeefYJur3LCCyGkxpxGxFzqmCG2oF0UdQgw6rf8ENjojG3KyGNeYO
+      fkOd1kzv22NI8Zs+LEJQdkXWz16EeP8ZViZZ3lnG2lViFXAK3f4/U/fpuLCuMUi7
+      pDhncIFqrTPRozFWL0xbPAsCAwEAAQ==
+      -----END PUBLIC KEY-----
+    hubloc_network: zot6
+    hubloc_updated: 2025-11-19T21:27:19
+  - # test channel
+    hubloc_guid: "NTHCKiCblxvlLxdlu5SpOqoC_EWtKFqHEg6nc2Ps5X_UGJAfPBzENdOagS_IBC75RIQNtAYizZeobnpv0CEinA"
+    hubloc_guid_sig: "sha256.cLzCjVb_kgDUsXg-SM2qnn-DQ55cRcXlbPeigeWtnT_pjlCD7Pg6trcLa12s3iPup4dudG9MIZkjuwBUUBv25mVER9w97NGYCqLx1OGFbjuuAuZJzYHMZLiWSfv4PNzjvkB4sOAsCY6CBCcpg6rno55FxFhJNz10zTYkaqJQbS2zKnBnxqseXEwULKDgBbU8yapP1BX505FedcJR3MyVMYg0teiINOFywTjKQHOm_Pe6mmU_wblOy7eWLfoWXU9lq_Z9D47UTgeJd0IB89btcF0WsfyUhg3NNLE_kpfk2Ow-DBO9Joz64qoBe8Ri68pnom5LPgGTWwGWJnSud123ZfTDLzFg1h9sFMcJMiMzvJnvFm4puKKu4K0jYNkAp0DROnaqadreACU5y_vOQyCT0aiicIX3uPkKGhNbwSjcquOylzricqgaZeK6iOOb_iHRLuQd4lJgYShr9xqBk2LU31QnWO3QUmBVlVPpM26YeoulmwVsoOSxC7QcLjYmQCgYpGOUaWWxGlJSwDyvm4DKiG88hp_clzN4MDilycVmS_JvmYxsw1Do_RDeDRxq0xLnqtBZpnafEjm-LXkZGVYJ5kqvEtl3DmPai2Wzrnyb24XxGmAhOZo1NvfjrvRWtFN-uNXLHKDZEcEqogmiqMUd20XMh1YGLqH2IsvbPyYShXo"
+    hubloc_hash: "LAOCZBv-Cj6QVab_EpMFV6HIDmsUSDybKfSnH9I5cwYAkar4UvBcsj9ofsaIejYLTfgMy9BcGPWjy9-7Uk7rlQ"
+    hubloc_id_url: https://hubzilla.test/channel/test
+    hubloc_addr: test@hubzilla.test
+    hubloc_primary: 1
+    hubloc_url: https://hubzilla.test
+    hubloc_url_sig: sha256.t8AdUv_uurSc1RMM5lHuifGxceSLuX6-fT5I4KflJg16qO6u1dUuAVcH1pWA0rYIi0J9LL0rSCAfGgwa53wx5-C8Vt1TfMVoz0xyUTFJLd6FeLKRrYKQBj2Bos1VjHlXKj3Pn1455dacvDTXhg7t1WISaBMdzNlPQrTQnZPgNEy7cnPVmLkHuu5SVtYtT3mFiZXXUbaK4nFuw3lR83WVauCFIiKm8kcFSWtsLJzTMlx2NDOxTO-IMiSYXU4KwhcxmzLOqWQrT_vBDJNrny3jm79lIu5DJDCJdoVp2pwL72c3Esi5NhUKMPG7dyH4tKev5Ug3z4MUEaF_DvtDMgC0hAEtE3sE6wzqp4Fg6zLLE7V3wZI5cOpdjeL8-3TJokKJoUCDwKUwcLMyd9vbJKDN5QPtVKguLb7-QCfFZHA-xEoZlBW5gRptan9fTE3-3jRJF0PIywOM9YpwbLWaaUikQ8BHkS_pCVjAM7wiFfJzD6ocQhz5mKC-HQsABCck_jYzzjHzE4lfVziPN3arS_1tPFwDFsdk7Q04gOJ2F--DRBqY6R_iajZq0aDQgXelFk4B_BVU2N8zaom-0djQw16RPWchzMk8A1ablZ53P-D5IlWaJhL8BUEUtrKCrAqh6ecoQGYBwGitIy2FP2M0qfDiyTxkqnx31lW04Uk2tOFtJWI
+    hubloc_site_id: xJFCfYhhPGPqHeDsNQKjaY9EdS0iLJmV5lvuR3rFi09LOwwt0uN6adhJND5gyzs-3EEILSG_OY7zPAUKSnMa6w
+    hubloc_host: hubzilla.test
+    hubloc_callback: https://hubzilla.test/zot
+    hubloc_sitekey: |
+      -----BEGIN PUBLIC KEY-----
+      MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAquJ4YP2qctsfxG2nTmGU
+      /yIojix38qGkDyEarmtLUfn7Rm+sg1zT1IjW3Zvw/q4rmK8zfC9doCFR6Z9zU6/v
+      XlFDCY+EJ2vdw5U+D/OijvnDLABkOS1iKRII9225olh1ZbB2QpLq3tC1SbE04Wy6
+      fTuyehBrufrvqDXX+CyUYYbCiVtMv01v6Lr8Qc498afASlOJd2spoGcppeNlqL8u
+      6Ipf+fMoo89oIn5JOk3aLvKu+33i1NbVzC3NrVRjWV+D7MQgCroDAYHujNA1Kkuw
+      QxYlxy+exeSnHD6YzZ1lAFHZSc+xPXQVc6wCFMuruk9KymrGNh5V4lFoU+Bm1bLw
+      5berLIpQn8jKffZulSPeWcPw0cBQWgKMk3uEW1H6vJggepjunnjINDW7RvP7Thma
+      wVmU45EUeL3uzZR2JO+gX+Ay3oLCBTNCFrIa1U/cgrdXgTLBKT6JVfLaVPWMxqfA
+      n7f9e9DryEcB2pIq1l1CfUPMZdSYCI3pAT53io4imaUsB2HzWO39Ie1fGaHOo1Mk
+      MCSny0ySLRTGeefYJur3LCCyGkxpxGxFzqmCG2oF0UdQgw6rf8ENjojG3KyGNeYO
+      fkOd1kzv22NI8Zs+LEJQdkXWz16EeP8ZViZZ3lnG2lViFXAK3f4/U/fpuLCuMUi7
+      pDhncIFqrTPRozFWL0xbPAsCAwEAAQ==
+      -----END PUBLIC KEY-----
+    hubloc_network: zot6
+    hubloc_updated: 2025-11-19T21:57:19

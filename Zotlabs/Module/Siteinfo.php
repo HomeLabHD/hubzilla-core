@@ -17,6 +17,9 @@ class Siteinfo extends \Zotlabs\Web\Controller {
 		$federated = [];
 		call_hooks('federated_transports',$federated);
 
+    $themes = Config::Get('system', 'allowed_themes');
+    $themes = array_map('trim', explode(',', $themes));
+
 		$siteinfo = replace_macros(get_markup_template('siteinfo.tpl'),
 			[
 				'$title' => t('About this site'),
@@ -40,6 +43,7 @@ class Siteinfo extends \Zotlabs\Web\Controller {
 				'$prj_link' => \Zotlabs\Lib\System::get_project_link(),
 				'$prj_src' => \Zotlabs\Lib\System::get_project_srclink(),
 				'$addons' => array( t('Active addons'), \App::$plugins ),
+				'$themes' => array( t('Active themes'), $themes ),
 				'$blocked_sites' => array( t('Blocked sites'), \Zotlabs\Lib\Config::Get('system', 'blacklisted_sites') )
 			]
 		);

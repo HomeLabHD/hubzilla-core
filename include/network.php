@@ -187,7 +187,6 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 			$newurl = $url . $newurl;
 		$url_parsed = @parse_url($newurl);
 		if (isset($url_parsed)) {
-			@curl_close($ch);
 			return z_fetch_url($newurl,$binary,++$redirects,$opts);
 		}
 	}
@@ -209,7 +208,6 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 		$ret['debug'] = $curl_info;
 	}
 
-	@curl_close($ch);
 	return($ret);
 }
 
@@ -352,7 +350,6 @@ function z_post_url($url, $params, $redirects = 0, $opts = array()) {
 	// would somebody take lighttpd and just shoot it?
 
 	if($http_code == 417) {
-		curl_close($ch);
 		if($opts) {
 			if($opts['headers'])
 				$opts['headers'][] = 'Expect:';
@@ -377,7 +374,6 @@ function z_post_url($url, $params, $redirects = 0, $opts = array()) {
 
 		$url_parsed = @parse_url($newurl);
 		if (isset($url_parsed)) {
-			curl_close($ch);
 			if($http_code == 303) {
 				return z_fetch_url($newurl,false,++$redirects,$opts);
 			} else {
@@ -403,7 +399,6 @@ function z_post_url($url, $params, $redirects = 0, $opts = array()) {
 		$ret['debug'] = $curl_info;
 	}
 
-	curl_close($ch);
 	return($ret);
 }
 

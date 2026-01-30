@@ -101,7 +101,6 @@ function format_event_obj($jobject) {
 
 	if (is_array($object) && (array_key_exists('summary', $object) || array_key_exists('name', $object))) {
 
-		$dtend = ((array_key_exists('endTime', $object)) ? $object['endTime'] : NULL_DATE);
 
 		$title = $object['name'] ?? '';
 		$content = html2bbcode($object['content']);
@@ -112,33 +111,45 @@ function format_event_obj($jobject) {
 			$content = $bbdescription[1];
 		}
 
-		// mobilizon sets a timezone in the object
-		// we will assume that events with an timezone should be adjusted
+		// We will assume that events with a timezone set should be adjusted except if the timezone is UTC in which case we will unset it.
 		$tz = $object['timezone'] ?? '';
-
-		// friendica has its own flag for adjust
-		$dfrn_adjust = $object['dfrn:adjust'] ?? '';
-
-		$adjust = ((strpos($object['startTime'], 'Z') !== false) || $tz || $dfrn_adjust);
-
-		$allday = (($adjust) ? false : true);
-
-		$dtstart = new DateTime($object['startTime']);
-		$dtend_obj = new DateTime($dtend);
-
-		$dtdiff = $dtstart->diff($dtend_obj);
-
-		$oneday = false;
-		if($allday && ($dtdiff->days < 2))
-			$oneday = true;
-
-		if($allday && !$oneday) {
-			// Subtract one day from the end date so we can use the "first day - last day" format for display.
-			$dtend_obj->modify('-1 day');
-			$dtend = datetime_convert('UTC', 'UTC', $dtend_obj->format('Y-m-d H:i:s'));
+		if ($tz === 'UTC') {
+			$tz = '';
 		}
 
+		// Friendica has its own flag for adjust
+		$dfrn_adjust = $object['dfrn:adjust'] ?? '';
+
+		$dtstart_obj = new DateTime($object['startTime']);
+
+		$adjust = str_contains($object['startTime'], 'Z') || $tz || $dfrn_adjust || $dtstart_obj->getOffset() || (!$dtstart_obj->getOffset() && !str_contains($object['startTime'], 'T00:00:00') && !str_contains($object['endTime'], 'T00:00:00'));
+
+		$allday = !$adjust;
+
+		$oneday = false;
+
 		$bd_format = (($allday) ? t('l F d, Y') : t('l F d, Y \@ g:i A')); // Friday January 18, 2011 @ 8:01 AM or Friday January 18, 2011 for allday events
+
+		$dtend_title = '';
+		$dtend_dt = '';
+		$dtend = $object['endTime'] ?? null;
+
+		if ($dtend) {
+			$dtend_obj = new DateTime($dtend);
+			$dtdiff = $dtstart_obj->diff($dtend_obj);
+
+			if($allday && ($dtdiff->days < 2))
+				$oneday = true;
+
+			if($allday && !$oneday) {
+				// Subtract one day from the end date so we can use the "first day - last day" format for display.
+				$dtend_obj->modify('-1 day');
+				$dtend = datetime_convert('UTC', 'UTC', $dtend_obj->format('Y-m-d H:i:s'));
+			}
+
+			$dtend_title = datetime_convert('UTC', 'UTC', $dtend, ((strpos($object['startTime'], 'Z')) ? ATOM_TIME : 'Y-m-d\TH:i:s' ));
+			$dtend_dt = (($adjust) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), $dtend, $bd_format)) :  day_translate(datetime_convert('UTC', 'UTC', $dtend, $bd_format)));
+		}
 
 		$event['header'] = replace_macros(get_markup_template('event_item_header.tpl'), array(
 			'$title'          => $title,
@@ -147,8 +158,8 @@ function format_event_obj($jobject) {
 			'$dtstart_dt'    => (($adjust) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), $object['startTime'], $bd_format)) : day_translate(datetime_convert('UTC', 'UTC', $object['startTime'], $bd_format))),
 			'$finish'        => ((array_key_exists('endTime', $object)) ? true : false),
 			'$dtend_label'   => t('End:'),
-			'$dtend_title'   => datetime_convert('UTC', 'UTC', $dtend, ((strpos($object['startTime'], 'Z')) ? ATOM_TIME : 'Y-m-d\TH:i:s' )),
-			'$dtend_dt'      => (($adjust) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), $dtend, $bd_format)) :  day_translate(datetime_convert('UTC', 'UTC', $dtend, $bd_format))),
+			'$dtend_title'   => $dtend_title,
+			'$dtend_dt'      => $dtend_dt,
 			'$allday'        => $allday,
 			'$oneday'        => $oneday,
 			'$event_tz'      => ['label' => t('Timezone'), 'value' => (($tz === date_default_timezone_get()) ? '' : $tz)]
@@ -1269,6 +1280,8 @@ function event_store_item($arr, $event, $deliver = true) {
 		$x = [
 			'type'      => 'Event',
 			'id'        => z_root() . '/event/' . $r[0]['resource_id'],
+			'uuid'      => $r[0]['resource_id'],
+			'timezone'  => $arr['timezone'],
 			'name'      => $arr['summary'],
 //          'summary'   => bbcode($arr['summary']),
 			// RFC3339 Section 4.3
@@ -1395,6 +1408,8 @@ function event_store_item($arr, $event, $deliver = true) {
 			$y = [
 				'type'       => 'Event',
 				'id'         => z_root() . '/event/' . $event['event_hash'],
+				'uuid'       => $event['event_hash'],
+				'timezone'   => $arr['timezone'],
 				'name'       => $arr['summary'],
 //              'summary'    => bbcode($arr['summary']),
 				// RFC3339 Section 4.3
@@ -1424,13 +1439,6 @@ function event_store_item($arr, $event, $deliver = true) {
 			'attributedTo' => z_root() . '/channel/' . $z['channel_address'],
 		];
 		$item_arr['tgt_type'] = 'Collection';
-
-		// propagate the event resource_id so that posts containing it are easily searchable in downstream copies
-		// of the item which have not stored the actual event. Required for Diaspora event federation as Diaspora
-		// event_participation messages refer to the event resource_id as a parent, while out own event attendance
-		// activities refer to the item message_id as the parent.
-
-		set_iconfig($item_arr, 'system', 'event_id', $event['event_hash'], true);
 
 		$post = item_store($item_arr, deliver: $deliver);
 

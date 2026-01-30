@@ -11,7 +11,7 @@
 			{{if isset($field.5)}}{{$field.5}}{{/if}}
 			>
 		<small id="help_{{$field.0}}" class="form-text text-muted">
-			{{$field.3}}
+			{{$field.3|default:''}}
 		</small>
 	</div>
 {{*

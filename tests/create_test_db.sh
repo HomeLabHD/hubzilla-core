@@ -95,7 +95,7 @@ else
 
 	$db_binary -v -u $HZ_TEST_DB_ROOT_USER -p$HZ_TEST_DB_ROOT_PASS -Ns -e "SELECT VERSION();"
 
-	$db_binary -u $HZ_TEST_DB_ROOT_USER -p$HZ_TEST_DB_ROOT_PASS <<-EOSQL
+	$db_binary -u $root_user -p$root_passwd <<-EOSQL
 		DROP DATABASE IF EXISTS $HZ_TEST_DB_NAME;
 		CREATE DATABASE $HZ_TEST_DB_NAME CHARACTER SET $HZ_TEST_DB_CHARSET;
 

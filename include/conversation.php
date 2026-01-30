@@ -782,7 +782,7 @@ function thread_action_menu($item,$mode = '') {
 
 	$menu = [];
 
-	if((local_channel()) && local_channel() == $item['uid']) {
+	if(local_channel() || (local_channel() && App::$module === 'pubstream')) {
 		$menu[] = [
 			'menu' => 'view_source',
 			'title' => t('View Source'),
@@ -791,7 +791,7 @@ function thread_action_menu($item,$mode = '') {
 			'href' => '#'
 		];
 
-		if(!is_unthreaded($mode)) {
+		if(!is_unthreaded($mode) && local_channel() == $item['uid']) {
 			if($item['parent'] == $item['id'] && (get_observer_hash() != $item['author_xchan'])) {
 				$menu[] = [
 					'menu' => 'follow_thread',

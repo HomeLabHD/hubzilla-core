@@ -5,6 +5,7 @@
  */
 
 use Zotlabs\Lib\Config;
+use Zotlabs\Lib\MessageFilter;
 
 /**
  * @brief Return an Atom feed for channel.
@@ -159,6 +160,10 @@ function get_feed_for($channel, $observer_hash, $params) {
 		foreach($items as $item) {
 			if($item['item_private'])
 				continue;
+
+			if (in_array($item['verb'], ['Add', 'Remove'])) {
+				continue;
+			}
 
 			$atom .= atom_entry($item, $type, null, $channel, true, '', $params['compat']);
 		}
@@ -1343,8 +1348,18 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 					// but save the thread_parent in case we need to refer to it later.
 
 					if($importer['channel_system']) {
-						if( ! \Zotlabs\Lib\MessageFilter::evaluate($datarray,Config::Get('system','pubstream_incl'),Config::Get('system','pubstream_excl'))) {
-							continue;
+						$incl = Config::Get('system','pubstream_incl', '');
+						$excl = Config::Get('system','pubstream_excl', '');
+
+						if ($incl || $excl) {
+							$plaintext = prepare_text($datarray['body'], ((isset($datarray['mimetype'])) ? $datarray['mimetype'] : 'text/bbcode'));
+							$plaintext = html2plain((isset($datarray['summary']) && $datarray['summary']) ? $datarray['summary'] . ' ' . $plaintext : $plaintext);
+							$plaintext = html2plain((isset($datarray['title']) && $datarray['title']) ? $datarray['title'] . ' ' . $plaintext : $plaintext);
+
+							if (!(new MessageFilter($datarray, html_entity_decode($incl), html_entity_decode($excl), ['plaintext' => $plaintext]))->evaluate()) {
+								logger('post is filtered');
+								continue;
+							}
 						}
 					}
 
@@ -1504,8 +1519,18 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 				}
 
 				if($importer['channel_system']) {
-					if( ! \Zotlabs\Lib\MessageFilter::evaluate($datarray,Config::Get('system','pubstream_incl'),Config::Get('system','pubstream_excl'))) {
-						continue;
+					$incl = Config::Get('system','pubstream_incl', '');
+					$excl = Config::Get('system','pubstream_excl', '');
+
+					if ($incl || $excl) {
+						$plaintext = prepare_text($datarray['body'], ((isset($datarray['mimetype'])) ? $datarray['mimetype'] : 'text/bbcode'));
+						$plaintext = html2plain((isset($datarray['summary']) && $datarray['summary']) ? $datarray['summary'] . ' ' . $plaintext : $plaintext);
+						$plaintext = html2plain((isset($datarray['title']) && $datarray['title']) ? $datarray['title'] . ' ' . $plaintext : $plaintext);
+
+						if (!(new MessageFilter($datarray, html_entity_decode($incl), html_entity_decode($excl), ['plaintext' => $plaintext]))->evaluate()) {
+							logger('post is filtered');
+							continue;
+						}
 					}
 				}
 

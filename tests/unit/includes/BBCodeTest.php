@@ -24,6 +24,8 @@
 namespace Zotlabs\Tests\Unit\includes;
 
 use App;
+use PHPUnit\Framework\Attributes\BackupStaticProperties;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Zotlabs\Tests\Unit\UnitTestCase;
 
 class BBCodeTest extends UnitTestCase {
@@ -38,9 +40,9 @@ class BBCodeTest extends UnitTestCase {
 
 	/**
 	 * Test the `[observer]` BBCode tags.
-	 *
-	 * @dataProvider bbcode_observer_provider
 	 */
+	#[BackupStaticProperties(App::class)]
+	#[DataProvider('bbcode_observer_provider')]
 	public function test_bbcode_observer(string $src, bool $logged_in, string $lang, string $expected): void {
 		if ($logged_in) {
 			App::set_observer([
@@ -64,6 +66,7 @@ class BBCodeTest extends UnitTestCase {
 	/**
 	 * Test parsing the `[channel]` tag.
 	 */
+	#[BackupStaticProperties(App::class)]
 	public function test_bbcode_channel(): void {
 		$src = '[channel=1]This is only for channels[/channel][channel=0]This is for everyone else[/channel]';
 

@@ -6,6 +6,8 @@ use Zotlabs\Web\Controller;
 use Zotlabs\Web\HTTPSig;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\SConfig;
+use GuzzleHttp\Psr7\Request;
+use HttpSignature\HttpMessageSigner;
 
 class Magic extends Controller {
 
@@ -101,26 +103,65 @@ class Magic extends Controller {
 				$dest = strip_zids($dest);
 				$dest = strip_query_param($dest,'f');
 
-				// We now post to the OWA endpoint. This improves security by providing a signed digest
+				// try RFC9421 first
 
-				$data = json_encode([ 'OpenWebAuth' => random_string() ]);
+				$request = new Request(
+					'GET',
+					$owapath,
+					[
+						'Host' => $parsed['host'],
+						'Date' => gmdate('D, d M Y H:i:s T'),
+						'Accept' => 'application/x-zot+json',
+						'X-Open-Web-Auth' => random_string(),
+					],
+				);
 
-				$headers = [];
-				$headers['Accept'] = 'application/x-zot+json' ;
-				$headers['Content-Type'] = 'application/x-zot+json' ;
-				$headers['X-Open-Web-Auth'] = random_string();
-				$headers['Host'] = $parsed['host'];
-				$headers['(request-target)'] = 'get /owa';
+				$signer = new HttpMessageSigner();
 
-				$headers = HTTPSig::create_sig($headers,$channel['channel_prvkey'], channel_url($channel),true,'sha512');
+				$signer->setPrivateKey($channel['channel_prvkey']);
+				$signer->setAlgorithm('rsa-v1_5-sha256');
+				$signer->setKeyId(channel_url($channel));
+				$signer->setCreated(time());
+				$signer->setExpires(time() + 3600);
+
+				$coveredFields = '("@method" "@target-uri" "host" "date" "accept" "x-open-web-auth")';
+				$request = $signer->signRequest($coveredFields, $request);
+				$signedHeaders = $signer->getHeaders($request);
+
+				$curlHeaders = [];
+				foreach ($signedHeaders as $key => $value) {
+					$curlHeaders[] = $key . ': ' . $value;
+				}
+
 				$redirects = 0;
+				$x = z_fetch_url($owapath, false, $redirects,  ['headers' => $curlHeaders]);
+				logger('owa RFC9421 fetch returned: ' . print_r($x,true),LOGGER_DATA);
 
-				$x = z_fetch_url($owapath, false, $redirects, ['headers' => $headers]);
+				$rfc9421 = false;
 
-				logger('owa fetch returned: ' . print_r($x,true),LOGGER_DATA);
+				if ($x['success']) {
+					$rfc9421_result = json_decode($x['body'], true);
+					$rfc9421 = $rfc9421_result['success'];
+				}
+
+				if (!$rfc9421 || ($x['return_code'] >= 400 && $x['return_code'] != 404)) {
+					$headers = [];
+					$headers['Accept'] = 'application/x-zot+json' ;
+					$headers['Content-Type'] = 'application/x-zot+json' ;
+					$headers['X-Open-Web-Auth'] = random_string();
+					$headers['Host'] = $parsed['host'];
+					$headers['(request-target)'] = 'get /owa';
+
+					$headers = HTTPSig::create_sig($headers,$channel['channel_prvkey'], channel_url($channel),true,'sha512');
+					$redirects = 0;
+
+					$x = z_fetch_url($owapath, false, $redirects, ['headers' => $headers]);
+					logger('owa fetch returned: ' . print_r($x,true),LOGGER_DATA);
+				}
 
 				if ($x['success']) {
 					$j = json_decode($x['body'],true);
+
 					if ($j['success'] && $j['encrypted_token']) {
 						// decrypt the token using our private key
 						$token = '';
@@ -139,7 +180,6 @@ class Magic extends Controller {
 
 						echo $o;
 						killme();
-
 					}
 				}
 			}

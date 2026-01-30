@@ -26,12 +26,11 @@ then
     FINDSTARTDIR="."
     FINDOPTS=
 else
-    cd "$FULLPATH/../view/en/"
+    cd "$FULLPATH/../view/lang/en/"
     OUTFILE="$FULLPATH/hmessages.po"
-    FINDSTARTDIR="../../"
-    # skip addon folder                                                                                         
-    FINDOPTS=
-	RRIT="-wholename */extend -prune -o"
+    FINDSTARTDIR="../../../"
+    # skip addon folder
+    FINDOPTS="( -wholename */store -o -wholename */vendor -o -wholename */extend ) -prune -o"
 fi
 
 
@@ -56,7 +55,7 @@ echo "extract strings to $OUTFILE.."
 
 
 rm "$OUTFILE"; touch "$OUTFILE"
-for f in $(find "$FINDSTARTDIR" $FINDOPTS -name "*.php" -type f)
+for f in $(find -L "$FINDSTARTDIR" $FINDOPTS -name "*.php" -type f)
 do
     if [ ! -d "$f" ]
     then
@@ -76,7 +75,7 @@ then
 	sed -i '/^\"Plural-Forms/d' "$OUTFILE"
 else
     sed -i "s/SOME DESCRIPTIVE TITLE./$PROJECTNAME/g" "$OUTFILE"
-    sed -i "s/YEAR THE PACKAGE'S COPYRIGHT HOLDER/2012-2016 $PROJECTNAME/g" "$OUTFILE"
+    sed -i "s/YEAR THE PACKAGE'S COPYRIGHT HOLDER/2012-2026 $PROJECTNAME/g" "$OUTFILE"
     sed -i "s/FIRST AUTHOR <EMAIL@ADDRESS>, YEAR./Mike Macgirvin, 2012/g" "$OUTFILE"
     sed -i "s/PACKAGE VERSION/$F9KVERSION/g" "$OUTFILE"
     sed -i "s/PACKAGE/$PROJECTNAME/g" "$OUTFILE"

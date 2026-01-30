@@ -1,3 +1,95 @@
+Hubzilla 11.0 (2026-01-30)
+	Features
+	- Rewrite Lib/MessageFilter (ported from forte) and add more tests
+	- Rewrite editor encryption feature to implement libsodium and PBDKF2 for password hashing
+	- Change default feed behaviour to return only toplevels - issue #1953
+	- Add active themes list to siteinfo
+	- Show viewsource link for pubstream items
+	- Implement singleton object cache
+	- Restructure cross protocol message payload
+	- View source will now display the raw object instead of just the object body
+	- Implement OWA2
+
+	Maintenance
+	- Remove capability to update xchan entries via api
+	- Move mod search HTML to template
+	- Move channel activities HTML to template
+	- Update util/run_xgettext.sh to ignore not relevant directories
+	- Update composer libs
+	- Move mod bookmarks HTML to template
+	- Update italian translation
+	- Use finfo class to determine mime type in attach_store()
+	- Bump attach.filetype field length to match photo.mimetype
+	- Move share container HTML to template
+	- Update cloud directory template to provid necessary data for the WOPI addon
+	- Remove appearances of curl_close() - deprected and noop since PHP version 8.0
+	- Remove appearances of GD imagedestroy() - deprected and noop since PHP version 8.0
+	- Improve replies id detection
+	- Remove deprecated ofeed and ochannel modules
+	- Remove support for deprecated AS1 verbs and objects in the network stream filters
+	- Improve detection of allday events
+	- Improve handling of events with no endTime
+	- Provide the event hash and timezone in the event object
+	- Improve test isolation
+	- Add quoteUri field to activities
+	- Update API docs for hooks
+	- Improve share to quote conversion
+	- Rename (un)serialise() -> json_(un)serialize()
+	- CI: Replace use of create_identity in MagicTest
+	- CI: Add test db fixtures for hubloc table
+	- CI: Stub crypto calls from CreateIdentityTest (performance)
+	- CI: Add tests for Profiles module
+	- CI: Add tests for Zotfinger module
+	- Use json serialisation for iconfig
+	- CI: Add test db fixtures for channel table
+	- CI: Reload test fixtures from db
+	- CI: Set logged in channel for delete account test
+	- CI: Use root passwd to set up MySQL test db
+	- Improve dba_pdo::insert function
+	- Update install document
+	- Remove unused sprintf.js
+	- Move twitteroauth lib to addon_common
+	- Move slinky lib to addon_common
+	- Move openid lib to openid addon
+	- Move XRI lib to wppost addon
+	- Move diff lib to wiki addon
+	- Remove unused bootbox lib
+	- Remove unused images
+	- Move language specific folders into its own subfolder in /view
+	- Remove deprecated sjcl lib and references
+	- Deprecate outbound JSalmon signatures
+
+	Bugfixes
+	- Fix reply-to button not diplayed for anonymous visitors allthough permission is granted
+	- Fix wrong icon class in mod cloud
+	- Fix bulk deleting files
+	- Fix cloud root folder shows unknown error
+	- Fix edited timestamp in attach_store() in case of update
+	- Fix grammar in Lib/Enotify::submit()
+	- Fix content-type and length header in Module\TestCase
+	- Fix args in xchan_fetch() not escaped
+	- Fix notification for events linking to wrong message id - issue #1954
+	- Fix post_mail permission not working independend from the send_stream/post_comment permissions - issue #1951
+	- Fix item relayed again in case it comes back from a channel that sources our channel
+	- Fix activity signer not set
+	- Fix category link not update at clone - issue #1932
+	- Fix tag delivery attempted item type is not post - fix issue #1941
+	- Fix block/unblock account - issue #1947
+	- Fix warnings in profile_edit template
+	- Fix warnings for optional args in field templates
+	- Fix undefined vars in mod profiles
+	- Fix fullscreen button class
+	- Fix delivery report when syncing cloned channels
+
+	Addon
+	- New addon implementing basic WOPI protocol - integrates collabora with the Files app
+	- Redphotos: addon removed - was used for migration from redmatrix to hubzilla
+	- Redfiles: addon removed - was used for migration from redmatrix to hubzilla
+	- Nsfw: rewrite to implement new MessageFilter
+	- Wiki: fix long loading time due to oembed attempts
+	- Wiki: improved SQL query
+
+
 Hubzilla 10.6.1 (2025-11-21)
 	- Fix insufficient target attribution for forums
 	- Fix reshare regression in forum logic

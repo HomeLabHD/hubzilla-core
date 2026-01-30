@@ -3,6 +3,7 @@
 namespace Zotlabs\Daemon;
 
 use Zotlabs\Lib\Config;
+use Zotlabs\Lib\ObjCache;
 use Zotlabs\Lib\Libsync;
 use Zotlabs\Lib\Libzotdir;
 
@@ -235,6 +236,73 @@ class Cron {
 
 		if (!$restart)
 			Master::Summon(array('Cronhooks'));
+
+
+		// move as obj cache to fs
+		if (!Config::Get('system', 'as_objects_moved')) {
+			$results = dbq("select iconfig.*, item.mid from iconfig left join item on iid = item.id where cat = 'activitypub' and k = 'rawmsg' limit 300");
+			if ($results) {
+				foreach ($results as $result) {
+					if (is_string($result['v'])) {
+						if (str_starts_with($result['v'], '{')) {
+							$result['v'] = json_decode($result['v'], true);
+						}
+
+						elseif (str_starts_with($result['v'], 'json:')) {
+							$result['v'] = json_unserialize($result['v']);
+						}
+
+						elseif (preg_match('|^a:[0-9]+:{.*}$|s', $result['v'])) {
+							$result['v'] = unserialize($result['v'], ['allowed_classes' => false]);
+						}
+					}
+
+					if (is_array($result['v'])) {
+						ObjCache::Set($result['mid'], $result['v']);
+					}
+
+					q("delete from iconfig where id = %d",
+						intval($result['id'])
+					);
+				}
+			}
+			else {
+				Config::Set('system', 'as_objects_moved', 1);
+			}
+		}
+
+		// move diaspora obj cache to fs
+		if (!Config::Get('system', 'diaspora_objects_moved')) {
+			$results = dbq("select iconfig.*, item.mid from iconfig left join item on iid = item.id where cat = 'diaspora' and k = 'fields' limit 300");
+			if ($results) {
+				foreach ($results as $result) {
+					if (is_string($result['v'])) {
+						if (str_starts_with($result['v'], '{')) {
+							$result['v'] = json_decode($result['v'], true);
+						}
+
+						elseif (str_starts_with($result['v'], 'json:')) {
+							$result['v'] = json_unserialize($result['v']);
+						}
+
+						elseif (preg_match('|^a:[0-9]+:{.*}$|s', $result['v'])) {
+							$result['v'] = unserialize($result['v'], ['allowed_classes' => false]);
+						}
+					}
+
+					if (is_array($result['v'])) {
+						ObjCache::Set($result['mid'], $result['v'], 'diaspora');
+					}
+
+					q("delete from iconfig where id = %d",
+						intval($result['id'])
+					);
+				}
+			}
+			else {
+				Config::Set('system', 'diaspora_objects_moved', 1);
+			}
+		}
 
 		Config::Set('system', 'lastcron', datetime_convert());
 

@@ -261,7 +261,7 @@ class Browser extends DAV\Browser\Plugin {
 				}
 			}
 
-			$display_path_encoded = Text::rawurlencode_parts($data['display_path']);
+			$display_path_encoded = Text::rawurlencode_parts($data['display_path'] ?? '');
 			$href_encoded = Text::rawurlencode_parts($href);
 
 			// put the array for this file together
@@ -272,7 +272,7 @@ class Browser extends DAV\Browser\Plugin {
 			$ft['rel_path'] = (($data) ? '/cloud/' . $nick .'/' . $display_path_encoded : $href_encoded);
 			$ft['full_path'] = z_root() . (($data) ? '/cloud/' . $nick .'/' . $display_path_encoded : $href_encoded);
 			$ft['name'] = $name;
-			$ft['type'] = $type;
+			$ft['type'] = $data['filetype'];
 			$ft['size'] = $size;
 			$ft['collection'] = (($type === 'Collection') ? true : false);
 			$ft['size_formatted'] = userReadableSize($size);

@@ -132,8 +132,8 @@ class Config {
 			$value = App::$config[$family][$key];
 
 			if (! is_array($value)) {
-				if (substr($value, 0, 5) == 'json:') {
-					return json_decode(substr($value, 5), true);
+				if (str_starts_with($value, 'json:')) {
+					return json_unserialize($value);
 				} else if (preg_match('|^a:[0-9]+:{.*}$|s', $value)) {
 					// Unserialize in inherently unsafe. Try to mitigate by not
 					// allowing unserializing objects. Only kept for backwards

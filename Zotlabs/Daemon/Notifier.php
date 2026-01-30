@@ -4,6 +4,8 @@ namespace Zotlabs\Daemon;
 
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\Config;
+use Zotlabs\Lib\IConfig;
+use Zotlabs\Lib\ObjCache;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Queue;
 
@@ -264,7 +266,6 @@ class Notifier {
 			}
 
 			if (!item_forwardable($target_item)) {
-				//hz_syslog(print_r($target_item,true));
 				logger('notifier: target item not forwardable', LOGGER_DEBUG);
 				return;
 			}
@@ -317,10 +318,15 @@ class Notifier {
 				return;
 			}
 
-			$m = get_iconfig($target_item, 'activitypub', 'signed_data');
+			$m = ObjCache::Get($target_item['mid']);
+
+			if (!$m) {
+				$m = IConfig::Get($target_item, 'activitypub', 'rawmsg');
+			}
+
 			// Re-use existing signature unless the activity type changed to a Tombstone, which won't verify.
 			if ($m && (!intval($target_item['item_deleted']))) {
-				self::$encoded_item = json_decode($m, true);
+				self::$encoded_item = $m;
 			}
 			else {
 				$activity = Activity::encode_activity($target_item);

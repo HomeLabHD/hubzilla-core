@@ -42,9 +42,7 @@ class Search extends Controller {
 		$observer      = App::get_observer();
 		$observer_hash = (($observer) ? $observer['xchan_hash'] : '');
 
-		$o = '<div class="generic-content-wrapper-styled">' . "\r\n";
-
-		$o .= '<h2>' . t('Search') . '</h2>';
+		$title = t('Search');
 
 		if (x(App::$data, 'search'))
 			$search = trim(App::$data['search']);
@@ -57,7 +55,7 @@ class Search extends Controller {
 			$search = ((x($_GET, 'tag')) ? trim(escape_tags(rawurldecode($_GET['tag']))) : '');
 		}
 
-		$o .= search($search, 'search-box', '/search', ((local_channel()) ? true : false));
+		$searchbox = search($search, 'search-box', '/search', ((local_channel()) ? true : false));
 
 		if (local_channel() && str_starts_with($search, 'https://') && !$update && !$load) {
 
@@ -121,8 +119,17 @@ class Search extends Controller {
 			goaway(z_root() . '/directory' . '?f=1&navsearch=1&search=' . $search);
 		}
 
-		if (!$search)
-			return $o;
+		if (!$search) {
+			$tpl = get_markup_template('search.tpl');
+
+			return replace_macros($tpl, [
+				'$title'          => $title,
+				'$searchbox'      => $searchbox,
+				'$livesearch'     => '',
+				'$results_header' => '',
+				'$conversation'   => '',
+			]);
+		}
 
 		if ($tag) {
 			$wildtag   = str_replace('*', '%', $search);
@@ -149,8 +156,8 @@ class Search extends Controller {
 			// This is ugly, but we can't pass the profile_uid through the session to the ajax updater,
 			// because browser prefetching might change it on us. We have to deliver it with the page.
 
-			$o .= '<div id="live-search"></div>' . "\r\n";
-			$o .= "<script> var profile_uid = " . ((intval(local_channel())) ? local_channel() : (-1))
+			$livesearch = '<div id="live-search"></div>' . "\r\n";
+			$livesearch .= "<script> var profile_uid = " . ((intval(local_channel())) ? local_channel() : (-1))
 				. "; var netargs = '?f='; var profile_page = " . App::$pager['page'] . "; </script>\r\n";
 
 			App::$page['htmlhead'] = replace_macros(get_markup_template("build_query.tpl"), [
@@ -254,15 +261,21 @@ class Search extends Controller {
 		}
 
 		if ($tag)
-			$o .= '<h2>' . sprintf(t('Items tagged with: %s'), $search) . '</h2>';
+			$results_header = sprintf(t('Items tagged with: %s'), $search);
 		else
-			$o .= '<h2>' . sprintf(t('Search results for: %s'), $search) . '</h2>';
+			$results_header = sprintf(t('Search results for: %s'), $search);
 
-		$o .= conversation($items, 'search', $update, 'client');
+		$conversation = conversation($items, 'search', $update, 'client');
 
-		$o .= '</div>';
+		$tpl = get_markup_template('search.tpl');
 
-		return $o;
+		return replace_macros($tpl, [
+			'$title'          => $title,
+			'$searchbox'      => $searchbox,
+			'$livesearch'     => $livesearch,
+			'$results_header' => $results_header ?? '',
+			'$conversation'   => $conversation,
+		]);
 	}
 
 

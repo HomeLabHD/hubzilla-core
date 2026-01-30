@@ -26,7 +26,7 @@ class ASCache {
 		$ret = Cache::get($key, self::getAge());
 
 		if ($ret) {
-			return unserialise($ret);
+			return json_unserialize($ret);
 		}
 
 		return [];
@@ -42,7 +42,7 @@ class ASCache {
 			return;
 		}
 
-		Cache::set($key, serialise($obj));
+		Cache::set($key, json_serialize($obj));
 	}
 
 	public static function isCacheable(array $obj): bool

@@ -225,7 +225,7 @@
 				{{/if}}
 
 
-				{{if $fields.address || $fields.locality || $fields.postal_code || $fields.region || $fields.country_name || $fields.hometown}}
+				{{if isset($fields.address) || isset($fields.locality) || isset($fields.postal_code) || isset($fields.region) || isset($fields.country_name) || isset($fields.hometown)}}
 				<div class="panel">
 					<div class="section-subtitle-wrapper" role="tab" id="location">
 						<h3>
@@ -236,27 +236,27 @@
 					</div>
 					<div id="location-collapse" class="panel-collapse collapse" data-bs-parent="#profile-edit-wrapper" role="tabpanel" aria-labelledby="location">
 						<div class="section-content-tools-wrapper">
-							{{if $fields.address}}
+							{{if $fields.address|default:false}}
 							{{include file="field_input.tpl" field=$address}}
 							{{/if}}
 
-							{{if $fields.locality}}
+							{{if $fields.locality|default:false}}
 							{{include file="field_input.tpl" field=$locality}}
 							{{/if}}
 
-							{{if $fields.postal_code}}
+							{{if $fields.postal_code|default:false}}
 							{{include file="field_input.tpl" field=$postal_code}}
 							{{/if}}
 
-							{{if $fields.region}}
+							{{if $fields.region|default:false}}
 							{{include file="field_input.tpl" field=$region}}
 							{{/if}}
 
-							{{if $fields.country_name}}
+							{{if $fields.country_name|default:false}}
 							{{include file="field_input.tpl" field=$country_name}}
 							{{/if}}
 
-							{{if $fields.hometown}}
+							{{if $fields.hometown|default:false}}
 							{{include file="field_input.tpl" field=$hometown}}
 							{{/if}}
 
@@ -281,7 +281,7 @@
 					</div>
 					<div id="relation-collapse" class="panel-collapse collapse" data-bs-parent="#profile-edit-wrapper" role="tabpanel" aria-labelledby="relation">
 						<div class="section-content-tools-wrapper">
-							{{if $fields.marital }}
+							{{if $fields.marital|default:false }}
 							<div id="profile-edit-marital-wrapper" class="mb-3 field" >
 							<label id="profile-edit-marital-label" for="profile-edit-marital" ><span class="heart"><i class="bi fa-heart"></i>&nbsp;</span>{{$lbl_marital}}</label>
 							{{if $advanced}}
@@ -292,16 +292,16 @@
 							</div>
 							<div class="clear"></div>
 
-							{{if $fields.partner}}
+							{{if isset($fields.partner)}}
 							{{include file="field_input.tpl" field=$with}}
 							{{/if}}
 
-							{{if $fields.howlong}}
+							{{if isset($fields.howlong)}}
 							{{include file="field_input.tpl" field=$howlong}}
 							{{/if}}
 							{{/if}}
 
-							{{if $fields.sexual}}
+							{{if isset($fields.sexual)}}
 							<div id="profile-edit-sexual-wrapper" class="mb-3 field" >
 							<label id="profile-edit-sexual-label" for="sexual-select" >{{$lbl_sexual}}</label>
 							{{if $advanced}}
@@ -321,7 +321,7 @@
 					</div>
 				</div>
 				{{/if}}
-				{{if $fields.keywords || $fields.politic || $fields.religion || $fields.about || $fields.contact || $fields.homepage || $fields.interest || $fields.likes || $fields.dislikes || $fields.channels || $fields.music || $fields.book || $fields.tv || $fields.film || $fields.romance || $fields.employment || $fields.education || $extra_fields}}
+				{{if isset($fields.keywords) || isset($fields.politic) || isset($fields.religion) || isset($fields.about) || isset($fields.contact) || isset($fields.homepage) || isset($fields.interest) || isset($fields.likes) || isset($fields.dislikes) || isset($fields.channels) || isset($fields.music) || isset($fields.book) || isset($fields.tv) || isset($fields.film) || isset($fields.romance) || isset($fields.employment) || isset($fields.education) || isset($extra_fields)}}
 				<div class="panel">
 					<div class="section-subtitle-wrapper" role="tab" id="miscellaneous">
 						<h3>
@@ -332,71 +332,71 @@
 					</div>
 					<div id="miscellaneous-collapse" class="panel-collapse collapse" data-bs-parent="#profile-edit-wrapper" role="tabpanel" aria-labelledby="miscellaneous">
 						<div class="section-content-tools-wrapper">
-							{{if $fields.homepage}}
+							{{if isset($fields.homepage)}}
 							{{include file="field_input.tpl" field=$homepage}}
 							{{/if}}
 
-							{{if $fields.keywords}}
+							{{if isset($fields.keywords)}}
 							{{include file="field_input.tpl" field=$keywords}}
 							{{/if}}
 
-							{{if $fields.politic}}
+							{{if isset($fields.politic)}}
 							{{include file="field_input.tpl" field=$politic}}
 							{{/if}}
 
-							{{if $fields.religion}}
+							{{if isset($fields.religion)}}
 							{{include file="field_input.tpl" field=$religion}}
 							{{/if}}
 
-							{{if $fields.about}}
+							{{if isset($fields.about)}}
 							{{include file="field_textarea.tpl" field=$about}}
 							{{/if}}
 
-							{{if $fields.contact}}
+							{{if isset($fields.contact)}}
 							{{include file="field_textarea.tpl" field=$contact}}
 							{{/if}}
 
-							{{if $fields.interest}}
+							{{if isset($fields.interest)}}
 							{{include file="field_textarea.tpl" field=$interest}}
 							{{/if}}
 
-							{{if $fields.likes}}
+							{{if isset($fields.likes)}}
 							{{include file="field_textarea.tpl" field=$likes}}
 							{{/if}}
 
-							{{if $fields.dislikes}}
+							{{if isset($fields.dislikes)}}
 							{{include file="field_textarea.tpl" field=$dislikes}}
 							{{/if}}
 
-							{{if $fields.channels}}
+							{{if isset($fields.channels)}}
 							{{include file="field_textarea.tpl" field=$channels}}
 							{{/if}}
 
-							{{if $fields.music}}
+							{{if isset($fields.music)}}
 							{{include file="field_textarea.tpl" field=$music}}
 							{{/if}}
 
-							{{if $fields.book}}
+							{{if isset($fields.book)}}
 							{{include file="field_textarea.tpl" field=$book}}
 							{{/if}}
 
-							{{if $fields.tv}}
+							{{if isset($fields.tv)}}
 							{{include file="field_textarea.tpl" field=$tv}}
 							{{/if}}
 
-							{{if $fields.film}}
+							{{if isset($fields.film)}}
 							{{include file="field_textarea.tpl" field=$film}}
 							{{/if}}
 
-							{{if $fields.romance}}
+							{{if isset($fields.romance)}}
 							{{include file="field_textarea.tpl" field=$romance}}
 							{{/if}}
 
-							{{if $fields.employment}}
+							{{if isset($fields.employment)}}
 							{{include file="field_textarea.tpl" field=$employ}}
 							{{/if}}
 
-							{{if $fields.education}}
+							{{if isset($fields.education)}}
 							{{include file="field_textarea.tpl" field=$education}}
 							{{/if}}
 

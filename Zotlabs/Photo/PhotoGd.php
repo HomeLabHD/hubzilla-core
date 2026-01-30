@@ -63,10 +63,13 @@ class PhotoGd extends PhotoDriver {
 		return;
 	}
 
+	/**
+	 * @brief GD imagedestroy() is deprected and noop since PHP version 8.0
+	 *
+	 * @return void
+	 */
 	protected function destroy() {
-		if($this->is_valid()) {
-			imagedestroy($this->image);
-		}
+		return;
 	}
 
 	/**
@@ -95,8 +98,6 @@ class PhotoGd extends PhotoDriver {
 			imagefill($dest, 0, 0, imagecolorallocatealpha($dest, 0, 0, 0, 127)); // fill with alpha
 
 		imagecopyresampled($dest, $this->image, 0, 0, 0, 0, $dest_width, $dest_height, $width, $height);
-		if($this->image)
-			imagedestroy($this->image);
 
 		$this->image = $dest;
 		$this->setDimensions();
@@ -142,8 +143,6 @@ class PhotoGd extends PhotoDriver {
 			imagefill($dest, 0, 0, imagecolorallocatealpha($dest, 0, 0, 0, 127)); // fill with alpha
 
 		imagecopyresampled($dest, $this->image, 0, 0, $x, $y, $maxx, $maxy, $w, $h);
-		if($this->image)
-			imagedestroy($this->image);
 
 		$this->image = $dest;
 		$this->setDimensions();

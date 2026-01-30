@@ -6,7 +6,6 @@ use App;
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Access\Permissions;
 use Zotlabs\Daemon\Master;
-use Zotlabs\Lib\Config;
 use Zotlabs\Web\HTTPSig;
 
 require_once('include/crypto.php');
@@ -116,10 +115,6 @@ class Libzot {
 		}
 
 		if ($msg) {
-			$actors = get_hubloc_id_urls_by_x($channel['channel_hash']);
-			if ($encoding === 'activitystreams' && array_key_exists('actor', $msg) && is_string($msg['actor']) && in_array($msg['actor'], $actors)) {
-				$msg = JSalmon::sign($msg, $actors[0], $channel['channel_prvkey']);
-			}
 			$data['data'] = $msg;
 		}
 		else {
@@ -1302,8 +1297,17 @@ class Libzot {
 					$item['comment_policy'] = 'authenticated';
 				}
 
-				if (isset($AS->meta['signed_data']) && $AS->meta['signed_data']) {
-					IConfig::Set($item, 'activitypub', 'signed_data', $AS->meta['signed_data'], false);
+				if (!ObjCache::Get($item['mid'])) {
+					ObjCache::Set($item['mid'], $AS->data);
+				}
+				else {
+					$existing = q("SELECT owner_xchan, author_xchan FROM item WHERE mid = '%s' LIMIT 1",
+						dbesc($item['mid'])
+					);
+
+					if ($existing && $existing[0]['owner_xchan'] === $item['owner_xchan'] && $existing[0]['author_xchan'] === $item['author_xchan']) {
+						ObjCache::Set($item['mid'], $AS->data);
+					}
 				}
 
 				logger('Activity received: ' . print_r($item, true), LOGGER_DATA, LOG_DEBUG);
@@ -1645,12 +1649,19 @@ class Libzot {
 			if (intval($channel['channel_system']) && (!$arr['item_private']) && (!$relay)) {
 				$local_public = true;
 
-				$incl = Config::Get('system','pubstream_incl');
-				$excl = Config::Get('system','pubstream_excl');
+				$incl = Config::Get('system','pubstream_incl', '');
+				$excl = Config::Get('system','pubstream_excl', '');
 
-				if(($incl || $excl) && !MessageFilter::evaluate($arr, $incl, $excl)) {
-					$local_public = false;
-					continue;
+				if ($incl || $excl) {
+					$plaintext = prepare_text($arr['body'], ((isset($arr['mimetype'])) ? $arr['mimetype'] : 'text/bbcode'));
+					$plaintext = html2plain((isset($arr['summary']) && $arr['summary']) ? $arr['summary'] . ' ' . $plaintext : $plaintext);
+					$plaintext = html2plain((isset($arr['title']) && $arr['title']) ? $arr['title'] . ' ' . $plaintext : $plaintext);
+
+					if (!(new MessageFilter($arr, html_entity_decode($incl), html_entity_decode($excl), ['plaintext' => $plaintext]))->evaluate()) {
+						logger('post is filtered');
+						$local_public = false;
+						continue;
+					}
 				}
 
 				$r = q("select xchan_selfcensored, xchan_censored from xchan where xchan_hash = '%s'",
@@ -1659,6 +1670,7 @@ class Libzot {
 
 				// don't import sys channel posts from selfcensored or censored authors
 				if ($r && ($r[0]['xchan_selfcensored'] || $r[0]['xchan_censored'])) {
+					logger('author is censored');
 					$local_public = false;
 					continue;
 				}
@@ -1829,9 +1841,7 @@ class Libzot {
 				}
 
 				if (intval($arr['item_private']) === 2) {
-					if (!perm_is_allowed($channel['channel_id'], $sender, 'post_mail')) {
-						$allowed = false;
-					}
+					$allowed = perm_is_allowed($channel['channel_id'], $sender, 'post_mail');
 				}
 
 				if (!$allowed) {
@@ -1893,11 +1903,13 @@ class Libzot {
 				else {
 					$DR->update('update ignored');
 					$result[] = $DR->get();
-
 					// We need this line to ensure wall-to-wall comments and add/remove activities are relayed (by falling through to the relay bit),
 					// and at the same time not relay any other relayable posts more than once, because to do so is very wasteful.
-					if (!intval($r[0]['item_origin']))
+
+					// The second part should prevent possible items that come back to us from channels that source our channel from being relayed again (sender != owner or author).
+					if (!intval($r[0]['item_origin']) || (intval($r[0]['item_origin']) && !in_array($sender, [$r[0]['owner_xchan'], $r[0]['author_xchan']]))) {
 						continue;
+					}
 				}
 
 
@@ -2148,10 +2160,9 @@ class Libzot {
 			}
 
 			if (isset($AS->meta['signed_data'])) {
-				IConfig::Set($arr, 'activitypub', 'signed_data', $AS->meta['signed_data'], false);
 				$j = json_decode($AS->meta['signed_data'], true);
 				if ($j) {
-					IConfig::Set($arr, 'activitypub', 'rawmsg', json_encode(JSalmon::unpack($j['data'])), true);
+					ObjCache::Set($arr['mid'], json_encode(JSalmon::unpack($j['data'])));
 				}
 			}
 

@@ -36,7 +36,6 @@ class Mp3audio {
         	imagealphablending($dest, false);
 			imagesavealpha($dest, true);
         	imagecopyresampled($dest, $image, 0, 0, 0, 0, $width, $height, $srcwidth, $srcheight);
-            imagedestroy($image);
 			imagejpeg($dest,dbunescbin($attach['content']) . '.thumb');
 		}
 	}
