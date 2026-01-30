@@ -1,4 +1,4 @@
-Hubzilla 11.0 (2026-??-??)
+Hubzilla 11.0 (2026-01-30)
 	Features
 	- Rewrite Lib/MessageFilter (ported from forte) and add more tests
 	- Rewrite editor encryption feature to implement libsodium and PBDKF2 for password hashing
@@ -11,6 +11,7 @@ Hubzilla 11.0 (2026-??-??)
 	- Implement OWA2
 
 	Maintenance
+	- Remove capability to update xchan entries via api
 	- Move mod search HTML to template
 	- Move channel activities HTML to template
 	- Update util/run_xgettext.sh to ignore not relevant directories
