@@ -461,11 +461,9 @@
 	function api_red_xchan($type) {
 		if(api_user() === false)
 			return false;
+
 		logger('api_xchan');
 
-		if($_SERVER['REQUEST_METHOD'] === 'POST') {
-			$r = xchan_store($_REQUEST);
-		}
 		$r = xchan_fetch($_REQUEST);
 		json_return_and_die($r);
 	};
