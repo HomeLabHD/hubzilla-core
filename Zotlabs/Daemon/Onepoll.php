@@ -15,10 +15,14 @@ class Onepoll {
 
 	static public function run($argc, $argv) {
 
+		if ($argc < 2 || is_int($argv[1]) === false) {
+			logger('onepoll: no contact');
+			return;
+		}
+
 		logger('onepoll: start');
 
-		if (($argc > 1) && (intval($argv[1])))
-			$contact_id = intval($argv[1]);
+		$contact_id = intval($argv[1]);
 
 		if (!$contact_id) {
 			logger('onepoll: no contact');
@@ -34,7 +38,7 @@ class Onepoll {
 		$contacts = q("SELECT abook.*, xchan.* FROM abook
 			LEFT JOIN xchan ON xchan_hash = abook_xchan
 			WHERE abook_id = %d",
-			intval($contact_id)
+			$contact_id
 		);
 
 		if (!$contacts) {

@@ -1028,12 +1028,7 @@ class Apps {
 		if(! $syslist)
 			return;
 
-		foreach($syslist as $k => $li) {
-			if($li['guid'] === $guid) {
-				$position = $k;
-				break;
-			}
-		}
+		$position = array_find_key($syslist, fn ($v) => $v['guid'] === $guid);
 		if(! $position)
 			return;
 
@@ -1082,12 +1077,7 @@ class Apps {
 		if(! $syslist)
 			return;
 
-		foreach($syslist as $k => $li) {
-			if($li['guid'] === $guid) {
-				$position = $k;
-				break;
-			}
-		}
+		$position = array_find_key($syslist, fn ($v) => $v['guid'] === $guid);
 		if($position >= count($syslist) - 1)
 			return;
 

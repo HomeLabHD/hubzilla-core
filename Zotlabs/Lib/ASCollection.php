@@ -95,6 +95,8 @@ class ASCollection {
 			return false;
 		}
 
+		$data = null;
+
 		if (is_array($this->nextpage)) {
 			$data = $this->nextpage;
 		}

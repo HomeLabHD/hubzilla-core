@@ -91,6 +91,8 @@ class Activity {
 
 		logger('fetch: ' . $url, LOGGER_DEBUG);
 
+		$start_timestamp = microtime(true);
+
 		if (strpos($url, 'x-zot:') === 0) {
 			$x = ZotURL::fetch($url, $channel);
 		}
@@ -129,7 +131,6 @@ class Activity {
 			}
 
 			$h = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel), false);
-			$start_timestamp = microtime(true);
 			$x = z_fetch_url($url, true, $redirects, ['headers' => $h]);
 		}
 
@@ -648,6 +649,7 @@ class Activity {
 			preg_match_all('/\[share(.*?)\](.*?)\[\/share\]/ism', $i['body'], $all_shares, PREG_SET_ORDER);
 
 			$quote_urls = [];
+			$obj_links = [];
 
 			foreach ($all_shares as $share) {
 				// Extract the link attribute from each [share] block if slated for quote
@@ -2012,6 +2014,8 @@ class Activity {
 			$multi = true;
 		}
 
+		$answer_found = false;
+
 		if ($response) {
 			$mid = $response['mid'];
 			$content = trim($response['title']);
@@ -2041,7 +2045,6 @@ class Activity {
 				}
 			}
 
-			$answer_found = false;
 			$foundPrevious = false;
 			if ($multi) {
 				for ($c = 0; $c < count($o['anyOf']); $c++) {
@@ -2596,10 +2599,10 @@ class Activity {
 						foreach ($ptr as $vurl) {
 							if (strpos($s['body'], $vurl['href']) === false) {
 								$bb_imgs = '[zmg]' . $vurl['href'] . '[/zmg]' . "\r\n";
+								$s['body'] = $bb_imgs . $s['body'];
 								break;
 							}
 						}
-						$s['body'] = $bb_imgs . $s['body'];
 					}
 					elseif (is_string($act->obj['url'])) {
 						if (strpos($s['body'], $act->obj['url']) === false) {
