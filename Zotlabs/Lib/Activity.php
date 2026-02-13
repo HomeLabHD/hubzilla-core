@@ -1125,6 +1125,7 @@ class Activity {
 				return [];
 		}
 
+/* Those should not be required in activities anymore after version 11
 		$t = self::encode_taxonomy($i);
 		if ($t) {
 			$ret['tag'] = $t;
@@ -1134,6 +1135,7 @@ class Activity {
 		if ($a) {
 			$ret['attachment'] = $a;
 		}
+*/
 
 		if (intval($i['item_private']) === 0) {
 			$ret['to'] = [ACTIVITY_PUBLIC_INBOX];
