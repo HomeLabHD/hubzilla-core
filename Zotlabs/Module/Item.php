@@ -1075,12 +1075,14 @@ class Item extends Controller {
 			killme();
 		}
 
+
 		$post = item_store($datarray, $execflag);
 
 		if ($post['success'] && intval($item_type) === ITEM_TYPE_POST) {
 			$item = [$post['item']];
 			xchan_query($item);
-			$item = fetch_post_tags($item);
+			// TODO: fetch_post_tags() will add term and iconfig twice if called twice and it looks like they are already added here
+			//$item = fetch_post_tags($item);
 			$encoded_item = Activity::build_packet(Activity::encode_activity($item[0]), $channel, false);
 			ObjCache::Set($item[0]['mid'], $encoded_item);
 
