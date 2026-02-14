@@ -17,6 +17,6 @@
 {{/if}}
 {{if $tz.value}}
 <div class="event-item-start">
-	<span class="event-item-label">{{$tz.label}}:</span>&nbsp;<span class="timezone" title="{{$event_tz.value}}">{{$tz.value}}</span>
+	<span class="event-item-label">{{$tz.label}}:</span>&nbsp;<span class="timezone" title="{{$tz.value}}">{{$tz.value}}</span>
 </div>
 {{/if}}
