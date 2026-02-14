@@ -162,7 +162,7 @@ function format_event_obj($jobject) {
 			'$dtend_dt'      => $dtend_dt,
 			'$allday'        => $allday,
 			'$oneday'        => $oneday,
-			'$tz'            => ['label' => t('Timezone'), 'value' => (($tz === date_default_timezone_get()) ? '' : date_default_timezone_get())]
+			'$tz'            => ['label' => t('Timezone'), 'value' => (($tz && $tz !== date_default_timezone_get()) ? date_default_timezone_get() : '')]
 		));
 
 		$event['content'] = replace_macros(get_markup_template('event_item_content.tpl'), array(
