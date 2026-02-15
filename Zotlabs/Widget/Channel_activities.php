@@ -221,11 +221,17 @@ class Channel_activities {
 				$footer .= intval($notices[0]['total']) . ' ' . tt('notice', 'notices', intval($notices[0]['total']), 'noun');
 			}
 
+			$tpl = get_markup_template('manage_channel_item.tpl');
+
 			$i[] = [
-				'url' => z_root() . '/manage/' . $rr['channel_id'],
-				'title' => '',
-				'summary' => '<div class="text-truncate lh-sm"><img src="' . $rr['xchan_photo_s'] . '" class="menu-img-2">' . '<strong>' . $rr['channel_name'] . '</strong><br><small class="text-body-secondary">' . $rr['xchan_addr'] . '</small></div>',
-				'footer' => $footer
+				'url'     => z_root() . '/manage/' . $rr['channel_id'],
+				'title'   => '',
+				'summary' => replace_macros($tpl, [
+					'$photo' => $rr['xchan_photo_s'],
+					'$name'  => $rr['channel_name'],
+					'$addr'  => $rr['xchan_addr'],
+				]),
+				'footer'  => $footer
 			];
 
 			$channels_activity++;
