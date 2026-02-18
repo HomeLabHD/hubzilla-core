@@ -7,6 +7,11 @@ use Zotlabs\Zot6\Zot6Handler;
 
 class Queue {
 
+	static function get_undelivered(): int {
+		$r = dbq("select count(*) as total from outq where outq_delivered = 0");
+		return isset($r['total']) ? $r['total'] : 0;
+	}
+
 	static function update($id, $add_priority = 0) {
 
 		logger('queue: requeue item ' . $id,LOGGER_DEBUG);
