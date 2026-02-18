@@ -9,6 +9,8 @@ namespace Zotlabs\Widget;
 
 use App;
 use Zotlabs\Lib\Apps;
+use Zotlabs\Lib\Queue;
+use Zotlabs\Lib\QueueWorkerStats;
 
 class Channel_activities {
 
@@ -25,6 +27,9 @@ class Channel_activities {
 		self::$uid = local_channel();
 		self::$channel = App::get_channel();
 
+		if (is_site_admin()) {
+			self::get_system_status();
+		}
 		self::get_photos_activity();
 		self::get_files_activity();
 		self::get_webpages_activity();
@@ -245,6 +250,29 @@ class Channel_activities {
 			'tpl' => 'channel_activities.tpl'
 		];
 
+	}
+
+	private static function get_system_status(): void {
+		$items = [];
+
+		if (function_exists('sys_getloadavg')) {
+			$items['System load'] = implode(' / ', sys_getloadavg());
+		}
+
+		$items['Output queue'] = Queue::get_undelivered();
+
+		$qwstats = new QueueWorkerStats();
+		$items['Queue workers'] = $qwstats->active;
+		$items['Worker queue size'] = $qwstats->size;
+
+		self::$activities['status'] = [
+			'label' => t('System status'),
+			'icon' => 'gpu-card',
+			'url' => z_root() . '/perf',
+			'date' => datetime_convert(),
+			'items' => $items,
+			'tpl' => 'system_status_widget.tpl'
+		];
 	}
 
 }
