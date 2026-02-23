@@ -6,7 +6,7 @@
 		<table>
 		{{foreach $items as $id => $item}}
 			<tr>
-				<td id="perfstat-{{$id}}-label" class="perfstat-label">{{$id|escape}}:</td>
+				<td id="perfstat-{{$id}}-label" class="perfstat-label">{{$labels.$id|escape}}:</td>
 				<td id="perfstat-{{$id}}-value" class="perfstat-value">{{$item|escape}}</td>
 			</tr>
 		{{/foreach}}

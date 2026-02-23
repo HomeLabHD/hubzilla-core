@@ -54,7 +54,8 @@ class Channel_activities {
 						'$url'   => $a['url'],
 						'$icon'  => $a['icon'],
 						'$label' => $a['label'],
-						'$items' => $a['items']
+						'$items' => $a['items'],
+						'$labels' => $a['labels'] ?? [],
 					]
 				);
 			}
@@ -270,7 +271,14 @@ class Channel_activities {
 				'url' => z_root() . '/perf',
 				'date' => datetime_convert(),
 				'items' => $items,
-				'tpl' => 'system_status_widget.tpl'
+				'tpl' => 'system_status_widget.tpl',
+				'labels' => [
+					'loadavg' => t('Load average'),
+					'dbqueries' => t('DB queries'),
+					'outqueue' => t('Output queue'),
+					'queueworkers' => t('Queue workers'),
+					'workqsz' => t('Work queue size'),
+				],
 			];
 		} else {
 			self::$activities['status'] = [
