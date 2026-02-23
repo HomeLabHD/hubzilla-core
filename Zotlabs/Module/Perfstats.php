@@ -80,9 +80,4 @@ class Perfstats extends Controller
 
 		return 0;
 	}
-
-	private function requireJson(): void {
-		if (getBestSupportedMimeTypes(['application/json']) === null) {
-		}
-	}
 }
