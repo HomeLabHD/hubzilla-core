@@ -281,14 +281,7 @@ class Channel_activities {
 				],
 			];
 		} else {
-			self::$activities['status'] = [
-				'label' => t('System status'),
-				'icon' => 'gpu-card',
-				'url' => z_root() . '/perf',
-				'date' => datetime_convert(),
-				'items' => ['error' => print_r($response, true)],
-				'tpl' => 'system_status_widget.tpl'
-			];
+			logger("fetching perfstats failed: {$response['return_code']}", LOGGER_NORMAL, LOG_ERR);
 		}
 	}
 
