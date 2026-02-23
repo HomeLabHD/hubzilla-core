@@ -25,19 +25,15 @@ class Perfstats extends Controller
 		$stats = [];
 
 		if (function_exists('sys_getloadavg')) {
-			$stats['System load'] = implode(' / ', sys_getloadavg());
+			$stats['loadavg'] = implode(' / ', sys_getloadavg());
 		}
 
-
-		// Get number of queries.
-		// select sum(xact_commit + xact_rollback) from pg_stat_database where datname='db';
-
-		$stats['Queries'] = $this->getNumQueries();
-		$stats['Output queue'] = Queue::get_undelivered();
+		$stats['dbqueries'] = $this->getNumQueries();
+		$stats['outqueue'] = Queue::get_undelivered();
 
 		$qwstats = new QueueWorkerStats();
-		$stats['Queue workers'] = $qwstats->active;
-		$stats['Worker queue size'] = $qwstats->size;
+		$stats['queueworkers'] = $qwstats->active;
+		$stats['workqsz'] = $qwstats->size;
 
 		return $stats;
 	}
