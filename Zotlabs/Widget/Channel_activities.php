@@ -51,7 +51,7 @@ class Channel_activities {
 				$activity_html .= replace_macros(
 					get_markup_template($a['tpl']),
 					[
-						'$url'   => $a['url'],
+						'$url'   => $a['url'] ?? null,
 						'$icon'  => $a['icon'],
 						'$label' => $a['label'],
 						'$items' => $a['items'],
@@ -268,7 +268,6 @@ class Channel_activities {
 			self::$activities['status'] = [
 				'label' => t('System status'),
 				'icon' => 'gpu-card',
-				'url' => z_root() . '/perf',
 				'date' => datetime_convert(),
 				'items' => $items,
 				'tpl' => 'system_status_widget.tpl',

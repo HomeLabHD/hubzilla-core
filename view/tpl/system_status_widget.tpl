@@ -1,7 +1,7 @@
 <div class="mb-1 text-uppercase">
-	<a href="{{$url}}"><i class="bi bi-{{$icon|escape}} generic-icons-nav"></i>{{$label|escape}}</a>
+	<i class="bi bi-{{$icon|escape}} generic-icons-nav"></i>{{$label|escape}}
 </div>
-<div class="card">
+<div class="card mb-4">
 	<div class="card-body clearfix">
 		<table>
 		{{foreach $items as $id => $item}}
