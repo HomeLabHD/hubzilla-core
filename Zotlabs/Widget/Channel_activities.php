@@ -254,34 +254,26 @@ class Channel_activities {
 	}
 
 	private static function get_system_status(): void {
-		$response = z_fetch_url(
-			z_root() . '/perfstats',
-			false,						// binary
-			0,							// redirects
-			[ 'headers' => [ 'accept: application/json' ] ]
-		);
-
-		if ($response['success'] === true) {
-			$items = json_decode($response['body'], true);
-			//$items['debug'] = print_r($response['body'], true);
-
-			self::$activities['status'] = [
-				'label' => t('System status'),
-				'icon' => 'gpu-card',
-				'date' => datetime_convert(),
-				'items' => $items,
-				'tpl' => 'system_status_widget.tpl',
-				'labels' => [
-					'loadavg' => t('Load average'),
-					'dbqueries' => t('DB queries'),
-					'outqueue' => t('Output queue'),
-					'queueworkers' => t('Queue workers'),
-					'workqsz' => t('Work queue size'),
-				],
-			];
-		} else {
-			logger("fetching perfstats failed: {$response['return_code']}", LOGGER_NORMAL, LOG_ERR);
-		}
+		self::$activities['status'] = [
+			'label' => t('System status'),
+			'icon' => 'gpu-card',
+			'date' => datetime_convert(),
+			'items' => [
+				'loadavg' => '0 / 0 / 0',
+				'dbqueries' => 0,
+				'outqueue' => 0,
+				'queueworkers' => 0,
+				'workqsz' => 0,
+			],
+			'tpl' => 'system_status_widget.tpl',
+			'labels' => [
+				'loadavg' => t('Load average'),
+				'dbqueries' => t('DB queries'),
+				'outqueue' => t('Output queue'),
+				'queueworkers' => t('Queue workers'),
+				'workqsz' => t('Work queue size'),
+			],
+		];
 	}
 
 }

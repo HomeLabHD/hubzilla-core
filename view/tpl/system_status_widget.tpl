@@ -18,7 +18,8 @@ setInterval(() => {
 	fetch('/perfstats', {
 		headers: {
 			"Accept": "application/json",
-		}
+		},
+		credentials: "include",
 	})
 	.then((response) => response.json())
 	.then((json) => {
