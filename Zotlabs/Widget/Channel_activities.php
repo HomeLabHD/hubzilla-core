@@ -253,26 +253,35 @@ class Channel_activities {
 	}
 
 	private static function get_system_status(): void {
-		$items = [];
+		$response = z_fetch_url(
+			z_root() . '/perfstats',
+			false,						// binary
+			0,							// redirects
+			[ 'headers' => [ 'accept: application/json' ] ]
+		);
 
-		if (function_exists('sys_getloadavg')) {
-			$items['System load'] = implode(' / ', sys_getloadavg());
+		if ($response['success'] === true) {
+			$items = json_decode($response['body'], true);
+			//$items['debug'] = print_r($response['body'], true);
+
+			self::$activities['status'] = [
+				'label' => t('System status'),
+				'icon' => 'gpu-card',
+				'url' => z_root() . '/perf',
+				'date' => datetime_convert(),
+				'items' => $items,
+				'tpl' => 'system_status_widget.tpl'
+			];
+		} else {
+			self::$activities['status'] = [
+				'label' => t('System status'),
+				'icon' => 'gpu-card',
+				'url' => z_root() . '/perf',
+				'date' => datetime_convert(),
+				'items' => ['error' => print_r($response, true)],
+				'tpl' => 'system_status_widget.tpl'
+			];
 		}
-
-		$items['Output queue'] = Queue::get_undelivered();
-
-		$qwstats = new QueueWorkerStats();
-		$items['Queue workers'] = $qwstats->active;
-		$items['Worker queue size'] = $qwstats->size;
-
-		self::$activities['status'] = [
-			'label' => t('System status'),
-			'icon' => 'gpu-card',
-			'url' => z_root() . '/perf',
-			'date' => datetime_convert(),
-			'items' => $items,
-			'tpl' => 'system_status_widget.tpl'
-		];
 	}
 
 }
