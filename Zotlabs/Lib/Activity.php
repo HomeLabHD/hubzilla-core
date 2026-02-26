@@ -2143,11 +2143,13 @@ class Activity {
 		$response_activity = false;
 		$s = [];
 
+		$obj_type = is_array($act->objprop('type')) ? $act->objprop('type')[0] : $act->objprop('type');
+
 		// These activities should have been handled separately in the Inbox module and should not be turned into posts
 
 		if (
 			in_array($act->type, ['Follow', 'Accept', 'Reject', 'Create', 'Update']) &&
-			($act->objprop('type') === 'Follow' || ActivityStreams::is_an_actor($act->objprop('type')))
+			($obj_type === 'Follow' || ActivityStreams::is_an_actor($obj_type))
 		) {
 			return false;
 		}
@@ -2220,7 +2222,7 @@ class Activity {
 			}
 		}
 
-		if (in_array($act->type, ['Invite', 'Create']) && $act->objprop('type') === 'Event') {
+		if (in_array($act->type, ['Invite', 'Create']) && $obj_type === 'Event') {
 			$s['mid'] = $s['parent_mid'] = $act->id;
 		}
 
@@ -2259,7 +2261,7 @@ class Activity {
 			}
 
 			// handle event RSVPs
-			if (($act->objprop('type') === 'Event') || ($act->objprop('type') === 'Invite' && array_path_exists('object/type', $act->obj) && $act->obj['object']['type'] === 'Event')) {
+			if (in_array($obj_type, ['Event', 'Invite'])) {
 				if ($act->type === 'Accept') {
 					$content['content'] = sprintf(t('Will attend %s\'s event'), $mention) . EOL . EOL . ($content['content'] ?? '');
 				}
@@ -2380,7 +2382,7 @@ class Activity {
 		$s['verb'] = self::activity_mapper($act->type);
 
 		// Mastodon does not provide update timestamps when updating poll tallies which means race conditions may occur here.
-		if ($act->type === 'Update' && $act->objprop('type') === 'Question' && $s['edited'] === $s['created']) {
+		if ($act->type === 'Update' && $obj_type === 'Question' && $s['edited'] === $s['created']) {
 			$s['edited'] = datetime_convert();
 		}
 
@@ -2388,8 +2390,8 @@ class Activity {
 			$s['item_deleted'] = 1;
 		}
 
-		if ($act->objprop('type')) {
-			$s['obj_type'] = self::activity_obj_mapper($act->obj['type']);
+		if ($obj_type) {
+			$s['obj_type'] = self::activity_obj_mapper($obj_type);
 		}
 
 		$s['obj'] = $act->obj;
@@ -2450,7 +2452,7 @@ class Activity {
 			$s = self::bb_attach($s);
 		}
 
-		if ($act->objprop('type') === 'Question' && in_array($act->type, ['Create', 'Update'])) {
+		if ($obj_type === 'Question' && in_array($act->type, ['Create', 'Update'])) {
 			if ($act->objprop('endTime')) {
 				$s['comments_closed'] = datetime_convert('UTC', 'UTC', $act->obj['endTime']);
 			}
@@ -2462,7 +2464,7 @@ class Activity {
 
 		if (!$response_activity) {
 
-			if ($act->objprop('type') === 'Profile') {
+			if ($obj_type === 'Profile') {
 				$s['parent_mid'] = $s['mid'];
 				$s['item_thread_top'] = 1;
 			}
@@ -2472,7 +2474,7 @@ class Activity {
 			// right now just link to the largest mp4 we find that will fit in our
 			// standard content region
 
-			if ($act->objprop('type') === 'Video') {
+			if ($obj_type === 'Video') {
 
 				$vtypes = [
 					'video/mp4',
@@ -2554,7 +2556,7 @@ class Activity {
 				}
 			}
 
-			if ($act->objprop('type') === 'Audio') {
+			if ($obj_type === 'Audio') {
 
 				$atypes = [
 					'audio/mpeg',
@@ -2586,7 +2588,7 @@ class Activity {
 
 			}
 
-			if ($act->objprop('type') === 'Image' && strpos($s['body'], 'zrl=') === false) {
+			if ($obj_type === 'Image' && strpos($s['body'], 'zrl=') === false) {
 
 				$ptr = null;
 
@@ -2614,7 +2616,7 @@ class Activity {
 				}
 			}
 
-			if ($act->objprop('type') === 'Page' && !$s['body']) {
+			if ($obj_type === 'Page' && !$s['body']) {
 
 				$ptr  = null;
 				$purl = EMPTY_STR;
@@ -2654,7 +2656,7 @@ class Activity {
 			}
 		}
 
-		if (in_array($act->objprop('type'), ['Note', 'Article', 'Page', 'Question'])) {
+		if (in_array($obj_type, ['Note', 'Article', 'Page', 'Question'])) {
 			$ptr = null;
 
 			if (array_key_exists('url', $act->obj)) {
@@ -2697,7 +2699,7 @@ class Activity {
 			IConfig::Set($s, 'activitypub', 'recips', $act->raw_recips);
 		}
 
-		if ($act->objprop('type') === 'Event' && $act->objprop('timezone')) {
+		if ($obj_type === 'Event' && $act->objprop('timezone')) {
 			IConfig::Set($s, 'event', 'timezone', $act->objprop('timezone'), true);
 		}
 
