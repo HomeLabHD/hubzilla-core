@@ -58,7 +58,7 @@ class Perfstats extends Controller
 		}
 
 		$stats['dbqueries'] = $this->getNumQueries();
-		$stats['outqueue'] = Queue::get_undelivered();
+		$stats['outqueue'] = Queue::count();
 
 		$qwstats = new QueueWorkerStats();
 		$stats['queueworkers'] = $qwstats->active;
