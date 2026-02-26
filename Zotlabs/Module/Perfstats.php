@@ -10,6 +10,7 @@
 namespace Zotlabs\Module;
 
 use DBA;
+use Zotlabs\Lib\DbStats;
 use Zotlabs\Lib\Queue;
 use Zotlabs\Lib\QueueWorkerStats;
 use Zotlabs\Web\Controller;
@@ -67,17 +68,7 @@ class Perfstats extends Controller
 	}
 
 	private function getNumQueries(): int {
-		static $sqlGetQps = <<<'SQL'
-			select sum(xact_commit + xact_rollback) as sum
-			from pg_stat_database
-			where datname='%s'
-			SQL;
-
-		$result = q($sqlGetQps, DBA::$dba->dbname);
-		if (!empty($result)) {
-			return $result[0]['sum'] ?? -1;
-		}
-
-		return 0;
+		$stats = DbStats::getStats();
+		return $stats->getQueries();
 	}
 }
