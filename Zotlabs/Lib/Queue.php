@@ -18,7 +18,7 @@ class Queue {
 	 */
 	static function count(): int {
 		$r = dbq('select count(*) as total from outq');
-		return $r['total'] ?? 0;
+		return $r[0]['total'] ?? 0;
 	}
 
 	static function update($id, $add_priority = 0) {
