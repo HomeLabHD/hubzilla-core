@@ -64,6 +64,11 @@ class Perfstats extends Controller
 		$stats['queueworkers'] = $qwstats->active;
 		$stats['workqsz'] = $qwstats->size;
 
+		// Return a timestamp, so that it is possible to infer
+		// changes of the stats over time. A resolution of
+		// seconds should be good enough for our purposes.
+		$stats['ts'] = time();
+
 		return $stats;
 	}
 

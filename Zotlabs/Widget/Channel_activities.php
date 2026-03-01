@@ -264,11 +264,12 @@ class Channel_activities {
 				'outqueue' => 0,
 				'queueworkers' => 0,
 				'workqsz' => 0,
+				'ts' => time(),
 			],
 			'tpl' => 'system_status_widget.tpl',
 			'labels' => [
 				'loadavg' => t('Load average'),
-				'dbqueries' => t('DB queries'),
+				'dbqueries' => t('DB queries/sec'),
 				'outqueue' => t('Output queue'),
 				'queueworkers' => t('Queue workers'),
 				'workqsz' => t('Work queue size'),
