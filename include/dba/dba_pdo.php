@@ -14,31 +14,35 @@ class dba_pdo extends dba_driver {
 
 	/**
 	 * {@inheritDoc}
+	 *
 	 * @see dba_driver::connect()
 	 */
-	function connect($server, $scheme, $port, $user, $pass, $db, $db_charset) {
+	function connect(): bool {
 
-		$this->driver_dbtype = $scheme;
+		$this->driver_dbtype = $this->scheme;
 
-		if(strpbrk($server,':;')) {
-			$dsn = $this->driver_dbtype . ':unix_socket=' . trim($server, ':;');
+		if(strpbrk($this->server,':;')) {
+			$dsn = $this->driver_dbtype . ':unix_socket=' . trim($this->server, ':;');
 		}
 		else {
-			$dsn = $this->driver_dbtype . ':host=' . $server . (intval($port) ? ';port=' . $port : '');
+			$dsn = $this->driver_dbtype
+				. ':host='
+				. $this->server
+				. (intval($this->port) ? ';port=' . $this->port : '');
 		}
 
-		$dsn .= ';dbname=' . $db;
+		$dsn .= ';dbname=' . $this->dbname;
 
 		if ($this->driver_dbtype === 'mysql') {
-			$dsn .= ';charset=' . $db_charset;
+			$dsn .= ';charset=' . $this->db_charset;
 		}
 		else {
-			$dsn .= ";options='--client_encoding=" . $db_charset . "'";
+			$dsn .= ";options='--client_encoding=" . $this->db_charset . "'";
 		}
 
 		try {
-			$this->db = new PDO($dsn,$user,$pass);
-			$this->db->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
+			$this->db = new PDO($dsn, $this->user, $this->pass);
+			$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 			$this->server_version = $this->db->getAttribute(PDO::ATTR_SERVER_VERSION);
 		}
 		catch(PDOException $e) {

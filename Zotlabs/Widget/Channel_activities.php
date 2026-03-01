@@ -9,6 +9,8 @@ namespace Zotlabs\Widget;
 
 use App;
 use Zotlabs\Lib\Apps;
+use Zotlabs\Lib\Queue;
+use Zotlabs\Lib\QueueWorkerStats;
 
 class Channel_activities {
 
@@ -25,6 +27,9 @@ class Channel_activities {
 		self::$uid = local_channel();
 		self::$channel = App::get_channel();
 
+		if (is_site_admin()) {
+			self::get_system_status();
+		}
 		self::get_photos_activity();
 		self::get_files_activity();
 		self::get_webpages_activity();
@@ -46,10 +51,11 @@ class Channel_activities {
 				$activity_html .= replace_macros(
 					get_markup_template($a['tpl']),
 					[
-						'$url'   => $a['url'],
+						'$url'   => $a['url'] ?? null,
 						'$icon'  => $a['icon'],
 						'$label' => $a['label'],
-						'$items' => $a['items']
+						'$items' => $a['items'],
+						'$labels' => $a['labels'] ?? [],
 					]
 				);
 			}
@@ -251,6 +257,30 @@ class Channel_activities {
 			'tpl' => 'channel_activities.tpl'
 		];
 
+	}
+
+	private static function get_system_status(): void {
+		self::$activities['status'] = [
+			'label' => t('System status'),
+			'icon' => 'gpu-card',
+			'date' => datetime_convert(),
+			'items' => [
+				'loadavg' => '0 / 0 / 0',
+				'dbqueries' => 0,
+				'outqueue' => 0,
+				'queueworkers' => 0,
+				'workqsz' => 0,
+				'ts' => time(),
+			],
+			'tpl' => 'system_status_widget.tpl',
+			'labels' => [
+				'loadavg' => t('Load average'),
+				'dbqueries' => t('DB queries/sec'),
+				'outqueue' => t('Output queue'),
+				'queueworkers' => t('Queue workers'),
+				'workqsz' => t('Work queue size'),
+			],
+		];
 	}
 
 }
