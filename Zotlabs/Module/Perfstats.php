@@ -54,7 +54,7 @@ class Perfstats extends Controller
 		$stats = [];
 
 		if (function_exists('sys_getloadavg')) {
-			$stats['loadavg'] = implode(' / ', sys_getloadavg());
+			$stats['loadavg'] = sys_getloadavg();
 		}
 
 		$stats['dbqueries'] = $this->getNumQueries();

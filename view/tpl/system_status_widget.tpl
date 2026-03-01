@@ -31,7 +31,11 @@
 			for (const item in json) {
 				element = document.getElementById(`perfstat-${item}-value`);
 				if (element) {
-					if (item === "dbqueries") {
+					if (item === "loadavg") {
+						element.innerText = json['loadavg']
+							.map((v) => v.toPrecision(3))
+							.join(" / ");
+					} else if (item === "dbqueries") {
 						console.log(`dbqueries = ${json['dbqueries']}, ts = ${json['ts']}`);
 						if (status_update_ts !== 0) {
 							let dt = json['ts'] - status_update_ts;
