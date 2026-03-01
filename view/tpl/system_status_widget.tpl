@@ -36,7 +36,6 @@
 							.map((v) => v.toPrecision(3))
 							.join(" / ");
 					} else if (item === "dbqueries") {
-						console.log(`dbqueries = ${json['dbqueries']}, ts = ${json['ts']}`);
 						if (status_update_ts !== 0) {
 							let dt = json['ts'] - status_update_ts;
 							let dq = json['dbqueries'] - status_update_last_q;
