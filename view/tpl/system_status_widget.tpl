@@ -75,5 +75,7 @@
 		}
 	}
 
-	status_update_monitor.start();
+	document.addEventListener("DOMContentLoaded", function() {
+		status_update_monitor.start();
+	});
 </script>
