@@ -34,7 +34,7 @@
 			.then((response) => response.json())
 			.then((json) => {
 				for (const item in json) {
-					const element = document.getElementById(`perfstat-${item}-value`);
+					let element = document.getElementById(`perfstat-${item}-value`);
 					if (element) {
 						if (item === "loadavg") {
 							element.innerText = json['loadavg']
