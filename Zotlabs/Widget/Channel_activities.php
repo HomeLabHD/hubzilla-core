@@ -43,6 +43,8 @@ class Channel_activities {
 
 		call_hooks('channel_activities_widget', $hookdata);
 
+		$activity_html = '';
+
 		if ($hookdata['activities']) {
 			$keys = array_column($hookdata['activities'], 'date');
 			array_multisort($keys, SORT_DESC, $hookdata['activities']);
