@@ -143,8 +143,11 @@ class Network extends \Zotlabs\Web\Controller {
 			}
 		}
 
-		if(x($_GET, 'search') || $file || (!$pf && $cid) || $hashtags || $verb || $category || $conv || $unseen)
+		if($search || $file || (!$pf && $cid) || $hashtags || $verb || $category || $conv || $unseen) {
 			$nouveau = true;
+		}
+
+		$dismiss_privacy_filter = array_intersect(['cid', 'star', 'conv', 'file', 'verb', 'cat', 'search'], array_keys($_GET));
 
 		$cid_r = [];
 
@@ -363,13 +366,14 @@ class Network extends \Zotlabs\Web\Controller {
 			$sql_extra .= term_query('item', $file, TERM_FILE);
 		}
 
-		if ($dm) {
-			$sql_extra .= ' AND item.item_private = 2 ';
+		if (!$dismiss_privacy_filter) {
+			if ($dm) {
+				$sql_extra .= ' AND item.item_private = 2 ';
+			}
+			else {
+				$sql_extra .= ' AND item.item_private IN (0, 1) ';
+			}
 		}
-		else {
-			$sql_extra .= ' AND item.item_private IN (0, 1) ';
-		}
-
 
 		if($conv) {
 			$item_thread_top = '';
