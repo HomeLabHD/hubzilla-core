@@ -2254,25 +2254,25 @@ class Activity {
 			$mention = self::get_actor_bbmention($obj_actor['id']);
 
 			if ($act->type === 'Like') {
-				$content['content'] = sprintf(t('Likes %1$s\'s %2$s'), $mention, $act->obj['type']) . EOL . EOL . ($content['content'] ?? '');
+				$content['content'] = sprintf(t('Likes %1$s\'s %2$s'), $mention, $act->obj['type']);
 			}
 			if ($act->type === 'Dislike') {
-				$content['content'] = sprintf(t('Doesn\'t like %1$s\'s %2$s'), $mention, $act->obj['type']) . EOL . EOL . ($content['content'] ?? '');
+				$content['content'] = sprintf(t('Doesn\'t like %1$s\'s %2$s'), $mention, $act->obj['type']);
 			}
 
 			// handle event RSVPs
 			if (in_array($obj_type, ['Event', 'Invite'])) {
 				if ($act->type === 'Accept') {
-					$content['content'] = sprintf(t('Will attend %s\'s event'), $mention) . EOL . EOL . ($content['content'] ?? '');
+					$content['content'] = sprintf(t('Will attend %s\'s event'), $mention);
 				}
 				if ($act->type === 'Reject') {
-					$content['content'] = sprintf(t('Will not attend %s\'s event'), $mention) . EOL . EOL . ($content['content'] ?? '');
+					$content['content'] = sprintf(t('Will not attend %s\'s event'), $mention);
 				}
 				if ($act->type === 'TentativeAccept') {
-					$content['content'] = sprintf(t('May attend %s\'s event'), $mention) . EOL . EOL . ($content['content'] ?? '');
+					$content['content'] = sprintf(t('May attend %s\'s event'), $mention);
 				}
 				if ($act->type === 'TentativeReject') {
-					$content['content'] = sprintf(t('May not attend %s\'s event'), $mention) . EOL . EOL . ($content['content'] ?? '');
+					$content['content'] = sprintf(t('May not attend %s\'s event'), $mention);
 				}
 			}
 
