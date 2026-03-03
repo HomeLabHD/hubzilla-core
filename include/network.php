@@ -66,8 +66,14 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 	@curl_setopt($ch, CURLOPT_CAINFO, get_capath());
 	@curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 	@curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
-	@curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; zot)');
 	@curl_setopt($ch, CURLOPT_ENCODING, '');
+
+	if (!empty($opts['useragent'])) {
+		@curl_setopt($ch, CURLOPT_USERAGENT, $opts['useragent']);
+	}
+	else {
+		@curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; zot)');
+	}
 
 	$ciphers = @Config::Get('system','curl_ssl_ciphers');
 	if($ciphers)
@@ -260,8 +266,14 @@ function z_post_url($url, $params, $redirects = 0, $opts = array()) {
 	@curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
 	@curl_setopt($ch, CURLOPT_POST,1);
 	@curl_setopt($ch, CURLOPT_POSTFIELDS,$params);
-	@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; zot)");
 	@curl_setopt($ch, CURLOPT_ENCODING, '');
+
+	if (!empty($opts['useragent'])) {
+		@curl_setopt($ch, CURLOPT_USERAGENT, $opts['useragent']);
+	}
+	else {
+		@curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; zot)');
+	}
 
 	$ciphers = @Config::Get('system','curl_ssl_ciphers');
 	if($ciphers)
@@ -1838,13 +1850,20 @@ function probe_api_path($host) {
 }
 
 
-function scrape_vcard($url) {
+function scrape_vcard($url, $useragent = '') {
 
 	$ret = array();
 
 	logger('url=' . $url);
 
-	$x = z_fetch_url($url);
+	$opts = [];
+
+	if ($useragent) {
+		$opts['useragent'] = $useragent;
+	}
+
+	$x = z_fetch_url($url, opts: $opts);
+
 	if(! $x['success']) {
 		logger('ERROR fetching URL');
 		return $ret;
