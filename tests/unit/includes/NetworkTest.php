@@ -133,13 +133,13 @@ class NetworkTest extends Zotlabs\Tests\Unit\UnitTestCase {
 	public static function parse_webbie_provider() : array {
 		return [
 			// test valid webfinger address
-			['test@example.net', ['host' => 'example.net', 'resource' => 'acct:test@example.net']],
+			['test@example.net', ['host' => 'example.net', 'resource' => urlencode('acct:test@example.net')]],
 
 			// test valid webfinger address with scheme
-			['acct:test@example.net', ['host' => 'example.net', 'resource' => 'acct:test@example.net']],
+			['acct:test@example.net', ['host' => 'example.net', 'resource' => urlencode('acct:test@example.net')]],
 
 			// test URL
-			['https://example.net/channel/test', ['host' => 'example.net', 'resource' => 'https://example.net/channel/test']],
+			['https://example.net/channel/test', ['host' => 'example.net', 'resource' => urlencode('https://example.net/channel/test')]],
 		];
 	}
 
