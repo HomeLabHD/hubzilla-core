@@ -1267,7 +1267,12 @@ function parse_webbie($webbie) {
 		$result['resource'] = urlencode($webbie);
 	}
 	elseif ($parsed['scheme'] === 'acct') {
-		$parts = explode('@', $parsed['path']);
+		$parts = explode('@', ltrim($parsed['path'], '@'));
+
+		if (count($parts) !== 2) {
+			return false;
+		}
+
 		$result['host'] = $parts[1];
 		$result['resource'] = urlencode('acct:' . $parts[0] . '@' . $parts[1]);
 	}

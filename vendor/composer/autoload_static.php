@@ -27,25 +27,25 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
     );
 
     public static $prefixLengthsPsr4 = array (
-        'v' => 
+        'v' =>
         array (
             'voku\\' => 5,
         ),
-        'p' => 
+        'p' =>
         array (
             'phpseclib\\' => 10,
             'phpseclib3\\' => 11,
         ),
-        'c' => 
+        'c' =>
         array (
             'chillerlan\\Settings\\' => 20,
             'chillerlan\\QRCode\\' => 18,
         ),
-        'Z' => 
+        'Z' =>
         array (
             'Zotlabs\\' => 8,
         ),
-        'S' => 
+        'S' =>
         array (
             'Symfony\\Polyfill\\Mbstring\\' => 26,
             'Symfony\\Polyfill\\Ctype\\' => 23,
@@ -62,13 +62,13 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
             'Sabre\\Event\\' => 12,
             'Sabre\\' => 6,
         ),
-        'R' => 
+        'R' =>
         array (
             'Root23\\JsonCanonicalizer\\' => 25,
             'Ramsey\\Uuid\\' => 12,
             'Ramsey\\Collection\\' => 18,
         ),
-        'P' => 
+        'P' =>
         array (
             'Psr\\Log\\' => 8,
             'Psr\\Http\\Message\\' => 17,
@@ -77,47 +77,47 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
             'ParagonIE\\EasyECC\\' => 18,
             'ParagonIE\\ConstantTime\\' => 23,
         ),
-        'O' => 
+        'O' =>
         array (
             'OTPHP\\' => 6,
         ),
-        'M' => 
+        'M' =>
         array (
             'Michelf\\' => 8,
             'Mdanter\\Ecc\\' => 12,
         ),
-        'L' => 
+        'L' =>
         array (
             'League\\Uri\\' => 11,
             'League\\HTMLToMarkdown\\' => 22,
             'LanguageDetection\\' => 18,
         ),
-        'I' => 
+        'I' =>
         array (
             'ID3Parser\\' => 10,
         ),
-        'H' => 
+        'H' =>
         array (
             'Hubzilla\\' => 9,
             'HttpSignature\\' => 14,
         ),
-        'G' => 
+        'G' =>
         array (
             'GuzzleHttp\\Psr7\\' => 16,
         ),
-        'F' => 
+        'F' =>
         array (
             'FG\\' => 3,
         ),
-        'D' => 
+        'D' =>
         array (
             'Defuse\\Crypto\\' => 14,
         ),
-        'C' => 
+        'C' =>
         array (
             'CommerceGuys\\Intl\\' => 18,
         ),
-        'B' => 
+        'B' =>
         array (
             'Brick\\Math\\' => 11,
             'Bakame\\Http\\StructuredFields\\' => 29,
@@ -125,219 +125,219 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
     );
 
     public static $prefixDirsPsr4 = array (
-        'voku\\' => 
+        'voku\\' =>
         array (
             0 => __DIR__ . '/..' . '/voku/stop-words/src/voku',
             1 => __DIR__ . '/..' . '/voku/portable-ascii/src/voku',
         ),
-        'phpseclib\\' => 
+        'phpseclib\\' =>
         array (
             0 => __DIR__ . '/..' . '/phpseclib/phpseclib2_compat/src',
         ),
-        'phpseclib3\\' => 
+        'phpseclib3\\' =>
         array (
             0 => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib',
         ),
-        'chillerlan\\Settings\\' => 
+        'chillerlan\\Settings\\' =>
         array (
             0 => __DIR__ . '/..' . '/chillerlan/php-settings-container/src',
         ),
-        'chillerlan\\QRCode\\' => 
+        'chillerlan\\QRCode\\' =>
         array (
             0 => __DIR__ . '/..' . '/chillerlan/php-qrcode/src',
         ),
-        'Zotlabs\\' => 
+        'Zotlabs\\' =>
         array (
             0 => __DIR__ . '/../..' . '/Zotlabs',
         ),
-        'Symfony\\Polyfill\\Mbstring\\' => 
+        'Symfony\\Polyfill\\Mbstring\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-mbstring',
         ),
-        'Symfony\\Polyfill\\Ctype\\' => 
+        'Symfony\\Polyfill\\Ctype\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-ctype',
         ),
-        'Symfony\\Component\\Filesystem\\' => 
+        'Symfony\\Component\\Filesystem\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/filesystem',
         ),
-        'StephenHill\\' => 
+        'StephenHill\\' =>
         array (
             0 => __DIR__ . '/..' . '/stephenhill/base58/src',
         ),
-        'SourceSpan\\' => 
+        'SourceSpan\\' =>
         array (
             0 => __DIR__ . '/..' . '/scssphp/source-span/src',
         ),
-        'Smarty\\' => 
+        'Smarty\\' =>
         array (
             0 => __DIR__ . '/..' . '/smarty/smarty/src',
         ),
-        'SimplePie\\' => 
+        'SimplePie\\' =>
         array (
             0 => __DIR__ . '/..' . '/simplepie/simplepie/src',
         ),
-        'ScssPhp\\ScssPhp\\' => 
+        'ScssPhp\\ScssPhp\\' =>
         array (
             0 => __DIR__ . '/..' . '/scssphp/scssphp/src',
         ),
-        'Sabre\\Xml\\' => 
+        'Sabre\\Xml\\' =>
         array (
             0 => __DIR__ . '/..' . '/sabre/xml/lib',
         ),
-        'Sabre\\VObject\\' => 
+        'Sabre\\VObject\\' =>
         array (
             0 => __DIR__ . '/..' . '/sabre/vobject/lib',
         ),
-        'Sabre\\Uri\\' => 
+        'Sabre\\Uri\\' =>
         array (
             0 => __DIR__ . '/..' . '/sabre/uri/lib',
         ),
-        'Sabre\\HTTP\\' => 
+        'Sabre\\HTTP\\' =>
         array (
             0 => __DIR__ . '/..' . '/sabre/http/lib',
         ),
-        'Sabre\\Event\\' => 
+        'Sabre\\Event\\' =>
         array (
             0 => __DIR__ . '/..' . '/sabre/event/lib',
         ),
-        'Sabre\\' => 
+        'Sabre\\' =>
         array (
             0 => __DIR__ . '/..' . '/sabre/dav/lib',
         ),
-        'Root23\\JsonCanonicalizer\\' => 
+        'Root23\\JsonCanonicalizer\\' =>
         array (
             0 => __DIR__ . '/..' . '/root23/php-json-canonicalization/src',
         ),
-        'Ramsey\\Uuid\\' => 
+        'Ramsey\\Uuid\\' =>
         array (
             0 => __DIR__ . '/..' . '/ramsey/uuid/src',
         ),
-        'Ramsey\\Collection\\' => 
+        'Ramsey\\Collection\\' =>
         array (
             0 => __DIR__ . '/..' . '/ramsey/collection/src',
         ),
-        'Psr\\Log\\' => 
+        'Psr\\Log\\' =>
         array (
             0 => __DIR__ . '/..' . '/psr/log/src',
         ),
-        'Psr\\Http\\Message\\' => 
+        'Psr\\Http\\Message\\' =>
         array (
             0 => __DIR__ . '/..' . '/psr/http-factory/src',
             1 => __DIR__ . '/..' . '/psr/http-message/src',
         ),
-        'Psr\\Clock\\' => 
+        'Psr\\Clock\\' =>
         array (
             0 => __DIR__ . '/..' . '/psr/clock/src',
         ),
-        'ParagonIE\\Sodium\\' => 
+        'ParagonIE\\Sodium\\' =>
         array (
             0 => __DIR__ . '/..' . '/paragonie/sodium_compat/namespaced',
         ),
-        'ParagonIE\\EasyECC\\' => 
+        'ParagonIE\\EasyECC\\' =>
         array (
             0 => __DIR__ . '/..' . '/paragonie/easy-ecc/src',
         ),
-        'ParagonIE\\ConstantTime\\' => 
+        'ParagonIE\\ConstantTime\\' =>
         array (
             0 => __DIR__ . '/..' . '/paragonie/constant_time_encoding/src',
         ),
-        'OTPHP\\' => 
+        'OTPHP\\' =>
         array (
             0 => __DIR__ . '/..' . '/spomky-labs/otphp/src',
         ),
-        'Michelf\\' => 
+        'Michelf\\' =>
         array (
             0 => __DIR__ . '/..' . '/michelf/php-markdown/Michelf',
         ),
-        'Mdanter\\Ecc\\' => 
+        'Mdanter\\Ecc\\' =>
         array (
             0 => __DIR__ . '/..' . '/paragonie/ecc/src',
         ),
-        'League\\Uri\\' => 
+        'League\\Uri\\' =>
         array (
             0 => __DIR__ . '/..' . '/league/uri',
             1 => __DIR__ . '/..' . '/league/uri-interfaces',
         ),
-        'League\\HTMLToMarkdown\\' => 
+        'League\\HTMLToMarkdown\\' =>
         array (
             0 => __DIR__ . '/..' . '/league/html-to-markdown/src',
         ),
-        'LanguageDetection\\' => 
+        'LanguageDetection\\' =>
         array (
             0 => __DIR__ . '/..' . '/patrickschur/language-detection/src/LanguageDetection',
         ),
-        'ID3Parser\\' => 
+        'ID3Parser\\' =>
         array (
             0 => __DIR__ . '/..' . '/lukasreschke/id3parser/src',
         ),
-        'Hubzilla\\' => 
+        'Hubzilla\\' =>
         array (
             0 => __DIR__ . '/../..' . '/include',
         ),
-        'HttpSignature\\' => 
+        'HttpSignature\\' =>
         array (
             0 => __DIR__ . '/..' . '/macgirvin/http-message-signer/src',
         ),
-        'GuzzleHttp\\Psr7\\' => 
+        'GuzzleHttp\\Psr7\\' =>
         array (
             0 => __DIR__ . '/..' . '/guzzlehttp/psr7/src',
         ),
-        'FG\\' => 
+        'FG\\' =>
         array (
             0 => __DIR__ . '/..' . '/genkgo/php-asn1/lib',
         ),
-        'Defuse\\Crypto\\' => 
+        'Defuse\\Crypto\\' =>
         array (
             0 => __DIR__ . '/..' . '/defuse/php-encryption/src',
         ),
-        'CommerceGuys\\Intl\\' => 
+        'CommerceGuys\\Intl\\' =>
         array (
             0 => __DIR__ . '/..' . '/commerceguys/intl/src',
         ),
-        'Brick\\Math\\' => 
+        'Brick\\Math\\' =>
         array (
             0 => __DIR__ . '/..' . '/brick/math/src',
         ),
-        'Bakame\\Http\\StructuredFields\\' => 
+        'Bakame\\Http\\StructuredFields\\' =>
         array (
             0 => __DIR__ . '/..' . '/bakame/http-structured-fields/src',
         ),
     );
 
     public static $prefixesPsr0 = array (
-        'U' => 
+        'U' =>
         array (
-            'URLify' => 
+            'URLify' =>
             array (
                 0 => __DIR__ . '/..' . '/jbroadway/urlify',
             ),
         ),
-        'T' => 
+        'T' =>
         array (
-            'Text' => 
+            'Text' =>
             array (
                 0 => __DIR__ . '/..' . '/pear/text_languagedetect',
             ),
         ),
-        'S' => 
+        'S' =>
         array (
-            'SimplePie' => 
+            'SimplePie' =>
             array (
                 0 => __DIR__ . '/..' . '/simplepie/simplepie/library',
             ),
         ),
-        'O' => 
+        'O' =>
         array (
-            'OAuth2' => 
+            'OAuth2' =>
             array (
                 0 => __DIR__ . '/..' . '/bshaffer/oauth2-server-php/src',
             ),
         ),
-        'H' => 
+        'H' =>
         array (
-            'HTMLPurifier' => 
+            'HTMLPurifier' =>
             array (
                 0 => __DIR__ . '/..' . '/ezyang/htmlpurifier/library',
             ),
@@ -2252,6 +2252,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Lib\\Crypto' => __DIR__ . '/../..' . '/Zotlabs/Lib/Crypto.php',
         'Zotlabs\\Lib\\DB_Upgrade' => __DIR__ . '/../..' . '/Zotlabs/Lib/DB_Upgrade.php',
         'Zotlabs\\Lib\\DReport' => __DIR__ . '/../..' . '/Zotlabs/Lib/DReport.php',
+        'Zotlabs\\Lib\\DbStats' => __DIR__ . '/../..' . '/Zotlabs/Lib/DbStats.php',
         'Zotlabs\\Lib\\Enotify' => __DIR__ . '/../..' . '/Zotlabs/Lib/Enotify.php',
         'Zotlabs\\Lib\\ExtendedZip' => __DIR__ . '/../..' . '/Zotlabs/Lib/ExtendedZip.php',
         'Zotlabs\\Lib\\Hashpath' => __DIR__ . '/../..' . '/Zotlabs/Lib/Hashpath.php',
@@ -2269,12 +2270,15 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Lib\\MarkdownSoap' => __DIR__ . '/../..' . '/Zotlabs/Lib/MarkdownSoap.php',
         'Zotlabs\\Lib\\MessageFilter' => __DIR__ . '/../..' . '/Zotlabs/Lib/MessageFilter.php',
         'Zotlabs\\Lib\\Multibase' => __DIR__ . '/../..' . '/Zotlabs/Lib/Multibase.php',
+        'Zotlabs\\Lib\\MySQLDbStats' => __DIR__ . '/../..' . '/Zotlabs/Lib/MySQLDbStats.php',
         'Zotlabs\\Lib\\ObjCache' => __DIR__ . '/../..' . '/Zotlabs/Lib/ObjCache.php',
         'Zotlabs\\Lib\\PConfig' => __DIR__ . '/../..' . '/Zotlabs/Lib/PConfig.php',
         'Zotlabs\\Lib\\Permcat' => __DIR__ . '/../..' . '/Zotlabs/Lib/Permcat.php',
         'Zotlabs\\Lib\\PermissionDescription' => __DIR__ . '/../..' . '/Zotlabs/Lib/PermissionDescription.php',
+        'Zotlabs\\Lib\\PostgresDbStats' => __DIR__ . '/../..' . '/Zotlabs/Lib/PostgresDbStats.php',
         'Zotlabs\\Lib\\Queue' => __DIR__ . '/../..' . '/Zotlabs/Lib/Queue.php',
         'Zotlabs\\Lib\\QueueWorker' => __DIR__ . '/../..' . '/Zotlabs/Lib/QueueWorker.php',
+        'Zotlabs\\Lib\\QueueWorkerStats' => __DIR__ . '/../..' . '/Zotlabs/Lib/QueueWorkerStats.php',
         'Zotlabs\\Lib\\SConfig' => __DIR__ . '/../..' . '/Zotlabs/Lib/SConfig.php',
         'Zotlabs\\Lib\\Share' => __DIR__ . '/../..' . '/Zotlabs/Lib/Share.php',
         'Zotlabs\\Lib\\SvgSanitizer' => __DIR__ . '/../..' . '/Zotlabs/Lib/SvgSanitizer.php',
@@ -2415,6 +2419,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Module\\Pconfig' => __DIR__ . '/../..' . '/Zotlabs/Module/Pconfig.php',
         'Zotlabs\\Module\\Pdledit' => __DIR__ . '/../..' . '/Zotlabs/Module/Pdledit.php',
         'Zotlabs\\Module\\Pdledit_gui' => __DIR__ . '/../..' . '/Zotlabs/Module/Pdledit_gui.php',
+        'Zotlabs\\Module\\Perfstats' => __DIR__ . '/../..' . '/Zotlabs/Module/Perfstats.php',
         'Zotlabs\\Module\\Permcat' => __DIR__ . '/../..' . '/Zotlabs/Module/Permcat.php',
         'Zotlabs\\Module\\Permcats' => __DIR__ . '/../..' . '/Zotlabs/Module/Permcats.php',
         'Zotlabs\\Module\\Photo' => __DIR__ . '/../..' . '/Zotlabs/Module/Photo.php',

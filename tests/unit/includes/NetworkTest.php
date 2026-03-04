@@ -126,7 +126,7 @@ class NetworkTest extends Zotlabs\Tests\Unit\UnitTestCase {
 	 *
 	 * @dataProvider parse_webbie_provider
 	 */
-	public function test_parse_webbie(string $webbie, array $expected) : void {
+	public function test_parse_webbie(string $webbie, array|false $expected) : void {
 		$this->assertEquals($expected, parse_webbie($webbie));
 	}
 
@@ -138,8 +138,17 @@ class NetworkTest extends Zotlabs\Tests\Unit\UnitTestCase {
 			// test valid webfinger address with scheme
 			['acct:test@example.net', ['host' => 'example.net', 'resource' => urlencode('acct:test@example.net')]],
 
+			// test address with leading @
+			['@test@example.net', ['host' => 'example.net', 'resource' => urlencode('acct:test@example.net')]],
+
+			// test address with missing user
+			['@example.net', false],
+
 			// test URL
 			['https://example.net/channel/test', ['host' => 'example.net', 'resource' => urlencode('https://example.net/channel/test')]],
+
+			// test unsupported URL
+			['ftp://example.net/channel/test', false],
 		];
 	}
 
