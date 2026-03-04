@@ -55,6 +55,7 @@ return array(
     'ID3Parser\\' => array($vendorDir . '/lukasreschke/id3parser/src'),
     'Hubzilla\\' => array($baseDir . '/include'),
     'HttpSignature\\' => array($vendorDir . '/macgirvin/http-message-signer/src'),
+    'GuzzleHttp\\Psr7\\' => array($vendorDir . '/guzzlehttp/psr7/src'),
     'FG\\' => array($vendorDir . '/genkgo/php-asn1/lib'),
     'Defuse\\Crypto\\' => array($vendorDir . '/defuse/php-encryption/src'),
     'DeepCopy\\' => array($vendorDir . '/myclabs/deep-copy/src/DeepCopy'),
