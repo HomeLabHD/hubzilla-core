@@ -1232,38 +1232,56 @@ function discover_by_webbie($webbie, $protocol = '') {
  * @return boolean|string false or associative array from result JSON
  */
 function webfinger_rfc7033($webbie, $zot = false) {
+	$parsed = parse_webbie($webbie);
 
-	if(filter_var($webbie, FILTER_VALIDATE_EMAIL)) {
-		$lhs = substr($webbie,0,strpos($webbie,'@'));
-		$rhs = substr($webbie,strpos($webbie,'@')+1);
-		$resource = urlencode('acct:' . $webbie);
-	}
-	elseif(filter_var($webbie, FILTER_VALIDATE_URL)) {
-		$m = parse_url($webbie);
-		if($m) {
-			if($m['scheme'] !== 'https')
-				return false;
-
-			$rhs = $m['host'] . (array_key_exists('port', $m) ? ':' . $m['port'] : '');
-			$resource = urlencode($webbie);
-		}
-	}
-	else
+	if (!$parsed) {
 		return false;
+	}
 
-	logger('fetching url from resource: ' . $rhs . ':' . $webbie);
+	logger('fetching url from resource: ' . $parsed['host'] . ':' . $parsed['resource']);
 
-	$counter = 0;
-	$s = z_fetch_url('https://' . $rhs . '/.well-known/webfinger?f=&resource=' . $resource . (($zot) ? '&zot=1' : ''),
-		false, $counter, [ 'headers' => [ 'Accept: application/jrd+json, application/json, */*' ] ]);
+	$s = z_fetch_url('https://' . $parsed['host'] . '/.well-known/webfinger?f=&resource=' . $parsed['resource'] . (($zot) ? '&zot=1' : ''),
+		false, 0, [ 'headers' => [ 'Accept: application/jrd+json, application/json, */*' ] ]);
 
 	if($s['success']) {
 		$j = json_decode($s['body'], true);
-		return($j);
+		return $j;
 	}
 
 	return false;
 }
+
+function parse_webbie($webbie) {
+	$parsed = parse_url($webbie);
+
+	if (!$parsed) {
+		return false;
+	}
+
+	if (!isset($parsed['scheme'])) {
+		$parsed['scheme'] = 'acct';
+	}
+
+	if (in_array($parsed['scheme'], ['http', 'https'])) {
+		$result['host'] = $parsed['host'] . ((isset($parsed['port'])) ? ':' . $parsed['port'] : '');
+		$result['resource'] = urlencode($webbie);
+	}
+	elseif ($parsed['scheme'] === 'acct') {
+		$parts = explode('@', $parsed['path']);
+		$result['host'] = $parts[1];
+		$result['resource'] = urlencode('acct:' . $parts[0] . '@' . $parts[1]);
+	}
+	else {
+		return false;
+	}
+
+	if (isset($result['host'], $result['resource'])) {
+		return $result;
+	}
+
+	return false;
+}
+
 
 function old_webfinger($webbie) {
 

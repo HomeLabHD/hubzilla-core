@@ -119,4 +119,28 @@ class NetworkTest extends Zotlabs\Tests\Unit\UnitTestCase {
 	{
 		$this->assertEquals('', unparse_url([]));
 	}
+
+
+	/**
+	 * Test that the parse_webbie function.
+	 *
+	 * @dataProvider parse_webbie_provider
+	 */
+	public function test_parse_webbie(string $webbie, array $expected) : void {
+		$this->assertEquals($expected, parse_webbie($webbie));
+	}
+
+	public static function parse_webbie_provider() : array {
+		return [
+			// test valid webfinger address
+			['test@example.net', ['host' => 'example.net', 'resource' => 'acct:test@example.net']],
+
+			// test valid webfinger address with scheme
+			['acct:test@example.net', ['host' => 'example.net', 'resource' => 'acct:test@example.net']],
+
+			// test URL
+			['https://example.net/channel/test', ['host' => 'example.net', 'resource' => 'https://example.net/channel/test']],
+		];
+	}
+
 }
