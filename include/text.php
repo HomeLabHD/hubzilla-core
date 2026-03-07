@@ -3,7 +3,6 @@
  * @file include/text.php
  */
 
-use DBA;
 use Zotlabs\Lib as Zlib;
 
 use Michelf\MarkdownExtra;

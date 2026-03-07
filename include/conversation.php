@@ -1,6 +1,5 @@
 <?php /** @file */
 
-use DBA;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\Apps;
 use Zotlabs\Lib\Config;

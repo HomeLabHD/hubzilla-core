@@ -4,7 +4,6 @@
  * @brief Somme account related functions.
  */
 
-use DBA;
 use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Crypto;
 

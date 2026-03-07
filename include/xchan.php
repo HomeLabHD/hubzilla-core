@@ -1,6 +1,5 @@
 <?php
 
-use DBA;
 use Zotlabs\Lib\Crypto;
 use Zotlabs\Web\HTTPSig;
 use Zotlabs\Lib\Libzot;

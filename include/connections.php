@@ -1,6 +1,5 @@
 <?php /** @file */
 
-use DBA;
 use Zotlabs\Daemon\Master;
 use Zotlabs\Lib\Config;
 
