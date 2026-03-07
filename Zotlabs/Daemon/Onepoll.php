@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Daemon;
 
+use DBA;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\ActivityStreams;
 use Zotlabs\Lib\ASCollection;
@@ -57,7 +58,7 @@ class Onepoll {
 
 		logger("onepoll: poll: ($contact_id) IMPORTER: {$importer['xchan_name']}, CONTACT: {$contact['xchan_name']}");
 
-		$last_update = ((($contact['abook_updated'] === $contact['abook_created']) || ($contact['abook_updated'] <= NULL_DATE))
+		$last_update = ((($contact['abook_updated'] === $contact['abook_created']) || ($contact['abook_updated'] <= DBA::$dba->get_null_date()))
 			? datetime_convert('UTC', 'UTC', 'now - 7 days')
 			: datetime_convert('UTC', 'UTC', $contact['abook_updated'] . ' - 2 days')
 		);

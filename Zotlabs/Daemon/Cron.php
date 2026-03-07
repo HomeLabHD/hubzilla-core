@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Daemon;
 
+use DBA;
 use Zotlabs\Lib\Config;
 use Zotlabs\Lib\ObjCache;
 use Zotlabs\Lib\Libsync;
@@ -93,7 +94,7 @@ class Cron {
 		// delete expired access tokens
 
 		$r = q("select atoken_id from atoken where atoken_expires > '%s' and atoken_expires < %s",
-			dbesc(NULL_DATE),
+			dbesc(DBA::$dba->get_null_date()),
 			db_utcnow()
 		);
 		if ($r) {

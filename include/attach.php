@@ -11,6 +11,7 @@
  * @todo Also an 'append' option to the storage function might be a useful addition.
  */
 
+use DBA;
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Daemon\Master;
 use Zotlabs\Lib\AccessList;
@@ -226,7 +227,7 @@ function attach_list_files($channel_id, $observer, $hash = '', $filename = '', $
 		$limit = " LIMIT " . intval($entries) . " OFFSET " . intval($start) . " ";
 
 	if(! $since)
-		$since = NULL_DATE;
+		$since = DBA::$dba->get_null_date();
 
 	if(! $until)
 		$until = datetime_convert();

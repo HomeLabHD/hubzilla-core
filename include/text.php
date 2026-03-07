@@ -3,6 +3,7 @@
  * @file include/text.php
  */
 
+use DBA;
 use Zotlabs\Lib as Zlib;
 
 use Michelf\MarkdownExtra;
@@ -2017,7 +2018,7 @@ function format_poll($item,$s,$opts) {
 
 		$message = (($totalResponses) ? sprintf(tt('%d Vote in total', '%d Votes in total', $totalResponses, 'noun'), $totalResponses) . EOL : '');
 
-		if ($item['comments_closed'] > NULL_DATE) {
+		if ($item['comments_closed'] > DBA::$dba->get_null_date()) {
 			$t = datetime_convert('UTC',date_default_timezone_get(), $item['comments_closed'], 'Y-m-d H:i');
 			$closed = ((datetime_convert() > $item['comments_closed']) ? true : false);
 			if ($closed) {

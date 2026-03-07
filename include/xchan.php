@@ -1,5 +1,6 @@
 <?php
 
+use DBA;
 use Zotlabs\Lib\Crypto;
 use Zotlabs\Web\HTTPSig;
 use Zotlabs\Lib\Libzot;
@@ -31,9 +32,9 @@ function xchan_store_lowlevel($arr) {
 		'xchan_network' => ((array_key_exists('xchan_network',$arr)) ? $arr['xchan_network'] : ''),
 		'xchan_instance_url' => ((array_key_exists('xchan_instance_url',$arr)) ? $arr['xchan_instance_url'] : ''),
 		'xchan_flags' => ((array_key_exists('xchan_flags',$arr)) ? intval($arr['xchan_flags']) : 0),
-		'xchan_photo_date' => ((array_key_exists('xchan_photo_date',$arr)) ? datetime_convert('UTC','UTC',$arr['xchan_photo_date']) : NULL_DATE),
-		'xchan_name_date' => ((array_key_exists('xchan_name_date',$arr)) ? datetime_convert('UTC','UTC',$arr['xchan_name_date']) : NULL_DATE),
-		'xchan_updated' => ((array_key_exists('xchan_updated',$arr)) ? datetime_convert('UTC','UTC',$arr['xchan_updated']) : NULL_DATE),
+		'xchan_photo_date' => ((array_key_exists('xchan_photo_date',$arr)) ? datetime_convert('UTC','UTC',$arr['xchan_photo_date']) : DBA::$dba->get_null_date()),
+		'xchan_name_date' => ((array_key_exists('xchan_name_date',$arr)) ? datetime_convert('UTC','UTC',$arr['xchan_name_date']) : DBA::$dba->get_null_date()),
+		'xchan_updated' => ((array_key_exists('xchan_updated',$arr)) ? datetime_convert('UTC','UTC',$arr['xchan_updated']) : DBA::$dba->get_null_date()),
 		'xchan_hidden' => ((array_key_exists('xchan_hidden',$arr)) ? intval($arr['xchan_hidden']) : 0),
 		'xchan_orphan' => ((array_key_exists('xchan_orphan',$arr)) ? intval($arr['xchan_orphan']) : 0),
 		'xchan_censored' => ((array_key_exists('xchan_censored',$arr)) ? intval($arr['xchan_censored']) : 0),

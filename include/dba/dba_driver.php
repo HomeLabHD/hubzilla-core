@@ -272,7 +272,7 @@ function dbg($state) {
 function dbesc($str) {
 
 	if(is_null_date($str))
-		$str = NULL_DATE;
+		$str = DBA::$dba->get_null_date();
 
 	if(\DBA::$dba && \DBA::$dba->connected)
 		return(\DBA::$dba->escape($str));
@@ -289,7 +289,7 @@ function dbunescbin($str) {
 
 function dbescdate($date) {
 	if(is_null_date($date))
-		return \DBA::$dba->escape(NULL_DATE);
+		return \DBA::$dba->escape(DBA::$dba->get_null_date());
 
 	return \DBA::$dba->escape($date);
 }
@@ -392,7 +392,7 @@ function dbq($sql) {
 function dbesc_array_cb(&$item, $key) {
 	if(is_string($item)) {
 		if(is_null_date($item))
-			$item = NULL_DATE;
+			$item = DBA::$dba->get_null_date();
 		$item = dbesc($item);
 	}
 }

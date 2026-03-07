@@ -1,5 +1,6 @@
 <?php /** @file */
 
+use DBA;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\Apps;
 use Zotlabs\Lib\Config;
@@ -630,7 +631,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 					'isotime' => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'c'),
 					'localtime' => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'r'),
 					'editedtime' => (($item['edited'] != $item['created']) ? sprintf( t('last edited: %s'), datetime_convert('UTC', date_default_timezone_get(), $item['edited'], 'r')) : ''),
-					'expiretime' => (($item['expires'] > NULL_DATE) ? sprintf( t('Expires: %s'), datetime_convert('UTC', date_default_timezone_get(), $item['expires'], 'r')):''),
+					'expiretime' => (($item['expires'] > DBA::$dba->get_null_date()) ? sprintf( t('Expires: %s'), datetime_convert('UTC', date_default_timezone_get(), $item['expires'], 'r')):''),
 					'location' => $location,
 					'divider' => false,
 					'indent' => '',

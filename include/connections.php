@@ -1,5 +1,6 @@
 <?php /** @file */
 
+use DBA;
 use Zotlabs\Daemon\Master;
 use Zotlabs\Lib\Config;
 
@@ -12,10 +13,10 @@ function abook_store_lowlevel($arr) {
 		'abook_my_perms'    => ((array_key_exists('abook_my_perms',$arr))    ? $arr['abook_my_perms']    : 0),
 		'abook_their_perms' => ((array_key_exists('abook_their_perms',$arr)) ? $arr['abook_their_perms'] : 0),
 		'abook_closeness'   => ((array_key_exists('abook_closeness',$arr))   ? $arr['abook_closeness']   : 99),
-		'abook_created'     => ((array_key_exists('abook_created',$arr))     ? $arr['abook_created']     : NULL_DATE),
-		'abook_updated'     => ((array_key_exists('abook_updated',$arr))     ? $arr['abook_updated']     : NULL_DATE),
-		'abook_connected'   => ((array_key_exists('abook_connected',$arr))   ? $arr['abook_connected']   : NULL_DATE),
-		'abook_dob'         => ((array_key_exists('abook_dob',$arr))         ? $arr['abook_dob']         : NULL_DATE),
+		'abook_created'     => ((array_key_exists('abook_created',$arr))     ? $arr['abook_created']     : DBA::$dba->get_null_date()),
+		'abook_updated'     => ((array_key_exists('abook_updated',$arr))     ? $arr['abook_updated']     : DBA::$dba->get_null_date()),
+		'abook_connected'   => ((array_key_exists('abook_connected',$arr))   ? $arr['abook_connected']   : DBA::$dba->get_null_date()),
+		'abook_dob'         => ((array_key_exists('abook_dob',$arr))         ? $arr['abook_dob']         : DBA::$dba->get_null_date()),
 		'abook_flags'       => ((array_key_exists('abook_flags',$arr))       ? $arr['abook_flags']       : 0),
 		'abook_blocked'     => ((array_key_exists('abook_blocked',$arr))     ? $arr['abook_blocked']     : 0),
 		'abook_ignored'     => ((array_key_exists('abook_ignored',$arr))     ? $arr['abook_ignored']     : 0),

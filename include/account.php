@@ -4,6 +4,7 @@
  * @brief Somme account related functions.
  */
 
+use DBA;
 use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Crypto;
 
@@ -186,7 +187,7 @@ function create_account_from_register($arr) {
 	if ( ! $register ) return $result;
 
 	// account
-	$expires = NULL_DATE;
+	$expires = DBA::$dba->get_null_date();
 
 	$default_service_class = Config::Get('system','default_service_class');
 	if($default_service_class === false)
@@ -901,7 +902,7 @@ function downgrade_accounts() {
 		and account_expires > '%s'
 		and account_expires < %s ",
 		intval(ACCOUNT_EXPIRED),
-		dbesc(NULL_DATE),
+		dbesc(DBA::$dba->get_null_date()),
 		db_getfunc('UTC_TIMESTAMP')
 	);
 
@@ -915,7 +916,7 @@ function downgrade_accounts() {
 			q("UPDATE account set account_service_class = '%s', account_expires = '%s'
 				where account_id = %d",
 				dbesc($basic),
-				dbesc(NULL_DATE),
+				dbesc(DBA::$dba->get_null_date()),
 				intval($rr['account_id'])
 			);
 			$ret = array('account' => $rr);
@@ -1214,7 +1215,7 @@ function get_pending_accounts($get_all = false) {
 function remove_expired_registrations() {
 	q("DELETE FROM register WHERE (reg_expires < '%s' OR reg_expires = '%s') AND (reg_flags & %d) > 0",
 		dbesc(datetime_convert()),
-		dbesc(NULL_DATE),
+		dbesc(DBA::$dba->get_null_date()),
 		dbesc(ACCOUNT_UNVERIFIED)
 	);
 }

@@ -3,6 +3,7 @@
 namespace Zotlabs\Lib;
 
 use App;
+use DBA;
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Access\Permissions;
 use Zotlabs\Daemon\Master;
@@ -348,7 +349,7 @@ class Libzot {
 				$next_birthday = datetime_convert('UTC', 'UTC', $record['data']['profile']['next_birthday']);
 			}
 			else {
-				$next_birthday = NULL_DATE;
+				$next_birthday = DBA::$dba->get_null_date();
 			}
 
 			$profile_assign = get_pconfig($channel['channel_id'], 'system', 'profile_assign', '');

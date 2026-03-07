@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Lib;
 
+use DBA;
 use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Zotfinger;
@@ -216,7 +217,7 @@ class Libzotdir {
 				[
 					'site_url'       => DIRECTORY_FALLBACK_MASTER,
 					'site_flags'     => DIRECTORY_MODE_PRIMARY,
-					'site_update'    => NULL_DATE,
+					'site_update'    => DBA::$dba->get_null_date(),
 					'site_directory' => DIRECTORY_FALLBACK_MASTER . '/dirsearch',
 					'site_realm'     => DIRECTORY_REALM,
 					'site_valid'     => 1,
@@ -247,7 +248,7 @@ class Libzotdir {
 
 			$token = Config::Get('system','realm_token');
 
-			$syncdate = (($rr['site_sync'] <= NULL_DATE) ? datetime_convert('UTC','UTC','now - 2 days') : $rr['site_sync']);
+			$syncdate = (($rr['site_sync'] <= DBA::$dba->get_null_date()) ? datetime_convert('UTC','UTC','now - 2 days') : $rr['site_sync']);
 			$x = z_fetch_url($rr['site_directory'] . '?f=&sync=' . urlencode($syncdate) . (($token) ? '&t=' . $token : ''));
 
 			if (! $x['success'])
@@ -724,7 +725,7 @@ class Libzotdir {
 
 		if ($u) {
 			$x = q("UPDATE updates SET $date_sql $flag_sql ud_last = '%s', ud_host = '%s', ud_addr = '%s', ud_update = 0 WHERE ud_id = %d",
-				dbesc(NULL_DATE),
+				dbesc(DBA::$dba->get_null_date()),
 				dbesc(z_root()),
 				dbesc($addr),
 				intval($u[0]['ud_id'])

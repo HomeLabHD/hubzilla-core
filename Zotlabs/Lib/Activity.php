@@ -3,6 +3,7 @@
 namespace Zotlabs\Lib;
 
 use App;
+use DBA;
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Access\PermissionRoles;
 use Zotlabs\Access\Permissions;
@@ -568,7 +569,7 @@ class Activity {
 		$ret['published'] = datetime_convert('UTC', 'UTC', $i['created'], ATOM_TIME);
 		if ($i['created'] !== $i['edited'])
 			$ret['updated'] = datetime_convert('UTC', 'UTC', $i['edited'], ATOM_TIME);
-		if ($i['expires'] > NULL_DATE) {
+		if ($i['expires'] > DBA::$dba->get_null_date()) {
 			$ret['expires'] = datetime_convert('UTC', 'UTC', $i['expires'], ATOM_TIME);
 		}
 
@@ -593,7 +594,7 @@ class Activity {
 
 		$ret['commentPolicy'] = (($i['item_wall']) ? map_scope(PermissionLimits::Get($i['uid'], 'post_comments')) : '');
 
-		if (array_key_exists('comments_closed', $i) && $i['comments_closed'] !== EMPTY_STR && $i['comments_closed'] > NULL_DATE) {
+		if (array_key_exists('comments_closed', $i) && $i['comments_closed'] !== EMPTY_STR && $i['comments_closed'] > DBA::$dba->get_null_date()) {
 			if ($ret['commentPolicy']) {
 				$ret['commentPolicy'] .= ' ';
 			}
@@ -1564,7 +1565,7 @@ class Activity {
 				'abook_created'   => datetime_convert(),
 				'abook_updated'   => datetime_convert(),
 				'abook_connected' => datetime_convert(),
-				'abook_dob'       => NULL_DATE,
+				'abook_dob'       => DBA::$dba->get_null_date(),
 				'abook_pending'   => intval(($automatic) ? 0 : 1),
 				'abook_instance'  => z_root()
 			]
@@ -2088,7 +2089,7 @@ class Activity {
 				}
 			}
 		}
-		if ($pollItem['comments_closed'] > NULL_DATE) {
+		if ($pollItem['comments_closed'] > DBA::$dba->get_null_date()) {
 			if ($pollItem['comments_closed'] > datetime_convert()) {
 				$o['closed'] = datetime_convert('UTC', 'UTC', $pollItem['comments_closed'], ATOM_TIME);
 				// set this to force an update
@@ -2306,7 +2307,7 @@ class Activity {
 		if ($s['mid'] === $s['parent_mid']) {
 			$s['item_thread_top'] = 1;
 			$s['item_nocomment'] = 0;
-			$s['comments_closed'] = NULL_DATE;
+			$s['comments_closed'] = DBA::$dba->get_null_date();
 
 			// it is a parent node - decode the comment policy info if present
 			if ($act->objprop('commentPolicy')) {

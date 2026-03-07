@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Daemon;
 
+use DBA;
 use Zotlabs\Lib\Config;
 
 class Poller {
@@ -117,7 +118,7 @@ class Poller {
 
 					// if we've never connected with them, start the mark for death countdown from now
 
-					if ($c <= NULL_DATE) {
+					if ($c <= DBA::$dba->get_null_date()) {
 						q("update abook set abook_connected = '%s'  where abook_id = %d",
 							dbesc(datetime_convert()),
 							intval($contact['abook_id'])
@@ -173,7 +174,7 @@ class Poller {
 
 		if ($dirmode == DIRECTORY_MODE_SECONDARY || $dirmode == DIRECTORY_MODE_PRIMARY) {
 			$r = q("SELECT * FROM updates WHERE ud_update = 1 AND (ud_last = '%s' OR ud_last > %s - INTERVAL %s)",
-				dbesc(NULL_DATE),
+				dbesc(DBA::$dba->get_null_date()),
 				db_utcnow(),
 				db_quoteinterval('7 DAY')
 			);
@@ -184,7 +185,7 @@ class Poller {
 					// If they didn't respond when we attempted before, back off to once a day
 					// After 7 days we won't bother anymore
 
-					if ($rr['ud_last'] > NULL_DATE)
+					if ($rr['ud_last'] > DBA::$dba->get_null_date())
 						if ($rr['ud_last'] > datetime_convert('UTC', 'UTC', 'now - 1 day'))
 							continue;
 

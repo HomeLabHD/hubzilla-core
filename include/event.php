@@ -5,6 +5,7 @@
  */
 
 
+use DBA;
 use Sabre\VObject;
 
 use Zotlabs\Lib\Activity;
@@ -537,14 +538,14 @@ function event_store_event($arr) {
 	$arr['deny_gid']       = $arr['deny_gid'] ?? '';
 
 	if (! $arr['dtend']) {
-		$arr['dtend'] = NULL_DATE;
+		$arr['dtend'] = DBA::$dba->get_null_date();
 		$arr['nofinish'] = 1;
 	}
 
 	if(array_key_exists('event_status_date',$arr))
 		$arr['event_status_date'] = datetime_convert('UTC','UTC', $arr['event_status_date']);
 	else
-		$arr['event_status_date'] = NULL_DATE;
+		$arr['event_status_date'] = DBA::$dba->get_null_date();
 
 
 	$existing_event = null;
