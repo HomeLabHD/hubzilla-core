@@ -3,6 +3,7 @@
 namespace Zotlabs\Module;
 
 use App;
+use DBA;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\ActivityStreams;
 use Zotlabs\Lib\Config;
@@ -47,7 +48,7 @@ class Outbox extends Controller {
 
 			$params = [];
 
-			$params['begin']     = ((x($_REQUEST, 'date_begin')) ? $_REQUEST['date_begin'] : NULL_DATE);
+			$params['begin']     = ((x($_REQUEST, 'date_begin')) ? $_REQUEST['date_begin'] : DBA::$dba->get_null_date());
 			$params['end']       = ((x($_REQUEST, 'date_end')) ? $_REQUEST['date_end'] : '');
 			$params['type']      = 'json';
 			$params['pages']     = ((x($_REQUEST, 'pages')) ? intval($_REQUEST['pages']) : 0);

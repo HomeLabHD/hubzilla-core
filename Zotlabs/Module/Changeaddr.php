@@ -1,6 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
+use DBA;
 
 class Changeaddr extends \Zotlabs\Web\Controller {
 
@@ -29,7 +30,7 @@ class Changeaddr extends \Zotlabs\Web\Controller {
 		if(! ($x && $x['account']))
 			return;
 
-		if($account['account_password_changed'] > NULL_DATE) {
+		if($account['account_password_changed'] > DBA::$dba->get_null_date()) {
 			$d1 = datetime_convert('UTC','UTC','now - 48 hours');
 			if($account['account_password_changed'] > $d1) {
 				notice( t('Channel name changes are not allowed within 48 hours of changing the account password.') . EOL);

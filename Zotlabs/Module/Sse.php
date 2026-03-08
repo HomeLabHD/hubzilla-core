@@ -3,6 +3,7 @@
 namespace Zotlabs\Module;
 
 use App;
+use DBA;
 use Zotlabs\Lib\Apps;
 use Zotlabs\Lib\Config;
 use Zotlabs\Web\Controller;
@@ -136,7 +137,7 @@ class Sse extends Controller {
 
 					session_reset();
 
-					XConfig::Set(self::$ob_hash, 'sse', 'timestamp', NULL_DATE);
+					XConfig::Set(self::$ob_hash, 'sse', 'timestamp', DBA::$dba->get_null_date());
 					XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
 
 					if (ob_get_length() > 0) {

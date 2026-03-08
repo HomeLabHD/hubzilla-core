@@ -232,7 +232,7 @@ function comments_are_now_closed($item) {
 		return $x['closed'];
 	}
 
-	if($item['comments_closed'] > NULL_DATE) {
+	if($item['comments_closed'] > DBA::$dba->get_null_date()) {
 		$d = datetime_convert();
 		if($d > $item['comments_closed'])
 			return true;
@@ -732,14 +732,14 @@ function get_item_elements($x,$allow_code = false) {
 
 	$arr['expires']      = ((!empty($x['expires']) && $x['expires'])
 								? datetime_convert('UTC','UTC',$x['expires'])
-								: NULL_DATE);
+								: DBA::$dba->get_null_date());
 
 	$arr['commented']    = ((!empty($x['commented']) && $x['commented'])
 								? datetime_convert('UTC','UTC',$x['commented'])
 								: $arr['created']);
 	$arr['comments_closed']    = ((!empty($x['comments_closed']) && $x['comments_closed'])
 								? datetime_convert('UTC','UTC',$x['comments_closed'])
-								: NULL_DATE);
+								: DBA::$dba->get_null_date());
 
 	$arr['title']        = (($x['title'])          ? htmlspecialchars($x['title'],          ENT_COMPAT,'UTF-8',false) : '');
 
@@ -1210,7 +1210,7 @@ function encode_item($item,$mirror = false,$zap_compat = false) {
 	if($y = encode_item_flags($item))
 		$x['flags']       = $y;
 
-	if($item['comments_closed'] > NULL_DATE)
+	if($item['comments_closed'] > DBA::$dba->get_null_date())
 		$x['comments_closed'] = $item['comments_closed'];
 
 	$x['public_scope'] = $item['public_policy'];
@@ -1773,9 +1773,9 @@ function item_store($arr, $allow_exec = false, $deliver = true, $addAndSync = tr
 	$arr['owner_xchan']   = ((!empty($arr['owner_xchan']))   ? notags(trim($arr['owner_xchan']))   : '');
 	$arr['created']       = ((!empty($arr['created']) !== false) ? datetime_convert('UTC','UTC',$arr['created']) : datetime_convert());
 	$arr['edited']        = ((!empty($arr['edited'])  !== false) ? datetime_convert('UTC','UTC',$arr['edited'])  : datetime_convert());
-	$arr['expires']       = ((!empty($arr['expires'])  !== false) ? datetime_convert('UTC','UTC',$arr['expires'])  : NULL_DATE);
+	$arr['expires']       = ((!empty($arr['expires'])  !== false) ? datetime_convert('UTC','UTC',$arr['expires'])  : DBA::$dba->get_null_date());
 	$arr['commented']     = ((!empty($arr['commented'])  !== false) ? datetime_convert('UTC','UTC',$arr['commented'])  : datetime_convert());
-	$arr['comments_closed'] = ((!empty($arr['comments_closed'])  !== false) ? datetime_convert('UTC','UTC',$arr['comments_closed'])  : NULL_DATE);
+	$arr['comments_closed'] = ((!empty($arr['comments_closed'])  !== false) ? datetime_convert('UTC','UTC',$arr['comments_closed'])  : DBA::$dba->get_null_date());
 	$arr['html'] = ((array_key_exists('html',$arr)) ? $arr['html'] : '');
 
 	if($deliver) {
@@ -4440,7 +4440,7 @@ function zot_feed($uid, $observer_hash, $arr) {
 	}
 
 	if (!$mindate)
-		$mindate = NULL_DATE;
+		$mindate = DBA::$dba->get_null_date();
 
 	$mindate = dbesc($mindate);
 
@@ -4458,7 +4458,7 @@ function zot_feed($uid, $observer_hash, $arr) {
 
 	$limit = " LIMIT 5000 ";
 
-	if ($mindate > NULL_DATE) {
+	if ($mindate > DBA::$dba->get_null_date()) {
 		$sql_extra .= " and ( created > '$mindate' or changed > '$mindate' ) ";
 	}
 

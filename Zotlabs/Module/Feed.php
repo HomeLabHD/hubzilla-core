@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Module;
 
+use DBA;
 use Zotlabs\Lib\PConfig;
 use Zotlabs\Web\Controller;
 
@@ -21,7 +22,7 @@ class Feed extends Controller {
 			killme();
 		}
 
-		$params['begin'] = $_REQUEST['date_begin'] ?? NULL_DATE;
+		$params['begin'] = $_REQUEST['date_begin'] ?? DBA::$dba->get_null_date();
 		$params['end'] = $_REQUEST['date_end'] ?? '';
 		$params['type'] = 'xml';
 		$params['pages'] = ((!empty($_REQUEST['pages'])) ? intval($_REQUEST['pages']) : 0);

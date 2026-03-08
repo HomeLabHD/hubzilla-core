@@ -3,6 +3,7 @@
 namespace Zotlabs\Module;
 
 use App;
+use DBA;
 use Zotlabs\Web\Controller;
 use Zotlabs\Lib\Apps;
 use Zotlabs\Lib\AccessList;
@@ -84,7 +85,7 @@ class Tokens extends Controller {
 			if(trim($_POST['expires']))
 				$expires = datetime_convert(date_default_timezone_get(),'UTC',$_POST['expires']);
 			else
-				$expires = NULL_DATE;
+				$expires = DBA::$dba->get_null_date();
 			$max_atokens = service_class_fetch($channel['channel_id'],'access_tokens');
 			if($max_atokens) {
 				$r = q("select count(atoken_id) as total where atoken_uid = %d",
@@ -290,7 +291,7 @@ class Tokens extends Controller {
 			'$atoken' => $atoken,
 			'$name' => array('name', t('Login Name') . ' <span class="required">*</span>', $atoken['atoken_name'] ?? '',''),
 			'$token'=> array('token', t('Login Password') . ' <span class="required">*</span>', $atoken['atoken_token'] ?? new_token(), ''),
-			'$expires'=> array('expires', t('Expires (yyyy-mm-dd)'), ((isset($atoken['atoken_expires']) && $atoken['atoken_expires'] > NULL_DATE) ? datetime_convert('UTC',date_default_timezone_get(),$atoken['atoken_expires']) : ''), ''),
+			'$expires'=> array('expires', t('Expires (yyyy-mm-dd)'), ((isset($atoken['atoken_expires']) && $atoken['atoken_expires'] > DBA::$dba->get_null_date()) ? datetime_convert('UTC',date_default_timezone_get(),$atoken['atoken_expires']) : ''), ''),
 			'$submit' => t('Submit'),
 			'$delete' => t('Delete')
 		));

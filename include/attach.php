@@ -226,7 +226,7 @@ function attach_list_files($channel_id, $observer, $hash = '', $filename = '', $
 		$limit = " LIMIT " . intval($entries) . " OFFSET " . intval($start) . " ";
 
 	if(! $since)
-		$since = NULL_DATE;
+		$since = DBA::$dba->get_null_date();
 
 	if(! $until)
 		$until = datetime_convert();

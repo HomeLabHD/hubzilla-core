@@ -3,6 +3,7 @@
 namespace Zotlabs\Module;
 
 use App;
+use DBA;
 use URLify;
 use Zotlabs\Lib\Config;
 use Zotlabs\Lib\IConfig;
@@ -209,7 +210,7 @@ class Item extends Controller {
 		}
 
 
-		$expires = NULL_DATE;
+		$expires = DBA::$dba->get_null_date();
 
 		$route          = '';
 		$parent_item    = null;
@@ -559,7 +560,7 @@ class Item extends Controller {
 			if (!empty($_POST['expire'])) {
 				$expires = datetime_convert(date_default_timezone_get(), 'UTC', $_POST['expire']);
 				if ($expires <= datetime_convert())
-					$expires = NULL_DATE;
+					$expires = DBA::$dba->get_null_date();
 			}
 		}
 
@@ -801,7 +802,7 @@ class Item extends Controller {
 		$item_origin    = (($origin) ? 1 : 0);
 		$item_consensus = (($consensus) ? 1 : 0);
 		$item_nocomment = (($nocomment) ? 1 : 0);
-		$comments_closed = (($nocomment) ? $comments_closed : NULL_DATE);
+		$comments_closed = (($nocomment) ? $comments_closed : DBA::$dba->get_null_date());
 
 		// determine if this is a wall post
 
@@ -875,7 +876,7 @@ class Item extends Controller {
 
 			if ($obj['endTime']) {
 				$d = datetime_convert('UTC','UTC', $obj['endTime']);
-				if ($d > NULL_DATE) {
+				if ($d > DBA::$dba->get_null_date()) {
 					$comments_closed = $d;
 				}
 			}

@@ -25,7 +25,7 @@ function get_public_feed($channel, $params) {
 		$params = [];
 
 	$params['type']        = ((x($params,'type'))     ? $params['type']           : 'xml');
-	$params['begin']       = ((x($params,'begin'))    ? $params['begin']          : NULL_DATE);
+	$params['begin']       = ((x($params,'begin'))    ? $params['begin']          : DBA::$dba->get_null_date());
 	$params['end']         = ((x($params,'end'))      ? $params['end']            : datetime_convert('UTC','UTC','now'));
 	$params['start']       = ((x($params,'start'))    ? $params['start']          : 0);
 	$params['records']     = ((x($params,'records'))  ? $params['records']        : 40);
@@ -1302,7 +1302,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 					if($r) {
 						$parent_item = $r[0];
 						if(intval($parent_item['item_nocomment']) || $parent_item['comment_policy'] === 'none'
-							|| ($parent_item['comments_closed'] > NULL_DATE && $parent_item['comments_closed'] < datetime_convert())) {
+							|| ($parent_item['comments_closed'] > DBA::$dba->get_null_date() && $parent_item['comments_closed'] < datetime_convert())) {
 							logger('comments disabled for post ' . $parent_item['mid']);
 							continue;
 						}
@@ -1459,7 +1459,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 
 				$datarray['owner_xchan'] = $contact['xchan_hash'];
 
-				if(array_key_exists('created',$datarray) && $datarray['created'] > NULL_DATE && $expire_days) {
+				if(array_key_exists('created',$datarray) && $datarray['created'] > DBA::$dba->get_null_date() && $expire_days) {
 					$t1 = $datarray['created'];
 					$t2 = datetime_convert('UTC','UTC','now - ' . $expire_days . 'days');
 					if($t1 < $t2) {

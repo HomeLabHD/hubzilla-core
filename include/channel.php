@@ -1302,7 +1302,7 @@ function channel_export_items_page($channel_id, $start, $finish, $page = 0, $lim
 	}
 
 	if(! $start)
-		$start = NULL_DATE;
+		$start = DBA::$dba->get_null_date();
 	else
 		$start = datetime_convert('UTC', 'UTC', $start);
 
@@ -1823,7 +1823,7 @@ function advanced_profile() {
 		if(App::$profile['partner'])
 			$profile['marital']['partner'] = zidify_links(bbcode(App::$profile['partner']));
 
-		if(strlen(App::$profile['howlong']) && App::$profile['howlong'] > NULL_DATE) {
+		if(strlen(App::$profile['howlong']) && App::$profile['howlong'] > DBA::$dba->get_null_date()) {
 			$profile['howlong'] = relative_date(App::$profile['howlong'], t('for %1$d %2$s'));
 		}
 
@@ -2649,10 +2649,10 @@ function channel_store_lowlevel($arr) {
 		'channel_eprvkey'         => ((array_key_exists('channel_eprvkey',$arr))         ? $arr['channel_eprvkey']         : ''),
 		'channel_notifyflags'     => ((array_key_exists('channel_notifyflags',$arr))     ? $arr['channel_notifyflags']     : '65535'),
 		'channel_pageflags'       => ((array_key_exists('channel_pageflags',$arr))       ? $arr['channel_pageflags']       : '0'),
-		'channel_dirdate'         => ((array_key_exists('channel_dirdate',$arr))         ? $arr['channel_dirdate']         : NULL_DATE),
-		'channel_lastpost'        => ((array_key_exists('channel_lastpost',$arr))        ? $arr['channel_lastpost']        : NULL_DATE),
-		'channel_deleted'         => ((array_key_exists('channel_deleted',$arr))         ? $arr['channel_deleted']         : NULL_DATE),
-		'channel_active'          => ((array_key_exists('channel_active',$arr))          ? $arr['channel_active']          : NULL_DATE),
+		'channel_dirdate'         => ((array_key_exists('channel_dirdate',$arr))         ? $arr['channel_dirdate']         : DBA::$dba->get_null_date()),
+		'channel_lastpost'        => ((array_key_exists('channel_lastpost',$arr))        ? $arr['channel_lastpost']        : DBA::$dba->get_null_date()),
+		'channel_deleted'         => ((array_key_exists('channel_deleted',$arr))         ? $arr['channel_deleted']         : DBA::$dba->get_null_date()),
+		'channel_active'          => ((array_key_exists('channel_active',$arr))          ? $arr['channel_active']          : DBA::$dba->get_null_date()),
 		'channel_max_anon_mail'   => ((array_key_exists('channel_max_anon_mail',$arr))   ? $arr['channel_max_anon_mail']   : '10'),
 		'channel_max_friend_req'  => ((array_key_exists('channel_max_friend_req',$arr))  ? $arr['channel_max_friend_req']  : '10'),
 		'channel_expire_days'     => ((array_key_exists('channel_expire_days',$arr))     ? $arr['channel_expire_days']     : '0'),
@@ -2695,7 +2695,7 @@ function profile_store_lowlevel($arr) {
         'gender'        => ((array_key_exists('gender',$arr))        ? $arr['gender']        : ''),
         'marital'       => ((array_key_exists('marital',$arr))       ? $arr['marital']       : ''),
         'partner'       => ((array_key_exists('partner',$arr))       ? $arr['partner']       : ''),
-        'howlong'       => ((array_key_exists('howlong',$arr))       ? $arr['howlong']       : NULL_DATE),
+        'howlong'       => ((array_key_exists('howlong',$arr))       ? $arr['howlong']       : DBA::$dba->get_null_date()),
         'sexual'        => ((array_key_exists('sexual',$arr))        ? $arr['sexual']        : ''),
         'politic'       => ((array_key_exists('politic',$arr))       ? $arr['politic']       : ''),
         'religion'      => ((array_key_exists('religion',$arr))      ? $arr['religion']      : ''),
