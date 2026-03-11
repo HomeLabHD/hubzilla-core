@@ -22,12 +22,12 @@ if [ $ADDONMODE ]
 then
     cd "$FULLPATH/../addon/$ADDONNAME"
     mkdir -p "$FULLPATH/../addon/$ADDONNAME/lang/C"
-    OUTFILE="$FULLPATH/../addon/$ADDONNAME/lang/C/hmessages.po"
+    OUTFILE="$FULLPATH/../addon/$ADDONNAME/lang/C/hmessages.pot"
     FINDSTARTDIR="."
     FINDOPTS=
 else
     cd "$FULLPATH/../view/lang/en/"
-    OUTFILE="$FULLPATH/hmessages.po"
+    OUTFILE="$FULLPATH/hmessages.pot"
     FINDSTARTDIR="../../../"
     # skip addon folder
     FINDOPTS="( -wholename */store -o -wholename */vendor -o -wholename */extend ) -prune -o"
@@ -59,7 +59,7 @@ for f in $(find -L "$FINDSTARTDIR" $FINDOPTS -name "*.php" -type f)
 do
     if [ ! -d "$f" ]
     then
-        xgettext $KEYWORDS $OPTS -j -o "$OUTFILE" --from-code=UTF-8 "$f" > /dev/null 2>&1
+        xgettext $KEYWORDS $OPTS -L PHP -j -o "$OUTFILE" --from-code=UTF-8 "$f" > /dev/null 2>&1
     fi
 done
 
