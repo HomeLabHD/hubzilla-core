@@ -22,12 +22,12 @@ if [ $ADDONMODE ]
 then
     cd "$FULLPATH/../addon/$ADDONNAME"
     mkdir -p "$FULLPATH/../addon/$ADDONNAME/lang/C"
-    OUTFILE="$FULLPATH/../addon/$ADDONNAME/lang/C/hmessages.po"
+    OUTFILE="$FULLPATH/../addon/$ADDONNAME/lang/C/hmessages.pot"
     FINDSTARTDIR="."
     FINDOPTS=
 else
     cd "$FULLPATH/../view/lang/en/"
-    OUTFILE="$FULLPATH/hmessages.po"
+    OUTFILE="$FULLPATH/hmessages.pot"
     FINDSTARTDIR="../../../"
     # skip addon folder
     FINDOPTS="( -wholename */store -o -wholename */vendor -o -wholename */extend ) -prune -o"
