@@ -150,13 +150,14 @@ class Search extends Controller {
 		// OR your own posts if you are a logged in member
 		// No items will be shown if the member has a blocked profile wall.
 
+		$livesearch = '';
 
 		if ((!$update) && (!$load)) {
 
 			// This is ugly, but we can't pass the profile_uid through the session to the ajax updater,
 			// because browser prefetching might change it on us. We have to deliver it with the page.
 
-			$livesearch = '<div id="live-search"></div>' . "\r\n";
+			$livesearch .= '<div id="live-search"></div>' . "\r\n";
 			$livesearch .= "<script> var profile_uid = " . ((intval(local_channel())) ? local_channel() : (-1))
 				. "; var netargs = '?f='; var profile_page = " . App::$pager['page'] . "; </script>\r\n";
 
