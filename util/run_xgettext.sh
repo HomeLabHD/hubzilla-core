@@ -59,7 +59,7 @@ for f in $(find -L "$FINDSTARTDIR" $FINDOPTS -name "*.php" -type f)
 do
     if [ ! -d "$f" ]
     then
-        xgettext $KEYWORDS $OPTS -j -o "$OUTFILE" --from-code=UTF-8 "$f" > /dev/null 2>&1
+        xgettext $KEYWORDS $OPTS -L PHP -j -o "$OUTFILE" --from-code=UTF-8 "$f" > /dev/null 2>&1
     fi
 done
 
