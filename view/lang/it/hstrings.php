@@ -2,10 +2,10 @@
 
 if(! function_exists("string_plural_select_it")) {
 function string_plural_select_it($n){
-	return $n == 1 ? 0 : $n != 0 && $n % 1000000 == 0 ? 1 : 2;
+	return (($n == 1) ? 0 : (($n != 0 && $n % 1000000 == 0) ? 1 : 2));
 }}
 App::$rtl = 0;
-App::$strings["plural_function_code"] = "n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2";
+App::$strings["plural_function_code"] = "((n == 1) ? 0 : ((n != 0 && n % 1000000 == 0) ? 1 : 2))";
 App::$strings["Source channel not found."] = "Origine del canale non trovata";
 App::$strings["Default"] = "Predefinito";
 App::$strings["Focus (Hubzilla default)"] = "Focus (predefinito)";

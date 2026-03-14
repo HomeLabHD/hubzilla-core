@@ -1256,6 +1256,7 @@ class App {
 
 		self::$meta->set('generator', Zotlabs\Lib\System::get_platform_name());
 		self::$meta->set('theme-color', $theme_color);
+		self::$meta->set('accent-color', $theme_color);
 
 		head_add_link(['rel' => 'shortcut icon', 'href' => static::head_get_icon()]);
 		head_add_link(['rel' => 'apple-touch-icon', 'href' => '/images/app/hz-192.png']);
