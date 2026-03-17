@@ -1,15 +1,12 @@
 <?php
 /*
  * SPDX-FileCopyrightText: 2026 The Hubzilla Community
- * SPDX-FileContributor: Harald Eilertsen <haraldei@anduin.net>
+ * SPDX-FileContributor: Mario Vavti <mario@mariovavti.com>
  *
  * SPDX-License-Identifier: MIT
  */
 
 namespace Zotlabs\Tests\Unit;
-
-use PHPUnit\Framework\Attributes\Before;
-use Zotlabs\Lib\Libzot;
 
 class ZidTest extends UnitTestCase {
 
