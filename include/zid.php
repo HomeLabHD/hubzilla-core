@@ -150,28 +150,29 @@ function clean_query_string($s = '') {
  */
 
 function drop_query_params($s, $p) {
+		$unescaped = unescape_tags($s);
+		$parsed = parse_url($unescaped);
 
-		$s = unescape_tags($s);
-
-		$parsed = parse_url($s);
-		$query = '';
-		$query_args = null;
-
-		if(isset($parsed['query'])) {
-			parse_str($parsed['query'], $query_args);
+		if (empty($parsed['query'])) {
+			// No query parameters were found, return the original string
+			return $s;
 		}
 
-		if(is_array($query_args)) {
-			foreach($query_args as $k => $v) {
-				if(in_array($k, $p))
-					continue;
-				$query .= (($query) ? '&' : '') . urlencode($k) . '=' . urlencode($v);
+		$query_args = [];
+
+		parse_str($parsed['query'], $query_args);
+
+		foreach($query_args as $k => $v) {
+			if (in_array($k, $p)) {
+				unset($query_args[$k]);
 			}
 		}
 
 		unset($parsed['query']);
 
-		if($query) {
+		$query = http_build_query($query_args, '', '&');
+
+		if ($query) {
 			$parsed['query'] = $query;
 		}
 

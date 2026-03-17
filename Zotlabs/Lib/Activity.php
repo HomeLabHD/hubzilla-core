@@ -3790,6 +3790,9 @@ class Activity {
 	 */
 
 	public static function init_background_fetch(string $observer_hash = '') {
+
+		$interval = Config::Get('queueworker', 'queue_interval', 500000);
+
 		if (isset(App::$cache['zot_fetch_objects'])) {
 			foreach (App::$cache['zot_fetch_objects'] as $mid => $info) {
 				$force = $info['force'];
@@ -3803,6 +3806,10 @@ class Activity {
 				}
 
 				Master::Summon(['Zotconvo', $channels_str, $mid, $force]);
+
+				if ($interval) {
+					usleep($interval);
+				}
 			}
 		}
 
@@ -3824,6 +3831,10 @@ class Activity {
 				}
 
 				Master::Summon(['Fetchparents', $channels_str, $observer_hash, $mid, $force]);
+
+				if ($interval) {
+					usleep($interval);
+				}
 			}
 		}
 
@@ -3840,6 +3851,10 @@ class Activity {
 				}
 
 				Master::Summon(['Convo', $channels_str, $observer_hash, $mid, $force]);
+
+				if ($interval) {
+					usleep($interval);
+				}
 			}
 		}
 
