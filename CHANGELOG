@@ -3,8 +3,11 @@ Hubzilla 11.2 (2026-??-??)
 	- Introduce parse_webbie() for preparing webbies and URLs for webfinger usage
 	- Allow to override cUrl useragent
 	- New HQ system status widget for admins (sponsored by NLnet NGI0 Commons Fund/Performance Profiling)
+	- Refactor drop_query_params() to deal with array params and add test
 
 	Maintenance
+	- Add a short sleep interval to Activity::init_background_fetch() when adding new work items in a loop
+	- Add a short sleep interval to the convo daemon loop to spread the load for large collections
 	- Use PHP matching rules in util/run_xgettext
 	- Store translation templates as .pot instead of .po
 	- Deprecate NULL_DATE constant in favor of DBA::get_null_date()
@@ -15,6 +18,7 @@ Hubzilla 11.2 (2026-??-??)
 	- Update the nginx config example to meet the more modern approach
 
 	Bugfixes
+	- Fix possible endless loop in externals daemon
 	- Fix fatal error in italian translation file
 	- Fix mod network not displaying direct messages when filters active - issue #1973
 	- Fix ghost notifications with reshared items - issue #1970
