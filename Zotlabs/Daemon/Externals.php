@@ -74,6 +74,8 @@ class Externals {
 				}
 			}
 
+			$attempts++;
+
 			if (!$url) {
 				continue;
 			}
@@ -85,7 +87,6 @@ class Externals {
 				$blacklisted = true;
 			}
 
-			$attempts++;
 
 			// make sure we can eventually break out if somebody blacklists all known sites
 
