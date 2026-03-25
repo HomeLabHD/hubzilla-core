@@ -18,6 +18,9 @@ Hubzilla 11.2 (2026-??-??)
 	- Update the nginx config example to meet the more modern approach
 
 	Bugfixes
+	- Fix route and widget register() not deduplicating entries
+	- Fix issue in route and widget unregister() where we unregistered even if only one of the two arguments did not match
+	- Fix issue in Storage/Directory where we returned a partial path instead of throwing exception if a directory of a path could not be found
 	- Fix possible endless loop in externals daemon
 	- Fix fatal error in italian translation file
 	- Fix mod network not displaying direct messages when filters active - issue #1973
