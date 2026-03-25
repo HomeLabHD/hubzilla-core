@@ -8,6 +8,13 @@ class Route {
 
 	static function register($file,$modname) {
 		$rt = self::get();
+
+		foreach ($rt as $r) {
+			if ($r[0] === $file && $r[1] === $modname) {
+				return;
+			}
+		}
+
 		$rt[] = [ $file, $modname ];
 		self::set($rt);
 	}
@@ -17,7 +24,7 @@ class Route {
 		if($rt) {
 			$n = [];
 			foreach($rt as $r) {
-				if($r[0] !== $file && $r[1] !== $modname) {
+				if(!($r[0] === $file && $r[1] === $modname)) {
 					$n[] = $r;
 				}
 			}
