@@ -6,6 +6,7 @@ use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\ActivityStreams;
 use Zotlabs\Lib\ASCollection;
 use Zotlabs\Lib\ASCache;
+use Zotlabs\Lib\Config;
 
 class Convo {
 
@@ -33,6 +34,7 @@ class Convo {
 		}
 
 		$force = $argv[4] ?? false;
+		$interval = Config::Get('queueworker', 'queue_interval', 500000);
 
 		foreach ($channels as $channel_id) {
 			$channel = channelx_by_n($channel_id);
@@ -46,6 +48,8 @@ class Convo {
 			}
 
 			foreach ($messages as $message) {
+				$network_fetch = false;
+
 				if (is_string($message)) {
 					$cached = ASCache::Get($message);
 					if ($cached) {
@@ -54,6 +58,8 @@ class Convo {
 					}
 					else {
 						// logger('convo_fetching: ' . $message);
+						$network_fetch = true;
+
 						$data = Activity::fetch($message, $channel);
 						if ($data) {
 							ASCache::Set($message, $data);
@@ -63,6 +69,12 @@ class Convo {
 				}
 				else {
 					$data = $message;
+				}
+
+				if (!$network_fetch) {
+					// Add some delay so that the DB will not be overwhelmed
+					// Fetched from network will already have a slight delay
+					usleep($interval);
 				}
 
 				$AS = new ActivityStreams($data);
