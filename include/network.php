@@ -14,15 +14,6 @@ use Zotlabs\Web\HTTPSig;
  */
 
 /**
- * @brief Returns path to CA file.
- *
- * @return string
- */
-function get_capath() {
-	return appdirpath() . '/library/cacert.pem';
-}
-
-/**
  * @brief fetches an URL.
  *
  * @param string $url
@@ -63,7 +54,6 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 
 	@curl_setopt($ch, CURLOPT_HEADER, true);
 	@curl_setopt($ch, CURLINFO_HEADER_OUT, true);
-	@curl_setopt($ch, CURLOPT_CAINFO, get_capath());
 	@curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 	@curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
 	@curl_setopt($ch, CURLOPT_ENCODING, '');
@@ -262,7 +252,6 @@ function z_post_url($url, $params, $redirects = 0, $opts = array()) {
 
 	@curl_setopt($ch, CURLOPT_HEADER, true);
 	@curl_setopt($ch, CURLINFO_HEADER_OUT, true);
-	@curl_setopt($ch, CURLOPT_CAINFO, get_capath());
 	@curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
 	@curl_setopt($ch, CURLOPT_POST,1);
 	@curl_setopt($ch, CURLOPT_POSTFIELDS,$params);
