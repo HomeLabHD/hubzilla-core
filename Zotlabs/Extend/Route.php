@@ -65,7 +65,7 @@ class Route {
 	 * @see {@link Zotlabs::Extend::Route.unregister() unregister()}
 	 * @see {@link Zotlabs::Extend::Route.unregister_by_file() unregister_by_file()}
 	 */
-	public static function register($file,$modname) {
+	public static function register(string $file, string $modname): void {
 		$rt = self::get();
 
 		foreach ($rt as $r) {
@@ -95,7 +95,7 @@ class Route {
 	 * @see {@link Zotlabs::Extend::Route.register() register()}
 	 * @see {@link Zotlabs::Extend::Route.unregister_by_file() unregister_by_file()}
 	 */
-	public static function unregister($file,$modname) {
+	public static function unregister(string $file, string $modname): void {
 		$rt = self::get();
 		if($rt) {
 			$n = [];
@@ -124,7 +124,7 @@ class Route {
 	 * @see {@link Zotlabs::Extend::Route.register() register()}
 	 * @see {@link Zotlabs::Extend::Route.unregister() unregister()}
 	 */
-	public static function unregister_by_file($file) {
+	public static function unregister_by_file(string $file): void {
 		$rt = self::get();
 		if($rt) {
 			$n = [];
@@ -144,11 +144,11 @@ class Route {
 	 *               containing two elements, the file, and the module
 	 *               name.
 	 */
-	public static function get() {
+	public static function get(): array {
 		return Config::Get('system','routes',[]);
 	}
 
-	private static function set($r) {
+	private static function set(array $r): mixed {
 		return Config::Set('system','routes',$r);
 	}
 }
