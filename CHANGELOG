@@ -1,4 +1,4 @@
-Hubzilla 11.2 (2026-??-??)
+Hubzilla 11.2 (2026-03-26)
 	Features
 	- Introduce parse_webbie() for preparing webbies and URLs for webfinger usage
 	- Allow to override cUrl useragent
