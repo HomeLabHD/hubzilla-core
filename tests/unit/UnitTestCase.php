@@ -181,7 +181,7 @@ class UnitTestCase extends TestCase {
 	 *						directory of the process, which should normally
 	 *						be the Hubzilla root directory.
 	 */
-	private function loadFixture($file) : void {
+	public function loadFixture($file) : void {
 		$table_name = basename($file, '.yml');
 		$data = yaml_parse_file($file)[$table_name];
 

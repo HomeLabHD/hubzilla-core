@@ -3,21 +3,21 @@ namespace Zotlabs\Module;
 
 require_once('include/event.php');
 
-
+use DBA;
 
 class Tasks extends \Zotlabs\Web\Controller {
 
 	function init() {
-	
-	
+
+
 	//	logger('request: ' . print_r($_REQUEST,true));
-	
+
 		$arr = array();
-	
-		if(argc() > 1 && argv(1) === 'fetch') {		
+
+		if(argc() > 1 && argv(1) === 'fetch') {
 			if(argc() > 2 && argv(2) === 'all')
 				$arr['all'] = 1;
-			
+
 			$x = tasks_fetch($arr);
 			$x['html'] = '';
 			if($x['tasks']) {
@@ -53,7 +53,7 @@ class Tasks extends \Zotlabs\Web\Controller {
 				$event = $r[0];
 				if($event['event_status'] === 'COMPLETED') {
 					$event['event_status'] = 'IN-PROCESS';
-					$event['event_status_date'] = NULL_DATE;
+					$event['event_status_date'] = DBA::$dba->get_null_date();
 					$event['event_percent'] = 0;
 					$event['event_sequence'] = $event['event_sequence'] + 1;
 					$event['edited'] = datetime_convert();

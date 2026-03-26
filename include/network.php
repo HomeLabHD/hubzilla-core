@@ -14,15 +14,6 @@ use Zotlabs\Web\HTTPSig;
  */
 
 /**
- * @brief Returns path to CA file.
- *
- * @return string
- */
-function get_capath() {
-	return appdirpath() . '/library/cacert.pem';
-}
-
-/**
  * @brief fetches an URL.
  *
  * @param string $url
@@ -63,11 +54,16 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 
 	@curl_setopt($ch, CURLOPT_HEADER, true);
 	@curl_setopt($ch, CURLINFO_HEADER_OUT, true);
-	@curl_setopt($ch, CURLOPT_CAINFO, get_capath());
 	@curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 	@curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
-	@curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; zot)');
 	@curl_setopt($ch, CURLOPT_ENCODING, '');
+
+	if (!empty($opts['useragent'])) {
+		@curl_setopt($ch, CURLOPT_USERAGENT, $opts['useragent']);
+	}
+	else {
+		@curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; zot)');
+	}
 
 	$ciphers = @Config::Get('system','curl_ssl_ciphers');
 	if($ciphers)
@@ -256,12 +252,17 @@ function z_post_url($url, $params, $redirects = 0, $opts = array()) {
 
 	@curl_setopt($ch, CURLOPT_HEADER, true);
 	@curl_setopt($ch, CURLINFO_HEADER_OUT, true);
-	@curl_setopt($ch, CURLOPT_CAINFO, get_capath());
 	@curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
 	@curl_setopt($ch, CURLOPT_POST,1);
 	@curl_setopt($ch, CURLOPT_POSTFIELDS,$params);
-	@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; zot)");
 	@curl_setopt($ch, CURLOPT_ENCODING, '');
+
+	if (!empty($opts['useragent'])) {
+		@curl_setopt($ch, CURLOPT_USERAGENT, $opts['useragent']);
+	}
+	else {
+		@curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; zot)');
+	}
 
 	$ciphers = @Config::Get('system','curl_ssl_ciphers');
 	if($ciphers)
@@ -1220,38 +1221,61 @@ function discover_by_webbie($webbie, $protocol = '') {
  * @return boolean|string false or associative array from result JSON
  */
 function webfinger_rfc7033($webbie, $zot = false) {
+	$parsed = parse_webbie($webbie);
 
-	if(filter_var($webbie, FILTER_VALIDATE_EMAIL)) {
-		$lhs = substr($webbie,0,strpos($webbie,'@'));
-		$rhs = substr($webbie,strpos($webbie,'@')+1);
-		$resource = urlencode('acct:' . $webbie);
-	}
-	elseif(filter_var($webbie, FILTER_VALIDATE_URL)) {
-		$m = parse_url($webbie);
-		if($m) {
-			if($m['scheme'] !== 'https')
-				return false;
-
-			$rhs = $m['host'] . (array_key_exists('port', $m) ? ':' . $m['port'] : '');
-			$resource = urlencode($webbie);
-		}
-	}
-	else
+	if (!$parsed) {
 		return false;
+	}
 
-	logger('fetching url from resource: ' . $rhs . ':' . $webbie);
+	logger('fetching url from resource: ' . $parsed['host'] . ':' . $parsed['resource']);
 
-	$counter = 0;
-	$s = z_fetch_url('https://' . $rhs . '/.well-known/webfinger?f=&resource=' . $resource . (($zot) ? '&zot=1' : ''),
-		false, $counter, [ 'headers' => [ 'Accept: application/jrd+json, application/json, */*' ] ]);
+	$s = z_fetch_url('https://' . $parsed['host'] . '/.well-known/webfinger?f=&resource=' . $parsed['resource'] . (($zot) ? '&zot=1' : ''),
+		false, 0, [ 'headers' => [ 'Accept: application/jrd+json, application/json, */*' ] ]);
 
 	if($s['success']) {
 		$j = json_decode($s['body'], true);
-		return($j);
+		return $j;
 	}
 
 	return false;
 }
+
+function parse_webbie($webbie) {
+	$parsed = parse_url($webbie);
+
+	if (!$parsed) {
+		return false;
+	}
+
+	if (!isset($parsed['scheme'])) {
+		$parsed['scheme'] = 'acct';
+	}
+
+	if (in_array($parsed['scheme'], ['http', 'https'])) {
+		$result['host'] = $parsed['host'] . ((isset($parsed['port'])) ? ':' . $parsed['port'] : '');
+		$result['resource'] = urlencode($webbie);
+	}
+	elseif ($parsed['scheme'] === 'acct') {
+		$parts = explode('@', ltrim($parsed['path'], '@'));
+
+		if (count($parts) !== 2) {
+			return false;
+		}
+
+		$result['host'] = $parts[1];
+		$result['resource'] = urlencode('acct:' . $parts[0] . '@' . $parts[1]);
+	}
+	else {
+		return false;
+	}
+
+	if (isset($result['host'], $result['resource'])) {
+		return $result;
+	}
+
+	return false;
+}
+
 
 function old_webfinger($webbie) {
 
@@ -1838,13 +1862,20 @@ function probe_api_path($host) {
 }
 
 
-function scrape_vcard($url) {
+function scrape_vcard($url, $useragent = '') {
 
 	$ret = array();
 
 	logger('url=' . $url);
 
-	$x = z_fetch_url($url);
+	$opts = [];
+
+	if ($useragent) {
+		$opts['useragent'] = $useragent;
+	}
+
+	$x = z_fetch_url($url, opts: $opts);
+
 	if(! $x['success']) {
 		logger('ERROR fetching URL');
 		return $ret;

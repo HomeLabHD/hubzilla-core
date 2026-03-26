@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Daemon;
 
+use DBA;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\ActivityStreams;
 use Zotlabs\Lib\ASCollection;
@@ -15,10 +16,14 @@ class Onepoll {
 
 	static public function run($argc, $argv) {
 
+		if ($argc < 2 || is_int($argv[1]) === false) {
+			logger('onepoll: no contact');
+			return;
+		}
+
 		logger('onepoll: start');
 
-		if (($argc > 1) && (intval($argv[1])))
-			$contact_id = intval($argv[1]);
+		$contact_id = intval($argv[1]);
 
 		if (!$contact_id) {
 			logger('onepoll: no contact');
@@ -34,7 +39,7 @@ class Onepoll {
 		$contacts = q("SELECT abook.*, xchan.* FROM abook
 			LEFT JOIN xchan ON xchan_hash = abook_xchan
 			WHERE abook_id = %d",
-			intval($contact_id)
+			$contact_id
 		);
 
 		if (!$contacts) {
@@ -53,7 +58,7 @@ class Onepoll {
 
 		logger("onepoll: poll: ($contact_id) IMPORTER: {$importer['xchan_name']}, CONTACT: {$contact['xchan_name']}");
 
-		$last_update = ((($contact['abook_updated'] === $contact['abook_created']) || ($contact['abook_updated'] <= NULL_DATE))
+		$last_update = ((($contact['abook_updated'] === $contact['abook_created']) || ($contact['abook_updated'] <= DBA::$dba->get_null_date()))
 			? datetime_convert('UTC', 'UTC', 'now - 7 days')
 			: datetime_convert('UTC', 'UTC', $contact['abook_updated'] . ' - 2 days')
 		);

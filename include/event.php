@@ -162,7 +162,7 @@ function format_event_obj($jobject) {
 			'$dtend_dt'      => $dtend_dt,
 			'$allday'        => $allday,
 			'$oneday'        => $oneday,
-			'$event_tz'      => ['label' => t('Timezone'), 'value' => (($tz === date_default_timezone_get()) ? '' : $tz)]
+			'$tz'            => ['label' => t('Timezone'), 'value' => (($tz && $tz !== date_default_timezone_get()) ? date_default_timezone_get() : '')]
 		));
 
 		$event['content'] = replace_macros(get_markup_template('event_item_content.tpl'), array(
@@ -537,14 +537,14 @@ function event_store_event($arr) {
 	$arr['deny_gid']       = $arr['deny_gid'] ?? '';
 
 	if (! $arr['dtend']) {
-		$arr['dtend'] = NULL_DATE;
+		$arr['dtend'] = DBA::$dba->get_null_date();
 		$arr['nofinish'] = 1;
 	}
 
 	if(array_key_exists('event_status_date',$arr))
 		$arr['event_status_date'] = datetime_convert('UTC','UTC', $arr['event_status_date']);
 	else
-		$arr['event_status_date'] = NULL_DATE;
+		$arr['event_status_date'] = DBA::$dba->get_null_date();
 
 
 	$existing_event = null;

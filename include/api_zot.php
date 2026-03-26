@@ -105,7 +105,7 @@
 			$records = 10;
 		}
 		if(! $_REQUEST['since'])
-			$start = NULL_DATE;
+			$start = DBA::$dba->get_null_date();
 		else {
 			$start = datetime_convert(date_default_timezone_get(),'UTC', $_REQUEST['since']);
 		}
@@ -210,7 +210,7 @@
 		$start    = ((array_key_exists('start',$_REQUEST))    ? intval($_REQUEST['start'])   : 0);
 		$records  = ((array_key_exists('records',$_REQUEST))  ? intval($_REQUEST['records']) : 0);
 
-		$since    = ((array_key_exists('since',$_REQUEST))    ? datetime_convert(date_default_timezone_get(),'UTC',$_REQUEST['since'])   : NULL_DATE);
+		$since    = ((array_key_exists('since',$_REQUEST))    ? datetime_convert(date_default_timezone_get(),'UTC',$_REQUEST['since'])   : DBA::$dba->get_null_date());
 		$until    = ((array_key_exists('until',$_REQUEST))    ? datetime_convert(date_default_timezone_get(),'UTC',$_REQUEST['until'])   : datetime_convert());
 
 		$x = attach_list_files(api_user(),get_observer_hash(),$hash,$filename,$filetype,'created asc',$start,$records, $since, $until);

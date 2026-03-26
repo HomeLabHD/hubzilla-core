@@ -9,10 +9,14 @@ class Onedirsync {
 
 	static public function run($argc, $argv) {
 
+		if ($argc < 2 || is_int($argv[1]) === false) {
+			logger('onedirsync: no update id');
+			return;
+		}
+
 		logger('onedirsync: start ' . intval($argv[1]));
 
-		if (($argc > 1) && (intval($argv[1])))
-			$update_id = intval($argv[1]);
+		$update_id = intval($argv[1]);
 
 		if (!$update_id) {
 			logger('onedirsync: no update id');

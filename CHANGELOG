@@ -1,3 +1,49 @@
+Hubzilla 11.2 (2026-03-26)
+	Features
+	- Introduce parse_webbie() for preparing webbies and URLs for webfinger usage
+	- Allow to override cUrl useragent
+	- New HQ system status widget for admins (sponsored by NLnet NGI0 Commons Fund/Performance Profiling)
+	- Refactor drop_query_params() to deal with array params and add test
+
+	Maintenance
+	- Remove private members from API docs
+	- Remove custom CA certs
+	- Add type annotations in Extend\Route
+	- Set method visibility in Extend\Route
+	- Add API docs and licence info to Extend\Route
+	- Add a short sleep interval to Activity::init_background_fetch() when adding new work items in a loop
+	- Add a short sleep interval to the convo daemon loop to spread the load for large collections
+	- Use PHP matching rules in util/run_xgettext
+	- Store translation templates as .pot instead of .po
+	- Deprecate NULL_DATE constant in favor of DBA::get_null_date()
+	- Composer require guzzlehttp/psr7
+	- Update composer libs
+	- Move HQ channel notifications widget HTML to template
+	- Deprecate tags and attachment in activities
+	- Update the nginx config example to meet the more modern approach
+
+	Bugfixes
+	- Fix route and widget register() not deduplicating entries
+	- Fix issue in route and widget unregister() where we unregistered even if only one of the two arguments did not match
+	- Fix issue in Storage/Directory where we returned a partial path instead of throwing exception if a directory of a path could not be found
+	- Fix possible endless loop in externals daemon
+	- Fix fatal error in italian translation file
+	- Fix mod network not displaying direct messages when filters active - issue #1973
+	- Fix ghost notifications with reshared items - issue #1970
+	- Fix issue with double typed objects in Lib/Activity
+	- Fix events displaying event timezone instead of adjusted to timezone
+	- Fix duplicated terms in activity object
+	- Fix last modified timestamp not updating in attach_store()
+
+	Addons
+	- Wopi: fix headers already set warning when serving the file to the client
+	- Superblock: complete rewrite with extended functionality and added tests for version 3.0 (sponsored by NLnet NGI0 Commons Fund/Superblock)
+	- Diaspora: use Diaspora/2 useragent when fetching hcards to prevent being redirected to some shady bot guard
+	- Add composer config and autoload files for addons
+	- Wopi: return early in construct_page hook and
+	- Wopi: fix wrong hook name in uninstall function
+
+
 Hubzilla 11.0 (2026-01-30)
 	Features
 	- Rewrite Lib/MessageFilter (ported from forte) and add more tests

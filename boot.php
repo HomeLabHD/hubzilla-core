@@ -70,7 +70,7 @@ require_once('include/security.php');
 
 
 define('PLATFORM_NAME', 'hubzilla');
-define('STD_VERSION', '11.0');
+define('STD_VERSION', '11.2');
 define('ZOT_REVISION', '6.0');
 
 define('DB_UPDATE_VERSION', 1265);
@@ -1896,7 +1896,7 @@ function notice($s) {
 
 	$x = null;
 
-	$t = get_xconfig($hash, 'sse', 'timestamp', NULL_DATE);
+	$t = get_xconfig($hash, 'sse', 'timestamp', DBA::$dba->get_null_date());
 
 	if (datetime_convert('UTC', 'UTC', $t) < datetime_convert('UTC', 'UTC', '- 30 seconds')) {
 		set_xconfig($hash, 'sse', 'notifications', []);
@@ -1945,7 +1945,7 @@ function info($s) {
 
 	$x = null;
 
-	$t = get_xconfig($hash, 'sse', 'timestamp', NULL_DATE);
+	$t = get_xconfig($hash, 'sse', 'timestamp', DBA::$dba->get_null_date());
 
 	if (datetime_convert('UTC', 'UTC', $t) < datetime_convert('UTC', 'UTC', '- 30 seconds')) {
 		set_xconfig($hash, 'sse', 'notifications', []);

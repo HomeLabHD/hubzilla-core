@@ -1,6 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
+use DBA;
 use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libsync;
 
@@ -340,7 +341,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 			$with         = ((x($_POST,'with')) ? escape_tags(trim($_POST['with'])) : '');
 
 			if(! strlen($howlong))
-				$howlong = NULL_DATE;
+				$howlong = DBA::$dba->get_null_date();
 			else
 				$howlong = datetime_convert(date_default_timezone_get(),'UTC',$howlong);
 
@@ -774,7 +775,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 				'$marital'      => marital_selector($r[0]['marital']),
 				'$marital_min'  => marital_selector_min($r[0]['marital']),
 				'$with'         => array('with', t("Who (if applicable)"), $r[0]['partner'], t('Examples: cathy123, Cathy Williams, cathy@example.com')),
-				'$howlong'      => array('howlong', t('Since (date)'), ($r[0]['howlong'] <= NULL_DATE ? '' : datetime_convert('UTC',date_default_timezone_get(),$r[0]['howlong']))),
+				'$howlong'      => array('howlong', t('Since (date)'), ($r[0]['howlong'] <= DBA::$dba->get_null_date() ? '' : datetime_convert('UTC',date_default_timezone_get(),$r[0]['howlong']))),
 				'$sexual'       => sexpref_selector($r[0]['sexual']),
 				'$sexual_min'   => sexpref_selector_min($r[0]['sexual']),
 				'$about'        => array('about', t('Tell us about yourself'), $r[0]['about']),

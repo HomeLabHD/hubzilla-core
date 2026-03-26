@@ -2,6 +2,7 @@
 namespace Zotlabs\Module;
 
 use App;
+use DBA;
 use Zotlabs\Lib\Config;
 use Zotlabs\Web\Controller;
 
@@ -232,7 +233,7 @@ class Dirsearch extends Controller {
 			$spkt = array('transactions' => array());
 
 			$r = q("SELECT * FROM updates WHERE ud_update = 0 AND ud_last = '%s' AND ud_date >= '%s' ORDER BY ud_date DESC",
-				dbesc(NULL_DATE),
+				dbesc(DBA::$dba->get_null_date()),
 				dbesc($sync)
 			);
 

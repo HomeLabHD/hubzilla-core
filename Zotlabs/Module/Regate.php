@@ -142,7 +142,15 @@ class Regate extends \Zotlabs\Web\Controller {
 
 								if (($flags & ACCOUNT_PENDING ) == ACCOUNT_PENDING) {
 									$nextpage = 'regate/' . bin2hex($did2) . $didx;
-									q("COMMIT");
+									$approve = send_reg_approval_email_from_register($r['reg_id']);
+									if ($approve['success']) {
+										q("COMMIT");
+									} else {
+										q("ROLLBACK");
+										$msg_code = 'ZAR1237E';
+										$msg = t('Account verification notify error');
+										zar_log($msg_code . ' ' . $msg . ': ' . print_r($approve, true));
+									}
 								}
 								elseif (($flags ^ REGISTER_AGREED) == 0) {
 

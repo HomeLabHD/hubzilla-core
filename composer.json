@@ -57,7 +57,8 @@
         "scssphp/scssphp": "^2.0.1",
         "twbs/bootstrap-icons": "^1.11",
         "macgirvin/http-message-signer": "^0.2.6",
-        "root23/php-json-canonicalization": "^1.0"
+        "root23/php-json-canonicalization": "^1.0",
+        "guzzlehttp/psr7": "^2.8"
     },
     "require-dev": {
         "ext-yaml": "*",

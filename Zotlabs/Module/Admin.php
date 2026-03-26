@@ -8,6 +8,7 @@
 
 namespace Zotlabs\Module;
 
+use DBA;
 use Zotlabs\Lib\Config;
 
 require_once('include/account.php');
@@ -90,7 +91,7 @@ class Admin extends \Zotlabs\Web\Controller {
 		$r = q("SELECT COUNT(CASE WHEN account_id > 0 THEN 1 ELSE NULL END) AS total, COUNT(CASE WHEN account_expires > %s THEN 1 ELSE NULL END) AS expiring, COUNT(CASE WHEN account_expires < %s AND account_expires > '%s' THEN 1 ELSE NULL END) AS expired, COUNT(CASE WHEN (account_flags & %d)>0 THEN 1 ELSE NULL END) AS blocked FROM account",
 			db_utcnow(),
 			db_utcnow(),
-			dbesc(NULL_DATE),
+			dbesc(DBA::$dba->get_null_date()),
 			intval(ACCOUNT_BLOCKED)
 		);
 		if ($r) {

@@ -226,7 +226,7 @@ function attach_list_files($channel_id, $observer, $hash = '', $filename = '', $
 		$limit = " LIMIT " . intval($entries) . " OFFSET " . intval($start) . " ";
 
 	if(! $since)
-		$since = NULL_DATE;
+		$since = DBA::$dba->get_null_date();
 
 	if(! $until)
 		$until = datetime_convert();
@@ -660,6 +660,7 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 			dbesc($arr['hash']),
 			intval($channel_id)
 		);
+
 		if(! $x) {
 			logger('update file source not found');
 			$ret['message'] = t('Cannot locate file to revise/update');
@@ -729,14 +730,14 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 	$direct = null;
 
 	if($pathname) {
-		$x = attach_mkdirp($channel, $observer_hash, $darr);
-		$folder_hash = (($x['success']) ? $x['data']['hash'] : '');
-		$direct = (($x['success']) ? $x['data'] : null);
+		$new_dir = attach_mkdirp($channel, $observer_hash, $darr);
+		$folder_hash = (($new_dir['success']) ? $new_dir['data']['hash'] : '');
+		$direct = (($new_dir['success']) ? $new_dir['data'] : null);
 		if((! $str_contact_allow) && (! $str_group_allow) && (! $str_contact_deny) && (! $str_group_deny)) {
-			$str_contact_allow = $x['data']['allow_cid'];
-			$str_group_allow = $x['data']['allow_gid'];
-			$str_contact_deny = $x['data']['deny_cid'];
-			$str_group_deny = $x['data']['deny_gid'];
+			$str_contact_allow = $new_dir['data']['allow_cid'];
+			$str_group_allow = $new_dir['data']['allow_gid'];
+			$str_contact_deny = $new_dir['data']['deny_cid'];
+			$str_group_deny = $new_dir['data']['deny_gid'];
 		}
 	}
 	else {

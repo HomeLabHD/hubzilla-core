@@ -7,6 +7,20 @@ use Zotlabs\Zot6\Zot6Handler;
 
 class Queue {
 
+	/**
+	 * Get number of entries in the out queue.
+	 *
+	 * When delivery is successful, the item is removed from the out queue, so
+	 * the number of items in the queue reflects the number of pending delivery
+	 * attempts.
+	 *
+	 * @return int Number of items in the out queue.
+	 */
+	static function count(): int {
+		$r = dbq('select count(*) as total from outq');
+		return $r[0]['total'] ?? 0;
+	}
+
 	static function update($id, $add_priority = 0) {
 
 		logger('queue: requeue item ' . $id,LOGGER_DEBUG);

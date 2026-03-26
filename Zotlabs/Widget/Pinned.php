@@ -1,6 +1,7 @@
 <?php
 namespace Zotlabs\Widget;
 
+use DBA;
 use Zotlabs\Lib\Config;
 
 /**
@@ -60,7 +61,7 @@ class Pinned {
 			$profile_link = chanlink_hash($item['author_xchan']);
 			$profile_name = $author['xchan_name'];
 
-			$commentable = ($item['item_nocomment'] == 0 && $item['comments_closed'] == NULL_DATE ? true : false);
+			$commentable = ($item['item_nocomment'] == 0 && $item['comments_closed'] == DBA::$dba->get_null_date() ? true : false);
 
 			$location = format_location($item);
 			$isevent = false;
@@ -131,7 +132,7 @@ class Pinned {
 				'isotime'	 => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'c'),
 				'localtime'	 => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'r'),
 				'editedtime'	 => (($item['edited'] != $item['created']) ? sprintf( t('last edited: %s'), datetime_convert('UTC', date_default_timezone_get(), $item['edited'], 'r') ) : ''),
-				'expiretime'	 => ($item['expires'] > NULL_DATE ? sprintf( t('Expires: %s'), datetime_convert('UTC', date_default_timezone_get(), $item['expires'], 'r') ) : ''),
+				'expiretime'	 => ($item['expires'] > DBA::$dba->get_null_date() ? sprintf( t('Expires: %s'), datetime_convert('UTC', date_default_timezone_get(), $item['expires'], 'r') ) : ''),
 				'verified'	 => $verified,
 				'forged'	 => $forged,
 				'location'	 => $location,

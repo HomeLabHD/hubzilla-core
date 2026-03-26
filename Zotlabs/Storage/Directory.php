@@ -519,8 +519,8 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 	 * @return void
 	 */
 	function getDir() {
-
 		logger('GetDir: ' . $this->ext_path, LOGGER_DEBUG);
+
 		$this->auth->log();
 		$modulename = \App::$module;
 
@@ -537,7 +537,6 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 
 		$file = trim($file, '/');
 		$path_arr = explode('/', $file);
-
 
 		if (! $path_arr)
 			return;
@@ -558,9 +557,9 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 		$this->auth->owner_id = $channel_id;
 		$this->auth->owner_nick = $channel_name;
 
-		$path = '/' . $channel_name;
 		$folder = '';
 		$os_path = '';
+		$not_found = '';
 
 		for ($x = 1; $x < count($path_arr); $x++) {
 			$r = q("select id, hash, filename, flags, is_dir from attach where folder = '%s' and filename = '%s' and uid = %d and is_dir != 0",
@@ -568,15 +567,31 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 				dbesc($path_arr[$x]),
 				intval($channel_id)
 			);
+
 			if ($r && intval($r[0]['is_dir'])) {
 				$folder = $r[0]['hash'];
-				if (strlen($os_path))
-					$os_path .= '/';
-				$os_path .= $folder;
 
-				$path = $path . '/' . $r[0]['filename'];
+				if (strlen($os_path)) {
+					$os_path .= '/';
+				}
+
+				$os_path .= $folder;
 			}
+			else {
+				// if we got a bogus path collect the
+				if (strlen($not_found)) {
+					$not_found .= ',';
+				}
+
+				$not_found .= $path_arr[$x];
+			}
+
 		}
+
+		if ($not_found) {
+			throw new DAV\Exception\NotFound("Path $file does not exist. One or more directories could not be found: $not_found");
+		}
+
 		$this->folder_hash = $folder;
 		$this->os_path = $os_path;
 	}

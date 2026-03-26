@@ -3,6 +3,7 @@
 namespace Zotlabs\Lib;
 
 use App;
+use DBA;
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Access\PermissionRoles;
 use Zotlabs\Access\Permissions;
@@ -91,6 +92,8 @@ class Activity {
 
 		logger('fetch: ' . $url, LOGGER_DEBUG);
 
+		$start_timestamp = microtime(true);
+
 		if (strpos($url, 'x-zot:') === 0) {
 			$x = ZotURL::fetch($url, $channel);
 		}
@@ -129,7 +132,6 @@ class Activity {
 			}
 
 			$h = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel), false);
-			$start_timestamp = microtime(true);
 			$x = z_fetch_url($url, true, $redirects, ['headers' => $h]);
 		}
 
@@ -567,7 +569,7 @@ class Activity {
 		$ret['published'] = datetime_convert('UTC', 'UTC', $i['created'], ATOM_TIME);
 		if ($i['created'] !== $i['edited'])
 			$ret['updated'] = datetime_convert('UTC', 'UTC', $i['edited'], ATOM_TIME);
-		if ($i['expires'] > NULL_DATE) {
+		if ($i['expires'] > DBA::$dba->get_null_date()) {
 			$ret['expires'] = datetime_convert('UTC', 'UTC', $i['expires'], ATOM_TIME);
 		}
 
@@ -592,7 +594,7 @@ class Activity {
 
 		$ret['commentPolicy'] = (($i['item_wall']) ? map_scope(PermissionLimits::Get($i['uid'], 'post_comments')) : '');
 
-		if (array_key_exists('comments_closed', $i) && $i['comments_closed'] !== EMPTY_STR && $i['comments_closed'] > NULL_DATE) {
+		if (array_key_exists('comments_closed', $i) && $i['comments_closed'] !== EMPTY_STR && $i['comments_closed'] > DBA::$dba->get_null_date()) {
 			if ($ret['commentPolicy']) {
 				$ret['commentPolicy'] .= ' ';
 			}
@@ -648,6 +650,7 @@ class Activity {
 			preg_match_all('/\[share(.*?)\](.*?)\[\/share\]/ism', $i['body'], $all_shares, PREG_SET_ORDER);
 
 			$quote_urls = [];
+			$obj_links = [];
 
 			foreach ($all_shares as $share) {
 				// Extract the link attribute from each [share] block if slated for quote
@@ -1123,6 +1126,7 @@ class Activity {
 				return [];
 		}
 
+/* Those should not be required in activities anymore after version 11
 		$t = self::encode_taxonomy($i);
 		if ($t) {
 			$ret['tag'] = $t;
@@ -1132,6 +1136,7 @@ class Activity {
 		if ($a) {
 			$ret['attachment'] = $a;
 		}
+*/
 
 		if (intval($i['item_private']) === 0) {
 			$ret['to'] = [ACTIVITY_PUBLIC_INBOX];
@@ -1560,7 +1565,7 @@ class Activity {
 				'abook_created'   => datetime_convert(),
 				'abook_updated'   => datetime_convert(),
 				'abook_connected' => datetime_convert(),
-				'abook_dob'       => NULL_DATE,
+				'abook_dob'       => DBA::$dba->get_null_date(),
 				'abook_pending'   => intval(($automatic) ? 0 : 1),
 				'abook_instance'  => z_root()
 			]
@@ -2012,6 +2017,8 @@ class Activity {
 			$multi = true;
 		}
 
+		$answer_found = false;
+
 		if ($response) {
 			$mid = $response['mid'];
 			$content = trim($response['title']);
@@ -2041,7 +2048,6 @@ class Activity {
 				}
 			}
 
-			$answer_found = false;
 			$foundPrevious = false;
 			if ($multi) {
 				for ($c = 0; $c < count($o['anyOf']); $c++) {
@@ -2083,7 +2089,7 @@ class Activity {
 				}
 			}
 		}
-		if ($pollItem['comments_closed'] > NULL_DATE) {
+		if ($pollItem['comments_closed'] > DBA::$dba->get_null_date()) {
 			if ($pollItem['comments_closed'] > datetime_convert()) {
 				$o['closed'] = datetime_convert('UTC', 'UTC', $pollItem['comments_closed'], ATOM_TIME);
 				// set this to force an update
@@ -2138,11 +2144,13 @@ class Activity {
 		$response_activity = false;
 		$s = [];
 
+		$obj_type = is_array($act->objprop('type')) ? $act->objprop('type')[0] : $act->objprop('type');
+
 		// These activities should have been handled separately in the Inbox module and should not be turned into posts
 
 		if (
 			in_array($act->type, ['Follow', 'Accept', 'Reject', 'Create', 'Update']) &&
-			($act->objprop('type') === 'Follow' || ActivityStreams::is_an_actor($act->objprop('type')))
+			($obj_type === 'Follow' || ActivityStreams::is_an_actor($obj_type))
 		) {
 			return false;
 		}
@@ -2215,7 +2223,7 @@ class Activity {
 			}
 		}
 
-		if (in_array($act->type, ['Invite', 'Create']) && $act->objprop('type') === 'Event') {
+		if (in_array($act->type, ['Invite', 'Create']) && $obj_type === 'Event') {
 			$s['mid'] = $s['parent_mid'] = $act->id;
 		}
 
@@ -2247,25 +2255,25 @@ class Activity {
 			$mention = self::get_actor_bbmention($obj_actor['id']);
 
 			if ($act->type === 'Like') {
-				$content['content'] = sprintf(t('Likes %1$s\'s %2$s'), $mention, $act->obj['type']) . EOL . EOL . ($content['content'] ?? '');
+				$content['content'] = sprintf(t('Likes %1$s\'s %2$s'), $mention, $act->obj['type']);
 			}
 			if ($act->type === 'Dislike') {
-				$content['content'] = sprintf(t('Doesn\'t like %1$s\'s %2$s'), $mention, $act->obj['type']) . EOL . EOL . ($content['content'] ?? '');
+				$content['content'] = sprintf(t('Doesn\'t like %1$s\'s %2$s'), $mention, $act->obj['type']);
 			}
 
 			// handle event RSVPs
-			if (($act->objprop('type') === 'Event') || ($act->objprop('type') === 'Invite' && array_path_exists('object/type', $act->obj) && $act->obj['object']['type'] === 'Event')) {
+			if (in_array($obj_type, ['Event', 'Invite'])) {
 				if ($act->type === 'Accept') {
-					$content['content'] = sprintf(t('Will attend %s\'s event'), $mention) . EOL . EOL . ($content['content'] ?? '');
+					$content['content'] = sprintf(t('Will attend %s\'s event'), $mention);
 				}
 				if ($act->type === 'Reject') {
-					$content['content'] = sprintf(t('Will not attend %s\'s event'), $mention) . EOL . EOL . ($content['content'] ?? '');
+					$content['content'] = sprintf(t('Will not attend %s\'s event'), $mention);
 				}
 				if ($act->type === 'TentativeAccept') {
-					$content['content'] = sprintf(t('May attend %s\'s event'), $mention) . EOL . EOL . ($content['content'] ?? '');
+					$content['content'] = sprintf(t('May attend %s\'s event'), $mention);
 				}
 				if ($act->type === 'TentativeReject') {
-					$content['content'] = sprintf(t('May not attend %s\'s event'), $mention) . EOL . EOL . ($content['content'] ?? '');
+					$content['content'] = sprintf(t('May not attend %s\'s event'), $mention);
 				}
 			}
 
@@ -2299,7 +2307,7 @@ class Activity {
 		if ($s['mid'] === $s['parent_mid']) {
 			$s['item_thread_top'] = 1;
 			$s['item_nocomment'] = 0;
-			$s['comments_closed'] = NULL_DATE;
+			$s['comments_closed'] = DBA::$dba->get_null_date();
 
 			// it is a parent node - decode the comment policy info if present
 			if ($act->objprop('commentPolicy')) {
@@ -2375,7 +2383,7 @@ class Activity {
 		$s['verb'] = self::activity_mapper($act->type);
 
 		// Mastodon does not provide update timestamps when updating poll tallies which means race conditions may occur here.
-		if ($act->type === 'Update' && $act->objprop('type') === 'Question' && $s['edited'] === $s['created']) {
+		if ($act->type === 'Update' && $obj_type === 'Question' && $s['edited'] === $s['created']) {
 			$s['edited'] = datetime_convert();
 		}
 
@@ -2383,8 +2391,8 @@ class Activity {
 			$s['item_deleted'] = 1;
 		}
 
-		if ($act->objprop('type')) {
-			$s['obj_type'] = self::activity_obj_mapper($act->obj['type']);
+		if ($obj_type) {
+			$s['obj_type'] = self::activity_obj_mapper($obj_type);
 		}
 
 		$s['obj'] = $act->obj;
@@ -2445,7 +2453,7 @@ class Activity {
 			$s = self::bb_attach($s);
 		}
 
-		if ($act->objprop('type') === 'Question' && in_array($act->type, ['Create', 'Update'])) {
+		if ($obj_type === 'Question' && in_array($act->type, ['Create', 'Update'])) {
 			if ($act->objprop('endTime')) {
 				$s['comments_closed'] = datetime_convert('UTC', 'UTC', $act->obj['endTime']);
 			}
@@ -2457,7 +2465,7 @@ class Activity {
 
 		if (!$response_activity) {
 
-			if ($act->objprop('type') === 'Profile') {
+			if ($obj_type === 'Profile') {
 				$s['parent_mid'] = $s['mid'];
 				$s['item_thread_top'] = 1;
 			}
@@ -2467,7 +2475,7 @@ class Activity {
 			// right now just link to the largest mp4 we find that will fit in our
 			// standard content region
 
-			if ($act->objprop('type') === 'Video') {
+			if ($obj_type === 'Video') {
 
 				$vtypes = [
 					'video/mp4',
@@ -2549,7 +2557,7 @@ class Activity {
 				}
 			}
 
-			if ($act->objprop('type') === 'Audio') {
+			if ($obj_type === 'Audio') {
 
 				$atypes = [
 					'audio/mpeg',
@@ -2581,7 +2589,7 @@ class Activity {
 
 			}
 
-			if ($act->objprop('type') === 'Image' && strpos($s['body'], 'zrl=') === false) {
+			if ($obj_type === 'Image' && strpos($s['body'], 'zrl=') === false) {
 
 				$ptr = null;
 
@@ -2596,10 +2604,10 @@ class Activity {
 						foreach ($ptr as $vurl) {
 							if (strpos($s['body'], $vurl['href']) === false) {
 								$bb_imgs = '[zmg]' . $vurl['href'] . '[/zmg]' . "\r\n";
+								$s['body'] = $bb_imgs . $s['body'];
 								break;
 							}
 						}
-						$s['body'] = $bb_imgs . $s['body'];
 					}
 					elseif (is_string($act->obj['url'])) {
 						if (strpos($s['body'], $act->obj['url']) === false) {
@@ -2609,7 +2617,7 @@ class Activity {
 				}
 			}
 
-			if ($act->objprop('type') === 'Page' && !$s['body']) {
+			if ($obj_type === 'Page' && !$s['body']) {
 
 				$ptr  = null;
 				$purl = EMPTY_STR;
@@ -2649,7 +2657,7 @@ class Activity {
 			}
 		}
 
-		if (in_array($act->objprop('type'), ['Note', 'Article', 'Page', 'Question'])) {
+		if (in_array($obj_type, ['Note', 'Article', 'Page', 'Question'])) {
 			$ptr = null;
 
 			if (array_key_exists('url', $act->obj)) {
@@ -2692,7 +2700,7 @@ class Activity {
 			IConfig::Set($s, 'activitypub', 'recips', $act->raw_recips);
 		}
 
-		if ($act->objprop('type') === 'Event' && $act->objprop('timezone')) {
+		if ($obj_type === 'Event' && $act->objprop('timezone')) {
 			IConfig::Set($s, 'event', 'timezone', $act->objprop('timezone'), true);
 		}
 

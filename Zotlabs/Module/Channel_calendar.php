@@ -3,6 +3,7 @@
 namespace Zotlabs\Module;
 
 use App;
+use DBA;
 use Zotlabs\Web\Controller;
 use Zotlabs\Lib\Libsync;
 use Zotlabs\Access\AccessList;
@@ -300,7 +301,7 @@ class Channel_calendar extends Controller {
 					from event left join item on item.resource_id = event.event_hash
 					where event.uid = %d and event.dtstart > '%s' and event.dtend > event.dtstart",
 					intval(local_channel()),
-					dbesc(NULL_DATE)
+					dbesc(DBA::$dba->get_null_date())
 				);
 			}
 			else {

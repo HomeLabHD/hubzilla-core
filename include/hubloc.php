@@ -35,8 +35,8 @@ function hubloc_store_lowlevel($arr) {
 		'hubloc_callback'    => ((array_key_exists('hubloc_callback',$arr))    ? $arr['hubloc_callback']    : ''),
 		'hubloc_connect'     => ((array_key_exists('hubloc_connect',$arr))     ? $arr['hubloc_connect']     : ''),
 		'hubloc_sitekey'     => ((array_key_exists('hubloc_sitekey',$arr))     ? $arr['hubloc_sitekey']     : ''),
-		'hubloc_updated'     => ((array_key_exists('hubloc_updated',$arr))     ? $arr['hubloc_updated']     : NULL_DATE),
-		'hubloc_connected'   => ((array_key_exists('hubloc_connected',$arr))   ? $arr['hubloc_connected']   : NULL_DATE),
+		'hubloc_updated'     => ((array_key_exists('hubloc_updated',$arr))     ? $arr['hubloc_updated']     : DBA::$dba->get_null_date()),
+		'hubloc_connected'   => ((array_key_exists('hubloc_connected',$arr))   ? $arr['hubloc_connected']   : DBA::$dba->get_null_date()),
 		'hubloc_primary'     => ((array_key_exists('hubloc_primary',$arr))     ? $arr['hubloc_primary']     : 0),
 		'hubloc_orphancheck' => ((array_key_exists('hubloc_orphancheck',$arr)) ? $arr['hubloc_orphancheck'] : 0),
 		'hubloc_error'       => ((array_key_exists('hubloc_error',$arr))       ? $arr['hubloc_error']       : 0),
@@ -52,9 +52,9 @@ function site_store_lowlevel($arr) {
 		'site_url'        => ((array_key_exists('site_url',$arr))        ? $arr['site_url']         : ''),
 		'site_access'     => ((array_key_exists('site_access',$arr))     ? $arr['site_access']      : 0),
 		'site_flags'      => ((array_key_exists('site_flags',$arr))      ? $arr['site_flags']       : 0),
-		'site_update'     => ((array_key_exists('site_update',$arr))     ? $arr['site_update']      : NULL_DATE),
-		'site_pull'       => ((array_key_exists('site_pull',$arr))       ? $arr['site_pull']        : NULL_DATE),
-		'site_sync'       => ((array_key_exists('site_sync',$arr))       ? $arr['site_sync']        : NULL_DATE),
+		'site_update'     => ((array_key_exists('site_update',$arr))     ? $arr['site_update']      : DBA::$dba->get_null_date()),
+		'site_pull'       => ((array_key_exists('site_pull',$arr))       ? $arr['site_pull']        : DBA::$dba->get_null_date()),
+		'site_sync'       => ((array_key_exists('site_sync',$arr))       ? $arr['site_sync']        : DBA::$dba->get_null_date()),
 		'site_directory'  => ((array_key_exists('site_directory',$arr))  ? $arr['site_directory']   : ''),
 		'site_register'   => ((array_key_exists('site_register',$arr))   ? $arr['site_register']    : 0),
 		'site_sellpage'   => ((array_key_exists('site_sellpage',$arr))   ? $arr['site_sellpage']    : ''),
@@ -362,7 +362,7 @@ function z6_discover() {
 	// find unregistered zot6 clone hublocs
 
 	$c = q("select channel_hash, channel_portable_id from channel where channel_deleted = '%s'",
-		dbesc(NULL_DATE)
+		dbesc(DBA::$dba->get_null_date())
 	);
 	if ($c) {
 		foreach ($c as $entry) {

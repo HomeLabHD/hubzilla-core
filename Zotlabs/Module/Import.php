@@ -7,6 +7,7 @@ require_once('include/import.php');
 require_once('include/perm_upgrade.php');
 
 use App;
+use DBA;
 use URLify;
 use Zotlabs\Daemon\Master;
 use Zotlabs\Lib\Config;
@@ -331,7 +332,7 @@ class Import extends Controller {
 				else {
 					$photos = import_xchan_photo($xchan['xchan_photo_l'], $xchan['xchan_hash']);
 					if ($photos[4])
-						$photodate = NULL_DATE;
+						$photodate = DBA::$dba->get_null_date();
 					else
 						$photodate = $xchan['xchan_photo_date'];
 

@@ -186,7 +186,7 @@ function create_account_from_register($arr) {
 	if ( ! $register ) return $result;
 
 	// account
-	$expires = NULL_DATE;
+	$expires = DBA::$dba->get_null_date();
 
 	$default_service_class = Config::Get('system','default_service_class');
 	if($default_service_class === false)
@@ -264,9 +264,10 @@ function create_account_from_register($arr) {
 		$result['account']['parent'] = $result['account']['account_id'];
 	}
 
-	$result['success']  = true;
-
-	call_hooks('register_account',$result);
+	if ( send_reg_confirmation_email_from_register($arr['reg_id']) ) {
+		$result['success']  = true;
+		call_hooks('register_account',$result);
+	}
 
 	return $result;
 }
@@ -311,9 +312,57 @@ function verify_email_address(string $email): bool {
 	pop_lang();
 
 	if(! $res)
-		logger("send_reg_approval_email: failed sending email to: {$email}");
+		logger("send_reg_verification_email: failed sending email to: {$email}");
 
 	return $res;
+}
+
+/**
+ * Send email to user confirming approved registration.
+ *
+ * @param int $reg_id		The reg_id of the user (from register table)
+ *
+ * @return bool `true` if the email was sucessfully sent, otherwise `false`.
+ */
+function send_reg_confirmation_email_from_register(int $reg_id): bool {
+
+	$register = q("SELECT reg_email, reg_lang FROM register WHERE reg_id = %d", $reg_id);
+
+	if (empty($register)) {
+        logger('send_reg_confirmation_email_from_register: could not find email address for for reg_id ' . $reg_id);
+		return false;
+	} else {
+		logger('send_reg_confirmation_email_from_register: sending confirmation email to ' . $register[0]['reg_email']);
+	}
+
+	if(strlen($register['reg_lang'])) {
+		push_lang($register['reg_lang']);
+	} else {
+		push_lang('en');
+	}
+
+	$email_msg = replace_macros(get_intltext_template('register_approved_eml.tpl'), array(
+		'$sitename' => Config::Get('system','sitename'),
+		'$siteurl'  =>  z_root(),
+		'$email'    => $register[0]['reg_email'],
+	));
+
+	$res = z_mail(
+		[
+		'toEmail' => $register[0]['reg_email'],
+		'messageSubject' => sprintf( t('Registration approved at %s'), Config::Get('system','sitename')),
+		'textVersion' => $email_msg,
+		]
+	);
+
+	pop_lang();
+
+	if ($res) {
+		return true;
+	} else {
+		logger('send_reg_confirmation_email_from_register: failed to send confirmation email to ' . $register[0]['reg_email']);
+		return false;
+	}
 }
 
 
@@ -391,6 +440,88 @@ function send_reg_approval_email($arr) {
 
 	return($delivered ? true : false);
 }
+
+
+/**
+ * send_reg_approval_email_from_register
+ * @author ltning
+ * @since  2026-01-25
+ *
+ * Account approval after verification based on table register.
+ * This function sends email to admin(s).
+ *
+ */
+function send_reg_approval_email_from_register(int $reg_id): array {
+
+	$result = array('success' => false, 'message' => 'rid:' . $reg_id);
+	$now = datetime_convert();
+
+	$register = q("SELECT * FROM register WHERE reg_id = %d",
+				intval($reg_id)
+	);
+
+	if (empty($register)) {
+        logger('send_reg_approval_email: could not find data for reg_id ' . $reg_id);
+		return $result;
+    }
+
+	$r = q("select * from account where (account_roles & %d) >= 4096",
+		 intval(ACCOUNT_ROLE_ADMIN)
+	);
+
+	$admins = array();
+
+	foreach($r as $rr) {
+		if (strlen($rr['account_email'])) {
+			$admins[] = array('email' => $rr['account_email'], 'lang' => $rr['account_lang']);
+		}
+	}
+
+	if (empty($admins)) {
+        logger('send_reg_approval_email: could not find any admins to notify for reg_id ' . $reg_id);
+		return $result;
+    }
+
+	$delivered = 0;
+
+	foreach($admins as $admin) {
+		if (strlen($admin['lang'])) {
+			push_lang($admin['lang']);
+		} else {
+			push_lang('en');
+		}
+
+		$email_msg = replace_macros(get_intltext_template('register_verify_eml_no_links.tpl'), array(
+			'$sitename' => Config::Get('system','sitename'),
+			'$siteurl'  =>  z_root(),
+			'$email'    => $register[0]['reg_email'],
+			'$details'  => $register[0]['reg_atip']
+		));
+
+		$res = z_mail(
+			[
+			'toEmail' => $admin['email'],
+			'messageSubject' => sprintf( t('Registration request at %s'), Config::Get('system','sitename')),
+			'textVersion' => $email_msg,
+			]
+		);
+
+		if ($res) {
+			$delivered ++;
+		} else {
+			logger('send_reg_approval_email: failed to ' . $admin['email'] . 'reg_email: ' . $register[0]['reg_email']);
+        }
+
+		pop_lang();
+	}
+
+    $result['delivered'] = $delivered;
+    if($delivered > 0) {
+		$result['success'] = true;
+    }
+	return $result;
+}
+
 
 function send_register_success_email($email,$password) {
 
@@ -770,7 +901,7 @@ function downgrade_accounts() {
 		and account_expires > '%s'
 		and account_expires < %s ",
 		intval(ACCOUNT_EXPIRED),
-		dbesc(NULL_DATE),
+		dbesc(DBA::$dba->get_null_date()),
 		db_getfunc('UTC_TIMESTAMP')
 	);
 
@@ -784,7 +915,7 @@ function downgrade_accounts() {
 			q("UPDATE account set account_service_class = '%s', account_expires = '%s'
 				where account_id = %d",
 				dbesc($basic),
-				dbesc(NULL_DATE),
+				dbesc(DBA::$dba->get_null_date()),
 				intval($rr['account_id'])
 			);
 			$ret = array('account' => $rr);
@@ -1083,7 +1214,7 @@ function get_pending_accounts($get_all = false) {
 function remove_expired_registrations() {
 	q("DELETE FROM register WHERE (reg_expires < '%s' OR reg_expires = '%s') AND (reg_flags & %d) > 0",
 		dbesc(datetime_convert()),
-		dbesc(NULL_DATE),
+		dbesc(DBA::$dba->get_null_date()),
 		dbesc(ACCOUNT_UNVERIFIED)
 	);
 }

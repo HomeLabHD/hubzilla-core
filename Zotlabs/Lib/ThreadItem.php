@@ -3,6 +3,7 @@
 namespace Zotlabs\Lib;
 
 use App;
+use DBA;
 use Zotlabs\Access\AccessList;
 
 require_once('include/text.php');
@@ -415,7 +416,7 @@ class ThreadItem {
 			'isotime' => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'c'),
 			'localtime' => datetime_convert('UTC', date_default_timezone_get(), $item['created']),
 			'editedtime' => (($item['edited'] != $item['created']) ? sprintf(t('Last edited %s'), relative_time($item['edited'])) : ''),
-			'expiretime' => (($item['expires'] > NULL_DATE) ? sprintf(t('Expires %s'), relative_time($item['expires'])) : ''),
+			'expiretime' => (($item['expires'] > DBA::$dba->get_null_date()) ? sprintf(t('Expires %s'), relative_time($item['expires'])) : ''),
 			'lock' => $lock,
 			'locktype' => $locktype,
 			'delayed' => (($item['item_delayed']) ? sprintf(t('Published %s'), relative_time($item['created'])) : ''),

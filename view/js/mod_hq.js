@@ -1,4 +1,4 @@
-$(document).ready(function() {
+document.addEventListener("DOMContentLoaded", function() {
 	updateRelativeTime('.autotime');
 
 	if (bParam_mid) {

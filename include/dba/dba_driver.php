@@ -101,19 +101,13 @@ abstract class dba_driver {
 	public  $error = false;
 
 	/**
-	 * @brief Connect to the database.
+	 * Connects to the database.
 	 *
 	 * This abstract function needs to be implemented in the real driver.
 	 *
-	 * @param string $server DB server name
-	 * @param string $scheme DB scheme
-	 * @param string $port DB port
-	 * @param string $user DB username
-	 * @param string $pass DB password
-	 * @param string $db database name
 	 * @return bool
 	 */
-	abstract function connect($server, $scheme, $port, $user, $pass, $db, $db_charset);
+	abstract function connect(): bool;
 
 	/**
 	 * @brief Perform a DB query with the SQL statement $sql.
@@ -147,18 +141,27 @@ abstract class dba_driver {
 	 */
 	abstract function getdriver();
 
-	function __construct($server, $scheme, $port, $user,$pass,$db,$db_charset,$install = false) {
-		if(($install) && (! $this->install($server, $scheme, $port, $user, $pass, $db, $db_charset))) {
+	function __construct(
+		readonly string $server,
+		readonly string $scheme,
+		readonly string $port,
+		readonly string $user,
+		protected string $pass,
+		readonly string $dbname,
+		readonly string $db_charset,
+		$install = false)
+	{
+		if ($install && ! $this->install()) {
 			return;
 		}
-		$this->connect($server, $scheme, $port, $user, $pass, $db, $db_charset);
+		$this->connect();
 	}
 
 	function get_null_date() {
 		return \DBA::$null_date;
 	}
 
-	function get_install_script() {
+	public static function get_install_script() {
 		$platform_name = \Zotlabs\Lib\System::get_platform_name();
 		if(file_exists('install/' . $platform_name . '/' . \DBA::$install_script))
 			 return 'install/' . $platform_name . '/' . \DBA::$install_script;
@@ -174,8 +177,8 @@ abstract class dba_driver {
 		return \DBA::$utc_now;
 	}
 
-	function install($server,$scheme,$port,$user,$pass,$db) {
-		if (!(strlen($server) && strlen($user))){
+	function install() {
+		if (!strlen($this->server) && strlen($this->user)) {
 			$this->connected = false;
 			$this->db = null;
 			return false;
@@ -269,7 +272,7 @@ function dbg($state) {
 function dbesc($str) {
 
 	if(is_null_date($str))
-		$str = NULL_DATE;
+		$str = DBA::$dba->get_null_date();
 
 	if(\DBA::$dba && \DBA::$dba->connected)
 		return(\DBA::$dba->escape($str));
@@ -286,7 +289,7 @@ function dbunescbin($str) {
 
 function dbescdate($date) {
 	if(is_null_date($date))
-		return \DBA::$dba->escape(NULL_DATE);
+		return \DBA::$dba->escape(DBA::$dba->get_null_date());
 
 	return \DBA::$dba->escape($date);
 }
@@ -389,7 +392,7 @@ function dbq($sql) {
 function dbesc_array_cb(&$item, $key) {
 	if(is_string($item)) {
 		if(is_null_date($item))
-			$item = NULL_DATE;
+			$item = DBA::$dba->get_null_date();
 		$item = dbesc($item);
 	}
 }
