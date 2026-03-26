@@ -6,6 +6,11 @@ Hubzilla 11.2 (2026-??-??)
 	- Refactor drop_query_params() to deal with array params and add test
 
 	Maintenance
+	- Remove private members from API docs
+	- Remove custom CA certs
+	- Add type annotations in Extend\Route
+	- Set method visibility in Extend\Route
+	- Add API docs and licence info to Extend\Route
 	- Add a short sleep interval to Activity::init_background_fetch() when adding new work items in a loop
 	- Add a short sleep interval to the convo daemon loop to spread the load for large collections
 	- Use PHP matching rules in util/run_xgettext
@@ -18,6 +23,9 @@ Hubzilla 11.2 (2026-??-??)
 	- Update the nginx config example to meet the more modern approach
 
 	Bugfixes
+	- Fix route and widget register() not deduplicating entries
+	- Fix issue in route and widget unregister() where we unregistered even if only one of the two arguments did not match
+	- Fix issue in Storage/Directory where we returned a partial path instead of throwing exception if a directory of a path could not be found
 	- Fix possible endless loop in externals daemon
 	- Fix fatal error in italian translation file
 	- Fix mod network not displaying direct messages when filters active - issue #1973

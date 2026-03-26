@@ -8,6 +8,13 @@ class Widget {
 
 	static function register($file,$widget) {
 		$rt = self::get();
+
+		foreach ($rt as $r) {
+			if ($r[0] === $file && $r[1] === $widget) {
+				return;
+			}
+		}
+
 		$rt[] = [ $file, $widget ];
 		self::set($rt);
 	}
@@ -17,7 +24,7 @@ class Widget {
 		if($rt) {
 			$n = [];
 			foreach($rt as $r) {
-				if($r[0] !== $file && $r[1] !== $widget) {
+				if(!($r[0] === $file && $r[1] === $widget)) {
 					$n[] = $r;
 				}
 			}
