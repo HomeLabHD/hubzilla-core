@@ -28,6 +28,11 @@ class MessageFilterTest extends UnitTestCase {
 			'obj' => [
 				'type' => 'Note',
 				'attributedTo' => 'https://example.com/users/test',
+				// this field does not realy exist but above attributedTo can also be an array
+				'attributedToArray' => [
+					['type' => 'Group', 'id' =>'https://example.com/group/somegroup'],
+					['type' => 'Person', 'id' =>'https://example.com/users/test']
+				],
 				'summary' => null,
 				'content' => "A grasshopper spent the summer hopping about in the sun and singing to his heart's content. One day, an ant went hurrying by, looking very hot and weary.\r\n#story #grasshopper #ant",
 				'sensitive' => false
@@ -211,6 +216,11 @@ class MessageFilterTest extends UnitTestCase {
 				'?+type == Note',
 				'',
 				true
+			],
+			'obj.attributedToArray contains test in incl' => [
+				'?+attributedToArray ~= test',
+				'',
+				false // we can not compare arrays with strings - hence false
 			],
 			'obj.sensitive = true in incl' => [
 				'?+sensitive',
