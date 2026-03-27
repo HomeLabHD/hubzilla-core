@@ -316,7 +316,7 @@ class MessageFilter
 
         if (preg_match('/(.*?)\s~=\s(.*?)$/', $s, $matches)) {
             $x = ((array_key_exists(trim($matches[1]),$item)) ? $item[trim($matches[1])] : EMPTY_STR);
-            if (stripos($x, trim($matches[2])) !== false) {
+            if (is_string($x) && stripos($x, trim($matches[2])) !== false) {
                 return true;
             }
             return false;
