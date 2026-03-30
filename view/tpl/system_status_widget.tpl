@@ -1,5 +1,5 @@
 <div class="mb-1 text-uppercase">
-	<i class="bi bi-{{$icon|escape}} generic-icons-nav"></i>{{$label|escape}}
+	<a href="/admin"><i class="bi bi-{{$icon|escape}} generic-icons-nav"></i>{{$label|escape}}</a>
 </div>
 <div class="card mb-4">
 	<div class="card-body clearfix">
