@@ -31,7 +31,10 @@ class Channel_activities {
 			self::get_system_status();
 		}
 		self::get_photos_activity();
-		self::get_files_activity();
+		self::get_files_activity('uncategorized');
+		self::get_files_activity('document');
+		self::get_files_activity('audio');
+		self::get_files_activity('video');
 		self::get_webpages_activity();
 		self::get_channels_activity();
 
@@ -109,10 +112,28 @@ class Channel_activities {
 
 	}
 
-	private static function get_files_activity() {
+	private static function get_files_activity($category) {
+
+		$not = '';
+		$mime_types = stringify_array(self::get_mime_types_by_category($category));
+
+		switch($category) {
+			case 'audio':
+				$label = t('Audios');
+				break;
+			case 'video':
+				$label = t('Videos');
+				break;
+			case 'document':
+				$label = t('Documents');
+				break;
+			default:
+				$label = t('Uploads');
+				$not = 'NOT';
+		}
 
 		$r = q("SELECT * FROM attach WHERE uid = %d
-			AND is_dir = 0 AND is_photo = 0
+			AND is_dir = 0 AND is_photo = 0 AND filetype $not IN ($mime_types)
 			ORDER BY edited DESC LIMIT %d",
 			intval(self::$uid),
 			intval(self::$limit)
@@ -130,8 +151,8 @@ class Channel_activities {
 			];
 		}
 
-		self::$activities['files'] = [
-			'label' => t('Files'),
+		self::$activities[$category] = [
+			'label' => $label,
 			'icon' => 'folder',
 			'url' => z_root() . '/cloud/' . self::$channel['channel_address'],
 			'date' => $r[0]['edited'],
@@ -139,6 +160,129 @@ class Channel_activities {
 			'tpl' => 'channel_activities.tpl'
 		];
 
+	}
+
+	private static function get_mime_types_by_category($category): array
+	{
+		$mime_types = [
+			'document' => [
+				'application/vnd.ms-powerpoint',
+				'application/vnd.ms-excel',
+				'application/vnd.sun.xml.writer',
+				'application/vnd.oasis.opendocument.text',
+				'application/vnd.oasis.opendocument.text-flat-xml',
+				'application/vnd.sun.xml.calc',
+				'application/vnd.oasis.opendocument.spreadsheet',
+				'application/vnd.oasis.opendocument.spreadsheet-flat-xml',
+				'application/vnd.sun.xml.impress',
+				'application/vnd.oasis.opendocument.presentation',
+				'application/vnd.oasis.opendocument.presentation-flat-xml',
+				'application/vnd.sun.xml.draw',
+				'application/vnd.oasis.opendocument.graphics',
+				'application/vnd.oasis.opendocument.graphics-flat-xml',
+				'application/vnd.oasis.opendocument.chart',
+				'application/vnd.sun.xml.writer.global',
+				'application/vnd.oasis.opendocument.text-master',
+				'application/vnd.sun.xml.writer.template',
+				'application/vnd.oasis.opendocument.text-template',
+				'application/vnd.oasis.opendocument.text-master-template',
+				'application/vnd.sun.xml.calc.template',
+				'application/vnd.oasis.opendocument.spreadsheet-template',
+				'application/vnd.sun.xml.impress.template',
+				'application/vnd.oasis.opendocument.presentation-template',
+				'application/vnd.sun.xml.draw.template',
+				'application/vnd.oasis.opendocument.graphics-template',
+				'application/msword',
+				'application/msword',
+				'application/vnd.ms-excel',
+				'application/vnd.ms-powerpoint',
+				'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+				'application/vnd.ms-word.document.macroEnabled.12',
+				'application/vnd.openxmlformats-officedocument.wordprocessingml.template',
+				'application/vnd.ms-word.template.macroEnabled.12',
+				'application/vnd.openxmlformats-officedocument.spreadsheetml.template',
+				'application/vnd.ms-excel.template.macroEnabled.12',
+				'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+				'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
+				'application/vnd.ms-excel.sheet.macroEnabled.12',
+				'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+				'application/vnd.ms-powerpoint.presentation.macroEnabled.12',
+				'application/vnd.openxmlformats-officedocument.presentationml.template',
+				'application/vnd.ms-powerpoint.template.macroEnabled.12',
+				'application/vnd.wordperfect',
+				'application/x-aportisdoc',
+				'application/x-hwp',
+				'application/vnd.ms-works',
+				'application/vnd.ms-office',
+				'application/x-mswrite',
+				'application/x-dif-document',
+				'text/spreadsheet',
+				'application/x-dbase',
+				'application/vnd.lotus-1-2-3',
+				'application/coreldraw',
+				'application/vnd.visio2013',
+				'application/vnd.visio',
+				'application/vnd.ms-visio.drawing',
+				'application/x-mspublisher',
+				'application/x-sony-bbeb',
+				'application/x-gnumeric',
+				'application/macwriteii',
+				'application/x-iwork-numbers-sffnumbers',
+				'application/vnd.oasis.opendocument.text-web',
+				'application/x-pagemaker',
+				'text/rtf',
+				'text/plain',
+				'application/x-fictionbook+xml',
+				'application/clarisworks',
+				'application/x-iwork-pages-sffpages',
+				'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
+				'application/x-iwork-keynote-sffkey',
+				'application/x-abiword',
+				'application/vnd.sun.xml.chart',
+				'application/x-t602',
+				'application/pdf',
+			],
+
+			'audio' => [
+				'audio/mpeg',        // MP3
+				'audio/mp3',
+				'audio/wav',         // WAV
+				'audio/x-wav',
+				'audio/webm',        // WebM audio
+				'audio/ogg',         // OGG
+				'audio/aac',         // AAC
+				'audio/flac',        // FLAC
+				'audio/x-flac',
+				'audio/mp4',         // M4A / MP4 audio
+				'audio/x-m4a',
+				'audio/3gpp',        // 3GP audio
+				'audio/3gpp2',
+				'audio/amr',         // AMR
+				'audio/x-ms-wma',    // Windows Media Audio
+				'audio/basic',       // µ-law / basic audio
+			],
+
+			'video' => [
+				'video/mp4',          // MP4
+				'video/x-msvideo',    // AVI
+				'video/x-ms-wmv',     // WMV
+				'video/mpeg',         // MPEG
+				'video/ogg',          // OGG/Theora
+				'video/webm',         // WebM
+				'video/3gpp',         // 3GP
+				'video/3gpp2',
+				'video/quicktime',    // MOV
+				'video/x-flv',        // Flash Video
+				'video/x-matroska',   // MKV
+				'video/mp2t',         // MPEG-TS (.ts)
+			]
+		];
+
+		if ($category === 'uncategorized') {
+			return array_merge(...array_values($mime_types));
+		}
+
+		return $mime_types[$category];
 	}
 
 	private static function get_webpages_activity() {
