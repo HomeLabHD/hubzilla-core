@@ -120,7 +120,7 @@ class Share extends \Zotlabs\Web\Controller {
 		$arr['changed'] = $created;
 		$arr['item_type'] = ITEM_TYPE_POST;
 
-		$mention = '@[zrl=' . $item['author']['xchan_url'] . ']' . $item['author']['xchan_name'] . '[/zrl]';
+		$mention = '[zrl=' . $item['author']['xchan_url'] . ']@' . $item['author']['xchan_name'] . '[/zrl]';
 		$arr['body'] = sprintf( t('&#x1f501; Repeated %1$s\'s %2$s'), $mention, Activity::activity_obj_mapper($item['obj_type']));
 
 		$arr['author_xchan'] = $channel['channel_hash'];

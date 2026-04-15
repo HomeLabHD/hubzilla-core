@@ -1964,7 +1964,7 @@ class Activity {
 		);
 
 		if ($x) {
-			return sprintf('@[zrl=%s]%s[/zrl]', $x[0]['xchan_url'], $x[0]['xchan_name']);
+			return sprintf('[zrl=%s]@%s[/zrl]', $x[0]['xchan_url'], $x[0]['xchan_name']);
 		}
 		return '@{' . $id . '}';
 
