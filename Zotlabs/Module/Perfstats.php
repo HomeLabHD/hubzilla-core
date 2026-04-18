@@ -13,6 +13,7 @@ use DBA;
 use Zotlabs\Lib\DbStats;
 use Zotlabs\Lib\Queue;
 use Zotlabs\Lib\QueueWorkerStats;
+use Zotlabs\Lib\SystemProfiler;
 use Zotlabs\Web\Controller;
 
 /**
@@ -24,13 +25,6 @@ use Zotlabs\Web\Controller;
 class Perfstats extends Controller
 {
 	public function init(): void {
-		//
-		// We only accept GET requests
-		//
-		if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-			http_status_exit(400, 'Unsupported method');
-		}
-
 		//
 		// We only accept json requests
 		//
@@ -46,8 +40,23 @@ class Perfstats extends Controller
 			json_return_and_die(['error' => 'access denied']);
 		}
 
-		$data = $this->getStats();
-		json_return_and_die($data);
+		$this->handleRequest();
+	}
+
+	private function handleRequest(): void {
+		switch ($_SERVER['REQUEST_METHOD']) {
+			case 'GET':
+				$data = $this->getStats();
+				json_return_and_die($data);
+
+			case 'POST':
+				$json = file_get_contents('php://input');
+				$data = json_decode($json, true);
+				$this->processPostRequest($data);
+
+			default:
+				http_status_exit(400, 'Unsupported method');
+		}
 	}
 
 	private function getStats(): array {
@@ -64,6 +73,8 @@ class Perfstats extends Controller
 		$stats['queueworkers'] = $qwstats->active;
 		$stats['workqsz'] = $qwstats->size;
 
+		$stats['profiler'] = SystemProfiler::isEnabled();
+
 		// Return a timestamp, so that it is possible to infer
 		// changes of the stats over time. A resolution of
 		// seconds should be good enough for our purposes.
@@ -75,5 +86,25 @@ class Perfstats extends Controller
 	private function getNumQueries(): int {
 		$stats = DbStats::getStats();
 		return $stats->getQueries();
+	}
+
+	private function processPostRequest(array $data): void {
+		if (empty($data['action'])) {
+			http_status_exit(400, 'Bad request');
+		}
+
+		switch ($data['action']) {
+			case 'enable_profiling':
+				SystemProfiler::enable();
+				json_return_and_die(['status' => 'success', 'message' => 'profiling enabled']);
+
+			case 'disable_profiling':
+				SystemProfiler::disable();
+				json_return_and_die(['status' => 'success', 'message' => 'profiling disabled']);
+
+			default:
+				json_return_and_die(['status' => 'error', 'message' => 'invalid action']);
+		}
+
 	}
 }

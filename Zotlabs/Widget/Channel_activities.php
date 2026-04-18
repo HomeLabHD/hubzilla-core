@@ -11,6 +11,7 @@ use App;
 use Zotlabs\Lib\Apps;
 use Zotlabs\Lib\Queue;
 use Zotlabs\Lib\QueueWorkerStats;
+use Zotlabs\Lib\SystemProfiler;
 
 class Channel_activities {
 
@@ -406,6 +407,8 @@ class Channel_activities {
 	}
 
 	private static function get_system_status(): void {
+		$profiler = SystemProfiler::isEnabled();
+
 		self::$activities['status'] = [
 			'label' => t('System status'),
 			'icon' => 'gpu-card',
@@ -417,6 +420,7 @@ class Channel_activities {
 				'queueworkers' => 0,
 				'workqsz' => 0,
 				'ts' => time(),
+				'profiler' => $profiler,
 			],
 			'tpl' => 'system_status_widget.tpl',
 			'labels' => [
@@ -425,6 +429,10 @@ class Channel_activities {
 				'outqueue' => t('Output queue'),
 				'queueworkers' => t('Queue workers'),
 				'workqsz' => t('Work queue size'),
+				'profiler' => t('Profiling'),
+				'disable' => t('Disable'),
+				'enable' => t('Enable'),
+				'active' => t('Active'),
 			],
 		];
 	}

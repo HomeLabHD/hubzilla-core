@@ -8,7 +8,7 @@
 			{{if $id != 'ts'}}
 			<tr>
 				<td id="perfstat-{{$id}}-label" class="perfstat-label">{{$labels.$id|escape}}:</td>
-				<td id="perfstat-{{$id}}-value" class="perfstat-value">…</td>
+				<td id="perfstat-{{$id}}-value" class="perfstat-value">{{$item|escape}}</td>
 			</tr>
 			{{/if}}
 		{{/foreach}}
@@ -50,6 +50,13 @@
 
 							this.last_ts = json['ts'];
 							this.last_q = json['dbqueries'];
+						} else if (item === "profiler") {
+							let action = json[item] ? 'disable' : 'enable';
+							let label = json[item] ? '{{$labels.disable}}' : '{{$labels.enable}}';
+							element.innerHTML = '<form action="/admin/profiler" method="post">'
+								+ '<input type="hidden" name="action" value="' + action + '_profiling">'
+								+ '<input type="submit" value="' + label + '">'
+								+ '</form>';
 						} else if (item !== 'ts') {
 							element.innerText = json[item];
 						}
