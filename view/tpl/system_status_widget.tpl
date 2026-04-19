@@ -5,13 +5,20 @@
 	<div class="card-body clearfix">
 		<table>
 		{{foreach $items as $id => $item}}
-			{{if $id != 'ts'}}
+			{{if $id != 'ts' && $id != 'profiler'}}
 			<tr>
 				<td id="perfstat-{{$id}}-label" class="perfstat-label">{{$labels.$id|escape}}:</td>
 				<td id="perfstat-{{$id}}-value" class="perfstat-value">{{$item|escape}}</td>
 			</tr>
 			{{/if}}
 		{{/foreach}}
+			<tr>
+				<td id="perfstat-profiler-label" class="perfstat-label">{{$labels.profiler}}:</td>
+				<td id="perfstat-profiler-valie" class="perfstat-value">
+					<button id="perfstat-profiler-toggle" data-action="enable_profiling" onclick="system_profiler.toggle()">{{$labels.enable}}</button>
+					<a href="/admin/profiler">{{$labels.configure}}</a>
+				</td>
+			</tr>
 		</table>
 	</div>
 </div>
@@ -51,12 +58,11 @@
 							this.last_ts = json['ts'];
 							this.last_q = json['dbqueries'];
 						} else if (item === "profiler") {
-							let action = json[item] ? 'disable' : 'enable';
+							let action = json[item] ? 'disable_profiling' : 'enable_profiling';
 							let label = json[item] ? '{{$labels.disable}}' : '{{$labels.enable}}';
-							element.innerHTML = '<form action="/admin/profiler" method="post">'
-								+ '<input type="hidden" name="action" value="' + action + '_profiling">'
-								+ '<input type="submit" value="' + label + '">'
-								+ '</form>';
+							let toggle = element.getElementById('perfstat-profiler-toggle');
+							toggle.innerText = label;
+							toggle.dataset.action = action;
 						} else if (item !== 'ts') {
 							element.innerText = json[item];
 						}
@@ -79,6 +85,36 @@
 
 			const style = window.getComputedStyle(element);
 			return style.display !== 'none';
+		}
+	}
+
+	system_profiler = {
+		toggle: function() {
+			let toggle = document.getElementById('perfstat-profiler-toggle');
+			toggle.disabled = true;
+
+			let action = toggle.dataset.action;
+
+			if (action !== 'enable_profiling' && action !== 'disable_profiling') {
+				return;
+			}
+
+			fetch('/admin/profiler', {
+				method: 'POST',
+				headers: {
+					"Accept": "application/json",
+				},
+				credentials: "include",
+				body: JSON.stringify({
+					action: action,
+				}),
+			})
+			.then((response) => response.json())
+			.then((json) => {
+				toggle.innerText = action === 'enable_profiling' ? '{{$labels.disable}}' : '{{$labels.enable}}';
+				toggle.dataset.action = action === 'enable_profiling' ? 'disable_profiling' : 'enable_profiling';
+				toggle.disabled = false;
+			});
 		}
 	}
 

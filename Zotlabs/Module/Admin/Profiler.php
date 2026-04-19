@@ -18,12 +18,20 @@ class Profiler extends Controller
 	}
 
 	public function post(): void {
-		if (empty($_POST['action'])) {
+		$json_request = getBestSupportedMimeType(['application/json']) !== null;
+
+		if ($json_request) {
+			$params = json_decode(file_get_contents('php://input'), true);
+		} else {
+			$params = $_POST;
+		}
+
+		if (empty($params['action'])) {
 			notice(t('Invalid request'));
 			return;
 		}
 
-		switch ($_POST['action']) {
+		switch ($params['action']) {
 			case 'enable_profiling':
 				SystemProfiler::enable();
 				info('Profiling enabled');
@@ -35,7 +43,13 @@ class Profiler extends Controller
 				break;
 
 			default:
-				notice(t('Invalid request'));
+				notice(t('Invalid action'));
+		}
+
+		if ($json_request) {
+			json_return_and_die(['status' => 'success']);
+		} else {
+			goaway(z_root() . '/admin/profiler/');
 		}
 	}
 

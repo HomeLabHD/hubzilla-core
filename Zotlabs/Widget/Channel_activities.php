@@ -433,6 +433,7 @@ class Channel_activities {
 				'disable' => t('Disable'),
 				'enable' => t('Enable'),
 				'active' => t('Active'),
+				'configure' => t('Configure...'),
 			],
 		];
 	}
