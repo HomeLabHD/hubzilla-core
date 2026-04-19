@@ -45,6 +45,10 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         array (
             'Zotlabs\\' => 8,
         ),
+        'X' =>
+        array (
+            'Xhgui\\Profiler\\' => 15,
+        ),
         'S' =>
         array (
             'Symfony\\Polyfill\\Mbstring\\' => 26,
@@ -149,6 +153,10 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\' =>
         array (
             0 => __DIR__ . '/../..' . '/Zotlabs',
+        ),
+        'Xhgui\\Profiler\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/perftools/php-profiler/src',
         ),
         'Symfony\\Polyfill\\Mbstring\\' =>
         array (
@@ -2175,6 +2183,28 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Text_LanguageDetect_Parser' => __DIR__ . '/..' . '/pear/text_languagedetect/Text/LanguageDetect/Parser.php',
         'URLify' => __DIR__ . '/..' . '/jbroadway/urlify/URLify.php',
         'UploadHandler' => __DIR__ . '/..' . '/blueimp/jquery-file-upload/server/php/UploadHandler.php',
+        'Xhgui\\Profiler\\Config' => __DIR__ . '/..' . '/perftools/php-profiler/src/Config.php',
+        'Xhgui\\Profiler\\Exception\\ProfilerException' => __DIR__ . '/..' . '/perftools/php-profiler/src/Exception/ProfilerException.php',
+        'Xhgui\\Profiler\\Importer' => __DIR__ . '/..' . '/perftools/php-profiler/src/Importer.php',
+        'Xhgui\\Profiler\\ImporterFactory' => __DIR__ . '/..' . '/perftools/php-profiler/src/ImporterFactory.php',
+        'Xhgui\\Profiler\\Profiler' => __DIR__ . '/..' . '/perftools/php-profiler/src/Profiler.php',
+        'Xhgui\\Profiler\\ProfilerFactory' => __DIR__ . '/..' . '/perftools/php-profiler/src/ProfilerFactory.php',
+        'Xhgui\\Profiler\\Profilers\\AbstractProfiler' => __DIR__ . '/..' . '/perftools/php-profiler/src/Profilers/AbstractProfiler.php',
+        'Xhgui\\Profiler\\Profilers\\ProfilerInterface' => __DIR__ . '/..' . '/perftools/php-profiler/src/Profilers/ProfilerInterface.php',
+        'Xhgui\\Profiler\\Profilers\\Tideways' => __DIR__ . '/..' . '/perftools/php-profiler/src/Profilers/Tideways.php',
+        'Xhgui\\Profiler\\Profilers\\TidewaysXHProf' => __DIR__ . '/..' . '/perftools/php-profiler/src/Profilers/TidewaysXHProf.php',
+        'Xhgui\\Profiler\\Profilers\\UProfiler' => __DIR__ . '/..' . '/perftools/php-profiler/src/Profilers/UProfiler.php',
+        'Xhgui\\Profiler\\Profilers\\XHProf' => __DIR__ . '/..' . '/perftools/php-profiler/src/Profilers/XHProf.php',
+        'Xhgui\\Profiler\\ProfilingData' => __DIR__ . '/..' . '/perftools/php-profiler/src/ProfilingData.php',
+        'Xhgui\\Profiler\\ProfilingFlags' => __DIR__ . '/..' . '/perftools/php-profiler/src/ProfilingFlags.php',
+        'Xhgui\\Profiler\\SaverFactory' => __DIR__ . '/..' . '/perftools/php-profiler/src/SaverFactory.php',
+        'Xhgui\\Profiler\\Saver\\AbstractSaver' => __DIR__ . '/..' . '/perftools/php-profiler/src/Saver/AbstractSaver.php',
+        'Xhgui\\Profiler\\Saver\\FileSaver' => __DIR__ . '/..' . '/perftools/php-profiler/src/Saver/FileSaver.php',
+        'Xhgui\\Profiler\\Saver\\MongoSaver' => __DIR__ . '/..' . '/perftools/php-profiler/src/Saver/MongoSaver.php',
+        'Xhgui\\Profiler\\Saver\\PdoSaver' => __DIR__ . '/..' . '/perftools/php-profiler/src/Saver/PdoSaver.php',
+        'Xhgui\\Profiler\\Saver\\SaverInterface' => __DIR__ . '/..' . '/perftools/php-profiler/src/Saver/SaverInterface.php',
+        'Xhgui\\Profiler\\Saver\\StackSaver' => __DIR__ . '/..' . '/perftools/php-profiler/src/Saver/StackSaver.php',
+        'Xhgui\\Profiler\\Saver\\UploadSaver' => __DIR__ . '/..' . '/perftools/php-profiler/src/Saver/UploadSaver.php',
         'Zotlabs\\Access\\AccessList' => __DIR__ . '/../..' . '/Zotlabs/Access/AccessList.php',
         'Zotlabs\\Access\\PermissionLimits' => __DIR__ . '/../..' . '/Zotlabs/Access/PermissionLimits.php',
         'Zotlabs\\Access\\PermissionRoles' => __DIR__ . '/../..' . '/Zotlabs/Access/PermissionRoles.php',
@@ -2288,6 +2318,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Lib\\Share' => __DIR__ . '/../..' . '/Zotlabs/Lib/Share.php',
         'Zotlabs\\Lib\\SvgSanitizer' => __DIR__ . '/../..' . '/Zotlabs/Lib/SvgSanitizer.php',
         'Zotlabs\\Lib\\System' => __DIR__ . '/../..' . '/Zotlabs/Lib/System.php',
+        'Zotlabs\\Lib\\SystemProfiler' => __DIR__ . '/../..' . '/Zotlabs/Lib/SystemProfiler.php',
         'Zotlabs\\Lib\\Techlevels' => __DIR__ . '/../..' . '/Zotlabs/Lib/Techlevels.php',
         'Zotlabs\\Lib\\Text' => __DIR__ . '/../..' . '/Zotlabs/Lib/Text.php',
         'Zotlabs\\Lib\\ThreadItem' => __DIR__ . '/../..' . '/Zotlabs/Lib/ThreadItem.php',
@@ -2310,6 +2341,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Module\\Admin\\Dbsync' => __DIR__ . '/../..' . '/Zotlabs/Module/Admin/Dbsync.php',
         'Zotlabs\\Module\\Admin\\Features' => __DIR__ . '/../..' . '/Zotlabs/Module/Admin/Features.php',
         'Zotlabs\\Module\\Admin\\Logs' => __DIR__ . '/../..' . '/Zotlabs/Module/Admin/Logs.php',
+        'Zotlabs\\Module\\Admin\\Profiler' => __DIR__ . '/../..' . '/Zotlabs/Module/Admin/Profiler.php',
         'Zotlabs\\Module\\Admin\\Profs' => __DIR__ . '/../..' . '/Zotlabs/Module/Admin/Profs.php',
         'Zotlabs\\Module\\Admin\\Queue' => __DIR__ . '/../..' . '/Zotlabs/Module/Admin/Queue.php',
         'Zotlabs\\Module\\Admin\\Queueworker' => __DIR__ . '/../..' . '/Zotlabs/Module/Admin/Queueworker.php',
