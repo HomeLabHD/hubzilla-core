@@ -15,7 +15,12 @@
 			<tr>
 				<td id="perfstat-profiler-label" class="perfstat-label">{{$labels.profiler}}:</td>
 				<td id="perfstat-profiler-valie" class="perfstat-value">
-					<button id="perfstat-profiler-toggle" data-action="enable_profiling" onclick="system_profiler.toggle()">{{$labels.enable}}</button>
+					<button
+						id="perfstat-profiler-toggle"
+						data-action="{{if $items.profiler}}disable{{else}}enable{{/if}}_profiling"
+						onclick="system_profiler.toggle()">
+							{{if $items.profiler}}{{$labels.disable}}{{else}}{{$labels.enable}}{{/if}}
+					</button>
 					<a href="/admin/profiler">{{$labels.configure}}</a>
 				</td>
 			</tr>
