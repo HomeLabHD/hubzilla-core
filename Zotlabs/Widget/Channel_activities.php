@@ -407,6 +407,8 @@ class Channel_activities {
 	}
 
 	private static function get_system_status(): void {
+		head_add_js('/view/js/admin_system_status.js');
+
 		$profiler = SystemProfiler::isEnabled();
 
 		self::$activities['status'] = [

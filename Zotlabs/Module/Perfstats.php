@@ -65,7 +65,14 @@ class Perfstats extends Controller
 		$stats['queueworkers'] = $qwstats->active;
 		$stats['workqsz'] = $qwstats->size;
 
-		$stats['profiler'] = SystemProfiler::isEnabled();
+		$profiler_state = SystemProfiler::isEnabled();
+		$stats['profiler'] = [
+			'status' => $profiler_state,
+			'new_state' => [
+				'action' => $profiler_state ? 'disable_profiling' : 'enable_profiling',
+				'label' => $profiler_state ? t('Disable') : t('Enable'),
+			],
+		];
 
 		// Return a timestamp, so that it is possible to infer
 		// changes of the stats over time. A resolution of
