@@ -19,9 +19,13 @@ class CleanupBBCodeTest extends UnitTestCase {
 	public static function cleanup_bbcode_provider(): array {
 		return [
 			'url followed by newline' => [
-				"#^[url=https://example.com]https://example.com[/url]\na test link",
+				"[url=https://example.com]https://example.com[/url]\na test link",
 				"https://example.com\na test link",
-			]
+			],
+			'bookmarked url' => [
+				"#^[url=https://example.com]https://example.com[/url] a test link",
+				"#^https://example.com a test link",
+			],
 		];
 	}
 }
