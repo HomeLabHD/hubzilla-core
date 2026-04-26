@@ -274,6 +274,7 @@ function red_zrl_callback($matches) {
 	$t = strip_zids($matches[2]);
 	if($t !== $matches[2]) {
 		$zrl = true;
+		$t = strip_query_param($t,'f');
 		$matches[2] = $t;
 	}
 
