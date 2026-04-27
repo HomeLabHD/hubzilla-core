@@ -70,15 +70,6 @@ class Profile extends Controller {
 			'href'  => z_root() . '/feed/' . $which . '?top=1'
 		]);
 
-		if (!$profile) {
-			$x = q("select channel_id as profile_uid from channel where channel_address = '%s' and channel_removed = 0 limit 1",
-				dbesc(argv(1))
-			);
-			if ($x) {
-				App::$profile = $x[0];
-			}
-		}
-
 		profile_load($which, $profile);
 
 	}
