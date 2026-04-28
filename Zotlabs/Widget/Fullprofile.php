@@ -8,15 +8,18 @@
 
 namespace Zotlabs\Widget;
 
+use App;
+
 class Fullprofile {
 
 	function widget($arr) {
 
-		if(!(isset(\App::$profile['profile_uid']) && \App::$profile['profile_uid']))
+		if (empty(App::$profile['profile_uid'])) {
 			return;
+		}
 
 		$block = observer_prohibited();
 
-		return profile_sidebar(\App::$profile, $block, true, true);
+		return profile_sidebar(App::$profile, $block, true, true);
 	}
 }

@@ -84,19 +84,6 @@ function tryoembed($match) {
 	return $html;
 }
 
-
-function nakedoembed($match) {
-	$url = ((count($match) == 2) ? $match[1] : $match[2]);
-
-	$strip_url = strip_escaped_zids($url);
-
-	// this function no longer performs oembed on naked links
-	// because they author may have created naked links intentionally.
-	// Now it just strips zids on naked links.
-
-	return str_replace($url,$strip_url,$match[0]);
-}
-
 function tryzrlaudio($match) {
 	$link = $match[1];
 	$zrl = is_matrix_url($link);

@@ -13,7 +13,7 @@ use App;
 
 class Profile {
 	function widget($args) {
-		if(!isset(App::$profile['profile_uid'])) {
+		if (empty(App::$profile['profile_uid'])) {
 			return;
 		}
 
