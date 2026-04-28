@@ -36,17 +36,19 @@ class UrlTest extends UnitTestCase {
 	public static function zid_test_provider() : array {
 		return [
 			// URL without params
-			['https://www.example.net/channel/test', 'visitor@example.org', 'https://www.example.net/channel/test?zid=visitor@example.org'],
+			['https://example.net/channel/test', 'visitor@example.org', 'https://example.net/channel/test?zid=visitor@example.org'],
 			// URL with args
-			['https://www.example.net/channel/test?t=test', 'visitor@example.org', 'https://www.example.net/channel/test?t=test&zid=visitor@example.org'],
+			['https://example.net/channel/test?t=test', 'visitor@example.org', 'https://example.net/channel/test?t=test&zid=visitor@example.org'],
 			// URL with fragment
-			['https://www.example.net/channel/test#fragment', 'visitor@example.org', 'https://www.example.net/channel/test?zid=visitor@example.org#fragment'],
+			['https://example.net/channel/test#fragment', 'visitor@example.org', 'https://example.net/channel/test?zid=visitor@example.org#fragment'],
 			// URL with args and fragment
-			['https://www.example.net/channel/test?t=test#fragment', 'visitor@example.org', 'https://www.example.net/channel/test?t=test&zid=visitor@example.org#fragment'],
+			['https://example.net/channel/test?t=test#fragment', 'visitor@example.org', 'https://example.net/channel/test?t=test&zid=visitor@example.org#fragment'],
 			// URL with zid
-			['https://www.example.net/channel/test?zid=visitor@example.org', 'visitor@example.org', 'https://www.example.net/channel/test?zid=visitor@example.org'],
+			['https://example.net/channel/test?zid=visitor@example.org', 'visitor@example.org', 'https://example.net/channel/test?zid=visitor@example.org'],
 			// No addr provided
-			['https://www.example.net/channel/test', '', 'https://www.example.net/channel/test?zid=visitor@example.org'],
+			['https://example.net/channel/test', '', 'https://example.net/channel/test?zid=visitor@example.org'],
+			// Same host, no addr
+			['https://example.org/channel/test', '', 'https://example.org/channel/test'],
 		];
 	}
 }
