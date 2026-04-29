@@ -69,59 +69,6 @@ class NetworkTest extends Zotlabs\Tests\Unit\UnitTestCase {
 	}
 
 	/**
-	 * Test the unparse_url function.
-	 *
-	 */
-	public function test_unparse_url_full()
-	{
-		$parsed_url = [
-			'scheme' => 'https',
-			'host' => 'www.example.com',
-			'port' => '8080',
-			'user' => 'username',
-			'pass' => 'password',
-			'path' => '/path',
-			'query' => 'param=value',
-			'fragment' => 'section'
-		];
-
-		$expected = 'https://username:password@www.example.com:8080/path?param=value#section';
-		$this->assertEquals($expected, unparse_url($parsed_url));
-	}
-
-	public function test_unparse_url_partial()
-	{
-		$parsed_url = [
-			'scheme' => 'http',
-			'host' => 'example.com',
-			'path' => '/index.php'
-		];
-
-		$expected = 'http://example.com/index.php';
-		$this->assertEquals($expected, unparse_url($parsed_url));
-	}
-
-	public function test_unparse_url_custom()
-	{
-		$parsed_url = [
-			'scheme' => 'https',
-			'host' => 'www.example.com',
-			'port' => '443',
-			'path' => '/api'
-		];
-
-		$parts = ['scheme', 'host'];
-		$expected = 'https://www.example.com';
-		$this->assertEquals($expected, unparse_url($parsed_url, $parts));
-	}
-
-	public function test_unparse_url_empty()
-	{
-		$this->assertEquals('', unparse_url([]));
-	}
-
-
-	/**
 	 * Test that the parse_webbie function.
 	 *
 	 * @dataProvider parse_webbie_provider

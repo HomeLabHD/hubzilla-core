@@ -55,7 +55,7 @@ class Url {
 		$hookdata = [
 			'url' => $url,
 			'zid' => urlencode($myaddr),
-			'result' => unparse_url($parts)
+			'result' => self::unparse($parts)
 		];
 
 		/**
@@ -68,6 +68,65 @@ class Url {
 		call_hooks('zid', $hookdata);
 
 		return $hookdata['result'];
+	}
+
+
+	/**
+	 * Reconstructs a URL from its parsed components.
+	 *
+	 * This function takes a parsed URL as an associative array and reconstructs
+	 * the URL based on the specified components (scheme, host, port, user, pass, path, query, fragment).
+	 * You can specify which components should be included in the final URL by passing the optional
+	 * `$parts` array. The function will return the complete URL string formed by combining
+	 * only the parts that exist in both the parsed URL and the `$parts` array.
+	 *
+	 * @param array $parsed_url The parsed URL components as an associative array.
+	 *                          The array can include keys like 'scheme', 'host', 'port', 'user', 'pass',
+	 *                          'path', 'query', 'fragment'.
+	 *
+	 * @param array $parts An optional array that specifies which components of the URL
+	 *                     should be included in the final string. Defaults to:
+	 *                     ['scheme', 'host', 'port', 'user', 'pass', 'path', 'query', 'fragment'].
+	 *                     If any of the components are not required, they can be omitted from the array.
+	 *
+	 * @return string The reconstructed URL as a string.
+	 */
+	public static function unparse(array $parsed_url, array $parts = ['scheme', 'host', 'port', 'user', 'pass', 'path', 'query', 'fragment']): string {
+		$url_parts = [];
+
+		if (in_array('scheme', $parts) && array_key_exists('scheme', $parsed_url)) {
+			$url_parts[] = $parsed_url['scheme'] . '://';
+		}
+
+		if (in_array('user', $parts) && array_key_exists('user', $parsed_url)) {
+			$url_parts[] = $parsed_url['user'];
+			if (in_array('pass', $parts) && array_key_exists('pass', $parsed_url)) {
+				$url_parts[] = ':' . $parsed_url['pass'];
+			}
+			$url_parts[] = '@';
+		}
+
+		if (in_array('host', $parts) && array_key_exists('host', $parsed_url)) {
+			$url_parts[] = $parsed_url['host'];
+		}
+
+		if (in_array('port', $parts) && array_key_exists('port', $parsed_url)) {
+			$url_parts[] = ':' . $parsed_url['port'];
+		}
+
+		if (in_array('path', $parts) && array_key_exists('path', $parsed_url)) {
+			$url_parts[] = $parsed_url['path'];
+		}
+
+		if (in_array('query', $parts) && array_key_exists('query', $parsed_url)) {
+			$url_parts[] = '?' . $parsed_url['query'];
+		}
+
+		if (in_array('fragment', $parts) && array_key_exists('fragment', $parsed_url)) {
+			$url_parts[] = '#' . $parsed_url['fragment'];
+		}
+
+		return implode('', $url_parts);
 	}
 
 }

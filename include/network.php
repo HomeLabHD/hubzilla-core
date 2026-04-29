@@ -6,6 +6,7 @@ use Zotlabs\Lib\Mailer;
 use Zotlabs\Lib\Zotfinger;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Queue;
+use Zotlabs\Lib\Url;
 use Zotlabs\Web\HTTPSig;
 
 /**
@@ -2126,6 +2127,7 @@ function get_request_string($url) {
 
 
 /**
+ * @deprecated use Url::unparse() instead
  * Reconstructs a URL from its parsed components.
  *
  * This function takes a parsed URL as an associative array and reconstructs
@@ -2146,39 +2148,5 @@ function get_request_string($url) {
  * @return string The reconstructed URL as a string.
  */
 function unparse_url(array $parsed_url, array $parts = ['scheme', 'host', 'port', 'user', 'pass', 'path', 'query', 'fragment']): string {
-	$url_parts = [];
-
-	if (in_array('scheme', $parts) && array_key_exists('scheme', $parsed_url)) {
-		$url_parts[] = $parsed_url['scheme'] . '://';
-	}
-
-	if (in_array('user', $parts) && array_key_exists('user', $parsed_url)) {
-		$url_parts[] = $parsed_url['user'];
-		if (in_array('pass', $parts) && array_key_exists('pass', $parsed_url)) {
-			$url_parts[] = ':' . $parsed_url['pass'];
-		}
-		$url_parts[] = '@';
-	}
-
-	if (in_array('host', $parts) && array_key_exists('host', $parsed_url)) {
-		$url_parts[] = $parsed_url['host'];
-	}
-
-	if (in_array('port', $parts) && array_key_exists('port', $parsed_url)) {
-		$url_parts[] = ':' . $parsed_url['port'];
-	}
-
-	if (in_array('path', $parts) && array_key_exists('path', $parsed_url)) {
-		$url_parts[] = $parsed_url['path'];
-	}
-
-	if (in_array('query', $parts) && array_key_exists('query', $parsed_url)) {
-		$url_parts[] = '?' . $parsed_url['query'];
-	}
-
-	if (in_array('fragment', $parts) && array_key_exists('fragment', $parsed_url)) {
-		$url_parts[] = '#' . $parsed_url['fragment'];
-	}
-
-	return implode('', $url_parts);
+	return Url::unparse($parsed_url, $parts);
 }
