@@ -54,7 +54,7 @@ class UrlTest extends UnitTestCase {
 
 
 	/**
-	 * Test the unparse_url function.
+	 * Test Url::unparse()
 	 *
 	 */
 	public function test_unparse_full()
