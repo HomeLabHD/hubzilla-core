@@ -1,4 +1,10 @@
 <?php
+/*
+ * SPDX-FileCopyrightText: 2026 The Hubzilla Community
+ * SPDX-FileContributor: Mario Vavti <mario@mariovavti.com>
+ *
+ * SPDX-License-Identifier: MIT
+ */
 
 namespace Zotlabs\Lib;
 
@@ -28,14 +34,14 @@ class Url {
 		$myaddr = $address ?: get_my_address();
 
 		if (!$mine || !$myaddr) {
-			return unparse_url($parts);
+			return $url;
 		}
 
 		$mine_parts = parse_url($mine);
 		$same_host = isset($mine_parts['host'], $parts['host']) && strcasecmp($mine_parts['host'], $parts['host']) === 0;
 
 		if ($same_host) {
-			return unparse_url($parts);
+			return $url;
 		}
 
 		$query = [];
