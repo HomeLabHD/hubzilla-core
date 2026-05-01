@@ -1563,7 +1563,7 @@ class Libzot {
 
 			$conversation_operation = $is_collection_operation && isset($arr['target']['attributedTo']);
 
-			if (isset($arr['tgt_type']) && str_contains($arr['tgt_type'], 'Collection') && in_array($AS->type ?? '',                                                                      ['Add', 'Remove']) && !$relay && !$conversation_operation) {     
+			if (isset($arr['tgt_type']) && str_contains($arr['tgt_type'], 'Collection') && in_array($AS->type ?? '', ['Add', 'Remove']) && !$relay && !$conversation_operation) {     
 				$DR->update('not a collection activity');
 				$result[] = $DR->get();
 				continue;
