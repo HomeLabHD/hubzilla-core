@@ -20,11 +20,14 @@ class Profiler extends Controller
 	public function post(): void {
 		$json_request = getBestSupportedMimeType(['application/json']) !== null;
 
-		if (!$json_request) {
-			http_status(400, 'Invalid request');
-			killme();
+		if ($json_request) {
+			$this->handleAjaxRequest();
+		} else {
+			$this->handleFormData();
 		}
+	}
 
+	private function handleAjaxRequest(): void {
 		$params = json_decode(file_get_contents('php://input'), true);
 
 		if (empty($params['action'])) {
@@ -64,9 +67,31 @@ class Profiler extends Controller
 		}
 	}
 
+	private function handleFormData(): void {
+		if (!check_form_Security_token('admin_profiler', 'security')) {
+			notice(t('Invalid or expired request'));
+			goaway(z_root() . '/admin/profiler');
+		}
+
+		if (!empty($_POST['filename'])) {
+			SystemProfiler::setOutputFilename($_POST['filename']);
+		}
+	}
+
 	public function get(): string {
 		return replace_macros(get_markup_template('admin_profiler.tpl'), [
 			'this' => $this,
+			'security' => get_form_security_token('admin_profiler'),
+			'title' => t('System profiler settings'),
+			'submit' => t('Save'),
+			'option_filename' => [
+				'filename',
+				t("Output pathname"),
+				SystemProfiler::outputFilename(),
+				translate_projectname(
+					t('The path and filename where to save the profiling data. Relative to the $Projectname root directory.')
+				),
+			],
 		]);
 	}
 }

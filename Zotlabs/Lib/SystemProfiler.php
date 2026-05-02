@@ -23,7 +23,7 @@ class SystemProfiler
 			],
 			'save.handler' => Profiler::SAVER_FILE,
 			'save.handler.file' => [
-				'filename' => 'xhgui.data.jsonl',
+				'filename' => self::outputFilename(),
 			],
 			'profiler.enable' => fn () => self::isEnabled(),
 		];
@@ -46,5 +46,13 @@ class SystemProfiler
 
 	public static function isEnabled(): bool {
 		return !!Config::Get('system', 'profiling_enabled', false);
+	}
+
+	public static function outputFilename(): string {
+		return Config::Get('system', 'profiling_output_path', 'xhgui.data.jsonl');
+	}
+
+	public static function setOutputFilename(string $path): void {
+		Config::Set('system', 'profiling_output_path', $path);
 	}
 }
