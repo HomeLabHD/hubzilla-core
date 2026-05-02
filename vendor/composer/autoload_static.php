@@ -2325,6 +2325,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Lib\\ThreadListener' => __DIR__ . '/../..' . '/Zotlabs/Lib/ThreadListener.php',
         'Zotlabs\\Lib\\ThreadStream' => __DIR__ . '/../..' . '/Zotlabs/Lib/ThreadStream.php',
         'Zotlabs\\Lib\\Traits\\HelpHelperTrait' => __DIR__ . '/../..' . '/Zotlabs/Lib/Traits/HelpHelperTrait.php',
+        'Zotlabs\\Lib\\Url' => __DIR__ . '/../..' . '/Zotlabs/Lib/Url.php',
         'Zotlabs\\Lib\\Verify' => __DIR__ . '/../..' . '/Zotlabs/Lib/Verify.php',
         'Zotlabs\\Lib\\Webfinger' => __DIR__ . '/../..' . '/Zotlabs/Lib/Webfinger.php',
         'Zotlabs\\Lib\\XConfig' => __DIR__ . '/../..' . '/Zotlabs/Lib/XConfig.php',

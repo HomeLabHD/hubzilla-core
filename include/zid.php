@@ -3,6 +3,7 @@
 use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Verify;
+use Zotlabs\Lib\Url;
 
 function is_matrix_url($url) {
 
@@ -29,74 +30,19 @@ function is_matrix_url($url) {
 }
 
 /**
- * @brief Adds a zid parameter to a url.
+ * @brief Adds a zid parameter to a url
+ * @deprecated use Url::zid() instead
  *
- * @param string $s
+ * @param string $url
  *   The url to accept the zid
- * @param boolean $address
+ * @param string $address (optional)
  *   $address to use instead of session environment
  * @return string
  */
-function zid($s, $address = '') {
-	if (!$s || strpos($s,'zid=')) {
-		return $s;
-	}
-
-	$m = parse_url($s);
-
-	if (!is_array($m)) {
-		return $s;
-	}
-
-	$fragment = ((array_key_exists('fragment',$m) && $m['fragment']) ? $m['fragment'] : false);
-	if($fragment !== false)
-		$s = str_replace('#' . $fragment,'',$s);
-
-	$has_params = ((strpos($s,'?')) ? true : false);
-	$num_slashes = substr_count($s, '/');
-	if (! $has_params)
-		$has_params = ((strpos($s, '&')) ? true : false);
-
-	$achar = strpos($s,'?') ? '&' : '?';
-
-	$mine = get_my_url();
-	$myaddr = (($address) ? $address : get_my_address());
-
-	$mine_parsed = parse_url($mine);
-	$s_parsed = parse_url($s);
-
-
-	$url_match = false;
-	if(isset($mine_parsed['host']) && isset($s_parsed['host']) && $mine_parsed['host'] === $s_parsed['host'])
-		$url_match = true;
-
-	if ($mine && $myaddr && (! $url_match))
-		$zurl = $s . (($num_slashes >= 3) ? '' : '/') . (($achar === '?') ? '?f=&' : '&') . 'zid=' . urlencode($myaddr);
-	else
-		$zurl = $s;
-
-	// put fragment at the end
-
-	if($fragment)
-		$zurl .= '#' . $fragment;
-
-	$arr = [
-		'url' => $s,
-		'zid' => urlencode($myaddr),
-		'result' => $zurl
-	];
-	/**
-	 * @hooks zid
-	 *   Called when adding the observer's zid to a URL.
-	 *   * \e string \b url - url to accept zid
-	 *   * \e string \b zid - urlencoded zid
-	 *   * \e string \b result - the return string we calculated, change it if you want to return something else
-	 */
-	call_hooks('zid', $arr);
-
-	return $arr['result'];
+function zid(string $url, string $address = ''): string
+{
+	return Url::zid($url, $address);
 }
-
 
 function strip_query_param($s, $param) {
 	return drop_query_params($s, [$param]);
@@ -277,13 +223,10 @@ function red_zrl_callback($matches) {
 		$matches[2] = $t;
 	}
 
-	if($matches[1] === '#^')
-		$matches[1] = '';
-
 	if($zrl)
-		return $matches[1] . '#^[zrl=' . $matches[2] . ']' . $matches[2] . '[/zrl]' . $pts[0];
+		return $matches[1] . '[zrl=' . $matches[2] . ']' . $matches[2] . '[/zrl]' . $pts[0];
 
-	return $matches[1] . '#^[url=' . $matches[2] . ']' . $matches[2] . '[/url]' . $pts[0];
+	return $matches[1] . '[url=' . $matches[2] . ']' . $matches[2] . '[/url]' . $pts[0];
 }
 
 /**

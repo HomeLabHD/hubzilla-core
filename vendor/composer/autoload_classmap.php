@@ -1978,6 +1978,7 @@ return array(
     'Zotlabs\\Lib\\ThreadListener' => $baseDir . '/Zotlabs/Lib/ThreadListener.php',
     'Zotlabs\\Lib\\ThreadStream' => $baseDir . '/Zotlabs/Lib/ThreadStream.php',
     'Zotlabs\\Lib\\Traits\\HelpHelperTrait' => $baseDir . '/Zotlabs/Lib/Traits/HelpHelperTrait.php',
+    'Zotlabs\\Lib\\Url' => $baseDir . '/Zotlabs/Lib/Url.php',
     'Zotlabs\\Lib\\Verify' => $baseDir . '/Zotlabs/Lib/Verify.php',
     'Zotlabs\\Lib\\Webfinger' => $baseDir . '/Zotlabs/Lib/Webfinger.php',
     'Zotlabs\\Lib\\XConfig' => $baseDir . '/Zotlabs/Lib/XConfig.php',
