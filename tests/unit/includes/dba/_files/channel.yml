@@ -118,37 +118,20 @@ channel:
     channel_startpage: ""
     channel_pubkey: |
       -----BEGIN PUBLIC KEY-----
-      MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAn2ads2RKygqTbN0kxuGI
-      3Vuh/1SSvHls2cYMXZJpwqix5+y2/zqqzAVUayMCPt1ZHLfc+uG0Z97+XmWNuuIo
-      RCBB5Os29NKo4+K66prYlfBFeuvji9tV1zGwBMYMC2RabITIjH9yazE+Tox54iV+
-      kw/IYPsnv4vPIcuC8dnvZ0v7/Kkhm6Hp0ZrGRNKccHuinJeiuhvfXXG3xrrBrMY7
-      iw7I3i2hvw/BSFdJ1RnuMGlr2W3qcZQvlqCWIGAzEpmXom9bwBKo/ZZ2MSJCgEVY
-      KKPqjLs/7IKRzlzUFIuk8Uibrhoxmc0NaqIeQOUtyelFdc/P3p2fEjwJd7sr8dzo
-      NFVgUMHGiqu0C5fZ90KnfLNrXJcMb4VjsvGFyIDt0AZY5w4rjoKmjlB/p4/CRfyz
-      qFnp2ZK4eRPqurmGwnSArsjPLMhWjlc7NRXtQ1nyMNAEi4RRhlJyjmvJIRrdeVu2
-      Nq6ZknBq0SeDlH/3uRfNPwHxqgDFNTCgsg4/Lgj2au1XbaEBlgRq3PDAh4a3H+fO
-      iGKinJy2/p9TGvrKTcO3mremHbuVg41G6FjxvzuZKx3P7ssN4KBlCJ9L/tJX5RDn
-      4m5u4ZdaPZBXxjgXj24SDLETaz+K0DxwtjGQ7kTpC0zv6hLcEGxS2220cX7Msgih
-      pWX+ItWfet/uLkmfyCpaxt0CAwEAAQ==
+      MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAL1DR7MTTS/HoCsQZa0HYXSs+zdQ3yfM
+      jAGBj4s7WvbmfbqHtqm4GKRTz+NYG1rwiag6bZkQll1WZ5h+hD3uqS8CAwEAAQ==
       -----END PUBLIC KEY-----
     channel_prvkey: |
       -----BEGIN PRIVATE KEY-----
-      MIIJQwIBADANBgkqhkiG9w0BAQEFAASCCS0wggkpAgEAAoICAQCfZp2zZErKCpNs
-      3STG4YjdW6H/VJK8eWzZxgxdkmnCqLHn7Lb/OqrMBVRrIwI+3Vkct9z64bRn3v5e
-      ZY264ihEIEHk6zb00qjj4rrqmtiV8EV66+OL21XXMbAExgwLZFpshMiMf3JrMT5O
-      jHniJX6TD8hg+ye/i88hy4Lx2e9nS/v8qSGboenRmsZE0pxwe6Kcl6K6G99dcbfG
-      usGsxjuLDsjeLaG/D8FIV0nVGe4waWvZbepxlC+WoJYgYDMSmZeib1vAEqj9lnYx
-      IkKARVgoo+qMuz/sgpHOXNQUi6TxSJuuGjGZzQ1qoh5A5S3J6UV1z8/enZ8SPAl3
-      uyvx3Og0VWBQwcaKq7QLl9n3Qqd8s2tclwxvhWOy8YXIgO3QBljnDiuOgqaOUH+n
-      j8JF/LOoWenZkrh5E+q6uYbCdICuyM8syFaOVzs1Fe1DWfIw0ASLhFGGUnKOa8kh
-      Gt15W7Y2rpmScGrRJ4OUf/e5F80/AfGqAMU1MKCyDj8uCPZq7VdtoQGWBGrc8MCH
-      hrcf586IYqKcnLb+n1Ma+spNw7eat6Ydu5WDjUboWPG/O5krHc/uyw3goGUIn0v+
-      0lflEOfibm7hl1o9kFfGOBePbhIMsRNrP4rQPHC2MZDuROkLTO/qEtwQbFLbbbRx
-      fsyyCKGlZf4i1Z963+4uSZ/IKlrG3QIDAQABAoICAAGXQ9gpllXVYgV1CzwBPhKI
-      KqynyAN3CnHS+EZ1IraVZJnTYuaBtqOCIxv4Sw+xua+1GxDARhgU9utzboUbYuT+
-      gGyGjMjH6HUbyxtHz9pmkz7ykesQVZc9UPZ/O9lfl0fG0dHrJ2BwAEvxkCQvFR1m
-      doIXR50xtJpvqPR9JRaeFhtTsc5B667n8Ut4YaTSwGZOh3UoODllxucwxSQ9DJTq
-      9nDB5P/JP7fXMoQHYKPy4
+      MIIBVQIBADANBgkqhkiG9w0BAQEFAASCAT8wggE7AgEAAkEAvUNHsxNNL8egKxBl
+      rQdhdKz7N1DfJ8yMAYGPizta9uZ9uoe2qbgYpFPP41gbWvCJqDptmRCWXVZnmH6E
+      Pe6pLwIDAQABAkBtvgJoKsv55YXREqvyPbJbxiXQuFr9J9US1n5WXG9tc8+S1SB3
+      Azh7GtORAVnFkba5Ruj/Qij+CLe1ggCkwu0pAiEA41HXbZzQbb4hOxB9mkVvlMYj
+      r8UqOEtbvKEpnCUAeLUCIQDVJD8BnuCLKRxdtJRbWjwSe++/czwCTVTFv+XIyXX8
+      0wIgMx6qhZnoPWWub2vr8w9+YkSUreh28CXyQV80zkp76qkCIQCA1X34Ps6/j0QE
+      KCkc5vg0vBF5CfCV+6RoO8xrh8r33QIhANFLEX+THSmi6s+/d3rUHRqj7cTzJdHh
+      31v2ixfbFhB6
+      -----END PRIVATE KEY-----
     channel_epubkey: "cBYhT+C+ZzzXDLlZh1hEsWzz5HI06TwW6o8HgfyLlFo"
     channel_eprvkey: "/ClTxXKn7Lts+O6CgqJ2cCe0FlKpNSZfrBLPaB1Bq2twFiFP4L5nPNcMuVmHWESxbPPkcjTpPBbqjweB/IuUWg"
     channel_notifyflags: 65535
