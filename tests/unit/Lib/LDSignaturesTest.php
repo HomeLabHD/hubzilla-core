@@ -15,7 +15,27 @@ use Zotlabs\Tests\Unit\UnitTestCase;
 class LDSignaturesTest extends UnitTestCase {
 
 	public function testVerifyLDSignature(): void {
-		$channel = $this->fixtures['channel'][1];
+		$channel = [
+			'channel_address' => 'test',
+			'channel_prvkey' => <<<'EOD'
+				-----BEGIN PRIVATE KEY-----
+				MIIBVQIBADANBgkqhkiG9w0BAQEFAASCAT8wggE7AgEAAkEAvUNHsxNNL8egKxBl
+				rQdhdKz7N1DfJ8yMAYGPizta9uZ9uoe2qbgYpFPP41gbWvCJqDptmRCWXVZnmH6E
+				Pe6pLwIDAQABAkBtvgJoKsv55YXREqvyPbJbxiXQuFr9J9US1n5WXG9tc8+S1SB3
+				Azh7GtORAVnFkba5Ruj/Qij+CLe1ggCkwu0pAiEA41HXbZzQbb4hOxB9mkVvlMYj
+				r8UqOEtbvKEpnCUAeLUCIQDVJD8BnuCLKRxdtJRbWjwSe++/czwCTVTFv+XIyXX8
+				0wIgMx6qhZnoPWWub2vr8w9+YkSUreh28CXyQV80zkp76qkCIQCA1X34Ps6/j0QE
+				KCkc5vg0vBF5CfCV+6RoO8xrh8r33QIhANFLEX+THSmi6s+/d3rUHRqj7cTzJdHh
+				31v2ixfbFhB6
+				-----END PRIVATE KEY-----
+				EOD,
+			'channel_pubkey' => <<<'EOD'
+				-----BEGIN PUBLIC KEY-----
+				MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAL1DR7MTTS/HoCsQZa0HYXSs+zdQ3yfM
+				jAGBj4s7WvbmfbqHtqm4GKRTz+NYG1rwiag6bZkQll1WZ5h+hD3uqS8CAwEAAQ==
+				-----END PUBLIC KEY-----
+				EOD,
+		];
 
 		$activity = [
 			'@context' => 'https://www.w3.org/ns/activitystreams',
