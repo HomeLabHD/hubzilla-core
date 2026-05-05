@@ -62,8 +62,10 @@
                 $ogimagetype = $channel['xchan_photo_mimetype'];
         }
 
-	if (! isset(App::$page['htmlhead']))
-		App::$page['htmlhead'] = '';
+		if (! isset(App::$page['htmlhead'])) {
+			App::$page['htmlhead'] = '';
+		}
+
         App::$page['htmlhead'] .= '<meta property="og:title" content="' . htmlspecialchars((isset($ogtitle) ? $ogtitle : $channel['channel_name'])) . '">' . "\r\n";
         App::$page['htmlhead'] .= '<meta property="og:image" content="' . $ogimage . '">' . "\r\n";
         App::$page['htmlhead'] .= '<meta property="og:image:type" content="' . $ogimagetype . '">' . "\r\n";
