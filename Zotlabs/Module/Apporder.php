@@ -32,6 +32,9 @@ class Apporder extends \Zotlabs\Web\Controller {
 
 			$syslist = Zlib\Apps::app_order(local_channel(),$syslist, $l);
 
+			$navbar_apps = [];
+			$nav_apps = [];
+
 			foreach($syslist as $app) {
 				if($l === 'nav_pinned_app') {
 					$navbar_apps[] = Zlib\Apps::app_render($app,'nav-order-pinned');

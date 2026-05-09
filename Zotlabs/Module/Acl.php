@@ -437,9 +437,7 @@ class Acl extends \Zotlabs\Web\Controller {
 
 		if(($dirmode == DIRECTORY_MODE_PRIMARY) || ($dirmode == DIRECTORY_MODE_STANDALONE)) {
 			$url = z_root() . '/dirsearch';
-		}
-
-		if(! $url) {
+		} else {
 			$directory = Libzotdir::find_upstream_directory($dirmode);
 			$url = $directory['url'] . '/dirsearch';
 		}

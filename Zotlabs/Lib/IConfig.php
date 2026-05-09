@@ -123,11 +123,11 @@ class IConfig {
 			return $value;
 		}
 
-		if(intval($item))
+		if(intval($item)) {
 			$iid = intval($item);
-
-		if(! $iid)
+		} else {
 			return false;
+		}
 
 		if(self::Get($item, $family, $key) === false) {
 			$r = q("insert into iconfig( iid, cat, k, v, sharing ) values ( %d, '%s', '%s', '%s', %d ) ",
@@ -174,11 +174,11 @@ class IConfig {
 			return true;
 		}
 
-		if(intval($item))
+		if(intval($item)) {
 			$iid = intval($item);
-
-		if(! $iid)
+		} else {
 			return false;
+		}
 
 		return q("delete from iconfig where iid = %d and cat = '%s' and  k = '%s' ",
 			intval($iid),
