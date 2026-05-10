@@ -1293,10 +1293,9 @@ class Item extends Controller {
 				}
 
 			}
-
-			killme();
-
 		}
+
+		http_status_exit(400);
 	}
 
 

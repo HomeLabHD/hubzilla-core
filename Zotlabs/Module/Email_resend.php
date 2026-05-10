@@ -39,8 +39,7 @@ class Email_resend extends \Zotlabs\Web\Controller {
 
 		// @todo - one can provide a form here to resend the mail
 		// after directing to here if a succesful login was attempted from an unverified address.
-
-
+		http_status_exit(400, 'Bad request');
 	}
 
 }
