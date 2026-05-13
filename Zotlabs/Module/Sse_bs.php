@@ -253,6 +253,8 @@ class Sse_bs extends Controller {
 			);
 
 			if($items) {
+				call_hooks('sse_filter_items', [ 'uid' => self::$uid, 'items' => $items ]);
+
 				$result['network']['offset'] = ((count($items) == $limit) ? intval($offset + $limit) : -1);
 				xchan_query($items);
 				foreach($items as $item) {
