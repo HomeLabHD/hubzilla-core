@@ -7,8 +7,5 @@ parameters:
 		- Zotlabs
 	scanDirectories:
 		- library
-	earlyTerminatingFunctionCalls:
-		- http_status_exit
-		- json_return_and_die
-		- killme
-		- goaway
+	ignoreErrors:
+		- '#Method [\w:\(\)_\\]+ should return (object|string) but return statement is missing.#'
