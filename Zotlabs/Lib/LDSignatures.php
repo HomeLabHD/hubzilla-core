@@ -8,9 +8,10 @@ class LDSignatures {
 
 
 	static function verify($data,$pubkey) {
+		$expand_and_check_unsafe = true;
 
-		$ohash = self::hash(self::signable_options($data['signature']));
-		$dhash = self::hash(self::signable_data($data));
+		$ohash = self::hash(self::signable_options($data['signature']), $expand_and_check_unsafe);
+		$dhash = self::hash(self::signable_data($data), $expand_and_check_unsafe);
 
 		$x = Crypto::verify($ohash . $dhash,base64_decode($data['signature']['signatureValue']), $pubkey);
 		logger('LD-verify: ' . intval($x));
@@ -74,11 +75,11 @@ class LDSignatures {
 		return json_encode($newopts,JSON_UNESCAPED_SLASHES);
 	}
 
-	static function hash($obj) {
-		return hash('sha256', self::normalise($obj));
+	static function hash($obj, $expand_and_check_unsafe = false) {
+		return hash('sha256', self::normalise($obj, $expand_and_check_unsafe));
 	}
 
-	static function normalise($data) {
+	static function normalise($data, $expand_and_check_unsafe) {
 		$ret = '';
 
 		if(is_string($data)) {
@@ -89,6 +90,15 @@ class LDSignatures {
 			return $ret;
 
 		jsonld_set_document_loader('jsonld_document_loader');
+
+		if ($expand_and_check_unsafe) {
+			$expanded = jsonld_expand($data);
+
+			if (self::contains_unsafe_keys($expanded)) {
+				logger('contains_unsafe_keys: ' . print_r($data,true));
+				throw new \Exception('json-ld graph modification operation detected');
+			}
+		}
 
 		try {
 			$ret = jsonld_normalize($data,[ 'algorithm' => 'URDNA2015', 'format' => 'application/nquads' ]);
@@ -132,6 +142,33 @@ class LDSignatures {
 
 	}
 
+	static function contains_unsafe_keys(array|object $data, int $depth = 0): bool
+	{
+		if ($depth > 64) {
+			return true;
+		}
 
+		$unsafe_keys = ['@graph', '@included', '@reverse'];
+
+		if (is_object($data)) {
+			$data = (array) $data;
+		}
+
+		if (is_array($data)) {
+			foreach ($data as $key => $value) {
+				if (in_array($key, $unsafe_keys)) {
+					return true;
+				}
+
+				if (is_array($value) || is_object($value)) {
+					if (self::contains_unsafe_keys($value, $depth + 1)) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
 
 }
