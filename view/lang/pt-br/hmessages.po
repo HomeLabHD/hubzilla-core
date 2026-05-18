@@ -2198,7 +2198,7 @@ msgstr "Permissão negada."
 #: include/photos.php:152
 #, php-format
 msgid "Image exceeds website size limit of %lu bytes"
-msgstr "A imagem excede o limite de tamanho do site, que é de %"
+msgstr "A imagem excede o limite de tamanho do site, que é de %lu"
 
 #: include/photos.php:163
 #, fuzzy
