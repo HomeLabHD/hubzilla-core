@@ -156,7 +156,15 @@ class LDSignatures {
 
 		if (is_array($data)) {
 			foreach ($data as $key => $value) {
-				if (in_array($key, $unsafe_keys)) {
+				//
+				// We can't use `in_array` since the keys may contain more than
+				// just the keyword after expansion, typically "_:@included"
+				// for an unnamed node with the "@included" key.
+				//
+				// So we use `array_filter` with a callback instead:
+				$matches = array_filter($unsafe_keys, fn ($k) => strpos($key, $k) !== false);
+
+				if (!empty($matches)) {
 					return true;
 				}
 
