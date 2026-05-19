@@ -1,7 +1,7 @@
 # hubzilla
 # Copyright (C) 2012-2016 hubzilla
 # This file is distributed under the same license as the hubzilla package.
-# 
+#
 # Translators:
 # Alfonso Martínez, 2015
 # inboxwall <axetransit@gmail.com>, 2015
@@ -1457,9 +1457,8 @@ msgstr "%1$sactualizó el %2$s. Ha cambiado %3$s."
 #, php-format
 msgid "%d invitation available"
 msgid_plural "%d invitations available"
-msgstr[0] "%d invitación pendiente"
+msgstr[0] "%d invitación disponible"
 msgstr[1] "%d invitaciones disponibles"
-msgstr[2] "%d invitaciones disponibles"
 
 #: ../../include/contact_widgets.php:18 ../../include/acl_selectors.php:145
 #: ../../Zotlabs/Module/Admin/Site.php:407
@@ -1654,7 +1653,6 @@ msgid "Like"
 msgid_plural "Likes"
 msgstr[0] "Me gusta"
 msgstr[1] "Me gusta"
-msgstr[2] "Me gusta"
 
 #: ../../include/photo/photo_driver.php:439
 #: ../../Zotlabs/Module/Profile_photo.php:168
@@ -1901,7 +1899,6 @@ msgid "%d minutes"
 msgid_plural "%d minutes"
 msgstr[0] "%d minutos"
 msgstr[1] "%d minutos"
-msgstr[2] "%d minutos"
 
 #: ../../include/js_strings.php:46
 #, php-format
@@ -1909,7 +1906,6 @@ msgid "about %d hours"
 msgid_plural "about %d hours"
 msgstr[0] "alrededor de %d horas"
 msgstr[1] "alrededor de %d horas"
-msgstr[2] "alrededor de %d horas"
 
 #: ../../include/js_strings.php:47
 #, php-format
@@ -1917,7 +1913,6 @@ msgid "%d days"
 msgid_plural "%d days"
 msgstr[0] "%d días"
 msgstr[1] "%d días"
-msgstr[2] "%d días"
 
 #: ../../include/js_strings.php:48
 #, php-format
@@ -1925,7 +1920,6 @@ msgid "%d months"
 msgid_plural "%d months"
 msgstr[0] "%d meses"
 msgstr[1] "%d meses"
-msgstr[2] "%d meses"
 
 #: ../../include/js_strings.php:49
 #, php-format
@@ -1933,7 +1927,6 @@ msgid "%d years"
 msgid_plural "%d years"
 msgstr[0] "%d años"
 msgstr[1] "%d años"
-msgstr[2] "%d años"
 
 #: ../../include/js_strings.php:51 ../../include/text.php:1525
 msgid "January"
@@ -2344,7 +2337,6 @@ msgid "<span  %1$s>%2$d people</span> like this."
 msgid_plural "<span  %1$s>%2$d people</span> like this."
 msgstr[0] "a <span %1$s>%2$d personas</span> le gusta esto."
 msgstr[1] "A <span  %1$s>%2$d personas</span> les gusta esto."
-msgstr[2] "A <span  %1$s>%2$d personas</span> les gusta esto."
 
 #: ../../include/conversation.php:955
 #, php-format
@@ -2352,7 +2344,6 @@ msgid "<span  %1$s>%2$d people</span> don't like this."
 msgid_plural "<span  %1$s>%2$d people</span> don't like this."
 msgstr[0] "a <span %1$s>%2$d personas</span> no les gusta esto."
 msgstr[1] "A <span  %1$s>%2$d personas</span> no les gusta esto."
-msgstr[2] "A <span  %1$s>%2$d personas</span> no les gusta esto."
 
 #: ../../include/conversation.php:961
 msgid "and"
@@ -2364,7 +2355,6 @@ msgid ", and %d other people"
 msgid_plural ", and %d other people"
 msgstr[0] ", y %d persona más"
 msgstr[1] ", y %d personas más"
-msgstr[2] ", y %d personas más"
 
 #: ../../include/conversation.php:965
 #, php-format
@@ -2621,8 +2611,7 @@ msgctxt "noun"
 msgid "Repeat"
 msgid_plural "Repeats"
 msgstr[0] "Se repite"
-msgstr[1] "Se repite"
-msgstr[2] "Repite"
+msgstr[1] "Repite"
 
 #: ../../include/conversation.php:1446 ../../Zotlabs/Module/Photos.php:1123
 msgctxt "noun"
@@ -2630,7 +2619,6 @@ msgid "Dislike"
 msgid_plural "Dislikes"
 msgstr[0] "No me gusta"
 msgstr[1] "No me gusta"
-msgstr[2] "No me gusta"
 
 #: ../../include/conversation.php:1449
 msgctxt "noun"
@@ -2638,7 +2626,6 @@ msgid "Comment"
 msgid_plural "Comments"
 msgstr[0] "Comentar"
 msgstr[1] "Comentarios"
-msgstr[2] "Comentarios"
 
 #: ../../include/conversation.php:1449
 msgctxt "noun"
@@ -2646,7 +2633,6 @@ msgid "Reply"
 msgid_plural "Replies"
 msgstr[0] "Responder"
 msgstr[1] "Respuestas"
-msgstr[2] "Respuestas"
 
 #: ../../include/conversation.php:1452
 msgctxt "noun"
@@ -2654,7 +2640,6 @@ msgid "Attending"
 msgid_plural "Attending"
 msgstr[0] "Participaré"
 msgstr[1] "Participaré"
-msgstr[2] "Participaré"
 
 #: ../../include/conversation.php:1455
 msgctxt "noun"
@@ -2662,7 +2647,6 @@ msgid "Not attending"
 msgid_plural "Not attending"
 msgstr[0] "No participaré"
 msgstr[1] "No participaré"
-msgstr[2] "No participaré"
 
 #: ../../include/conversation.php:1458
 msgctxt "noun"
@@ -2670,7 +2654,6 @@ msgid "Undecided"
 msgid_plural "Undecided"
 msgstr[0] "Indeciso/a"
 msgstr[1] "Indecisos/as"
-msgstr[2] "Indecisos/as"
 
 #: ../../include/nav.php:109
 msgid "Remote authentication"
@@ -2936,7 +2919,6 @@ msgid "year"
 msgid_plural "years"
 msgstr[0] "año"
 msgstr[1] "años"
-msgstr[2] "años"
 
 #: ../../include/datetime.php:315
 msgctxt "relative_date"
@@ -2944,7 +2926,6 @@ msgid "month"
 msgid_plural "months"
 msgstr[0] "mes"
 msgstr[1] "meses"
-msgstr[2] "meses"
 
 #: ../../include/datetime.php:318
 msgctxt "relative_date"
@@ -2952,7 +2933,6 @@ msgid "week"
 msgid_plural "weeks"
 msgstr[0] "semana"
 msgstr[1] "semanas"
-msgstr[2] "semanas"
 
 #: ../../include/datetime.php:321
 msgctxt "relative_date"
@@ -2960,7 +2940,6 @@ msgid "day"
 msgid_plural "days"
 msgstr[0] "día"
 msgstr[1] "días"
-msgstr[2] "días"
 
 #: ../../include/datetime.php:324
 msgctxt "relative_date"
@@ -2968,7 +2947,6 @@ msgid "hour"
 msgid_plural "hours"
 msgstr[0] "hora"
 msgstr[1] "horas"
-msgstr[2] "horas"
 
 #: ../../include/datetime.php:327
 msgctxt "relative_date"
@@ -2976,7 +2954,6 @@ msgid "minute"
 msgid_plural "minutes"
 msgstr[0] "minuto"
 msgstr[1] "minutos"
-msgstr[2] "minutos"
 
 #: ../../include/datetime.php:330
 msgctxt "relative_date"
@@ -2984,7 +2961,6 @@ msgid "second"
 msgid_plural "seconds"
 msgstr[0] "segundo"
 msgstr[1] "segundos"
-msgstr[2] "segundos"
 
 #: ../../include/datetime.php:559
 #, php-format
@@ -3312,18 +3288,16 @@ msgstr "Descargar contenido binario o cifrado"
 msgctxt "noun"
 msgid "%d Vote"
 msgid_plural "%d Votes"
-msgstr[0] "%dVoto"
-msgstr[1] "%dVotos"
-msgstr[2] "%dVotos"
+msgstr[0] "%d Voto"
+msgstr[1] "%d Votos"
 
 #: ../../include/text.php:2018
 #, php-format
 msgctxt "noun"
 msgid "%d Vote in total"
 msgid_plural "%d Votes in total"
-msgstr[0] "%dVoto en total"
-msgstr[1] "%dVotos en total"
-msgstr[2] "%dVotos en total"
+msgstr[0] "%d Voto en total"
+msgstr[1] "%d Votos en total"
 
 #: ../../include/text.php:2024
 msgid "Poll has ended"
@@ -7297,7 +7271,6 @@ msgid "%d comment"
 msgid_plural "%d comments"
 msgstr[0] "%d comentario"
 msgstr[1] "%d comentarios"
-msgstr[2] "%d comentarios"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:332
 #, php-format
@@ -8154,7 +8127,6 @@ msgid "new connection"
 msgid_plural "new connections"
 msgstr[0] "Nueva conexión"
 msgstr[1] "Nuevas conexiones"
-msgstr[2] "nuevas conexiones"
 
 #: ../../Zotlabs/Widget/Channel_activities.php:220
 msgctxt "noun"
@@ -8162,7 +8134,6 @@ msgid "notice"
 msgid_plural "notices"
 msgstr[0] "aviso"
 msgstr[1] "avisos"
-msgstr[2] "avisos"
 
 #: ../../Zotlabs/Widget/Affinity.php:36
 #: ../../Zotlabs/Module/Contactedit.php:281
@@ -10727,7 +10698,6 @@ msgid "%s account blocked/unblocked"
 msgid_plural "%s account blocked/unblocked"
 msgstr[0] "%s cuenta bloqueada/desbloqueada"
 msgstr[1] "%s cuenta bloqueada/desbloqueada"
-msgstr[2] "%s cuenta bloqueada/desbloqueada"
 
 #: ../../Zotlabs/Module/Admin/Accounts.php:389
 #, php-format
@@ -10735,7 +10705,6 @@ msgid "%s account deleted"
 msgid_plural "%s accounts deleted"
 msgstr[0] "%s cuentas eliminadas"
 msgstr[1] "%s cuentas eliminadas"
-msgstr[2] "%s cuentas eliminadas"
 
 #: ../../Zotlabs/Module/Admin/Queueworker.php:66
 msgid "Max queueworker threads"
@@ -10940,7 +10909,6 @@ msgid "%s channel censored/uncensored"
 msgid_plural "%s channels censored/uncensored"
 msgstr[0] "%s canales censurados/no censurados"
 msgstr[1] "%s canales censurados/no censurados"
-msgstr[2] "%s canales censurados/no censurados"
 
 #: ../../Zotlabs/Module/Admin/Channels.php:57
 #, php-format
@@ -10948,7 +10916,6 @@ msgid "%s channel code allowed/disallowed"
 msgid_plural "%s channels code allowed/disallowed"
 msgstr[0] "%s código permitido/no permitido al canal"
 msgstr[1] "%s código permitido/no permitido al canal"
-msgstr[2] "%s código permitido/no permitido al canal"
 
 #: ../../Zotlabs/Module/Admin/Channels.php:63
 #, php-format
@@ -10956,7 +10923,6 @@ msgid "%s channel deleted"
 msgid_plural "%s channels deleted"
 msgstr[0] "%s canales eliminados"
 msgstr[1] "%s canales eliminados"
-msgstr[2] "%s canales eliminados"
 
 #: ../../Zotlabs/Module/Admin/Channels.php:90
 #, php-format
