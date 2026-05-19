@@ -6123,7 +6123,6 @@ msgstr[2] "Не посетят"
 #: ../../include/conversation.php:1775
 msgctxt "noun"
 msgid "Undecided"
-msgid_plural "Undecided"
 msgstr "Не решил"
 
 #: ../../include/conversation.php:1778
