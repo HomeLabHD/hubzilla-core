@@ -1,4 +1,5 @@
 Hubzilla 11.2.1 (2026-05-20)
+	- Fix channel creation failing in some situations
 	- Drop payloads with unsafe json-ld keys in LDSignatures::verify() and add tests
 	- Fix App::$profile set for removed channels
 	- Fix MessageFilter breaking when expecting string but array is given
