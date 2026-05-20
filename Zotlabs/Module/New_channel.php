@@ -33,7 +33,7 @@ class New_channel extends \Zotlabs\Web\Controller {
 			// first name
 			if(strpos($x,' '))
 				$test[] = legal_webbie(substr($x,0,strpos($x,' ')));
-			if($test[0]) {
+			if (!empty($test[0])) {
 				// first name plus first initial of last
 				$test[] = ((strpos($x,' ')) ? $test[0] . legal_webbie(trim(substr($x,strpos($x,' '),2))) : '');
 				// first name plus random number
@@ -69,7 +69,7 @@ class New_channel extends \Zotlabs\Web\Controller {
 			// first name
 			if(strpos($x,' '))
 				$test[] = legal_webbie(substr($x,0,strpos($x,' ')));
-			if($test[0]) {
+			if (!empty($test[0])) {
 				// first name plus first initial of last
 				$test[] = ((strpos($x,' ')) ? $test[0] . legal_webbie(trim(substr($x,strpos($x,' '),2))) : '');
 				// first name plus random number
