@@ -1,3 +1,15 @@
+Hubzilla 11.2.1 (2026-05-20)
+	- Drop payloads with unsafe json-ld keys in LDSignatures::verify() and add tests
+	- Fix App::$profile set for removed channels
+	- Fix MessageFilter breaking when expecting string but array is given
+	- Superblock: fix blocking failed in some setups (sponsored by NLnet NGI0 Commons Fund/Superblock)
+	- Superblock: fix missing import of attribute (sponsored by NLnet NGI0 Commons Fund/Superblock)
+	- Superblock: improved detection of reshares (sponsored by NLnet NGI0 Commons Fund/Superblock)
+	- Cards: fix PHP warning
+	- Gallery: fix PHP warnings and only implement observer related javascript if there actually is an observer
+	- Diaspora: fix missing local namespace for thr_parent
+
+
 Hubzilla 11.2 (2026-03-26)
 	Features
 	- Introduce parse_webbie() for preparing webbies and URLs for webfinger usage
