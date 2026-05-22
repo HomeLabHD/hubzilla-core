@@ -1,18 +1,18 @@
 {{if $wrapper!="no"}}<div id="{{$qmc}}{{$field.name}}_wrapper" class="mb-3">{{/if}}
 
 <label for="{{$qmc}}{{$field.name}}fs">{{$label}}
-		{{if $qmcid}}<sup class="zuiqmid required">{{$qmcid}}</sup>{{/if}}	
+		{{if $qmcid}}<sup class="zuiqmid required">{{$qmcid}}</sup>{{/if}}
 </label>
 <fieldset name="{{$qmc}}{{$field.name}}fs" id="id_{{$qmc}}{{$field.name}}_fs" title="{{$field.title}}">
 
-<input id="{{$qmc}}{{$field.name}}n" 
-	 name="{{$qmc}}{{$field.name}}n" 
-	class="inline-block mr-1 text-center" style="width: 5rem;"  
-	 type="number" 
+<input id="{{$qmc}}{{$field.name}}n"
+	 name="{{$qmc}}{{$field.name}}n"
+	class="inline-block mr-1 text-center" style="width: 5rem;"
+	 type="number"
 {{if $field.min}} min="{{$field.min}}"{{/if}}
 {{if $field.max}} max="{{$field.max}}"{{/if}}
-	 size="{{$field.size}}" 
-	value="{{$field.value}}" 
+	 size="{{$field.size}}"
+	value="{{$field.value}}"
 	title="{{$field.title}}">
 
 {{foreach $rabot as $k=>$v}}
@@ -31,7 +31,7 @@
   * Template field_duration.qmc.tpl
   * **********************************
   * Hilmar Runge, 2020.02
-  * The template generates one input field for numeric values and a radio button group, where one 
+  * The template generates one input field for numeric values and a radio button group, where one
   * (and only one or no) selection can be active. The primary intented use is for entering time/date
   * data in the form of amount (numeric) and the units (ie hours, days etc).
   * Instead of using positional array parameters, keyed (named) parameters are treated. Imo, named parameters
@@ -56,14 +56,14 @@
   * Example to apply in php like:
   * *****************************
   	$testcase = replace_macros(get_markup_template('field_radio_group.qmc.tpl'),
-		array(	
-			'label'	 	=> t('Exiration duration', 			
+		array(
+			'label'	 	=> t('Exiration duration',
 			'qmc'	 	=> 'zai', 			// not required
 		 	'qmcid'	 	=> 'ZAI0000I',		// not required
 		 	'wrapper' 	=> 'no',			// when no wrapper around is desired
 		 	'field'		=> 					// fieldset properties
 		 	array(
-		 		'name'  => 'due', 			
+		 		'name'  => 'due',
 		 		'min'  	=> 	"1", 			// the minimum value for the numeric input
 		 		'max'  	=> 	"99", 			// the maximum value for the numeric input
 		 		'size' 	=> 	"2", 			// the max digits for the numeric input
@@ -77,7 +77,7 @@
  				'd' => 'Day(s)'   ,
  				'w' => 'Week(s)'  ,
  				'm' => 'Month(s)' ,
- 				'y' => 'Year(s)' 
+ 				'y' => 'Year(s)'
  			)
 		)
 	);
