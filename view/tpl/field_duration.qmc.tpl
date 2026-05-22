@@ -9,8 +9,8 @@
 	 name="{{$qmc}}{{$field.name}}n"
 	class="inline-block mr-1 text-center" style="width: 5rem;"
 	 type="number"
-{{if $field.min}} min="{{$field.min}}"{{/if}}
-{{if $field.max}} max="{{$field.max}}"{{/if}}
+{{if isset($field.min)}} min="{{$field.min}}"{{/if}}
+{{if isset($field.max)}} max="{{$field.max}}"{{/if}}
 	 size="{{$field.size}}"
 	value="{{$field.value}}"
 	title="{{$field.title}}">
