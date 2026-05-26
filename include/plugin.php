@@ -930,13 +930,15 @@ function get_theme_screenshot($theme) {
 }
 
 /**
- * @brief add CSS to \<head\>
+ * Add stylesheet to \<head\> section.
  *
- * @param string $src
- * @param string $media change media attribute (default to 'screen')
+ * @param string $urlpath
+ *		The URL path relative to the domain to the stylesheet to add.
+ * @param string $media
+ *		Media attribute for the stylesheet (default to 'screen')
  */
-function head_add_css($src, $media = 'screen') {
-	App::$css_sources[] = array($src, $media);
+function head_add_css($urlpath, $media = 'screen'): void {
+	App::$css_sources[] = array($urlpath, $media);
 }
 
 function head_remove_css($src, $media = 'screen') {
