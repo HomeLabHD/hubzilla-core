@@ -210,7 +210,7 @@ class Activity extends Controller {
 			// Give ocap tokens priority
 
 			if ($ob_authorize) {
-				$sql_extra = " and item.uid = " . intval($token['uid']) . " ";
+				$sql_extra = " and item.uid = " . intval($item_uid) . " ";
 			}
 			else {
 				$sql_extra = item_permissions_sql(0);

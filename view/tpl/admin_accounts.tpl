@@ -5,7 +5,6 @@
 		<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 
 		<h3>{{$h_pending}}</h3>
-		{{if $debug}}<div>{{$debug}}</div>{{/if}}
 		{{if $pending}}
 		<table id="pending" class="table table-hover">
 			<thead>

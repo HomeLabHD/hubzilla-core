@@ -136,14 +136,12 @@ class Cal extends Controller {
 				}
 
 				$html = '';
+				$tz = get_iconfig($rr, 'event', 'timezone', 'UTC');
+
 				if (x($_GET,'id')) {
 					$rr['timezone'] = $tz;
 					$html = format_event_html($rr);
 				}
-
-				$tz = get_iconfig($rr, 'event', 'timezone');
-				if(! $tz)
-					$tz = 'UTC';
 
 				$events[] = array(
 					'calendar_id' => 'channel_calendar',

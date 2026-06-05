@@ -55,11 +55,10 @@ class Account_edit {
 
 
 	function get() {
-		if(argc() > 2)
-			$account_id = argv(2);
+		$account_id = intval(argv(2));
 
 		$x = q("select * from account where account_id = %d limit 1",
-			intval($account_id)
+			$account_id
 		);
 
 		if(! $x) {

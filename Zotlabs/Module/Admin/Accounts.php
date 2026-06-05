@@ -203,7 +203,6 @@ class Accounts {
 		$t = get_markup_template('admin_accounts.tpl');
 		$o = replace_macros($t, array(
 			// strings //
-			'$debug' => $debug,
 			'$title' => t('Administration'),
 			'$page' => t('Accounts'),
 			'$submit' => t('Submit'),
@@ -263,7 +262,7 @@ class Accounts {
 
 		if ($zarop && $zarat >= 0 && $zarse && $zarse == $_SESSION[self::MYP]['h'][$zarat]) {
 
-			//
+			$rc = 0;
 			if ($zarop == 'd') {
 				$rd = q("UPDATE register SET reg_vital = 0 WHERE reg_id = %d AND SUBSTR(reg_hash,1,4) = '%s' ",
 					intval($_SESSION[self::MYP]['i'][$zarat]),
@@ -279,7 +278,6 @@ class Accounts {
 					intval($_SESSION[self::MYP]['i'][$zarat]),
 					dbesc($_SESSION[self::MYP]['h'][$zarat])
 				);
-				$rc = 0;
 				$rs = q("SELECT * from register WHERE reg_id = %d ",
 					intval($_SESSION[self::MYP]['i'][$zarat])
 				);
