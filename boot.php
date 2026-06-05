@@ -42,6 +42,7 @@ use Zotlabs\Web\HttpMeta;
 
 require_once('vendor/autoload.php');
 
+require_once('include/php_compat.php');
 require_once('include/config.php');
 require_once('include/network.php');
 require_once('include/plugin.php');
