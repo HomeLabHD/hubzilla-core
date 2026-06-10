@@ -30,3 +30,8 @@ Om de registratie van dit account te annuleren en deze te verwijderen bezoek je:
 
 
 Bedankt
+
+
+--
+Terms Of Service:
+{{$siteurl}}/help/TermsOfService
