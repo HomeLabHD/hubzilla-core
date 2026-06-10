@@ -29,6 +29,7 @@ class Authorize extends \Zotlabs\Web\Controller {
 
 			return replace_macros(get_markup_template('oauth_authorize.tpl'), [
 				'$title'        => t('Authorize'),
+				'$security'		=> get_form_security_token('oauth_authorize'),
 				'$authorize'    => sprintf( t('Do you authorize the app %s to access your channel data?'), $link ),
 				'$app'          => $app,
 				'$yes'          => t('Allow'),
@@ -43,6 +44,10 @@ class Authorize extends \Zotlabs\Web\Controller {
 	function post() {
 		if (! local_channel()) {
 			return;
+		}
+
+		if (! check_form_security_token('oauth_authorize')) {
+			http_status_exit(401, t('You are not authorized to perform this action.'));
 		}
 
 		$storage = new OAuth2Storage(\DBA::$dba->db);

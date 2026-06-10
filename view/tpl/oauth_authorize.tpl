@@ -6,6 +6,7 @@
 	<p class="descriptive-paragraph">{{$authorize}}</p>
 	<form method="POST">
 	<div class="settings-submit-wrapper">
+		<input type="hidden" name="form_security_token" value="{{$security}}" />
 		<input type="hidden" name="client_id" value="{{$client_id|escape}}" />
 		<input type="hidden" name="redirect_uri" value="{{$redirect_uri|escape}}" />
 		<input type="hidden" name="state" value="{{$state|escape}}" />
