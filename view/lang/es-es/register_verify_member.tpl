@@ -10,20 +10,24 @@ Inicie la sesión con la contraseña que eligió durante el registro.
 
 Necesitamos verificar su correo electrónico para poder darle pleno acceso.
 
-Su código de validación es 
+Su código de validación es
 
 {{$hash}}
 
+{{if $timeframe}}
+This token is valid from {{$timeframe.0}} UTC until {{$timeframe.1}} UTC
+
+
+{{/if}}
 
 Si ha registrado esta cuenta, introduzca el código de validación cuando se le solicite o visite el siguiente enlace:
 
-{{$siteurl}}/regver/allow/{{$hash}} 
+{{$siteurl}}/regate/{{$mail}}
 
 
 Para rechazar la petición y eliminar la cuenta , siga:
 
-
-{{$siteurl}}/regver/deny/{{$hash}}
+{{$siteurl}}/regate/{{$mail}}{{if $ko}}/{{$ko}}{{/if}}
 
 
 Gracias.
