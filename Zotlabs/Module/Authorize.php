@@ -12,28 +12,31 @@ class Authorize extends \Zotlabs\Web\Controller {
 		}
 		else {
 
-			$name = $_REQUEST['client_name'];
+			$name = $_GET['client_name'];
 			if(! $name) {
-				$name = (($_REQUEST['client_id']) ?: t('Unknown App'));
+				$name = $_GET['client_id'] ?: t('Unknown App');
 			}
 
 			$app = [
-				'name' => $name,
-				'icon' => (x($_REQUEST, 'logo_uri')    ? $_REQUEST['logo_uri'] : z_root() . '/images/icons/plugin.png'),
-				'url'  => (x($_REQUEST, 'client_uri')  ? $_REQUEST['client_uri'] : ''),
+				'name' => escape_tags($name),
+				'icon' => (x($_GET, 'logo_uri')    ? $_GET['logo_uri'] : z_root() . '/images/icons/plugin.png'),
+				'url'  => (x($_GET, 'client_uri')  ? $_GET['client_uri'] : ''),
 			];
 
-			$link = (($app['url']) ? '<a style="float: none;" href="' . $app['url'] . '">' . $app['name'] . '</a> ' : $app['name']);
+			$link = $app['url']
+				? '<a style="float: none;" href="' . escape_url($app['url']) . '">' . $app['name'] . '</a> '
+				: $app['name'];
 
 			return replace_macros(get_markup_template('oauth_authorize.tpl'), [
 				'$title'        => t('Authorize'),
+				'$security'		=> get_form_security_token('oauth_authorize'),
 				'$authorize'    => sprintf( t('Do you authorize the app %s to access your channel data?'), $link ),
 				'$app'          => $app,
 				'$yes'          => t('Allow'),
 				'$no'           => t('Deny'),
-				'$client_id'    => (x($_REQUEST, 'client_id') ? $_REQUEST['client_id'] : ''),
-				'$redirect_uri' => (x($_REQUEST, 'redirect_uri') ? $_REQUEST['redirect_uri'] : ''),
-				'$state'        => (x($_REQUEST, 'state') ? $_REQUEST['state'] : ''),
+				'$client_id'    => (x($_GET, 'client_id') ? $_GET['client_id'] : ''),
+				'$redirect_uri' => (x($_GET, 'redirect_uri') ? $_GET['redirect_uri'] : ''),
+				'$state'        => (x($_GET, 'state') ? $_GET['state'] : ''),
 			]);
 		}
 	}
@@ -41,6 +44,10 @@ class Authorize extends \Zotlabs\Web\Controller {
 	function post() {
 		if (! local_channel()) {
 			return;
+		}
+
+		if (! check_form_security_token('oauth_authorize')) {
+			http_status_exit(401, t('You are not authorized to perform this action.'));
 		}
 
 		$storage = new OAuth2Storage(\DBA::$dba->db);
