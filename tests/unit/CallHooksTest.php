@@ -10,8 +10,10 @@
 
 namespace Zotlabs\Tests\Unit;
 
-use PHPUnit\Framework\Attributes\BackupStaticProperties;
 use App;
+use PHPUnit\Framework\Attributes\BackupStaticProperties;
+use PHPUnit\Framework\Attributes\DataProvider;
+use Zotlabs\Extend\Hook;
 
 #[BackupStaticProperties(App::class)]
 class CallHooksTest extends UnitTestCase {
@@ -27,39 +29,71 @@ class CallHooksTest extends UnitTestCase {
 		$this->assertHookInvoked();
 	}
 
-	public function test_static_class_function_as_string(): void {
-		insert_hook('test_hook', 'Zotlabs\Tests\Unit\CallHooksTest::static_test_hook');
+	#[DataProvider('hookProvider')]
+	public function testOldInsertHookApi(mixed $hook): void {
+		insert_hook('test_hook', $hook);
 		$this->assertHookInvoked();
 	}
 
-	public function test_static_class_function_as_array(): void {
-		insert_hook('test_hook', ['Zotlabs\Tests\Unit\CallHooksTest', 'static_test_hook']);
+	#[DataProvider('hookProvider')]
+	public function testNewHookInsertApi(mixed $hook): void {
+		Hook::insert('test_hook', $hook);
 		$this->assertHookInvoked();
 	}
 
-	public function test_static_class_function_as_serialized_array(): void {
-		insert_hook('test_hook', serialize(['Zotlabs\Tests\Unit\CallHooksTest', 'static_test_hook']));
+	#[DataProvider('hookProvider')]
+	public function testNewHookRegisterApi(mixed $hook): void {
+		Hook::register('test_hook', __FILE__, $hook);
+
+		load_hooks();
 		$this->assertHookInvoked();
+
+		Hook::unregister('test_hook', __FILE__, $hook);
+
+		load_hooks();
+		$this->assertNotHookInvoked();
 	}
 
-	public function test_instance_function_as_array(): void {
-		insert_hook('test_hook', [$this, 'instance_test_hook']);
-		$this->assertHookInvoked();
-	}
+	//
+	// Helper functions
+	//
 
-
-	public function assertHookInvoked(): void {
+	private function invokeHook(): bool {
 		$test_hook_args = ['called' => false];
 		call_hooks('test_hook', $test_hook_args);
 
-		$this->assertTrue($test_hook_args['called']);
+		return $test_hook_args['called'];
 	}
 
-	public function instance_test_hook(array &$args): void {
-		$args['called'] = true;
+	private function assertHookInvoked(): void {
+		$this->assertTrue($this->invokeHook());
 	}
+
+	private function assertNotHookInvoked(): void {
+		$this->assertFalse($this->invokeHook());
+	}
+
+	//
+	// A static function to invoke via the hook
+	//
+
 	public static function static_test_hook(array &$args): void {
 		$args['called'] = true;
+	}
+
+	//
+	// Data provider for the hook tests
+	//
+
+	public static function hookProvider(): array {
+		return [
+			'hook is static class function as string' => [
+				'Zotlabs\Tests\Unit\CallHooksTest::static_test_hook'
+			],
+			'hook is static class function as array' => [
+				['Zotlabs\Tests\Unit\CallHooksTest', 'static_test_hook']
+			],
+		];
 	}
 }
 
