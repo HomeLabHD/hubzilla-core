@@ -24,6 +24,9 @@ class Security {
 		$cloud_disksize       = ((x($_POST,'cloud_disksize'))	? 1	: 0);
 		Config::Set('system','cloud_report_disksize',$cloud_disksize);
 
+		$propfind_depth_infinity = ((x($_POST, 'propfind_depth_infinity')) ? 1 : 0);
+		Config::Set('system','propfind_depth_infinity', $propfind_depth_infinity);
+
 		$ws = $this->trim_array_elems(explode("\n",$_POST['whitelisted_sites']));
 		Config::Set('system','whitelisted_sites',$ws);
 
@@ -109,6 +112,7 @@ class Security {
 	        '$block_public'     => array('block_public', t("Block public"), Config::Get('system','block_public'), t("Check to block public access to all otherwise public personal pages on this site unless you are currently authenticated.")),
 			'$cloud_noroot'     => [ 'cloud_noroot', t('Provide a cloud root directory'), 1 - intval(Config::Get('system','cloud_disable_siteroot')), t('The cloud root directory lists all channel names which provide public files') ],
 			'$cloud_disksize'     => [ 'cloud_disksize', t('Show total disk space available to cloud uploads'), intval(Config::Get('system','cloud_report_disksize')), '' ],
+			'$propfind_depth_infinity' => ['propfind_depth_infinity', t('Allow propfind requests with infinity depth'), intval(Config::Get('system', 'propfind_depth_infinity')), t('Only turn this on if you know what you are doing')],
 			'$transport_security' => array('transport_security', t('Set "Transport Security" HTTP header'),intval(Config::Get('system','transport_security_header')),''),
 			'$content_security' => array('content_security', t('Set "Content Security Policy" HTTP header'),intval(Config::Get('system','content_security_policy')),''),
 			'$allowed_email'	=> array('allowed_email', t("Allowed email domains"), Config::Get('system','allowed_email'), t("Comma separated list of domains which are allowed in email addresses for registrations to this site. Wildcards are accepted. Empty to allow any domains")),

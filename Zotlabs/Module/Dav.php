@@ -10,6 +10,7 @@ namespace Zotlabs\Module;
 
 use Sabre\DAV as SDAV;
 use Zotlabs\Lib\Libzot;
+use Zotlabs\Lib\Config;
 use Zotlabs\Storage;
 use Zotlabs\Web\HTTPSig;
 
@@ -106,10 +107,8 @@ class Dav extends \Zotlabs\Web\Controller {
 		// A SabreDAV server-object
 		$server = new SDAV\Server($rootDirectory);
 
-
 		$authPlugin = new \Sabre\DAV\Auth\Plugin($auth);
 		$server->addPlugin($authPlugin);
-
 
 		// prevent overwriting changes each other with a lock backend
 		$lockBackend = new SDAV\Locks\Backend\File('store/[data]/locks');
@@ -117,9 +116,7 @@ class Dav extends \Zotlabs\Web\Controller {
 
 		$server->addPlugin($lockPlugin);
 
-		// provide a directory view for the cloud in Hubzilla
-		$browser = new \Zotlabs\Storage\Browser($auth);
-		$auth->setBrowserPlugin($browser);
+		$server->enablePropfindDepthInfinity = Config::Get('system', 'propfind_depth_infinity', false);
 
 		// Experimental QuotaPlugin
 		// $server->addPlugin(new \Zotlabs\Storage\QuotaPlugin($auth));
