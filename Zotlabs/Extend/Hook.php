@@ -167,10 +167,6 @@ class Hook {
 	 *                          would require the hook array to be resorted.
 	 */
 	static public function insert($hook, $fn, $version = 0, $priority = 0) {
-		if(is_array($fn)) {
-			$fn = serialize($fn);
-		}
-
 		if(! is_array(App::$hooks))
 			App::$hooks = array();
 
