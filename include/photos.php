@@ -344,7 +344,7 @@ function photo_upload($channel, $observer, $args) {
 		elseif (array_key_exists('GPSLatitude', $exif)) {
 			$gps = $exif;
 		}
-		if ($gps) {
+		if (isset($gps['GPSLatitude'], $gps['GPSLatitudeRef'], $gps['GPSLongitude'], $gps['GPSLongitudeRef'])) {
 			$lat = getGps($gps['GPSLatitude'], $gps['GPSLatitudeRef']);
 			$lon = getGps($gps['GPSLongitude'], $gps['GPSLongitudeRef']);
 		}
