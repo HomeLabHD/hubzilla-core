@@ -442,14 +442,16 @@ function as_return_and_die($obj, $channel = []) {
 }
 
 /**
- * @brief Send HTTP status header.
+ * Set HTTP status header.
  *
  * @param int $val
  *    integer HTTP status result value
  * @param string $msg
  *    optional message
+ * @param bool $skiplog
+ *	  whether to skip logging, default: `false`.
  */
-function http_status($val, $msg = '',$skiplog = 0) {
+function http_status(int $val, string $msg = '', bool $skiplog = false): void {
 	if ($val >= 400)
 		$msg = (($msg) ? $msg : 'Error');
 	if ($val >= 200 && $val < 300)
@@ -462,15 +464,17 @@ function http_status($val, $msg = '',$skiplog = 0) {
 
 
 /**
- * @brief Send HTTP status header and exit.
+ * Set the HTTP status header and exit.
  *
  * @param int $val
  *    integer HTTP status result value
  * @param string $msg
  *    optional message
- * @return void does not return, process is terminated
+ *
+ * @return never
+ *    This function never returns.
  */
-function http_status_exit($val, $msg = '',$skiplog = 0) {
+function http_status_exit(int $val, string $msg = '', bool $skiplog = false): never {
 	http_status($val, $msg, $skiplog);
 	killme();
 }
