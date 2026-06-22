@@ -715,6 +715,9 @@ function sys_boot(): bool {
 		load_hooks();
 		/**
 		 * @hooks init_1
+		 *		Called when system bootup is complete, but before request processing.
+		 *		The configuration and session has been set up, and hooks loaded
+		 *		at this point. No arguments are passed to this hook.
 		 */
 		call_hooks('init_1');
 	}
