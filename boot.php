@@ -983,7 +983,7 @@ class App {
 			$staticfilecwd      = getcwd();
 			$staticfilerealpath = realpath(self::$cmd);
 			if (strpos($staticfilerealpath, $staticfilecwd) !== 0) {
-				http_status_exit(404, 'not found', 1);
+				http_status_exit(404, 'not found', true);
 			}
 
 			$staticfileetag = '"' . md5($staticfilerealpath . filemtime(self::$cmd)) . '"';
@@ -993,7 +993,7 @@ class App {
 				// If HTTP_IF_NONE_MATCH is same as the generated ETag => content is the same as browser cache
 				// So send a 304 Not Modified response header and exit
 				if ($_SERVER['HTTP_IF_NONE_MATCH'] == $staticfileetag) {
-					http_status_exit(304, 'not modified', 1);
+					http_status_exit(304, 'not modified', true);
 				}
 			}
 			header("Content-type: " . $serve_rawfiles[$filext]);
@@ -1784,23 +1784,27 @@ function login($register = false, $form_id = 'main_login', $hiddens = false, $lo
 
 
 /**
- * @brief Used to end the current process, after saving session state.
+ * Used to end the current request, after saving session state.
+ *
+ * @return never
+ *		This function never returns
  */
-function killme() {
+function killme(): never {
 	register_shutdown_function('shutdown');
 	exit;
 }
 
 /**
- * @brief Redirect to another URL and terminate this process.
+ * Redirect to another URL and terminate the request.
+ *
+ * @param string $url
+ *		A URL to redirect to.
+ *
+ * @return never
  */
-function goaway($s) {
-	header("Location: $s");
+function goaway(string $url): never {
+	header("Location: {$url}");
 	killme();
-}
-
-function shutdown() {
-
 }
 
 /**
