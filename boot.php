@@ -1797,6 +1797,10 @@ function killme(): never {
 	exit;
 }
 
+function shutdown() {
+
+}
+
 /**
  * Redirect to another URL and terminate the request.
  *
