@@ -1,13 +1,14 @@
 <?php
-/**
+/*
  * @file include/attach.php
  *
- * @brief File/attach API with the potential for revision control.
+ * File/attach API with the potential for revision control.
  *
- * @TODO A filesystem storage abstraction which maintains security (and 'data'
+ * @todo A filesystem storage abstraction which maintains security (and 'data'
  * contains a system filename which is inaccessible from the web). This could
  * get around PHP storage limits and store videos and larger items, using fread
  * or OS methods or native code to read/write or chunk it through.
+ *
  * @todo Also an 'append' option to the storage function might be a useful addition.
  */
 
@@ -28,6 +29,7 @@ require_once('include/security.php');
  * filename extension.
  *
  * @param string $filename a string filename
+ *
  * @return string The mimetype according to a file ending.
  */
 function z_mime_content_type($filename) {
@@ -139,14 +141,16 @@ function z_mime_content_type($filename) {
 }
 
 /**
- * @brief Count files/attachments.
+ * Count files/attachments.
  *
- * @param int $channel_id
- * @param string $observer
- * @param string $hash (optional)
- * @param string $filename (optional)
- * @param string $filetype (optional)
- * @return array Associative array with:
+ * @param int $channel_id    The channel id
+ * @param string $observer   The observer
+ * @param string $hash       (optional) The hash
+ * @param string $filename   (optional) The file name
+ * @param string $filetype   (optional) The file type
+ *
+ * @return array
+ *	Associative array with:
  *  * \e boolean \b success
  *  * \e int|boolean \b results amount of found results, or false
  *  * \e string \b message with error messages if any
@@ -183,19 +187,21 @@ function attach_count_files($channel_id, $observer, $hash = '', $filename = '', 
 }
 
 /**
- * @brief Returns a list of files/attachments.
+ * Returns a list of files/attachments.
  *
- * @param int $channel_id
- * @param string $observer
- * @param string $hash (optional)
- * @param string $filename (optional)
- * @param string $filetype (optional)
- * @param string $orderby (optional)
- * @param int $start (optional)
- * @param int $entries (optional)
- * @param string $since (optional)
- * @param string $until (optional)
- * @return array an associative array with:
+ * @param int $channel_id    The channel id
+ * @param string $observer   The observer
+ * @param string $hash       (optional) The hash
+ * @param string $filename   (optional) The file name
+ * @param string $filetype   (optional) The file type
+ * @param string $orderby    optional) What field to order the entries by
+ * @param int $start         (optional) Start offset
+ * @param int $entries       (optional) Number of entries to return
+ * @param string $since      (optional) String representatio of start date
+ * @param string $until      (optional) String representation of end date
+ *
+ * @return array
+ *	An associative array with:
  *  * \e boolean \b success
  *  * \e array|boolean \b results array with results, or false
  *  * \e string \b message with error messages if any
@@ -255,6 +261,7 @@ function attach_list_files($channel_id, $observer, $hash = '', $filename = '', $
  * @param string $hash
  * @param string $observer_hash
  * @param int $rev (optional) Revision default 0
+ *
  * @return array
  */
 function attach_by_hash($hash, $observer_hash, $rev = 0, $token = EMPTY_STR) {
@@ -405,6 +412,7 @@ function attach_can_view_folder($uid, $ob_hash, $folder_hash, $token = EMPTY_STR
  * @param string $hash
  * @param string $observer_hash
  * @param int $rev (optional) revision default 0
+ *
  * @return array (associative) with everything except data
  *  * \e boolean \b success boolean true or false
  *  * \e string \b message (optional) only when success is false
@@ -476,8 +484,7 @@ function attach_by_hash_nodata($hash, $observer_hash, $rev = 0, $token = EMPTY_S
  * and the entire thing probably needs to be refactored. It started out just storing
  * files, before we had DAV. It was made extensible to do extra stuff like edit an
  * existing file or optionally store a separate revision using $options to choose between different
- * storage models. Along the way we moved from
- * DB data storage to file system storage.
+ * storage models. Along the way we moved from DB data storage to file system storage.
  * Then DAV came along and used different upload methods depending on whether the
  * file was stored as a DAV directory object or updated as a file object. One of these
  * is essentially an update and the other is basically an upload, but doesn't use the traditional PHP
@@ -496,6 +503,7 @@ function attach_by_hash_nodata($hash, $observer_hash, $rev = 0, $token = EMPTY_S
  * @param string $observer_hash hash of current observer
  * @param string $options (optional) one of update, replace, revision
  * @param array $arr (optional) associative array
+ *
  * @return void|array
  */
 function attach_store($channel, $observer_hash, $options = '', $arr = null) {
@@ -603,6 +611,7 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 		 *   * \e string \b type - return value, default empty
 		 */
 		call_hooks('photo_upload_file', $f);
+
 		/**
 		 * @hooks attach_upload_file
 		 *   Called when uploading a file.
@@ -1182,6 +1191,7 @@ function z_readdir($channel_id, $observer_hash, $pathname, $parent_hash = '') {
  *  * \e string \b allow_gid
  *  * \e string \b deny_cid
  *  * \e string \b deny_gid
+ *
  * @return array
  */
 function attach_mkdir($channel, $observer_hash, $arr = null) {
@@ -1357,6 +1367,7 @@ function attach_mkdir($channel, $observer_hash, $arr = null) {
  *  * \e string \b allow_gid
  *  * \e string \b deny_cid
  *  * \e string \b deny_gid
+ *
  * @return array
  */
 function attach_mkdirp($channel, $observer_hash, $arr = null) {
@@ -1516,11 +1527,10 @@ function attach_change_permissions($channel_id, $resource, $allow_cid, $allow_gi
  * If the provided resource hash is from a directory it will delete everything
  * recursively under this directory.
  *
- * @param int $channel_id
- *  The id of the channel
- * @param string $resource
- *  The hash to delete
- * @param int $is_photo (optional) default 0
+ * @param int $channel_id    The id of the channel
+ * @param string $resource   The hash to delete
+ * @param int $is_photo      (optional) default 0
+ *
  * @return void
  */
 function attach_delete($channel_id, $resource, $is_photo = 0) {
@@ -1615,6 +1625,7 @@ function attach_delete($channel_id, $resource, $is_photo = 0) {
 	);
 
 	$arr = ['channel_id' => $channel_id, 'resource' => $resource, 'is_photo' => $is_photo];
+
 	/**
 	 * @hooks attach_delete
 	 *   Called when deleting an attachment from channel.
@@ -1682,8 +1693,8 @@ function attach_drop_item($channel_id,$resource) {
  *  * \e int \b uid the channel's uid
  *  * \e string \b folder
  *  * \e string \b filename
- * @return string
- *  path to the file in cloud/
+ *
+ * @return string path to the file in cloud/
  */
 function get_cloudpath($arr) {
 	$basepath = 'cloud/';
@@ -1729,11 +1740,10 @@ function get_cloudpath($arr) {
  * @brief Returns path to parent folder in cloud/.
  * This function cannot be used with mod/dav as it always returns a path valid under mod/cloud
  *
- * @param int $channel_id
- *  The id of the channel
- * @param string $channel_name
- *  The name of the channel
+ * @param int $channel_id      The id of the channel
+ * @param string $channel_name The name of the channel
  * @param string $attachHash
+ *
  * @return string with the full folder path
  */
 function get_cloud_url($channel_id, $channel_name, $attachHash) {
@@ -1756,12 +1766,10 @@ function get_cloud_url($channel_id, $channel_name, $attachHash) {
 /**
  * @brief Return the hash of an attachment's folder.
  *
- * @param int $channel_id
- *  The id of the channel
- * @param string $attachHash
- *  The hash of the attachment
- * @param boolean $recurse
- *  (optional) default false
+ * @param int $channel_id       The id of the channel
+ * @param string $attachHash    The hash of the attachment
+ * @param boolean $recurse      (optional) default false
+ *
  * @return string
  */
 function find_folder_hash_by_attach_hash($channel_id, $attachHash, $recurse = false) {
@@ -1786,8 +1794,9 @@ function find_folder_hash_by_attach_hash($channel_id, $attachHash, $recurse = fa
 /**
  * @brief Return the hash of an attachment's folder.
  *
- * @param int $channel_id
- * @param string $path
+ * @param int $channel_id   The channel id
+ * @param string $path      The path of the attachment
+ *
  * @return string
  */
 function find_folder_hash_by_path($channel_id, $path) {
@@ -1824,12 +1833,10 @@ function find_folder_hash_by_path($channel_id, $path) {
 /**
  * @brief Returns the filename of an attachment in a given channel.
  *
- * @param int $channel_id
- *  The id of the channel
- * @param string $attachHash
- *  The hash of the attachment
- * @return string
- *  The filename of the attachment
+ * @param int $channel_id     The id of the channel
+ * @param string $attachHash  The hash of the attachment
+ *
+ * @return string The filename of the attachment
  */
 function find_filename_by_hash($channel_id, $attachHash) {
 	$r = q("SELECT filename FROM attach WHERE uid = %d AND hash = '%s' LIMIT 1",
@@ -1847,12 +1854,10 @@ function find_filename_by_hash($channel_id, $attachHash) {
 /**
  * @brief Returns the display_path of an attachment in a given channel.
  *
- * @param int $channel_id
- *  The id of the channel
- * @param string $attachHash
- *  The hash of the attachment
- * @return string
- *  The filename of the attachment
+ * @param int $channel_id       The id of the channel
+ * @param string $attachHash    The hash of the attachment
+ *
+ * @return string The filename of the attachment
  */
 function find_path_by_hash($channel_id, $attachHash) {
 	$r = q("SELECT display_path FROM attach WHERE uid = %d AND hash = '%s' LIMIT 1",
@@ -1873,6 +1878,7 @@ function find_path_by_hash($channel_id, $attachHash) {
  * @param resource $in File pointer of input
  * @param resource $out File pointer of output
  * @param int $bufsize size of chunk, default 16384
+ *
  * @return number with the size
  */
 function pipe_streams($in, $out, $bufsize = 16384) {
@@ -2051,9 +2057,10 @@ function attach_store_item($channel, $observer, $file) {
 /**
  * @brief Create file activity object.
  *
- * @param int $channel_id
- * @param string $hash
- * @param string $url
+ * @param int $channel_id    The channel id
+ * @param string $hash       The hash
+ * @param string $url        The url
+ *
  * @return array Associative array for the specified file.
  */
 function get_file_activity_object($channel_id, $hash, $url) {
@@ -2366,6 +2373,7 @@ function attach_export_data($channel, $resource_id, $deleted = false, $zap_compa
  * @brief Strip off 'store/nickname/' from the provided path
  *
  * @param string $s
+ *
  * @return string
  */
 function get_attach_binname($s) {
@@ -2449,6 +2457,7 @@ function get_filename_by_cloudname($cloudname, $channel, $storepath) {
  * @param string $observer_hash
  * @param string $srcpath
  * @param string $cloudpath
+ *
  * @return boolean
  */
 function copy_folder_to_cloudfiles($channel, $observer_hash, $srcpath, $cloudpath) {
@@ -2493,21 +2502,25 @@ function copy_folder_to_cloudfiles($channel, $observer_hash, $srcpath, $cloudpat
 
 	return true;
 }
+
 /**
- * This function performs an in place directory-to-directory move of a stored resource.
- * The data is physically moved in the store/nickname storage location and the paths adjusted
- * in the attach structure (and if applicable the photo table). The new 'album name' is recorded
- * for photos and will show up immediately there.
- * This takes a channel_id, attach.hash of the file to move (this is the same as a photo resource_id), and
- * the attach.hash of the new parent folder, which must already exist. If $new_folder_hash is blank or empty,
- * the file is relocated to the root of the channel's storage area.
+ * This function performs an in place directory-to-directory move of a stored
+ * resource. The data is physically moved in the store/nickname storage
+ * location and the paths adjusted in the attach structure (and if applicable
+ * the photo table). The new 'album name' is recorded for photos and will show
+ * up immediately there.
  *
+ * This takes a channel_id, attach.hash of the file to move (this is the same
+ * as a photo resource_id), and the attach.hash of the new parent folder, which
+ * must already exist. If $new_folder_hash is blank or empty, the file is
+ * relocated to the root of the channel's storage area.
  *
- * @param int $channel_id
- * @param int $resource_id
- * @param string $new_folder_hash
- * @param string (optional) $newname
- * @param  boolean (optional) $recurse
+ * @param int $channel_id            The channel id
+ * @param int $resource_id           The resource id
+ * @param string $new_folder_hash    The hash of the new folder
+ * @param string $newname            (optional) The new name
+ * @param boolean $recurse           (optional) Recursive operation
+ *
  * @return array Associative array with:
  *  * \e boolean \b success
  *  * \e string \b resource_id
@@ -2696,20 +2709,23 @@ function attach_move($channel_id, $resource_id, $new_folder_hash, $newname = '',
 }
 
 /**
- * This function performs an in place directory-to-directory copy of a stored resource.
- * The data is physically copyed in the store/nickname storage location and the paths adjusted
- * in the attach structure (and if applicable the photo table). The new 'album name' is recorded
- * for photos and will show up immediately there.
- * This takes a channel_id, attach.hash of the file to copy (this is the same as a photo resource_id), and
- * the attach.hash of the new parent folder, which must already exist. If $new_folder_hash is blank or empty,
- * the new file is copyed to the root of the channel's storage area.
+ * This function performs an in place directory-to-directory copy of a stored
+ * resource. The data is physically copyed in the store/nickname storage
+ * location and the paths adjusted in the attach structure (and if applicable
+ * the photo table). The new 'album name' is recorded for photos and will show
+ * up immediately there.
  *
+ * This takes a channel_id, attach.hash of the file to copy (this is the same
+ * as a photo resource_id), and the attach.hash of the new parent folder, which
+ * must already exist. If $new_folder_hash is blank or empty, the new file is
+ * copyed to the root of the channel's storage area.
  *
- * @param int $channel_id
- * @param int $resource_id
- * @param string $new_folder_hash
- * @param string (optional) $newname
- * @param boolean (optional) $recurse
+ * @param int $channel_id            The channel id
+ * @param int $resource_id           The resource id
+ * @param string $new_folder_hash    The new folder hash
+ * @param string $newname            (optional) The new name
+ * @param boolean $recurse           (optional) Recursuve operation
+ *
  * @return array Associative array with:
  *  * \e boolean \b success
  *  * \e string \b resource_id of the new resource
@@ -2900,8 +2916,6 @@ function attach_copy($channel_id, $resource_id, $new_folder_hash, $newname = '',
 /**
  * Used to generate a select input box of all your folders
  */
-
-
 function attach_folder_select_list($channel_id) {
 
 	$r = q("select * from attach where is_dir = 1 and uid = %d",
@@ -2952,8 +2966,6 @@ function attach_folder_rpaths($all_folders,$that_folder) {
 /**
  * @brief Given a channel_id and attach_hash,  return an array with the full relative path and os_path
  */
-
-
 function attach_syspaths($channel_id,$attach_hash) {
 
 	$os_path = '';
@@ -2980,9 +2992,14 @@ function attach_syspaths($channel_id,$attach_hash) {
 /**
  * Chunked uploader for integration with the blueimp jquery-uploader
  * This is currently used.
+ *
+ * @param array $channel    Array containing the channel whose chunk to save.
+ * @param int $start        Chunk offset.
+ * @param int $end          End of this chunk.
+ * @param int $len          Total size of upload.
+ *
+ * @return array An array with information about the upload.
  */
-
-
 function save_chunk($channel,$start,$end,$len) {
 
 	$result = [];
