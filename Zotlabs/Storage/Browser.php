@@ -94,7 +94,7 @@ class Browser extends DAV\Browser\Plugin {
 			date_default_timezone_set($this->auth->getTimezone());
 		}
 
-		$files = $this->server->getPropertiesForPath($path, [], 1);
+		$files = $this->server->getPropertiesIteratorForPath($path, [], 1);
 		$parent = $this->server->tree->getNodeForPath($path);
 
 		$arr = explode('/', $parent->os_path);
