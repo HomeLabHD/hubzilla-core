@@ -1793,13 +1793,9 @@ function login($register = false, $form_id = 'main_login', $hiddens = false, $lo
  *		This function never returns
  */
 function killme(): never {
-	register_shutdown_function('shutdown');
 	exit;
 }
 
-function shutdown() {
-
-}
 
 /**
  * Redirect to another URL and terminate the request.
