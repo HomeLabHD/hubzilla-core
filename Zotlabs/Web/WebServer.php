@@ -9,7 +9,7 @@ use GuzzleHttp\Psr7\Request;
 
 class WebServer {
 
-	public function run() {
+	public function run(): void {
 
 
 		/*
@@ -120,8 +120,6 @@ class WebServer {
 		call_hooks('page_end', App::$page['content']);
 
 		construct_page();
-
-		killme();
 	}
 
 
