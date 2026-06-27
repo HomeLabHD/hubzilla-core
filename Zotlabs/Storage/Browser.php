@@ -127,9 +127,11 @@ class Browser extends DAV\Browser\Plugin {
 		];
 
 		$f = [];
+		$photo_hashes = [];
+		$term_ids = [];
+
 
 		foreach ($files as $file) {
-
 			$ft = [];
 			$type = null;
 
@@ -217,49 +219,13 @@ class Browser extends DAV\Browser\Plugin {
 			$is_creator = (($data['creator'] === get_observer_hash()) ? true : false);
 
 			if(strpos($type,'image/') === 0 && $attach_hash) {
-				$p = q("select resource_id, imgscale from photo where resource_id = '%s' and imgscale in ( %d, %d ) order by imgscale asc limit 1",
-					dbesc($attach_hash),
-					intval(PHOTO_RES_320),
-					intval(PHOTO_RES_PROFILE_80)
-				);
-				if($p) {
-					$photo_icon = 'photo/' . $p[0]['resource_id'] . '-' . $p[0]['imgscale'];
-				}
-				if($type === 'image/svg+xml' && $preview_style > 0) {
-					$photo_icon = $href;
-				}
+				$photo_hashes[] = $attach_hash;
 			}
-
-			$g = [ 'resource_id' => $attach_hash, 'thumbnail' => $photo_icon, 'security' => $preview_style ];
-			call_hooks('file_thumbnail', $g);
-			$photo_icon = $g['thumbnail'];
 
 			$lockstate = (($data['allow_cid'] || $data['allow_gid'] || $data['deny_cid'] || $data['deny_gid']) ? 'lock' : 'unlock');
 			$id = $data['id'];
 
-			if($id) {
-				$terms = q("select * from term where oid = %d AND otype = %d",
-					intval($id),
-					intval(TERM_OBJ_FILE)
-				);
-
-				$categories = [];
-				$terms_str = '';
-				if($terms) {
-					foreach($terms as $t) {
-						$term = htmlspecialchars($t['term'],ENT_COMPAT,'UTF-8',false) ;
-						if(! trim($term))
-							continue;
-						$categories[] = array('term' => $term, 'url' => $t['url']);
-						if ($terms_str)
-							$terms_str .= ',';
-						$terms_str .= $term;
-					}
-					$ft['terms'] = replace_macros(get_markup_template('item_categories.tpl'),array(
-						'$categories' => $categories
-					));
-				}
-			}
+			$term_ids[] = $id;
 
 			$display_path_encoded = Text::rawurlencode_parts($data['display_path'] ?? '');
 			$href_encoded = Text::rawurlencode_parts($href);
@@ -294,7 +260,7 @@ class Browser extends DAV\Browser\Plugin {
 			$ft['folder'] = $data['folder'];
 			$ft['revision'] = $data['revision'];
 			$ft['newfilename'] = ['newfilename_' . $id, t('Change filename to'), $name];
-			$ft['categories'] = ['categories_' . $id, t('Categories'), $terms_str];
+			$ft['categories'] = ['categories_' . $id, t('Categories')];
 
 			// create a copy of the list which we can alter for the current resource
 			$folders = $folder_list;
@@ -364,6 +330,33 @@ class Browser extends DAV\Browser\Plugin {
 			$lockstate = (($acl->is_private()) ? 'lock' : 'unlock');
 		}
 
+		$photo_map = [];
+
+		if ($photo_hashes && $tiles) {
+			$photos = q("select resource_id, imgscale from photo where resource_id in (%s) and imgscale in ( %d, %d ) order by imgscale asc",
+				stringify_array($photo_hashes, true),
+				intval(PHOTO_RES_320),
+				intval(PHOTO_RES_PROFILE_80)
+			);
+
+			foreach ($photos as $row) {
+				$photo_map[$row['resource_id']] = 'photo/' . $row['resource_id'] . '-' . $row['imgscale'];
+			}
+		}
+
+		$term_map = [];
+
+		$terms = q("select * from term where oid in (%s) AND otype = %d",
+			implode(',', $term_ids),
+			intval(TERM_OBJ_FILE)
+		);
+
+		foreach ($terms as $row) {
+			$term_map[$row['oid']]['string'] .= (($term_map[$row['oid']]['string']) ? ',' : '') . htmlspecialchars($row['term'], ENT_COMPAT,'UTF-8', false);
+			$term_map[$row['oid']]['form'] = replace_macros(get_markup_template('field_input.tpl'), ['$field' => ['categories_' . $row['oid'], t('Categories'), $term_map[$row['oid']]['string']]]);
+			$term_map[$row['oid']]['html'] .= replace_macros(get_markup_template('item_categories.tpl'), ['$categories' => [['term' => $row['term'], 'url' => $row['url']]]]);
+		}
+
 		$html = replace_macros(get_markup_template('cloud.tpl'), array(
 				'$header' => $header,
 				'$total' => t('Total'),
@@ -415,7 +408,9 @@ class Browser extends DAV\Browser\Plugin {
 				'$attach_bbcode_label' => t('Attachment BBcode'),
 				'$embed_bbcode_label' => t('Embed BBcode'),
 				'$link_bbcode_label' => t('Link BBcode'),
-				'$close_label' => t('Close')
+				'$close_label' => t('Close'),
+				'$term_map' => $term_map,
+				'$photo_map' => $photo_map
 			));
 
 		$a = false;

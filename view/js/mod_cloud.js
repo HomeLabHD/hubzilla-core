@@ -19,7 +19,7 @@ $(document).ready(function () {
 		$('#cloud-index-' + window.location.hash.substr(1)).addClass('cloud-index-active').get(0).scrollIntoView({block: 'center'});
 	}
 
-	$('.cloud-tool-info-btn').on('click', function (e) {
+	$(document).on('click', '.cloud-tool-info-btn', function (e) {
 		e.preventDefault();
 		let id = $(this).data('id');
 		close_and_deactivate_all_panels();
@@ -27,27 +27,27 @@ $(document).ready(function () {
 		$('#cloud-index-' + id).addClass('cloud-index-active');
 	});
 
-	$('.cloud-tool-perms-btn').on('click', function (e) {
+	$(document).on('click', '.cloud-tool-perms-btn', function (e) {
 		e.preventDefault();
 		let id = $(this).data('id');
 		activate_id(id);
 	});
 
-	$('.cloud-tool-rename-btn').on('click', function (e) {
+	$(document).on('click', '.cloud-tool-rename-btn', function (e) {
 		e.preventDefault();
 		let id = $(this).data('id');
 		activate_id(id);
 		$('#cloud-tool-rename-' + id).show();
 	});
 
-	$('.cloud-tool-move-btn').on('click', function (e) {
+	$(document).on('click', '.cloud-tool-move-btn', function (e) {
 		e.preventDefault();
 		let id = $(this).data('id');
 		activate_id(id);
 		$('#cloud-tool-move-' + id).show();
 	});
 
-	$('.cloud-tool-categories-btn').on('click', function (e) {
+	$(document).on('click', '.cloud-tool-categories-btn', function (e) {
 		e.preventDefault();
 		let id = $(this).data('id');
 		activate_id(id);
@@ -57,11 +57,11 @@ $(document).ready(function () {
 		$('#cloud-tool-categories-' + id).show();
 	});
 
-	$('.cloud-tool-download-btn').on('click', function (e) {
+	$(document).on('click', '.cloud-tool-download-btn', function (e) {
 		close_and_deactivate_all_panels();
 	});
 
-	$('.cloud-tool-dir-download-btn').on('click', function (e) {
+	$(document).on('click', '.cloud-tool-dir-download-btn', function (e) {
 		e.preventDefault();
 		close_and_deactivate_all_panels()
 
@@ -90,7 +90,7 @@ $(document).ready(function () {
 
 	});
 
-	$('.cloud-tool-delete-btn').on('click', function (e) {
+	$(document).on('click', '.cloud-tool-delete-btn', function (e) {
 		e.preventDefault();
 		let id = $(this).data('id');
 
@@ -116,7 +116,7 @@ $(document).ready(function () {
 		return false;
 	});
 
-	$('.cloud-tool-cancel-btn').on('click', function (e) {
+	$(document).on('click', '.cloud-tool-cancel-btn', function (e) {
 		e.preventDefault();
 		let id = $(this).data('id');
 		close_and_deactivate_all_panels();
@@ -143,8 +143,7 @@ $(document).ready(function () {
 		e.stopPropagation();
 	});
 
-	$('.cloud-index.attach-drop').on('drop', function (e) {
-
+	$(document).on('drop', '.cloud-index.attach-drop', function (e) {
 		let target = $(this);
 		let folder = target.data('folder');
 		let id = target.data('id');
@@ -178,7 +177,7 @@ $(document).ready(function () {
 		});
 	});
 
-	$('.cloud-index.attach-drop').on('dragover', function (e) {
+	$(document).on('dragover', '.cloud-index.attach-drop', function (e) {
 		let target = $(this);
 
 		if(target.hasClass('attach-drop-zone') && attach_draging) {
@@ -188,12 +187,12 @@ $(document).ready(function () {
 		target.addClass('attach-drop-ok');
 	});
 
-	$('.cloud-index').on('dragleave', function (e) {
+	$(document).on('dragleave', '.cloud-index', function (e) {
 		let target = $(this);
 		target.removeClass('attach-drop-ok');
 	});
 
-	$('.cloud-index').on('dragstart', function (e) {
+	$(document).on('dragstart', '.cloud-index', function (e) {
 		let target = $(this);
 		attach_drop_id = target.data('id');
 		// dragstart is not fired if a file is draged onto the window
@@ -201,7 +200,7 @@ $(document).ready(function () {
 		attach_draging = true;
 	});
 
-	$('.cloud-index').on('dragend', function (e) {
+	$(document).on('dragend', '.cloud-index', function (e) {
 		let target = $(this);
 		target.removeClass('attach-drop-ok');
 		attach_draging = false;
@@ -211,7 +210,7 @@ $(document).ready(function () {
 
 	// Multi Tools
 
-	$('#cloud-multi-tool-select-all').on('change', function (e) {
+	$(document).on('change', '#cloud-multi-tool-select-all', function (e) {
 		if ($(this).is(':checked')) {
 			$('.cloud-multi-tool-checkbox').prop('checked', true);
 			$('.cloud-index:not(#cloud-index-up)').addClass('cloud-index-selected cloud-index-active');
@@ -226,8 +225,7 @@ $(document).ready(function () {
 		$('.cloud-multi-tool-checkbox').trigger('change');
 	});
 
-
-	$('.cloud-multi-tool-checkbox').on('change', function (e) {
+	$(document).on('change', '.cloud-multi-tool-checkbox', function (e) {
 		let id = $(this).val();
 
 		if ($(this).is(':checked')) {
@@ -258,7 +256,7 @@ $(document).ready(function () {
 
 	});
 
-	$('#cloud-multi-tool-perms-btn').on('click', function (e) {
+	$(document).on('click', '#cloud-multi-tool-perms-btn', function (e) {
 		e.preventDefault();
 
 		close_all_panels();
@@ -267,7 +265,7 @@ $(document).ready(function () {
 		$('#cloud-multi-tool-submit').show();
 	});
 
-	$('#cloud-multi-tool-move-btn').on('click', function (e) {
+	$(document).on('click', '#cloud-multi-tool-move-btn', function (e) {
 		e.preventDefault();
 
 		close_all_panels();
@@ -276,7 +274,7 @@ $(document).ready(function () {
 		$('#cloud-multi-tool-submit, #cloud-multi-tool-move').show();
 	});
 
-	$('#cloud-multi-tool-categories-btn').on('click', function (e) {
+	$(document).on('click', '#cloud-multi-tool-categories-btn', function (e) {
 		e.preventDefault();
 
 		close_all_panels();
@@ -289,7 +287,7 @@ $(document).ready(function () {
 		$('#cloud-multi-tool-submit, #cloud-multi-tool-categories').show();
 	});
 
-	$('#cloud-multi-tool-download-btn').on('click', function (e) {
+	$(document).on('click', '#cloud-multi-tool-download-btn', function (e) {
 		e.preventDefault();
 
 		let post_data = $('.cloud-multi-tool-checkbox:checked').serializeArray();
@@ -317,7 +315,7 @@ $(document).ready(function () {
 
 	});
 
-	$('#cloud-multi-tool-delete-btn').on('click', function (e) {
+	$(document).on('click', '#cloud-multi-tool-delete-btn', function (e) {
 		e.preventDefault();
 
 		close_and_deactivate_all_panels();
@@ -351,7 +349,7 @@ $(document).ready(function () {
 
 	});
 
-	$('.cloud-multi-tool-cancel-btn').on('click', function (e) {
+	$(document).on('click', '.cloud-multi-tool-cancel-btn', function (e) {
 		e.preventDefault();
 
 		close_and_deactivate_all_panels();
@@ -392,7 +390,7 @@ $(document).ready(function () {
 
 	function activate_id(id) {
 		close_and_deactivate_all_panels();
-		$('#cloud-multi-tool-select-all, .cloud-multi-tool-checkbox').prop('checked', false).trigger('change');
+		$('#cloud-multi-tool-select-all:checked, .cloud-multi-tool-checkbox:checked').prop('checked', false).trigger('change');
 
 		$('#cloud-tool-submit-' + id).show();
 		$('#cloud-index-' + id).addClass('cloud-index-active');
