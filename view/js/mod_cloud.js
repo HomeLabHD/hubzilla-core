@@ -9,8 +9,9 @@ $(document).ready(function () {
 		UploadInit();
 	}
 
-	var attach_drop_id;
-	var attach_draging;
+	let attach_drop_id;
+	let attach_draging;
+	let attach_multi_selected_count = 0;
 
 	// Per File Tools
 
@@ -212,6 +213,8 @@ $(document).ready(function () {
 
 	$(document).on('change', '#cloud-multi-tool-select-all', function (e) {
 		if ($(this).is(':checked')) {
+			// Reset the counter here in case any were already manualy selected
+			attach_multi_selected_count = 0;
 			$('.cloud-multi-tool-checkbox').prop('checked', true);
 			$('.cloud-index:not(#cloud-index-up)').addClass('cloud-index-selected cloud-index-active');
 			$('.cloud-tools').addClass('cloud-index-selected');
@@ -229,31 +232,37 @@ $(document).ready(function () {
 		let id = $(this).val();
 
 		if ($(this).is(':checked')) {
+			attach_multi_selected_count++;
+			// Only run when the first item is selected (performance)
+			if (attach_multi_selected_count === 1) {
+				close_all_panels();
+				$('#cloud-multi-actions').addClass('bg-warning');
+				$('#multi-dropdown-button').fadeIn();
+			}
+
 			$('#cloud-index-' + id).addClass('cloud-index-selected cloud-index-active');
 			$('#cloud-tools-' + id).addClass('cloud-index-selected');
 			$('<input id="aid_' + id + '" class="attach-ids-input" type="hidden" name="attach_ids[]" value="' + id + '">').prependTo('#attach_multi_edit_form');
 		}
 		else {
+			attach_multi_selected_count--;
+			// Only run when the last item is deselected (performance)
+			if (attach_multi_selected_count === 0) {
+				$('#cloud-multi-actions').removeClass('bg-warning');
+				$('#multi-dropdown-button').fadeOut();
+				close_and_deactivate_all_panels();
+				disable_multi_acl();
+			}
+
 			$('#cloud-index-' + id).removeClass('cloud-index-selected cloud-index-active');
 			$('#cloud-tools-' + id).removeClass('cloud-index-selected');
-			if ($('#cloud-multi-tool-select-all').is(':checked'))
+
+			if ($('#cloud-multi-tool-select-all').is(':checked')) {
 				$('#cloud-multi-tool-select-all').prop('checked', false);
+			}
 
 			$('#aid_' + id).remove();
 		}
-
-		if($('.cloud-multi-tool-checkbox:checked').length) {
-			close_all_panels();
-			$('#cloud-multi-actions').addClass('bg-warning');
-			$('#multi-dropdown-button').fadeIn();
-		}
-		else {
-			$('#cloud-multi-actions').removeClass('bg-warning');
-			$('#multi-dropdown-button').fadeOut();
-			close_and_deactivate_all_panels();
-			disable_multi_acl();
-		}
-
 	});
 
 	$(document).on('click', '#cloud-multi-tool-perms-btn', function (e) {
