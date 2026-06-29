@@ -85,12 +85,17 @@
 	padding: 0px !important;
 }
 
-.bootstrap-tagsinput input[type=text] {
-	height: unset;
+.bootstrap-tagsinput {
+	border: 1px solid var(--bs-border-color) !important;
+	margin-bottom: 0px !important;
+	border-radius: var(--bs-border-radius) !important;
+	background-color: var(--bs-body-bg) !important;
+	padding: 0 .75rem !important;
+
 }
 
-.bootstrap-tagsinput {
-	box-shadow: none;
+.bootstrap-tagsinput input {
+	min-width: 30% !important;
 }
 
 .breadcrumb {
