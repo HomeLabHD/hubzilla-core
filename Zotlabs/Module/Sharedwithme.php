@@ -67,19 +67,23 @@ class Sharedwithme extends Controller {
 		$items = [];
 		$ids = [];
 
+
 		if($r) {
 
 			foreach($r as $rr) {
-				$meta = get_iconfig($rr, 'attach', 'meta');
+				$obj = json_decode($rr['obj'], true);
+
+				if (!is_array($obj['url'][0])) {
+					continue;
+				}
 
 				$item = [];
 				$item['id'] = $rr['id'];
-				$item['objfiletype'] = $meta['type'];
-				$item['objfiletypeclass'] = getIconFromType($meta['type']);
-				$item['objurl'] = $meta['path'] . '?f=&zid=' . $channel['xchan_addr'];
-				$item['objfilename'] = $meta['name'];
-				$item['objfilesize'] = userReadableSize($meta['size']);
-				$item['objedited'] = $meta['edited'];
+				$item['objfiletype'] = $obj['url'][0]['mediaType'] ?? '';
+				$item['objfiletypeclass'] = getIconFromType($obj['url'][0]['mediaType'] ?? 'octet/stream');
+				$item['objurl'] =  ($obj['url'][0]['href'] ?? '') . '?f=&zid=' . $channel['xchan_addr'];
+				$item['objfilename'] = $obj['name'];
+
 				$item['unseen'] = $rr['item_unseen'];
 
 				$items[] = $item;

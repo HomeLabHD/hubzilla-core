@@ -416,10 +416,10 @@ function photo_upload($channel, $observer, $args) {
 		'updated'       => datetime_convert('UTC', 'UTC', $p['edited'], ATOM_TIME),
 		'attributedTo'  => $attribution,
 
-		// id and diaspora:guid are placeholders and will get over-ridden by the item mid.
+		// id and uuid are placeholders and will get over-ridden by the item mid/uuid.
 		// This is critical for sharing as a conversational item over activitypub.
 		'id'            => z_root() . '/photo/' . $photo_hash,
-		'diaspora:guid' => $photo_hash,
+		'uuid' => $photo_hash,
 
 		'url'     => $url,
 		'source'  => ['content' => $summary, 'mediaType' => 'text/bbcode'],
@@ -465,7 +465,7 @@ function photo_upload($channel, $observer, $args) {
 				$item['obj_type'] = 'Image';
 
 				$object['id']            = $item['mid'];
-				$object['diaspora:guid'] = $item['uuid'];
+				$object['uuid'] = $item['uuid'];
 				$item['obj']             = $object;
 
 				$item['tgt_type'] = 'Collection';
@@ -508,8 +508,8 @@ function photo_upload($channel, $observer, $args) {
 		$uuid = new_uuid();
 		$mid  = z_root() . '/item/' . $uuid;
 
-		$object['id']            = $mid;
-		$object['diaspora:guid'] = $uuid;
+		$object['id'] = $mid;
+		$object['uuid'] = $uuid;
 
 		$target = [
 			'id' => z_root() .  '/conversation/' . $uuid,
