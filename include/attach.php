@@ -2030,18 +2030,6 @@ function attach_store_item($channel, $observer, $file) {
 	$body_str = sprintf((($type === 'Image') ? t('%s shared an %s with you') : t('%s shared a %s with you')), '[zrl=' . $observer['xchan_url'] . ']' . $observer['xchan_name'] . '[/zrl]', '[zrl=' . $path . ']' . (($type === 'Image') ? t('image') : t('file')) . '[/zrl]');
 	$arr['body'] .= "\r\n" . $body_str;
 
-	$meta = [
-		'name' => $file['filename'],
-		'type' => $file['filetype'],
-		'size' => $file['filesize'],
-		'revision' => $file['revision'],
-		'created' => $file['created'],
-		'edited' => $file['edited'],
-		'path' => $path
-	];
-
-	set_iconfig($arr, 'attach', 'meta' , $meta, true);
-
 	$post = item_store($arr);
 
 	if ($post['success']) {

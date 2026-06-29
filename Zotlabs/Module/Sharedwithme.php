@@ -73,27 +73,39 @@ class Sharedwithme extends Controller {
 			foreach($r as $rr) {
 				$obj = json_decode($rr['obj'], true);
 
-				if (!is_array($obj['url'][0])) {
-					continue;
-				}
+				hz_syslog(print_r($obj, true));
 
 				$item = [];
+
 				$item['id'] = $rr['id'];
-				$item['objfiletype'] = $obj['url'][0]['mediaType'] ?? '';
-				$item['objfiletypeclass'] = getIconFromType($obj['url'][0]['mediaType'] ?? 'octet/stream');
-				$item['objurl'] =  ($obj['url'][0]['href'] ?? '') . '?f=&zid=' . $channel['xchan_addr'];
-				$item['objfilename'] = $obj['name'];
-
 				$item['unseen'] = $rr['item_unseen'];
-
-				$items[] = $item;
 
 				if($item['unseen']) {
 					$ids[] = $rr['id'];
 				}
 
-			}
+				if (isset($obj['attachment']) && is_array($obj['attachment'])) {
+					foreach($obj['attachment'] as $a) {
+						$item['objfiletype'] = $a['mediaType'] ?? '';
+						$item['objfiletypeclass'] = getIconFromType($a['mediaType'] ?? 'octet/stream');
+						$item['objurl'] =  $a['href'] . '?f=&zid=' . $channel['xchan_addr'];
+						$item['objfilename'] = $a['name'];
 
+						$items[] = $item;
+					}
+				}
+
+				if (isset($obj['url']) && is_array($obj['url'])) {
+					foreach($obj['url'] as $u) {
+						$item['objfiletype'] = $u['mediaType'] ?? '';
+						$item['objfiletypeclass'] = getIconFromType($u['mediaType'] ?? 'octet/stream');
+						$item['objurl'] = $u['href'] . '?f=&zid=' . $channel['xchan_addr'];
+						$item['objfilename'] = $u['name'];
+
+						$items[] = $item;
+					}
+				}
+			}
 		}
 
 		$ids = implode(',', $ids);
