@@ -11,7 +11,7 @@ namespace Zotlabs\Module;
 class Embedphotos extends \Zotlabs\Web\Controller {
 
 	function get() {
-
+		http_status_exit(405, 'Method not allowed');
 	}
 
 	/**
@@ -47,6 +47,8 @@ class Embedphotos extends \Zotlabs\Web\Controller {
 				json_return_and_die(array('status' => true, 'photolink' => $x, 'resource_id' => $resource_id));
 			json_return_and_die(array('errormsg' => 'Error retrieving resource ' . $resource_id, 'status' => false));
 		}
+
+		json_return_and_die(array('errormsg' => 'invalid request'));
 	}
 
 
