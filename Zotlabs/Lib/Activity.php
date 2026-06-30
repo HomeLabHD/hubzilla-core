@@ -820,10 +820,7 @@ class Activity {
 		if (array_key_exists('attach', $item)) {
 			$atts = ((is_array($item['attach'])) ? $item['attach'] : json_decode($item['attach'], true));
 			if ($atts) {
-				// Reverse array before looping to preserve order
-				$atts = array_reverse($atts);
 				foreach ($atts as $att) {
-
 					// If href is provided we will return link type as url
 					if (isset($att['type'], $att['href'])) {
 						$ret['url'][] = [
@@ -913,9 +910,6 @@ class Activity {
 		$u = ((isset($item['url']) && is_array($item['url'])) ? $item['url'] : []);
 
 		$ptr = array_merge($a, $u);
-
-		// Reverse array before looping to preserve order
-		$ptr = array_reverse($ptr);
 
 		foreach ($ptr as $att) {
 			if (!is_array($att)) {
@@ -3310,53 +3304,54 @@ class Activity {
 			return $item;
 		}
 
+		$body = $item['body'];
+
+		$item['body'] = '';
+
 		foreach ($item['attach'] as $a) {
 
 			if (array_key_exists('type', $a) && stripos($a['type'], 'image') !== false) {
 				// don't add inline image if it's an svg and we already have an inline svg
-				if ($a['type'] === 'image/svg+xml' && strpos($item['body'], '[/svg]')) {
+				if ($a['type'] === 'image/svg+xml' && strpos($body, '[/svg]')) {
 					continue;
 				}
 				// Friendica attachment weirdness
 				// Check both the attachment image and href since they can be different and the one in the href is a different link with different resolution.
 				// Otheriwse you'll get duplicated images
 				if (isset($a['image'])) {
-					if (self::media_not_in_body($a['image'], $item['body']) && self::media_not_in_body($a['url'], $item['body'])) {
+					if (self::media_not_in_body($a['image'], $body) && self::media_not_in_body($a['url'], $body)) {
 						if (isset($a['name']) && $a['name']) {
 							$alt = htmlspecialchars($a['name'], ENT_QUOTES);
-							$item['body'] = '[img=' . $a['url']  . ']' . $alt . '[/img]' . "\r\n" . $item['body'];
+							$item['body'] .= '[img=' . $a['url']  . ']' . $alt . '[/img]';
 						} else {
-							$item['body'] = '[img]' . $a['url'] . '[/img]' . "\r\n" . $item['body'];
+							$item['body'] .= '[img]' . $a['url'] . '[/img]';
 						}
 					}
 					continue;
 				}
-				elseif (self::media_not_in_body($a['url'], $item['body'])) {
+				elseif (self::media_not_in_body($a['url'], $body)) {
 					if (isset($a['name']) && $a['name']) {
 						$alt = htmlspecialchars($a['name'], ENT_QUOTES);
-						$item['body'] = '[img=' . $a['url']  . ']' . $alt . '[/img]' . "\r\n" . $item['body'];
+						$item['body'] .= '[img=' . $a['url']  . ']' . $alt . '[/img]';
 					} else {
-						$item['body'] = '[img]' . $a['url'] . '[/img]' . "\r\n" . $item['body'];
+						$item['body'] .= '[img]' . $a['url'] . '[/img]';
 					}
 				}
 			}
 
 			if (array_key_exists('type', $a) && stripos($a['type'], 'video') !== false) {
-				if (self::media_not_in_body($a['url'], $item['body'])) {
-					$item['body'] = '[video]' . $a['url'] . '[/video]' . "\r\n" . $item['body'];
+				if (self::media_not_in_body($a['url'], $body)) {
+					$item['body'] .= '[video]' . $a['url'] . '[/video]';
 				}
 			}
 			if (array_key_exists('type', $a) && stripos($a['type'], 'audio') !== false) {
-				if (self::media_not_in_body($a['url'], $item['body'])) {
-					$item['body'] = '[audio]' . $a['url'] . '[/audio]' . "\r\n" . $item['body'];
+				if (self::media_not_in_body($a['url'], $body)) {
+					$item['body'] .= '[audio]' . $a['url'] . '[/audio]';
 				}
 			}
-			//if (array_key_exists('type', $a) && stripos($a['type'], 'activity') !== false) {
-				//if (self::media_not_in_body($a['href'], $item['body'])) {
-					//$item = self::get_quote($a['href'], $item);
-				//}
-			//}
 		}
+
+		$item['body'] .= "\r\n" . $body;
 
 		return $item;
 	}

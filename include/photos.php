@@ -260,7 +260,6 @@ function photo_upload($channel, $observer, $args) {
 	$r0     = $ph->save($p);
 	$attach[0] = [
 		'type'      => $type,
-		'contentSize' => $filesize,
 		'title'     => $filename,
 		'href'      => z_root() . '/photo/' . $photo_hash . '-0.' . $ph->getExt(),
 		'width'     => $width,

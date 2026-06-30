@@ -1627,7 +1627,7 @@ function theme_attachments(&$item) {
 			}
 
 			if (isset($label, $url, $icon, $title)) {
-				array_unshift($attaches, ['label' => $label, 'url' => $url, 'icon' => $icon, 'title' => $title]);
+				$attaches[] = ['label' => $label, 'url' => $url, 'icon' => $icon, 'title' => $title];
 			}
 		}
 
