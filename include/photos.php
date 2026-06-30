@@ -353,7 +353,6 @@ function photo_upload($channel, $observer, $args) {
 
 	$found_tags = linkify_tags($args['body'], $channel_id);
 
-
 	$author_link = '[zrl=' . z_root() . '/channel/' . $channel['channel_address'] . ']' . $channel['channel_name'] . '[/zrl]';
 
 	$photo_link = '[zrl=' . z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo_hash . ']' . t('a new photo') . '[/zrl]';
@@ -363,6 +362,8 @@ function photo_upload($channel, $observer, $args) {
 	$activity_format = sprintf(t('%1$s posted %2$s to %3$s', 'photo_upload'), $author_link, $photo_link, $album_link);
 
 	$summary = '[footer]' . $activity_format . '[/footer]';
+
+	$body = '[zrl=' . z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo_hash . '][zmg=' . $attach[1]['href'] . ']' . $filename . '[/zmg]' . '[/zrl]';
 
 	$attach[] = [
 		'type' => 'text/html',
@@ -518,7 +519,7 @@ function photo_upload($channel, $observer, $args) {
 
 	$ret['success']      = true;
 	$ret['item']         = $arr;
-	$ret['body']         = '';
+	$ret['body']         = $body;
 	$ret['resource_id']  = $photo_hash;
 	$ret['photoitem_id'] = $result['item_id'];
 
