@@ -818,9 +818,10 @@ class Activity {
 		$token = IConfig::Get($item, 'ocap', 'relay');
 
 		if (array_key_exists('attach', $item)) {
-			// Reverse array before looping to preserve order
-			$atts = array_reverse((is_array($item['attach'])) ? $item['attach'] : json_decode($item['attach'], true));
+			$atts = ((is_array($item['attach'])) ? $item['attach'] : json_decode($item['attach'], true));
 			if ($atts) {
+				// Reverse array before looping to preserve order
+				$atts = array_reverse($atts);
 				foreach ($atts as $att) {
 
 					// If href is provided we will return link type as url
@@ -904,58 +905,53 @@ class Activity {
 
 		$ret = [];
 
-		if (isset($item['attachment']) || isset($item['url'])) {
+		$a = ((isset($item['attachment']) && is_array($item['attachment'])) ? $item['attachment'] : []);
+		$u = ((isset($item['url']) && is_array($item['url'])) ? $item['url'] : []);
 
-			$a = is_array($item['attachment']) ? $item['attachment'] : [];
-			$u = is_array($item['url']) ? $item['url'] : [];
+		$ptr = array_merge($a, $u);
 
-			$ptr = array_merge($a, $u);
-
-			foreach ($ptr as $att) {
-				if (!is_array($att)) {
-					continue;
-				}
-
-				$entry = [];
-
-				if (array_key_exists('href', $att) && $att['href']) {
-					$entry['href'] = $att['href'];
-				} elseif (array_key_exists('url', $att) && $att['url']) {
-					$entry['url'] = $att['url'];
-				}
-				if (array_key_exists('mediaType', $att) && $att['mediaType']) {
-					$entry['type'] = $att['mediaType'];
-				} elseif (array_key_exists('type', $att) && $att['type'] === 'Image') {
-					$entry['type'] = 'image/jpeg';
-				} elseif (array_key_exists('type', $att) && $att['type'] === 'Link') {
-					$entry['type'] = 'text/uri-list';
-				}
-
-				if (!empty($att['name'])) {
-					$entry['name'] = html2plain(purify_html($att['name']), 256);
-				}
-
-				if (!empty($att['width'])) {
-					$entry['width'] = intval($att['width']);
-				}
-
-				if (!empty($att['height'])) {
-					$entry['height'] = intval($att['height']);
-				}
-
-				// Friendica attachments don't match the URL in the body.
-				// This makes it more difficult to detect image duplication in bb_attach()
-				// which adds images to plaintext microblog software. For these we need to examine both the
-				// url and image properties.
-				if (isset($att['image']) && is_string($att['image']) && isset($att['url']) && $att['image'] !== $att['url']) {
-					$entry['image'] = $att['image'];
-				}
-				if ($entry) {
-					array_unshift($ret, $entry);
-				}
+		foreach ($ptr as $att) {
+			if (!is_array($att)) {
+				continue;
 			}
-		} elseif (isset($item['attachment']) && is_string($item['attachment'])) {
-			btlogger('not an array: ' . $item['attachment']);
+
+			$entry = [];
+
+			if (array_key_exists('href', $att) && $att['href']) {
+				$entry['href'] = $att['href'];
+			} elseif (array_key_exists('url', $att) && $att['url']) {
+				$entry['url'] = $att['url'];
+			}
+			if (array_key_exists('mediaType', $att) && $att['mediaType']) {
+				$entry['type'] = $att['mediaType'];
+			} elseif (array_key_exists('type', $att) && $att['type'] === 'Image') {
+				$entry['type'] = 'image/jpeg';
+			} elseif (array_key_exists('type', $att) && $att['type'] === 'Link') {
+				$entry['type'] = 'text/uri-list';
+			}
+
+			if (!empty($att['name'])) {
+				$entry['name'] = html2plain(purify_html($att['name']), 256);
+			}
+
+			if (!empty($att['width'])) {
+				$entry['width'] = intval($att['width']);
+			}
+
+			if (!empty($att['height'])) {
+				$entry['height'] = intval($att['height']);
+			}
+
+			// Friendica attachments don't match the URL in the body.
+			// This makes it more difficult to detect image duplication in bb_attach()
+			// which adds images to plaintext microblog software. For these we need to examine both the
+			// url and image properties.
+			if (isset($att['image']) && is_string($att['image']) && isset($att['url']) && $att['image'] !== $att['url']) {
+				$entry['image'] = $att['image'];
+			}
+			if ($entry) {
+				$ret[] = $entry;
+			}
 		}
 
 		return $ret;
@@ -3314,34 +3310,34 @@ class Activity {
 				// Check both the attachment image and href since they can be different and the one in the href is a different link with different resolution.
 				// Otheriwse you'll get duplicated images
 				if (isset($a['image'])) {
-					if (self::media_not_in_body($a['image'], $item['body']) && self::media_not_in_body($a['href'], $item['body'])) {
+					if (self::media_not_in_body($a['image'], $item['body']) && self::media_not_in_body($a['url'], $item['body'])) {
 						if (isset($a['name']) && $a['name']) {
 							$alt = htmlspecialchars($a['name'], ENT_QUOTES);
-							$item['body'] = '[img=' . $a['href']  . ']' . $alt . '[/img]' . "\r\n" . $item['body'];
+							$item['body'] = '[img=' . $a['url']  . ']' . $alt . '[/img]' . "\r\n" . $item['body'];
 						} else {
-							$item['body'] = '[img]' . $a['href'] . '[/img]' . "\r\n" . $item['body'];
+							$item['body'] = '[img]' . $a['url'] . '[/img]' . "\r\n" . $item['body'];
 						}
 					}
 					continue;
 				}
-				elseif (self::media_not_in_body($a['href'], $item['body'])) {
+				elseif (self::media_not_in_body($a['url'], $item['body'])) {
 					if (isset($a['name']) && $a['name']) {
 						$alt = htmlspecialchars($a['name'], ENT_QUOTES);
-						$item['body'] = '[img=' . $a['href']  . ']' . $alt . '[/img]' . "\r\n" . $item['body'];
+						$item['body'] = '[img=' . $a['url']  . ']' . $alt . '[/img]' . "\r\n" . $item['body'];
 					} else {
-						$item['body'] = '[img]' . $a['href'] . '[/img]' . "\r\n" . $item['body'];
+						$item['body'] = '[img]' . $a['url'] . '[/img]' . "\r\n" . $item['body'];
 					}
 				}
 			}
 
 			if (array_key_exists('type', $a) && stripos($a['type'], 'video') !== false) {
-				if (self::media_not_in_body($a['href'], $item['body'])) {
-					$item['body'] = '[video]' . $a['href'] . '[/video]' . "\r\n" . $item['body'];
+				if (self::media_not_in_body($a['url'], $item['body'])) {
+					$item['body'] = '[video]' . $a['url'] . '[/video]' . "\r\n" . $item['body'];
 				}
 			}
 			if (array_key_exists('type', $a) && stripos($a['type'], 'audio') !== false) {
-				if (self::media_not_in_body($a['href'], $item['body'])) {
-					$item['body'] = '[audio]' . $a['href'] . '[/audio]' . "\r\n" . $item['body'];
+				if (self::media_not_in_body($a['url'], $item['body'])) {
+					$item['body'] = '[audio]' . $a['url'] . '[/audio]' . "\r\n" . $item['body'];
 				}
 			}
 			//if (array_key_exists('type', $a) && stripos($a['type'], 'activity') !== false) {
