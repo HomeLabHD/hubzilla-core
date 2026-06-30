@@ -70,7 +70,6 @@ class Sharedwithme extends Controller {
 
 			foreach($r as $rr) {
 				$obj = json_decode($rr['obj'], true);
-
 				$item = [];
 
 				$item['id'] = $rr['id'];
@@ -79,13 +78,12 @@ class Sharedwithme extends Controller {
 				if($item['unseen']) {
 					$ids[] = $rr['id'];
 				}
-
 				if (isset($obj['url']) && is_array($obj['url'])) {
 					foreach($obj['url'] as $u) {
 						$item['objfiletype'] = $u['mediaType'] ?? '';
 						$item['objfiletypeclass'] = getIconFromType($u['mediaType'] ?? 'octet/stream');
 						$item['objurl'] = $u['href'] . '?f=&zid=' . $channel['xchan_addr'];
-						$item['objfilename'] = $u['name'];
+						$item['objfilename'] = $u['name'] ?? t('unknown');
 
 						$items[] = $item;
 					}

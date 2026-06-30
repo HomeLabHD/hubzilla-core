@@ -2001,18 +2001,13 @@ function attach_store_item($channel, $observer, $file) {
 	$arr['obj_type'] = $type;
 	$arr['title'] = $file['filename'];
 
-	if ($type === 'Image') {
-		$arr['body'] = '[zrl=' . $path . '][zmg=' . $path . ']' . $file['display_path'] . '[/zmg][/zrl]';
-	}
-	else {
-		$arr['attach'][] = [
-			'href'     => z_root() . '/attach/' . $resource_id,
-			'length'   => $file['filesize'],
-			'type'     => $file['filetype'],
-			'title'    => urlencode($file['filename']),
-			'revision' => $file['revision']
-		];
-	}
+	$arr['attach'][] = [
+		'href'     => z_root() . '/attach/' . $resource_id,
+		'length'   => $file['filesize'],
+		'type'     => $file['filetype'],
+		'title'    => urlencode($file['filename']),
+		'revision' => $file['revision']
+	];
 
 	$body_str = sprintf((($type === 'Image') ? t('%s shared an %s with you') : t('%s shared a %s with you')), '[zrl=' . $observer['xchan_url'] . ']' . $observer['xchan_name'] . '[/zrl]', '[zrl=' . $path . ']' . (($type === 'Image') ? t('image') : t('file')) . '[/zrl]');
 	$arr['body'] .= "\r\n" . $body_str;

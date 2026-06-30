@@ -1795,21 +1795,29 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 	$is_photo = in_array($item['obj_type'], ['Image', ACTIVITY_OBJ_PHOTO]);
 
 	if ($is_photo) {
-		$attach = json_decode($item['attach'],true);
-		$large_photos = feature_enabled($item['uid'], 'large_photos');
+		$a = json_decode($item['attach'], true);
 
-		$ptr = $large_photos ? $attach[1] : $attach[2];
+		if (isset($a[0])) {
+			// TODO: this needs more checking
 
-		if ($ptr) {
-			if (array_key_exists('width',$ptr) && $ptr['width'] > 640) {
-				$photo = '<img title="' . ($ptr['name'] ?? '') . '" alt="' . ($ptr['name'] ?? '') . '" style="max-width:' . $ptr['width'] . 'px; width:100%; height:auto;" src="' . zid(rawurldecode($ptr['href'])) . '">';
+			$ptr = $a[0];
+
+			if (isset($a[1], $a[2])) {
+				$large_photos = feature_enabled($item['uid'], 'large_photos');
+				$ptr = $large_photos ? $a[1] : $a[2];
 			}
-			else {
-				if (!empty($ptr['name'])) {
-					$item['body'] = '[zmg=' . $ptr['href'] . ']' . $ptr['name'] . '[/zmg]' . "\n\n" . $item['body'];
+
+			if ($ptr) {
+				if (array_key_exists('width',$ptr) && $ptr['width'] > 640) {
+					$photo = '<img title="' . ($ptr['name'] ?? '') . '" alt="' . ($ptr['name'] ?? '') . '" style="max-width:' . $ptr['width'] . 'px; width:100%; height:auto;" src="' . zid(rawurldecode($ptr['href'])) . '">';
 				}
 				else {
-					$item['body'] = '[zmg]' . $ptr['href'] . '[/zmg]' . "\n\n" . $item['body'];
+					if (!empty($ptr['name'])) {
+						$item['body'] = '[zmg=' . $ptr['href'] . ']' . $ptr['name'] . '[/zmg]' . "\n\n" . $item['body'];
+					}
+					else {
+						$item['body'] = '[zmg]' . $ptr['href'] . '[/zmg]' . "\n\n" . $item['body'];
+					}
 				}
 			}
 		}
