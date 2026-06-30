@@ -1607,7 +1607,7 @@ function theme_attachments(&$item) {
 				$label = t('Unknown attachment');
 			}
 
-			$title = t('Size') . ' ' . (isset($r['length']) ? userReadableSize($r['length']) : t('unknown'));
+			$title = t('Size') . ' ' . (isset($r['contentSize']) ? userReadableSize($r['contentSize']) : t('unknown'));
 
 			require_once('include/channel.php');
 

@@ -260,6 +260,7 @@ function photo_upload($channel, $observer, $args) {
 	$r0     = $ph->save($p);
 	$attach[0] = [
 		'type'      => $type,
+		'contentSize' => $filesize,
 		'title'     => $filename,
 		'href'      => z_root() . '/photo/' . $photo_hash . '-0.' . $ph->getExt(),
 		'width'     => $width,
@@ -275,6 +276,7 @@ function photo_upload($channel, $observer, $args) {
 
 	if (($width > 1024 || $height > 1024) && (!$errors))
 		$ph->scaleImage(1024);
+
 
 	$r1     = $ph->storeThumbnail($p, PHOTO_RES_1024);
 	$attach[1] = [

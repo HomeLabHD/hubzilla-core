@@ -2003,7 +2003,7 @@ function attach_store_item($channel, $observer, $file) {
 
 	$arr['attach'][] = [
 		'href'     => z_root() . '/attach/' . $resource_id,
-		'length'   => $file['filesize'],
+		'contentSize' => $file['filesize'],
 		'type'     => $file['filetype'],
 		'title'    => urlencode($file['filename']),
 		'revision' => $file['revision']

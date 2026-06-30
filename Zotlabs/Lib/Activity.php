@@ -829,9 +829,10 @@ class Activity {
 						$ret['url'][] = [
 							'type' => 'Link',
 							'mediaType' => $att['type'],
+							'contentSize' => $att['contentSize'] ?? null,
 							'name' => $att['title'] ?? null,
 							'width' => $att['width'] ?? null,
-							'height' => $att['width'] ?? null,
+							'height' => $att['height'] ?? null,
 							'href' => $att['href'] . (($token) ? '?token=' . $token : '')
 						];
 						continue;
@@ -858,8 +859,11 @@ class Activity {
 					$ret['attachment'][] = [
 						'type' => $type,
 						'mediaType' => $att['type'],
+						'contentSize' => $att['contentSize'] ?? null,
 						'name' => $att['title'],
-						'url' => $att['url'] . (($token) ? '?token=' . $token : '')
+						'url' => $att['url'] . (($token) ? '?token=' . $token : ''),
+						'width' => $att['width'] ?? null,
+						'height' => $att['height'] ?? null,
 					];
 				}
 			}
@@ -943,6 +947,10 @@ class Activity {
 
 			if (!empty($att['height'])) {
 				$entry['height'] = intval($att['height']);
+			}
+
+			if (!empty($att['contentSize'])) {
+				$entry['contentSize'] = intval($att['contentSize']);
 			}
 
 			// Friendica attachments don't match the URL in the body.
