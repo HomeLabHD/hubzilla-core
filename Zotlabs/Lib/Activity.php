@@ -910,6 +910,9 @@ class Activity {
 
 		$ptr = array_merge($a, $u);
 
+		// Reverse array before looping to preserve order
+		$ptr = array_reverse($ptr);
+
 		foreach ($ptr as $att) {
 			if (!is_array($att)) {
 				continue;
