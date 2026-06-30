@@ -1924,19 +1924,6 @@ function attach_store_item($channel, $observer, $file) {
 				dbesc($file['filename'])
 			);
 
-			$meta = [
-				'name' => $file['filename'],
-				'type' => $file['filetype'],
-				'size' => $file['filesize'],
-				'revision' => $file['revision'],
-				'size' => $file['filesize'],
-				'created' => $file['created'],
-				'edited' => $file['edited'],
-				'path' => $path
-			];
-
-			set_iconfig($r[0], 'attach', 'meta' , $meta, true);
-
 			$post = item_store($arr);
 
 			if ($post['success']) {

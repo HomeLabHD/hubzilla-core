@@ -1587,6 +1587,14 @@ function theme_attachments(&$item) {
 				$label = urldecode(htmlspecialchars($r['title'], ENT_COMPAT, 'UTF-8'));
 			}
 
+			if(!$label && isset($r['url'])) {
+				$m = parse_url($r['url']);
+				if ($m && $m['path']) {
+					$label = basename($m['path']);
+				}
+			}
+
+			// deprecated use of href for attachments (should be url)
 			if(!$label && isset($r['href'])) {
 				$m = parse_url($r['href']);
 				if ($m && $m['path']) {
@@ -1603,6 +1611,14 @@ function theme_attachments(&$item) {
 
 			require_once('include/channel.php');
 
+			if (isset($r['url'])) {
+				if(is_foreigner($item['author_xchan']))
+					$url = $r['url'];
+				else
+					$url = z_root() . '/magic?owa=1&bdest=' . bin2hex($r['url']);
+			}
+
+			// deprecated use of href for attachments (should be url)
 			if (isset($r['href'])) {
 				if(is_foreigner($item['author_xchan']))
 					$url = $r['href'];
@@ -1775,30 +1791,22 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 
 	$s = '';
 	$photo = '';
-	$is_photo = (((in_array($item['verb'], ['Create', ACTIVITY_POST])) && (in_array($item['obj_type'], ['Image', ACTIVITY_OBJ_PHOTO]))) ? true : false);
+
+	$is_photo = in_array($item['obj_type'], ['Image', ACTIVITY_OBJ_PHOTO]);
 
 	if ($is_photo) {
-		$object = json_decode($item['obj'],true);
-		$ptr = null;
-		if (is_array($object) && array_key_exists('url',$object) && is_array($object['url'])) {
-			if (array_key_exists(0,$object['url'])) {
-				foreach ($object['url'] as $link) {
-					if(array_key_exists('width',$link) && $link['width'] >= 640 && $link['width'] <= 1024) {
-						$ptr = $link;
-					}
-				}
-				if (! $ptr) {
-					$ptr = $object['url'][0];
-				}
+		$attach = json_decode($item['attach'],true);
+		$large_photos = feature_enabled($item['uid'], 'large_photos');
+
+		$ptr = $large_photos ? $attach[1] : $attach[2];
+
+		if ($ptr) {
+			if (array_key_exists('width',$ptr) && $ptr['width'] > 640) {
+				$photo = '<img title="' . ($ptr['name'] ?? '') . '" alt="' . ($ptr['name'] ?? '') . '" style="max-width:' . $ptr['width'] . 'px; width:100%; height:auto;" src="' . zid(rawurldecode($ptr['href'])) . '">';
 			}
 			else {
-				$ptr = $object['url'];
-			}
-
-			// if original photo width is > 640px make it a cover photo
-			if ($ptr) {
-				if (array_key_exists('width',$ptr) && $ptr['width'] > 640) {
-				$photo = '<a href="' . zid(rawurldecode($object['id'])) . '" target="_blank" rel="nofollow noopener"><img style="max-width:' . $ptr['width'] . 'px; width:100%; height:auto;" src="' . zid(rawurldecode($ptr['href'])) . '"></a>';
+				if (!empty($ptr['name'])) {
+					$item['body'] = '[zmg=' . $ptr['href'] . ']' . $ptr['name'] . '[/zmg]' . "\n\n" . $item['body'];
 				}
 				else {
 					$item['body'] = '[zmg]' . $ptr['href'] . '[/zmg]' . "\n\n" . $item['body'];

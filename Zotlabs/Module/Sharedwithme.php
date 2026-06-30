@@ -40,8 +40,7 @@ class Sharedwithme extends Controller {
 		//drop all files - localuser
 		if((argc() > 1) && (argv(1) === 'dropall')) {
 
-			$r = q("SELECT id FROM item WHERE (verb = 'Create' OR verb = '%s') AND obj_type IN ('Document', 'Video', 'Audio', 'Image') AND uid = %d AND owner_xchan != '%s' $item_normal",
-				dbesc(ACTIVITY_POST),
+			$r = q("SELECT id FROM item WHERE verb IN ('Create', 'Update') AND obj_type IN ('Document', 'Video', 'Audio', 'Image') AND uid = %d AND owner_xchan != '%s' $item_normal",
 				intval(local_channel()),
 				dbesc($channel['channel_hash'])
 			);
@@ -56,8 +55,7 @@ class Sharedwithme extends Controller {
 		}
 
 		//list files
-		$r = q("SELECT id, uid, obj, item_unseen FROM item WHERE (verb = 'Create' OR verb = '%s') AND obj_type IN ('Document', 'Video', 'Audio', 'Image') AND uid = %d AND owner_xchan != '%s' $item_normal",
-			dbesc(ACTIVITY_POST),
+		$r = q("SELECT id, uid, obj, item_unseen FROM item WHERE verb IN ('Create', 'Update') AND obj_type IN ('Document', 'Video', 'Audio', 'Image') AND uid = %d AND owner_xchan != '%s' $item_normal",
 			intval(local_channel()),
 			dbesc($channel['channel_hash'])
 		);
@@ -73,8 +71,6 @@ class Sharedwithme extends Controller {
 			foreach($r as $rr) {
 				$obj = json_decode($rr['obj'], true);
 
-				hz_syslog(print_r($obj, true));
-
 				$item = [];
 
 				$item['id'] = $rr['id'];
@@ -82,17 +78,6 @@ class Sharedwithme extends Controller {
 
 				if($item['unseen']) {
 					$ids[] = $rr['id'];
-				}
-
-				if (isset($obj['attachment']) && is_array($obj['attachment'])) {
-					foreach($obj['attachment'] as $a) {
-						$item['objfiletype'] = $a['mediaType'] ?? '';
-						$item['objfiletypeclass'] = getIconFromType($a['mediaType'] ?? 'octet/stream');
-						$item['objurl'] =  $a['href'] . '?f=&zid=' . $channel['xchan_addr'];
-						$item['objfilename'] = $a['name'];
-
-						$items[] = $item;
-					}
 				}
 
 				if (isset($obj['url']) && is_array($obj['url'])) {

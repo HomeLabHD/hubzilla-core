@@ -702,7 +702,7 @@ class Item extends Controller {
 					$r           = attach_by_hash_nodata($hash, $observer['xchan_hash'], $rev);
 					if ($r['success']) {
 						$attachments[] = [
-							'href'     => z_root() . '/attach/' . $r['data']['hash'],
+							'url'      => z_root() . '/attach/' . $r['data']['hash'],
 							'length'   => $r['data']['filesize'],
 							'type'     => $r['data']['filetype'],
 							'title'    => urlencode($r['data']['filename']),

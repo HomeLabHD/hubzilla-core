@@ -696,8 +696,13 @@ class Activity {
 		}
 
 		$a = self::encode_attachment($i);
-		if ($a) {
-			$ret['attachment'] = $a;
+
+		if (isset($a['url'])) {
+			$ret['url'] = $a['url'];
+		}
+
+		if (isset($a['attachment'])) {
+			$ret['attachment'] = $a['attachment'];
 		}
 /*
 		if ($i['target']) {
@@ -806,39 +811,55 @@ class Activity {
 		return $ret;
 	}
 
-	static function encode_attachment($item, $iconfig = false) {
+	static function encode_attachment($item) {
 
 		$ret = [];
 
 		$token = IConfig::Get($item, 'ocap', 'relay');
 
-		if (!$iconfig && array_key_exists('attach', $item)) {
-			$atts = ((is_array($item['attach'])) ? $item['attach'] : json_decode($item['attach'], true));
+		if (array_key_exists('attach', $item)) {
+			// Reverse array before looping to preserve order
+			$atts = array_reverse((is_array($item['attach'])) ? $item['attach'] : json_decode($item['attach'], true));
 			if ($atts) {
 				foreach ($atts as $att) {
-					if (!isset($att['type'], $att['href'])) {
+
+					// If href is provided we will return link type as url
+					if (isset($att['type'], $att['href'])) {
+						$ret['url'][] = [
+							'type' => 'Link',
+							'mediaType' => $att['type'],
+							'name' => $att['title'] ?? null,
+							'width' => $att['width'] ?? null,
+							'height' => $att['width'] ?? null,
+							'href' => $att['href'] . (($token) ? '?token=' . $token : '')
+						];
 						continue;
 					}
 
+					// If url is provided we will return the provided media type as attachment
+					if (!isset($att['type'], $att['url'])) {
+						continue;
+					}
+
+					$type = 'Document';
 					if (str_starts_with($att['type'], 'image')) {
-						$ret[] = ['type' => 'Image', 'mediaType' => $att['type'], 'name' => $att['title'], 'url' => $att['href'] . (($token) ? '?token=' . $token : '')];
+						$type = 'Image';
 					}
-					elseif (str_starts_with($att['type'], 'audio')) {
-						$ret[] = ['type' => 'Audio', 'mediaType' => $att['type'], 'name' => $att['title'], 'url' => $att['href'] . (($token) ? '?token=' . $token : '')];
+
+					if (str_starts_with($att['type'], 'audio')) {
+						$type = 'Audio';
 					}
-					elseif (str_starts_with($att['type'], 'video')) {
-						$ret[] = ['type' => 'Video', 'mediaType' => $att['type'], 'name' => $att['title'], 'url' => $att['href'] . (($token) ? '?token=' . $token : '')];
+
+					if (str_starts_with($att['type'], 'video')) {
+						$type = 'Video';
 					}
-					else {
-						$ret[] = ['type' => 'Link', 'mediaType' => $att['type'], 'name' => $att['title'], 'href' => $att['href'] . (($token) ? '?token=' . $token : '')];
-					}
-				}
-			}
-		}
-		if ($iconfig && array_key_exists('iconfig', $item) && is_array($item['iconfig'])) {
-			foreach ($item['iconfig'] as $att) {
-				if ($att['sharing']) {
-					$ret[] = ['type' => 'PropertyValue', 'name' => 'zot.' . $att['cat'] . '.' . $att['k'], 'value' => $att['v']];
+
+					$ret['attachment'][] = [
+						'type' => $type,
+						'mediaType' => $att['type'],
+						'name' => $att['title'],
+						'url' => $att['url'] . (($token) ? '?token=' . $token : '')
+					];
 				}
 			}
 		}
@@ -883,11 +904,13 @@ class Activity {
 
 		$ret = [];
 
-		if (isset($item['attachment']) && is_array($item['attachment'])) {
-			$ptr = $item['attachment'];
-			if (!array_key_exists(0, $ptr)) {
-				$ptr = [$ptr];
-			}
+		if (isset($item['attachment']) || isset($item['url'])) {
+
+			$a = is_array($item['attachment']) ? $item['attachment'] : [];
+			$u = is_array($item['url']) ? $item['url'] : [];
+
+			$ptr = array_merge($a, $u);
+
 			foreach ($ptr as $att) {
 				if (!is_array($att)) {
 					continue;
@@ -898,7 +921,7 @@ class Activity {
 				if (array_key_exists('href', $att) && $att['href']) {
 					$entry['href'] = $att['href'];
 				} elseif (array_key_exists('url', $att) && $att['url']) {
-					$entry['href'] = $att['url'];
+					$entry['url'] = $att['url'];
 				}
 				if (array_key_exists('mediaType', $att) && $att['mediaType']) {
 					$entry['type'] = $att['mediaType'];
@@ -907,9 +930,19 @@ class Activity {
 				} elseif (array_key_exists('type', $att) && $att['type'] === 'Link') {
 					$entry['type'] = 'text/uri-list';
 				}
-				if (array_key_exists('name', $att) && $att['name']) {
+
+				if (!empty($att['name'])) {
 					$entry['name'] = html2plain(purify_html($att['name']), 256);
 				}
+
+				if (!empty($att['width'])) {
+					$entry['width'] = intval($att['width']);
+				}
+
+				if (!empty($att['height'])) {
+					$entry['height'] = intval($att['height']);
+				}
+
 				// Friendica attachments don't match the URL in the body.
 				// This makes it more difficult to detect image duplication in bb_attach()
 				// which adds images to plaintext microblog software. For these we need to examine both the

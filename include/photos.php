@@ -215,9 +215,7 @@ function photo_upload($channel, $observer, $args) {
 		$ph->orient($exif);
 	}
 
-
 	$ph->clearexif();
-
 
 	@unlink($src);
 
@@ -257,12 +255,12 @@ function photo_upload($channel, $observer, $args) {
 	if (isset($args['description']))
 		$p['description'] = $args['description'];
 
-	$url = [];
+	$attach = [];
 
 	$r0     = $ph->save($p);
-	$url[0] = [
-		'type'      => 'Link',
-		'mediaType' => $type,
+	$attach[0] = [
+		'type'      => $type,
+		'title'     => $filename,
 		'href'      => z_root() . '/photo/' . $photo_hash . '-0.' . $ph->getExt(),
 		'width'     => $width,
 		'height'    => $height
@@ -279,13 +277,14 @@ function photo_upload($channel, $observer, $args) {
 		$ph->scaleImage(1024);
 
 	$r1     = $ph->storeThumbnail($p, PHOTO_RES_1024);
-	$url[1] = [
-		'type'      => 'Link',
-		'mediaType' => $type,
+	$attach[1] = [
+		'type'      => $type,
+		'title'     => $filename,
 		'href'      => z_root() . '/photo/' . $photo_hash . '-1.' . $ph->getExt(),
 		'width'     => $ph->getWidth(),
 		'height'    => $ph->getHeight()
 	];
+
 	if (!$r1)
 		$errors = true;
 
@@ -293,9 +292,9 @@ function photo_upload($channel, $observer, $args) {
 		$ph->scaleImage(640);
 
 	$r2     = $ph->storeThumbnail($p, PHOTO_RES_640);
-	$url[2] = [
-		'type'      => 'Link',
-		'mediaType' => $type,
+	$attach[2] = [
+		'type'      => $type,
+		'title'     => $filename,
 		'href'      => z_root() . '/photo/' . $photo_hash . '-2.' . $ph->getExt(),
 		'width'     => $ph->getWidth(),
 		'height'    => $ph->getHeight()
@@ -307,9 +306,9 @@ function photo_upload($channel, $observer, $args) {
 		$ph->scaleImage(320);
 
 	$r3     = $ph->storeThumbnail($p, PHOTO_RES_320);
-	$url[3] = [
-		'type'      => 'Link',
-		'mediaType' => $type,
+	$attach[3] = [
+		'type'      => $type,
+		'title'     => $filename,
 		'href'      => z_root() . '/photo/' . $photo_hash . '-3.' . $ph->getExt(),
 		'width'     => $ph->getWidth(),
 		'height'    => $ph->getHeight()
@@ -352,22 +351,8 @@ function photo_upload($channel, $observer, $args) {
 
 	$title = (($args['description']) ? $args['description'] : $args['filename']);
 
-	$large_photos = feature_enabled($channel['channel_id'], 'large_photos');
-
 	$found_tags = linkify_tags($args['body'], $channel_id);
 
-	if ($large_photos) {
-		$scale  = 1;
-		$width  = $url[1]['width'];
-		$height = $url[1]['height'];
-		$tag    = (($r1) ? '[zmg=' . $url[1]['href'] . ']' : '[zmg]');
-	}
-	else {
-		$scale  = 2;
-		$width  = $url[2]['width'];
-		$height = $url[2]['height'];
-		$tag    = (($r2) ? '[zmg=' .$url[2]['href'] . ']' : '[zmg]');
-	}
 
 	$author_link = '[zrl=' . z_root() . '/channel/' . $channel['channel_address'] . ']' . $channel['channel_name'] . '[/zrl]';
 
@@ -377,15 +362,10 @@ function photo_upload($channel, $observer, $args) {
 
 	$activity_format = sprintf(t('%1$s posted %2$s to %3$s', 'photo_upload'), $author_link, $photo_link, $album_link);
 
-	$summary = (($args['body']) ? $args['body'] : '') . '[footer]' . $activity_format . '[/footer]';
+	$summary = '[footer]' . $activity_format . '[/footer]';
 
-	$obj_body = '[zrl=' . z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo_hash . ']'
-		. $tag . $filename . '[/zmg]'
-		. '[/zrl]';
-
-	$url[] = [
-		'type'      => 'Link',
-		'mediaType' => 'text/html',
+	$attach[] = [
+		'type' => 'text/html',
 		'href'      => z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo_hash
 	];
 
@@ -408,44 +388,6 @@ function photo_upload($channel, $observer, $args) {
 
 	$attribution = (($visitor) ? $visitor : channel_url($channel));
 
-	//// Create item object
-	$object = [
-		'type'          => 'Image',
-		'name'          => $title,
-		'published'     => datetime_convert('UTC', 'UTC', $p['created'], ATOM_TIME),
-		'updated'       => datetime_convert('UTC', 'UTC', $p['edited'], ATOM_TIME),
-		'attributedTo'  => $attribution,
-
-		// id and uuid are placeholders and will get over-ridden by the item mid/uuid.
-		// This is critical for sharing as a conversational item over activitypub.
-		'id'            => z_root() . '/photo/' . $photo_hash,
-		'uuid' => $photo_hash,
-
-		'url'     => $url,
-		'source'  => ['content' => $summary, 'mediaType' => 'text/bbcode'],
-		'content' => bbcode($summary)
-	];
-
-	if ($post_tags) {
-		$object['tag'] = Activity::encode_taxonomy(['term' => $post_tags]);
-	}
-
-	$public = (($ac['allow_cid'] || $ac['allow_gid'] || $ac['deny_cid'] || $ac['deny_gid']) ? false : true);
-
-	if ($public) {
-		$object['to'] = [ACTIVITY_PUBLIC_INBOX];
-		$object['cc'] = [z_root() . '/followers/' . $channel['channel_address']];
-	}
-	else {
-		$object['to'] = Activity::map_acl(array_merge($ac, ['item_private' => 1 - intval($public)]));
-	}
-/*
-	$target = [
-		'type' => 'orderedCollection',
-		'name' => ((strlen($album)) ? $album : '/'),
-		'id'   => z_root() . '/album/' . $channel['channel_address'] . ((isset($args['directory']['hash'])) ? '/' . $args['directory']['hash'] : EMPTY_STR)
-	];
-*/
 	// Create item container
 	if (isset($args['item'])) {
 		foreach ($args['item'] as $i) {
@@ -460,18 +402,15 @@ function photo_upload($channel, $observer, $args) {
 					'attributedTo' => $attribution,
 				];
 
-				$item['body']     = $summary;
+				$item['body'] = $summary;
 				$item['mimetype'] = 'text/bbcode';
 				$item['obj_type'] = 'Image';
-
-				$object['id']            = $item['mid'];
-				$object['uuid'] = $item['uuid'];
-				$item['obj']             = $object;
-
+				$item['attach'] = $attach;
 				$item['tgt_type'] = 'Collection';
 				$item['target']   = $target;
+
 				if ($post_tags) {
-					$arr['term'] = $post_tags;
+					$item['term'] = $post_tags;
 				}
 				$force = true;
 			}
@@ -508,9 +447,6 @@ function photo_upload($channel, $observer, $args) {
 		$uuid = new_uuid();
 		$mid  = z_root() . '/item/' . $uuid;
 
-		$object['id'] = $mid;
-		$object['uuid'] = $uuid;
-
 		$target = [
 			'id' => z_root() .  '/conversation/' . $uuid,
 			'type' => 'Collection',
@@ -535,7 +471,7 @@ function photo_upload($channel, $observer, $args) {
 			'deny_gid'        => $ac['deny_gid'],
 			'verb'            => 'Create',
 			'obj_type'        => 'Image',
-			'obj'             => $object,
+			'attach'          => $attach,
 			'tgt_type'        => 'Collection',
 			'target'          => $target,
 			'item_wall'       => $visible,
@@ -582,7 +518,7 @@ function photo_upload($channel, $observer, $args) {
 
 	$ret['success']      = true;
 	$ret['item']         = $arr;
-	$ret['body']         = $obj_body;
+	$ret['body']         = '';
 	$ret['resource_id']  = $photo_hash;
 	$ret['photoitem_id'] = $result['item_id'];
 
