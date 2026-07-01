@@ -462,20 +462,36 @@ function http_status(int $val, string $msg = '', bool $skiplog = false): void {
 	header($_SERVER['SERVER_PROTOCOL'] . ' ' . $val . ' ' . $msg);
 }
 
-
 /**
  * Set the HTTP status header and exit.
+ *
+ * If the request expects a HTML return, it will display an error page with the
+ * code and message.
  *
  * @param int $val
  *    integer HTTP status result value
  * @param string $msg
- *    optional message
+ *    optional message, defaults to no message
+ * @param bool $skiplog
+ *    skip logging if true, defaults to false
  *
  * @return never
  *    This function never returns.
  */
 function http_status_exit(int $val, string $msg = '', bool $skiplog = false): never {
 	http_status($val, $msg, $skiplog);
+
+	if (App::$request !== null && App::$request->hasHeader('accept')) {
+		$contentType = App::$request->getHeaderLine('accept');
+		if (preg_match('|text/html|i', $contentType)) {
+			App::$page['content'] = replace_macros(get_markup_template('error_page.tpl'), [
+				'code' => $val,
+				'message' => empty($msg) ? t('Unknown error') : $msg,
+			]);
+			construct_page();
+		}
+	}
+
 	killme();
 }
 
