@@ -459,6 +459,7 @@ function http_status(int $val, string $msg = '', bool $skiplog = false): void {
 
 	if (!$skiplog)
 		logger(\App::$query_string . ':' . $val . ' ' . $msg);
+
 	header($_SERVER['SERVER_PROTOCOL'] . ' ' . $val . ' ' . $msg);
 }
 
@@ -480,18 +481,6 @@ function http_status(int $val, string $msg = '', bool $skiplog = false): void {
  */
 function http_status_exit(int $val, string $msg = '', bool $skiplog = false): never {
 	http_status($val, $msg, $skiplog);
-
-	if (App::$request !== null && App::$request->hasHeader('accept')) {
-		$contentType = App::$request->getHeaderLine('accept');
-		if (preg_match('|text/html|i', $contentType)) {
-			App::$page['content'] = replace_macros(get_markup_template('error_page.tpl'), [
-				'code' => $val,
-				'message' => empty($msg) ? t('Unknown error') : $msg,
-			]);
-			construct_page();
-		}
-	}
-
 	killme();
 }
 
