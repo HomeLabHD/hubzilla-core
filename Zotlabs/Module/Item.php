@@ -1292,6 +1292,8 @@ class Item extends Controller {
 					}
 				}
 
+				return;
+
 			}
 		}
 
