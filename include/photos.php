@@ -261,6 +261,7 @@ function photo_upload($channel, $observer, $args) {
 	$attach[0] = [
 		'type'      => $type,
 		'title'     => $filename,
+		'contentSize' => filesize($args['os_syspath']),
 		'href'      => z_root() . '/photo/' . $photo_hash . '-0.' . $ph->getExt(),
 		'width'     => $width,
 		'height'    => $height
@@ -281,7 +282,8 @@ function photo_upload($channel, $observer, $args) {
 	$attach[1] = [
 		'type'      => $type,
 		'title'     => $filename,
-		'href'      => z_root() . '/photo/' . $photo_hash . '-1.' . $ph->getExt(),
+		'contentSize' => filesize($args['os_syspath'] . '-1'),
+		'href'      =>  z_root() . '/photo/' . $photo_hash . '-1.' . $ph->getExt(),
 		'width'     => $ph->getWidth(),
 		'height'    => $ph->getHeight()
 	];
@@ -296,10 +298,12 @@ function photo_upload($channel, $observer, $args) {
 	$attach[2] = [
 		'type'      => $type,
 		'title'     => $filename,
+		'contentSize' => filesize($args['os_syspath'] . '-2'),
 		'href'      => z_root() . '/photo/' . $photo_hash . '-2.' . $ph->getExt(),
 		'width'     => $ph->getWidth(),
 		'height'    => $ph->getHeight()
 	];
+
 	if (!$r2)
 		$errors = true;
 
@@ -310,10 +314,12 @@ function photo_upload($channel, $observer, $args) {
 	$attach[3] = [
 		'type'      => $type,
 		'title'     => $filename,
-		'href'      => z_root() . '/photo/' . $photo_hash . '-3.' . $ph->getExt(),
+		'contentSize' => filesize($args['os_syspath'] . '-3'),
+		'href'      =>  z_root() . '/photo/' . $photo_hash . '-3.' . $ph->getExt(),
 		'width'     => $ph->getWidth(),
 		'height'    => $ph->getHeight()
 	];
+
 	if (!$r3)
 		$errors = true;
 
@@ -356,19 +362,17 @@ function photo_upload($channel, $observer, $args) {
 
 	$author_link = '[zrl=' . z_root() . '/channel/' . $channel['channel_address'] . ']' . $channel['channel_name'] . '[/zrl]';
 
-	$photo_link = '[zrl=' . z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo_hash . ']' . t('a new photo') . '[/zrl]';
+	$photo_link = '[zrl=' . z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo_hash . ']' . t('photo') . '[/zrl]';
 
 	$album_link = '[zrl=' . z_root() . '/photos/' . $channel['channel_address'] . '/album/' . $args['directory']['hash'] . ']' . ((strlen($album)) ? $album : '/') . '[/zrl]';
 
-	$activity_format = sprintf(t('%1$s posted %2$s to %3$s', 'photo_upload'), $author_link, $photo_link, $album_link);
-
-	$summary = '[footer]' . $activity_format . '[/footer]';
+	$summary = sprintf(t('%1$s posted a new %2$s to %3$s', 'photo_upload'), $author_link, $photo_link, $album_link);
 
 	$body = '[zrl=' . z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo_hash . '][zmg=' . $attach[1]['href'] . ']' . $filename . '[/zmg]' . '[/zrl]';
 
 	$attach[] = [
 		'type' => 'text/html',
-		'href'      => z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo_hash
+		'href' => z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo_hash
 	];
 
 	$post_tags = [];

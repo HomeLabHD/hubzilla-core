@@ -2001,10 +2001,20 @@ function attach_store_item($channel, $observer, $file) {
 	$arr['obj_type'] = $type;
 	$arr['title'] = $file['filename'];
 
+	$photo = null;
+	if ($file['is_photo']) {
+		$photo = q("SELECT width, height FROM photo WHERE resource_id = '%s' AND imgscale IN (0,4) AND uid = %d LIMIT 1",
+			dbesc($file['hash']),
+			intval($channel['channel_id'])
+		);
+	}
+
 	$arr['attach'][] = [
 		'href'     => z_root() . '/attach/' . $resource_id,
 		'contentSize' => $file['filesize'],
 		'type'     => $file['filetype'],
+		'width'    => $photo[0]['width'] ?? null,
+		'height'   => $photo[0]['height'] ?? null,
 		'title'    => urlencode($file['filename']),
 		'revision' => $file['revision']
 	];
