@@ -768,9 +768,9 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 				if(! array_key_exists('edited',$arr))
 					$arr['edited'] = datetime_convert();
 				$options = 'replace';
-				$existing_id = $x[0]['id'];
-				$existing_size = intval($x[0]['filesize']);
-				$hash = $x[0]['hash'];
+				$existing_id = $r[0]['id'];
+				$existing_size = intval($r[0]['filesize']);
+				$hash = $r[0]['hash'];
 			}
 			else {
 				if(strpos($filename,'.') !== false) {
