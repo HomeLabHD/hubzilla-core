@@ -5,77 +5,25 @@
 	<div class="card-body clearfix">
 		<table>
 		{{foreach $items as $id => $item}}
-			{{if $id != 'ts'}}
+			{{if $id != 'ts' && $id != 'profiler'}}
 			<tr>
 				<td id="perfstat-{{$id}}-label" class="perfstat-label">{{$labels.$id|escape}}:</td>
-				<td id="perfstat-{{$id}}-value" class="perfstat-value">…</td>
+				<td id="perfstat-{{$id}}-value" class="perfstat-value">{{$item|escape}}</td>
 			</tr>
 			{{/if}}
 		{{/foreach}}
+			<tr>
+				<td id="perfstat-profiler-label" class="perfstat-label">{{$labels.profiler}}:</td>
+				<td id="perfstat-profiler-value" class="perfstat-value">
+					<button
+						id="perfstat-profiler-toggle"
+						data-action="{{if $items.profiler}}disable{{else}}enable{{/if}}_profiling"
+						onclick="system_profiler.toggle()">
+							{{if $items.profiler}}{{$labels.disable}}{{else}}{{$labels.enable}}{{/if}}
+					</button>
+					<a href="/admin/profiler">{{$labels.configure}}</a>
+				</td>
+			</tr>
 		</table>
 	</div>
 </div>
-<script>
-	status_update_monitor = {
-		last_ts: 0,
-		last_q: 0,
-
-		updateStatus: function () {
-			if (!this.isVisible()) {
-				return;
-			}
-
-			fetch('/perfstats', {
-				headers: {
-					"Accept": "application/json",
-				},
-				credentials: "include",
-			})
-			.then((response) => response.json())
-			.then((json) => {
-				for (const item in json) {
-					let element = document.getElementById(`perfstat-${item}-value`);
-					if (element) {
-						if (item === "loadavg") {
-							element.innerText = json['loadavg']
-								.map((v) => v.toPrecision(3))
-								.join(" / ");
-						} else if (item === "dbqueries") {
-							if (this.last_ts !== 0) {
-								let dt = json['ts'] - this.last_ts;
-								let dq = json['dbqueries'] - this.last_q;
-
-								element.innerText = dq / dt;
-							}
-
-							this.last_ts = json['ts'];
-							this.last_q = json['dbqueries'];
-						} else if (item !== 'ts') {
-							element.innerText = json[item];
-						}
-					}
-				}
-			});
-		},
-
-		start: function() {
-			this.updateStatus();
-			setInterval(() => this.updateStatus(), 5000);
-		},
-
-		isVisible: function () {
-			const element = document.getElementById('channel-activities');
-
-			if (!element) {
-				return false;
-			}
-
-			const style = window.getComputedStyle(element);
-			return style.display !== 'none';
-		}
-	}
-
-	document.addEventListener("DOMContentLoaded", function() {
-		status_update_monitor.start();
-	});
-</script>

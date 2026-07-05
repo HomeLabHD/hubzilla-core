@@ -3,6 +3,7 @@
 namespace Zotlabs\Web;
 
 use App;
+use Zotlabs\Lib\SystemProfiler;
 use Zotlabs\Lib\Text;
 use GuzzleHttp\Psr7\Request;
 
@@ -19,6 +20,8 @@ class WebServer {
 		require_once('boot.php');
 
 		$installed = sys_boot();
+
+		SystemProfiler::start();
 
 		$this->createRequest();
 

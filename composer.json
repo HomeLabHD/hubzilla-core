@@ -58,7 +58,8 @@
         "twbs/bootstrap-icons": "^1.11",
         "macgirvin/http-message-signer": "^0.2.6",
         "root23/php-json-canonicalization": "^1.0",
-        "guzzlehttp/psr7": "^2.8"
+        "guzzlehttp/psr7": "^2.8",
+        "perftools/php-profiler": "^1.2"
     },
     "require-dev": {
         "ext-yaml": "*",

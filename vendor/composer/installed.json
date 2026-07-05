@@ -1859,6 +1859,71 @@
             "install-path": "../pear/text_languagedetect"
         },
         {
+            "name": "perftools/php-profiler",
+            "version": "1.2.0",
+            "version_normalized": "1.2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/perftools/php-profiler.git",
+                "reference": "1105db3deded46d56879900d22c447808e39d0a9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/perftools/php-profiler/zipball/1105db3deded46d56879900d22c447808e39d0a9",
+                "reference": "1105db3deded46d56879900d22c447808e39d0a9",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": "^5.3.0 || ^7.0 || ^8.0"
+            },
+            "conflict": {
+                "perftools/xhgui-collector": "<1.8"
+            },
+            "require-dev": {
+                "alcaeus/mongo-php-adapter": "^1.1",
+                "perftools/xhgui-collector": "^1.8"
+            },
+            "suggest": {
+                "alcaeus/mongo-php-adapter": "Adapter to provide ext-mongo interface on top of mongo-php-library (PHP>=5.6)",
+                "ext-curl": "cURL extension for upload saver",
+                "ext-mongo": "mongo extension (PHP>=5.3,<7.0)",
+                "ext-mongodb": "mongodb extension (PHP>=5.4)",
+                "ext-tideways": "Use tideways to profile",
+                "ext-uprofiler": "Use uprofiler to profile",
+                "ext-xhprof": "Use xhprof to profile",
+                "perftools/xhgui-collector": "For mongodb or pdo savers"
+            },
+            "time": "2025-02-21T04:11:27+00:00",
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "Xhgui\\Profiler\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Lauri Piisang",
+                    "email": "lauri.piisang@eesti.ee"
+                },
+                {
+                    "name": "Elan Ruusamäe",
+                    "email": "glen@pld-linux.org"
+                }
+            ],
+            "description": "PHP Profiling based on XHGui",
+            "support": {
+                "issues": "https://github.com/perftools/php-profiler/issues",
+                "source": "https://github.com/perftools/php-profiler/tree/1.2.0"
+            },
+            "install-path": "../perftools/php-profiler"
+        },
+        {
             "name": "phpseclib/phpseclib",
             "version": "3.0.49",
             "version_normalized": "3.0.49.0",

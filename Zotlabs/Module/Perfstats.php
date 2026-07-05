@@ -13,6 +13,7 @@ use DBA;
 use Zotlabs\Lib\DbStats;
 use Zotlabs\Lib\Queue;
 use Zotlabs\Lib\QueueWorkerStats;
+use Zotlabs\Lib\SystemProfiler;
 use Zotlabs\Web\Controller;
 
 /**
@@ -63,6 +64,15 @@ class Perfstats extends Controller
 		$qwstats = new QueueWorkerStats();
 		$stats['queueworkers'] = $qwstats->active;
 		$stats['workqsz'] = $qwstats->size;
+
+		$profiler_state = SystemProfiler::isEnabled();
+		$stats['profiler'] = [
+			'status' => $profiler_state,
+			'new_state' => [
+				'action' => $profiler_state ? 'disable_profiling' : 'enable_profiling',
+				'label' => $profiler_state ? t('Disable') : t('Enable'),
+			],
+		];
 
 		// Return a timestamp, so that it is possible to infer
 		// changes of the stats over time. A resolution of

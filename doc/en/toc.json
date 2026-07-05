@@ -40,7 +40,8 @@
     "Customise the look of Hubzilla": "/help/tutorials/customise_look"
   },
   "Administrators": {
-    "Guide": "/help/adminmanual/manual_for_administrators"
+    "Guide": "/help/adminmanual/manual_for_administrators",
+	"Performance profiling": "/help/adminmanual/profiling"
   },
   "Developers": {
     "Guide": "/help/developer/developers_guide",
