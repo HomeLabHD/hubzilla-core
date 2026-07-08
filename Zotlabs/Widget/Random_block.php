@@ -38,12 +38,10 @@ class Random_block {
 		);
 
 		if($r) {
-			$o = '<div class="widget bblock">';
-			if($r[0]['title'])
-				$o .= '<h3>' . $r[0]['title'] . '</h3>';
-
-			$o .= prepare_text($r[0]['body'],$r[0]['mimetype']);
-			$o .= '</div>';
+				$o = replace_macros(get_markup_template('bblock_widget.tpl'), [
+						'$title' => $r[0]['title'],
+						'$body'  => prepare_text($r[0]['body'], $r[0]['mimetype']),
+				]);
 		}
 
 		return $o;
