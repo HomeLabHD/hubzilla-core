@@ -421,22 +421,20 @@ class Comanche {
 					}
 				}
 
-				//emit the block
 				$wrap = (! x($var, 'wrap') || $var['wrap'] == 'none' ? false : true);
-				$o .= ($wrap ? '' : '<div class="' . $class . '">');
 
-				if($r[0]['title'] && trim($r[0]['body']) != '$content') {
-					$o .= '<h3>' . $r[0]['title'] . '</h3>';
-				}
+				$show_title = ($r[0]['title'] && trim($r[0]['body']) != '$content');
+				$body = (trim($r[0]['body']) === '$content')
+						? \App::$page['content']
+						: prepare_text($r[0]['body'], $r[0]['mimetype']);
 
-				if(trim($r[0]['body']) === '$content') {
-					$o .= \App::$page['content'];
-				}
-				else {
-					$o .= prepare_text($r[0]['body'], $r[0]['mimetype']);
-				}
-
-				$o .= ($wrap ? '' : '</div>');
+				$o .= replace_macros(get_markup_template('generic_block.tpl'), [
+						'$wrap'       => $wrap,
+						'$class'      => $class,
+						'$show_title' => $show_title,
+						'$title'      => $r[0]['title'],
+						'$body'       => $body,
+				]);
 			}
 		}
 
