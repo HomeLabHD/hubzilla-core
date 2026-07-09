@@ -322,22 +322,26 @@ class Activity {
 
 	}
 
-	static function paged_collection_init($total, $id, $type = 'OrderedCollection') {
+	public static function paged_collection_init($total, $id, $type = 'OrderedCollection', $collectionOf = '', $attributedTo = ''): array
+	{
 
 		$ret = [
-			'id'         => z_root() . '/' . $id,
-			'type'       => $type,
+			'id' => z_root() . '/' . $id,
+			'type' => $type,
 			'totalItems' => $total,
 		];
+
+		if ($collectionOf) {
+			$ret['collectionOf'] = $collectionOf;
+		}
 
 		$numpages = $total / App::$pager['itemspage'];
 		$lastpage = (($numpages > intval($numpages)) ? intval($numpages) + 1 : $numpages);
 
 		$ret['first'] = z_root() . '/' . App::$query_string . '?page=1';
-		$ret['last']  = z_root() . '/' . App::$query_string . '?page=' . $lastpage;
+		$ret['last'] = z_root() . '/' . App::$query_string . '?page=' . $lastpage;
 
 		return $ret;
-
 	}
 
 	static function encode_item_collection($items, $id, $type, $total = 0) {
@@ -414,28 +418,68 @@ class Activity {
 		return $ret;
 	}
 
-	static function encode_follow_collection($items, $id, $type, $extra = null) {
+	public static function encode_follow_collection($items, $id, $type, $total = 0): array
+	{
+		if ($total > App::$pager['itemspage']) {
+			$ret = [
+				'id' => z_root() . '/' . $id,
+				'type' => $type . 'Page',
+				'collectionOf' => 'actor'
+			];
 
-		$ret = [
-			'id'         => z_root() . '/' . $id,
-			'type'       => $type,
-			'totalItems' => count($items),
-		];
-		if ($extra)
-			$ret = array_merge($ret, $extra);
+			$numpages = $total / App::$pager['itemspage'];
+
+			$lastpage = (($numpages > intval($numpages)) ? intval($numpages) + 1 : $numpages);
+
+			$url_parts = parse_url($id);
+
+			$ret['partOf'] = z_root() . '/' . $url_parts['path'];
+
+			$extra_query_args = '';
+			$query_args       = null;
+			if (isset($url_parts['query'])) {
+				parse_str($url_parts['query'], $query_args);
+			}
+
+			if (is_array($query_args)) {
+				unset($query_args['page']);
+				foreach ($query_args as $k => $v) {
+					$extra_query_args .= '&' . urlencode($k) . '=' . urlencode($v);
+				}
+			}
+
+			if (App::$pager['page'] < $lastpage) {
+				$ret['next'] = z_root() . '/' . $url_parts['path'] . '?page=' . (intval(App::$pager['page']) + 1) . $extra_query_args;
+			}
+
+			if (App::$pager['page'] > 1) {
+				$ret['prev'] = z_root() . '/' . $url_parts['path'] . '?page=' . (intval(App::$pager['page']) - 1) . $extra_query_args;
+			}
+
+		} else {
+			$ret = [
+				'id' => z_root() . '/' . $id,
+				'type' => $type,
+				'collectionOf' => 'actor',
+				'totalItems' => $total,
+			];
+		}
 
 		if ($items) {
 			$x = [];
 			foreach ($items as $i) {
-				if ($i['xchan_url']) {
+				if (in_array($i['xchan_network'], ['activitypub'])) {
+					$x[] = $i['xchan_hash'];
+				} else {
 					$x[] = $i['xchan_url'];
 				}
 			}
 
-			if ($type === 'OrderedCollection')
+			if ($type === 'OrderedCollection') {
 				$ret['orderedItems'] = $x;
-			else
+			} else {
 				$ret['items'] = $x;
+			}
 		}
 
 		return $ret;
