@@ -20,7 +20,6 @@ use Zotlabs\Lib\Text;
  */
 class Browser extends DAV\Browser\Plugin {
 
-	public $build_page = false;
 	/**
 	 * @see set_writeable()
 	 * @see \\Sabre\\DAV\\Auth\\Backend\\BackendInterface
@@ -357,65 +356,62 @@ class Browser extends DAV\Browser\Plugin {
 			$term_map[$row['oid']]['html'] .= replace_macros(get_markup_template('item_categories.tpl'), ['$categories' => [['term' => $row['term'], 'url' => $row['url']]]]);
 		}
 
-		$html = replace_macros(get_markup_template('cloud.tpl'), array(
-				'$header' => $header,
-				'$total' => t('Total'),
-				'$actionspanel' => $output,
-				'$shared' => t('Shared'),
-				'$create' => t('Create'),
-				'$upload' => t('Add Files'),
-				'$is_owner' => $is_owner,
-				'$is_admin' => is_site_admin(),
-				'$has_perms' => perm_is_allowed($channel_id, get_observer_hash(), 'write_storage'),
-				'$admin_delete_label' => t('Admin Delete'),
-				'$parentpath' => $parent_path,
-				'$folder_parent' => $folder_parent,
-				'$folder' => $parent->folder_hash,
-				'$is_root_folder' => $is_root_folder,
-				'$cpath' => bin2hex(App::$query_string),
-				'$tiles' => intval($_SESSION['cloud_tiles']),
-				'$entries' => $f,
-				'$name' => t('Name'),
-				'$type' => t('Type'),
-				'$size' => t('Size'),
-				'$lastmod' => t('Last Modified'),
-				'$parent' => t('parent'),
-				'$submit_label' => t('Submit'),
-				'$cancel_label' => t('Cancel'),
-				'$delete_label' => t('Delete'),
-				'$channel_id' => $channel_id,
-				'$cpdesc' => t('Copy/paste this code to attach file to a post'),
-				'$cpldesc' => t('Copy/paste this URL to link file from a web page'),
-				'$categories' => ['categories', t('Categories')],
-				'$recurse' => ['recurse', t('Set permissions for all files and sub folders'), 0, '', [t('No'), t('Yes')]],
-				'$newfolder' => ['newfolder', t('Select a target location'), $parent->folder_hash, '', $folder_list],
-				'$copy' => ['copy', t('Copy to target location'), 0, '', [t('No'), t('Yes')]],
-				'$return_path' => $path,
-				'$lockstate' => $lockstate,
-				'$allow_cid' => ((isset($channel_acl['allow_cid'])) ? acl2json($channel_acl['allow_cid']) : ''),
-				'$allow_gid' => ((isset($channel_acl['allow_gid'])) ? acl2json($channel_acl['allow_gid']) : ''),
-				'$deny_cid' => ((isset($channel_acl['deny_cid'])) ? acl2json($channel_acl['deny_cid']) : ''),
-				'$deny_gid' => ((isset($channel_acl['deny_gid'])) ? acl2json($channel_acl['deny_gid']) : ''),
-				'$select_all_label' => t('Select All'),
-				'$bulk_actions_label' => t('Bulk Actions'),
-				'$adjust_permissions_label' => t('Adjust Permissions'),
-				'$move_copy_label' => t('Move or Copy'),
-				'$categories_label' => t('Categories'),
-				'$download_label' => t('Download'),
-				'$info_label' => t('Info'),
-				'$rename_label' => t('Rename'),
-				'$post_label' => t('Post'),
-				'$attach_bbcode_label' => t('Attachment BBcode'),
-				'$embed_bbcode_label' => t('Embed BBcode'),
-				'$link_bbcode_label' => t('Link BBcode'),
-				'$close_label' => t('Close'),
-				'$term_map' => $term_map,
-				'$photo_map' => $photo_map
-			));
+		$html = replace_macros(get_markup_template('cloud.tpl'), [
+			'$header' => $header,
+			'$total' => t('Total'),
+			'$actionspanel' => $output,
+			'$shared' => t('Shared'),
+			'$create' => t('Create'),
+			'$upload' => t('Add Files'),
+			'$is_owner' => $is_owner,
+			'$is_admin' => is_site_admin(),
+			'$has_perms' => perm_is_allowed($channel_id, get_observer_hash(), 'write_storage'),
+			'$admin_delete_label' => t('Admin Delete'),
+			'$parentpath' => $parent_path,
+			'$folder_parent' => $folder_parent,
+			'$folder' => $parent->folder_hash,
+			'$is_root_folder' => $is_root_folder,
+			'$cpath' => bin2hex(App::$query_string),
+			'$tiles' => intval($_SESSION['cloud_tiles']),
+			'$entries' => $f,
+			'$name' => t('Name'),
+			'$type' => t('Type'),
+			'$size' => t('Size'),
+			'$lastmod' => t('Last Modified'),
+			'$parent' => t('parent'),
+			'$submit_label' => t('Submit'),
+			'$cancel_label' => t('Cancel'),
+			'$delete_label' => t('Delete'),
+			'$channel_id' => $channel_id,
+			'$cpdesc' => t('Copy/paste this code to attach file to a post'),
+			'$cpldesc' => t('Copy/paste this URL to link file from a web page'),
+			'$categories' => ['categories', t('Categories')],
+			'$recurse' => ['recurse', t('Set permissions for all files and sub folders'), 0, '', [t('No'), t('Yes')]],
+			'$newfolder' => ['newfolder', t('Select a target location'), $parent->folder_hash, '', $folder_list],
+			'$copy' => ['copy', t('Copy to target location'), 0, '', [t('No'), t('Yes')]],
+			'$return_path' => $path,
+			'$lockstate' => $lockstate,
+			'$allow_cid' => ((isset($channel_acl['allow_cid'])) ? acl2json($channel_acl['allow_cid']) : ''),
+			'$allow_gid' => ((isset($channel_acl['allow_gid'])) ? acl2json($channel_acl['allow_gid']) : ''),
+			'$deny_cid' => ((isset($channel_acl['deny_cid'])) ? acl2json($channel_acl['deny_cid']) : ''),
+			'$deny_gid' => ((isset($channel_acl['deny_gid'])) ? acl2json($channel_acl['deny_gid']) : ''),
+			'$select_all_label' => t('Select All'),
+			'$bulk_actions_label' => t('Bulk Actions'),
+			'$adjust_permissions_label' => t('Adjust Permissions'),
+			'$move_copy_label' => t('Move or Copy'),
+			'$categories_label' => t('Categories'),
+			'$download_label' => t('Download'),
+			'$info_label' => t('Info'),
+			'$rename_label' => t('Rename'),
+			'$post_label' => t('Post'),
+			'$attach_bbcode_label' => t('Attachment BBcode'),
+			'$embed_bbcode_label' => t('Embed BBcode'),
+			'$link_bbcode_label' => t('Link BBcode'),
+			'$close_label' => t('Close'),
+			'$term_map' => $term_map,
+			'$photo_map' => $photo_map
+		]);
 
-		$a = false;
-
-		nav_set_selected('Files');
 
 		App::$page['content'] = $html;
 		load_pdl();
@@ -427,11 +423,13 @@ class Browser extends DAV\Browser\Plugin {
 			require_once($theme_info_file);
 			if (function_exists(str_replace('-', '_', $current_theme[0]) . '_init')) {
 				$func = str_replace('-', '_', $current_theme[0]) . '_init';
-				$func($a);
+				$func();
 			}
 		}
 		$this->server->httpResponse->setHeader('Content-Security-Policy', "script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'");
-		$this->build_page = true;
+
+		// We have stored the output in App::$page['content']
+		return '';
 	}
 
 	/**
