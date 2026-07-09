@@ -281,7 +281,7 @@ class Setup extends \Zotlabs\Web\Controller {
 					'$baseurl' => z_root(),
 				));
 				return $o;
-			}; break;
+			}
 
 			case 2: { // Database config
 
@@ -322,7 +322,8 @@ class Setup extends \Zotlabs\Web\Controller {
 					'$submit' => t('Submit'),
 				));
 				return $o;
-			}; break;
+			}
+
 			case 3: { // Site settings
 				require_once('include/datetime.php');
 
@@ -362,7 +363,11 @@ class Setup extends \Zotlabs\Web\Controller {
 					'$submit' => t('Submit'),
 				));
 				return $o;
-			}; break;
+			}
+
+			default:
+				http_status(400, 'bad request');
+				return t('The request could not be processed because of invalid or missing arguments.');
 		}
 	}
 

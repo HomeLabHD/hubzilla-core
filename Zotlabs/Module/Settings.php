@@ -65,12 +65,7 @@ class Settings extends \Zotlabs\Web\Controller {
 		if($channel)
 			head_set_icon($channel['xchan_photo_s']);
 
-		$o = $this->sm->call('get');
-		if($o !== false)
-			return $o;
-
-		$o = '';
-
+		return $this->sm->call('get');
 
 	}
 }
