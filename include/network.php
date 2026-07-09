@@ -416,7 +416,7 @@ function z_curl_error($ret) {
 	return $output;
 }
 
-function json_return_and_die($x, $content_type = 'application/json') {
+function json_return_and_die($x, $content_type = 'application/json'): never {
 	header("Content-type: $content_type");
 	echo json_encode($x);
 	killme();

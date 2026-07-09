@@ -348,6 +348,8 @@ class Comanche {
 		if($channel_id) {
 			$m = menu_fetch($name, $channel_id, get_observer_hash());
 			return menu_render($m, $class, $edit = false, $var);
+		} else {
+			return '';
 		}
 	}
 

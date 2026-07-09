@@ -185,7 +185,7 @@ class Sources extends Controller {
 
 		}
 
-		// shouldn't get here.
-
+		http_status(400, 'bad request');
+		return t('The request could not be processed because of invalid or missing arguments.');
 	}
 }
