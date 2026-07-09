@@ -3030,7 +3030,7 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 			$newname = substr($name,1);
 			$newname = substr($newname,0,-1);
 
-			$r = q("SELECT * FROM xchan LEFT JOIN hubloc ON hubloc_hash = xchan_hash WHERE ( xchan_addr = '%s' OR xchan_url = '%s' ) AND xchan_deleted = 0 AND NOT xchan_network  IN ('rss', 'anon', 'unknown') ORDER BY hubloc_id DESC",
+			$r = q("SELECT * FROM xchan JOIN hubloc ON hubloc_hash = xchan_hash WHERE ( xchan_addr = '%s' OR xchan_url = '%s' ) AND xchan_deleted = 0 AND NOT xchan_network  IN ('rss', 'anon', 'unknown') ORDER BY hubloc_id DESC",
 				dbesc($newname),
 				dbesc($newname)
 			);
@@ -3064,7 +3064,7 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 			// select anybody by full hubloc_addr
 
 			if((! $r) && strpos($newname,'@')) {
-				$r = q("SELECT * FROM xchan LEFT JOIN hubloc ON xchan_hash = hubloc_hash
+				$r = q("SELECT * FROM xchan JOIN hubloc ON xchan_hash = hubloc_hash
 					WHERE hubloc_addr = '%s' AND xchan_deleted = 0 AND NOT xchan_network  IN ('rss', 'anon', 'unknown') ORDER BY hubloc_id DESC",
 					dbesc($newname)
 				);
