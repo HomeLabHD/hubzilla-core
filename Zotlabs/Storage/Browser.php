@@ -429,7 +429,7 @@ class Browser extends DAV\Browser\Plugin {
 		$this->server->httpResponse->setHeader('Content-Security-Policy', "script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'");
 
 		// We have stored the output in App::$page['content']
-		return '';
+		return EMPTY_STR;
 	}
 
 	/**
