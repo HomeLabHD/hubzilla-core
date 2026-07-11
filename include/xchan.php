@@ -193,7 +193,7 @@ function xchan_keychange_table($table,$column,$oldxchan,$newxchan) {
 	return $r;
 }
 
-function xchan_keychange_acl($table,$column,$oldxchan,$newxchan) {
+function xchan_keychange_acl($table,$column,$oldxchan,$newxchan): void {
 
 	$allow = (($table === 'channel') ? 'channel_allow_cid' : 'allow_cid');
 	$deny  = (($table === 'channel') ? 'channel_deny_cid'  : 'deny_cid');
@@ -215,7 +215,6 @@ function xchan_keychange_acl($table,$column,$oldxchan,$newxchan) {
 			);
 		}
 	}
-	return $z;
 }
 
 
