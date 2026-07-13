@@ -41,7 +41,7 @@ return array(
     'League\\Uri\\' => array($vendorDir . '/league/uri', $vendorDir . '/league/uri-interfaces'),
     'League\\HTMLToMarkdown\\' => array($vendorDir . '/league/html-to-markdown/src'),
     'LanguageDetection\\' => array($vendorDir . '/patrickschur/language-detection/src/LanguageDetection'),
-    'ID3Parser\\' => array($vendorDir . '/lukasreschke/id3parser/src'),
+    'Id3\\' => array($vendorDir . '/xylphid/php-id3/src/Id3'),
     'Hubzilla\\' => array($baseDir . '/include'),
     'HttpSignature\\' => array($vendorDir . '/macgirvin/http-message-signer/src'),
     'GuzzleHttp\\Psr7\\' => array($vendorDir . '/guzzlehttp/psr7/src'),

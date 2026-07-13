@@ -94,7 +94,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         ),
         'I' =>
         array (
-            'ID3Parser\\' => 10,
+            'Id3\\' => 4,
         ),
         'H' =>
         array (
@@ -268,9 +268,9 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         array (
             0 => __DIR__ . '/..' . '/patrickschur/language-detection/src/LanguageDetection',
         ),
-        'ID3Parser\\' =>
+        'Id3\\' =>
         array (
-            0 => __DIR__ . '/..' . '/lukasreschke/id3parser/src',
+            0 => __DIR__ . '/..' . '/xylphid/php-id3/src/Id3',
         ),
         'Hubzilla\\' =>
         array (
@@ -748,13 +748,21 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'HttpSignature\\HttpMessageSigner' => __DIR__ . '/..' . '/macgirvin/http-message-signer/src/HttpMessageSigner.php',
         'HttpSignature\\StructuredFieldTypes' => __DIR__ . '/..' . '/macgirvin/http-message-signer/src/StructuredFieldTypes.php',
         'HttpSignature\\UnProcessableSignatureException' => __DIR__ . '/..' . '/macgirvin/http-message-signer/src/UnProcessableSignatureException.php',
-        'ID3Parser\\ID3Parser' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/ID3Parser.php',
-        'ID3Parser\\getID3\\Tags\\getid3_id3v1' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/getID3/Tags/getid3_id3v1.php',
-        'ID3Parser\\getID3\\Tags\\getid3_id3v2' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/getID3/Tags/getid3_id3v2.php',
-        'ID3Parser\\getID3\\getID3' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/getID3/getID3.php',
-        'ID3Parser\\getID3\\getid3_exception' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/getID3/getid3_exception.php',
-        'ID3Parser\\getID3\\getid3_handler' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/getID3/getid3_handler.php',
-        'ID3Parser\\getID3\\getid3_lib' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/getID3/getid3_lib.php',
+        'Id3\\Exception\\FileNotFoundException' => __DIR__ . '/..' . '/xylphid/php-id3/src/Id3/Exception/FileNotFoundException.php',
+        'Id3\\Exception\\FileReadException' => __DIR__ . '/..' . '/xylphid/php-id3/src/Id3/Exception/FileReadException.php',
+        'Id3\\Exception\\NotCompliantException' => __DIR__ . '/..' . '/xylphid/php-id3/src/Id3/Exception/NotCompliantException.php',
+        'Id3\\Exception\\RemoteFilenameException' => __DIR__ . '/..' . '/xylphid/php-id3/src/Id3/Exception/RemoteFilenameException.php',
+        'Id3\\Frame\\ApicFrame' => __DIR__ . '/..' . '/xylphid/php-id3/src/Id3/Frame/ApicFrame.php',
+        'Id3\\Frame\\BaseFrame' => __DIR__ . '/..' . '/xylphid/php-id3/src/Id3/Frame/BaseFrame.php',
+        'Id3\\Frame\\TBaseFrame' => __DIR__ . '/..' . '/xylphid/php-id3/src/Id3/Frame/TBaseFrame.php',
+        'Id3\\Frame\\TconFrame' => __DIR__ . '/..' . '/xylphid/php-id3/src/Id3/Frame/TconFrame.php',
+        'Id3\\Genre' => __DIR__ . '/..' . '/xylphid/php-id3/src/Id3/Genre.php',
+        'Id3\\GetSet' => __DIR__ . '/..' . '/xylphid/php-id3/src/Id3/GetSet.php',
+        'Id3\\Id3Accessor' => __DIR__ . '/..' . '/xylphid/php-id3/src/Id3/Id3Accessor.php',
+        'Id3\\Id3Encoding' => __DIR__ . '/..' . '/xylphid/php-id3/src/Id3/Id3Encoding.php',
+        'Id3\\Id3Flag' => __DIR__ . '/..' . '/xylphid/php-id3/src/Id3/Id3Flag.php',
+        'Id3\\Id3Parser' => __DIR__ . '/..' . '/xylphid/php-id3/src/Id3/Id3Parser.php',
+        'Id3\\Std\\Collection' => __DIR__ . '/..' . '/xylphid/php-id3/src/Id3/Std/Collection.php',
         'LanguageDetection\\Language' => __DIR__ . '/..' . '/patrickschur/language-detection/src/LanguageDetection/Language.php',
         'LanguageDetection\\LanguageResult' => __DIR__ . '/..' . '/patrickschur/language-detection/src/LanguageDetection/LanguageResult.php',
         'LanguageDetection\\NgramParser' => __DIR__ . '/..' . '/patrickschur/language-detection/src/LanguageDetection/NgramParser.php',
@@ -2262,6 +2270,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Lib\\ExtendedZip' => __DIR__ . '/../..' . '/Zotlabs/Lib/ExtendedZip.php',
         'Zotlabs\\Lib\\Hashpath' => __DIR__ . '/../..' . '/Zotlabs/Lib/Hashpath.php',
         'Zotlabs\\Lib\\IConfig' => __DIR__ . '/../..' . '/Zotlabs/Lib/IConfig.php',
+        'Zotlabs\\Lib\\Id3AlbumCover' => __DIR__ . '/../..' . '/Zotlabs/Lib/Id3AlbumCover.php',
         'Zotlabs\\Lib\\Img_filesize' => __DIR__ . '/../..' . '/Zotlabs/Lib/Img_filesize.php',
         'Zotlabs\\Lib\\JSalmon' => __DIR__ . '/../..' . '/Zotlabs/Lib/JSalmon.php',
         'Zotlabs\\Lib\\JcsEddsa2022' => __DIR__ . '/../..' . '/Zotlabs/Lib/JcsEddsa2022.php',
@@ -2395,6 +2404,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Module\\Layouts' => __DIR__ . '/../..' . '/Zotlabs/Module/Layouts.php',
         'Zotlabs\\Module\\Like' => __DIR__ . '/../..' . '/Zotlabs/Module/Like.php',
         'Zotlabs\\Module\\Linkinfo' => __DIR__ . '/../..' . '/Zotlabs/Module/Linkinfo.php',
+        'Zotlabs\\Module\\Lists' => __DIR__ . '/../..' . '/Zotlabs/Module/Lists.php',
         'Zotlabs\\Module\\Lockview' => __DIR__ . '/../..' . '/Zotlabs/Module/Lockview.php',
         'Zotlabs\\Module\\Locs' => __DIR__ . '/../..' . '/Zotlabs/Module/Locs.php',
         'Zotlabs\\Module\\Login' => __DIR__ . '/../..' . '/Zotlabs/Module/Login.php',
