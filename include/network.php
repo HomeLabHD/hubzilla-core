@@ -7,6 +7,7 @@ use Zotlabs\Lib\Zotfinger;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Queue;
 use Zotlabs\Lib\Url;
+use Zotlabs\Lib\System;
 use Zotlabs\Web\HTTPSig;
 
 /**
@@ -63,7 +64,7 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 		@curl_setopt($ch, CURLOPT_USERAGENT, $opts['useragent']);
 	}
 	else {
-		@curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; zot)');
+		@curl_setopt($ch, CURLOPT_USERAGENT, System::get_useragent());
 	}
 
 	$ciphers = @Config::Get('system','curl_ssl_ciphers');
@@ -262,7 +263,7 @@ function z_post_url($url, $params, $redirects = 0, $opts = array()) {
 		@curl_setopt($ch, CURLOPT_USERAGENT, $opts['useragent']);
 	}
 	else {
-		@curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; zot)');
+		@curl_setopt($ch, CURLOPT_USERAGENT, System::get_useragent());
 	}
 
 	$ciphers = @Config::Get('system','curl_ssl_ciphers');
@@ -2159,3 +2160,5 @@ function get_request_string($url) {
 function unparse_url(array $parsed_url, array $parts = ['scheme', 'host', 'port', 'user', 'pass', 'path', 'query', 'fragment']): string {
 	return Url::unparse($parsed_url, $parts);
 }
+
+
