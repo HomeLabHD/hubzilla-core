@@ -1236,45 +1236,6 @@
             "install-path": "../league/uri-interfaces"
         },
         {
-            "name": "lukasreschke/id3parser",
-            "version": "v0.0.3",
-            "version_normalized": "0.0.3.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/LukasReschke/ID3Parser.git",
-                "reference": "62f4de76d4eaa9ea13c66dacc1f22977dace6638"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/LukasReschke/ID3Parser/zipball/62f4de76d4eaa9ea13c66dacc1f22977dace6638",
-                "reference": "62f4de76d4eaa9ea13c66dacc1f22977dace6638",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.4.0"
-            },
-            "time": "2016-09-22T15:10:54+00:00",
-            "type": "library",
-            "installation-source": "dist",
-            "autoload": {
-                "psr-4": {
-                    "ID3Parser\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL"
-            ],
-            "homepage": "https://github.com/LukasReschke/ID3Parser/",
-            "keywords": [
-                "codecs",
-                "php",
-                "tags"
-            ],
-            "abandoned": true,
-            "install-path": "../lukasreschke/id3parser"
-        },
-        {
             "name": "macgirvin/http-message-signer",
             "version": "v0.2.13",
             "version_normalized": "0.2.13.0",
@@ -4011,6 +3972,53 @@
                 "source": "https://github.com/voku/stop-words/tree/master"
             },
             "install-path": "../voku/stop-words"
+        },
+        {
+            "name": "xylphid/php-id3",
+            "version": "1.0.2",
+            "version_normalized": "1.0.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/xylphid/php-id3.git",
+                "reference": "dca9a33a35ad0de2a5bee4e47e12a1f088e9bd65"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/xylphid/php-id3/zipball/dca9a33a35ad0de2a5bee4e47e12a1f088e9bd65",
+                "reference": "dca9a33a35ad0de2a5bee4e47e12a1f088e9bd65",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.0.0"
+            },
+            "time": "2023-03-15T11:44:31+00:00",
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "Id3\\": "src/Id3/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "proprietary"
+            ],
+            "authors": [
+                {
+                    "name": "Anthony PERIQUET",
+                    "email": "anthonyperiquet@gmail.com"
+                }
+            ],
+            "description": "ID3 tag reader / writer",
+            "keywords": [
+                "id3",
+                "media"
+            ],
+            "support": {
+                "issues": "https://github.com/xylphid/php-id3/issues",
+                "source": "https://github.com/xylphid/php-id3/tree/1.0.2"
+            },
+            "install-path": "../xylphid/php-id3"
         }
     ],
     "dev": false,
