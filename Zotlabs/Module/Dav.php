@@ -90,15 +90,11 @@ class Dav extends \Zotlabs\Web\Controller {
 			}
 		}
 
-		if (! is_dir('store'))
+		if (!is_dir('store')) {
 			os_mkdir('store', STORAGE_DEFAULT_PERMISSIONS, false);
-
-		if (argc() > 1)
-			profile_load(argv(1),0);
-
+		}
 
 		$auth = new \Zotlabs\Storage\BasicAuth();
-		// $auth->observer = get_observer_hash();
 
 		$auth->setRealm(ucfirst(\Zotlabs\Lib\System::get_platform_name()) . ' ' . 'WebDAV');
 
