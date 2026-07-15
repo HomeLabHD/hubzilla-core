@@ -520,7 +520,7 @@ function post_activity_item($arr, $allow_code = false, $deliver = true, $channel
 		$arr['plink'] = $arr['mid'];
 	}
 
-	if (!$arr['target']) {
+	if (empty($arr['target'])) {
 		$arr['target'] = [
 			'id' => str_replace('/item/', '/conversation/', $arr['parent_mid']),
 			'type' => 'Collection',
