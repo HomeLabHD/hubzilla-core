@@ -547,6 +547,15 @@ function post_activity_item($arr, $allow_code = false, $deliver = true, $channel
 		return $ret;
 	}
 
+	if ($post['success'] && intval($post['item']['item_type']) === ITEM_TYPE_POST) {
+		$item = [$post['item']];
+		xchan_query($item);
+
+		$encoded_item = Activity::build_packet(Activity::encode_activity($item[0]), $channel, false);
+		ObjCache::Set($item[0]['mid'], $encoded_item);
+	}
+
+
 	$post_id = $post['item_id'];
 	$ret['success'] = true;
 	$ret['item_id'] = $post_id;
