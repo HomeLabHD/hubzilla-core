@@ -486,9 +486,6 @@ function post_activity_item($arr, $allow_code = false, $deliver = true, $channel
 
 	$arr['public_policy'] = ((array_key_exists('public_policy',$arr)) ? escape_tags($arr['public_policy']) : map_scope(PermissionLimits::Get($channel['channel_id'],'view_stream'),true));
 
-	if($arr['public_policy'])
-		$arr['item_private'] = 1;
-
 	if(! array_key_exists('mimetype',$arr))
 		$arr['mimetype'] = 'text/bbcode';
 
@@ -1992,9 +1989,13 @@ function item_store($arr, $allow_exec = false, $deliver = true, $addAndSync = tr
 	}
 
 	$private = intval($arr['item_private']);
-	if (! $private) {
-		if (strlen($allow_cid) || strlen($allow_gid) || strlen($deny_cid) || strlen($deny_gid)) {
+	if (!$private) {
+		if ($arr['public_policy']) {
 			$private = 1;
+		}
+
+		if (strlen($allow_cid) || strlen($allow_gid) || strlen($deny_cid) || strlen($deny_gid)) {
+			$private = !strlen($allow_gid) ? 2 : 1;
 		}
 	}
 
