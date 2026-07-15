@@ -28,6 +28,11 @@ class Browser extends DAV\Browser\Plugin {
 	private $auth;
 
 	/**
+	 * Flag for mod cloud to indicate if we need to call construct_page().
+	 */
+	public $build_page = false;
+
+	/**
 	 * @brief Constructor for Browser class.
 	 *
 	 * $enablePost will be activated through set_writeable() in a later stage.
@@ -84,6 +89,8 @@ class Browser extends DAV\Browser\Plugin {
 
 		$nick = $this->auth->owner_nick;
 		$channel_id = $this->auth->owner_id;
+
+		$this->build_page = true;
 
 		// Is visitor owner of this directory?
 		$is_owner = ((local_channel() && $channel_id == local_channel()) ? true : false);
@@ -443,7 +450,6 @@ class Browser extends DAV\Browser\Plugin {
 				$func();
 			}
 		}
-		$this->server->httpResponse->setHeader('Content-Security-Policy', "script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'");
 
 		// We have stored the output in App::$page['content']
 		return EMPTY_STR;

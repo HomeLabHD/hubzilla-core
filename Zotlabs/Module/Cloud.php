@@ -98,9 +98,12 @@ class Cloud extends Controller {
 
 		$server->start();
 
-		nav_set_selected('Files');
-
-		construct_page();
+		if ($browser->build_page) {
+			// construct_page() should not be called if a file is accessed directly via mod cloud
+			// because it will emit "Cannot modify header information" warnings.
+			nav_set_selected('Files');
+			construct_page();
+		}
 
 		killme();
 	}
