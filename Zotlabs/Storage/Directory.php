@@ -749,7 +749,7 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 			$r = q("select $prefix attach.id, attach.uid, attach.hash, attach.filename, attach.is_photo,
 				attach.filetype, attach.filesize, attach.revision, attach.folder, attach.creator,
 				attach.flags, attach.is_dir, attach.created, attach.edited, attach.display_path,
-				attach.allow_cid, attach.allow_gid, attach.deny_cid, attach.deny_gid from attach
+				attach.allow_cid, attach.allow_gid, attach.deny_cid, attach.deny_gid, attach.content from attach
 				where folder = '%s' and uid = %d $perms $suffix",
 				dbesc($folder),
 				intval($channel_id)

@@ -14,12 +14,20 @@ class Mp3audio {
 	function Thumb($attach,$preview_style,$height = 300, $width = 300) {
 
 		$file = dbunescbin($attach['content']);
+
 		if (empty($file)) {
 			return;
 		}
 
 		$id3 = new Id3Parser($file);
-		$photo = new Id3AlbumCover($id3->getAlbumImage());
+
+		$album_image = $id3->getAlbumImage();
+
+		if (empty($album_image)) {
+			return;
+		}
+
+		$photo = new Id3AlbumCover($album_image);
 		$photo->saveThumbnail($file, $width, $height);
 	}
 }

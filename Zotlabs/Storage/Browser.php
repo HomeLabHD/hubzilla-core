@@ -125,10 +125,24 @@ class Browser extends DAV\Browser\Plugin {
 			'audio/webm'
 		];
 
+		$preview_file_types = [
+			'audio/mpeg',
+			'video/mp4',
+			'video/ogg',
+			'video/webm',
+			'text/plain',
+			'application/epub+zip',
+			'application/pdf'
+		];
+
+
 		$f = [];
 		$photo_hashes = [];
 		$term_ids = [];
 
+		$deftiles = (($is_owner) ? 0 : 1);
+		$tiles = ((array_key_exists('cloud_tiles',$_SESSION)) ? intval($_SESSION['cloud_tiles']) : $deftiles);
+		$_SESSION['cloud_tiles'] = $tiles;
 
 		foreach ($files as $file) {
 			$ft = [];
@@ -215,9 +229,15 @@ class Browser extends DAV\Browser\Plugin {
 			$photo_icon = '';
 			$preview_style = intval(Config::Get('system','thumbnail_security',0));
 
-			$is_creator = (($data['creator'] === get_observer_hash()) ? true : false);
+			$is_creator = $data['creator'] === get_observer_hash();
 
-			if(strpos($type,'image/') === 0 && $attach_hash) {
+			if ($tiles && in_array($type, $preview_file_types)) {
+				if (file_exists(dbunescbin($data['content']) . '.thumb')) {
+					$photo_icon = 'data:image/jpeg;base64,' . base64_encode(file_get_contents(dbunescbin($data['content']) . '.thumb'));
+				}
+			}
+
+			if($tiles && strpos($type,'image/') === 0 && $attach_hash) {
 				$photo_hashes[] = $attach_hash;
 			}
 
@@ -231,7 +251,6 @@ class Browser extends DAV\Browser\Plugin {
 
 			// put the array for this file together
 			$ft['attach_id'] = $id;
-			// $ft['icon'] = $icon;
 			$ft['photo_icon'] = $photo_icon;
 			$ft['is_creator'] = $is_creator;
 			$ft['rel_path'] = (($data) ? '/cloud/' . $nick .'/' . $display_path_encoded : $href_encoded);
@@ -312,10 +331,6 @@ class Browser extends DAV\Browser\Plugin {
 			$this->server->emit('onHTMLActionsPanel', [$parent, &$output, $path]);
 		}
 
-		$deftiles = (($is_owner) ? 0 : 1);
-
-		$tiles = ((array_key_exists('cloud_tiles',$_SESSION)) ? intval($_SESSION['cloud_tiles']) : $deftiles);
-		$_SESSION['cloud_tiles'] = $tiles;
 
 		$header = (($cat) ? t('File category') . ": " . $this->escapeHTML($cat) : t('Files'));
 
@@ -331,7 +346,7 @@ class Browser extends DAV\Browser\Plugin {
 
 		$photo_map = [];
 
-		if ($photo_hashes && $tiles) {
+		if ($photo_hashes) {
 			$photos = q("select resource_id, imgscale from photo where resource_id in (%s) and imgscale in ( %d, %d ) order by imgscale asc",
 				stringify_array($photo_hashes, true),
 				intval(PHOTO_RES_320),
@@ -345,15 +360,17 @@ class Browser extends DAV\Browser\Plugin {
 
 		$term_map = [];
 
-		$terms = q("select * from term where oid in (%s) AND otype = %d",
-			implode(',', $term_ids),
-			intval(TERM_OBJ_FILE)
-		);
+		if (!$tiles) {
+			$terms = q("select * from term where oid in (%s) AND otype = %d",
+				implode(',', $term_ids),
+				intval(TERM_OBJ_FILE)
+			);
 
-		foreach ($terms as $row) {
-			$term_map[$row['oid']]['string'] .= (($term_map[$row['oid']]['string']) ? ',' : '') . htmlspecialchars($row['term'], ENT_COMPAT,'UTF-8', false);
-			$term_map[$row['oid']]['form'] = replace_macros(get_markup_template('field_input.tpl'), ['$field' => ['categories_' . $row['oid'], t('Categories'), $term_map[$row['oid']]['string']]]);
-			$term_map[$row['oid']]['html'] .= replace_macros(get_markup_template('item_categories.tpl'), ['$categories' => [['term' => $row['term'], 'url' => $row['url']]]]);
+			foreach ($terms as $row) {
+				$term_map[$row['oid']]['string'] .= (($term_map[$row['oid']]['string']) ? ',' : '') . htmlspecialchars($row['term'], ENT_COMPAT,'UTF-8', false);
+				$term_map[$row['oid']]['form'] = replace_macros(get_markup_template('field_input.tpl'), ['$field' => ['categories_' . $row['oid'], t('Categories'), $term_map[$row['oid']]['string']]]);
+				$term_map[$row['oid']]['html'] .= replace_macros(get_markup_template('item_categories.tpl'), ['$categories' => [['term' => $row['term'], 'url' => $row['url']]]]);
+			}
 		}
 
 		$html = replace_macros(get_markup_template('cloud.tpl'), [

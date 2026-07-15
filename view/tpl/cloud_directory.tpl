@@ -23,8 +23,10 @@
 			<div class="card h-100">
 				<a href="{{$item.rel_path}}" title="{{$item.name}}" class="text-decoration-none stretched-link file_link" data-id="{{$item.attach_id}}" data-type="{{$item.type}}">
 					<div class="d-flex align-items-center justify-content-center m-1" style="height: 4.5rem;">
-						{{if $photo_map[$item.resource]}}
-						<img src="{{$photo_map[$item.resource]}}" class="rounded" alt="{{$item.photo_icon}}" title="{{$item.size_formatted}}" style="max-height: 4rem; width: auto; max-width: 100%;" loading="lazy">
+						{{if $item.photo_icon}}
+						<img src="{{$item.photo_icon}}" class="rounded" alt="" title="" style="max-height: 4rem; width: auto; max-width: 100%;">
+						{{elseif $photo_map[$item.resource]}}
+						<img src="{{$photo_map[$item.resource]}}" class="rounded" alt="" title="{{$item.size_formatted}}" style="max-height: 4rem; width: auto; max-width: 100%;" loading="lazy">
 						{{else}}
 						<i class="bi {{$item.icon_from_type}}" title="{{$item.size_formatted}}" style="font-size: 4rem"></i>
 						{{/if}}
