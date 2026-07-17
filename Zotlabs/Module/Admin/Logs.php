@@ -50,7 +50,7 @@ class Logs {
 
 		$tz_choices = Array(
 			LTZ_UTC => 'UTC',
-			LTZ_LOCAL => 'Local',
+			LTZ_LOCAL => Config::Get('system', 'timezone')
 		);
 
 		$t = get_markup_template('admin_logs.tpl');
