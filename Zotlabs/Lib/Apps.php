@@ -828,7 +828,7 @@ class Apps {
 
 	static public function addon_app_installed($uid,$app,$bypass_filter=false) {
 
-		$r = q("select id from app where app_plugin = '%s' and app_channel = %d limit 1",
+		$r = q("select id from app where app_plugin = '%s' and app_channel = %d and app_deleted != 1 limit 1",
 			dbesc($app),
 			intval($uid)
 		);
