@@ -204,6 +204,12 @@ define('LOGGER_DEBUG', 2);
 define('LOGGER_DATA', 3);
 define('LOGGER_ALL', 4);
 
+/**
+ * log timezone
+ */
+
+define('LTZ_UTC', 0);
+define('LTZ_LOCAL', 1);
 
 /**
  * registration policies

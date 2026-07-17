@@ -755,7 +755,8 @@ function logger($msg, $level = LOGGER_NORMAL, $priority = LOG_INFO) {
 	$stack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 	$where = basename($stack[0]['file']) . ':' . $stack[0]['line'] . ':' . $stack[1]['function'] . ': ';
 
-	$s = datetime_convert('UTC','UTC', 'now', ATOM_TIME) . ':' . log_priority_str($priority) . ':' . logid() . ':' . $where . $msg . PHP_EOL;
+	$tz = Config::Get('system','logtz') == LTZ_LOCAL ? Config::Get('system','timezone', 'UTC') : 'UTC';
+	$s = datetime_convert('UTC', $tz, 'now', ATOM_TIME) . ':' . log_priority_str($priority) . ':' . logid() . ':' . $where . $msg . PHP_EOL;
 	$pluginfo = array('filename' => $logfile, 'loglevel' => $level, 'message' => $s,'priority' => $priority, 'logged' => false);
 
 	if(! (App::$module == 'setup'))
