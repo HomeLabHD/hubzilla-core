@@ -3498,7 +3498,8 @@ class Activity {
 		}
 
 		foreach (['name', 'summary', 'content'] as $a) {
-			if (($x = self::get_textfield($act, $a)) !== false) {
+			$textfield = self::get_textfield($act, $a);
+			if (is_string($textfield)) {
 				$content[$a] = $x;
 			}
 		}
