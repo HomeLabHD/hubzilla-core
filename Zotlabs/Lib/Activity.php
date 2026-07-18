@@ -3499,7 +3499,14 @@ class Activity {
 
 		foreach (['name', 'summary', 'content'] as $a) {
 			$textfield = self::get_textfield($act, $a);
-			$content[$a] = is_string($textfield) ? $textfield : '';
+
+			if (is_array($textfield)) {
+				// Return the first value for now
+				$content[$a] = reset($textfield);
+			}
+			else {
+				$content[$a] = $textfield;
+			}
 		}
 
 		if ($event) {
