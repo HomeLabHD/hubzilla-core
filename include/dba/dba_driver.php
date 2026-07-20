@@ -365,6 +365,63 @@ function q($sql) {
 	return false;
 }
 
+function p(string $sql): PDOStatement | false {
+	if(\DBA::$dba && \DBA::$dba->connected) {
+		if(\DBA::$dba->debug) {
+			db_logger('Sql: ' . sql, LOGGER_DEBUG, LOG_INFO);
+		}
+		return \DBA::$dba->p($sql);
+	}
+
+	/*
+	 * This will happen occasionally trying to store the
+	 * session data after abnormal program termination
+	 */
+
+	db_logger('dba: no database: ' . print_r($sql,true),LOGGER_NORMAL,LOG_CRIT);
+
+	return false;
+}
+
+function e(PDOStatement $stmt, array $args): array | false {
+	if(\DBA::$dba && \DBA::$dba->connected) {
+		if(\DBA::$dba->debug) {
+			db_logger('Sql: ' . $stmt->queryString, LOGGER_DEBUG, LOG_INFO);
+		}
+		return \DBA::$dba->e($stmt, $args);
+	}
+
+	/*
+	 * This will happen occasionally trying to store the
+	 * session data after abnormal program termination
+	 */
+
+	db_logger('dba: no database: ' . print_r($stmt->queryString, true), LOGGER_NORMAL, LOG_CRIT);
+
+	return false;
+}
+
+function pe(string $sql, array $args): array | false {
+	if(\DBA::$dba && \DBA::$dba->connected) {
+		if(\DBA::$dba->debug) {
+			db_logger('Sql: ' . $sql, LOGGER_DEBUG, LOG_INFO);
+		}
+
+		$stmt = \DBA::$dba->p($sql);
+		return \DBA::$dba->e($stmt, $args);
+	}
+
+	/*
+	 * This will happen occasionally trying to store the
+	 * session data after abnormal program termination
+	 */
+
+	db_logger('dba: no database: ' . print_r($sql, true), LOGGER_NORMAL, LOG_CRIT);
+
+	return false;
+}
+
+
 /**
  * @brief Raw DB query, no arguments.
  *
