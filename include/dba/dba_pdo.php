@@ -22,7 +22,7 @@ class dba_pdo extends dba_driver {
 		$this->driver_dbtype = $this->scheme;
 
                 $dbhost = $this->server;
-                
+
                 // We no longer require unix socket paths in the $db_host configuration in .htconfig.php
                 // to be prefixed by a colon (':'). This block handles legacy configuration and could
                 // eventually be removed if we don't expect old legacy config to still exist.
@@ -32,7 +32,7 @@ class dba_pdo extends dba_driver {
                         $dbhost = trim($dbhost, ':');
                 }
 
-                if(str_contains($dbhost, '/') and file_exists($dbhost)) {
+                if(str_contains($dbhost, '/') && file_exists($dbhost)) {
                         db_logger('dba_pdo: DEBUG: the db_host "' . $dbhost . '" looks like a unix socket and the file exists.', LOGGER_NORMAL, LOG_DEBUG);
                         $dsn = $this->driver_dbtype . ':unix_socket=' . $dbhost;
                 }
