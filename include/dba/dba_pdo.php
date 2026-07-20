@@ -150,7 +150,6 @@ class dba_pdo extends dba_driver {
 
 		try {
 			$stmt = $this->db->prepare($sql);
-			hz_syslog(print_r($stmt, true));
 		}
 		catch(PDOException $e) {
 			$this->error = $e->getMessage();
