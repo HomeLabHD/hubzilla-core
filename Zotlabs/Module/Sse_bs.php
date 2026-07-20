@@ -644,49 +644,59 @@ class Sse_bs extends Controller {
 		if($forums) {
 			$fcount = count($forums);
 
+			$limit = intval(self::$limit);
+			$offset = self::$offset;
+			$direction = self::$direction;
+			$count_limit = intval(self::$count_limit);
+
+			$sql_extra = '';
+			if (!(self::$vnotify & VNOTIFY_LIKE)) {
+				$sql_extra = " AND item.verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			}
+			elseif (!feature_enabled(self::$uid, 'dislike')) {
+				$sql_extra = " AND item.verb NOT IN ('Dislike', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+			}
+
+			$item_normal = item_normal();
+
+			// Filter internal follow activities and strerams add/remove activities
+			$item_normal .= " AND item.verb NOT IN ('Add', 'Remove', 'Follow', 'Ignore', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
+
+			$items_stmt = p("SELECT item.*, tp.uuid AS thr_parent_uuid FROM item
+				LEFT JOIN item tp ON item.thr_parent = tp.mid AND item.uid = tp.uid
+				WHERE item.uid = ?
+				AND item.created <= ?
+				AND item.owner_xchan = ?
+				AND item.item_unseen = 1 AND item.item_wall = 0 AND item.item_private IN (0, 1)
+				AND item.obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
+				AND NOT (item.verb = 'Announce' AND item.item_thread_top = 1) -- only show the announce activity and not the resulting item
+				AND NOT item.author_xchan = ?
+				$item_normal
+				$sql_extra
+				ORDER BY item.created $direction LIMIT $limit OFFSET $offset"
+			);
+
+			$count_stmt = p("SELECT id FROM item
+				WHERE uid = ? and item_unseen = 1 AND item_wall = 0 AND item_private IN (0, 1)
+				AND obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
+				AND author_xchan != ?
+				AND item.owner_xchan = ?
+				$item_normal
+				$sql_extra LIMIT $count_limit"
+			);
+
 			for($x = 0; $x < $fcount; $x ++) {
-
 				$forum_id = 'forum_' . $forums[$x]['abook_id'];
-
 				$result[$forum_id]['notifications'] = [];
 				$result[$forum_id]['count'] = 0;
 
-				$limit = intval(self::$limit);
-				$offset = self::$offset;
-				$direction = self::$direction;
-				$count_limit = intval(self::$count_limit);
-
-				$sql_extra = '';
-				if (!(self::$vnotify & VNOTIFY_LIKE)) {
-					$sql_extra = " AND item.verb NOT IN ('Like', 'Dislike', '" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
-				}
-				elseif (!feature_enabled(self::$uid, 'dislike')) {
-					$sql_extra = " AND item.verb NOT IN ('Dislike', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
-				}
-
-				$item_normal = item_normal();
-
-				// Filter internal follow activities and strerams add/remove activities
-				$item_normal .= " AND item.verb NOT IN ('Add', 'Remove', 'Follow', 'Ignore', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
-
 				if ($forum_id === $selected_forum_id) {
-					$items = q("SELECT item.*, tp.uuid AS thr_parent_uuid FROM item
-						LEFT JOIN item tp ON item.thr_parent = tp.mid AND item.uid = tp.uid
-						WHERE item.uid = %d
-						AND item.created <= '%s'
-						AND item.owner_xchan = '%s'
-						AND item.item_unseen = 1 AND item.item_wall = 0 AND item.item_private IN (0, 1)
-						AND item.obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
-						AND NOT (item.verb = 'Announce' AND item.item_thread_top = 1) -- only show the announce activity and not the resulting item
-						AND NOT item.author_xchan = '%s'
-						$item_normal
-						$sql_extra
-						ORDER BY item.created $direction LIMIT $limit OFFSET $offset",
-						intval(self::$uid),
-						dbescdate($_SESSION['sse_loadtime']),
-						dbescdate($forums[$x]['xchan_hash']),
-						dbesc(self::$ob_hash)
-					);
+					$items = e($item_stmt, [
+						self::$uid,
+						$_SESSION['sse_loadtime'],
+						$forums[$x]['xchan_hash'],
+						self::$ob_hash
+					]);
 
 					if ($items) {
 						$result[$forum_id]['offset'] = ((count($items) == $limit) ? intval($offset + $limit) : -1);
@@ -701,20 +711,13 @@ class Sse_bs extends Controller {
 					else {
 						$result[$forum_id]['offset'] = -1;
 					}
-
 				}
 
-				$r = q("SELECT id FROM item
-					WHERE uid = %d and item_unseen = 1 AND item_wall = 0 AND item_private IN (0, 1)
-					AND obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
-					AND author_xchan != '%s'
-					AND item.owner_xchan = '%s'
-					$item_normal
-					$sql_extra LIMIT $count_limit",
-					intval(self::$uid),
-					dbesc(self::$ob_hash),
-					dbesc($forums[$x]['xchan_hash'])
-				);
+				$r = e($count_stmt, [
+					self::$uid,
+					self::$ob_hash,
+					$forums[$x]['xchan_hash']
+				]);
 
 				if ($r) {
 					$result[$forum_id]['count'] = count($r);
@@ -723,7 +726,6 @@ class Sse_bs extends Controller {
 		}
 
 		return $result;
-
 	}
 
 	function bs_files() {
