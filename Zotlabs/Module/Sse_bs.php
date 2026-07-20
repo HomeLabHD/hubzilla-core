@@ -691,7 +691,7 @@ class Sse_bs extends Controller {
 				$result[$forum_id]['count'] = 0;
 
 				if ($forum_id === $selected_forum_id) {
-					$items = e($item_stmt, [
+					$items = e($items_stmt, [
 						self::$uid,
 						$_SESSION['sse_loadtime'],
 						$forums[$x]['xchan_hash'],
