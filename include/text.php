@@ -2421,20 +2421,20 @@ function undo_post_tagging($s) {
 	$matches = null;
 	$x = null;
 	// undo tags and mentions
-	$cnt = preg_match_all('/([@#])(\!*)\[zrl=(.*?)\](.*?)\[\/zrl\]/ism',$s,$matches,PREG_SET_ORDER);
+	$cnt = preg_match_all('/\[zrl=(.*?)\]([@#])(\!*)(.*?)\[\/zrl\]/ism',$s,$matches,PREG_SET_ORDER);
 	if($cnt) {
 		foreach($matches as $mtch) {
 			$x = false;
-			if($mtch[1] === '@') {
+			if($mtch[2] === '@') {
 				$x = q("select xchan_addr, xchan_url from xchan where xchan_url = '%s' limit 1",
-					dbesc($mtch[3])
+					dbesc($mtch[1])
 				);
 			}
 			if($x) {
-				$s = str_replace($mtch[0], $mtch[1] . $mtch[2] . '{' . (($x[0]['xchan_addr']) ? $x[0]['xchan_addr'] : $x[0]['xchan_url']) . '}', $s);
+				$s = str_replace($mtch[0], $mtch[2] . $mtch[3] . '{' . (($x[0]['xchan_addr']) ? $x[0]['xchan_addr'] : $x[0]['xchan_url']) . '}', $s);
 			}
 			else {
-				$s = str_replace($mtch[0], $mtch[1] . $mtch[2] . quote_tag($mtch[4]),$s);
+				$s = str_replace($mtch[0], $mtch[2] . $mtch[3] . quote_tag($mtch[4]),$s);
 			}
 		}
 	}

@@ -383,7 +383,7 @@ function p(string $sql): PDOStatement | false {
 	return false;
 }
 
-function e(PDOStatement $stmt, array $args): array | false {
+function e(PDOStatement $stmt, array $args = []): array | bool {
 	if(\DBA::$dba && \DBA::$dba->connected) {
 		if(\DBA::$dba->debug) {
 			db_logger('Sql: ' . $stmt->queryString, LOGGER_DEBUG, LOG_INFO);
@@ -401,15 +401,18 @@ function e(PDOStatement $stmt, array $args): array | false {
 	return false;
 }
 
-function pe(string $sql, array $args): array | false {
+function pe(string $sql, array $args = []): array | bool {
 	if(\DBA::$dba && \DBA::$dba->connected) {
 		if(\DBA::$dba->debug) {
 			db_logger('Sql: ' . $sql, LOGGER_DEBUG, LOG_INFO);
 		}
 
 		$stmt = \DBA::$dba->p($sql);
+
 		return \DBA::$dba->e($stmt, $args);
 	}
+
+
 
 	/*
 	 * This will happen occasionally trying to store the

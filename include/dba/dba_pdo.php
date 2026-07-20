@@ -55,6 +55,8 @@ class dba_pdo extends dba_driver {
 
 		try {
 			$this->db = new PDO($dsn, $this->user, $this->pass);
+			//pdo_mysql by default emulates prepares - turn this off to let the backends do the work
+			$this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 			$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 			$this->server_version = $this->db->getAttribute(PDO::ATTR_SERVER_VERSION);
 		}
@@ -164,16 +166,21 @@ class dba_pdo extends dba_driver {
 		return (($this->error) ? false : $stmt);
 	}
 
-	function e(PDOStatement $stmt, array $args): array | false {
+	function e(PDOStatement $stmt, array $args = []): array | bool {
 		if (!$this->db || !$this->connected) {
 			return false;
 		}
 
 		$result = false;
+		$select = stripos($stmt->queryString, 'select') === 0 || stripos($stmt->queryString, 'with') === 0;
+
 
 		try {
-			$stmt->execute($args);
-			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$result = $stmt->execute($args);
+
+			if ($select) {
+				$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			}
 		}
 		catch(PDOException $e) {
 			$this->error = $e->getMessage();
@@ -183,6 +190,13 @@ class dba_pdo extends dba_driver {
 					file_put_contents('dbfail.out', datetime_convert() . "\n" . printable($stmt->queryString) . "\n" . $this->error . "\n", FILE_APPEND);
 				}
 			}
+		}
+
+		if (!$select) {
+			if($this->debug) {
+				db_logger('dba_pdo: DEBUG: ' . printable($stmt->queryString) . ' returns ' . (($result) ? 'true' : 'false'), LOGGER_NORMAL, (($result) ? LOG_INFO : LOG_ERR));
+			}
+			return $result;
 		}
 
 		if($this->debug) {

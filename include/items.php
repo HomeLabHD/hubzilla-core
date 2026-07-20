@@ -2065,19 +2065,18 @@ function item_store($arr, $allow_exec = false, $deliver = true, $addAndSync = tr
 
 
 	// Store taxonomy
-
 	if(($terms) && (is_array($terms))) {
+		$stmt = p("insert into term (uid, oid, otype, ttype, term, url, imgurl) values(?, ?, ?, ?, ?, ?, ?)");
 		foreach($terms as $t) {
-			q("insert into term (uid,oid,otype,ttype,term,url,imgurl)
-				values(%d,%d,%d,%d,'%s','%s','%s') ",
-				intval($arr['uid']),
-				intval($current_post),
-				intval(TERM_OBJ_POST),
-				intval($t['ttype']),
-				dbesc($t['term']),
-				dbesc($t['url']),
-				dbesc($t['imgurl'] ?? ''),
-			);
+			e($stmt, [
+				$arr['uid'],
+				$current_post,
+				TERM_OBJ_POST,
+				$t['ttype'],
+				$t['term'],
+				$t['url'],
+				$t['imgurl'] ?? '',
+			]);
 		}
 
 		$arr['term'] = $terms;
@@ -2412,19 +2411,21 @@ function item_store_update($arr, $allow_exec = false, $deliver = true, $addAndSy
 		intval(TERM_OBJ_POST)
 	);
 
+	// Store taxonomy
 	if(is_array($terms)) {
+		$stmt = p("insert into term (uid, oid, otype, ttype, term, url, imgurl) values(?, ?, ?, ?, ?, ?, ?)");
 		foreach($terms as $t) {
-			q("insert into term (uid, oid, otype, ttype, term, url, imgurl)
-				values (%d, %d, %d, %d, '%s', '%s', '%s')",
-				intval($uid),
-				intval($orig_post_id),
-				intval(TERM_OBJ_POST),
-				intval($t['ttype']),
-				dbesc($t['term']),
-				dbesc($t['url']),
-				dbesc($t['imgurl'] ?? ''),
-			);
+			e($stmt, [
+				$uid,
+				$orig_post_id,
+				TERM_OBJ_POST,
+				$t['ttype'],
+				$t['term'],
+				$t['url'],
+				$t['imgurl'] ?? '',
+			]);
 		}
+
 		$arr['term'] = $terms;
 	}
 
@@ -5429,7 +5430,7 @@ function item_by_item_id(int $id, int $parent, int $type = ITEM_TYPE_POST): arra
 	$reaction_select_sql = $reaction['select'];
 	$reaction_join_sql = $reaction['join'];
 
-	return q("WITH
+	return pe("WITH
 		$reaction_cte_sql
 		SELECT
 			*,
@@ -5441,10 +5442,10 @@ function item_by_item_id(int $id, int $parent, int $type = ITEM_TYPE_POST): arra
 			AND item.uid = %d
 			AND item.verb IN ('Create', 'Update', 'EmojiReact', 'Announce')
 			AND item.obj_type NOT IN ('Answer')
-			$item_normal_sql",
-		intval($id),
-		intval(local_channel())
-	);
+			$item_normal_sql", [
+		$id,
+		local_channel()
+	]);
 }
 
 
@@ -5503,7 +5504,7 @@ function items_by_parent_ids(array $parents, null|array $thr_parents = null, str
 			$reaction_join_sql
 		SQL;
 
-		return dbq(trim($q));
+		return pe(trim($q));
 	}
 
 	$q = <<<SQL
@@ -5546,7 +5547,7 @@ function items_by_parent_ids(array $parents, null|array $thr_parents = null, str
 		$reaction_join_sql
 	SQL;
 
-	return dbq(trim($q));
+	return pe(trim($q));
 }
 
 /**
@@ -5811,11 +5812,10 @@ function get_recursive_thr_parents(array $item): array|null
 	$uid = $item['uid'];
 	$i = 0;
 
+	$stmt = p("SELECT thr_parent, mid FROM item WHERE uid = ? AND mid = ?");
+
 	while ($mid !== $item['parent_mid'] && $i < 100) {
-		$x = q("SELECT thr_parent, mid FROM item WHERE uid = %d AND mid = '%s'",
-			intval($uid),
-			dbesc($mid)
-		);
+		$x = e($stmt, [$uid, $mid]);
 
 		if (!$x) {
 			break;
@@ -5837,21 +5837,28 @@ function get_recursive_thr_parents(array $item): array|null
  */
 function AS1_to_AS2_verbs($items) {
 	$replaceable = [
-		ACTIVITY_POST
+		ACTIVITY_POST,
+		ACTIVITY_LIKE,
+		ACTIVITY_DISLIKE
 	];
+
+	$stmt = null;
 
 	foreach($items as $item) {
 		if (isset($item['verb'], $item['item_id']) && in_array($item['verb'], $replaceable)) {
-			q("UPDATE item
-				SET verb = CASE
-					WHEN verb = 'http://activitystrea.ms/schema/1.0/post' THEN 'Create'
-					WHEN verb = 'http://activitystrea.ms/schema/1.0/like' THEN 'Like'
-					WHEN verb = 'http://activitystrea.ms/schema/1.0/dislike' THEN 'Dislike'
-					ELSE verb  -- Keep the current
-				END
-				WHERE parent = %d",
-				intval($item['item_id'])
-			);
+			if (!$stmt instanceof PDOStatement) {
+				$stmt = p("UPDATE item
+					SET verb = CASE
+						WHEN verb = 'http://activitystrea.ms/schema/1.0/post' THEN 'Create'
+						WHEN verb = 'http://activitystrea.ms/schema/1.0/like' THEN 'Like'
+						WHEN verb = 'http://activitystrea.ms/schema/1.0/dislike' THEN 'Dislike'
+						ELSE verb  -- Keep the current
+					END
+					WHERE parent = ?"
+				);
+			}
+
+			e($stmt, [$item['item_id']]);
 		}
 	}
 }
