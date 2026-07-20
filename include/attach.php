@@ -388,13 +388,12 @@ function attach_can_view_folder($uid, $ob_hash, $folder_hash, $token = EMPTY_STR
 
 	$sql_extra = permissions_sql($uid, $ob_hash, '', $token);
 
+	$stmt = p("SELECT folder FROM attach WHERE hash = ? AND uid = ? $sql_extra");
 	do {
-		$r = q("select folder from attach where hash = '%s' and uid = %d $sql_extra",
-			dbesc($folder_hash),
-			intval($uid)
-		);
-		if(! $r)
+		$r = e($stmt, [$folder_hash, $uid]);
+		if (!$r) {
 			return false;
+		}
 
 		$folder_hash = $r[0]['folder'];
 	} while($folder_hash);
@@ -1267,14 +1266,11 @@ function attach_mkdir($channel, $observer_hash, $arr = null) {
 
 		$sql_options = permissions_sql($channel['channel_id']);
 
+		$stmt = p("SELECT filename, hash, flags, is_dir, folder, display_path FROM attach WHERE uid = ? AND hash = ? AND is_dir = 1 $sql_options LIMIT 1");
 
 		do {
-			$r = q("select filename, hash, flags, is_dir, folder, display_path from attach where uid = %d and hash = '%s' and is_dir = 1
-				$sql_options limit 1",
-				intval($channel['channel_id']),
-				dbesc($lfile)
-			);
-			if(! $r) {
+			$r = e($stmt, [$channel['channel_id'], $lfile]);
+			if (!$r) {
 				logger('attach_mkdir: hash ' . $lfile . ' not found in ' . $lpath);
 				$ret['message'] = t('Path not found.');
 				return $ret;
@@ -2121,10 +2117,11 @@ function attach_recursive_perms($arr_allow_cid, $arr_allow_gid, $arr_deny_cid, $
 
 	//count existing parent folders - we will compare to that count later
 	$count = 0;
+
+	$stmt = p("SELECT allow_cid, allow_gid, deny_cid, deny_gid, folder FROM attach WHERE hash = ? LIMIT 1");
+
 	while($folder_hash) {
-		$x = q("SELECT allow_cid, allow_gid, deny_cid, deny_gid, folder FROM attach WHERE hash = '%s' LIMIT 1",
-			dbesc($folder_hash)
-		);
+		$x = e($stmt, [$folder_hash]);
 
 		//only process private folders
 		if($x[0]['allow_cid'] || $x[0]['allow_gid'] || $x[0]['deny_cid'] || $x[0]['deny_gid']) {
@@ -2268,31 +2265,31 @@ function attach_export_data($channel, $resource_id, $deleted = false, $zap_compa
 		return $ret;
 	}
 
+	$attach_stmt = p("SELECT * FROM attach WHERE hash = ? AND uid = ? LIMIT 1");
+	$term_stmt = p("SELECT * FROM term WHERE uid = ? AND oid = ? AND otype = ?");
+
 	do {
-		$r = q("select * from attach where hash = '%s' and uid = %d limit 1",
-			dbesc($hash_ptr),
-			intval($channel['channel_id'])
-		);
-		if(! $r)
+		$r = e($attach_stmt, [$hash_ptr, $channel['channel_id']]);
+
+		if (!$r) {
 			break;
+		}
 
 		if($hash_ptr === $resource_id) {
 			$attach_ptr = $r[0];
 		}
+
 		$r[0]['content'] = dbunescbin($r[0]['content']);
 
 		$hash_ptr = $r[0]['folder'];
 
 		$r[0]['term'] = [];
 
-		$term = q("SELECT * FROM term WHERE uid = %d AND oid = %d AND otype = %d",
-			intval($channel['channel_id']),
-			intval($r[0]['id']),
-			intval(TERM_OBJ_FILE)
-		);
+		$term = e($term_stmt, [$channel['channel_id'], $r[0]['id'], TERM_OBJ_FILE]);
 
-		if ($term)
+		if ($term) {
 			$r[0]['term'] = array_reverse($term);
+		}
 
 		$paths[] = $r[0];
 	} while($hash_ptr);
@@ -2950,14 +2947,14 @@ function attach_syspaths($channel_id,$attach_hash) {
 
 	$os_path = '';
 	$path = '';
-	do {
 
-		$r = q("select folder, filename, hash from attach where hash = '%s' and uid = %d",
-			dbesc($attach_hash),
-			intval($channel_id)
-		);
-		if(! $r)
+	$stmt = p("SELECT folder, filename, hash FROM attach WHERE hash = ? AND uid = ?");
+
+	do {
+		$r = e($stmt, [$attach_hash, $channel_id]);
+		if (!$r) {
 			break;
+		}
 
 		$os_path = $r[0]['hash'] . (($os_path) ? '/' . $os_path : '');
 		$path = $r[0]['filename'] . (($path) ? '/' . $path : '');
