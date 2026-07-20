@@ -240,7 +240,7 @@ class Browser extends DAV\Browser\Plugin {
 
 			if ($tiles && in_array($type, $preview_file_types)) {
 				$thumb = dbunescbin($data['content']) . '.thumb';
-				if (file_exists($preview_file)) {
+				if (file_exists($thumb)) {
 					$photo_icon = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($thumb));
 				}
 			}
