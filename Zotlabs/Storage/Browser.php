@@ -239,9 +239,9 @@ class Browser extends DAV\Browser\Plugin {
 			$is_creator = $data['creator'] === get_observer_hash();
 
 			if ($tiles && in_array($type, $preview_file_types)) {
-				$preview_file = dbunescbin($data['content']) . '.thumb';
+				$thumb = dbunescbin($data['content']) . '.thumb';
 				if (file_exists($preview_file)) {
-					$photo_icon = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($preview_file ));
+					$photo_icon = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($thumb));
 				}
 			}
 
