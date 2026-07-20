@@ -21,28 +21,28 @@ class dba_pdo extends dba_driver {
 
 		$this->driver_dbtype = $this->scheme;
 
-		$dbhost = $this->server;
+                $dbhost = $this->server;
 
-		// We no longer require unix socket paths in the $db_host configuration in .htconfig.php
-		// to be prefixed by a colon (':'). This block handles legacy configuration and could
-		// eventually be removed if we don't expect old legacy config to still exist.
-		// For now we try not to break old configurations.
-		if(str_starts_with($dbhost, ':')) {
-			db_logger('dba_pdo: WARN: the unix socket path "' . $dbhost . '" in .htconfig.php should not be prefixed with a colon.', LOGGER_NORMAL, LOG_WARNING);
-			$dbhost = trim($dbhost, ':');
-		}
+                // We no longer require unix socket paths in the $db_host configuration in .htconfig.php
+                // to be prefixed by a colon (':'). This block handles legacy configuration and could
+                // eventually be removed if we don't expect old legacy config to still exist.
+                // For now we try not to break old configurations.
+                if(str_starts_with($dbhost, ':')) {
+                        db_logger('dba_pdo: WARN: the unix socket path "' . $dbhost . '" in .htconfig.php should not be prefixed with a colon.', LOGGER_NORMAL, LOG_WARNING);
+                        $dbhost = trim($dbhost, ':');
+                }
 
-		if(str_contains($dbhost, '/') && file_exists($dbhost)) {
-			db_logger('dba_pdo: DEBUG: the db_host "' . $dbhost . '" looks like a unix socket and the file exists.', LOGGER_NORMAL, LOG_DEBUG);
-			$dsn = $this->driver_dbtype . ':unix_socket=' . $dbhost;
-		}
-		else {
-			db_logger('dba_pdo: DEBUG: the db_host "' . $dbhost . '" is not a path to an existing file. Assuming IP or hostname.', LOGGER_NORMAL, LOG_DEBUG);
-			$dsn = $this->driver_dbtype
-				. ':host='
-				. $dbhost
-				. (intval($this->port) ? ';port=' . $this->port : '');
-		}
+                if(str_contains($dbhost, '/') && file_exists($dbhost)) {
+                        db_logger('dba_pdo: DEBUG: the db_host "' . $dbhost . '" looks like a unix socket and the file exists.', LOGGER_NORMAL, LOG_DEBUG);
+                        $dsn = $this->driver_dbtype . ':unix_socket=' . $dbhost;
+                }
+                else {
+                        db_logger('dba_pdo: DEBUG: the db_host "' . $dbhost . '" is not a path to an existing file. Assuming IP or hostname.', LOGGER_NORMAL, LOG_DEBUG);
+                        $dsn = $this->driver_dbtype
+                                . ':host='
+                                . $dbhost
+                                . (intval($this->port) ? ';port=' . $this->port : '');
+                }
 
 		$dsn .= ';dbname=' . $this->dbname;
 
@@ -55,8 +55,6 @@ class dba_pdo extends dba_driver {
 
 		try {
 			$this->db = new PDO($dsn, $this->user, $this->pass);
-			//pdo_mysql by default emulates prepares - turn this off to let the backends do the work
-			$this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 			$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 			$this->server_version = $this->db->getAttribute(PDO::ATTR_SERVER_VERSION);
 		}
