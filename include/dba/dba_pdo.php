@@ -135,6 +135,67 @@ class dba_pdo extends dba_driver {
 		return (($this->error) ? false : $r);
 	}
 
+	function p(string $sql): PDOStatement | false {
+		if (!$this->db || !$this->connected) {
+			return false;
+		}
+
+		if ($this->driver_dbtype === 'pgsql') {
+			if(substr(rtrim($sql),-1,1) !== ';') {
+				$sql .= ';';
+			}
+		}
+
+		$result = false;
+
+		try {
+			$stmt = $this->db->prepare($sql);
+			hz_syslog(print_r($stmt, true));
+		}
+		catch(PDOException $e) {
+			$this->error = $e->getMessage();
+			if ($this->error) {
+				db_logger('dba_pdo: ERROR: ' . printable($sql) . "\n" . $this->error, LOGGER_NORMAL, LOG_ERR);
+				if(file_exists('dbfail.out')) {
+					file_put_contents('dbfail.out', datetime_convert() . "\n" . printable($sql) . "\n" . $this->error . "\n", FILE_APPEND);
+				}
+			}
+		}
+
+		return (($this->error) ? false : $stmt);
+	}
+
+	function e(PDOStatement $stmt, array $args): array | false {
+		if (!$this->db || !$this->connected) {
+			return false;
+		}
+
+		$result = false;
+
+		try {
+			$stmt->execute($args);
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		}
+		catch(PDOException $e) {
+			$this->error = $e->getMessage();
+			if ($this->error) {
+				db_logger('dba_pdo: ERROR: ' . printable($stmt->queryString) . "\n" . $this->error, LOGGER_NORMAL, LOG_ERR);
+				if(file_exists('dbfail.out')) {
+					file_put_contents('dbfail.out', datetime_convert() . "\n" . printable($stmt->queryString) . "\n" . $this->error . "\n", FILE_APPEND);
+				}
+			}
+		}
+
+		if($this->debug) {
+			db_logger('dba_pdo: DEBUG: ' . printable($stmt->queryString) . ' returned ' . count($result) . ' results.', LOGGER_NORMAL, LOG_INFO);
+			if(intval($this->debug) > 1) {
+				db_logger('dba_pdo: ' . printable(print_r($result,true)), LOGGER_NORMAL, LOG_INFO);
+			}
+		}
+
+		return (($this->error) ? false : $result);
+	}
+
 	/**
 	 * Insert a row into a table.
 	 *
