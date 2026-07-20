@@ -383,7 +383,7 @@ function p(string $sql): PDOStatement | false {
 	return false;
 }
 
-function e(PDOStatement $stmt, array $args): array | false {
+function e(PDOStatement $stmt, array $args): array | bool {
 	if(\DBA::$dba && \DBA::$dba->connected) {
 		if(\DBA::$dba->debug) {
 			db_logger('Sql: ' . $stmt->queryString, LOGGER_DEBUG, LOG_INFO);

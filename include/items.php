@@ -5503,7 +5503,7 @@ function items_by_parent_ids(array $parents, null|array $thr_parents = null, str
 			$reaction_join_sql
 		SQL;
 
-		return dbq(trim($q));
+		return pe(trim($q), []);
 	}
 
 	$q = <<<SQL
@@ -5546,7 +5546,7 @@ function items_by_parent_ids(array $parents, null|array $thr_parents = null, str
 		$reaction_join_sql
 	SQL;
 
-	return dbq(trim($q));
+	return pe(trim($q), []);
 }
 
 /**
@@ -5811,11 +5811,10 @@ function get_recursive_thr_parents(array $item): array|null
 	$uid = $item['uid'];
 	$i = 0;
 
+	$stmt = p("SELECT thr_parent, mid FROM item WHERE uid = ? AND mid = ?");
+
 	while ($mid !== $item['parent_mid'] && $i < 100) {
-		$x = q("SELECT thr_parent, mid FROM item WHERE uid = %d AND mid = '%s'",
-			intval($uid),
-			dbesc($mid)
-		);
+		$x = e($stmt, [$uid, $mid]);
 
 		if (!$x) {
 			break;

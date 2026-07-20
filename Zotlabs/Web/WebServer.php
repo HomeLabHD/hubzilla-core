@@ -59,7 +59,7 @@ class WebServer {
 
 		if ((!empty($_SESSION['language'])) && ($_SESSION['language'] !== App::$language)) {
 			App::$language = $_SESSION['language'];
-			load_translation_table(\App::$language);
+			load_translation_table(App::$language);
 		}
 
 		if (!empty($_GET['zid']) && $installed) {
