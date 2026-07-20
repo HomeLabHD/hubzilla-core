@@ -368,7 +368,7 @@ class Browser extends DAV\Browser\Plugin {
 
 		$term_map = [];
 
-		if (!$tiles) {
+		if (!$tiles && $term_ids) {
 			$terms = q("select * from term where oid in (%s) AND otype = %d",
 				implode(',', $term_ids),
 				intval(TERM_OBJ_FILE)
