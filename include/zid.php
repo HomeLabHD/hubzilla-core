@@ -10,22 +10,26 @@ function is_matrix_url($url) {
 	// in-memory cache to avoid repeated queries for the same host
 	static $remembered = [];
 
-	$m = @parse_url($url);
-	if($m['host']) {
+	$m = parse_url($url);
 
-		if(array_key_exists($m['host'],$remembered))
-			return $remembered[$m['host']];
-
-		$r = q("select hubloc_url from hubloc where hubloc_host = '%s' and hubloc_network = 'zot6' limit 1",
-			dbesc($m['host'])
-		);
-		if($r) {
-			$remembered[$m['host']] = true;
-			return true;
-		}
-		$remembered[$m['host']] = false;
+	if (empty($m['host'])) {
+		return false;
 	}
 
+	if(array_key_exists($m['host'], $remembered)) {
+		return $remembered[$m['host']];
+	}
+
+	$r = q("select hubloc_url from hubloc where hubloc_host = '%s' and hubloc_network = 'zot6' limit 1",
+		dbesc($m['host'])
+	);
+
+	if($r) {
+		$remembered[$m['host']] = true;
+		return true;
+	}
+
+	$remembered[$m['host']] = false;
 	return false;
 }
 

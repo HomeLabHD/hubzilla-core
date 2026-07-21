@@ -1598,7 +1598,7 @@ function theme_attachments(&$item) {
 			// deprecated use of href for attachments (should be url)
 			if(!$label && isset($r['href'])) {
 				$m = parse_url($r['href']);
-				if ($m && $m['path']) {
+				if (isset($m['path'])) {
 					$label = basename($m['path']);
 				}
 			}
