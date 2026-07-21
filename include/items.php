@@ -2813,13 +2813,14 @@ function tag_deliver($uid, $item_id) {
 			$matches = array();
 
 			$pattern = '/[\!@]\!?\[[uz]rl\=' . preg_quote($term['url'],'/') . '\](.*?)\[\/[uz]rl\]/';
-			if(preg_match($pattern,$body,$matches))
+			if (preg_match($pattern, $body, $matches)) {
 				$tagged = true;
+			}
 
-			$pattern = '/\[url\=' . preg_quote($term['url'],'/') . '\]\@(.*?)\[\/url\]/';
-			if(preg_match($pattern,$body,$matches))
+			$pattern = '/\[[uz]rl=' . preg_quote($term['url'], '/') . '\](@!?|!!?)(.*?)\[\/[uz]rl\]/';
+			if (preg_match($pattern, $body, $matches)) {
 				$tagged = true;
-
+			}
 
 			// standard forum tagging sequence !forumname
 /*
