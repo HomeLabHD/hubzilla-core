@@ -3517,7 +3517,7 @@ class Activity {
 				}
 			}
 			$event['description'] = html2bbcode($content['content']);
-			if ($event['summary'] && $event['dtstart']) {
+			if ($event['summary'] && !empty($event['dtstart'])) {
 				$content['event'] = $event;
 			}
 		}
