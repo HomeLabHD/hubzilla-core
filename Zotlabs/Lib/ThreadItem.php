@@ -369,7 +369,7 @@ class ThreadItem {
 		}
 
 		$expand = '';
-		if ($this->threaded && !empty($item['comment_count'] && !$this->is_toplevel())) {
+		if ($this->threaded && !empty($item['comment_count']) && !$this->is_toplevel()) {
 			$expand = t('Expand Replies');
 		}
 
