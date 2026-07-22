@@ -5672,7 +5672,7 @@ function items_by_thr_parent(string $mid, int $parent, int|null $offset = null):
 		$reaction_select_sql = $reaction['select'];
 		$reaction_join_sql = $reaction['join'];
 
-		$ret = q("WITH
+		$ret = pe("WITH
 			$reaction_cte_sql
 			SELECT
 				item.*,
@@ -5680,16 +5680,16 @@ function items_by_thr_parent(string $mid, int $parent, int|null $offset = null):
 			FROM item
 			$reaction_join_sql
 			WHERE
-				item.thr_parent = '%s'
-				AND item.uid = %d
+				item.thr_parent = ?
+				AND item.uid = ?
 				AND item.verb IN ('Create', 'Update', 'EmojiReact')
 				AND item.obj_type NOT IN ('Answer')
 				AND item.item_thread_top = 0
 				$item_normal_sql
-			$order_sql",
-			dbesc($mid),
-			intval($owner_uid)
-		);
+			$order_sql", [
+			$mid,
+			$owner_uid
+		]);
 	}
 	else {
 		$observer_hash = get_observer_hash();
@@ -5700,7 +5700,7 @@ function items_by_thr_parent(string $mid, int $parent, int|null $offset = null):
 		$reaction_select_sql = $reaction['select'];
 		$reaction_join_sql = $reaction['join'];
 
-		$ret = q("WITH
+		$ret = pe("WITH
 			$reaction_cte_sql
 			SELECT
 				item.*,
@@ -5708,17 +5708,17 @@ function items_by_thr_parent(string $mid, int $parent, int|null $offset = null):
 			FROM item
 			$reaction_join_sql
 			WHERE
-				item.thr_parent = '%s'
-				AND item.uid = %d
+				item.thr_parent = ?
+				AND item.uid = ?
 				AND item.verb IN ('Create', 'Update', 'EmojiReact')
 				AND item.obj_type NOT IN ('Answer')
 				AND item.item_thread_top = 0
 				$permission_sql
 				$item_normal_sql
-			$order_sql",
-			dbesc($mid),
-			intval($owner_uid)
-		);
+			$order_sql", [
+			$mid,
+			$owner_uid
+		]);
 	}
 
 	if (isset($offset)) {
@@ -5752,39 +5752,39 @@ function item_activity_xchans(string $mid, int $parent, string $verb): array
 	$item_normal = item_normal($owner_uid, type: $parent_item[0]['item_type']);
 
 	if (local_channel() === $owner_uid) {
-		$ret = q("SELECT item.id, item.item_blocked, xchan.xchan_hash, xchan.xchan_name as name, xchan.xchan_url as url, xchan.xchan_photo_s as photo FROM item
+		$ret = pe("SELECT item.id, item.item_blocked, xchan.xchan_hash, xchan.xchan_name as name, xchan.xchan_url as url, xchan.xchan_photo_s as photo FROM item
 			LEFT JOIN xchan ON item.author_xchan = xchan.xchan_hash
-			WHERE item.uid = %d
-			AND item.parent = %d
-			AND item.thr_parent = '%s'
-			AND item.verb = '%s'
+			WHERE item.uid = ?
+			AND item.parent = ?
+			AND item.thr_parent = ?
+			AND item.verb = ?
 			AND item.item_thread_top = 0
 			$item_normal
 		--	GROUP BY item.author_xchan (should we prevent multiple reactions by the same author?)
-			ORDER BY item.created",
-			intval(local_channel()),
-			intval($parent),
-			dbesc($mid),
-			dbesc($verb)
-		);
+			ORDER BY item.created", [
+			local_channel(),
+			$parent,
+			$mid,
+			$verb
+		]);
 	}
 	else {
 		$sql_extra = item_permissions_sql($owner_uid, $observer_hash);
 
-		$ret = q("SELECT item.id, item.item_blocked, xchan.xchan_hash, xchan.xchan_name as name, xchan.xchan_url as url, xchan.xchan_photo_s as photo FROM item
+		$ret = pe("SELECT item.id, item.item_blocked, xchan.xchan_hash, xchan.xchan_name as name, xchan.xchan_url as url, xchan.xchan_photo_s as photo FROM item
 			LEFT JOIN xchan ON item.author_xchan = xchan.xchan_hash
-			WHERE item.uid = %d
-			AND item.thr_parent = '%s'
-			AND item.verb = '%s'
+			WHERE item.uid = ?
+			AND item.thr_parent = ?
+			AND item.verb = ?
 			AND item.item_thread_top = 0
 			$sql_extra
 			$item_normal
 		--	GROUP BY item.author_xchan (should we prevent multiple reactions by the same author?)
-			ORDER BY item.created",
-			intval($owner_uid),
-			dbesc($mid),
-			dbesc($verb)
-		);
+			ORDER BY item.created", [
+			$owner_uid,
+			$mid,
+			$verb
+		]);
 	}
 
 	$ret['is_commentable'] = can_comment_on_post($observer_hash, $parent_item[0]);
