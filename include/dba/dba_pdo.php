@@ -55,8 +55,8 @@ class dba_pdo extends dba_driver {
 
 		try {
 			$this->db = new PDO($dsn, $this->user, $this->pass);
-			//pdo_mysql by default emulates prepares - turn this off to let the backends do the work
-			$this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+			//pdo_mysql by default emulates prepares - turn this off to let the backends do the work (configurable in .htconfig.php)
+			$this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, App::$config['system']['pdo_emulate_prepares'] ?? false);
 			$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 			$this->server_version = $this->db->getAttribute(PDO::ATTR_SERVER_VERSION);
 		}
