@@ -108,7 +108,6 @@ class Viewconnections extends \Zotlabs\Web\Controller {
 					'username' => $rr['xchan_addr'],
 					'link' => $url,
 					'sparkle' => '',
-					'itemurl' => $rr['url'],
 					'network' => '',
 					'perminfo' => (($is_owner) ? $perminfo : (($perminfo['connpermcount'] === 0) ? $perminfo : [])),
 					'oneway' => $oneway
