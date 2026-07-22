@@ -1728,15 +1728,15 @@ function gender_icon($gender) {
 	// than the channel owner language.
 
 	if(strpos(strtolower($gender),strtolower(t('Female'))) !== false)
-		return 'venus';
+		return 'female';
 	if(strpos(strtolower($gender),strtolower(t('Male'))) !== false)
-		return 'mars';
+		return 'male';
 	if(strpos(strtolower($gender),strtolower(t('Trans'))) !== false)
-		return 'transgender';
+		return 'trans';
 	if(strpos(strtolower($gender),strtolower(t('Neuter'))) !== false)
 		return 'neuter';
-	if(strpos(strtolower($gender),strtolower(t('Non-specific'))) !== false)
-		return 'genderless';
+	if(strpos(strtolower($gender),strtolower(t('Ambiguous'))) !== false)
+		return 'ambiguous';
 
 	return '';
 }
