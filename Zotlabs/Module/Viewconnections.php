@@ -104,7 +104,7 @@ class Viewconnections extends \Zotlabs\Web\Controller {
 					'archived' => (intval($rr['abook_archived']) ? true : false),
 					'img_hover' => sprintf( t('Visit %s\'s profile [%s]'), $rr['xchan_name'], $rr['xchan_url']),
 					'thumb' => $rr['xchan_photo_m'],
-					'name' => substr($rr['xchan_name'],0,20),
+					'name' => $rr['xchan_name'],
 					'username' => $rr['xchan_addr'],
 					'link' => $url,
 					'sparkle' => '',
