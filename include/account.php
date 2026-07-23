@@ -1036,7 +1036,7 @@ function service_class_fetch($uid, $property) {
 	$service_class = null;
 
 	if($uid == local_channel()) {
-		$service_class = App::$account['account_service_class'];
+		$service_class = App::$account['account_service_class'] ?? false;
 	}
 	else {
 		$r = q("select account_service_class as service_class
