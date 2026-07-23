@@ -38,4 +38,24 @@ class AddonTest extends UnitTestCase
 		$this->assertContains('mdpost', $pluginNames);
 		$this->assertContains('baseapps', $pluginNames);
 	}
+
+	public function testUninstallAddon(): void
+	{
+		Addon::install('baseapps');
+		Addon::install('mdpost');
+
+		$addon = Addon::getByName('baseapps');
+		$addon->uninstall();
+
+		$addons = Addon::getInstalledAddons();
+
+		$this->assertIsArray($addons);
+
+		$this->assertCount(1, $addons);
+
+		$pluginNames = array_map(fn ($addon) => $addon->name, $addons);
+
+		$this->assertContains('mdpost', $pluginNames);
+		$this->assertNotContains('baseapps', $pluginNames);
+	}
 }
