@@ -7,9 +7,7 @@
 
 namespace Zotlabs\Entity;
 
-use DBA;
 use DateTimeImmutable;
-use PDO;
 
 /**
  * Objects of this class represents an addon.
