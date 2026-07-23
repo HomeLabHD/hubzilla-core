@@ -2,6 +2,9 @@
 
 namespace Zotlabs\Lib;
 
+use DBA;
+use PDO;
+use PDOStatement;
 
 class AbConfig {
 
@@ -21,16 +24,15 @@ class AbConfig {
 	}
 
 
-	static public function Get($chan,$xhash,$family,$key, $default = false) {
-		$r = q("select * from abconfig where chan = %d and xchan = '%s' and cat = '%s' and k = '%s' limit 1",
-			intval($chan),
-			dbesc($xhash),
-			dbesc($family),
-			dbesc($key)
-		);
+	static public function Get($chan, $xhash, $family, $key, $default = false, ?PDOStatement $stmt = null) {
+		$stmt = $stmt ?? self::prepareGet();
+		$stmt->execute([$chan, $xhash, $family, $key]);
+		$r = $stmt->fetch(PDO::FETCH_ASSOC);
+
 		if($r) {
-			return ((preg_match('|^a:[0-9]+:{.*}$|s', $r[0]['v'])) ? unserialize($r[0]['v']) : $r[0]['v']);
+			return ((preg_match('|^a:[0-9]+:{.*}$|s', $r['v'])) ? unserialize($r['v']) : $r['v']);
 		}
+
 		return $default;
 	}
 
@@ -75,6 +77,10 @@ class AbConfig {
 		);
 
 		return $r;
+	}
+
+	static public function prepareGet(): PDOStatement {
+		return DBA::$dba->db->prepare("select * from abconfig where chan = ? and xchan = ? and cat = ? and k = ? limit 1");
 	}
 
 }

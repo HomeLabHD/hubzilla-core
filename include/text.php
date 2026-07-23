@@ -10,6 +10,7 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\Exception\UnableToBuildUuidException;
 
 use Zotlabs\Lib\Config;
+use Zotlabs\Lib\AbConfig;
 use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\SvgSanitizer;
 use Zotlabs\Lib\Libzot;
@@ -1078,23 +1079,28 @@ function contact_block() {
 
 	$contacts = t('Connections');
 	$micropro = [];
+	$stmt = AbConfig::prepareGet();
+
 	foreach($r as $rr) {
 
 		// There is no setting to discover if you are bi-directionally connected
 		// Use the ability to post comments as an indication that this relationship is more
 		// than wishful thinking; even though soapbox channels and feeds will disable it.
 		$rr['perminfo']['connpermcount']=0;
-		$rr['perminfo']['connperms']=t('Accepts').': ';
-		if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','post_comments'))) {
+		$rr['perminfo']['connperms'] = t('Accepts') . ': ';
+
+		if (intval(AbConfig::Get(\App::$profile['uid'], $rr['xchan_hash'], 'their_perms', 'post_comments', stmt: $stmt))) {
 			$rr['perminfo']['connpermcount']++;
 			$rr['perminfo']['connperms'] .= t('Comments');
 		}
-		if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','send_stream'))) {
+
+		if (intval(AbConfig::Get(\App::$profile['uid'], $rr['xchan_hash'], 'their_perms', 'send_stream', stmt: $stmt))) {
 			$rr['perminfo']['connpermcount']++;
 			$rr['perminfo']['connperms'] = ($rr['perminfo']['connperms']) ? $rr['perminfo']['connperms'] . ', ' : $rr['perminfo']['connperms'] ;
 			$rr['perminfo']['connperms'] .= t('Stream items');
 		}
-		if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','post_wall'))) {
+
+		if (intval(AbConfig::Get(\App::$profile['uid'], $rr['xchan_hash'], 'their_perms', 'post_wall', stmt: $stmt))) {
 			$rr['perminfo']['connpermcount']++;
 			$rr['perminfo']['connperms'] = ($rr['perminfo']['connperms']) ? $rr['perminfo']['connperms'] . ', ' : $rr['perminfo']['connperms'] ;
 			$rr['perminfo']['connperms'] .= t('Wall posts');
@@ -1104,8 +1110,9 @@ function contact_block() {
 			$rr['perminfo']['connperms'] .= t('Nothing');
 		}
 
-		if(!$is_owner && $rr['perminfo']['connpermcount'] !== 0)
+		if(!$is_owner && $rr['perminfo']['connpermcount'] !== 0) {
 			unset($rr['perminfo']);
+		}
 
 		$micropro[] = micropro($rr,true,'mpfriend');
 	}
