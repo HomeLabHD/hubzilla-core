@@ -1221,113 +1221,102 @@ function hz_status_editor($x, $popup = false) {
 	return replace_macros($tpl, $tplmacros);
 }
 
+function conv_sort(array $arr, string $order): array {
+	if (empty($arr)) {
+		return [];
+	}
 
-function get_item_children($arr, $parent) {
-	$children = [];
-	$thread_allow = ((local_channel()) ? PConfig::Get(local_channel(), 'system', 'thread_allow', true) : Config::Get('system', 'thread_allow', true));
+	$uid = local_channel();
+	$thread_allow = $uid
+		? PConfig::Get($uid, 'system', 'thread_allow', true)
+		: Config::Get('system', 'thread_allow', true);
 
-	foreach($arr as $item) {
-		if($item['id'] != $item['parent']) {
+	$sort_keys = [];
+	foreach ($arr as $k => $item) {
+		$sort_keys[$k] = $item['created'] ?? '';
+	}
+	asort($sort_keys, SORT_STRING);
+
+	$parents = [];
+	$grouped_children = [];
+
+	foreach (array_keys($sort_keys) as $k) {
+		$item = $arr[$k];
+		if ($item['id'] == $item['parent']) {
+			$parents[] = $item;
+		} else {
 			if ($thread_allow) {
-				// Fallback to parent_mid if thr_parent is not set
-				$thr_parent = $item['thr_parent'];
-				if($thr_parent == '')
-					$thr_parent = $item['parent_mid'];
-
-				if($thr_parent == $parent['mid']) {
-					$item['children'] = get_item_children($arr, $item);
-					$children[] = $item;
+				$thr_parent = $item['thr_parent'] ?? '';
+				if ($thr_parent === '') {
+					$thr_parent = $item['parent_mid'] ?? '';
 				}
-			}
-			else if($item['parent'] == $parent['id']) {
-				$children[] = $item;
-			}
-		}
-	}
-	return $children;
-}
-
-function sort_item_children($items) {
-	$result = $items;
-	usort($result,'sort_thr_created_rev');
-	foreach($result as $k => $i) {
-		if(isset($result[$k]['children'])) {
-			$result[$k]['children'] = sort_item_children($result[$k]['children']);
-		}
-	}
-	return $result;
-}
-
-function add_children_to_list($children, &$arr) {
-	foreach($children as $y) {
-		$arr[] = $y;
-		if(isset($y['children']))
-			add_children_to_list($y['children'], $arr);
-	}
-}
-
-function conv_sort($arr, $order) {
-
-	if((!(is_array($arr) && count($arr))))
-		return array();
-
-	$parents = array();
-
-	foreach($arr as $x)
-		if($x['id'] == $x['parent'])
-				$parents[] = $x;
-
-	if(stristr($order,'created'))
-		usort($parents,'sort_thr_created');
-	elseif(stristr($order,'commented'))
-		usort($parents,'sort_thr_commented');
-	elseif(stristr($order,'updated'))
-		usort($parents,'sort_thr_updated');
-	elseif(stristr($order,'ascending'))
-		usort($parents,'sort_thr_created_rev');
-
-
-	if(count($parents))
-		foreach($parents as $i=>$_x)
-			$parents[$i]['children'] = get_item_children($arr, $_x);
-
-	if(count($parents)) {
-		foreach($parents as $k => $v) {
-			if(count($parents[$k]['children'])) {
-				$parents[$k]['children'] = sort_item_children($parents[$k]['children']);
+				$grouped_children[$thr_parent][] = $item;
+			} else {
+				$grouped_children[$item['parent']][] = $item;
 			}
 		}
 	}
 
-	$ret = array();
-	if(count($parents)) {
-		foreach($parents as $x) {
-			$ret[] = $x;
-			if(count($x['children']))
-				add_children_to_list($x['children'], $ret);
-		}
+	if (stristr($order, 'created')) {
+		usort($parents, 'conv_sort_by_created_desc');
+	} elseif (stristr($order, 'commented')) {
+		usort($parents, 'conv_sort_by_commented_desc');
+	} elseif (stristr($order, 'updated')) {
+		usort($parents, 'conv_sort_by_updated_desc');
+	} elseif (stristr($order, 'ascending')) {
+		usort($parents, 'conv_sort_by_created_asc');
 	}
+
+	foreach ($parents as $i => $parent) {
+		$parents[$i]['children'] = conv_sort_build_tree_helper($parent, $grouped_children, $thread_allow);
+	}
+
+	$ret = [];
+	conv_sort_flatten_helper($parents, $ret);
 
 	return $ret;
 }
 
-
-function sort_thr_created($a,$b) {
-	return strcmp($b['created'],$a['created']);
+function conv_sort_by_created_desc(array $a, array $b): int {
+	return $b['created'] <=> $a['created'];
 }
 
-function sort_thr_created_rev($a,$b) {
-	return strcmp($a['created'],$b['created']);
+function conv_sort_by_commented_desc(array $a, array $b): int {
+	return $b['commented'] <=> $a['commented'];
 }
 
-function sort_thr_commented($a,$b) {
-	return strcmp($b['commented'],$a['commented']);
+function conv_sort_by_updated_desc(array $a, array $b): int {
+	$idx_a = ($a['changed'] > $a['edited']) ? $a['changed'] : ($a['edited'] ?? '');
+	$idx_b = ($b['changed'] > $b['edited']) ? $b['changed'] : ($b['edited'] ?? '');
+	return $idx_b <=> $idx_a;
 }
 
-function sort_thr_updated($a,$b) {
-	$indexa = (($a['changed'] > $a['edited']) ? $a['changed'] : $a['edited']);
-	$indexb = (($b['changed'] > $b['edited']) ? $b['changed'] : $b['edited']);
-	return strcmp($indexb,$indexa);
+function conv_sort_by_created_asc(array $a, array $b): int {
+	return $a['created'] <=> $b['created'];
+}
+
+function conv_sort_build_tree_helper(array $parent, array &$grouped_children, bool $thread_allow): array {
+	$lookup_key = $thread_allow ? ($parent['mid'] ?? '') : $parent['id'];
+
+	if (!isset($grouped_children[$lookup_key])) {
+		return [];
+	}
+
+	$children = $grouped_children[$lookup_key];
+	foreach ($children as $k => $child) {
+		$children[$k]['children'] = conv_sort_build_tree_helper($child, $grouped_children, $thread_allow);
+	}
+
+	return $children;
+}
+
+function conv_sort_flatten_helper(array $items, array &$ret): void {
+	foreach ($items as $item) {
+		$ret[] = $item;
+		if (!empty($item['children'])) {
+			conv_sort_flatten_helper($item['children'], $ret);
+		}
+	}
 }
 
 function find_thread_parent_index($arr,$x) {
