@@ -26,3 +26,12 @@ if (!function_exists('array_find')) {
 		return null;
 	}
 }
+
+if (!function_exists('array_first')) {
+
+	// array_first is defined in PHP 8.5 and later, so for earlier PHP versions
+	// we define it here
+	function array_first(array $array): mixed {
+		return empty($array) ? null : $array[0];
+	}
+}

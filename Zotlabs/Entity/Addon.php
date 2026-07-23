@@ -14,8 +14,10 @@ use PDO;
 /**
  * Objects of this class represents an addon.
  */
-class Addon
+class Addon extends Entity
 {
+	protected static string $TABLE_NAME = "addon";
+
 	/**
 	 * Construct a new Addon object.
 	 *
@@ -35,10 +37,7 @@ class Addon
 	 */
 	public static function getByName(string $name): ?self
 	{
-		$stmt = DBA::$dba->db->prepare('select * from addon where aname = ?');
-		$stmt->execute([$name]);
-		$row = $stmt->fetch(PDO::FETCH_ASSOC);
-		return $row ? self::fromDbRow($row) : null;
+		return array_first(self::selectAll(['aname' => $name]));
 	}
 
 	/**
@@ -46,14 +45,7 @@ class Addon
 	 */
 	public static function getInstalledAddons(): array
 	{
-		$stmt = DBA::$dba->db->query('select * from addon where installed = 1');
-
-		$addons = [];
-		foreach ($stmt as $row) {
-			$addons[] = self::fromDbRow($row);
-		}
-
-		return $addons;
+		return self::selectAll(['installed' => 1]);
 	}
 
 	/**
@@ -111,8 +103,7 @@ class Addon
 	{
 		$this->unload();
 		$this->callAddonFunc('uninstall');
-
-		q("delete from addon where aname = '%s'", $this->name);
+		$this->delete(['aname' => $this->name]);
 	}
 
 	/**
@@ -120,16 +111,13 @@ class Addon
 	 */
 	public function save(): void
 	{
-		q(<<<'SQL'
-			INSERT INTO addon (aname, installed, tstamp, plugin_admin, hidden)
-			VALUES ( '%s', %d, %d, %d, %d )
-			SQL,
-			$this->name,
-			$this->installed,
-			$this->timestamp->getTimeStamp(),
-			$this->admin,
-			$this->hidden
-		);
+		$this->insert([
+			'aname' => $this->name,
+			'installed' => intval($this->installed),
+			'tstamp' => intval($this->timestamp->getTimeStamp()),
+			'plugin_admin' => intval($this->admin),
+			'hidden' => intval($this->hidden),
+		]);
 	}
 
 	/**
@@ -147,7 +135,7 @@ class Addon
 	/**
 	 * Creates an addon object from a row in the database.
 	 */
-	private static function fromDbRow(array $row): self
+	protected static function fromDbRow(array $row): static
 	{
 		return new Addon(
 			$row['id'],
