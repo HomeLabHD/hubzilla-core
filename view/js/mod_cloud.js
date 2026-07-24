@@ -413,10 +413,10 @@ $(document).ready(function () {
 // initialize
 function UploadInit() {
 
-	var submit = $("#upload-submit");
-	var idx = 0;
-	var filedrag = $(".cloud-index.attach-drop");
-	var reload = false;
+	let submit = $("#upload-submit");
+	let idx = 0;
+	let filedrag = $(".cloud-index.attach-drop");
+	let reload = false;
 
 	if (!$('#invisible-cloud-file-upload').length)
 		return;
@@ -432,10 +432,10 @@ function UploadInit() {
 			data.files[0].idx = idx;
 			prepareHtml(data.files[0]);
 
-			var allow_cid = ($('#ajax-upload-files').data('allow_cid') || []);
-			var allow_gid = ($('#ajax-upload-files').data('allow_gid') || []);
-			var deny_cid  = ($('#ajax-upload-files').data('deny_cid') || []);
-			var deny_gid  = ($('#ajax-upload-files').data('deny_gid') || []);
+			let allow_cid = ($('#ajax-upload-files').data('allow_cid') || []);
+			let allow_gid = ($('#ajax-upload-files').data('allow_gid') || []);
+			let deny_cid  = ($('#ajax-upload-files').data('deny_cid') || []);
+			let deny_gid  = ($('#ajax-upload-files').data('deny_gid') || []);
 
 			$('.acl-field').remove();
 
@@ -463,15 +463,16 @@ function UploadInit() {
 		},
 
 		progress: function(e,data) {
-			var id = data.files[0].idx;
+			let id = data.files[0].idx;
 			if(data.loaded == data.total) {
 				if(id == data.originalFiles.length) {
 					reload = true;
 				}
 				else {
 					// trigger uploading the next file
-					var next_id = id + 1;
-					setTimeout(function(){ $('#new-upload-' + next_id).trigger('fileupload_trigger'); }, 1000);
+					let next_id = id + 1;
+					let timeout = data.files[0].type.startsWith('image') ? 3000 : 1000;
+					setTimeout(function(){ $('#new-upload-' + next_id).trigger('fileupload_trigger'); }, timeout);
 				}
 			}
 
