@@ -3,6 +3,9 @@
 namespace Zotlabs\Lib;
 
 use App;
+use DBA;
+use PDO;
+use PDOStatement;
 use Zotlabs\Lib\Config;
 
 require_once('include/plugin.php');
@@ -827,11 +830,15 @@ class Apps {
 
 
 	static public function addon_app_installed($uid,$app,$bypass_filter=false) {
+		static $stmt;
 
-		$r = q("select id from app where app_plugin = '%s' and app_channel = %d and app_deleted = 0 limit 1",
-			dbesc($app),
-			intval($uid)
-		);
+		if (!$stmt instanceof PDOStatement) {
+			$stmt = DBA::$dba->db->prepare("select id from app where app_plugin = ? and app_channel = ? and app_deleted = 0 limit 1");
+		}
+
+		$stmt->execute([$app, $uid]);
+		$r = $stmt->fetch(PDO::FETCH_ASSOC);
+
 		if (!$bypass_filter) {
 			$filter_arr = [
 				'uid'=>$uid,
@@ -852,11 +859,15 @@ class Apps {
 	}
 
 	static public function system_app_installed($uid,$app,$bypass_filter=false) {
+		static $stmt;
 
-		$r = q("select id from app where app_id = '%s' and app_channel = %d limit 1",
-			dbesc(hash('whirlpool',$app)),
-			intval($uid)
-		);
+		if (!$stmt instanceof PDOStatement) {
+			$stmt = DBA::$dba->db->prepare("select id from app where app_id = ? and app_channel = ? limit 1");
+		}
+
+		$stmt->execute([hash('whirlpool', $app), $uid]);
+		$r = $stmt->fetch(PDO::FETCH_ASSOC);
+
 		if (!$bypass_filter) {
 			$filter_arr = [
 				'uid'=>$uid,

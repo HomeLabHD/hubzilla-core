@@ -177,9 +177,15 @@ function load_plugin($plugin) {
  * @return boolean
  */
 function plugin_is_installed($name) {
-	$r = q("select aname from addon where aname = '%s' and installed = 1 limit 1",
-		dbesc($name)
-	);
+	static $stmt;
+
+	if (!$stmt instanceof PDOStatement) {
+		$stmt = DBA::$dba->db->prepare("select aname from addon where aname = ? and installed = 1 limit 1");
+	}
+
+	$stmt->execute([$name]);
+	$r = $stmt->fetch(PDO::FETCH_ASSOC);
+
 	if($r)
 		return true;
 

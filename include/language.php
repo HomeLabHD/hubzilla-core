@@ -158,6 +158,7 @@ function pop_lang() {
  */
 function load_translation_table($lang, $install = false) {
 
+	static $stmt;
 	App::$strings = array();
 
 	if(file_exists("view/lang/$lang/hstrings.php")) {
@@ -168,7 +169,13 @@ function load_translation_table($lang, $install = false) {
 	}
 
 	if(! $install) {
-		$plugins = q("SELECT aname FROM addon WHERE installed=1;");
+		if (!$stmt instanceof PDOStatement) {
+			$stmt = DBA::$dba->db->prepare("SELECT aname FROM addon WHERE installed = 1");
+		}
+
+		$stmt->execute();
+		$plugins = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 		if ($plugins !== false) {
 			foreach($plugins as $p) {
 				$name = $p['aname'];
