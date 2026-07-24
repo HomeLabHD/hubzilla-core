@@ -69,12 +69,11 @@ class Viewconnections extends \Zotlabs\Web\Controller {
 		}
 
 		$contacts = array();
-		$stmt = AbConfig::prepareGet();
 
 		foreach($r as $rr) {
 
 			$oneway = false;
-			if (!intval(AbConfig::Get(\App::$profile['uid'], $rr['xchan_hash'], 'their_perms', 'post_comments', stmt: $stmt))) {
+			if (!intval(AbConfig::Get(\App::$profile['uid'], $rr['xchan_hash'], 'their_perms', 'post_comments'))) {
 				$oneway = true;
 			}
 
@@ -87,13 +86,13 @@ class Viewconnections extends \Zotlabs\Web\Controller {
 				$perminfo['connperms'] .= t('Comments');
 			}
 
-			if (!intval(AbConfig::Get(\App::$profile['uid'], $rr['xchan_hash'], 'their_perms', 'send_stream', stmt: $stmt))) {
+			if (!intval(AbConfig::Get(\App::$profile['uid'], $rr['xchan_hash'], 'their_perms', 'send_stream'))) {
 				$perminfo['connpermcount']++;
 				$perminfo['connperms'] = ($perminfo['connperms']) ? $perminfo['connperms'] . ', ' : $perminfo['connperms'] ;
 				$perminfo['connperms'] .= t('Stream items');
 			}
 
-			if (!intval(AbConfig::Get(\App::$profile['uid'], $rr['xchan_hash'], 'their_perms', 'post_wall', stmt: $stmt))) {
+			if (!intval(AbConfig::Get(\App::$profile['uid'], $rr['xchan_hash'], 'their_perms', 'post_wall'))) {
 				$perminfo['connpermcount']++;
 				$perminfo['connperms'] = ($perminfo['connperms']) ? $perminfo['connperms'] . ', ' : $perminfo['connperms'] ;
 				$perminfo['connperms'] .= t('Wall posts');

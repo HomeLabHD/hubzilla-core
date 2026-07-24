@@ -1079,7 +1079,6 @@ function contact_block() {
 
 	$contacts = t('Connections');
 	$micropro = [];
-	$stmt = AbConfig::prepareGet();
 
 	foreach($r as $rr) {
 
@@ -1089,18 +1088,18 @@ function contact_block() {
 		$rr['perminfo']['connpermcount']=0;
 		$rr['perminfo']['connperms'] = t('Accepts') . ': ';
 
-		if (intval(AbConfig::Get(\App::$profile['uid'], $rr['xchan_hash'], 'their_perms', 'post_comments', stmt: $stmt))) {
+		if (intval(AbConfig::Get(\App::$profile['uid'], $rr['xchan_hash'], 'their_perms', 'post_comments'))) {
 			$rr['perminfo']['connpermcount']++;
 			$rr['perminfo']['connperms'] .= t('Comments');
 		}
 
-		if (intval(AbConfig::Get(\App::$profile['uid'], $rr['xchan_hash'], 'their_perms', 'send_stream', stmt: $stmt))) {
+		if (intval(AbConfig::Get(\App::$profile['uid'], $rr['xchan_hash'], 'their_perms', 'send_stream'))) {
 			$rr['perminfo']['connpermcount']++;
 			$rr['perminfo']['connperms'] = ($rr['perminfo']['connperms']) ? $rr['perminfo']['connperms'] . ', ' : $rr['perminfo']['connperms'] ;
 			$rr['perminfo']['connperms'] .= t('Stream items');
 		}
 
-		if (intval(AbConfig::Get(\App::$profile['uid'], $rr['xchan_hash'], 'their_perms', 'post_wall', stmt: $stmt))) {
+		if (intval(AbConfig::Get(\App::$profile['uid'], $rr['xchan_hash'], 'their_perms', 'post_wall'))) {
 			$rr['perminfo']['connpermcount']++;
 			$rr['perminfo']['connperms'] = ($rr['perminfo']['connperms']) ? $rr['perminfo']['connperms'] . ', ' : $rr['perminfo']['connperms'] ;
 			$rr['perminfo']['connperms'] .= t('Wall posts');

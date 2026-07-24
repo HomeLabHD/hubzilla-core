@@ -8,7 +8,11 @@ use PDOStatement;
 
 class AbConfig {
 
-	static public function Load($chan,$xhash,$family = '') {
+	private static $seletctStmt;
+	private static $insertStmt;
+	private static $updateStmt;
+
+	public static function Load($chan,$xhash,$family = '') {
 		$where = '';
 
 		if($family) {
@@ -24,10 +28,15 @@ class AbConfig {
 	}
 
 
-	static public function Get($chan, $xhash, $family, $key, $default = false, ?PDOStatement $stmt = null) {
-		$stmt = $stmt ?? self::prepareGet();
-		$stmt->execute([$chan, $xhash, $family, $key]);
-		$r = $stmt->fetch(PDO::FETCH_ASSOC);
+	public static function Get($chan, $xhash, $family, $key, $default = false) {
+		$dbargs = [':chan' => $chan, ':xchan' => $xhash, ':cat' => $family, ':k' => $key];
+
+		if (!self::$seletctStmt instanceof PDOStatement) {
+			self::$seletctStmt = self::prepareSelect();
+		}
+
+		self::$seletctStmt->execute($dbargs);
+		$r = self::$seletctStmt->fetch(PDO::FETCH_ASSOC);
 
 		if($r) {
 			return ((preg_match('|^a:[0-9]+:{.*}$|s', $r['v'])) ? unserialize($r['v']) : $r['v']);
@@ -37,38 +46,37 @@ class AbConfig {
 	}
 
 
-	static public function Set($chan,$xhash,$family,$key,$value) {
-
+	public static function Set($chan,$xhash,$family,$key,$value) {
 		$dbvalue = ((is_array($value))  ? serialize($value) : $value);
 		$dbvalue = ((is_bool($dbvalue)) ? intval($dbvalue)  : $dbvalue);
+		$dbargs = [':chan' => $chan, ':xchan' => $xhash, ':cat' => $family, ':k' => $key, ':v' => $dbvalue];
 
-		if(self::Get($chan,$xhash,$family,$key) === false) {
-			$r = q("insert into abconfig ( chan, xchan, cat, k, v ) values ( %d, '%s', '%s', '%s', '%s' ) ",
-				intval($chan),
-				dbesc($xhash),
-				dbesc($family),
-				dbesc($key),
-				dbesc($dbvalue)
-			);
+		$r = null;
+
+		if(self::Get($chan, $xhash, $family, $key) === false) {
+			if (!self::$insertStmt instanceof PDOStatement) {
+				self::$insertStmt = self::prepareInsert();
+			}
+
+			$r = self::$insertStmt->execute($dbargs);
 		}
 		else {
-			$r = q("update abconfig set v = '%s' where chan = %d and xchan = '%s' and cat = '%s' and k = '%s' ",
-				dbesc($dbvalue),
-				dbesc($chan),
-				dbesc($xhash),
-				dbesc($family),
-				dbesc($key)
-			);
+			if (!self::$updateStmt instanceof PDOStatement) {
+				self::$updateStmt = self::prepareUpdate();
+			}
+
+			$r = self::$updateStmt->execute($dbargs);
 		}
 
-		if($r)
+		if ($r) {
 			return $value;
+		}
+
 		return false;
 	}
 
 
-	static public function Delete($chan,$xhash,$family,$key) {
-
+	public static function Delete($chan,$xhash,$family,$key) {
 		$r = q("delete from abconfig where chan = %d and xchan = '%s' and cat = '%s' and k = '%s' ",
 			intval($chan),
 			dbesc($xhash),
@@ -79,8 +87,15 @@ class AbConfig {
 		return $r;
 	}
 
-	static public function prepareGet(): PDOStatement {
-		return DBA::$dba->db->prepare("select * from abconfig where chan = ? and xchan = ? and cat = ? and k = ? limit 1");
+	private static function prepareSelect(): PDOStatement {
+		return DBA::$dba->db->prepare("select * from abconfig where chan = :chan and xchan = :xchan and cat = :cat and k = :k limit 1");
 	}
 
+	private static function prepareInsert(): PDOStatement {
+		return DBA::$dba->db->prepare("insert into abconfig (chan, xchan, cat, k, v) values (:chan, :xchan, :cat, :k, :v)");
+	}
+
+	private static function prepareUpdate(): PDOStatement {
+		return DBA::$dba->db->prepare("update abconfig set v = :v where chan = :chan and xchan = :xchan and cat = :cat and k = :k");
+	}
 }
