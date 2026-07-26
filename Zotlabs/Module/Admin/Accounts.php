@@ -62,10 +62,8 @@ class Accounts {
 
 	function get(){
 		if (argc() > 2) {
-			$uid = argv(3);
-			$account = q("SELECT * FROM account WHERE account_id = %d",
-				intval($uid)
-			);
+			$uid = intval(argv(3));
+			$account = get_account_by_id($uid);
 
 			if (! $account) {
 				notice( t('Account not found') . EOL);
@@ -81,7 +79,7 @@ class Accounts {
 					// delete user
 					account_remove($uid,true,false);
 
-					notice( sprintf(t("Account '%s' deleted"), $account[0]['account_email']) . EOL);
+					notice( sprintf(t("Account '%s' deleted"), $account['account_email']) . EOL);
 					break;
 				case 'block':
 					q("UPDATE account SET account_flags = ( account_flags | %d ) WHERE account_id = %d",
@@ -89,7 +87,7 @@ class Accounts {
 						intval($uid)
 					);
 
-					notice( sprintf( t("Account '%s' blocked") , $account[0]['account_email']) . EOL);
+					notice( sprintf( t("Account '%s' blocked") , $account['account_email']) . EOL);
 					break;
 				case 'unblock':
 					q("UPDATE account SET account_flags = ( account_flags & ~%d ) WHERE account_id = %d",
@@ -97,7 +95,7 @@ class Accounts {
 							intval($uid)
 					);
 
-					notice( sprintf( t("Account '%s' unblocked"), $account[0]['account_email']) . EOL);
+					notice( sprintf( t("Account '%s' unblocked"), $account['account_email']) . EOL);
 					break;
 			}
 

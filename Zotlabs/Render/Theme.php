@@ -40,7 +40,6 @@ class Theme {
 		// Find the theme that belongs to the channel whose stuff we are looking at
 
 		if(App::$profile_uid) {
-
 			if (!$stmt instanceof PDOStatement) {
 				$stmt = DBA::$dba->db->prepare("select channel_theme from channel where channel_id = ? limit 1");
 			}

@@ -4,7 +4,6 @@
  * @brief Channel related functions.
  */
 
-
 use Zotlabs\Access\PermissionRoles;
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Access\Permissions;
@@ -135,10 +134,18 @@ function create_sys_channel() {
  * @return array|boolean
  */
 function get_sys_channel() {
-	$r = q("select * from channel left join xchan on channel_hash = xchan_hash where channel_system = 1");
+	static $stmt;
 
-	if ($r)
-		return Libzot::zot_record_preferred($r, 'xchan_network');
+	if (!$stmt instanceof PDOStatement) {
+		$stmt = DBA::$dba->db->prepare("select * from channel left join xchan on channel_hash = xchan_hash where channel_system = 1 and xchan_network = 'zot6' limit 1");
+	}
+
+	$stmt->execute();
+	$r = $stmt->fetch(PDO::FETCH_ASSOC);
+
+	if ($r) {
+		return $r;
+	}
 
 	return false;
 }
@@ -151,12 +158,18 @@ function get_sys_channel() {
  * @return boolean
  */
 function is_sys_channel($channel_id) {
-	$r = q("select channel_system from channel where channel_id = %d and channel_system = 1 limit 1",
-		intval($channel_id)
-	);
+	static $stmt;
 
-	if($r)
+	if (!$stmt instanceof PDOStatement) {
+		$stmt = DBA::$dba->db->prepare("select channel_system from channel where channel_id = ? and channel_system = 1 limit 1");
+	}
+
+	$stmt->execute([$channel_id]);
+	$r = $stmt->fetch(PDO::FETCH_ASSOC);
+
+	if ($r) {
 		return true;
+	}
 
 	return false;
 }
@@ -2309,14 +2322,13 @@ function auto_channel_create($account_id) {
 	del_aconfig($account_id,'register','permissions_role');
 
 	if((! $arr['name']) || (! $arr['nickname'])) {
-		$x = q("select * from account where account_id = %d limit 1",
-			intval($account_id)
-		);
+		$x = get_account_by_id($account_id);
+
 		if($x) {
 			if(! $arr['name'])
-				$arr['name'] = substr($x[0]['account_email'],0,strpos($x[0]['account_email'],'@'));
+				$arr['name'] = substr($x['account_email'], 0, strpos($x['account_email'], '@'));
 			if(! $arr['nickname'])
-				$arr['nickname'] = legal_webbie(substr($x[0]['account_email'],0,strpos($x[0]['account_email'],'@')));
+				$arr['nickname'] = legal_webbie(substr($x['account_email'], 0, strpos($x['account_email'], '@')));
 		}
 	}
 	if(! $arr['permissions_role'])
@@ -2544,18 +2556,25 @@ function channelx_by_nick($nick, $removed = false) {
  * @return array|boolean false if channel ID not found, otherwise the channel array
  */
 function channelx_by_hash($hash, $removed = false) {
-
-	$sql_extra = ' AND channel_removed = 0 ';
+	static $stmt;
+	static $stmt_removed;
 
 	if ($removed) {
-		$sql_extra = '';
+		if (!$stmt_removed instanceof PDOStatement) {
+			$stmt_removed = DBA::$dba->db->prepare("SELECT * FROM channel LEFT JOIN xchan ON channel_hash = xchan_hash WHERE channel_hash = ? LIMIT 1");
+		}
+		$stmt_removed->execute([$hash]);
+		$r = $stmt_removed->fetch(PDO::FETCH_ASSOC);
+	}
+	else {
+		if (!$stmt instanceof PDOStatement) {
+			$stmt = DBA::$dba->db->prepare("SELECT * FROM channel LEFT JOIN xchan ON channel_hash = xchan_hash WHERE channel_hash = ? AND channel_removed = 0 LIMIT 1");
+		}
+		$stmt->execute([$hash]);
+		$r = $stmt->fetch(PDO::FETCH_ASSOC);
 	}
 
-	$r = q("SELECT * FROM channel left join xchan on channel_hash = xchan_hash WHERE channel_hash = '%s' $sql_extra LIMIT 1",
-		dbesc($hash)
-	);
-
-	return (($r) ? $r[0] : false);
+	return (($r) ? $r : false);
 }
 
 
@@ -2587,18 +2606,25 @@ function channelx_by_portid($hash, $removed = false) {
  * @return array|boolean false if channel ID not found, otherwise the channel array
  */
 function channelx_by_n($id, $removed = false) {
-
-	$sql_extra = ' AND channel_removed = 0 ';
+	static $stmt;
+	static $stmt_removed;
 
 	if ($removed) {
-		$sql_extra = '';
+		if (!$stmt_removed instanceof PDOStatement) {
+			$stmt_removed = DBA::$dba->db->prepare("SELECT * FROM channel LEFT JOIN xchan ON channel_hash = xchan_hash WHERE channel_id = ? LIMIT 1");
+		}
+		$stmt_removed->execute([$id]);
+		$r = $stmt_removed->fetch(PDO::FETCH_ASSOC);
+	}
+	else {
+		if (!$stmt instanceof PDOStatement) {
+			$stmt = DBA::$dba->db->prepare("SELECT * FROM channel LEFT JOIN xchan ON channel_hash = xchan_hash WHERE channel_id = ? AND channel_removed = 0 LIMIT 1");
+		}
+		$stmt->execute([$id]);
+		$r = $stmt->fetch(PDO::FETCH_ASSOC);
 	}
 
-	$r = q("SELECT * FROM channel LEFT JOIN xchan ON channel_hash = xchan_hash WHERE channel_id = %d $sql_extra LIMIT 1",
-		intval($id)
-	);
-
-	return (($r) ? $r[0] : false);
+	return (($r) ? $r : false);
 }
 
 /**
@@ -2758,10 +2784,9 @@ function account_remove($account_id, $local = true, $unset_session = true) {
 		return false;
 	}
 
-	$r = q("select * from account where account_id = %d limit 1",
-		intval($account_id)
-	);
-	$account_email=$r[0]['account_email'];
+	$r = get_account_by_id($account_id);
+
+	$account_email = $r['account_email'];
 
 	if(! $r) {
 		logger('No account with id: ' . $account_id);

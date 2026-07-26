@@ -57,9 +57,7 @@ class Account_edit {
 	function get() {
 		$account_id = intval(argv(2));
 
-		$x = q("select * from account where account_id = %d limit 1",
-			$account_id
-		);
+		$x = get_account_by_id($account_id);
 
 		if(! $x) {
 			notice ( t('Account not found.') . EOL);
@@ -68,19 +66,17 @@ class Account_edit {
 
 		$a = replace_macros(get_markup_template('admin_account_edit.tpl'), [
 			'$security' => get_form_security_token('admin_account_edit'),
-			'$account' => $x[0],
+			'$account' => $x,
 			'$title' => t('Account Edit'),
 			'$pass1' => [ 'pass1', t('New Password'), ' ','' ],
 			'$pass2' => [ 'pass2', t('New Password again'), ' ','' ],
-			'$account_language' => [ 'account_language' , t('Account language (for emails)'), $x[0]['account_language'], '', language_list() ],
-			'$service_class' => [ 'service_class', t('Service class'), $x[0]['account_service_class'], '' ],
+			'$account_language' => [ 'account_language' , t('Account language (for emails)'), $x['account_language'], '', language_list() ],
+			'$service_class' => [ 'service_class', t('Service class'), $x['account_service_class'], '' ],
 			'$submit' => t('Submit'),
 			]
 		);
 
 		return $a;
-
-
 	}
 
 

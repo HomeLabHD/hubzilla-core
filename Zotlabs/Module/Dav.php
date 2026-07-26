@@ -60,11 +60,9 @@ class Dav extends \Zotlabs\Web\Controller {
 							$r = Libzot::zot_record_preferred($r);
 							$c = channelx_by_hash($r['hubloc_hash']);
 							if($c) {
-								$a = q("select * from account where account_id = %d limit 1",
-									intval($c['channel_account_id'])
-								);
+								$a = get_account_by_id($c['channel_account_id']);
 								if($a) {
-									$record = [ 'channel' => $c, 'account' => $a[0] ];
+									$record = ['channel' => $c, 'account' => $a];
 									$channel_login = $c['channel_id'];
 								}
 							}
