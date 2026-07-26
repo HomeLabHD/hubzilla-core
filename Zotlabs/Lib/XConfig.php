@@ -53,7 +53,7 @@ class XConfig {
 			self::$seletctStmt = self::prepareSelect();
 		}
 
-		self::$seletctStmt->execute([':xchan' => $xchan]);
+		self::$seletctStmt->execute(['xchan' => $xchan]);
 		$r = self::$seletctStmt->fetchAll(PDO::FETCH_ASSOC);
 
 		if (!array_key_exists($xchan, App::$config)) {
@@ -130,7 +130,7 @@ class XConfig {
 		// manage array value
 		$dbvalue = ((is_array($value))  ? serialize($value) : $value);
 		$dbvalue = ((is_bool($dbvalue)) ? intval($dbvalue)  : $dbvalue);
-		$dbargs = [':xchan' => $xchan, ':cat' => $family, ':k' => $key, ':v' => $dbvalue];
+		$dbargs = ['xchan' => $xchan, 'cat' => $family, 'k' => $key, 'v' => $dbvalue];
 
 		$ret = null;
 

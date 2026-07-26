@@ -29,7 +29,7 @@ class AbConfig {
 
 
 	public static function Get($chan, $xhash, $family, $key, $default = false) {
-		$dbargs = [':chan' => $chan, ':xchan' => $xhash, ':cat' => $family, ':k' => $key];
+		$dbargs = ['chan' => $chan, 'xchan' => $xhash, 'cat' => $family, 'k' => $key];
 
 		if (!self::$seletctStmt instanceof PDOStatement) {
 			self::$seletctStmt = self::prepareSelect();
@@ -49,7 +49,7 @@ class AbConfig {
 	public static function Set($chan,$xhash,$family,$key,$value) {
 		$dbvalue = ((is_array($value))  ? serialize($value) : $value);
 		$dbvalue = ((is_bool($dbvalue)) ? intval($dbvalue)  : $dbvalue);
-		$dbargs = [':chan' => $chan, ':xchan' => $xhash, ':cat' => $family, ':k' => $key, ':v' => $dbvalue];
+		$dbargs = ['chan' => $chan, 'xchan' => $xhash, 'cat' => $family, 'k' => $key, 'v' => $dbvalue];
 
 		$r = null;
 
