@@ -207,7 +207,7 @@ class PConfig {
 					self::$updateStmt = self::prepareUpdate();
 				}
 
-				$r = self::$updateStmt->execute($dbargs);
+				$ret = self::$updateStmt->execute($dbargs);
 
 				App::$config[$uid][$family]['pcfgud:'.$key] = $updated;
 
