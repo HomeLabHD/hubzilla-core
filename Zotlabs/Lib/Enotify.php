@@ -142,7 +142,7 @@ class Enotify {
 	elseif (isset($params['type']) && $params['type'] === NOTIFY_COMMENT) {
 		//logger("notification: params = " . print_r($params, true), LOGGER_DEBUG);
 
-		$moderated = (($params['item']['item_blocked'] == ITEM_MODERATED) ? true : false);
+		$moderated = intval($params['item']['item_blocked']) === ITEM_MODERATED;
 
 		$itemlink = $params['link'];
 
@@ -152,7 +152,7 @@ class Enotify {
 
 			if(in_array($params['item']['verb'], ['Like', 'Dislike', ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_SHARE])) {
 
-				if(! $always_show_in_notices || !($vnotify & VNOTIFY_LIKE)) {
+				if(!$moderated && (!$always_show_in_notices || !($vnotify & VNOTIFY_LIKE))) {
 					logger('notification: not a visible activity. Ignoring.');
 					pop_lang();
 					return;
@@ -270,9 +270,10 @@ class Enotify {
 //		logger("notification: params = " . print_r($params, true), LOGGER_DEBUG);
 
 		$itemlink =  $params['link'];
+		$moderated = intval($params['item']['item_blocked']) === ITEM_MODERATED;
 
 		if (array_key_exists('item',$params) && (activity_match($params['item']['verb'], ['Like', 'Dislike', ACTIVITY_LIKE, ACTIVITY_DISLIKE, 'Announce']))) {
-			if(! $always_show_in_notices  || !($vnotify & VNOTIFY_LIKE) || !feature_enabled($recip['channel_id'], 'dislike')) {
+			if(!$moderated && (!$always_show_in_notices  || !($vnotify & VNOTIFY_LIKE) || !feature_enabled($recip['channel_id'], 'dislike'))) {
 				logger('notification: not a visible activity. Ignoring.');
 				pop_lang();
 				return;
@@ -314,12 +315,8 @@ class Enotify {
 		xchan_query($p);
 
 		$item_post_type = item_post_type($p[0]);
-//		$private = $p[0]['item_private'];
 		$parent_id = $p[0]['id'];
 		$parent_item = $p[0];
-
-		//$verb = ((activity_match($params['item']['verb'], ACTIVITY_DISLIKE)) ? t('disliked') : t('liked'));
-		$moderated = (($params['item']['item_blocked'] == ITEM_MODERATED) ? true : false);
 
 		if(activity_match($params['item']['verb'], ['Like', ACTIVITY_LIKE]))
 			$verb = (($moderated) ? t('requested to like') : t('liked'));
