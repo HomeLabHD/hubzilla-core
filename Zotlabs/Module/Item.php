@@ -1299,42 +1299,57 @@ class Item extends Controller {
 		}
 	}
 
-
 	function item_check_service_class($channel_id, $iswebpage) {
-		$ret = ['success' => false, 'message' => ''];
+		$ret = [
+			'success' => false,
+			'message' => ''
+		];
+
+		$service = $iswebpage ? 'total_pages' : 'total_items';
+		$label   = $iswebpage ? t('webpages') : t('top level posts');
+
+		$max = service_class_fetch($channel_id, $service);
+
+		if (!$max) {
+			$ret['success'] = true;
+			return $ret;
+		}
 
 		if ($iswebpage) {
-			$r = q("select count(i.id)  as total from item i
-				right join channel c on (i.author_xchan=c.channel_hash and i.uid=c.channel_id )
-				and i.parent=i.id and i.item_type = %d and i.item_deleted = 0 and i.uid= %d ",
+			$r = q(
+				"SELECT COUNT(i.id) AS total
+				FROM item i
+				RIGHT JOIN channel c
+					ON (i.author_xchan = c.channel_hash
+					AND i.uid = c.channel_id)
+				WHERE i.parent = i.id
+					AND i.item_type = %d
+					AND i.item_deleted = 0
+					AND i.uid = %d",
 				intval(ITEM_TYPE_WEBPAGE),
 				intval($channel_id)
 			);
 		}
 		else {
-			$r = q("select count(id) as total from item where parent = id and item_wall = 1 and uid = %d " . item_normal(),
+			$r = q(
+				"SELECT COUNT(id) AS total
+				FROM item
+				WHERE parent = id
+					AND item_wall = 1
+					AND uid = %d "
+					. item_normal(),
 				intval($channel_id)
 			);
 		}
 
-		if (!$r) {
+		if ($r === false) {
 			$ret['message'] = t('Unable to obtain post information from database.');
 			return $ret;
 		}
 
-		if (!$iswebpage) {
-			$max = engr_units_to_bytes(service_class_fetch($channel_id, 'total_items'));
-			if (!service_class_allows($channel_id, 'total_items', $r[0]['total'])) {
-				$ret['message'] .= upgrade_message() . sprintf(t('You have reached your limit of %1$.0f top level posts.'), $max);
-				return $ret;
-			}
-		}
-		else {
-			$max = engr_units_to_bytes(service_class_fetch($channel_id, 'total_pages'));
-			if (!service_class_allows($channel_id, 'total_pages', $r[0]['total'])) {
-				$ret['message'] .= upgrade_message() . sprintf(t('You have reached your limit of %1$.0f webpages.'), $max);
-				return $ret;
-			}
+		if (!service_class_allows($channel_id, $service, $r[0]['total'])) {
+			$ret['message'] = upgrade_message()	. sprintf(t('You have reached your limit of %1$.0f %2$s.'), $max, $label);
+			return $ret;
 		}
 
 		$ret['success'] = true;
