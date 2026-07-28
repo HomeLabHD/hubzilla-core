@@ -1417,7 +1417,7 @@ class Cdav extends Controller {
 			killme();
 		}
 
-		http_status_exit(400, 'Bad request');
+		return EMPTY_STR;
 	}
 
 	function activate($pdo, $channel) {

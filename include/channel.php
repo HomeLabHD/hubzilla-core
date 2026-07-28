@@ -174,6 +174,25 @@ function is_sys_channel($channel_id) {
 	return false;
 }
 
+/**
+ * @brief Checks if $hash is a local channel.
+ *
+ * @param string $hash
+ * @return false|int
+ */
+function channel_id_by_hash(string $hash): int|false
+{
+	static $stmt;
+
+	if (!$stmt instanceof PDOStatement) {
+		$stmt = DBA::$dba->db->prepare("SELECT channel_id FROM channel WHERE channel_hash = ? LIMIT 1");
+	}
+
+	$stmt->execute([$hash]);
+	$channel_id = $stmt->fetchColumn();
+
+	return $channel_id ? (int) $channel_id : false;
+}
 
 /**
  * @brief Return the total number of channels on this site.
