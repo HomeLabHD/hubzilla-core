@@ -162,7 +162,7 @@ class Item extends Controller {
 
 		// If you are unsure, it is prudent (and important) to leave it unset.
 
-		$origin = (($api_source && array_key_exists('origin', $_POST)) ? intval($_REQU_POSTEST['origin']) : 1);
+		$origin = (($api_source && array_key_exists('origin', $_POST)) ? intval($_POST['origin']) : 1);
 
 		// To represent message-ids on other networks - this will create an iconfig record
 
