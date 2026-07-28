@@ -196,7 +196,7 @@ class Item extends Controller {
 		if ($uid && empty($_POST['parent']) && empty($_POST['post_id'])) {
 			$ret = $this->item_check_service_class($uid, (($_POST['webpage'] == ITEM_TYPE_WEBPAGE) ? true : false));
 			if (!$ret['success']) {
-				notice(t($ret['message']) . EOL);
+				notice($ret['message'] . EOL);
 				if ($api_source)
 					return (['success' => false, 'message' => 'service class exception']);
 				if (!empty($_POST['return']))
