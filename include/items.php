@@ -1790,22 +1790,24 @@ function item_store($arr, $allow_exec = false, $deliver = true, $addAndSync = tr
 		$arr['attach'] = json_encode($arr['attach']);
 	}
 
+	$dt = datetime_convert();
+
 	$arr['aid']           = ((!empty($arr['aid']))           ? intval($arr['aid'])                           : 0);
 	$arr['mid']           = ((!empty($arr['mid']))           ? notags(trim($arr['mid']))                     : random_string());
 	$arr['revision']      = ((!empty($arr['revision']) && intval($arr['revision']) > 0)   ? intval($arr['revision']) : 0);
 
 	$arr['author_xchan']  = ((!empty($arr['author_xchan']))  ? notags(trim($arr['author_xchan']))  : '');
 	$arr['owner_xchan']   = ((!empty($arr['owner_xchan']))   ? notags(trim($arr['owner_xchan']))   : '');
-	$arr['created']       = ((!empty($arr['created']) !== false) ? datetime_convert('UTC','UTC',$arr['created']) : datetime_convert());
-	$arr['edited']        = ((!empty($arr['edited'])  !== false) ? datetime_convert('UTC','UTC',$arr['edited'])  : datetime_convert());
+	$arr['created']       = ((!empty($arr['created']) !== false) ? datetime_convert('UTC','UTC',$arr['created']) : $dt);
+	$arr['edited']        = ((!empty($arr['edited'])  !== false) ? datetime_convert('UTC','UTC',$arr['edited'])  : $dt);
 	$arr['expires']       = ((!empty($arr['expires'])  !== false) ? datetime_convert('UTC','UTC',$arr['expires'])  : DBA::$dba->get_null_date());
-	$arr['commented']     = ((!empty($arr['commented'])  !== false) ? datetime_convert('UTC','UTC',$arr['commented'])  : datetime_convert());
+	$arr['commented']     = ((!empty($arr['commented'])  !== false) ? datetime_convert('UTC','UTC',$arr['commented'])  : $dt);
 	$arr['comments_closed'] = ((!empty($arr['comments_closed'])  !== false) ? datetime_convert('UTC','UTC',$arr['comments_closed'])  : DBA::$dba->get_null_date());
 	$arr['html'] = ((array_key_exists('html',$arr)) ? $arr['html'] : '');
 
 	if($deliver) {
-		$arr['received']      = datetime_convert();
-		$arr['changed']       = datetime_convert();
+		$arr['received']      = $dt;
+		$arr['changed']       = $dt;
 	}
 	else {
 
@@ -1814,8 +1816,8 @@ function item_store($arr, $allow_exec = false, $deliver = true, $addAndSync = tr
 		// will still take place through backdoor methods. Since these fields are rarely used
 		// otherwise, just preserve the original timestamp.
 
-		$arr['received']      = ((!empty($arr['received'])  !== false) ? datetime_convert('UTC','UTC',$arr['received'])  : datetime_convert());
-		$arr['changed']       = ((!empty($arr['changed'])  !== false) ? datetime_convert('UTC','UTC',$arr['changed'])  : datetime_convert());
+		$arr['received']      = ((!empty($arr['received'])  !== false) ? datetime_convert('UTC','UTC',$arr['received'])  : $dt);
+		$arr['changed']       = ((!empty($arr['changed'])  !== false) ? datetime_convert('UTC','UTC',$arr['changed'])  : $dt);
 	}
 
 	$arr['location']      = ((!empty($arr['location']))      ? notags(trim($arr['location']))      : '');
