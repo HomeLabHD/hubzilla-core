@@ -1300,7 +1300,7 @@ class App {
 					'$js_strings'      => js_strings(),
 					'$zid'             => get_my_address(),
 					'$channel_id'      => self::$profile['uid'] ?? 0,
-					'$auto_save_draft' => ((isset(self::$profile_uid) && feature_enabled(self::$profile_uid, 'auto_save_draft')) ? "true" : "false"),
+					'$auto_save_draft' => ((self::$profile_uid && feature_enabled(self::$profile_uid, 'auto_save_draft')) ? "true" : "false"),
 					'$module'          => App::$module,
 					'$lang'            => App::$language
 				]
