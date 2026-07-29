@@ -273,6 +273,79 @@ class dba_pdo extends dba_driver {
 		return $st->fetch(PDO::FETCH_ASSOC);
 	}
 
+
+	/**
+	 * Insert a row into a table or update it if it already exist.
+	 *
+	 * The `$data` argument is an array of key/value pairs of the columns to
+	 * insert, where the key is the column name. Values are automatically
+	 * escaped if needed, and should be provided unescaped to this function.
+	 *
+	 * @note it is the callers responsibility to ensure that only valid
+	 * column names are passed as keys in the array.
+	 *
+	 * @param string $table		The table to insert the row into.
+	 * @param array $data		The data to insert as an array of column name => value pairs.
+	 * @param array $update_columns	The array of column names slated for update if applicable
+	 * @param array $conflict_columns The array of conflicting columns - usually the primary key (this is required for pgsql)
+	 *
+	 * @return bool	true or false depending if insert/update succeeded
+	 */
+
+	public function upsert(string $table, array $data, array $update_columns, array $conflict_columns): bool
+	{
+		$driver = $this->driver_dbtype;
+
+		if (!$update_columns) {
+			throw new InvalidArgumentException(
+				'Update columns cannot be empty'
+			);
+		}
+
+		if (!$conflict_columns) {
+			throw new InvalidArgumentException(
+				'PostgreSQL requires conflict columns'
+			);
+		}
+
+		$columns = array_keys($data);
+
+		$column_list = implode(', ', $columns);
+		$value_list = implode(', ', array_map(
+			fn($column) => ':' . $column,
+			$columns
+		));
+
+		if ($driver === 'pgsql') {
+			$update_list = implode(', ', array_map(
+				fn($column) => "$column = EXCLUDED.$column",
+				$update_columns
+			));
+
+			$sql = "
+				INSERT INTO $table ($column_list)
+				VALUES ($value_list)
+				ON CONFLICT (" . implode(', ', $conflict_columns) . ")
+				DO UPDATE SET $update_list
+			";
+		}
+		else {
+			$update_list = implode(', ', array_map(
+				fn($column) => "$column = VALUES($column)",
+				$update_columns
+			));
+
+			$sql = "
+				INSERT INTO $table ($column_list)
+				VALUES ($value_list)
+				ON DUPLICATE KEY UPDATE $update_list
+			";
+		}
+
+		$stmt = $this->db->prepare($sql);
+		return $stmt->execute($data);
+	}
+
 	/**
 	 * Return the name of the column for the primary key for a given table.
 	 *
