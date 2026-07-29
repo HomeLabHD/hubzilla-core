@@ -836,21 +836,26 @@ function ical_to_ev($s) {
 	$saved_timezone = date_default_timezone_get();
 	date_default_timezone_set('Australia/Sydney');
 
-	$ical = VObject\Reader::read($s);
-
 	$ev = [];
 
-	if($ical) {
-		if($ical->VEVENT) {
-			foreach($ical->VEVENT as $event) {
-				$ev[] = parse_vobject($event,'event');
+	try {
+		$ical = VObject\Reader::read($s);
+
+		if($ical) {
+			if($ical->VEVENT) {
+				foreach($ical->VEVENT as $event) {
+					$ev[] = parse_vobject($event,'event');
+				}
+			}
+			if($ical->VTODO) {
+				foreach($ical->VTODO as $event) {
+					$ev[] = parse_vobject($event,'task');
+				}
 			}
 		}
-		if($ical->VTODO) {
-			foreach($ical->VTODO as $event) {
-				$ev[] = parse_vobject($event,'task');
-			}
-		}
+	} catch (\Sabre\VObject\ParseException $e) {
+		logger("Invalid data when parsing event: {$e}", LOGGER_NORMAL, LOG_ERR);
+		logger('Invalid event data: ' . print_r($s, true), LOGGER_DATA, LOG_DEBUG);
 	}
 
 	date_default_timezone_set($saved_timezone);

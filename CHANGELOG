@@ -1,3 +1,107 @@
+Hubzilla 11.4 (2026-??-??)
+	Features
+	- Notify about to be moderated likes if like notifications are disabled
+	- Lib/Activity deal with content map arrays by returning the first entry
+	- Selectable timezone (channel timezone or utc) for hubzilla log
+	- Implement thumb previews in files app tiles mode where applicable
+	- Implement fetchable lists endpoint
+	- Provide a method to convert the public key to multibase/base58 format
+	- Allow to load extra schemas in unit tests
+	- Add system.propfind_depth_infinity option for admins to allow propfind requests with infinity depth
+	- Add CSRF token to Authorize module
+	- Add AVIF support for PhotoImagick
+
+	Maintenance
+	- Refactor mod item->item_check_service_class() for performance reasons
+	- Refactor Queue::insert() to implement prepared statements and store it in a static variable
+	- Introduce channel_id_by_hash() function to minimize code duplication
+	- Introduce abook_id_by_hash() function to minimize code duplication
+	- Refactor PConfig Load and Set methods to store prepared statement in static variable
+	- Refactor get_account_by_id() function to implement prepared statements and replace custom queries where applicable
+	- Refactor Theme::current() to implement prepared statements and store it in a static variable
+	- Refactor load_translation_table() to implement prepared statements and store it in a static variable
+	- Refactor plugin_is_installed() to implement prepared statements and store it in a static variable
+	- Refactor Lib/XConfig Load and Set methods to implement prepared statements and store it in a static variable
+	- Refactor Lib/AbConfig Load and Set methods to implement prepared statements and store it in a static variable
+	- Remove unused functions their_perms_contains() and my_perms_contains()
+	- Refactor conv_sort() to save some roundtrips for performance
+	- Set PDO::ATTR_EMULATE_PREPARES to false by default - configurable via system.pdo_emulate_prepares
+	- Add API doc for Daemon/Addon and daemon_addon hook
+	- Minor refactor of is_matrix_url() to fix a php warning
+	- Refactor some queries in loops to implement prepared statements
+	- Introduce prepared statements helper functions p() to prepare e() to execute and pe() prapre and execute (replacement for current q())
+	- Move dealing with item_private based on public_policy out of post_activity_item() and process it in item_store()
+	- Remove the deprecated snap module
+	- Catch and log jsonld expand errors
+	- Refactor Lib/System and add get_useragent() method which is now used for network requests
+	- Replace unmaintained id3parser lib with php-id3
+	- Add english database docs
+	- Refactor Activity::encode_follow_collection() to implement pagination
+	- Refactor AccessList::members() to implement pagination
+	- Move html for block widget to template
+	- Add tests for bbcode img and zmg tags
+	- Use getallheaders() if available in Web/WebServer
+	- Refactor Activity::encode_attachment() to return url field with array of links or attachment field depending on url/href in provided data
+	- Refactor mod sharedwithme and deprecate attach.meta iconfig due to incompatibility with AS2
+	- Refactor files app for better performance in backend and frontend
+	- Remove registration of empty shutdown function in killme()
+	- Update API docs for attach.php and item.php
+	- Document init_1 hook
+	- Add API docs for channel_url()
+	- Add API docs for xrd module
+	- Improve terminating functions
+	- Remove unneeded browser plugin in mod dav
+	- Move default home page to template
+	- Cleanup Hook API's and tests
+	- Update German register email template
+	- Escape input params in Authorize module
+	- Improve API docs and naming in head_add_css()
+
+	Bugfixes
+	- Fix App::$profile_uid check for autosave feature
+	- Fix discrepancy between created and edited timestamp
+	- Fix possible race condition issue when storing ObjCache json
+	- Fix unnecessary hubloc lookups in Lib/Dreport
+	- Fix performance issue when bulkuploading images
+	- Fix gender and marital icons in profile widget
+	- Fix mod photo displaying Add/Remove activities
+	- Fix IPv6 for database connections
+	- Fix dbunescbin called more than once breaking postgres
+	- Fix deleted apps counted as installed
+	- Fix post_activity_item() not caching the activity object
+	- Fix duplicate tags when editing a post
+	- Fix mod dav loading the profile while not needed
+	- Fix handle_tag() to select only xchans where we also have a hubloc
+	- Fix missing return statement in mod pdledit_gui
+	- Fix missing return statement in Browser::generateDirectoryIndex()
+	- Fix Storage/File->get() to throw file not found if we did not find the file
+	- Fix missing returns in various modules
+	- Fix wrong variable in attach_store()
+	- Fix bbcode img tag attributes
+	- Fix attachment order issue for inbound activities
+	- Fix display error with modal overlays if the cover slide up was triggered via click
+	- Fix missing data to calculate lat/lon - issue #1986
+	- Fix redundant redirect in mod cloud - issue #1988
+	- Fix registration verification email template
+	- Fix min/max fields in duration template
+
+	Addon
+	- Wiki: fix created/edited timestamp discrepancy
+	- Fediquest: move the cheap checks up before any db calls
+	- Qrator: minor improvements
+	- Sse: performance improvements
+	- Pubcrawl: fix warning if the object is not yet resolved
+	- Superblock: version 3.1.0 with many improvements and new features (sponsored by NLnet NGI0 Commons Fund)
+	- Pubcrawl: refactor mod followers and mod following to reflect core changes and implement pagination
+	- Pubcrawl: represent the public key in multibase format along with eddsa public key
+	- Pubcrawl: add mediatype and dimensions to the image attachments
+	- Pubcrawl: refactor encoding of image attachments
+	- Pubcrawl: fix alt text for attachments in various conditions
+	- Pubcrawl: do not add attachments to media objects
+	- Wiki: add attachments to item
+	- Simplenotes: new addon implementing the serverside UI for the Simple Notes Sync android app https://github.com/inventory69/simple-notes-sync
+
+
 Hubzilla 11.2.1 (2026-05-20)
 	- Fix channel creation failing in some situations
 	- Drop payloads with unsafe json-ld keys in LDSignatures::verify() and add tests
