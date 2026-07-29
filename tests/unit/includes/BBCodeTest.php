@@ -201,6 +201,10 @@ class BBCodeTest extends UnitTestCase {
 				'[zmg=640x480 float=left alt=an image description]https://example.com/photo.jpg[/img]',
 				'<img class="zrl" loading="eager" style="width: 640px; float: left; max-width: 100%;" alt="an image description" title="" class="" src="https://example.com/photo.jpg" />',
 			],
+			'event tag with invalid data' => [
+				'[event]invalid data[/event]',
+				'[event]invalid data[/event]',
+			],
 		];
 	}
 
