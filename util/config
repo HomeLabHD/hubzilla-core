@@ -67,7 +67,7 @@ if($argc == 3) {
 if($argc == 2) {
 	Config::Load($argv[1]);
 	foreach(App::$config[$argv[1]] as $k => $x) {
-		echo "config[{$argv[1]}][{$k}] = " . $x . "\n";
+		echo "config[{$argv[1]}][{$k}] = " . printable_config($x) . "\n";
 	}
 }
 
@@ -83,10 +83,7 @@ if($argc == 1) {
 function printable_config($x) {
 	$s = '';
 	if(is_array($x)) {
-		foreach($x as $v) {
-			$s .= $v . "\n";
-		}
-		return $s;
+		return '[' . implode(', ', array_map(fn ($v) => printable_config($v), $x)) . ']';
 	}
 	else
 		return $x;
