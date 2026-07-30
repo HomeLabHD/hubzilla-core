@@ -1,5 +1,6 @@
 Hubzilla 11.4 (2026-??-??)
 	Features
+	- Introduce DBA upsert function wich will insert or update a row in one go to reduce integrity constraint violation warnings due to race conditions
 	- Notify about to be moderated likes if like notifications are disabled
 	- Lib/Activity deal with content map arrays by returning the first entry
 	- Selectable timezone (channel timezone or utc) for hubzilla log
@@ -58,6 +59,7 @@ Hubzilla 11.4 (2026-??-??)
 	- Improve API docs and naming in head_add_css()
 
 	Bugfixes
+	- Fix uncaught event bbcode parsing error
 	- Fix App::$profile_uid check for autosave feature
 	- Fix discrepancy between created and edited timestamp
 	- Fix possible race condition issue when storing ObjCache json
