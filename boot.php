@@ -681,7 +681,7 @@ function sys_boot(): bool {
 	date_default_timezone_set(App::$timezone);
 
 	if (!defined('DEFAULT_PLATFORM_ICON')) {
-		define('DEFAULT_PLATFORM_ICON', '/images/hz-32.png');
+		define('DEFAULT_PLATFORM_ICON', '/images/hubzilla.svg');
 	}
 
 	if (!defined('DEFAULT_NOTIFY_ICON')) {
