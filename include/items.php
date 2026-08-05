@@ -5803,7 +5803,6 @@ function item_activity_xchans(string $mid, int $parent, string $verb): array
 function get_recursive_thr_parents(array $item): array
 {
 	if ($item['id'] === $item['parent']) {
-		// This is a toplevel post, return null.
 		return [];
 	}
 
