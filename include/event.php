@@ -128,7 +128,8 @@ function format_event_obj($jobject) {
 
 		$oneday = false;
 
-		$bd_format = (($allday) ? t('l F d, Y') : t('l F d, Y \@ g:i A')); // Friday January 18, 2011 @ 8:01 AM or Friday January 18, 2011 for allday events
+		$timeformat = feature_enabled(local_channel(),'cal_timeformat') ? t('l F d, Y \@ H:i') : t('l F d, Y \@ g:i A');
+		$bd_format = (($allday) ? t('l F d, Y') : $timeformat); // Friday January 18, 2011 @ 8:01 AM or Friday January 18, 2011 for allday events
 
 		$dtend_title = '';
 		$dtend_dt = '';

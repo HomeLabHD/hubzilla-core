@@ -12,6 +12,9 @@ $(document).ready(function() {
 
 		locale: '{{$lang}}',
 
+		eventTimeFormat: getTimeformat({{$timeformat}}),
+		slotLabelFormat: getTimeformat({{$timeformat}}),
+
 		eventTextColor: 'white',
 		headerToolbar: false,
 
