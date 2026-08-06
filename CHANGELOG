@@ -13,6 +13,8 @@ Hubzilla 11.4 (2026-??-??)
 	- Add AVIF support for PhotoImagick
 
 	Maintenance
+	- Improved get_recursive_thr_parents() query
+	- Update the platform icon to the current project style icon
 	- Refactor mod item->item_check_service_class() for performance reasons
 	- Refactor Queue::insert() to implement prepared statements and store it in a static variable
 	- Introduce channel_id_by_hash() function to minimize code duplication
@@ -59,6 +61,7 @@ Hubzilla 11.4 (2026-??-??)
 	- Improve API docs and naming in head_add_css()
 
 	Bugfixes
+	- Fix display array config values in util/config
 	- Fix uncaught event bbcode parsing error
 	- Fix App::$profile_uid check for autosave feature
 	- Fix discrepancy between created and edited timestamp
@@ -93,7 +96,7 @@ Hubzilla 11.4 (2026-??-??)
 	- Qrator: minor improvements
 	- Sse: performance improvements
 	- Pubcrawl: fix warning if the object is not yet resolved
-	- Superblock: version 3.1.0 with many improvements and new features (sponsored by NLnet NGI0 Commons Fund)
+	- Superblock: version 3.1.2 with many improvements and new features (sponsored by NLnet NGI0 Commons Fund)
 	- Pubcrawl: refactor mod followers and mod following to reflect core changes and implement pagination
 	- Pubcrawl: represent the public key in multibase format along with eddsa public key
 	- Pubcrawl: add mediatype and dimensions to the image attachments
