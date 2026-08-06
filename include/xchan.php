@@ -166,12 +166,16 @@ function xchan_fetch($arr) {
 	if(! $key)
 		return false;
 
-	$r = q("select * from xchan where $key = '%s' limit 1", dbesc($v));
-	if(! $r)
+	$r = q("select * from xchan where $key = '%s'", dbesc($v));
+
+	if (!$r) {
 		return false;
+	}
+
+	$xchan = Libzot::zot_record_preferred($r, 'xchan_network');
 
 	$ret = array();
-	foreach($r[0] as $k => $v) {
+	foreach($xchan as $k => $v) {
 		if($k === 'xchan_addr')
 			$ret['address'] = $v;
 		else
