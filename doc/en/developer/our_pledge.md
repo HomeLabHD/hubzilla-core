@@ -1,3 +1,0 @@
-#### Our pledge 
-
-In the interest of fostering an open and welcoming environment, we as contributors and carers pledge to make participation in our project and community a harassment-free experience for everyone, regardless of age, body size, disability, ethnicity, gender identity and expression, experience level, nationality, personal appearance, ethnicity, religion or sexual identity and orientation.
