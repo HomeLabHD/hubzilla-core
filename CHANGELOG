@@ -61,6 +61,7 @@ Hubzilla 11.4 (2026-??-??)
 	- Improve API docs and naming in head_add_css()
 
 	Bugfixes
+	- Fix fetch_xchan() to prefer zot records
 	- Fix display array config values in util/config
 	- Fix uncaught event bbcode parsing error
 	- Fix App::$profile_uid check for autosave feature
