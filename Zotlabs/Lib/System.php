@@ -2,89 +2,115 @@
 
 namespace Zotlabs\Lib;
 
-class System {
+class System
+{
+	private static ?string $platform_name = null;
+	private static ?bool $hide_version = null;
 
-	static public function get_platform_name() {
-		static $platform_name = '';
-		if(empty($platform_name)) {
-			if(is_array(\App::$config) && is_array(\App::$config['system']) && array_key_exists('platform_name',\App::$config['system']))
-				$platform_name = \App::$config['system']['platform_name'];
-			else
-				$platform_name = PLATFORM_NAME;
+	private static function init_platform_name(): void
+	{
+		if (self::$platform_name === null) {
+			self::$platform_name = Config::Get('system', 'platform_name', '');
 		}
-		return $platform_name;
 	}
 
-	static public function get_site_name() {
-		if(is_array(\App::$config) && is_array(\App::$config['system']) && isset(\App::$config['system']['sitename']))
-			return \App::$config['system']['sitename'];
-		return '';
+	private static function init_hide_version(): void
+	{
+		if (self::$hide_version === null) {
+			self::$hide_version = (bool) Config::Get('system', 'hide_version');
+		}
 	}
 
-	static public function get_project_version() {
-		if(is_array(\App::$config) && is_array(\App::$config['system']) && isset(\App::$config['system']['hide_version']))
+	public static function get_platform_name(): string
+	{
+		self::init_platform_name();
+		return self::$platform_name ?: PLATFORM_NAME;
+	}
+
+	public static function get_site_name(): string
+	{
+		return Config::Get('system', 'sitename', '');
+	}
+
+	public static function get_project_version(): string
+	{
+		self::init_hide_version();
+		if (self::$hide_version) {
 			return '';
-		if(is_array(\App::$config) && is_array(\App::$config['system']) && array_key_exists('std_version',\App::$config['system']))
-			return \App::$config['system']['std_version'];
+		}
 
-		return self::get_std_version();
+		$std_version = Config::Get('system', 'std_version', '');
+		return $std_version ?: self::get_std_version();
 	}
 
-	static public function get_update_version() {
-		if(is_array(\App::$config) && is_array(\App::$config['system']) && isset(\App::$config['system']['hide_version']))
-			return '';
-		return DB_UPDATE_VERSION;
+	public static function get_update_version(): string
+	{
+		self::init_hide_version();
+		return self::$hide_version ? '' : DB_UPDATE_VERSION;
 	}
 
-
-	static public function get_notify_icon() {
-		if(is_array(\App::$config) && is_array(\App::$config['system']) && isset(\App::$config['system']['email_notify_icon_url']))
-			return \App::$config['system']['email_notify_icon_url'];
-		return z_root() . DEFAULT_NOTIFY_ICON;
+	public static function get_notify_icon(): string
+	{
+		return Config::Get('system', 'email_notify_icon_url', '') ?: z_root() . DEFAULT_NOTIFY_ICON;
 	}
 
-	static public function get_site_icon() {
-		if(is_array(\App::$config) && is_array(\App::$config['system']) && isset(\App::$config['system']['site_icon_url']))
-			return \App::$config['system']['site_icon_url'];
-		return z_root() . DEFAULT_PLATFORM_ICON ;
+	public static function get_site_icon(): string
+	{
+		return Config::Get('system', 'site_icon_url', '') ?: z_root() . DEFAULT_PLATFORM_ICON;
 	}
 
-
-	static public function get_project_link() {
-		if(is_array(\App::$config) && is_array(\App::$config['system']) && isset(\App::$config['system']['project_link']))
-			return \App::$config['system']['project_link'];
-		return 'https://hubzilla.org';
+	public static function get_project_link(): string
+	{
+		return Config::Get('system', 'project_link', '') ?: 'https://hubzilla.org';
 	}
 
-	static public function get_project_srclink() {
-		if(is_array(\App::$config) && is_array(\App::$config['system']) && isset(\App::$config['system']['project_srclink']))
-			return \App::$config['system']['project_srclink'];
-		return 'https://framagit.org/hubzilla/core.git';
+	public static function get_project_srclink(): string
+	{
+		return Config::Get('system', 'project_srclink', '') ?: 'https://framagit.org/hubzilla/core.git';
 	}
 
-	static public function get_server_role() {
+	public static function get_server_role(): string
+	{
 		return 'pro';
 	}
 
-
-	static public function get_zot_revision() {
-		$x = [ 'revision' => ZOT_REVISION ];
-		call_hooks('zot_revision',$x);
+	public static function get_zot_revision(): string
+	{
+		$x = ['revision' => ZOT_REVISION];
+		call_hooks('zot_revision', $x);
 		return $x['revision'];
 	}
 
-	static public function get_std_version() {
-		if(defined('STD_VERSION'))
+	public static function get_std_version(): string
+	{
+		if (defined('STD_VERSION')) {
 			return STD_VERSION;
+		}
+
 		return '0.0.0';
 	}
 
-	static public function compatible_project($p) {
+	public static function compatible_project(string $p): bool
+	{
+		if (get_directory_realm() !== DIRECTORY_REALM) {
+			return true;
+		}
 
-		if(get_directory_realm() != DIRECTORY_REALM)
-			return true;
-		if(in_array(strtolower($p),['hubzilla','zap','red']))
-			return true;
-		return false;
+		$allowed = ['hubzilla', 'zap', 'red'];
+
+		return in_array(strtolower($p), $allowed, true);
+	}
+
+	public static function get_useragent(): string
+	{
+		$useragent = Config::Get('system', 'site_useragent', '');
+		if ($useragent !== '') {
+			return $useragent;
+		}
+
+		$platform = self::get_platform_name();
+		$version  = self::get_project_version();
+
+		return ucfirst($platform) . '/' . $version . ' (+' . z_root() . ')';
 	}
 }

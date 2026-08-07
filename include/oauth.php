@@ -167,12 +167,11 @@ class ZotOAuth1 extends OAuth1Server {
 		$_SESSION['uid'] = $record['channel_id'];
 		$_SESSION['addr'] = $_SERVER['REMOTE_ADDR'];
 
-		$x = q("select * from account where account_id = %d limit 1",
-			intval($record['channel_account_id'])
-		);
+		$x = get_account_by_id($record['channel_account_id']);
+
 		if($x) {
 			require_once('include/security.php');
-			authenticate_success($x[0],null,true,false,true,true);
+			authenticate_success($x, null, true, false, true, true);
 			$_SESSION['allow_api'] = true;
 		}
 	}

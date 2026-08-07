@@ -211,22 +211,45 @@ class AccessList {
 		return $r;
 	}
 
-	static function members($uid, $gid) {
-		$ret = [];
-		if (intval($gid)) {
-			$r = q("SELECT * FROM pgrp_member
-				LEFT JOIN abook ON abook_xchan = pgrp_member.xchan left join xchan on xchan_hash = abook_xchan
-				WHERE gid = %d AND abook_channel = %d and pgrp_member.uid = %d and xchan_deleted = 0 and abook_self = 0 and abook_blocked = 0 and abook_pending = 0 ORDER BY xchan_name ASC ",
-				intval($gid),
-				intval($uid),
-				intval($uid)
-			);
-			if ($r) {
-				$ret = $r;
-			}
-		}
-		return $ret;
-	}
+    public static function members($uid, $gid, $total = false, $start = 0, $records = 0, $sql_extra = ''): mixed
+    {
+        $ret = [];
+        $pager_sql = '';
+
+        if ($records) {
+            $pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval($records), intval($start));
+        }
+
+        if (intval($gid)) {
+            if ($total) {
+                $r = q(
+                    "SELECT count(xchan) as total FROM pgrp_member
+                    LEFT JOIN abook ON abook_xchan = pgrp_member.xchan left join xchan on xchan_hash = abook_xchan
+                    WHERE gid = %d AND abook_channel = %d and pgrp_member.uid = %d and xchan_deleted = 0 and abook_self = 0
+                    and abook_blocked = 0 and abook_pending = 0 $sql_extra",
+                    intval($gid),
+                    intval($uid),
+                    intval($uid)
+                );
+                if ($r) {
+                    return $r[0]['total'];
+                }
+            }
+
+            $r = q(
+                "SELECT * FROM pgrp_member
+                LEFT JOIN abook ON abook_xchan = pgrp_member.xchan left join xchan on xchan_hash = abook_xchan
+                WHERE gid = %d AND abook_channel = %d and pgrp_member.uid = %d and xchan_deleted = 0 and abook_self = 0 and abook_blocked = 0 and abook_pending = 0 $sql_extra ORDER BY xchan_name ASC $pager_sql",
+                intval($gid),
+                intval($uid),
+                intval($uid)
+            );
+            if ($r) {
+                $ret = $r;
+            }
+        }
+        return $ret;
+    }
 
 	static function members_xchan($uid, $gid) {
 		$ret = [];

@@ -255,6 +255,9 @@ class QueueWorker {
 			$load_average_sleep = true;
 		}
 
+		$select_stmt = p("SELECT * FROM workerq WHERE workerq_id = ?");
+		$delete_stmt = p("DELETE FROM workerq WHERE workerq_id = ?");
+
 		while ($workid) {
 
 			if ($load_average_sleep) {
@@ -270,7 +273,7 @@ class QueueWorker {
 
 			usleep(self::$workersleep);
 
-			$workitem = dbq("SELECT * FROM workerq WHERE workerq_id = $workid");
+			$workitem = e($select_stmt, [$workid]);
 
 			if ($workitem) {
 				// At least SOME work to do.... in case there's more, let's ramp up workers.
@@ -309,7 +312,7 @@ class QueueWorker {
 				// and requeue the work to be tried again if needed.  But we probably want
 				// to implement some sort of "retry interval" first.
 
-				dbq("delete from workerq where workerq_id = $workid");
+				e($delete_stmt, [$workid]);
 			}
 			else {
 				logger("NO WORKITEM!", LOGGER_DEBUG);

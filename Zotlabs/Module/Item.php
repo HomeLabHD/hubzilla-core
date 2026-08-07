@@ -162,7 +162,7 @@ class Item extends Controller {
 
 		// If you are unsure, it is prudent (and important) to leave it unset.
 
-		$origin = (($api_source && array_key_exists('origin', $_POST)) ? intval($_REQU_POSTEST['origin']) : 1);
+		$origin = (($api_source && array_key_exists('origin', $_POST)) ? intval($_POST['origin']) : 1);
 
 		// To represent message-ids on other networks - this will create an iconfig record
 
@@ -196,7 +196,7 @@ class Item extends Controller {
 		if ($uid && empty($_POST['parent']) && empty($_POST['post_id'])) {
 			$ret = $this->item_check_service_class($uid, (($_POST['webpage'] == ITEM_TYPE_WEBPAGE) ? true : false));
 			if (!$ret['success']) {
-				notice(t($ret['message']) . EOL);
+				notice($ret['message'] . EOL);
 				if ($api_source)
 					return (['success' => false, 'message' => 'service class exception']);
 				if (!empty($_POST['return']))
@@ -702,7 +702,7 @@ class Item extends Controller {
 					$r           = attach_by_hash_nodata($hash, $observer['xchan_hash'], $rev);
 					if ($r['success']) {
 						$attachments[] = [
-							'href'     => z_root() . '/attach/' . $r['data']['hash'],
+							'url'      => z_root() . '/attach/' . $r['data']['hash'],
 							'length'   => $r['data']['filesize'],
 							'type'     => $r['data']['filetype'],
 							'title'    => urlencode($r['data']['filename']),
@@ -1047,7 +1047,8 @@ class Item extends Controller {
 			if ($x['success'] && intval($item_type) === ITEM_TYPE_POST) {
 				$item = [$x['item']];
 				xchan_query($item);
-				$item = fetch_post_tags($item);
+				// TODO: fetch_post_tags() will add term and iconfig twice if called twice and it looks like they are already added here
+				//$item = fetch_post_tags($item);
 				$encoded_item = Activity::build_packet(Activity::encode_activity($item[0]), $channel, false);
 				ObjCache::Set($item[0]['mid'], $encoded_item);
 
@@ -1292,11 +1293,12 @@ class Item extends Controller {
 					}
 				}
 
+				return;
+
 			}
-
-			killme();
-
 		}
+
+		http_status_exit(400);
 	}
 
 	function item_check_service_class($channel_id, $iswebpage) {

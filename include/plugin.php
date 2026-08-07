@@ -5,6 +5,7 @@
  * @brief Some functions to handle addons and themes.
  */
 
+use Zotlabs\Extend\Hook;
 use Zotlabs\Lib\Config;
 
 /**
@@ -176,9 +177,15 @@ function load_plugin($plugin) {
  * @return boolean
  */
 function plugin_is_installed($name) {
-	$r = q("select aname from addon where aname = '%s' and installed = 1 limit 1",
-		dbesc($name)
-	);
+	static $stmt;
+
+	if (!$stmt instanceof PDOStatement) {
+		$stmt = DBA::$dba->db->prepare("select aname from addon where aname = ? and installed = 1 limit 1");
+	}
+
+	$stmt->execute([$name]);
+	$r = $stmt->fetch(PDO::FETCH_ASSOC);
+
 	if($r)
 		return true;
 
@@ -342,29 +349,14 @@ function visible_plugin_list() {
  * @return mixed|bool
  */
 function register_hook($hook, $file, $function, $priority = 0) {
-	$r = q("SELECT * FROM hook WHERE hook = '%s' AND file = '%s' AND fn = '%s' LIMIT 1",
-		dbesc($hook),
-		dbesc($file),
-		dbesc($function)
-	);
-	if($r)
-		return true;
-
-	$r = q("INSERT INTO hook (hook, file, fn, priority) VALUES ( '%s', '%s', '%s', '%s' )",
-		dbesc($hook),
-		dbesc($file),
-		dbesc($function),
-		dbesc($priority)
-	);
-
-	return $r;
+	return Hook::Register($hook, $file, $function, 1, $priority);
 }
 
 
 /**
  * @brief unregisters a hook.
  *
- * @see ::Zotlabs::Extend::Hook::unregister
+ * @see ::Zotlabs::Extend::Hook::unregister()
  *
  * @param string $hook the name of the hook
  * @param string $file the name of the file that hooks into
@@ -372,13 +364,7 @@ function register_hook($hook, $file, $function, $priority = 0) {
  * @return array
  */
 function unregister_hook($hook, $file, $function) {
-	$r = q("DELETE FROM hook WHERE hook = '%s' AND file = '%s' AND fn = '%s'",
-		dbesc($hook),
-		dbesc($file),
-		dbesc($function)
-	);
-
-	return $r;
+	return Hook::unregister($hook, $file, $function, 1, 0);
 }
 
 /**
@@ -428,7 +414,7 @@ function load_hooks() {
 }
 
 /**
- * @brief Inserts a hook into a page request.
+ * Inserts a hook into a page request.
  *
  * Insert a short-lived hook into the running page request.
  * Hooks are normally persistent so that they can be called
@@ -439,6 +425,8 @@ function load_hooks() {
  * which will not persist beyond the life of this page request
  * or the current process.
  *
+ * @see ::Zotlabs::Extend::Hook::insert()
+ *
  * @param string $hook
  *     name of hook to attach callback
  * @param string $fn
@@ -447,14 +435,7 @@ function load_hooks() {
  * @param int $priority (optional) default 0
  */
 function insert_hook($hook, $fn, $version = 0, $priority = 0) {
-
-	if(! is_array(App::$hooks))
-		App::$hooks = array();
-
-	if(! array_key_exists($hook, App::$hooks))
-		App::$hooks[$hook] = array();
-
-	App::$hooks[$hook][] = array('', $fn, $priority, $version);
+	Hook::insert($hook, $fn, $version, $priority);
 }
 
 /**
@@ -930,13 +911,15 @@ function get_theme_screenshot($theme) {
 }
 
 /**
- * @brief add CSS to \<head\>
+ * Add stylesheet to \<head\> section.
  *
- * @param string $src
- * @param string $media change media attribute (default to 'screen')
+ * @param string $urlpath
+ *		The URL path relative to the domain to the stylesheet to add.
+ * @param string $media
+ *		Media attribute for the stylesheet (default to 'screen')
  */
-function head_add_css($src, $media = 'screen') {
-	App::$css_sources[] = array($src, $media);
+function head_add_css($urlpath, $media = 'screen'): void {
+	App::$css_sources[] = array($urlpath, $media);
 }
 
 function head_remove_css($src, $media = 'screen') {

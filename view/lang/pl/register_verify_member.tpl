@@ -14,14 +14,19 @@ Twój kod weryfikacyjny, to:
 
 {{$hash}}
 
+{{if $timeframe}}
+This token is valid from {{$timeframe.0}} UTC until {{$timeframe.1}} UTC
+
+
+{{/if}}
 Jeśli zarejestrowałeś to konto, wprowadź kod weryfikacyjny do żądania lub odwiedź
 poniższy link:
 
-{{$siteurl}}/regver/allow/{{$hash}} 
+{{$siteurl}}/regate/{{$mail}}
 
 Aby odrzucić rejestrację i usunąć konto, odwiedź:
 
-{{$siteurl}}/regver/deny/{{$hash}}
+{{$siteurl}}/regate/{{$mail}}{{if $ko}}/{{$ko}}{{/if}}
 
 
 Dziękjemy.

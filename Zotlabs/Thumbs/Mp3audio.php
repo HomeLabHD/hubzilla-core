@@ -2,7 +2,8 @@
 
 namespace Zotlabs\Thumbs;
 
-use \ID3Parser\ID3Parser;
+use Id3\Id3Parser;
+use Zotlabs\Lib\Id3AlbumCover;
 
 class Mp3audio {
 
@@ -13,31 +14,21 @@ class Mp3audio {
 	function Thumb($attach,$preview_style,$height = 300, $width = 300) {
 
 		$file = dbunescbin($attach['content']);
-		if (!$file) {
+
+		if (empty($file)) {
 			return;
 		}
 
-		$photo = false;
-		$p = new ID3Parser();
+		$id3 = new Id3Parser($file);
 
-        $id = $p->analyze($file);
+		$album_image = $id3->getAlbumImage();
 
-        $photo = isset($id['id3v2']['APIC'][0]['data']) ? $id['id3v2']['APIC'][0]['data'] : null;
-        if(is_null($photo) && isset($id['id3v2']['PIC'][0]['data'])) {
-            $photo = $id['id3v2']['PIC'][0]['data'];
-        }
-
-        if($photo) {
-			$image = imagecreatefromstring($photo);
-			$dest = imagecreatetruecolor( $width, $height );
-	        $srcwidth = imagesx($image);
-    	    $srcheight = imagesy($image);
-
-        	imagealphablending($dest, false);
-			imagesavealpha($dest, true);
-        	imagecopyresampled($dest, $image, 0, 0, 0, 0, $width, $height, $srcwidth, $srcheight);
-			imagejpeg($dest,dbunescbin($attach['content']) . '.thumb');
+		if (empty($album_image)) {
+			return;
 		}
+
+		$photo = new Id3AlbumCover($album_image);
+		$photo->saveThumbnail($file, $width, $height);
 	}
 }
 

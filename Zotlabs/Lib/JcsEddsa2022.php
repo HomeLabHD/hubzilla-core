@@ -62,14 +62,16 @@ class JcsEddsa2022 {
 		try {
 			$result = sodium_crypto_sign_verify_detached($base58->decode($encodedSignature), $optionsHash . $dataHash,
 				(new Multibase())->decode($publicKey, true));
+
+			logger('SignatureVerify (eddsa-jcs-2022) ' . (($result) ? 'true' : 'false'));
+
+			return $result;
 		}
 		catch (\Exception $e) {
 			logger('verify exception:' .  $e->getMessage());
 		}
 
-		logger('SignatureVerify (eddsa-jcs-2022) ' . (($result) ? 'true' : 'false'));
-
-		return $result;
+		return false;
 	}
 
 	public function signableData($data) {

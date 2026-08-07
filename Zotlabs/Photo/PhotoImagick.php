@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Photo;
 
+use Imagick;
 use Zotlabs\Lib\Config;
 
 /**
@@ -16,8 +17,14 @@ class PhotoImagick extends PhotoDriver {
 			'image/png' => 'png',
 			'image/gif' => 'gif'
 		];
-		if(\Imagick::queryFormats("WEBP"))
+
+		if (Imagick::queryFormats('WEBP')) {
 			$ret['image/webp'] = 'webp';
+		}
+
+		if (Imagick::queryFormats('AVIF')) {
+			$ret['image/avif'] = 'avif';
+		}
 
 		return $ret;
 	}

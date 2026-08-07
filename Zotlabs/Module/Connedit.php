@@ -764,5 +764,8 @@ class Connedit extends Controller {
 			return $arr['output'];
 
 		}
+
+		http_status_exit(400, 'Bad request');
 	}
+
 }

@@ -76,17 +76,13 @@ class Sse extends Controller {
 						dbesc($_SERVER['REMOTE_ADDR'])
 					);
 
-					$basic_presence = false;
-
 					if ($r) {
-						$basic_presence = true;
 						q("update chatpresence set cp_last = '%s' where cp_id = %d",
 							dbesc(datetime_convert()),
 							intval($r[0]['cp_id'])
 						);
 					}
-
-					if (!$basic_presence) {
+					else {
 						q("insert into chatpresence ( cp_xchan, cp_last, cp_status, cp_client)
 							values( '%s', '%s', '%s', '%s' ) ",
 							dbesc(self::$ob_hash),
@@ -170,22 +166,19 @@ class Sse extends Controller {
 			// Fallback to traditional polling
 
 			if(!self::$sse_id) {
-
 				// Update chat presence indication
-
 				$r = q("select cp_id, cp_room from chatpresence where cp_xchan = '%s' and cp_client = '%s' and cp_room = 0 limit 1",
 					dbesc(self::$ob_hash),
 					dbesc($_SERVER['REMOTE_ADDR'])
 				);
-				$basic_presence = false;
+
 				if ($r) {
-					$basic_presence = true;
 					q("update chatpresence set cp_last = '%s' where cp_id = %d",
 						dbesc(datetime_convert()),
 						intval($r[0]['cp_id'])
 					);
 				}
-				if (!$basic_presence) {
+				else {
 					q("insert into chatpresence ( cp_xchan, cp_last, cp_status, cp_client)
 						values( '%s', '%s', '%s', '%s' ) ",
 						dbesc(self::$ob_hash),

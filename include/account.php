@@ -48,8 +48,16 @@ function get_account_id(): int|false {
  *		account, or false if it could not be retreived.
  */
 function get_account_by_id(int $account_id): array|false {
-	$r = q("select * from account where account_id = %d", $account_id);
-	return (($r) ? $r[0] : false);
+	static $stmt;
+
+	if (!$stmt instanceof PDOStatement) {
+		$stmt = DBA::$dba->db->prepare("SELECT * FROM account WHERE account_id = ? LIMIT 1");
+	}
+
+	$stmt->execute([$account_id]);
+	$r = $stmt->fetch(PDO::FETCH_ASSOC);
+
+	return (($r) ? $r : false);
 }
 
 function check_account_email($email) {
@@ -709,9 +717,7 @@ function account_approve($hash) {
 	if(! $register)
 		return $ret;
 
-	$account = q("SELECT * FROM account WHERE account_id = %d LIMIT 1",
-		intval($register[0]['reg_uid'])
-	);
+	$account = get_account_by_id($register[0]['reg_uid']);
 
 	if(! $account)
 		return $ret;
@@ -752,10 +758,7 @@ function account_approve($hash) {
 
 
 	// get a fresh copy after we've modified it.
-
-	$account = q("SELECT * FROM account WHERE account_id = %d LIMIT 1",
-		intval($register[0]['reg_uid'])
-	);
+	$account = get_account_by_id($register[0]['reg_uid']);
 
 	if(! $account)
 		return $ret;
@@ -764,7 +767,7 @@ function account_approve($hash) {
 		auto_channel_create($register[0]['reg_uid']);
 	else {
 		$_SESSION['login_return_url'] = 'new_channel';
-		authenticate_success($account[0],null,true,true,false,true);
+		authenticate_success($account, null, true, true, false, true);
 	}
 
 	return true;
@@ -1036,7 +1039,7 @@ function service_class_fetch($uid, $property) {
 	$service_class = null;
 
 	if($uid == local_channel()) {
-		$service_class = App::$account['account_service_class'];
+		$service_class = App::$account['account_service_class'] ?? false;
 	}
 	else {
 		$r = q("select account_service_class as service_class

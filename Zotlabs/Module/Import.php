@@ -411,10 +411,7 @@ class Import extends Controller {
 						continue;
 				}
 
-				$r = q("select abook_id from abook where abook_xchan = '%s' and abook_channel = %d limit 1",
-					dbesc($abook['abook_xchan']),
-					intval($channel['channel_id'])
-				);
+				$r = abook_id_by_hash($abook['abook_xchan'], $channel['channel_id']);
 				if ($r) {
 					foreach ($abook as $k => $v) {
 						q("UPDATE abook SET " . TQUOT . "%s" . TQUOT . " = '%s' WHERE abook_xchan = '%s' AND abook_channel = %d",

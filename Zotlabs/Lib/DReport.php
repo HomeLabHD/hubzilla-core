@@ -2,6 +2,7 @@
 namespace Zotlabs\Lib;
 
 use Zotlabs\Lib\Config;
+use Zotlabs\Lib\PConfig;
 
 class DReport {
 
@@ -72,8 +73,9 @@ class DReport {
 
 	static function is_storable($dr) {
 
-		if(Config::Get('system', 'disable_dreport'))
+		if (Config::Get('system', 'disable_dreport')) {
 			return false;
+		}
 
 		/**
 		 * @hooks dreport_is_storable
@@ -84,10 +86,13 @@ class DReport {
 		call_hooks('dreport_is_storable', $dr);
 
 		// let plugins accept or reject - if neither, continue on
-		if(array_key_exists('accept',$dr) && intval($dr['accept']))
+		if (array_key_exists('accept',$dr) && intval($dr['accept'])) {
 			return true;
-		if(array_key_exists('reject',$dr) && intval($dr['reject']))
+		}
+
+		if (array_key_exists('reject',$dr) && intval($dr['reject'])) {
 			return false;
+		}
 
 		if (!$dr['sender']) {
 			return false;
@@ -100,44 +105,47 @@ class DReport {
 
 		// Is the sender one of our channels?
 
-		$c = q("select channel_id from channel where channel_hash = '%s' limit 1",
-			dbesc($dr['sender'])
-		);
+		$channel_id = channel_id_by_hash($dr['sender']);
 
-		if(! $c)
+		if (!$channel_id) {
 			return false;
+		}
 
 		// is the recipient one of our connections, or do we want to store every report?
 
-		$pcf = get_pconfig($c[0]['channel_id'],'system','dreport_store_all');
-		if($pcf)
+		if (PConfig::Get($channel_id, 'system', 'dreport_store_all')) {
 			return true;
+		}
 
 		// We always add ourself as a recipient to private and relayed posts
 		// So if a remote site says they can't find us, that's no big surprise
 		// and just creates a lot of extra report noise
 
-		if(($dr['location'] !== z_root()) && ($dr['sender'] === $dr['recipient']) && ($dr['status'] === 'recipient not found'))
+		if (($dr['location'] !== z_root()) && ($dr['sender'] === $dr['recipient']) && ($dr['status'] === 'recipient not found')) {
 			return false;
+		}
 
 		// If you have a private post with a recipient list, every single site is going to report
 		// back a failed delivery for anybody on that list that isn't local to them. We're only
 		// concerned about this if we have a local hubloc record which says we expected them to
 		// have a channel on that site.
 
-		$r = q("select hubloc_id from hubloc where hubloc_hash = '%s' and hubloc_url = '%s'",
-			dbesc($dr['recipient']),
-			dbesc($dr['location'])
-		);
-		if((! $r) && ($dr['status'] === 'recipient_not_found'))
-			return false;
+		if ($dr['status'] === 'recipient_not_found') {
+			$r = q("select hubloc_id from hubloc where hubloc_hash = '%s' and hubloc_url = '%s'",
+				dbesc($dr['recipient']),
+				dbesc($dr['location'])
+			);
 
-		$r = q("select abook_id from abook where abook_xchan = '%s' and abook_channel = %d limit 1",
-			dbesc($dr['recipient']),
-			intval($c[0]['channel_id'])
-		);
-		if($r)
+			if (!$r) {
+				return false;
+			}
+		}
+
+		$r = abook_id_by_hash($dr['recipient'], $channel_id);
+
+		if ($r) {
 			return true;
+		}
 
 		return false;
 	}

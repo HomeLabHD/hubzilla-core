@@ -468,7 +468,7 @@ function tagblock($link,$uid,$count = 0,$authors = '',$owner = '', $flags = 0,$r
 	if($r) {
 		$o = '<div class="tagblock widget"><h3>' . t('Tags') . '</h3><div class="tags" align="center">';
 		foreach($r as $rr) {
-		  $o .= '<span class="tag'.$rr[2].'">#</span><a href="'.$link .'/' . '?f=&tag=' . urlencode($rr[0]).'" class="tag'.$rr[2].'">'.$rr[0].'</a> ' . "\r\n";
+		  $o .= '<a href="'.$link .'/' . '?f=&tag=' . urlencode($rr[0]).'" class="tag'.$rr[2].'">#'.$rr[0].'</a> ' . "\r\n";
 		}
 		$o .= '</div></div>';
 	}

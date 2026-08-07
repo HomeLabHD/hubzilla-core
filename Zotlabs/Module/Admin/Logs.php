@@ -18,10 +18,12 @@ class Logs {
 			check_form_security_token_redirectOnErr('/admin/logs', 'admin_logs');
 
 			$logfile   = ((x($_POST,'logfile'))   ? notags(trim($_POST['logfile'])) : '');
+			$logtz     = ((x($_POST,'logtz'))     ? intval(trim($_POST['logtz'])) : LTZ_UTC);
 			$debugging = ((x($_POST,'debugging')) ? true : false);
 			$loglevel  = ((x($_POST,'loglevel'))  ? intval(trim($_POST['loglevel'])) : 0);
 
 			Config::Set('system','logfile', $logfile);
+			Config::Set('system','logtz', $logtz);
 			Config::Set('system','debugging',  $debugging);
 			Config::Set('system','loglevel', $loglevel);
 		}
@@ -44,6 +46,11 @@ class Logs {
 			LOGGER_DEBUG => 'Debug',
 			LOGGER_DATA => 'Data',
 			LOGGER_ALL => 'All'
+		);
+
+		$tz_choices = Array(
+			LTZ_UTC => 'UTC',
+			LTZ_LOCAL => Config::Get('system', 'timezone')
 		);
 
 		$t = get_markup_template('admin_logs.tpl');
@@ -91,6 +98,7 @@ class Logs {
 			// name, label, value, help string, extra data...
 			'$debugging' => array('debugging', t("Debugging"),Config::Get('system','debugging'), ""),
 			'$logfile'   => array('logfile', t("Log file"), Config::Get('system','logfile'), t("Must be writable by web server. Relative to your top-level webserver directory.")),
+			'$logtz'     => array('logtz', t("Time zone"), Config::Get('system','logtz', "UTC"),"", $tz_choices ),
 			'$loglevel'  => array('loglevel', t("Log level"), Config::Get('system','loglevel'), "", $log_choices),
 
 			'$form_security_token' => get_form_security_token('admin_logs'),

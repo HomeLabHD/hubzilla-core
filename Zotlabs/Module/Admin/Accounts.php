@@ -62,10 +62,8 @@ class Accounts {
 
 	function get(){
 		if (argc() > 2) {
-			$uid = argv(3);
-			$account = q("SELECT * FROM account WHERE account_id = %d",
-				intval($uid)
-			);
+			$uid = intval(argv(3));
+			$account = get_account_by_id($uid);
 
 			if (! $account) {
 				notice( t('Account not found') . EOL);
@@ -81,7 +79,7 @@ class Accounts {
 					// delete user
 					account_remove($uid,true,false);
 
-					notice( sprintf(t("Account '%s' deleted"), $account[0]['account_email']) . EOL);
+					notice( sprintf(t("Account '%s' deleted"), $account['account_email']) . EOL);
 					break;
 				case 'block':
 					q("UPDATE account SET account_flags = ( account_flags | %d ) WHERE account_id = %d",
@@ -89,7 +87,7 @@ class Accounts {
 						intval($uid)
 					);
 
-					notice( sprintf( t("Account '%s' blocked") , $account[0]['account_email']) . EOL);
+					notice( sprintf( t("Account '%s' blocked") , $account['account_email']) . EOL);
 					break;
 				case 'unblock':
 					q("UPDATE account SET account_flags = ( account_flags & ~%d ) WHERE account_id = %d",
@@ -97,7 +95,7 @@ class Accounts {
 							intval($uid)
 					);
 
-					notice( sprintf( t("Account '%s' unblocked"), $account[0]['account_email']) . EOL);
+					notice( sprintf( t("Account '%s' unblocked"), $account['account_email']) . EOL);
 					break;
 			}
 
@@ -203,7 +201,6 @@ class Accounts {
 		$t = get_markup_template('admin_accounts.tpl');
 		$o = replace_macros($t, array(
 			// strings //
-			'$debug' => $debug,
 			'$title' => t('Administration'),
 			'$page' => t('Accounts'),
 			'$submit' => t('Submit'),
@@ -263,7 +260,7 @@ class Accounts {
 
 		if ($zarop && $zarat >= 0 && $zarse && $zarse == $_SESSION[self::MYP]['h'][$zarat]) {
 
-			//
+			$rc = 0;
 			if ($zarop == 'd') {
 				$rd = q("UPDATE register SET reg_vital = 0 WHERE reg_id = %d AND SUBSTR(reg_hash,1,4) = '%s' ",
 					intval($_SESSION[self::MYP]['i'][$zarat]),
@@ -279,7 +276,6 @@ class Accounts {
 					intval($_SESSION[self::MYP]['i'][$zarat]),
 					dbesc($_SESSION[self::MYP]['h'][$zarat])
 				);
-				$rc = 0;
 				$rs = q("SELECT * from register WHERE reg_id = %d ",
 					intval($_SESSION[self::MYP]['i'][$zarat])
 				);

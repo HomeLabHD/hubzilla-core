@@ -3,6 +3,9 @@
 namespace Zotlabs\Render;
 
 use App;
+use DBA;
+use PDO;
+use PDOStatement;
 use Zotlabs\Lib\PConfig;
 
 class Theme {
@@ -25,6 +28,7 @@ class Theme {
 	 * @return array
 	 */
 	static public function current() {
+		static $stmt;
 
 		self::$system_theme = ((!empty(App::$config['system']['theme']))
 			? App::$config['system']['theme'] : '');
@@ -36,11 +40,15 @@ class Theme {
 		// Find the theme that belongs to the channel whose stuff we are looking at
 
 		if(App::$profile_uid) {
-			$r = q("select channel_theme from channel where channel_id = %d limit 1",
-				intval(App::$profile_uid)
-			);
+			if (!$stmt instanceof PDOStatement) {
+				$stmt = DBA::$dba->db->prepare("select channel_theme from channel where channel_id = ? limit 1");
+			}
+
+			$stmt->execute([App::$profile_uid]);
+			$r = $stmt->fetch(PDO::FETCH_ASSOC);
+
 			if($r) {
-				$page_theme = $r[0]['channel_theme'];
+				$page_theme = $r['channel_theme'];
 			}
 		}
 

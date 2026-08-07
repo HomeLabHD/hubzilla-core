@@ -104,26 +104,15 @@ class Home extends Controller {
 			goaway($frontpage);
 		}
 
-		$o .= '<div class="generic-content-wrapper">';
+		$sitename = Config::Get('system', 'sitename', 'Hubzilla');
+		$welcome = sprintf(t('Welcome to %s'), $sitename);
+		$login_on_homepage = Config::Get('system', 'login_on_homepage');
 
-		$sitename = Config::Get('system', 'sitename');
-		if ($sitename) {
-			$o .= '<div class="section-title-wrapper">';
-			$o .= '<h2 class="">' . sprintf(t('Welcome to %s'), $sitename) . '</h2>';
-			$o .= '</div>';
-
-		}
-
-		$o .= '<div class="section-content-wrapper">';
-
-		$loginbox = Config::Get('system', 'login_on_homepage');
-		if (intval($loginbox) || $loginbox === false)
-			$o .= login(true);
-
-		$o .= '</div>';
-		$o .= '</div>';
-
-		return $o;
+		$tpl = get_markup_template('home.tpl');
+		return replace_macros($tpl, [
+			'welcome' => $welcome,
+			'loginbox' => $login_on_homepage ? login(true) : false,
+		]);
 
 	}
 

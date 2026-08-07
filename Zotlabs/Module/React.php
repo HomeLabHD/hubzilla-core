@@ -95,6 +95,9 @@ class React extends Controller {
 				Master::Summon(['Notifier', 'like', $x['approval_id']]);
 			}
 		}
+
+		http_status(500, 'server error');
+		return t('The request failed due to an internal error. Notify the site admin.');
 	}
 
 }

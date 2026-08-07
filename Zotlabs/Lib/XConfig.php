@@ -2,6 +2,11 @@
 
 namespace Zotlabs\Lib;
 
+use App;
+use DBA;
+use PDO;
+use PDOStatement;
+
 /**
  * @brief Class for handling observer's config.
  *
@@ -24,6 +29,10 @@ namespace Zotlabs\Lib;
  */
 class XConfig {
 
+	private static $seletctStmt;
+	private static $insertStmt;
+	private static $updateStmt;
+
 	/**
 	 * @brief Loads a full xchan's configuration into a cached storage.
 	 *
@@ -36,25 +45,30 @@ class XConfig {
 	 */
 	static public function Load($xchan) {
 
-		if(! $xchan)
+		if (!$xchan) {
 			return false;
+		}
 
-		if(! array_key_exists($xchan, \App::$config))
-			\App::$config[$xchan] = array();
+		if (!self::$seletctStmt instanceof PDOStatement) {
+			self::$seletctStmt = self::prepareSelect();
+		}
 
-		$r = q("SELECT * FROM xconfig WHERE xchan = '%s'",
-			dbesc($xchan)
-		);
+		self::$seletctStmt->execute(['xchan' => $xchan]);
+		$r = self::$seletctStmt->fetchAll(PDO::FETCH_ASSOC);
+
+		if (!array_key_exists($xchan, App::$config)) {
+			App::$config[$xchan] = array();
+		}
 
 		if($r) {
 			foreach($r as $rr) {
 				$k = $rr['k'];
 				$c = $rr['cat'];
-				if(! array_key_exists($c, \App::$config[$xchan])) {
-					\App::$config[$xchan][$c] = array();
-					\App::$config[$xchan][$c]['config_loaded'] = true;
+				if(! array_key_exists($c, App::$config[$xchan])) {
+					App::$config[$xchan][$c] = array();
+					App::$config[$xchan][$c]['config_loaded'] = true;
 				}
-				\App::$config[$xchan][$c][$k] = $rr['v'];
+				App::$config[$xchan][$c][$k] = $rr['v'];
 			}
 		}
 	}
@@ -78,19 +92,21 @@ class XConfig {
 	 * @return mixed Stored $value or false if it does not exist
 	 */
 	static public function Get($xchan, $family, $key, $default = false) {
-
-		if(! $xchan)
+		if (!$xchan) {
 			return $default;
+		}
 
-		if(! array_key_exists($xchan, \App::$config))
+		if (!array_key_exists($xchan, App::$config)) {
 			self::Load($xchan);
+		}
 
-		if((! array_key_exists($family, \App::$config[$xchan])) || (! array_key_exists($key, \App::$config[$xchan][$family])))
+		if (!array_key_exists($family, App::$config[$xchan]) || !array_key_exists($key, App::$config[$xchan][$family])) {
 			return $default;
+		}
 
-		return ((! is_array(\App::$config[$xchan][$family][$key])) && (preg_match('|^a:[0-9]+:{.*}$|s', \App::$config[$xchan][$family][$key]))
-			? unserialize(\App::$config[$xchan][$family][$key])
-			: \App::$config[$xchan][$family][$key]
+		return ((!is_array(App::$config[$xchan][$family][$key]) && preg_match('|^a:[0-9]+:{.*}$|s', App::$config[$xchan][$family][$key]))
+			? unserialize(App::$config[$xchan][$family][$key])
+			: App::$config[$xchan][$family][$key]
 		);
 	}
 
@@ -111,39 +127,43 @@ class XConfig {
 	 * @return mixed Stored $value or false
 	 */
 	static public function Set($xchan, $family, $key, $value) {
-
 		// manage array value
 		$dbvalue = ((is_array($value))  ? serialize($value) : $value);
 		$dbvalue = ((is_bool($dbvalue)) ? intval($dbvalue)  : $dbvalue);
+		$dbargs = ['xchan' => $xchan, 'cat' => $family, 'k' => $key, 'v' => $dbvalue];
+
+		$ret = null;
 
 		if(self::Get($xchan, $family, $key) === false) {
-			if(! array_key_exists($xchan, \App::$config))
-				\App::$config[$xchan] = array();
-			if(! array_key_exists($family, \App::$config[$xchan]))
-				\App::$config[$xchan][$family] = array();
+			if (!array_key_exists($xchan, App::$config)) {
+				App::$config[$xchan] = array();
+			}
 
-			$ret = q("INSERT INTO xconfig ( xchan, cat, k, v ) VALUES ( '%s', '%s', '%s', '%s' )",
-				dbesc($xchan),
-				dbesc($family),
-				dbesc($key),
-				dbesc($dbvalue)
-			);
+			if (!array_key_exists($family, App::$config[$xchan])) {
+				App::$config[$xchan][$family] = array();
+			}
+
+			if (!self::$insertStmt instanceof PDOStatement) {
+				self::$insertStmt = self::prepareInsert();
+			}
+
+			$ret = self::$insertStmt->execute($dbargs);
 		}
 		else {
-			$ret = q("UPDATE xconfig SET v = '%s' WHERE xchan = '%s' and cat = '%s' AND k = '%s'",
-				dbesc($dbvalue),
-				dbesc($xchan),
-				dbesc($family),
-				dbesc($key)
-			);
+			if (!self::$updateStmt instanceof PDOStatement) {
+				self::$updateStmt = self::prepareUpdate();
+			}
+
+			$ret = self::$updateStmt->execute($dbargs);
 		}
 
-		\App::$config[$xchan][$family][$key] = $value;
+		App::$config[$xchan][$family][$key] = $value;
 
-		if($ret)
+		if ($ret) {
 			return $value;
+		}
 
-		return $ret;
+		return false;
 	}
 
 	/**
@@ -161,9 +181,9 @@ class XConfig {
 	 * @return mixed
 	 */
 	static public function Delete($xchan, $family, $key) {
-
-		if(isset(\App::$config[$xchan][$family][$key]))
-			unset(\App::$config[$xchan][$family][$key]);
+		if (isset(App::$config[$xchan][$family][$key])) {
+			unset(App::$config[$xchan][$family][$key]);
+		}
 
 		$ret = q("DELETE FROM xconfig WHERE xchan = '%s' AND cat = '%s' AND k = '%s'",
 			dbesc($xchan),
@@ -174,4 +194,15 @@ class XConfig {
 		return $ret;
 	}
 
+	private static function prepareSelect(): PDOStatement {
+		return DBA::$dba->db->prepare("SELECT * FROM xconfig WHERE xchan = :xchan");
+	}
+
+	private static function prepareInsert(): PDOStatement {
+		return DBA::$dba->db->prepare("INSERT INTO xconfig (xchan, cat, k, v) VALUES (:xchan, :cat, :k, :v)");
+	}
+
+	private static function prepareUpdate(): PDOStatement {
+		return DBA::$dba->db->prepare("UPDATE xconfig SET v = :v WHERE xchan = :xchan AND cat = :cat AND k = :k");
+	}
 }

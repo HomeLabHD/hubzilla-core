@@ -84,19 +84,6 @@ function tryoembed($match) {
 	return $html;
 }
 
-
-function nakedoembed($match) {
-	$url = ((count($match) == 2) ? $match[1] : $match[2]);
-
-	$strip_url = strip_escaped_zids($url);
-
-	// this function no longer performs oembed on naked links
-	// because they author may have created naked links intentionally.
-	// Now it just strips zids on naked links.
-
-	return str_replace($url,$strip_url,$match[0]);
-}
-
 function tryzrlaudio($match) {
 	$link = $match[1];
 	$zrl = is_matrix_url($link);
@@ -875,93 +862,86 @@ function bb_imgoptions($match) {
 	$style       = EMPTY_STR;
 	$class       = EMPTY_STR;
 
-	$attributes = $match[3];
+	$legacy = $match[2] === '=';
 
-	$x = preg_match("/alt='(.*?)'/ism", $attributes, $matches);
-	if ($x) {
-		$alt = $matches[1];
-	}
+	if (!$legacy) {
+		$attributes = $match[3];
 
-	$x = preg_match("/title=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
-	if ($x) {
-		$title = $matches[1];
-	}
+		$x = preg_match("/alt='(.*?)'/ism", $attributes, $matches);
+		if ($x) {
+			$alt = $matches[1];
+		}
 
-	$x = preg_match("/title='(.*?)'/ism", $attributes, $matches);
-	if ($x) {
-		$title = $matches[1];
-	}
+		$x = preg_match("/title=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
+		if ($x) {
+			$title = $matches[1];
+		}
 
-	$x = preg_match("/alt=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
-	if ($x) {
-		$alt = $matches[1];
-	}
+		$x = preg_match("/title='(.*?)'/ism", $attributes, $matches);
+		if ($x) {
+			$title = $matches[1];
+		}
 
-	$x = preg_match("/width='(.*?)'/ism", $attributes, $matches);
-	if ($x) {
-		$width = $matches[1];
-	}
+		$x = preg_match("/alt=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
+		if ($x) {
+			$alt = $matches[1];
+		}
 
-	$x = preg_match("/width=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
-	if ($x) {
-		$width = $matches[1];
-	}
+		$x = preg_match("/width='(.*?)'/ism", $attributes, $matches);
+		if ($x) {
+			$width = $matches[1];
+		}
 
-	$x = preg_match("/height='(.*?)'/ism", $attributes, $matches);
-	if ($x) {
-		$height = $matches[1];
-	}
+		$x = preg_match("/width=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
+		if ($x) {
+			$width = $matches[1];
+		}
 
-	$x = preg_match("/height=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
-	if ($x) {
-		$height = $matches[1];
-	}
+		$x = preg_match("/height='(.*?)'/ism", $attributes, $matches);
+		if ($x) {
+			$height = $matches[1];
+		}
 
-	$x = preg_match("/class='(.*?)'/ism", $attributes, $matches);
-	if ($x) {
-		$class = $matches[1];
-	}
+		$x = preg_match("/height=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
+		if ($x) {
+			$height = $matches[1];
+		}
 
-	$x = preg_match("/class=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
-	if ($x) {
-		$class = $matches[1];
-	}
+		$x = preg_match("/class='(.*?)'/ism", $attributes, $matches);
+		if ($x) {
+			$class = $matches[1];
+		}
 
-/* should probably sanitize css somehow
-	$x = preg_match("/style='(.*?)'/ism", $attributes, $matches);
-	if ($x) {
-		$style = $matches[1] . ' ';
-	}
+		$x = preg_match("/class=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
+		if ($x) {
+			$class = $matches[1];
+		}
 
-	$x = preg_match("/style=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
-	if ($x) {
-		$style = $matches[1] . ' ';
-	}
-*/
-	// legacy img options
+	} else {
 
-	if ($match[2] === '=') {
+		// legacy img options
+
 		// pull out (optional) legacy size declarations first
 		if (preg_match("/([0-9]*)x([0-9]*)/ism",$match[3],$local_match)) {
 			$width = intval($local_match[1]);
 		}
 		$match[3] = substr($match[3],strpos($match[3],' '));
-	}
 
-	// then (optional) legacy float specifiers
-	if ($n = strpos($match[3],'float=left') !== false) {
-		$float = 'left';
-		$match[3] = substr($match[3],$n + 10);
-	}
+		// then (optional) legacy float specifiers
+		if ($n = strpos($match[3],'float=left') !== false) {
+			$float = 'left';
+			$match[3] = substr($match[3],$n + 10);
+		}
 
-	if ($n = strpos($match[3],'float=right') !== false) {
-		$float = 'right';
-		$match[3] = substr($match[3],$n + 11);
-	}
+		if ($n = strpos($match[3],'float=right') !== false) {
+			$float = 'right';
+			$match[3] = substr($match[3],$n + 11);
+		}
 
-	// finally alt text which extends to the close of the tag
-	if ((! $alt) && ($n = strpos($match[3],'alt=') !== false)) {
-		$alt = substr($match[3],$n + 4);
+		// finally alt text which extends to the close of the tag
+		if ((! $alt) && ($n = strpos($match[3],'alt=') !== false)) {
+			$alt = substr($match[3],$n + 4);
+		}
 	}
 
 	// now assemble the resulting img tag from these components
@@ -1680,7 +1660,10 @@ function bbcode($text, $options = []) {
 		$text = preg_replace("/\[zmg=http(.*?)\](.*?)\[\/zmg\]/ism", '<img class="zrl" style="max-width: 100%;" src="http$1" alt="$2" title="$2" loading="eager" />', $text);
 	}
 
-	$text = preg_replace_callback("/\[([zi])mg([ \=])(.*?)\](.*?)\[\/[zi]mg\]/ism",'bb_imgoptions',$text);
+	$text = preg_replace_callback(
+		"/\[([zi])mg([ \=])(.*?)\](.*?)\[\/[zi]mg\]/ism",
+		'bb_imgoptions',
+		$text);
 
 	// style (sanitized)
 	if (strpos($text,'[/style]') !== false) {

@@ -21,15 +21,13 @@ class Randprof extends \Zotlabs\Web\Controller {
 	}
 
 	function get() {
-		if(local_channel()) {
-			if(! Apps::system_app_installed(local_channel(), 'Random Channel')) {
-				//Do not display any associated widgets at this point
-				App::$pdl = '';
-				$papp = Apps::get_papp('Random Channel');
-				return Apps::app_render($papp, 'module');
-			}
-		}
-
+		// No need to repeat the check for local channel or app installed here,
+		// this method won't be called otherwise. See `init()`.
+		//
+		// Do not display any associated widgets at this point
+		App::$pdl = '';
+		$papp = Apps::get_papp('Random Channel');
+		return Apps::app_render($papp, 'module');
 	}
 
 }

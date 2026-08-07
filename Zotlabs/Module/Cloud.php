@@ -33,26 +33,20 @@ class Cloud extends Controller {
 	 */
 	function init() {
 
-		// TODO: why is this required?
-		// if we arrived at this path with any query parameters in the url, build a clean url without
-		// them and redirect.
-
-		$parsed = parse_url(App::$query_string);
-		if (!empty($parsed['query'])) {
-			goaway(z_root() . '/' . $parsed['path']);
+		if (!is_dir('store')) {
+			os_mkdir('store', STORAGE_DEFAULT_PERMISSIONS, false);
 		}
 
-		if (! is_dir('store'))
-			os_mkdir('store', STORAGE_DEFAULT_PERMISSIONS, false);
-
 		$which = null;
-		if (argc() > 1)
+		if (argc() > 1) {
 			$which = argv(1);
+		}
 
 		$profile = 0;
 
-		if ($which)
+		if ($which) {
 			profile_load( $which, $profile);
+		}
 
 		$auth = new BasicAuth();
 
@@ -71,7 +65,7 @@ class Cloud extends Controller {
 			$auth->observer = $ob_hash;
 		}
 
-		if(! array_key_exists('cloud_sort',$_SESSION)) {
+		if (!array_key_exists('cloud_sort',$_SESSION)) {
 			$_SESSION['cloud_sort'] = 'name';
 		}
 
@@ -87,8 +81,6 @@ class Cloud extends Controller {
 
 		$server->addPlugin($lockPlugin);
 
-		$is_readable = false;
-
 		// provide a directory view for the cloud in Hubzilla
 		$browser = new Browser($auth);
 		$auth->setBrowserPlugin($browser);
@@ -99,7 +91,6 @@ class Cloud extends Controller {
 		//	require_once('\Zotlabs\Storage/QuotaPlugin.php');
 		//	$server->addPlugin(new \Zotlabs\Storage\\QuotaPlugin($auth));
 
-
 		// over-ride the default XML output on thrown exceptions
 		$server->on('exception', [ $this, 'DAVException' ]);
 
@@ -107,8 +98,12 @@ class Cloud extends Controller {
 
 		$server->start();
 
-		if($browser->build_page)
+		if ($browser->build_page) {
+			// construct_page() should not be called if a file is accessed directly via mod cloud
+			// because it will emit "Cannot modify header information" warnings.
+			nav_set_selected('Files');
 			construct_page();
+		}
 
 		killme();
 	}

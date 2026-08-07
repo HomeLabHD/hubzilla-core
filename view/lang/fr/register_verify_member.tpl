@@ -7,7 +7,7 @@ Utilisateur: {{$email}}
 
 Connectez-vous avec le mot de passe que vous avez choisi au moment de l'enregistrement.
 
-Nous devons vérifier votre adresse électronique afin de vous donner un accès complet au réseau. 
+Nous devons vérifier votre adresse électronique afin de vous donner un accès complet au réseau.
 
 Votre code de vérification est :
 
@@ -24,6 +24,12 @@ Si vous avez enregistré ce compte, veuillez entrer le code de vérification lor
 {{$siteurl}}/regate/{{$mail}}
 
 Pour refuser la demande et supprimer le compte, merci de vous rendre à cette adresse :
+
 {{$siteurl}}/regate/{{$mail}}{{if $ko}}/{{$ko}}{{/if}}
 
 Merci.
+
+
+--
+Terms Of Service:
+{{$siteurl}}/help/TermsOfService

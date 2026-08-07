@@ -488,6 +488,7 @@ class Channel_calendar extends Controller {
 			}
 		}
 
+		http_status_exit(400, 'Bad request');
 	}
 
 }
