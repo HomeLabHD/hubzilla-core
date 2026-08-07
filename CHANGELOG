@@ -1,4 +1,4 @@
-Hubzilla 11.4 (2026-??-??)
+Hubzilla 11.4 (2026-08-07)
 	Features
 	- Introduce DBA upsert function wich will insert or update a row in one go to reduce integrity constraint violation warnings due to race conditions
 	- Notify about to be moderated likes if like notifications are disabled
