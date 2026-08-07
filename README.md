@@ -6,8 +6,8 @@ Hubzilla - The Community Server
 ![release badge](https://framagit.org/hubzilla/core/-/badges/release.svg)
 ![pipeline status](https://framagit.org/hubzilla/core/badges/master/pipeline.svg?ignore_skipped=true)
 
-* [Install Hubzilla](https://framagit.org/hubzilla/core/blob/master/install/INSTALL.txt)
-* [Contribute](https://framagit.org/hubzilla/core/blob/master/CONTRIBUTING.md)
+* [Install Hubzilla](install/INSTALL.txt)
+* [Contribute](CONTRIBUTING.md)
 
 **What is Hubzilla?**
 
