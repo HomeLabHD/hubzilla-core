@@ -4,6 +4,7 @@
  * @brief Items related functions.
  */
 
+use Zotlabs\Lib\ASObjectStorage;
 use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\Enotify;
@@ -1202,14 +1203,14 @@ function encode_item($item,$mirror = false,$zap_compat = false) {
 	}
 	else {
 		if ($item['obj']) {
-			$x['object'] = json_decode($item['obj'],true);
+			$x['object'] = (new ASObjectStorage($item['obj']))->decode();
 		}
 	}
 
 	if($item['target'])
 		$x['target']      = (($zap_compat)
 			? Activity::encode_item_object($item,'target')
-			: json_decode($item['target'],true)) ;
+			: (new ASObjectStorage($item['target']))->decode());
 	if($item['attach'])
 		$x['attach']      = json_decode($item['attach'],true);
 	if($y = encode_item_flags($item))
@@ -1621,31 +1622,23 @@ function item_sign(&$item) {
  * If it is an array, sanitise it and  then json_encode it.
  *
  * @param array $arr
- * @param string | intval $k
+ * @param string | int $k
  *
  * @return string | null
  */
 
-function item_json_encapsulate($arr, $k)  {
-	$retval = null;
 
-	if (isset($arr[$k])) {
-		if (is_string($arr[$k])) {
-			// determine if it is json encoded already
-			$test = json_decode($arr[$k]);
-			// assume it is json encoded already
-			$retval = $arr[$k];
-			if ($test === NULL) {
-				$retval = json_encode($arr[$k], JSON_UNESCAPED_SLASHES);
-			}
-		}
-		else {
-			activity_sanitise($arr[$k]);
-			$retval = json_encode($arr[$k], JSON_UNESCAPED_SLASHES);
-		}
-	}
+function item_json_encapsulate($arr,$k)  {
 
-	return $retval;
+        if (!empty($arr[$k])) {
+            $arr[$k] = (new ASObjectStorage($arr[$k]))->decode();
+        }
+        if (is_array($arr[$k])) {
+            $arr[$k] = activity_sanitise($arr[$k]);
+        }
+        $arr[$k] = (new ASObjectStorage($arr[$k]))->encode();
+        // Return an empty string for storage if unset, as these fields are generally not nullable.
+        return $arr[$k] ?? '';
 }
 
 /**
@@ -2956,15 +2949,15 @@ function item_community_tag($channel,$item) {
 	$tag_the_post = false;
 	$p = null;
 
-	$j_obj = json_decode($item['obj'],true);
-	$j_tgt = json_decode($item['target'],true);
-	if($j_tgt && $j_tgt['id']) {
+	$j_obj = (new ASObjectStorage($item['obj']))->decode();
+	$j_tgt = (new ASObjectStorage($item['target']))->decode();
+	if($j_tgt) {
 		$p = q("select * from item where mid = '%s' and uid = %d limit 1",
-			dbesc($j_tgt['id']),
+			dbesc($j_tgt['id'] ?? $j_tgt),
 			intval($channel['channel_id'])
 		);
 	}
-	if($p) {
+	if($p && is_array($j_obj)) {
 		xchan_query($p);
 		$items = fetch_post_tags($p,true);
 		$pitem = $items[0];
@@ -3432,22 +3425,18 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		$arr['body'] = $bb;
 		// Conversational objects shouldn't be copied, but other objects should.
 		if (in_array($item['obj_type'], [ 'Image', 'Event', 'Question' ])) {
-			$arr['obj'] = $item['obj'];
-			$t = json_decode($arr['obj'],true);
+			$arr['obj'] = (new ASObjectStorage($item['obj']))->decode();
+		    if (is_array($arr['obj'])) {
+                $arr['obj']['content'] = bbcode($bb);
+                $arr['obj']['source']['content'] = $bb;
+                $arr['obj']['id'] = $arr['mid'];
 
-			if ($t !== NULL) {
-				$arr['obj'] = $t;
-			}
-			$arr['obj']['content'] = bbcode($bb);
-			$arr['obj']['source']['content'] = $bb;
-			$arr['obj']['id'] = $arr['mid'];
+                if (!array_path_exists('obj/source/mediaType', $arr)) {
+                    $arr['obj']['source']['mediaType'] = 'text/bbcode';
+                }
 
-			if (! array_path_exists('obj/source/mediaType',$arr)) {
-				$arr['obj']['source']['mediaType'] = 'text/bbcode';
-			}
-
-			$arr['obj']['directMessage'] = (intval($arr['item_private']) === 2);
-
+                $arr['obj']['directMessage'] = (intval($arr['item_private']) === 2);
+            }
 		}
 
 		$arr['title'] = $item['title'];
@@ -3531,12 +3520,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 
 		$arr['verb'] = 'Announce';
 
-		if (is_array($item['obj'])) {
-			$arr['obj'] = $item['obj'];
-		}
-		elseif (is_string($item['obj']) && strlen($item['obj'])) {
-			$arr['obj'] = json_decode($item['obj'],true);
-		}
+        $arr['obj'] = (new ASObjectStorage($item['obj']))->decode();
 
 		if (! $arr['obj']) {
 			$arr['obj'] = $item['mid'];
@@ -4058,15 +4042,16 @@ function drop_related($item, $stage = DROPITEM_NORMAL, $force = false, $uid = 0,
 		return;
 	}
 	if ($item['verb'] === 'Add' && $item['tgt_type'] === 'Collection') {
-		if (is_array($item['obj'])) {
-			$thisItem = $item['obj'];
-		}
-		else {
-			$thisItem = json_decode($item['obj'], true);
-		}
+
+        $thisItem = (new ASObjectStorage($item['obj']))->decode();
+
 		if (isset($thisItem['object']['id'])) {
 			$targetMid = $thisItem['object']['id'];
 		}
+        else {
+            $targetMid = $thisItem;
+        }
+
 		if (!$targetMid) {
 			return;
 		}
@@ -4080,8 +4065,9 @@ function drop_related($item, $stage = DROPITEM_NORMAL, $force = false, $uid = 0,
 	else {
 		foreach ($allRelated as $related) {
 			if ($related['verb'] === 'Add' && str_contains($related['tgt_type'], 'Collection')) {
-				$thisItem = json_decode($related['obj'], true);
-				if (isset($thisItem['id']) && $thisItem['id'] === str_replace('/item/', '/activity/', $item['mid'])) {
+				$thisItem = (new ASObjectStorage($related['obj']))->decode();
+                $thisItemId = $thisItem['id'] ?: $thisItem;
+				if (isset($thisItemId) && $thisItemId === str_replace('/item/', '/activity/', $item['mid'])) {
 					drop_item($related['id'], $stage, $force, $uid, $observer_hash, $expire, recurse: true);
 					break;
 				}
@@ -4100,10 +4086,14 @@ function find_related($item) {
 		return false;
 	}
 	if ($item['verb'] === 'Add' && $item['tgt_type'] === 'Collection') {
-		$thisItem = json_decode($item['obj'],true);
+		$thisItem = (new ASObjectStorage($item['obj']))->decode();
 		if (is_array($thisItem)) {
 			$targetMid = $thisItem['object']['id'];
 		}
+        else {
+            $targetMid = $thisItem;
+        }
+
 		if (!$targetMid) {
 			return false;
 		}
@@ -4116,10 +4106,13 @@ function find_related($item) {
 	else {
 		foreach ($allRelated as $related) {
 			if ($related['verb'] === 'Add' && str_contains($related['tgt_type'], 'Collection')) {
-				$thisItem = json_decode($related['obj'], true);
+				$thisItem = (new ASObjectStorage($related['obj']))->decode();
 				if (isset($thisItem['object']['id']) && $thisItem['object']['id'] === $item['mid']) {
 					return $related;
 				}
+                elseif ($thisItem && $thisItem === $item['mid']) {
+                    return $related;
+                }
 			}
 		}
 	}

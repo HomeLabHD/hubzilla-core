@@ -9,6 +9,7 @@ use Michelf\MarkdownExtra;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\Exception\UnableToBuildUuidException;
 
+use Zotlabs\Lib\ASObjectStorage;
 use Zotlabs\Lib\Config;
 use Zotlabs\Lib\AbConfig;
 use Zotlabs\Lib\Crypto;
@@ -1936,12 +1937,7 @@ function prepare_binary($item) {
 
 function format_poll($item,$s,$opts) {
 
-	if (! is_array($item['obj'])) {
-		$act = json_decode($item['obj'],true);
-	}
-	else {
-		$act = $item['obj'];
-	}
+    $act = (new ASObjectStorage($item['obj']))->decode();
 
 	if (! is_array($act)) {
 		return EMPTY_STR;
@@ -2147,9 +2143,9 @@ function prepare_text($text, $content_type = 'text/bbcode', $opts = false, $term
 
 function create_export_photo_body(&$item) {
 	if((in_array($item['verb'], ['Create', ACTIVITY_POST])) && (in_array($item['obj_type'], ['Image', ACTIVITY_OBJ_PHOTO]))) {
-		$j = json_decode($item['obj'],true);
-		if($j) {
-			$item['body'] .= "\n\n" . (($j['body']) ? $j['body'] : $j['bbcode']);
+		$j = (new ASObjectStorage($item['obj']))->decode();
+		if(is_array($j)) {
+			$item['body'] .= "\n\n" . (($j['body']) ?: $j['bbcode']);
 			$item['sig'] = '';
 		}
 	}

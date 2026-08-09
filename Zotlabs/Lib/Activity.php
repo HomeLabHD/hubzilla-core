@@ -20,9 +20,7 @@ class Activity {
 
 	static function encode_object($x) {
 
-		if (($x) && (!is_array($x)) && (substr(trim($x), 0, 1)) === '{') {
-			$x = json_decode($x, true);
-		}
+        $x = (new ASObjectStorage($x))->decode();
 
 		if (is_array($x)) {
 
@@ -395,11 +393,8 @@ class Activity {
 				}
 
 				if ($m) {
-					if (is_string($m))
-						$t = json_decode($m, true);
-					else
-						$t = $m;
-				}
+					$t = (new ASObjectStorage($m))->decode();
+                }
 				else {
 					$t = self::encode_activity($i);
 				}
@@ -527,25 +522,14 @@ class Activity {
 		}
 
 		if (isset($i['obj']) && $i['obj']) {
-			if (is_array($i['obj'])) {
-				$ret = $i['obj'];
-			}
-			else {
-				$ret = json_decode($i['obj'], true);
-			}
+            $ret = (new ASObjectStorage($i['obj']))->decode();
 		}
 
 		$ret['type'] = $objtype;
 
 		if ($objtype === 'Question') {
 			if ($i['obj']) {
-				if (is_array($i['obj'])) {
-					$ret = $i['obj'];
-				}
-				else {
-					$ret = json_decode($i['obj'], true);
-				}
-
+			    $ret = (new ASObjectStorage($i['obj']))->decode();
 				if (array_path_exists('actor/id', $ret)) {
 					$ret['actor'] = $ret['actor']['id'];
 				}
@@ -748,20 +732,14 @@ class Activity {
 		if (isset($a['attachment'])) {
 			$ret['attachment'] = $a['attachment'];
 		}
-/*
-		if ($i['target']) {
-			if (is_string($i['target'])) {
-				$tmp = json_decode($i['target'], true);
-				if ($tmp !== null) {
-					$i['target'] = $tmp;
-				}
-			}
+        if ($i['target']) {
+            $i['target'] = (new ASObjectStorage($i['target']))->decode();
 			$tgt = self::encode_object($i['target']);
 			if ($tgt) {
 				$ret['target'] = $tgt;
 			}
 		}
-*/
+
 		if (intval($i['item_private']) === 0) {
 			$ret['to'] = [ACTIVITY_PUBLIC_INBOX];
 		}
@@ -1018,19 +996,15 @@ class Activity {
 			if ($i['verb'] === 'Add' && str_contains($i['tgt_type'], 'Collection')) {
 				$ret['id'] = str_replace('/item/', '/activity/', $i['mid']) . '#Remove';
 				$ret['type'] = 'Remove';
-				if (is_string($i['obj'])) {
-					$obj = json_decode($i['obj'], true);
-				}
-				elseif(is_array($i['obj'])) {
-					$obj = $i['obj'];
-				}
+                $obj = (new ASObjectStorage($i['obj']))->decode();
+
 				if (isset($obj['id'])) {
 					$ret['object'] = $obj['id'];
 				}
 				else {
 					$ret['object'] = str_replace('/item/', '/activity/', $i['mid']);
 				}
-				$ret['target'] = is_array($i['target']) ? $i['target'] : json_decode($i['target'], true);
+                $ret['target'] = (new ASObjectStorage($i['target']))->decode();
 
 				return $ret;
 			}
@@ -1166,10 +1140,9 @@ class Activity {
 			return [];
 
 		if (!empty($i['obj'])) {
-			if (!is_array($i['obj'])) {
-				$i['obj'] = json_decode($i['obj'], true);
-			}
-			if (in_array($i['obj']['type'], ['Image', ACTIVITY_OBJ_PHOTO])) {
+            $i['obj'] = (new ASObjectStorage($i['obj']))->decode();
+
+			if (is_array($i['obj']) && in_array($i['obj']['type'], ['Image', ACTIVITY_OBJ_PHOTO])) {
 				$i['obj']['id'] = $i['mid'];
 			}
 
@@ -1194,9 +1167,6 @@ class Activity {
 		}
 
 		if (!empty($i['target'])) {
-			if (!is_array($i['target'])) {
-				$i['target'] = json_decode($i['target'], true);
-			}
 			$tgt = self::encode_object($i['target']);
 			if ($tgt)
 				$ret['target'] = $tgt;
@@ -1412,9 +1382,7 @@ class Activity {
 		$ret = [];
 
 		if ($item[$elm]) {
-			if (!is_array($item[$elm])) {
-				$item[$elm] = json_decode($item[$elm], true);
-			}
+            $item[$elm] = (new ASObjectStorage($item[$elm]))->decode();
 			if (in_array($item[$elm]['type'], ['Image', ACTIVITY_OBJ_PHOTO])) {
 				$item[$elm]['id'] = $item['mid'];
 			}
@@ -2089,7 +2057,11 @@ class Activity {
 			}
 		}
 
-		$o = json_decode($pollItem['obj'], true);
+		$o = (new ASObjectStorage($pollItem['obj']))->decode();
+        if (! is_array($o)) {
+            logger('Could not de-reference object.');
+            return false;
+        }
 
 		if ($o && array_key_exists('anyOf', $o)) {
 			$multi = true;

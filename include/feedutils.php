@@ -4,6 +4,7 @@
  * @brief Some functions to work with XML feeds.
  */
 
+use Zotlabs\Lib\ASObjectStorage;
 use Zotlabs\Lib\Config;
 use Zotlabs\Lib\MessageFilter;
 
@@ -1982,7 +1983,10 @@ function atom_entry($item, $type, $author, $owner, $comment = false, $cid = 0, $
 	}
 
 	if((activity_match($item['obj_type'], ACTIVITY_OBJ_EVENT) || activity_match($item['obj_type'], 'Event')) && activity_match($item['verb'],['Create', ACTIVITY_POST])) {
-		$obj = ((is_array($item['obj'])) ? $item['obj'] : json_decode($item['obj'],true));
+		$obj = (new ASObjectStorage($item['obj']))->decode();
+        if (!is_array($obj)) {
+            return false;
+        }
 
 		$o .= '<title>' . xmlify($item['title']) . '</title>' . "\r\n";
 		$o .= '<summary xmlns="urn:ietf:params:xml:ns:xcal">' . xmlify(bbcode($obj['title'])) . '</summary>' . "\r\n";

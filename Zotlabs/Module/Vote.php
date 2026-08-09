@@ -2,6 +2,7 @@
 namespace Zotlabs\Module;
 
 use App;
+use Zotlabs\Lib\ASObjectStorage;
 use Zotlabs\Web\Controller;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Daemon\Master;
@@ -47,7 +48,11 @@ class Vote extends Controller {
 		}
 
 		$response = $_REQUEST['answer'];
-		$obj = json_decode($poll[0]['obj'],true);
+		$obj = (new ASObjectStorage($poll[0]['obj']))->decode();
+        if (!is_array($obj)) {
+            $ret['message'] = t('Unable to de-reference object.');
+            json_return_and_die($ret);
+        }
 
 		$valid = false;
 

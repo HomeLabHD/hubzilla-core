@@ -4,14 +4,12 @@ namespace Zotlabs\Lib;
 
 /*
  * ASObjectStorage
- * General purpose function to encode/decode ActivityStreams objects.
- * This safely stores and retrieves values that might either be a URI, object, or array of
- * objects. Other types (i.e. numeric values) are passed through. `encode()` only converts array to string
- * and `decode()` only converts string to array. Either may be called repeatedly/recursively on the same content
- * with the same results. This means you can call decode() at any time without checking first to see if the object
- * has already been decoded or if it is in fact a URI.
- *
+ * General purpose function to encode/decode ActivityStreams objects for storage as json encoded strings, while
+ * also storing contents that are URIs as a string value; which normally cause json_decode() to return null.
+ * May be called recursively or repeatedly without first checking type or existence; if you wish to ensure that
+ * any data you were passed is or has already been unconditionally converted to the expected format.
  */
+
 class ASObjectStorage
 {
 
@@ -35,13 +33,13 @@ class ASObjectStorage
         return $this->object;
     }
 
-    public function encode()
+    public function encode($options = JSON_UNESCAPED_SLASHES)
     {
         if (is_string($this->object)) {
             return $this->object;
         }
         if (is_array($this->object)) {
-            $this->object = json_encode($this->object, JSON_UNESCAPED_SLASHES);
+            $this->object = json_encode($this->object, $options);
         }
         return $this->object;
     }

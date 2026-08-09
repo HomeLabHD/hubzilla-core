@@ -3,9 +3,11 @@
 namespace Zotlabs\Tests\Unit\Lib;
 
 use Zotlabs\Lib\ASObjectStorage;
-use Zotlabs\Tests\Unit\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
-class ASObjectStorageTest extends UnitTestCase
+// This does not require a database connection.
+
+class ASObjectStorageTest extends TestCase
 {
     public function testStorageEncoding()
     {
@@ -41,9 +43,9 @@ class ASObjectStorageTest extends UnitTestCase
         $object = '';
         $object = (new ASObjectStorage($object))->decode();
         $this->assertSame('', $object);
-        // This next one was produced by earlier versions of these functions. The double quotes were encoded into json
+        // This next one was produced by earlier versions of these functions. The double quotes were encoded into JSON
         // and a string containing two double quotes was stored. Both functions should return an empty string in
-        // this case instead of a string containing two quotes - e,g, a json-encoded empty string.
+        // this case instead of a string containing two quotes - e,g, a JSON-encoded empty string.
         $object = '""';
         $object = (new ASObjectStorage($object))->decode();
         $this->assertSame('', $object);
