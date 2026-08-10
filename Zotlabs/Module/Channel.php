@@ -422,7 +422,7 @@ class Channel extends Controller {
 			// Keep this until we officially deprecate AS1 data.
 			AS1_to_AS2_verbs($r);
 
-			$thr_parents = null;
+			$thr_parents = [];
 			if ($mid) {
 				$thr_parents = get_recursive_thr_parents($r[0]);
 			}

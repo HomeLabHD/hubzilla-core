@@ -828,63 +828,72 @@ class Apps {
 		return(($r) ? true : false);
 	}
 
-
-	static public function addon_app_installed($uid,$app,$bypass_filter=false) {
+	static public function addon_app_installed(int $uid, string $app, bool $bypass_filter = false): bool
+	{
 		static $stmt;
 
 		if (!$stmt instanceof PDOStatement) {
-			$stmt = DBA::$dba->db->prepare("select id from app where app_plugin = ? and app_channel = ? and app_deleted = 0 limit 1");
+			$stmt = DBA::$dba->db->prepare(
+				"SELECT id FROM app WHERE app_plugin = ? AND app_channel = ? AND app_deleted = 0 LIMIT 1"
+			);
 		}
 
 		$stmt->execute([$app, $uid]);
-		$r = $stmt->fetch(PDO::FETCH_ASSOC);
+		$installed = $stmt->fetchColumn();
 
 		if (!$bypass_filter) {
 			$filter_arr = [
-				'uid'=>$uid,
-				'app'=>$app,
-				'installed'=>$r
+				'uid'       => $uid,
+				'app'       => $app,
+				'installed' => (bool) $installed,
 			];
-			/**
-			 * @hooks addon_app_installed_filter
-			 *  * \e int \b uid
-			 *  * \e array \b app
-			 *  * \e mixed \b installed - return value
-			 */
-			call_hooks('addon_app_installed_filter', $filter_arr);
-			$r = $filter_arr['installed'];
-		}
 
-		return(($r) ? true : false);
-	}
-
-	static public function system_app_installed($uid,$app,$bypass_filter=false) {
-		static $stmt;
-
-		if (!$stmt instanceof PDOStatement) {
-			$stmt = DBA::$dba->db->prepare("select id from app where app_id = ? and app_channel = ? limit 1");
-		}
-
-		$stmt->execute([hash('whirlpool', $app), $uid]);
-		$r = $stmt->fetch(PDO::FETCH_ASSOC);
-
-		if (!$bypass_filter) {
-			$filter_arr = [
-				'uid'=>$uid,
-				'app'=>$app,
-				'installed'=>$r
-			];
 			/**
 			 * @hooks system_app_installed_filter
 			 *  * \e int \b uid
-			 *  * \e array \b app
-			 *  * \e mixed \b installed - return value
+			 *  * \e string \b app
+			 *  * \e bool \b installed
 			 */
-			call_hooks('system_app_installed_filter', $filter_arr);
-			$r = $filter_arr['installed'];
+			call_hooks('addon_app_installed_filter', $filter_arr);
+
+			$installed = $filter_arr['installed'];
 		}
 
-		return(($r) ? true : false);
+		return (bool) $installed;
+	}
+
+	static public function system_app_installed(int $uid, string $app, bool $bypass_filter = false): bool
+	{
+		static $stmt;
+
+		if (!$stmt instanceof PDOStatement) {
+			$stmt = DBA::$dba->db->prepare(
+				"SELECT id FROM app WHERE app_id = ? AND app_channel = ? LIMIT 1"
+			);
+		}
+
+		$stmt->execute([hash('whirlpool', $app), $uid]);
+		$installed = $stmt->fetchColumn();
+
+		if (!$bypass_filter) {
+			$filter_arr = [
+				'uid'       => $uid,
+				'app'       => $app,
+				'installed' => (bool) $installed,
+			];
+
+			/**
+			 * @hooks system_app_installed_filter
+			 *  * \e int \b uid
+			 *  * \e string \b app
+			 *  * \e bool \b installed
+			 */
+			call_hooks('system_app_installed_filter', $filter_arr);
+
+			$installed = $filter_arr['installed'];
+		}
+
+		return (bool) $installed;
 	}
 
 	/**

@@ -5450,13 +5450,13 @@ function item_by_item_id(int $id, int $parent, int $type = ITEM_TYPE_POST): arra
  * ATTENTION: no permissions for the parents are checked here!!!
  * Permissions MUST be checked by the module which calls this function.
  * @param array $parents
- * @param null|array $thr_parents (optional) - thr_parent mids which will be included
+ * @param array $thr_parents (optional) - thr_parent mids which will be included
  * @param string $permission_sql (optional) - SQL as provided by item_permission_sql() from the calling module
  * @param bool $blog_mode (optional) - if set to yes only the parent items will be returned
  * @param int $type (optional) - defaults to ITEM_TYPE_POST
  */
 
-function items_by_parent_ids(array $parents, null|array $thr_parents = null, string $permission_sql = '', bool $blog_mode = false, int $type = ITEM_TYPE_POST): array
+function items_by_parent_ids(array $parents, array $thr_parents = [], string $permission_sql = '', bool $blog_mode = false, int $type = ITEM_TYPE_POST): array
 {
 	if (!$parents) {
 		return [];
@@ -5790,40 +5790,41 @@ function item_activity_xchans(string $mid, int $parent, string $verb): array
 
 /**
  * @brief find and return thr_parents we need to show when displaying a nested comment.
- * TODO: can this be improved or maybe implemented differently in the UI?
  * @param array $item
  */
 
-function get_recursive_thr_parents(array $item): array|null
+function get_recursive_thr_parents(array $item): array
 {
 	if ($item['id'] === $item['parent']) {
-		// This is a toplevel post, return null.
-		return null;
+		return [];
 	}
 
-	$thr_parents[] = $item['thr_parent'];
+	$r = pe("WITH RECURSIVE parents AS (
+			SELECT
+				thr_parent,
+				parent_mid
+			FROM item
+			WHERE uid = ? AND mid = ?
 
-	$mid = $item['thr_parent'];
-	$parent_mid = $item['parent_mid'];
-	$uid = $item['uid'];
-	$i = 0;
+			UNION ALL
 
-	$stmt = p("SELECT thr_parent, mid FROM item WHERE uid = ? AND mid = ?");
+			SELECT
+				i.thr_parent,
+				p.parent_mid
+			FROM parents p
+			JOIN item i
+			  ON i.uid = ?
+			 AND i.mid = p.thr_parent
+			WHERE p.thr_parent <> p.parent_mid
+		)
+		SELECT thr_parent
+		FROM parents", [
+		$item['uid'],
+		$item['thr_parent'],
+		$item['uid']
+	]);
 
-	while ($mid !== $item['parent_mid'] && $i < 100) {
-		$x = e($stmt, [$uid, $mid]);
-
-		if (!$x) {
-			break;
-		}
-
-		$mid = $x[0]['thr_parent'];
-		$thr_parents[] = $x[0]['thr_parent'];
-
-		$i++;
-	}
-
-	return $thr_parents;
+	return array_merge([$item['thr_parent']], array_column($r, 'thr_parent'));
 }
 
 /**
