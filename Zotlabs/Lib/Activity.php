@@ -1383,11 +1383,12 @@ class Activity {
 
 		if ($item[$elm]) {
             $item[$elm] = (new ASObjectStorage($item[$elm]))->decode();
-			if (in_array($item[$elm]['type'], ['Image', ACTIVITY_OBJ_PHOTO])) {
-				$item[$elm]['id'] = $item['mid'];
-			}
-
-			$obj = self::encode_object($item[$elm]);
+            if (is_array($item[$elm])) {
+                if (in_array($item[$elm]['type'], ['Image', ACTIVITY_OBJ_PHOTO])) {
+                    $item[$elm]['id'] = $item['mid'];
+                }
+            }
+            $obj = self::encode_object($item[$elm]);
 			if ($obj)
 				return $obj;
 			else
