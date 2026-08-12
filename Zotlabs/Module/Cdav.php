@@ -900,6 +900,7 @@ class Cdav extends Controller {
 		//Display calendar(s) here
 		if(argc() <= 3 && argv(1) === 'calendar') {
 			head_add_js('/library/fullcalendar/dist/index.global.js');
+			head_add_js('/view/js/timeformat.js');
 			head_add_css('cdav_calendar.css');
 
 			$o = '';
@@ -1020,6 +1021,7 @@ class Cdav extends Controller {
 				'$color' => $color,
 				'$lang' => App::$language,
 				'$timezone' => date_default_timezone_get(),
+				'$timeformat' => feature_enabled(local_channel(),'cal_timeformat') ? 1 : 0,
 				'$first_day' => $first_day,
 				'$prev'	=> t('Previous'),
 				'$next'	=> t('Next'),
