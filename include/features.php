@@ -73,11 +73,27 @@ function get_features($filtered = true, $level = (-1)) {
 
 	$account = \App::get_account();
 
+	$time_formats = [
+		'g:i a',
+		'H:i',
+	];
+
 	$arr = [
 
 		'calendar' => [
 
 			t('Calendar'),
+
+			[
+				'cal_timeformat',
+				t('Timeformat 24 hours'),
+				sprintf(t('For use in calendar and events, like %s or %s.'),
+					date($time_formats[TIMEFORMAT_24H]) . ' (' . $time_formats[TIMEFORMAT_24H] . ')',
+					date($time_formats[TIMEFORMAT_12H]) . ' (' . $time_formats[TIMEFORMAT_12H] . ')'
+				),
+				false,
+				Config::Get('feature_lock','cal_timeformat')
+			],
 
 			[
 				'cal_first_day',

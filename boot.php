@@ -205,6 +205,13 @@ define('LOGGER_DATA', 3);
 define('LOGGER_ALL', 4);
 
 /**
+ * time format
+ */
+
+define('TIMEFORMAT_12H', 0);
+define('TIMEFORMAT_24H', 1);
+
+/**
  * log timezone
  */
 
