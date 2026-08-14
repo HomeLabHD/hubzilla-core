@@ -1632,11 +1632,8 @@ function item_json_encapsulate($arr,$k)  {
 
         if (!empty($arr[$k])) {
             $arr[$k] = (new ASObjectStorage($arr[$k]))->decode();
+            $arr[$k] = (new ASObjectStorage($arr[$k]))->encode();
         }
-        if (is_array($arr[$k])) {
-            $arr[$k] = activity_sanitise($arr[$k]);
-        }
-        $arr[$k] = (new ASObjectStorage($arr[$k]))->encode();
         // Return an empty string for storage if unset, as these fields are generally not nullable.
         return $arr[$k] ?? '';
 }
