@@ -1490,28 +1490,29 @@ function purify_imported_object($obj) {
 
 
 /**
- * @brief Sanitise an ActivityPub object.
+ * @brief Santise a potentially complex array.
  *
  * @param array $arr
  * @return array|string
  */
 function activity_sanitise($arr) {
-	if ($arr) {
-		if (is_array($arr)) {
-			$ret = [];
-			foreach($arr as $key => $value) {
-				if (in_array($key, [ 'name', 'content', 'summary', 'contentMap', 'summaryMap' ])) {
-					$ret[$key] = purify_imported_object($arr[$key]);
+	if($arr) {
+		if(is_array($arr)) {
+			$ret = array();
+			foreach($arr as $k => $x) {
+				if (in_array($k, [ 'content', 'summary', 'contentMap', 'summaryMap' ])) {
+					$ret[$k] = purify_imported_object($arr[$k]);
 					continue;
 				}
-				if (is_array($value)) {
-                    $ret[$key] = activity_sanitise($value);
-                }
-            }
+				if(is_array($x))
+					$ret[$k] = activity_sanitise($x);
+				else
+					$ret[$k] = htmlspecialchars((string)$x, ENT_COMPAT, 'UTF-8', false);
+			}
 			return $ret;
 		}
 		else {
-			return $arr;
+			return htmlspecialchars($arr, ENT_COMPAT, 'UTF-8', false);
 		}
 	}
 
