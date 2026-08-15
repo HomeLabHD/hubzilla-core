@@ -111,7 +111,7 @@ class Editblock extends \Zotlabs\Web\Controller {
 			'return_path' => $rp,
 			'webpage' => ITEM_TYPE_BLOCK,
 			'ptlabel' => t('Block Name'),
-			'button' => t('Edit'),
+			'button' => t('Submit'),
 			'writefiles' => (($mimetype  == 'text/bbcode') ? perm_is_allowed($owner, get_observer_hash(), 'write_storage') : false),
 			'weblink' => (($mimetype  == 'text/bbcode') ? t('Insert web link') : false),
 			'hide_voting' => true,
