@@ -28,7 +28,7 @@
 				<td><a href="mitem/{{$nick}}/{{$m.menu_id}}{{if $sys}}?f=&sys=1{{/if}}" title="{{$hintcontent}}">{{$m.menu_name}}</a></td>
 				<td>{{$m.menu_desc}}</td>
 				<td class="menu-list-tool"><a href="menu/{{$nick}}/{{$m.menu_id}}{{if $sys}}?f=&sys=1{{/if}}" title="{{$hintedit}}"><i class="bi bi-pencil"></i></a></td>
-				<td class="menu-list-tool"><a href="rpost?attachment={{$m.element}}" title="{{$share}}"><i class="bi bi-download"></i></a></td>
+				<td class="menu-list-tool"><a href="rpost?attachment={{$m.element}}" title="{{$share}}"><i class="bi bi-share"></i></a></td>
 				<td class="menu-list-tool"><a href="#" title="{{$hintdrop}}"  onclick="dropItem('menu/{{$nick}}/{{$m.menu_id}}/drop{{if $sys}}?f=&sys=1{{/if}}', '#menu-list-item-{{$m.menu_id}}'); return false;"><i class="bi bi-trash drop-icons"></i></a></td>
 				<td class="d-none d-md-table-cell">{{$m.menu_created}}</td>
 				<td class="d-none d-md-table-cell">{{$m.menu_edited}}</td>
