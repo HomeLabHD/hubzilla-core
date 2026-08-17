@@ -52,7 +52,7 @@
 				</td>
 				<td class="webpage-list-tool">
 					{{if $item.bb_element}}
-					<a href="rpost?attachment={{$item.bb_element}}" title="{{$share}}"><i class="bi bi-download"></i></a>
+					<a href="rpost?attachment={{$item.bb_element}}" title="{{$share}}"><i class="bi bi-share"></i></a>
 					{{/if}}
 				</td>
 				<td class="webpage-list-tool">
