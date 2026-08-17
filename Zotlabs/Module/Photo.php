@@ -5,6 +5,7 @@ namespace Zotlabs\Module;
 
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\ActivityStreams;
+use Zotlabs\Lib\ASObjectStorage;
 use Zotlabs\Web\HTTPSig;
 use Zotlabs\Lib\Config;
 
@@ -53,7 +54,7 @@ class Photo extends \Zotlabs\Web\Controller {
 			}
 			$channel = channelx_by_n($r[0]['uid']);
 
-			$obj = json_decode($r[0]['obj'],true);
+			$obj = (new ASObjectStorage($r[0]['obj']))->decode();
 
 			as_return_and_die($obj,$channel);
 

@@ -2,6 +2,7 @@
 
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\Apps;
+use Zotlabs\Lib\ASObjectStorage;
 use Zotlabs\Lib\Config;
 use Zotlabs\Lib\PConfig;
 
@@ -99,8 +100,8 @@ function localize_item(&$item){
 		if(intval($item['item_thread_top']))
 			return;
 
-		$obj = json_decode($item['obj'],true);
-		if((! $obj) && ($item['obj'])) {
+		$obj = (new ASObjectStorage($item['obj']))->decode();
+		if(! is_array($obj)) {
 			logger('localize_item: failed to decode object: ' . print_r($item['obj'],true));
 		}
 

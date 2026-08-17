@@ -1,6 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\ASObjectStorage;
 use Zotlabs\Web\Controller;
 
 require_once('include/conversation.php');
@@ -69,7 +70,7 @@ class Sharedwithme extends Controller {
 		if($r) {
 
 			foreach($r as $rr) {
-				$obj = json_decode($rr['obj'], true);
+				$obj = (new ASObjectStorage($rr['obj']))->decode();
 				$item = [];
 
 				$item['id'] = $rr['id'];
@@ -78,7 +79,7 @@ class Sharedwithme extends Controller {
 				if($item['unseen']) {
 					$ids[] = $rr['id'];
 				}
-				if (isset($obj['url']) && is_array($obj['url'])) {
+				if (is_array($obj) && isset($obj['url']) && is_array($obj['url'])) {
 					foreach($obj['url'] as $u) {
 						$item['objfiletype'] = $u['mediaType'] ?? '';
 						$item['objfiletypeclass'] = getIconFromType($u['mediaType'] ?? 'octet/stream');

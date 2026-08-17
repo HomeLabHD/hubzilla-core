@@ -8,6 +8,7 @@
 use Sabre\VObject;
 
 use Zotlabs\Lib\Activity;
+use Zotlabs\Lib\ASObjectStorage;
 use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libsync;
 use Zotlabs\Access\AccessList;
@@ -76,7 +77,7 @@ function format_event_html($ev) {
 function format_event_obj($jobject) {
 
 	$event = [];
-	$object = json_decode($jobject, true);
+	$object = (new ASObjectStorage($jobject))->decode();
 
 /*******
 	This is our encoded format
@@ -805,7 +806,10 @@ function event_addtocal($item_id, $uid) {
 
 function parse_event_object($event_object_json) {
 
-	$object = json_decode($event_object_json, true);
+	$object = (new ASObjectStorage($event_object_json))->decode();
+    if (! is_array($object)) {
+        return false;
+    }
 
 	$tz = $object['timezone'] ?? 'UTC';
 
