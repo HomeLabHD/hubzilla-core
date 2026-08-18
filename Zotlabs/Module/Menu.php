@@ -183,6 +183,7 @@ class Menu extends \Zotlabs\Web\Controller {
 				'$hintdrop' => t('Delete this menu'),
 				'$hintcontent' => t('Edit menu contents'),
 				'$hintedit' => t('Edit this menu'),
+				'$hintshare' => t('Share this menu'),
 				'$nick' => $which,
 				'$sys' => \App::$is_sys
 			));
