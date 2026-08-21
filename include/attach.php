@@ -901,6 +901,11 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 		if ($mimetype === false) {
 			$mimetype = 'application/octet-stream';
 		}
+		
+		// Workaround for libmagic misidentifying CSS files as text/plain
+		if ($mimetype === 'text/plain' && preg_match('/\.css$/i', $filename)) {
+			$mimetype = 'text/css';
+		}
 	}
 
 	if($options === 'replace') {
