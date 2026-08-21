@@ -89,5 +89,7 @@ class Fhublocs extends \Zotlabs\Web\Controller {
 			return $o;
 
 		}
+
+		http_status_exit(400, 'Bad request');
 	}
 }

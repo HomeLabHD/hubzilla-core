@@ -322,22 +322,26 @@ class Activity {
 
 	}
 
-	static function paged_collection_init($total, $id, $type = 'OrderedCollection') {
+	public static function paged_collection_init($total, $id, $type = 'OrderedCollection', $collectionOf = '', $attributedTo = ''): array
+	{
 
 		$ret = [
-			'id'         => z_root() . '/' . $id,
-			'type'       => $type,
+			'id' => z_root() . '/' . $id,
+			'type' => $type,
 			'totalItems' => $total,
 		];
+
+		if ($collectionOf) {
+			$ret['collectionOf'] = $collectionOf;
+		}
 
 		$numpages = $total / App::$pager['itemspage'];
 		$lastpage = (($numpages > intval($numpages)) ? intval($numpages) + 1 : $numpages);
 
 		$ret['first'] = z_root() . '/' . App::$query_string . '?page=1';
-		$ret['last']  = z_root() . '/' . App::$query_string . '?page=' . $lastpage;
+		$ret['last'] = z_root() . '/' . App::$query_string . '?page=' . $lastpage;
 
 		return $ret;
-
 	}
 
 	static function encode_item_collection($items, $id, $type, $total = 0) {
@@ -414,28 +418,68 @@ class Activity {
 		return $ret;
 	}
 
-	static function encode_follow_collection($items, $id, $type, $extra = null) {
+	public static function encode_follow_collection($items, $id, $type, $total = 0): array
+	{
+		if ($total > App::$pager['itemspage']) {
+			$ret = [
+				'id' => z_root() . '/' . $id,
+				'type' => $type . 'Page',
+				'collectionOf' => 'actor'
+			];
 
-		$ret = [
-			'id'         => z_root() . '/' . $id,
-			'type'       => $type,
-			'totalItems' => count($items),
-		];
-		if ($extra)
-			$ret = array_merge($ret, $extra);
+			$numpages = $total / App::$pager['itemspage'];
+
+			$lastpage = (($numpages > intval($numpages)) ? intval($numpages) + 1 : $numpages);
+
+			$url_parts = parse_url($id);
+
+			$ret['partOf'] = z_root() . '/' . $url_parts['path'];
+
+			$extra_query_args = '';
+			$query_args       = null;
+			if (isset($url_parts['query'])) {
+				parse_str($url_parts['query'], $query_args);
+			}
+
+			if (is_array($query_args)) {
+				unset($query_args['page']);
+				foreach ($query_args as $k => $v) {
+					$extra_query_args .= '&' . urlencode($k) . '=' . urlencode($v);
+				}
+			}
+
+			if (App::$pager['page'] < $lastpage) {
+				$ret['next'] = z_root() . '/' . $url_parts['path'] . '?page=' . (intval(App::$pager['page']) + 1) . $extra_query_args;
+			}
+
+			if (App::$pager['page'] > 1) {
+				$ret['prev'] = z_root() . '/' . $url_parts['path'] . '?page=' . (intval(App::$pager['page']) - 1) . $extra_query_args;
+			}
+
+		} else {
+			$ret = [
+				'id' => z_root() . '/' . $id,
+				'type' => $type,
+				'collectionOf' => 'actor',
+				'totalItems' => $total,
+			];
+		}
 
 		if ($items) {
 			$x = [];
 			foreach ($items as $i) {
-				if ($i['xchan_url']) {
+				if (in_array($i['xchan_network'], ['activitypub'])) {
+					$x[] = $i['xchan_hash'];
+				} else {
 					$x[] = $i['xchan_url'];
 				}
 			}
 
-			if ($type === 'OrderedCollection')
+			if ($type === 'OrderedCollection') {
 				$ret['orderedItems'] = $x;
-			else
+			} else {
 				$ret['items'] = $x;
+			}
 		}
 
 		return $ret;
@@ -696,8 +740,13 @@ class Activity {
 		}
 
 		$a = self::encode_attachment($i);
-		if ($a) {
-			$ret['attachment'] = $a;
+
+		if (isset($a['url'])) {
+			$ret['url'] = $a['url'];
+		}
+
+		if (isset($a['attachment'])) {
+			$ret['attachment'] = $a['attachment'];
 		}
 /*
 		if ($i['target']) {
@@ -806,39 +855,57 @@ class Activity {
 		return $ret;
 	}
 
-	static function encode_attachment($item, $iconfig = false) {
+	static function encode_attachment($item) {
 
 		$ret = [];
 
 		$token = IConfig::Get($item, 'ocap', 'relay');
 
-		if (!$iconfig && array_key_exists('attach', $item)) {
+		if (array_key_exists('attach', $item)) {
 			$atts = ((is_array($item['attach'])) ? $item['attach'] : json_decode($item['attach'], true));
 			if ($atts) {
 				foreach ($atts as $att) {
-					if (!isset($att['type'], $att['href'])) {
+					// If href is provided we will return link type as url
+					if (isset($att['type'], $att['href'])) {
+						$ret['url'][] = [
+							'type' => 'Link',
+							'mediaType' => $att['type'],
+							'contentSize' => $att['contentSize'] ?? null,
+							'name' => $att['title'] ?? null,
+							'width' => $att['width'] ?? null,
+							'height' => $att['height'] ?? null,
+							'href' => $att['href'] . (($token) ? '?token=' . $token : '')
+						];
 						continue;
 					}
 
+					// If url is provided we will return the provided media type as attachment
+					if (!isset($att['type'], $att['url'])) {
+						continue;
+					}
+
+					$type = 'Document';
 					if (str_starts_with($att['type'], 'image')) {
-						$ret[] = ['type' => 'Image', 'mediaType' => $att['type'], 'name' => $att['title'], 'url' => $att['href'] . (($token) ? '?token=' . $token : '')];
+						$type = 'Image';
 					}
-					elseif (str_starts_with($att['type'], 'audio')) {
-						$ret[] = ['type' => 'Audio', 'mediaType' => $att['type'], 'name' => $att['title'], 'url' => $att['href'] . (($token) ? '?token=' . $token : '')];
+
+					if (str_starts_with($att['type'], 'audio')) {
+						$type = 'Audio';
 					}
-					elseif (str_starts_with($att['type'], 'video')) {
-						$ret[] = ['type' => 'Video', 'mediaType' => $att['type'], 'name' => $att['title'], 'url' => $att['href'] . (($token) ? '?token=' . $token : '')];
+
+					if (str_starts_with($att['type'], 'video')) {
+						$type = 'Video';
 					}
-					else {
-						$ret[] = ['type' => 'Link', 'mediaType' => $att['type'], 'name' => $att['title'], 'href' => $att['href'] . (($token) ? '?token=' . $token : '')];
-					}
-				}
-			}
-		}
-		if ($iconfig && array_key_exists('iconfig', $item) && is_array($item['iconfig'])) {
-			foreach ($item['iconfig'] as $att) {
-				if ($att['sharing']) {
-					$ret[] = ['type' => 'PropertyValue', 'name' => 'zot.' . $att['cat'] . '.' . $att['k'], 'value' => $att['v']];
+
+					$ret['attachment'][] = [
+						'type' => $type,
+						'mediaType' => $att['type'],
+						'contentSize' => $att['contentSize'] ?? null,
+						'name' => $att['title'],
+						'url' => $att['url'] . (($token) ? '?token=' . $token : ''),
+						'width' => $att['width'] ?? null,
+						'height' => $att['height'] ?? null,
+					];
 				}
 			}
 		}
@@ -883,46 +950,57 @@ class Activity {
 
 		$ret = [];
 
-		if (isset($item['attachment']) && is_array($item['attachment'])) {
-			$ptr = $item['attachment'];
-			if (!array_key_exists(0, $ptr)) {
-				$ptr = [$ptr];
-			}
-			foreach ($ptr as $att) {
-				if (!is_array($att)) {
-					continue;
-				}
+		$a = ((isset($item['attachment']) && is_array($item['attachment'])) ? $item['attachment'] : []);
+		$u = ((isset($item['url']) && is_array($item['url'])) ? $item['url'] : []);
 
-				$entry = [];
+		$ptr = array_merge($a, $u);
 
-				if (array_key_exists('href', $att) && $att['href']) {
-					$entry['href'] = $att['href'];
-				} elseif (array_key_exists('url', $att) && $att['url']) {
-					$entry['href'] = $att['url'];
-				}
-				if (array_key_exists('mediaType', $att) && $att['mediaType']) {
-					$entry['type'] = $att['mediaType'];
-				} elseif (array_key_exists('type', $att) && $att['type'] === 'Image') {
-					$entry['type'] = 'image/jpeg';
-				} elseif (array_key_exists('type', $att) && $att['type'] === 'Link') {
-					$entry['type'] = 'text/uri-list';
-				}
-				if (array_key_exists('name', $att) && $att['name']) {
-					$entry['name'] = html2plain(purify_html($att['name']), 256);
-				}
-				// Friendica attachments don't match the URL in the body.
-				// This makes it more difficult to detect image duplication in bb_attach()
-				// which adds images to plaintext microblog software. For these we need to examine both the
-				// url and image properties.
-				if (isset($att['image']) && is_string($att['image']) && isset($att['url']) && $att['image'] !== $att['url']) {
-					$entry['image'] = $att['image'];
-				}
-				if ($entry) {
-					array_unshift($ret, $entry);
-				}
+		foreach ($ptr as $att) {
+			if (!is_array($att)) {
+				continue;
 			}
-		} elseif (isset($item['attachment']) && is_string($item['attachment'])) {
-			btlogger('not an array: ' . $item['attachment']);
+
+			$entry = [];
+
+			if (array_key_exists('href', $att) && $att['href']) {
+				$entry['href'] = $att['href'];
+			} elseif (array_key_exists('url', $att) && $att['url']) {
+				$entry['url'] = $att['url'];
+			}
+			if (array_key_exists('mediaType', $att) && $att['mediaType']) {
+				$entry['type'] = $att['mediaType'];
+			} elseif (array_key_exists('type', $att) && $att['type'] === 'Image') {
+				$entry['type'] = 'image/jpeg';
+			} elseif (array_key_exists('type', $att) && $att['type'] === 'Link') {
+				$entry['type'] = 'text/uri-list';
+			}
+
+			if (!empty($att['name'])) {
+				$entry['name'] = html2plain(purify_html($att['name']), 256);
+			}
+
+			if (!empty($att['width'])) {
+				$entry['width'] = intval($att['width']);
+			}
+
+			if (!empty($att['height'])) {
+				$entry['height'] = intval($att['height']);
+			}
+
+			if (!empty($att['contentSize'])) {
+				$entry['contentSize'] = intval($att['contentSize']);
+			}
+
+			// Friendica attachments don't match the URL in the body.
+			// This makes it more difficult to detect image duplication in bb_attach()
+			// which adds images to plaintext microblog software. For these we need to examine both the
+			// url and image properties.
+			if (isset($att['image']) && is_string($att['image']) && isset($att['url']) && $att['image'] !== $att['url']) {
+				$entry['image'] = $att['image'];
+			}
+			if ($entry) {
+				$ret[] = $entry;
+			}
 		}
 
 		return $ret;
@@ -3270,53 +3348,54 @@ class Activity {
 			return $item;
 		}
 
+		$body = $item['body'];
+
+		$item['body'] = '';
+
 		foreach ($item['attach'] as $a) {
 
 			if (array_key_exists('type', $a) && stripos($a['type'], 'image') !== false) {
 				// don't add inline image if it's an svg and we already have an inline svg
-				if ($a['type'] === 'image/svg+xml' && strpos($item['body'], '[/svg]')) {
+				if ($a['type'] === 'image/svg+xml' && strpos($body, '[/svg]')) {
 					continue;
 				}
 				// Friendica attachment weirdness
 				// Check both the attachment image and href since they can be different and the one in the href is a different link with different resolution.
 				// Otheriwse you'll get duplicated images
 				if (isset($a['image'])) {
-					if (self::media_not_in_body($a['image'], $item['body']) && self::media_not_in_body($a['href'], $item['body'])) {
+					if (self::media_not_in_body($a['image'], $body) && self::media_not_in_body($a['url'], $body)) {
 						if (isset($a['name']) && $a['name']) {
 							$alt = htmlspecialchars($a['name'], ENT_QUOTES);
-							$item['body'] = '[img=' . $a['href']  . ']' . $alt . '[/img]' . "\r\n" . $item['body'];
+							$item['body'] .= '[img=' . $a['url']  . ']' . $alt . '[/img]';
 						} else {
-							$item['body'] = '[img]' . $a['href'] . '[/img]' . "\r\n" . $item['body'];
+							$item['body'] .= '[img]' . $a['url'] . '[/img]';
 						}
 					}
 					continue;
 				}
-				elseif (self::media_not_in_body($a['href'], $item['body'])) {
+				elseif (self::media_not_in_body($a['url'], $body)) {
 					if (isset($a['name']) && $a['name']) {
 						$alt = htmlspecialchars($a['name'], ENT_QUOTES);
-						$item['body'] = '[img=' . $a['href']  . ']' . $alt . '[/img]' . "\r\n" . $item['body'];
+						$item['body'] .= '[img=' . $a['url']  . ']' . $alt . '[/img]';
 					} else {
-						$item['body'] = '[img]' . $a['href'] . '[/img]' . "\r\n" . $item['body'];
+						$item['body'] .= '[img]' . $a['url'] . '[/img]';
 					}
 				}
 			}
 
 			if (array_key_exists('type', $a) && stripos($a['type'], 'video') !== false) {
-				if (self::media_not_in_body($a['href'], $item['body'])) {
-					$item['body'] = '[video]' . $a['href'] . '[/video]' . "\r\n" . $item['body'];
+				if (self::media_not_in_body($a['url'], $body)) {
+					$item['body'] .= '[video]' . $a['url'] . '[/video]';
 				}
 			}
 			if (array_key_exists('type', $a) && stripos($a['type'], 'audio') !== false) {
-				if (self::media_not_in_body($a['href'], $item['body'])) {
-					$item['body'] = '[audio]' . $a['href'] . '[/audio]' . "\r\n" . $item['body'];
+				if (self::media_not_in_body($a['url'], $body)) {
+					$item['body'] .= '[audio]' . $a['url'] . '[/audio]';
 				}
 			}
-			//if (array_key_exists('type', $a) && stripos($a['type'], 'activity') !== false) {
-				//if (self::media_not_in_body($a['href'], $item['body'])) {
-					//$item = self::get_quote($a['href'], $item);
-				//}
-			//}
 		}
+
+		$item['body'] .= "\r\n" . $body;
 
 		return $item;
 	}
@@ -3419,8 +3498,14 @@ class Activity {
 		}
 
 		foreach (['name', 'summary', 'content'] as $a) {
-			if (($x = self::get_textfield($act, $a)) !== false) {
-				$content[$a] = $x;
+			$textfield = self::get_textfield($act, $a);
+
+			if (is_array($textfield)) {
+				// Return the first value for now
+				$content[$a] = reset($textfield);
+			}
+			else {
+				$content[$a] = $textfield;
 			}
 		}
 
@@ -3432,7 +3517,7 @@ class Activity {
 				}
 			}
 			$event['description'] = html2bbcode($content['content']);
-			if ($event['summary'] && $event['dtstart']) {
+			if ($event['summary'] && !empty($event['dtstart'])) {
 				$content['event'] = $event;
 			}
 		}

@@ -132,13 +132,8 @@ class Sources extends Controller {
 				intval(argv(1)),
 				intval(local_channel())
 			);
-			if($r) {
-				$x = q("select abook_id from abook where abook_xchan = '%s' and abook_channel = %d limit 1",
-					dbesc($r[0]['src_xchan']),
-					intval(local_channel())
-				);
-			}
-			if(! $r) {
+
+			if (!$r) {
 				notice( t('Source not found.') . EOL);
 				return '';
 			}
@@ -152,7 +147,7 @@ class Sources extends Controller {
 				'$desc' => t('Import all or selected content from the following channel into this channel and distribute it according to your channel settings.'),
 				'$words' => array( 'words', t('Only import content with these words (one per line)'),$r[0]['src_patt'],t('Leave blank to import all public content')),
 				'$xchan' => $r[0]['src_xchan'],
-				'$abook' => $x[0]['abook_id'],
+				'$abook' => abook_id_by_hash($r[0]['src_xchan'], local_channel()),
 				'$tags' => array('tags', t('Add the following categories to posts imported from this source (comma separated)'),$r[0]['src_tag'],t('Optional')),
 				'$resend' => [ 'resend', t('Resend posts with this channel as author'), get_abconfig(local_channel(), $r[0]['xchan_hash'],'system','rself'), t('Copyrights may apply'), [ t('No'), t('Yes') ]],
 
@@ -185,7 +180,7 @@ class Sources extends Controller {
 
 		}
 
-		// shouldn't get here.
-
+		http_status(400, 'bad request');
+		return t('The request could not be processed because of invalid or missing arguments.');
 	}
 }

@@ -42,7 +42,6 @@
         "league/html-to-markdown": "^5.0",
         "pear/text_languagedetect": "^1.0",
         "commerceguys/intl": "^2.0.6",
-        "lukasreschke/id3parser": "^0.0.3",
         "smarty/smarty": "^5.4",
         "ramsey/uuid": "^4.1",
         "twbs/bootstrap": "^5.3",
@@ -58,7 +57,8 @@
         "twbs/bootstrap-icons": "^1.11",
         "macgirvin/http-message-signer": "^0.2.6",
         "root23/php-json-canonicalization": "^1.0",
-        "guzzlehttp/psr7": "^2.8"
+        "guzzlehttp/psr7": "^2.8",
+        "xylphid/php-id3": "^1.0"
     },
     "require-dev": {
         "ext-yaml": "*",

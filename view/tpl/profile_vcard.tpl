@@ -83,12 +83,12 @@
 		{{if $gender}}
 		<dl class="mb-0 pb-1 rounded">
 			<dt class="gender-label">{{$gender}}</dt>
-			<dd class="p-gender">{{if $profile.gender_icon}}<i class="bi bi-{{$profile.gender_icon}}"></i>&nbsp;{{/if}}{{$profile.gender}}</dd>
+			<dd class="p-gender">{{if $profile.gender_icon}}<i class="bi bi-gender-{{$profile.gender_icon}}"></i>&nbsp;{{/if}}{{$profile.gender}}</dd>
 		</dl>
 		{{/if}}
 		{{if $marital}}
 		<dl class="mb-0 pb-1 rounded">
-			<dt class="marital-label"><span class="heart"><i class="bi fa-heart"></i>&nbsp;</span>{{$marital}}</dt>
+			<dt class="marital-label"><span class="heart"><i class="bi bi-heart"></i>&nbsp;</span>{{$marital}}</dt>
 			<dd class="marital-text">{{$profile.marital}}</dd>
 		</dl>
 		{{/if}}

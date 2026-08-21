@@ -959,7 +959,7 @@ class Photos extends \Zotlabs\Web\Controller {
 
 			// Do we have an item for this photo?
 
-			$linked_items = q("SELECT * FROM item WHERE resource_id = '%s' and resource_type = 'photo'
+			$linked_items = q("SELECT * FROM item WHERE resource_id = '%s' and resource_type = 'photo' and verb not in ('Add', 'Remove')
 				$sql_item LIMIT 1",
 				dbesc($datum)
 			);
@@ -973,7 +973,7 @@ class Photos extends \Zotlabs\Web\Controller {
 				$link_item = $linked_items[0];
 				$item_normal = item_normal();
 
-				$r = q("select * from item where parent_mid = '%s'
+				$r = q("select * from item where parent_mid = '%s' and verb not in ('Add', 'Remove')
 					$item_normal and uid = %d $sql_item ",
 					dbesc($link_item['mid']),
 					intval($link_item['uid'])

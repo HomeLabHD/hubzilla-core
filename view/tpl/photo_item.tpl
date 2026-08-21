@@ -1,17 +1,17 @@
 <div class="wall-item-outside-wrapper{{if $indent}} {{$indent}}{{/if}}" id="wall-item-outside-wrapper-{{$id}}" >
 	<div class="clearfix wall-item-content-wrapper{{if $indent}} {{$indent}}{{/if}}" id="wall-item-content-wrapper-{{$id}}">
 		<div class="p-2 clearfix wall-item-head">
-			<div class="wall-item-info" id="wall-item-info-{{$id}}" >
+			<div class="wall-item-info float-start pe-2" id="wall-item-info-{{$id}}" >
 				<div class="wall-item-photo-wrapper" id="wall-item-photo-wrapper-{{$id}}" >
 					<a href="{{$profile_url}}" title="View {{$name}}'s profile" class="wall-item-photo-link" id="wall-item-photo-link-{{$id}}">
 					<img src="{{$thumb}}" class="wall-item-photo" id="wall-item-photo-{{$id}}" alt="{{$name}}" /></a>
 				</div>
 			</div>
 			<div class="wall-item-wrapper" id="wall-item-wrapper-{{$id}}" >
-				<div class="wall-item-author">
-					<a href="{{$profile_url}}" title="View {{$name}}'s profile" class="wall-item-name-link"><span class="wall-item-name" id="wall-item-name-{{$id}}" >{{$name}}</span></a>
+				<div class="text-truncate">
+					<a href="{{$profile_url}}" class="lh-sm wall-item-name-link u-url"><span class="wall-item-name" id="wall-item-name-{{$id}}" ><bdi>{{$name}}</bdi></span></a>
 				</div>
-				<div class="wall-item-ago"  id="wall-item-ago-{{$id}}">{{$ago}}</div>
+				<small class="lh-sm text-truncate d-block wall-item-ago text-body-secondary">{{$ago}}</small>
 			</div>
 		</div>
 		<div class="p-2 clearfix wall-item-content" id="wall-item-content-{{$id}}" >

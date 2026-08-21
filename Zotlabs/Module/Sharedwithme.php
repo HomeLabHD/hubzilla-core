@@ -40,8 +40,7 @@ class Sharedwithme extends Controller {
 		//drop all files - localuser
 		if((argc() > 1) && (argv(1) === 'dropall')) {
 
-			$r = q("SELECT id FROM item WHERE (verb = 'Create' OR verb = '%s') AND obj_type IN ('Document', 'Video', 'Audio', 'Image') AND uid = %d AND owner_xchan != '%s' $item_normal",
-				dbesc(ACTIVITY_POST),
+			$r = q("SELECT id FROM item WHERE verb IN ('Create', 'Update') AND obj_type IN ('Document', 'Video', 'Audio', 'Image') AND uid = %d AND owner_xchan != '%s' $item_normal",
 				intval(local_channel()),
 				dbesc($channel['channel_hash'])
 			);
@@ -56,8 +55,7 @@ class Sharedwithme extends Controller {
 		}
 
 		//list files
-		$r = q("SELECT id, uid, obj, item_unseen FROM item WHERE (verb = 'Create' OR verb = '%s') AND obj_type IN ('Document', 'Video', 'Audio', 'Image') AND uid = %d AND owner_xchan != '%s' $item_normal",
-			dbesc(ACTIVITY_POST),
+		$r = q("SELECT id, uid, obj, item_unseen FROM item WHERE verb IN ('Create', 'Update') AND obj_type IN ('Document', 'Video', 'Audio', 'Image') AND uid = %d AND owner_xchan != '%s' $item_normal",
 			intval(local_channel()),
 			dbesc($channel['channel_hash'])
 		);
@@ -67,29 +65,30 @@ class Sharedwithme extends Controller {
 		$items = [];
 		$ids = [];
 
+
 		if($r) {
 
 			foreach($r as $rr) {
-				$meta = get_iconfig($rr, 'attach', 'meta');
-
+				$obj = json_decode($rr['obj'], true);
 				$item = [];
-				$item['id'] = $rr['id'];
-				$item['objfiletype'] = $meta['type'];
-				$item['objfiletypeclass'] = getIconFromType($meta['type']);
-				$item['objurl'] = $meta['path'] . '?f=&zid=' . $channel['xchan_addr'];
-				$item['objfilename'] = $meta['name'];
-				$item['objfilesize'] = userReadableSize($meta['size']);
-				$item['objedited'] = $meta['edited'];
-				$item['unseen'] = $rr['item_unseen'];
 
-				$items[] = $item;
+				$item['id'] = $rr['id'];
+				$item['unseen'] = $rr['item_unseen'];
 
 				if($item['unseen']) {
 					$ids[] = $rr['id'];
 				}
+				if (isset($obj['url']) && is_array($obj['url'])) {
+					foreach($obj['url'] as $u) {
+						$item['objfiletype'] = $u['mediaType'] ?? '';
+						$item['objfiletypeclass'] = getIconFromType($u['mediaType'] ?? 'octet/stream');
+						$item['objurl'] = $u['href'] . '?f=&zid=' . $channel['xchan_addr'];
+						$item['objfilename'] = $u['name'] ?? t('unknown');
 
+						$items[] = $item;
+					}
+				}
 			}
-
 		}
 
 		$ids = implode(',', $ids);

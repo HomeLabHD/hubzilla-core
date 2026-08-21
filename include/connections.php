@@ -322,12 +322,7 @@ function remove_all_xchan_resources($xchan, $channel_id = 0) {
 
 		// This function is only to be executed on remote servers where only the xchan exists
 		// and there is no associated channel.
-
-		$c = q("select channel_id from channel where channel_hash = '%s'",
-			dbesc($xchan)
-		);
-
-		if ($c) {
+		if (channel_id_by_hash($xchan)) {
 			return;
 		}
 
@@ -897,4 +892,24 @@ function z6trans_connections() {
 		}
 	}
 
+}
+
+/**
+ * @brief Checks if $hash is a connection channel.
+ *
+ * @param string $hash
+ * @return false|int
+ */
+function abook_id_by_hash(string $hash, int $channel_id): int|false
+{
+	static $stmt;
+
+	if (!$stmt instanceof PDOStatement) {
+		$stmt = DBA::$dba->db->prepare("SELECT abook_id FROM abook WHERE abook_xchan = ? AND abook_channel = ? LIMIT 1");
+	}
+
+	$stmt->execute([$hash, $channel_id]);
+	$abook_id = $stmt->fetchColumn();
+
+	return $abook_id ? (int) $abook_id : false;
 }

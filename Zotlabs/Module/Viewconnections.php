@@ -1,6 +1,8 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\AbConfig;
+
 require_once('include/selectors.php');
 
 class Viewconnections extends \Zotlabs\Web\Controller {
@@ -71,23 +73,26 @@ class Viewconnections extends \Zotlabs\Web\Controller {
 		foreach($r as $rr) {
 
 			$oneway = false;
-			if(! intval(get_abconfig(\App::$profile['uid'],$rr['xchan_hash'],'their_perms','post_comments'))) {
+			if (!intval(AbConfig::Get(\App::$profile['uid'], $rr['xchan_hash'], 'their_perms', 'post_comments'))) {
 				$oneway = true;
 			}
 
 			$perminfo=[];
 			$perminfo['connpermcount']=0;
 			$perminfo['connperms']=t('Accepts').': ';
-			if(intval(get_abconfig(\App::$profile['uid'],$rr['xchan_hash'],'their_perms','post_comments'))) {
+
+			if (!$oneway) {
 				$perminfo['connpermcount']++;
 				$perminfo['connperms'] .= t('Comments');
 			}
-			if(intval(get_abconfig(\App::$profile['uid'],$rr['xchan_hash'],'their_perms','send_stream'))) {
+
+			if (!intval(AbConfig::Get(\App::$profile['uid'], $rr['xchan_hash'], 'their_perms', 'send_stream'))) {
 				$perminfo['connpermcount']++;
 				$perminfo['connperms'] = ($perminfo['connperms']) ? $perminfo['connperms'] . ', ' : $perminfo['connperms'] ;
 				$perminfo['connperms'] .= t('Stream items');
 			}
-			if(intval(get_abconfig(\App::$profile['uid'],$rr['xchan_hash'],'their_perms','post_wall'))) {
+
+			if (!intval(AbConfig::Get(\App::$profile['uid'], $rr['xchan_hash'], 'their_perms', 'post_wall'))) {
 				$perminfo['connpermcount']++;
 				$perminfo['connperms'] = ($perminfo['connperms']) ? $perminfo['connperms'] . ', ' : $perminfo['connperms'] ;
 				$perminfo['connperms'] .= t('Wall posts');
@@ -97,6 +102,7 @@ class Viewconnections extends \Zotlabs\Web\Controller {
 				$perminfo['connperms'] .= t('Nothing');
 			}
 
+
 			$url = chanlink_hash($rr['xchan_hash']);
 			if($url) {
 				$contacts[] = array(
@@ -104,11 +110,10 @@ class Viewconnections extends \Zotlabs\Web\Controller {
 					'archived' => (intval($rr['abook_archived']) ? true : false),
 					'img_hover' => sprintf( t('Visit %s\'s profile [%s]'), $rr['xchan_name'], $rr['xchan_url']),
 					'thumb' => $rr['xchan_photo_m'],
-					'name' => substr($rr['xchan_name'],0,20),
+					'name' => $rr['xchan_name'],
 					'username' => $rr['xchan_addr'],
 					'link' => $url,
 					'sparkle' => '',
-					'itemurl' => $rr['url'],
 					'network' => '',
 					'perminfo' => (($is_owner) ? $perminfo : (($perminfo['connpermcount'] === 0) ? $perminfo : [])),
 					'oneway' => $oneway

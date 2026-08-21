@@ -122,6 +122,7 @@ class Lostpass extends \Zotlabs\Web\Controller {
 				return $o;
 			}
 
+			http_status_exit(500, 'Server error');
 		}
 		else {
 			$tpl = get_markup_template('lostpass.tpl');

@@ -155,27 +155,27 @@ class RedbasicConfig {
 				}
 			}
 
-			set_pconfig(local_channel(), 'redbasic', 'primary_color', $_POST['redbasic_primary_color']);
-			set_pconfig(local_channel(), 'redbasic', 'success_color', $_POST['redbasic_success_color']);
-			set_pconfig(local_channel(), 'redbasic', 'info_color', $_POST['redbasic_info_color']);
-			set_pconfig(local_channel(), 'redbasic', 'warning_color', $_POST['redbasic_warning_color']);
-			set_pconfig(local_channel(), 'redbasic', 'danger_color', $_POST['redbasic_danger_color']);
+			set_pconfig(local_channel(), 'redbasic', 'primary_color', $_POST['redbasic_primary_color'] ?? '');
+			set_pconfig(local_channel(), 'redbasic', 'success_color', $_POST['redbasic_success_color'] ?? '');
+			set_pconfig(local_channel(), 'redbasic', 'info_color', $_POST['redbasic_info_color'] ?? '');
+			set_pconfig(local_channel(), 'redbasic', 'warning_color', $_POST['redbasic_warning_color'] ?? '');
+			set_pconfig(local_channel(), 'redbasic', 'danger_color', $_POST['redbasic_danger_color'] ?? '');
 
-			set_pconfig(local_channel(), 'redbasic', 'narrow_navbar', $_POST['redbasic_narrow_navbar']);
-			set_pconfig(local_channel(), 'redbasic', 'navbar_dark_mode', $_POST['redbasic_navbar_dark_mode']);
-			set_pconfig(local_channel(), 'redbasic', 'dark_mode', $_POST['redbasic_dark_mode']);
-			set_pconfig(local_channel(), 'redbasic', 'nav_bg', $_POST['redbasic_nav_bg']);
-			set_pconfig(local_channel(), 'redbasic', 'nav_bg_dark', $_POST['redbasic_nav_bg_dark']);
-			set_pconfig(local_channel(), 'redbasic', 'background_color', $_POST['redbasic_background_color']);
-			set_pconfig(local_channel(), 'redbasic', 'background_color_dark', $_POST['redbasic_background_color_dark']);
-			set_pconfig(local_channel(), 'redbasic', 'background_image', $_POST['redbasic_background_image']);
-			set_pconfig(local_channel(), 'redbasic', 'background_image_dark', $_POST['redbasic_background_image_dark']);
-			set_pconfig(local_channel(), 'redbasic', 'font_size', $_POST['redbasic_font_size']);
-			set_pconfig(local_channel(), 'redbasic', 'radius', $_POST['redbasic_radius']);
-			set_pconfig(local_channel(), 'redbasic', 'converse_width', $_POST['redbasic_converse_width']);
-			set_pconfig(local_channel(), 'redbasic', 'top_photo', $_POST['redbasic_top_photo']);
-			set_pconfig(local_channel(), 'redbasic', 'reply_photo', $_POST['redbasic_reply_photo']);
-			set_pconfig(local_channel(), 'redbasic', 'advanced_theming', $_POST['redbasic_advanced_theming']);
+			set_pconfig(local_channel(), 'redbasic', 'narrow_navbar', $_POST['redbasic_narrow_navbar'] ?? 0);
+			set_pconfig(local_channel(), 'redbasic', 'navbar_dark_mode', $_POST['redbasic_navbar_dark_mode'] ?? 0);
+			set_pconfig(local_channel(), 'redbasic', 'dark_mode', $_POST['redbasic_dark_mode'] ?? 0);
+			set_pconfig(local_channel(), 'redbasic', 'nav_bg', $_POST['redbasic_nav_bg'] ?? 0);
+			set_pconfig(local_channel(), 'redbasic', 'nav_bg_dark', $_POST['redbasic_nav_bg_dark'] ?? 0);
+			set_pconfig(local_channel(), 'redbasic', 'background_color', $_POST['redbasic_background_color'] ?? '');
+			set_pconfig(local_channel(), 'redbasic', 'background_color_dark', $_POST['redbasic_background_color_dark'] ?? '');
+			set_pconfig(local_channel(), 'redbasic', 'background_image', $_POST['redbasic_background_image'] ?? '');
+			set_pconfig(local_channel(), 'redbasic', 'background_image_dark', $_POST['redbasic_background_image_dark'] ?? '');
+			set_pconfig(local_channel(), 'redbasic', 'font_size', $_POST['redbasic_font_size'] ?? '');
+			set_pconfig(local_channel(), 'redbasic', 'radius', $_POST['redbasic_radius'] ?? '');
+			set_pconfig(local_channel(), 'redbasic', 'converse_width', $_POST['redbasic_converse_width'] ?? '');
+			set_pconfig(local_channel(), 'redbasic', 'top_photo', $_POST['redbasic_top_photo'] ?? '');
+			set_pconfig(local_channel(), 'redbasic', 'reply_photo', $_POST['redbasic_reply_photo'] ?? '');
+			set_pconfig(local_channel(), 'redbasic', 'advanced_theming', $_POST['redbasic_advanced_theming'] ?? 0);
 
 			// This is used to refresh the cache
 			set_pconfig(local_channel(), 'system', 'style_update', time());

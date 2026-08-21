@@ -2,6 +2,9 @@
 
 namespace Zotlabs\Lib;
 
+use DBA;
+use PDO;
+use PDOStatement;
 use Zotlabs\Zot6\Receiver;
 use Zotlabs\Zot6\Zot6Handler;
 
@@ -136,40 +139,40 @@ class Queue {
 
 
 	static function insert($arr) {
+		static $stmt;
 
 		// do not queue anything with no destination
-
-		if(! (array_key_exists('posturl',$arr) && trim($arr['posturl']))) {
+		if (!(array_key_exists('posturl',$arr) && trim($arr['posturl']))) {
 			return false;
 		}
 
-		$hash = $arr['hash'] ?? '';
-		$account_id = $arr['account_id'] ?? 0;
-		$channel_id = $arr['channel_id'] ?? 0;
-		$driver = $arr['driver'] ?? 'zot6';
-		$posturl = $arr['posturl'] ?? '';
-		$priority = $arr['priority'] ?? 0;
-		$notify = $arr['notify'] ?? '';
-		$msg = $arr['msg'] ?? '';
+		$dt = datetime_convert();
 
-		$x = q("insert into outq ( outq_hash, outq_account, outq_channel, outq_driver, outq_posturl, outq_async, outq_priority,
-			outq_created, outq_updated, outq_scheduled, outq_notify, outq_msg )
-			values ( '%s', %d, %d, '%s', '%s', %d, %d, '%s', '%s', '%s', '%s', '%s' )",
-			dbesc($hash),
-			intval($account_id),
-			intval($channel_id),
-			dbesc($driver),
-			dbesc($posturl),
-			intval(1),
-			intval($priority),
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert()),
-			dbesc($notify),
-			dbesc($msg)
-		);
-		return $x;
+		$dbargs = [
+			'outq_hash' => $arr['hash'] ?? '',
+			'outq_account' => $arr['account_id'] ?? 0,
+			'outq_channel' => $arr['channel_id'] ?? 0,
+			'outq_driver' => $arr['driver'] ?? 'zot6',
+			'outq_posturl' => $arr['posturl'],
+			'outq_async' => 1,
+			'outq_priority' => $arr['priority'] ?? 0,
+			'outq_created' => $dt,
+			'outq_updated' => $dt,
+			'outq_scheduled' => $dt,
+			'outq_notify' => $arr['notify'] ?? '',
+			'outq_msg' => $arr['msg'] ?? ''
+		];
 
+		if (!$stmt instanceof PDOStatement) {
+			$stmt = DBA::$dba->db->prepare("INSERT INTO outq (
+					outq_hash, outq_account, outq_channel, outq_driver, outq_posturl, outq_async, outq_priority, outq_created, outq_updated, outq_scheduled, outq_notify, outq_msg
+				) VALUES (
+					:outq_hash, :outq_account, :outq_channel, :outq_driver, :outq_posturl, :outq_async, :outq_priority, :outq_created, :outq_updated, :outq_scheduled, :outq_notify, :outq_msg
+				)"
+			);
+		}
+
+		return $stmt->execute($dbargs);
 	}
 
 

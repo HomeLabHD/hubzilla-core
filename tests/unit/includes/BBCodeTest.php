@@ -104,6 +104,8 @@ class BBCodeTest extends UnitTestCase {
 	 * Dataprovider for test_parsing_bbcode_to_html.
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
+	 *
+	 * phpcs:disable Generic.Files.LineLength
 	 */
 	public static function bbcode_to_html_provider(): array {
 		return [
@@ -174,6 +176,34 @@ class BBCodeTest extends UnitTestCase {
 			'naked geo uri with label is converted to link' => [
 				'example url: geo:37.78918,-122.40335(Wikimedia+Foundation)',
 				'example url: <a href="geo:37.78918,-122.40335(Wikimedia+Foundation)" target="_blank" rel="nofollow noopener">📍Wikimedia Foundation</a>'
+			],
+			'img tag with width, height and alt text' => [
+				'[img width=&quot;480&quot; height=&quot;640&quot; alt=&quot;an image description&quot;]https://example.com/photo.jpg[/img]',
+				'<img  style="width: 480px; height: 640px; max-width: 100%;" alt="an image description" title="" class="" src="https://example.com/photo.jpg" />',
+			],
+			'img tag with width, height and alt text (single quotes)' => [
+				"[img width='480' height='640' alt='an image description']https://example.com/photo.jpg[/img]",
+				'<img  style="width: 480px; height: 640px; max-width: 100%;" alt="an image description" title="" class="" src="https://example.com/photo.jpg" />',
+			],
+			'img tag legazy format' => [
+				'[img=640x480 float=left alt=an image description]https://example.com/photo.jpg[/img]',
+				'<img  style="width: 640px; float: left; max-width: 100%;" alt="an image description" title="" class="" src="https://example.com/photo.jpg" />',
+			],
+			'zmg tag with width, height and alt text' => [
+				'[zmg width=&quot;480&quot; height=&quot;640&quot; alt=&quot;an image description&quot;]https://example.com/photo.jpg[/img]',
+				'<img class="zrl" loading="eager" style="width: 480px; height: 640px; max-width: 100%;" alt="an image description" title="" class="" src="https://example.com/photo.jpg" />',
+			],
+			'zmg tag with width, height and alt text (single quotes)' => [
+				"[zmg width='480' height='640' alt='an image description']https://example.com/photo.jpg[/img]",
+				'<img class="zrl" loading="eager" style="width: 480px; height: 640px; max-width: 100%;" alt="an image description" title="" class="" src="https://example.com/photo.jpg" />',
+			],
+			'zmg tag legazy format' => [
+				'[zmg=640x480 float=left alt=an image description]https://example.com/photo.jpg[/img]',
+				'<img class="zrl" loading="eager" style="width: 640px; float: left; max-width: 100%;" alt="an image description" title="" class="" src="https://example.com/photo.jpg" />',
+			],
+			'event tag with invalid data' => [
+				'[event]invalid data[/event]',
+				'[event]invalid data[/event]',
 			],
 		];
 	}

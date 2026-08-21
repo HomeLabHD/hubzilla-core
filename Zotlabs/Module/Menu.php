@@ -234,6 +234,7 @@ class Menu extends \Zotlabs\Web\Controller {
 			}
 		}
 
+		http_status_exit(400, 'Bad request');
 	}
 
 }

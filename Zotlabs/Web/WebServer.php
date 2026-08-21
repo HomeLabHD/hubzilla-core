@@ -9,7 +9,7 @@ use GuzzleHttp\Psr7\Request;
 
 class WebServer {
 
-	public function run() {
+	public function run(): void {
 
 
 		/*
@@ -120,8 +120,6 @@ class WebServer {
 		call_hooks('page_end', App::$page['content']);
 
 		construct_page();
-
-		killme();
 	}
 
 
@@ -133,20 +131,24 @@ class WebServer {
 			$input = file_get_contents('php://input');
 		}
 
-		$headers = [];
+		if (function_exists('getallheaders()')) {
+			$headers = getallheaders();
+		} else {
+			$headers = [];
 
-		if (isset($_SERVER['CONTENT_TYPE'])) {
-			$headers['content-type'] = $_SERVER['CONTENT_TYPE'];
-		}
+			if (isset($_SERVER['CONTENT_TYPE'])) {
+				$headers['content-type'] = $_SERVER['CONTENT_TYPE'];
+			}
 
-		if (isset($_SERVER['CONTENT_LENGTH'])) {
-			$headers['content-length'] = $_SERVER['CONTENT_LENGTH'];
-		}
+			if (isset($_SERVER['CONTENT_LENGTH'])) {
+				$headers['content-length'] = $_SERVER['CONTENT_LENGTH'];
+			}
 
-		foreach ($_SERVER as $k => $v) {
-			if (str_starts_with($k, 'HTTP_')) {
-				$field = str_replace('_', '-', strtolower(substr($k, 5)));
-				$headers[$field] = $v;
+			foreach ($_SERVER as $k => $v) {
+				if (str_starts_with($k, 'HTTP_')) {
+					$field = str_replace('_', '-', strtolower(substr($k, 5)));
+					$headers[$field] = $v;
+				}
 			}
 		}
 

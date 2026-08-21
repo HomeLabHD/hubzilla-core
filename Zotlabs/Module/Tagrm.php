@@ -142,6 +142,8 @@ class Tagrm extends \Zotlabs\Web\Controller {
 
 		}
 
+		http_status(400, 'bad request');
+		return t('The request could not be processed because of invalid or missing arguments.');
 	}
 
 }

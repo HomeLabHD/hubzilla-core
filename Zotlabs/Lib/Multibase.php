@@ -17,6 +17,20 @@ class Multibase {
         return 'z' . $base58->encode($raw);
     }
 
+    public function rsaPublicKey($pem) {
+		$rsa = Keyutils::pemToRsa($pem);
+		$der = base64url_decode(
+			preg_replace(
+				'/-----.*?-----|\s+/',
+				'',
+				$rsa
+			)
+		);
+		$raw = hex2bin('8524') . $der;
+		$base58 = new Base58();
+		return 'z' . $base58->encode($raw);
+    }
+
     public function secretKey($key) {
         $base58 = new Base58();
         $raw = hex2bin('8026') . sodium_base642bin($key, SODIUM_BASE64_VARIANT_ORIGINAL_NO_PADDING);

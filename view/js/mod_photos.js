@@ -16,12 +16,12 @@ $(document).ready(function() {
 // initialize
 function UploadInit() {
 
-	var nickname = $('#invisible-photos-file-upload').data('nickname');
-	var fileselect = $("#photos-upload-choose");
-	var filedrag = $("#photos-upload-form");
-	var submit = $("#dbtn-submit");
-	var idx = 0;
-	var reload = false;
+	let nickname = $('#invisible-photos-file-upload').data('nickname');
+	let fileselect = $("#photos-upload-choose");
+	let filedrag = $("#photos-upload-form");
+	let submit = $("#dbtn-submit");
+	let idx = 0;
+	let reload = false;
 
 
 	$('#invisible-photos-file-upload').fileupload({
@@ -36,10 +36,10 @@ function UploadInit() {
 			data.files[0].idx = idx;
 			prepareHtml(data.files[0]);
 
-			var allow_cid = ($('#photos-upload-form').data('allow_cid') || []);
-			var allow_gid = ($('#photos-upload-form').data('allow_gid') || []);
-			var deny_cid  = ($('#photos-upload-form').data('deny_cid') || []);
-			var deny_gid  = ($('#photos-upload-form').data('deny_gid') || []);
+			let allow_cid = ($('#photos-upload-form').data('allow_cid') || []);
+			let allow_gid = ($('#photos-upload-form').data('allow_gid') || []);
+			let deny_cid  = ($('#photos-upload-form').data('deny_cid') || []);
+			let deny_gid  = ($('#photos-upload-form').data('deny_gid') || []);
 
 			$('.acl-field').remove();
 
@@ -68,15 +68,16 @@ function UploadInit() {
 
 		progress: function(e,data) {
 
-			var id = data.files[0].idx;
+			let id = data.files[0].idx;
 			if(data.loaded == data.total) {
 				if(id == data.originalFiles.length) {
 					reload = true;
 				}
 				else {
 					// trigger uploading the next file
-					var next_id = id + 1;
-					setTimeout(function(){ $('#new-upload-' + next_id).trigger('fileupload_trigger'); }, 1000);
+					let next_id = id + 1;
+					let timeout = data.files[0].type.startsWith('image') ? 3000 : 1000;
+					setTimeout(function(){ $('#new-upload-' + next_id).trigger('fileupload_trigger'); }, timeout);
 				}
 			}
 

@@ -47,12 +47,11 @@ function api_login(&$a) {
 			$_SESSION['uid']  = $record['channel_id'];
 			$_SESSION['addr'] = $_SERVER['REMOTE_ADDR'];
 
-			$x = q("select * from account where account_id = %d LIMIT 1",
-				intval($record['channel_account_id'])
-			);
+			$x = get_account_by_id($record['channel_account_id']);
+
 			if ($x) {
 				require_once('include/security.php');
-				authenticate_success($x[0], null, true, false, true, true);
+				authenticate_success($x, null, true, false, true, true);
 				$_SESSION['allow_api'] = true;
 				call_hooks('logged_in', App::$user);
 				return;
@@ -117,11 +116,9 @@ function api_login(&$a) {
 						$r = Libzot::zot_record_preferred($r);
 						$c = channelx_by_hash($r['hubloc_hash']);
 						if ($c) {
-							$a = q("select * from account where account_id = %d limit 1",
-								intval($c['channel_account_id'])
-							);
+							$a = get_account_by_id($c['channel_account_id']);
 							if ($a) {
-								$record        = ['channel' => $c, 'account' => $a[0]];
+								$record        = ['channel' => $c, 'account' => $a];
 								$channel_login = $c['channel_id'];
 							}
 						}

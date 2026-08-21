@@ -10,6 +10,7 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\Exception\UnableToBuildUuidException;
 
 use Zotlabs\Lib\Config;
+use Zotlabs\Lib\AbConfig;
 use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\SvgSanitizer;
 use Zotlabs\Lib\Libzot;
@@ -755,7 +756,8 @@ function logger($msg, $level = LOGGER_NORMAL, $priority = LOG_INFO) {
 	$stack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 	$where = basename($stack[0]['file']) . ':' . $stack[0]['line'] . ':' . $stack[1]['function'] . ': ';
 
-	$s = datetime_convert('UTC','UTC', 'now', ATOM_TIME) . ':' . log_priority_str($priority) . ':' . logid() . ':' . $where . $msg . PHP_EOL;
+	$tz = Config::Get('system','logtz') == LTZ_LOCAL ? Config::Get('system','timezone', 'UTC') : 'UTC';
+	$s = datetime_convert('UTC', $tz, 'now', ATOM_TIME) . ':' . log_priority_str($priority) . ':' . logid() . ':' . $where . $msg . PHP_EOL;
 	$pluginfo = array('filename' => $logfile, 'loglevel' => $level, 'message' => $s,'priority' => $priority, 'logged' => false);
 
 	if(! (App::$module == 'setup'))
@@ -1077,23 +1079,27 @@ function contact_block() {
 
 	$contacts = t('Connections');
 	$micropro = [];
+
 	foreach($r as $rr) {
 
 		// There is no setting to discover if you are bi-directionally connected
 		// Use the ability to post comments as an indication that this relationship is more
 		// than wishful thinking; even though soapbox channels and feeds will disable it.
 		$rr['perminfo']['connpermcount']=0;
-		$rr['perminfo']['connperms']=t('Accepts').': ';
-		if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','post_comments'))) {
+		$rr['perminfo']['connperms'] = t('Accepts') . ': ';
+
+		if (intval(AbConfig::Get(\App::$profile['uid'], $rr['xchan_hash'], 'their_perms', 'post_comments'))) {
 			$rr['perminfo']['connpermcount']++;
 			$rr['perminfo']['connperms'] .= t('Comments');
 		}
-		if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','send_stream'))) {
+
+		if (intval(AbConfig::Get(\App::$profile['uid'], $rr['xchan_hash'], 'their_perms', 'send_stream'))) {
 			$rr['perminfo']['connpermcount']++;
 			$rr['perminfo']['connperms'] = ($rr['perminfo']['connperms']) ? $rr['perminfo']['connperms'] . ', ' : $rr['perminfo']['connperms'] ;
 			$rr['perminfo']['connperms'] .= t('Stream items');
 		}
-		if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','post_wall'))) {
+
+		if (intval(AbConfig::Get(\App::$profile['uid'], $rr['xchan_hash'], 'their_perms', 'post_wall'))) {
 			$rr['perminfo']['connpermcount']++;
 			$rr['perminfo']['connperms'] = ($rr['perminfo']['connperms']) ? $rr['perminfo']['connperms'] . ', ' : $rr['perminfo']['connperms'] ;
 			$rr['perminfo']['connperms'] .= t('Wall posts');
@@ -1103,8 +1109,9 @@ function contact_block() {
 			$rr['perminfo']['connperms'] .= t('Nothing');
 		}
 
-		if(!$is_owner && $rr['perminfo']['connpermcount'] !== 0)
+		if(!$is_owner && $rr['perminfo']['connpermcount'] !== 0) {
 			unset($rr['perminfo']);
+		}
 
 		$micropro[] = micropro($rr,true,'mpfriend');
 	}
@@ -1587,9 +1594,17 @@ function theme_attachments(&$item) {
 				$label = urldecode(htmlspecialchars($r['title'], ENT_COMPAT, 'UTF-8'));
 			}
 
+			if(!$label && isset($r['url'])) {
+				$m = parse_url($r['url']);
+				if ($m && $m['path']) {
+					$label = basename($m['path']);
+				}
+			}
+
+			// deprecated use of href for attachments (should be url)
 			if(!$label && isset($r['href'])) {
 				$m = parse_url($r['href']);
-				if ($m && $m['path']) {
+				if (isset($m['path'])) {
 					$label = basename($m['path']);
 				}
 			}
@@ -1599,10 +1614,18 @@ function theme_attachments(&$item) {
 				$label = t('Unknown attachment');
 			}
 
-			$title = t('Size') . ' ' . (isset($r['length']) ? userReadableSize($r['length']) : t('unknown'));
+			$title = t('Size') . ' ' . (isset($r['contentSize']) ? userReadableSize($r['contentSize']) : t('unknown'));
 
 			require_once('include/channel.php');
 
+			if (isset($r['url'])) {
+				if(is_foreigner($item['author_xchan']))
+					$url = $r['url'];
+				else
+					$url = z_root() . '/magic?owa=1&bdest=' . bin2hex($r['url']);
+			}
+
+			// deprecated use of href for attachments (should be url)
 			if (isset($r['href'])) {
 				if(is_foreigner($item['author_xchan']))
 					$url = $r['href'];
@@ -1611,7 +1634,7 @@ function theme_attachments(&$item) {
 			}
 
 			if (isset($label, $url, $icon, $title)) {
-				array_unshift($attaches, ['label' => $label, 'url' => $url, 'icon' => $icon, 'title' => $title]);
+				$attaches[] = ['label' => $label, 'url' => $url, 'icon' => $icon, 'title' => $title];
 			}
 		}
 
@@ -1775,33 +1798,33 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 
 	$s = '';
 	$photo = '';
-	$is_photo = (((in_array($item['verb'], ['Create', ACTIVITY_POST])) && (in_array($item['obj_type'], ['Image', ACTIVITY_OBJ_PHOTO]))) ? true : false);
+
+	$is_photo = in_array($item['obj_type'], ['Image', ACTIVITY_OBJ_PHOTO]);
 
 	if ($is_photo) {
-		$object = json_decode($item['obj'],true);
-		$ptr = null;
-		if (is_array($object) && array_key_exists('url',$object) && is_array($object['url'])) {
-			if (array_key_exists(0,$object['url'])) {
-				foreach ($object['url'] as $link) {
-					if(array_key_exists('width',$link) && $link['width'] >= 640 && $link['width'] <= 1024) {
-						$ptr = $link;
-					}
-				}
-				if (! $ptr) {
-					$ptr = $object['url'][0];
-				}
-			}
-			else {
-				$ptr = $object['url'];
+		$a = json_decode($item['attach'], true);
+
+		if (isset($a[0])) {
+			// TODO: this needs more checking
+
+			$ptr = $a[0];
+
+			if (isset($a[1], $a[2])) {
+				$large_photos = feature_enabled($item['uid'], 'large_photos');
+				$ptr = $large_photos ? $a[1] : $a[2];
 			}
 
-			// if original photo width is > 640px make it a cover photo
 			if ($ptr) {
 				if (array_key_exists('width',$ptr) && $ptr['width'] > 640) {
-				$photo = '<a href="' . zid(rawurldecode($object['id'])) . '" target="_blank" rel="nofollow noopener"><img style="max-width:' . $ptr['width'] . 'px; width:100%; height:auto;" src="' . zid(rawurldecode($ptr['href'])) . '"></a>';
+					$photo = '<img title="' . ($ptr['name'] ?? '') . '" alt="' . ($ptr['name'] ?? '') . '" style="max-width:' . $ptr['width'] . 'px; width:100%; height:auto;" src="' . zid(rawurldecode($ptr['href'])) . '">';
 				}
 				else {
-					$item['body'] = '[zmg]' . $ptr['href'] . '[/zmg]' . "\n\n" . $item['body'];
+					if (!empty($ptr['name'])) {
+						$item['body'] = '[zmg=' . $ptr['href'] . ']' . $ptr['name'] . '[/zmg]' . "\n\n" . $item['body'];
+					}
+					else {
+						$item['body'] = '[zmg]' . $ptr['href'] . '[/zmg]' . "\n\n" . $item['body'];
+					}
 				}
 			}
 		}
@@ -2404,20 +2427,20 @@ function undo_post_tagging($s) {
 	$matches = null;
 	$x = null;
 	// undo tags and mentions
-	$cnt = preg_match_all('/([@#])(\!*)\[zrl=(.*?)\](.*?)\[\/zrl\]/ism',$s,$matches,PREG_SET_ORDER);
+	$cnt = preg_match_all('/\[zrl=(.*?)\]([@#])(\!*)(.*?)\[\/zrl\]/ism',$s,$matches,PREG_SET_ORDER);
 	if($cnt) {
 		foreach($matches as $mtch) {
 			$x = false;
-			if($mtch[1] === '@') {
+			if($mtch[2] === '@') {
 				$x = q("select xchan_addr, xchan_url from xchan where xchan_url = '%s' limit 1",
-					dbesc($mtch[3])
+					dbesc($mtch[1])
 				);
 			}
 			if($x) {
-				$s = str_replace($mtch[0], $mtch[1] . $mtch[2] . '{' . (($x[0]['xchan_addr']) ? $x[0]['xchan_addr'] : $x[0]['xchan_url']) . '}', $s);
+				$s = str_replace($mtch[0], $mtch[2] . $mtch[3] . '{' . (($x[0]['xchan_addr']) ? $x[0]['xchan_addr'] : $x[0]['xchan_url']) . '}', $s);
 			}
 			else {
-				$s = str_replace($mtch[0], $mtch[1] . $mtch[2] . quote_tag($mtch[4]),$s);
+				$s = str_replace($mtch[0], $mtch[2] . $mtch[3] . quote_tag($mtch[4]),$s);
 			}
 		}
 	}
@@ -3014,7 +3037,7 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 			$newname = substr($name,1);
 			$newname = substr($newname,0,-1);
 
-			$r = q("SELECT * FROM xchan LEFT JOIN hubloc ON hubloc_hash = xchan_hash WHERE ( xchan_addr = '%s' OR xchan_url = '%s' ) AND xchan_deleted = 0 AND NOT xchan_network  IN ('rss', 'anon', 'unknown') ORDER BY hubloc_id DESC",
+			$r = q("SELECT * FROM xchan JOIN hubloc ON hubloc_hash = xchan_hash WHERE ( xchan_addr = '%s' OR xchan_url = '%s' ) AND xchan_deleted = 0 AND NOT xchan_network  IN ('rss', 'anon', 'unknown') ORDER BY hubloc_id DESC",
 				dbesc($newname),
 				dbesc($newname)
 			);
@@ -3048,7 +3071,7 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 			// select anybody by full hubloc_addr
 
 			if((! $r) && strpos($newname,'@')) {
-				$r = q("SELECT * FROM xchan LEFT JOIN hubloc ON xchan_hash = hubloc_hash
+				$r = q("SELECT * FROM xchan JOIN hubloc ON xchan_hash = hubloc_hash
 					WHERE hubloc_addr = '%s' AND xchan_deleted = 0 AND NOT xchan_network  IN ('rss', 'anon', 'unknown') ORDER BY hubloc_id DESC",
 					dbesc($newname)
 				);

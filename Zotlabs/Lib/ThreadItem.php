@@ -270,7 +270,7 @@ class ThreadItem {
 		}
 
 		$has_bookmarks = false;
-		if(Apps::system_app_installed(local_channel(), 'Bookmarks') && isset($item['term']) && is_array($item['term'])) {
+		if(local_channel() && Apps::system_app_installed(local_channel(), 'Bookmarks') && isset($item['term']) && is_array($item['term'])) {
 			foreach($item['term'] as $t) {
 				if(($t['ttype'] == TERM_BOOKMARK))
 					$has_bookmarks = true;
@@ -369,7 +369,7 @@ class ThreadItem {
 		}
 
 		$expand = '';
-		if ($this->threaded && !empty($item['comment_count'] && !$this->is_toplevel())) {
+		if ($this->threaded && !empty($item['comment_count']) && !$this->is_toplevel()) {
 			$expand = t('Expand Replies');
 		}
 

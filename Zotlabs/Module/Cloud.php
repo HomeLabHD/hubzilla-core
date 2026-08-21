@@ -81,8 +81,6 @@ class Cloud extends Controller {
 
 		$server->addPlugin($lockPlugin);
 
-		$is_readable = false;
-
 		// provide a directory view for the cloud in Hubzilla
 		$browser = new Browser($auth);
 		$auth->setBrowserPlugin($browser);
@@ -101,6 +99,9 @@ class Cloud extends Controller {
 		$server->start();
 
 		if ($browser->build_page) {
+			// construct_page() should not be called if a file is accessed directly via mod cloud
+			// because it will emit "Cannot modify header information" warnings.
+			nav_set_selected('Files');
 			construct_page();
 		}
 

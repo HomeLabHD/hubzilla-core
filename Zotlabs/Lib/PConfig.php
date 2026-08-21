@@ -3,6 +3,9 @@
 namespace Zotlabs\Lib;
 
 use App;
+use DBA;
+use PDO;
+use PDOStatement;
 
 /**
  * @brief Class for handling channel specific configurations.
@@ -19,6 +22,9 @@ use App;
  * @code{.php}$var = get_pconfig(local_channel(), 'category', 'key');@endcode
  */
 class PConfig {
+	private static $seletctStmt;
+	private static $insertStmt;
+	private static $updateStmt;
 
 	/**
 	 * @brief Loads all configuration values of a channel into a cached storage.
@@ -46,9 +52,13 @@ class PConfig {
 			btlogger('App::$config[$uid] not an array: ' . $uid);
 		}
 
-		$r = q("SELECT * FROM pconfig WHERE uid = %d",
-			intval($uid)
-		);
+
+		if (!self::$seletctStmt instanceof PDOStatement) {
+			self::$seletctStmt = self::prepareSelect();
+		}
+
+		self::$seletctStmt->execute(['uid' => $uid]);
+		$r = self::$seletctStmt->fetchAll(PDO::FETCH_ASSOC);
 
 		if($r) {
 			foreach($r as $rr) {
@@ -157,19 +167,19 @@ class PConfig {
 			}
 		}
 
+		$dbargs = ['uid' => $uid, 'cat' => $family, 'k' => $key, 'v' => $dbvalue, 'updated' => $updated];
+
 		if(self::Get($uid, $family, $key) === false) {
 			if(! array_key_exists($uid, App::$config))
 				App::$config[$uid] = array();
 			if(! array_key_exists($family, App::$config[$uid]))
 				App::$config[$uid][$family] = array();
 
-			$ret = q("INSERT INTO pconfig ( uid, cat, k, v, updated ) VALUES ( %d, '%s', '%s', '%s', '%s' ) ",
-				intval($uid),
-				dbesc($family),
-				dbesc($key),
-				dbesc($dbvalue),
-				dbesc($updated)
-			);
+			if (!self::$insertStmt instanceof PDOStatement) {
+				self::$insertStmt = self::prepareInsert();
+			}
+
+			$ret = self::$insertStmt->execute($dbargs);
 
 			// There is a possible race condition if another process happens
 			// to insert something after this thread has Loaded and now.  We should
@@ -193,13 +203,11 @@ class PConfig {
 				// we have.  At this point there is no easy way to test for it, so we update
 				// and hope for the best.
 
-				$ret = q("UPDATE pconfig SET v = '%s', updated = '%s' WHERE uid = %d and cat = '%s' AND k = '%s' ",
-					dbesc($dbvalue),
-					dbesc($updated),
-					intval($uid),
-					dbesc($family),
-					dbesc($key)
-				);
+				if (!self::$updateStmt instanceof PDOStatement) {
+					self::$updateStmt = self::prepareUpdate();
+				}
+
+				$ret = self::$updateStmt->execute($dbargs);
 
 				App::$config[$uid][$family]['pcfgud:'.$key] = $updated;
 
@@ -288,5 +296,15 @@ class PConfig {
 
 		return $ret;
 	}
+	private static function prepareSelect(): PDOStatement {
+		return DBA::$dba->db->prepare("SELECT * FROM pconfig WHERE uid = :uid");
+	}
 
+	private static function prepareInsert(): PDOStatement {
+		return DBA::$dba->db->prepare("INSERT INTO pconfig (uid, cat, k, v, updated) VALUES (:uid, :cat, :k, :v, :updated)");
+	}
+
+	private static function prepareUpdate(): PDOStatement {
+		return DBA::$dba->db->prepare("UPDATE pconfig SET v = :v, updated = :updated WHERE uid = :uid AND cat = :cat AND k = :k");
+	}
 }
