@@ -283,25 +283,30 @@ class File extends DAV\Node implements DAV\IFile {
 			dbesc($this->data['hash']),
 			intval($this->data['uid'])
 		);
-		if ($r) {
-			// @todo this should be a global definition
-			$unsafe_types = array('text/html', 'text/css', 'application/javascript');
 
-			if (in_array($r[0]['filetype'], $unsafe_types) && (! channel_codeallowed($this->data['uid']))) {
-				header('Content-disposition: attachment; filename="' . $r[0]['filename'] . '"');
-				header('Content-type: text/plain');
-			}
-
-			if (intval($r[0]['os_storage'])) {
-				$x = dbunescbin($r[0]['content']);
-				if(strpos($x,'store') === false)
-					$f = 'store/' . $this->auth->owner_nick . '/' . (($this->os_path) ? $this->os_path . '/' : '') . $x;
-				else
-					$f = $x;
-				return @fopen($f, 'rb');
-			}
-			return dbunescbin($r[0]['content']);
+		if (!$r) {
+			logger('File not found');
+			throw new DAV\Exception\NotFound('File not found');
 		}
+
+		// @todo this should be a global definition
+		$unsafe_types = array('text/html', 'text/css', 'application/javascript');
+
+		if (in_array($r[0]['filetype'], $unsafe_types) && (! channel_codeallowed($this->data['uid']))) {
+			header('Content-disposition: attachment; filename="' . $r[0]['filename'] . '"');
+			header('Content-type: text/plain');
+		}
+
+		if (intval($r[0]['os_storage'])) {
+			$x = dbunescbin($r[0]['content']);
+			if(strpos($x,'store') === false)
+				$f = 'store/' . $this->auth->owner_nick . '/' . (($this->os_path) ? $this->os_path . '/' : '') . $x;
+			else
+				$f = $x;
+			return @fopen($f, 'rb');
+		}
+
+		return dbunescbin($r[0]['content']);
 	}
 
 	/**

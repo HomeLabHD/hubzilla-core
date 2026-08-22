@@ -118,5 +118,8 @@ class Follow extends Controller {
 		if (! local_channel()) {
 			return login();
 		}
+
+		// We should not reach here unless init function has an error.
+		http_status_exit(500, 'Server error');
 	}
 }

@@ -7,6 +7,7 @@ use Zotlabs\Lib\Zotfinger;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Queue;
 use Zotlabs\Lib\Url;
+use Zotlabs\Lib\System;
 use Zotlabs\Web\HTTPSig;
 
 /**
@@ -63,7 +64,7 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 		@curl_setopt($ch, CURLOPT_USERAGENT, $opts['useragent']);
 	}
 	else {
-		@curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; zot)');
+		@curl_setopt($ch, CURLOPT_USERAGENT, System::get_useragent());
 	}
 
 	$ciphers = @Config::Get('system','curl_ssl_ciphers');
@@ -262,7 +263,7 @@ function z_post_url($url, $params, $redirects = 0, $opts = array()) {
 		@curl_setopt($ch, CURLOPT_USERAGENT, $opts['useragent']);
 	}
 	else {
-		@curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; zot)');
+		@curl_setopt($ch, CURLOPT_USERAGENT, System::get_useragent());
 	}
 
 	$ciphers = @Config::Get('system','curl_ssl_ciphers');
@@ -416,7 +417,7 @@ function z_curl_error($ret) {
 	return $output;
 }
 
-function json_return_and_die($x, $content_type = 'application/json') {
+function json_return_and_die($x, $content_type = 'application/json'): never {
 	header("Content-type: $content_type");
 	echo json_encode($x);
 	killme();
@@ -442,14 +443,16 @@ function as_return_and_die($obj, $channel = []) {
 }
 
 /**
- * @brief Send HTTP status header.
+ * Set HTTP status header.
  *
  * @param int $val
  *    integer HTTP status result value
  * @param string $msg
  *    optional message
+ * @param bool $skiplog
+ *	  whether to skip logging, default: `false`.
  */
-function http_status($val, $msg = '',$skiplog = 0) {
+function http_status(int $val, string $msg = '', bool $skiplog = false): void {
 	if ($val >= 400)
 		$msg = (($msg) ? $msg : 'Error');
 	if ($val >= 200 && $val < 300)
@@ -457,20 +460,27 @@ function http_status($val, $msg = '',$skiplog = 0) {
 
 	if (!$skiplog)
 		logger(\App::$query_string . ':' . $val . ' ' . $msg);
+
 	header($_SERVER['SERVER_PROTOCOL'] . ' ' . $val . ' ' . $msg);
 }
 
-
 /**
- * @brief Send HTTP status header and exit.
+ * Set the HTTP status header and exit.
+ *
+ * If the request expects a HTML return, it will display an error page with the
+ * code and message.
  *
  * @param int $val
  *    integer HTTP status result value
  * @param string $msg
- *    optional message
- * @return void does not return, process is terminated
+ *    optional message, defaults to no message
+ * @param bool $skiplog
+ *    skip logging if true, defaults to false
+ *
+ * @return never
+ *    This function never returns.
  */
-function http_status_exit($val, $msg = '',$skiplog = 0) {
+function http_status_exit(int $val, string $msg = '', bool $skiplog = false): never {
 	http_status($val, $msg, $skiplog);
 	killme();
 }
@@ -2150,3 +2160,5 @@ function get_request_string($url) {
 function unparse_url(array $parsed_url, array $parts = ['scheme', 'host', 'port', 'user', 'pass', 'path', 'query', 'fragment']): string {
 	return Url::unparse($parsed_url, $parts);
 }
+
+

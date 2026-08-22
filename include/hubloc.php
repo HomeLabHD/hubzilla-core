@@ -164,11 +164,10 @@ function remove_obsolete_hublocs() {
 			intval($rr['hubloc_id'])
 		);
 
-		$x = q("select channel_id from channel where channel_hash = '%s' limit 1",
-			dbesc($rr['hubloc_hash'])
-		);
-		if($x) {
-			Master::Summon(array('Notifier', 'refresh_all', $x[0]['channel_id']));
+		$channel_id = channel_id_by_hash($rr['hubloc_hash']);
+
+		if($channel_id) {
+			Master::Summon(['Notifier', 'refresh_all', $channel_id]);
 
 			if($interval) {
 				usleep($interval);
@@ -239,13 +238,11 @@ function hubloc_change_primary($hubloc) {
 	// See if this is a local hubloc and if so update the primary for the corresponding channel record.
 
 	if($hubloc['hubloc_url'] === z_root()) {
-		$r = q("select channel_id from channel where channel_hash = '%s' limit 1",
-			dbesc($hubloc['hubloc_hash'])
-		);
-		if($r) {
+		$channel_id = channel_id_by_hash($hubloc['hubloc_hash']);
+		if($channel_id) {
 			q("update channel set channel_primary = %d where channel_id = %d",
 				intval($hubloc['hubloc_primary']),
-				intval($r[0]['channel_id'])
+				intval($channel_id)
 			);
 		}
 	}

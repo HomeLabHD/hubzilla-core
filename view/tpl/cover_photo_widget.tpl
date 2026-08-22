@@ -91,6 +91,7 @@
 	// Functions to handle showing/hiding the cover
 	function slideUpCover() {
 		if (coverSlid) return;
+		coverHiddenActions();
 		window.scrollTo({
 			top: coverHeight,
 			behavior: 'smooth'
@@ -99,6 +100,7 @@
 
 	function hideCoverFunction() {
 		if (coverSlid) return;
+		coverVisibleActions();
 		window.scrollTo(0, coverHeight);
 	}
 

@@ -91,7 +91,7 @@ Utwórz pustą bazę danych i zanotuj szczegóły dostępu (nazwa hosta, nazwa u
 
 Wewnętrznie używamy teraz biblioteki PDO do połączeń z bazą danych. Jeśli masz do czynienia z konfigyracją bazy danych, którą nie możesz obsłużyć poprzez formularz konfiguracyjny (ma przykład w przypadku uzywania MySQL z nietypową lokalizacją gniazd) - możesz podać ciąg połączenia PDO jako nazwę hosta. Na przykład:
 
-	:/path/to/socket.file
+	/path/to/socket.file
 
 W razie potrzeby nadal trzeba wypełnić w formularzu konfiguracyjnym wszystkie inne wartości mające zastosowanie.
 

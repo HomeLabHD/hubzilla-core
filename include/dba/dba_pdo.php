@@ -21,13 +21,26 @@ class dba_pdo extends dba_driver {
 
 		$this->driver_dbtype = $this->scheme;
 
-		if(strpbrk($this->server,':;')) {
-			$dsn = $this->driver_dbtype . ':unix_socket=' . trim($this->server, ':;');
+		$dbhost = $this->server;
+
+		// We no longer require unix socket paths in the $db_host configuration in .htconfig.php
+		// to be prefixed by a colon (':'). This block handles legacy configuration and could
+		// eventually be removed if we don't expect old legacy config to still exist.
+		// For now we try not to break old configurations.
+		if(str_starts_with($dbhost, ':')) {
+			db_logger('dba_pdo: WARN: the unix socket path "' . $dbhost . '" in .htconfig.php should not be prefixed with a colon.', LOGGER_NORMAL, LOG_WARNING);
+			$dbhost = trim($dbhost, ':');
+		}
+
+		if(str_contains($dbhost, '/') && file_exists($dbhost)) {
+			db_logger('dba_pdo: DEBUG: the db_host "' . $dbhost . '" looks like a unix socket and the file exists.', LOGGER_NORMAL, LOG_DEBUG);
+			$dsn = $this->driver_dbtype . ':unix_socket=' . $dbhost;
 		}
 		else {
+			db_logger('dba_pdo: DEBUG: the db_host "' . $dbhost . '" is not a path to an existing file. Assuming IP or hostname.', LOGGER_NORMAL, LOG_DEBUG);
 			$dsn = $this->driver_dbtype
 				. ':host='
-				. $this->server
+				. $dbhost
 				. (intval($this->port) ? ';port=' . $this->port : '');
 		}
 
@@ -42,6 +55,8 @@ class dba_pdo extends dba_driver {
 
 		try {
 			$this->db = new PDO($dsn, $this->user, $this->pass);
+			//pdo_mysql by default emulates prepares - turn this off to let the backends do the work (configurable in .htconfig.php)
+			$this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, App::$config['system']['pdo_emulate_prepares'] ?? false);
 			$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 			$this->server_version = $this->db->getAttribute(PDO::ATTR_SERVER_VERSION);
 		}
@@ -122,6 +137,78 @@ class dba_pdo extends dba_driver {
 		return (($this->error) ? false : $r);
 	}
 
+	function p(string $sql): PDOStatement | false {
+		if (!$this->db || !$this->connected) {
+			return false;
+		}
+
+		if ($this->driver_dbtype === 'pgsql') {
+			if(substr(rtrim($sql),-1,1) !== ';') {
+				$sql .= ';';
+			}
+		}
+
+		$result = false;
+
+		try {
+			$stmt = $this->db->prepare($sql);
+		}
+		catch(PDOException $e) {
+			$this->error = $e->getMessage();
+			if ($this->error) {
+				db_logger('dba_pdo: ERROR: ' . printable($sql) . "\n" . $this->error, LOGGER_NORMAL, LOG_ERR);
+				if(file_exists('dbfail.out')) {
+					file_put_contents('dbfail.out', datetime_convert() . "\n" . printable($sql) . "\n" . $this->error . "\n", FILE_APPEND);
+				}
+			}
+		}
+
+		return (($this->error) ? false : $stmt);
+	}
+
+	function e(PDOStatement $stmt, array $args = []): array | bool {
+		if (!$this->db || !$this->connected) {
+			return false;
+		}
+
+		$result = false;
+		$select = stripos($stmt->queryString, 'select') === 0 || stripos($stmt->queryString, 'with') === 0;
+
+
+		try {
+			$result = $stmt->execute($args);
+
+			if ($select) {
+				$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			}
+		}
+		catch(PDOException $e) {
+			$this->error = $e->getMessage();
+			if ($this->error) {
+				db_logger('dba_pdo: ERROR: ' . printable($stmt->queryString) . "\n" . $this->error, LOGGER_NORMAL, LOG_ERR);
+				if(file_exists('dbfail.out')) {
+					file_put_contents('dbfail.out', datetime_convert() . "\n" . printable($stmt->queryString) . "\n" . $this->error . "\n", FILE_APPEND);
+				}
+			}
+		}
+
+		if (!$select) {
+			if($this->debug) {
+				db_logger('dba_pdo: DEBUG: ' . printable($stmt->queryString) . ' returns ' . (($result) ? 'true' : 'false'), LOGGER_NORMAL, (($result) ? LOG_INFO : LOG_ERR));
+			}
+			return $result;
+		}
+
+		if($this->debug) {
+			db_logger('dba_pdo: DEBUG: ' . printable($stmt->queryString) . ' returned ' . count($result) . ' results.', LOGGER_NORMAL, LOG_INFO);
+			if(intval($this->debug) > 1) {
+				db_logger('dba_pdo: ' . printable(print_r($result,true)), LOGGER_NORMAL, LOG_INFO);
+			}
+		}
+
+		return (($this->error) ? false : $result);
+	}
+
 	/**
 	 * Insert a row into a table.
 	 *
@@ -184,6 +271,79 @@ class dba_pdo extends dba_driver {
 		}
 
 		return $st->fetch(PDO::FETCH_ASSOC);
+	}
+
+
+	/**
+	 * Insert a row into a table or update it if it already exist.
+	 *
+	 * The `$data` argument is an array of key/value pairs of the columns to
+	 * insert, where the key is the column name. Values are automatically
+	 * escaped if needed, and should be provided unescaped to this function.
+	 *
+	 * @note it is the callers responsibility to ensure that only valid
+	 * column names are passed as keys in the array.
+	 *
+	 * @param string $table		The table to insert the row into.
+	 * @param array $data		The data to insert as an array of column name => value pairs.
+	 * @param array $update_columns	The array of column names slated for update if applicable
+	 * @param array $conflict_columns The array of conflicting columns - usually the primary key (this is required for pgsql)
+	 *
+	 * @return bool	true or false depending if insert/update succeeded
+	 */
+
+	public function upsert(string $table, array $data, array $update_columns, array $conflict_columns): bool
+	{
+		$driver = $this->driver_dbtype;
+
+		if (!$update_columns) {
+			throw new InvalidArgumentException(
+				'Update columns cannot be empty'
+			);
+		}
+
+		if (!$conflict_columns) {
+			throw new InvalidArgumentException(
+				'PostgreSQL requires conflict columns'
+			);
+		}
+
+		$columns = array_keys($data);
+
+		$column_list = implode(', ', $columns);
+		$value_list = implode(', ', array_map(
+			fn($column) => ':' . $column,
+			$columns
+		));
+
+		if ($driver === 'pgsql') {
+			$update_list = implode(', ', array_map(
+				fn($column) => "$column = EXCLUDED.$column",
+				$update_columns
+			));
+
+			$sql = "
+				INSERT INTO $table ($column_list)
+				VALUES ($value_list)
+				ON CONFLICT (" . implode(', ', $conflict_columns) . ")
+				DO UPDATE SET $update_list
+			";
+		}
+		else {
+			$update_list = implode(', ', array_map(
+				fn($column) => "$column = VALUES($column)",
+				$update_columns
+			));
+
+			$sql = "
+				INSERT INTO $table ($column_list)
+				VALUES ($value_list)
+				ON DUPLICATE KEY UPDATE $update_list
+			";
+		}
+
+		$stmt = $this->db->prepare($sql);
+		return $stmt->execute($data);
 	}
 
 	/**

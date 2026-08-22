@@ -6,6 +6,7 @@ use Sabre\DAV;
 use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libsync;
 
+
 /**
  * @brief RedDirectory class.
  *
@@ -650,18 +651,19 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 
 		$cat = $_REQUEST['cat'] ?? '';
 
-
-		if (! $path_arr)
+		if (!$path_arr) {
 			return null;
+		}
 
 		$channel_name = $path_arr[0];
 
-		$r = q("SELECT channel_id FROM channel WHERE channel_address = '%s' LIMIT 1",
-			dbesc($channel_name)
-		);
+		$r = pe("SELECT channel_id FROM channel WHERE channel_address = ?", [
+			$channel_name
+		]);
 
-		if (! $r)
+		if (!$r) {
 			return null;
+		}
 
 		$channel_id = $r[0]['channel_id'];
 		$perms = permissions_sql($channel_id);
@@ -674,20 +676,19 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 		$errors = false;
 		$permission_error = false;
 
+		$stmt = p("SELECT id, hash, filename, flags, is_dir FROM attach WHERE folder = ? AND filename = ? AND uid = ? AND is_dir != 0 $perms LIMIT 1");
+
 		for ($x = 1; $x < count($path_arr); $x++) {
-			$r = q("SELECT id, hash, filename, flags, is_dir FROM attach WHERE folder = '%s' AND filename = '%s' AND uid = %d AND is_dir != 0 $perms LIMIT 1",
-				dbesc($folder),
-				dbesc($path_arr[$x]),
-				intval($channel_id)
-			);
-			if (! $r) {
+			$r = e($stmt, [$folder, $path_arr[$x], $channel_id]);
+
+			if (!$r) {
 				// path wasn't found. Try without permissions to see if it was the result of permissions.
 				$errors = true;
-				$r = q("select id, hash, filename, flags, is_dir from attach where folder = '%s' and filename = '%s' and uid = %d and is_dir != 0 limit 1",
-					dbesc($folder),
+				$r = pe("SELECT id, hash, filename, flags, is_dir FROM attach WHERE folder = ? AND filename = ? AND uid = ? AND is_dir != 0 limit 1", [
+					$folder,
 					basename($path_arr[$x]),
-					intval($channel_id)
-				);
+					$channel_id
+				]);
 				if ($r) {
 					$permission_error = true;
 				}
@@ -735,25 +736,25 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 		}
 
 		if ($cat) {
-			$r = q("select $prefix attach.id, attach.uid, attach.hash, attach.filename, attach.is_photo,
+			$r = pe("select $prefix attach.id, attach.uid, attach.hash, attach.filename, attach.is_photo,
 				attach.filetype, attach.filesize, attach.revision, attach.folder, attach.creator,
 				attach.flags, attach.is_dir, attach.created, attach.edited, attach.display_path,
 				attach.allow_cid, attach.allow_gid, attach.deny_cid, attach.deny_gid from attach
 				left join term on attach.id = term.oid
-				where term.term = '%s' and attach.uid = %d $perms $suffix",
-				dbesc($cat),
-				intval($channel_id)
-			);
+				where term.term = ? and attach.uid = ? $perms $suffix", [
+				$cat,
+				$channel_id
+			]);
 		}
 		else {
-			$r = q("select $prefix attach.id, attach.uid, attach.hash, attach.filename, attach.is_photo,
+			$r = pe("select $prefix attach.id, attach.uid, attach.hash, attach.filename, attach.is_photo,
 				attach.filetype, attach.filesize, attach.revision, attach.folder, attach.creator,
 				attach.flags, attach.is_dir, attach.created, attach.edited, attach.display_path,
-				attach.allow_cid, attach.allow_gid, attach.deny_cid, attach.deny_gid from attach
-				where folder = '%s' and uid = %d $perms $suffix",
-				dbesc($folder),
-				intval($channel_id)
-			);
+				attach.allow_cid, attach.allow_gid, attach.deny_cid, attach.deny_gid, attach.content from attach
+				where folder = ? and uid = ? $perms $suffix", [
+				$folder,
+				$channel_id
+			]);
 		}
 
 		foreach ($r as $rr) {
@@ -847,12 +848,13 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 
 		$channel_name = $path_arr[0];
 
-		$r = q("select channel_id from channel where channel_address = '%s' limit 1",
-			dbesc($channel_name)
-		);
+		$r = pe("SELECT channel_id FROM channel WHERE channel_address = ?", [
+			$channel_name
+		]);
 
-		if (! $r)
+		if (!$r) {
 			return null;
+		}
 
 		$channel_id = $r[0]['channel_id'];
 
@@ -869,35 +871,32 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 
 		$errors = false;
 
+		$stmt = p("SELECT id, hash, filename, flags, is_dir FROM attach WHERE folder = ? AND filename = ? AND uid = ? AND is_dir != 0 $perms LIMIT 1");
+
 		for ($x = 1; $x < count($path_arr); $x++) {
-			$r = q("select id, hash, filename, flags, is_dir from attach where folder = '%s' and filename = '%s' and uid = %d and is_dir != 0 $perms",
-				dbesc($folder),
-				dbesc($path_arr[$x]),
-				intval($channel_id)
-			);
+			$r = e($stmt, [$folder, $path_arr[$x], $channel_id]);
 
 			if ($r && intval($r[0]['is_dir'])) {
 				$folder = $r[0]['hash'];
 				$path = $path . '/' . $r[0]['filename'];
 			}
-			if (! $r) {
-				$r = q("select id, uid, hash, filename, filetype, filesize, revision, folder, flags, is_dir, is_photo, os_storage, created, edited from attach
-					where folder = '%s' and filename = '%s' and uid = %d $perms order by filename limit 1",
-					dbesc($folder),
-					dbesc(basename($file)),
-					intval($channel_id)
-				);
+			if (!$r) {
+				$r = pe("SELECT id, uid, hash, filename, filetype, filesize, revision, folder, flags, is_dir, is_photo, os_storage, created, edited FROM attach WHERE folder = ? AND filename = ? AND uid = ? $perms LIMIT 1", [
+					$folder,
+					basename($file),
+					$channel_id
+				]);
 			}
-			if (! $r) {
+			if (!$r) {
 				$errors = true;
-				$r = q("select id, uid, hash, filename, filetype, filesize, revision, folder, flags, is_dir, is_photo, os_storage, created, edited from attach
-					where folder = '%s' and filename = '%s' and uid = %d order by filename limit 1",
-					dbesc($folder),
-					dbesc(basename($file)),
-					intval($channel_id)
-				);
-				if ($r)
+				$r = pe("SELECT id, uid, hash, filename, filetype, filesize, revision, folder, flags, is_dir, is_photo, os_storage, created, edited FROM attach WHERE folder = ? AND filename = ? AND uid = ? LIMIT 1", [
+					$folder,
+					basename($file),
+					$channel_id
+				]);
+				if ($r) {
 					$permission_error = true;
+				}
 			}
 		}
 

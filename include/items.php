@@ -225,7 +225,6 @@ function comments_are_now_closed($item) {
 	 *   * \e array \b item
 	 *   * \e boolean \b closed - return value
 	 */
-
 	call_hooks('comments_are_now_closed', $x);
 
 	if ($x['closed'] != 'unset') {
@@ -487,9 +486,6 @@ function post_activity_item($arr, $allow_code = false, $deliver = true, $channel
 
 	$arr['public_policy'] = ((array_key_exists('public_policy',$arr)) ? escape_tags($arr['public_policy']) : map_scope(PermissionLimits::Get($channel['channel_id'],'view_stream'),true));
 
-	if($arr['public_policy'])
-		$arr['item_private'] = 1;
-
 	if(! array_key_exists('mimetype',$arr))
 		$arr['mimetype'] = 'text/bbcode';
 
@@ -521,7 +517,7 @@ function post_activity_item($arr, $allow_code = false, $deliver = true, $channel
 		$arr['plink'] = $arr['mid'];
 	}
 
-	if (!$arr['target']) {
+	if (empty($arr['target'])) {
 		$arr['target'] = [
 			'id' => str_replace('/item/', '/conversation/', $arr['parent_mid']),
 			'type' => 'Collection',
@@ -550,6 +546,15 @@ function post_activity_item($arr, $allow_code = false, $deliver = true, $channel
 	if (!$post['success']) {
 		return $ret;
 	}
+
+	if ($post['success'] && intval($post['item']['item_type']) === ITEM_TYPE_POST) {
+		$item = [$post['item']];
+		xchan_query($item);
+
+		$encoded_item = Activity::build_packet(Activity::encode_activity($item[0]), $channel, false);
+		ObjCache::Set($item[0]['mid'], $encoded_item);
+	}
+
 
 	$post_id = $post['item_id'];
 	$ret['success'] = true;
@@ -1296,7 +1301,7 @@ function translate_scope($scope): string {
 }
 
 /**
- * @brief
+ * Encode an xchan structure for an item
  *
  * @param array $xchan
  * @return array an associative array
@@ -1317,11 +1322,31 @@ function encode_item_xchan($xchan) {
 		'encoded_xchan' => $ret
 	];
 
+	/**
+	 * @hooks encode_item_xchan
+	 *     Called when encoding an xchan structure.
+	 *       * \e array \b encoded_xchan: An array containing the following members:
+	 *         - \e string \b name - The xchan_name field
+	 *         - \e string \b address - The xchan_addr field
+	 *         - \e string \b url - The xchan_url field
+	 *         - \e string \b network - The xchan_network field
+	 *         - \e array \b photo - Array containing the `mimetype` and `src`
+	 *         attributes of the profile photo.
+	 *         - \e string \b id - The xchan_guid field
+	 *         - \e string \b id_sid - The xchan_guid_sig field
+	 *         - \e string \b key - The xchan_pubkey field
+	 */
 	call_hooks('encode_item_xchan', $hookdata);
 
 	return $hookdata['encoded_xchan'];
 }
 
+/**
+ * Encode item terms
+ *
+ * @param array $terms        The terms to encode.
+ * @param bool $mirror        Whether `TERM_PCATEGORY` and `TERM_FILE` is allowed.
+ */
 function encode_item_terms($terms,$mirror = false) {
 	$ret = array();
 
@@ -1624,7 +1649,7 @@ function item_json_encapsulate($arr, $k)  {
 }
 
 /**
- * @brief Stores an item type record.
+ * Stores an item type record.
  *
  * @param array $arr
  * @param boolean $allow_exec (optional) default false
@@ -1642,10 +1667,10 @@ function item_store($arr, $allow_exec = false, $deliver = true, $addAndSync = tr
 	];
 
 	/**
-	 * @hooks item_store
-	 *   Called when item_store() stores a record of type item.
-	 *   * \e array \b item
-	 *   * \e boolean \b allow_exec
+	 * @hooks item_store_before
+	 *   Called before item_store() stores a record of type item.
+	 *   * \e array \b item                The item about to be stored.
+	 *   * \e boolean \b allow_exec        `true` if item is allowed to contain php.
 	 */
 	call_hooks('item_store_before', $d);
 
@@ -1765,22 +1790,24 @@ function item_store($arr, $allow_exec = false, $deliver = true, $addAndSync = tr
 		$arr['attach'] = json_encode($arr['attach']);
 	}
 
+	$dt = datetime_convert();
+
 	$arr['aid']           = ((!empty($arr['aid']))           ? intval($arr['aid'])                           : 0);
 	$arr['mid']           = ((!empty($arr['mid']))           ? notags(trim($arr['mid']))                     : random_string());
 	$arr['revision']      = ((!empty($arr['revision']) && intval($arr['revision']) > 0)   ? intval($arr['revision']) : 0);
 
 	$arr['author_xchan']  = ((!empty($arr['author_xchan']))  ? notags(trim($arr['author_xchan']))  : '');
 	$arr['owner_xchan']   = ((!empty($arr['owner_xchan']))   ? notags(trim($arr['owner_xchan']))   : '');
-	$arr['created']       = ((!empty($arr['created']) !== false) ? datetime_convert('UTC','UTC',$arr['created']) : datetime_convert());
-	$arr['edited']        = ((!empty($arr['edited'])  !== false) ? datetime_convert('UTC','UTC',$arr['edited'])  : datetime_convert());
+	$arr['created']       = ((!empty($arr['created']) !== false) ? datetime_convert('UTC','UTC',$arr['created']) : $dt);
+	$arr['edited']        = ((!empty($arr['edited'])  !== false) ? datetime_convert('UTC','UTC',$arr['edited'])  : $dt);
 	$arr['expires']       = ((!empty($arr['expires'])  !== false) ? datetime_convert('UTC','UTC',$arr['expires'])  : DBA::$dba->get_null_date());
-	$arr['commented']     = ((!empty($arr['commented'])  !== false) ? datetime_convert('UTC','UTC',$arr['commented'])  : datetime_convert());
+	$arr['commented']     = ((!empty($arr['commented'])  !== false) ? datetime_convert('UTC','UTC',$arr['commented'])  : $dt);
 	$arr['comments_closed'] = ((!empty($arr['comments_closed'])  !== false) ? datetime_convert('UTC','UTC',$arr['comments_closed'])  : DBA::$dba->get_null_date());
 	$arr['html'] = ((array_key_exists('html',$arr)) ? $arr['html'] : '');
 
 	if($deliver) {
-		$arr['received']      = datetime_convert();
-		$arr['changed']       = datetime_convert();
+		$arr['received']      = $dt;
+		$arr['changed']       = $dt;
 	}
 	else {
 
@@ -1789,8 +1816,8 @@ function item_store($arr, $allow_exec = false, $deliver = true, $addAndSync = tr
 		// will still take place through backdoor methods. Since these fields are rarely used
 		// otherwise, just preserve the original timestamp.
 
-		$arr['received']      = ((!empty($arr['received'])  !== false) ? datetime_convert('UTC','UTC',$arr['received'])  : datetime_convert());
-		$arr['changed']       = ((!empty($arr['changed'])  !== false) ? datetime_convert('UTC','UTC',$arr['changed'])  : datetime_convert());
+		$arr['received']      = ((!empty($arr['received'])  !== false) ? datetime_convert('UTC','UTC',$arr['received'])  : $dt);
+		$arr['changed']       = ((!empty($arr['changed'])  !== false) ? datetime_convert('UTC','UTC',$arr['changed'])  : $dt);
 	}
 
 	$arr['location']      = ((!empty($arr['location']))      ? notags(trim($arr['location']))      : '');
@@ -1973,9 +2000,13 @@ function item_store($arr, $allow_exec = false, $deliver = true, $addAndSync = tr
 	}
 
 	$private = intval($arr['item_private']);
-	if (! $private) {
-		if (strlen($allow_cid) || strlen($allow_gid) || strlen($deny_cid) || strlen($deny_gid)) {
+	if (!$private) {
+		if ($arr['public_policy']) {
 			$private = 1;
+		}
+
+		if (strlen($allow_cid) || strlen($allow_gid) || strlen($deny_cid) || strlen($deny_gid)) {
+			$private = !strlen($allow_gid) ? 2 : 1;
 		}
 	}
 
@@ -2036,19 +2067,18 @@ function item_store($arr, $allow_exec = false, $deliver = true, $addAndSync = tr
 
 
 	// Store taxonomy
-
 	if(($terms) && (is_array($terms))) {
+		$stmt = p("insert into term (uid, oid, otype, ttype, term, url, imgurl) values(?, ?, ?, ?, ?, ?, ?)");
 		foreach($terms as $t) {
-			q("insert into term (uid,oid,otype,ttype,term,url,imgurl)
-				values(%d,%d,%d,%d,'%s','%s','%s') ",
-				intval($arr['uid']),
-				intval($current_post),
-				intval(TERM_OBJ_POST),
-				intval($t['ttype']),
-				dbesc($t['term']),
-				dbesc($t['url']),
-				dbesc($t['imgurl'] ?? ''),
-			);
+			e($stmt, [
+				$arr['uid'],
+				$current_post,
+				TERM_OBJ_POST,
+				$t['ttype'],
+				$t['term'],
+				$t['url'],
+				$t['imgurl'] ?? '',
+			]);
 		}
 
 		$arr['term'] = $terms;
@@ -2383,19 +2413,21 @@ function item_store_update($arr, $allow_exec = false, $deliver = true, $addAndSy
 		intval(TERM_OBJ_POST)
 	);
 
+	// Store taxonomy
 	if(is_array($terms)) {
+		$stmt = p("insert into term (uid, oid, otype, ttype, term, url, imgurl) values(?, ?, ?, ?, ?, ?, ?)");
 		foreach($terms as $t) {
-			q("insert into term (uid, oid, otype, ttype, term, url, imgurl)
-				values (%d, %d, %d, %d, '%s', '%s', '%s')",
-				intval($uid),
-				intval($orig_post_id),
-				intval(TERM_OBJ_POST),
-				intval($t['ttype']),
-				dbesc($t['term']),
-				dbesc($t['url']),
-				dbesc($t['imgurl'] ?? ''),
-			);
+			e($stmt, [
+				$uid,
+				$orig_post_id,
+				TERM_OBJ_POST,
+				$t['ttype'],
+				$t['term'],
+				$t['url'],
+				$t['imgurl'] ?? '',
+			]);
 		}
+
 		$arr['term'] = $terms;
 	}
 
@@ -2783,13 +2815,14 @@ function tag_deliver($uid, $item_id) {
 			$matches = array();
 
 			$pattern = '/[\!@]\!?\[[uz]rl\=' . preg_quote($term['url'],'/') . '\](.*?)\[\/[uz]rl\]/';
-			if(preg_match($pattern,$body,$matches))
+			if (preg_match($pattern, $body, $matches)) {
 				$tagged = true;
+			}
 
-			$pattern = '/\[url\=' . preg_quote($term['url'],'/') . '\]\@(.*?)\[\/url\]/';
-			if(preg_match($pattern,$body,$matches))
+			$pattern = '/\[[uz]rl=' . preg_quote($term['url'], '/') . '\](@!?|!!?)(.*?)\[\/[uz]rl\]/';
+			if (preg_match($pattern, $body, $matches)) {
 				$tagged = true;
-
+			}
 
 			// standard forum tagging sequence !forumname
 /*
@@ -5400,7 +5433,7 @@ function item_by_item_id(int $id, int $parent, int $type = ITEM_TYPE_POST): arra
 	$reaction_select_sql = $reaction['select'];
 	$reaction_join_sql = $reaction['join'];
 
-	return q("WITH
+	return pe("WITH
 		$reaction_cte_sql
 		SELECT
 			*,
@@ -5408,14 +5441,14 @@ function item_by_item_id(int $id, int $parent, int $type = ITEM_TYPE_POST): arra
 		FROM item
 		$reaction_join_sql
 		WHERE
-			item.id = %d
-			AND item.uid = %d
+			item.id = ?
+			AND item.uid = ?
 			AND item.verb IN ('Create', 'Update', 'EmojiReact', 'Announce')
 			AND item.obj_type NOT IN ('Answer')
-			$item_normal_sql",
-		intval($id),
-		intval(local_channel())
-	);
+			$item_normal_sql", [
+		$id,
+		local_channel()
+	]);
 }
 
 
@@ -5424,13 +5457,13 @@ function item_by_item_id(int $id, int $parent, int $type = ITEM_TYPE_POST): arra
  * ATTENTION: no permissions for the parents are checked here!!!
  * Permissions MUST be checked by the module which calls this function.
  * @param array $parents
- * @param null|array $thr_parents (optional) - thr_parent mids which will be included
+ * @param array $thr_parents (optional) - thr_parent mids which will be included
  * @param string $permission_sql (optional) - SQL as provided by item_permission_sql() from the calling module
  * @param bool $blog_mode (optional) - if set to yes only the parent items will be returned
  * @param int $type (optional) - defaults to ITEM_TYPE_POST
  */
 
-function items_by_parent_ids(array $parents, null|array $thr_parents = null, string $permission_sql = '', bool $blog_mode = false, int $type = ITEM_TYPE_POST): array
+function items_by_parent_ids(array $parents, array $thr_parents = [], string $permission_sql = '', bool $blog_mode = false, int $type = ITEM_TYPE_POST): array
 {
 	if (!$parents) {
 		return [];
@@ -5474,7 +5507,7 @@ function items_by_parent_ids(array $parents, null|array $thr_parents = null, str
 			$reaction_join_sql
 		SQL;
 
-		return dbq(trim($q));
+		return pe(trim($q));
 	}
 
 	$q = <<<SQL
@@ -5517,7 +5550,7 @@ function items_by_parent_ids(array $parents, null|array $thr_parents = null, str
 		$reaction_join_sql
 	SQL;
 
-	return dbq(trim($q));
+	return pe(trim($q));
 }
 
 /**
@@ -5641,7 +5674,7 @@ function items_by_thr_parent(string $mid, int $parent, int|null $offset = null):
 		$reaction_select_sql = $reaction['select'];
 		$reaction_join_sql = $reaction['join'];
 
-		$ret = q("WITH
+		$ret = pe("WITH
 			$reaction_cte_sql
 			SELECT
 				item.*,
@@ -5649,16 +5682,16 @@ function items_by_thr_parent(string $mid, int $parent, int|null $offset = null):
 			FROM item
 			$reaction_join_sql
 			WHERE
-				item.thr_parent = '%s'
-				AND item.uid = %d
+				item.thr_parent = ?
+				AND item.uid = ?
 				AND item.verb IN ('Create', 'Update', 'EmojiReact')
 				AND item.obj_type NOT IN ('Answer')
 				AND item.item_thread_top = 0
 				$item_normal_sql
-			$order_sql",
-			dbesc($mid),
-			intval($owner_uid)
-		);
+			$order_sql", [
+			$mid,
+			$owner_uid
+		]);
 	}
 	else {
 		$observer_hash = get_observer_hash();
@@ -5669,7 +5702,7 @@ function items_by_thr_parent(string $mid, int $parent, int|null $offset = null):
 		$reaction_select_sql = $reaction['select'];
 		$reaction_join_sql = $reaction['join'];
 
-		$ret = q("WITH
+		$ret = pe("WITH
 			$reaction_cte_sql
 			SELECT
 				item.*,
@@ -5677,17 +5710,17 @@ function items_by_thr_parent(string $mid, int $parent, int|null $offset = null):
 			FROM item
 			$reaction_join_sql
 			WHERE
-				item.thr_parent = '%s'
-				AND item.uid = %d
+				item.thr_parent = ?
+				AND item.uid = ?
 				AND item.verb IN ('Create', 'Update', 'EmojiReact')
 				AND item.obj_type NOT IN ('Answer')
 				AND item.item_thread_top = 0
 				$permission_sql
 				$item_normal_sql
-			$order_sql",
-			dbesc($mid),
-			intval($owner_uid)
-		);
+			$order_sql", [
+			$mid,
+			$owner_uid
+		]);
 	}
 
 	if (isset($offset)) {
@@ -5721,39 +5754,39 @@ function item_activity_xchans(string $mid, int $parent, string $verb): array
 	$item_normal = item_normal($owner_uid, type: $parent_item[0]['item_type']);
 
 	if (local_channel() === $owner_uid) {
-		$ret = q("SELECT item.id, item.item_blocked, xchan.xchan_hash, xchan.xchan_name as name, xchan.xchan_url as url, xchan.xchan_photo_s as photo FROM item
+		$ret = pe("SELECT item.id, item.item_blocked, xchan.xchan_hash, xchan.xchan_name as name, xchan.xchan_url as url, xchan.xchan_photo_s as photo FROM item
 			LEFT JOIN xchan ON item.author_xchan = xchan.xchan_hash
-			WHERE item.uid = %d
-			AND item.parent = %d
-			AND item.thr_parent = '%s'
-			AND item.verb = '%s'
+			WHERE item.uid = ?
+			AND item.parent = ?
+			AND item.thr_parent = ?
+			AND item.verb = ?
 			AND item.item_thread_top = 0
 			$item_normal
 		--	GROUP BY item.author_xchan (should we prevent multiple reactions by the same author?)
-			ORDER BY item.created",
-			intval(local_channel()),
-			intval($parent),
-			dbesc($mid),
-			dbesc($verb)
-		);
+			ORDER BY item.created", [
+			local_channel(),
+			$parent,
+			$mid,
+			$verb
+		]);
 	}
 	else {
 		$sql_extra = item_permissions_sql($owner_uid, $observer_hash);
 
-		$ret = q("SELECT item.id, item.item_blocked, xchan.xchan_hash, xchan.xchan_name as name, xchan.xchan_url as url, xchan.xchan_photo_s as photo FROM item
+		$ret = pe("SELECT item.id, item.item_blocked, xchan.xchan_hash, xchan.xchan_name as name, xchan.xchan_url as url, xchan.xchan_photo_s as photo FROM item
 			LEFT JOIN xchan ON item.author_xchan = xchan.xchan_hash
-			WHERE item.uid = %d
-			AND item.thr_parent = '%s'
-			AND item.verb = '%s'
+			WHERE item.uid = ?
+			AND item.thr_parent = ?
+			AND item.verb = ?
 			AND item.item_thread_top = 0
 			$sql_extra
 			$item_normal
 		--	GROUP BY item.author_xchan (should we prevent multiple reactions by the same author?)
-			ORDER BY item.created",
-			intval($owner_uid),
-			dbesc($mid),
-			dbesc($verb)
-		);
+			ORDER BY item.created", [
+			$owner_uid,
+			$mid,
+			$verb
+		]);
 	}
 
 	$ret['is_commentable'] = can_comment_on_post($observer_hash, $parent_item[0]);
@@ -5764,41 +5797,41 @@ function item_activity_xchans(string $mid, int $parent, string $verb): array
 
 /**
  * @brief find and return thr_parents we need to show when displaying a nested comment.
- * TODO: can this be improved or maybe implemented differently in the UI?
  * @param array $item
  */
 
-function get_recursive_thr_parents(array $item): array|null
+function get_recursive_thr_parents(array $item): array
 {
 	if ($item['id'] === $item['parent']) {
-		// This is a toplevel post, return null.
-		return null;
+		return [];
 	}
 
-	$thr_parents[] = $item['thr_parent'];
+	$r = pe("WITH RECURSIVE parents AS (
+			SELECT
+				thr_parent,
+				parent_mid
+			FROM item
+			WHERE uid = ? AND mid = ?
 
-	$mid = $item['thr_parent'];
-	$parent_mid = $item['parent_mid'];
-	$uid = $item['uid'];
-	$i = 0;
+			UNION ALL
 
-	while ($mid !== $item['parent_mid'] && $i < 100) {
-		$x = q("SELECT thr_parent, mid FROM item WHERE uid = %d AND mid = '%s'",
-			intval($uid),
-			dbesc($mid)
-		);
+			SELECT
+				i.thr_parent,
+				p.parent_mid
+			FROM parents p
+			JOIN item i
+			  ON i.uid = ?
+			 AND i.mid = p.thr_parent
+			WHERE p.thr_parent <> p.parent_mid
+		)
+		SELECT thr_parent
+		FROM parents", [
+		$item['uid'],
+		$item['thr_parent'],
+		$item['uid']
+	]);
 
-		if (!$x) {
-			break;
-		}
-
-		$mid = $x[0]['thr_parent'];
-		$thr_parents[] = $x[0]['thr_parent'];
-
-		$i++;
-	}
-
-	return $thr_parents;
+	return array_merge([$item['thr_parent']], array_column($r, 'thr_parent'));
 }
 
 /**
@@ -5808,21 +5841,28 @@ function get_recursive_thr_parents(array $item): array|null
  */
 function AS1_to_AS2_verbs($items) {
 	$replaceable = [
-		ACTIVITY_POST
+		ACTIVITY_POST,
+		ACTIVITY_LIKE,
+		ACTIVITY_DISLIKE
 	];
+
+	$stmt = null;
 
 	foreach($items as $item) {
 		if (isset($item['verb'], $item['item_id']) && in_array($item['verb'], $replaceable)) {
-			q("UPDATE item
-				SET verb = CASE
-					WHEN verb = 'http://activitystrea.ms/schema/1.0/post' THEN 'Create'
-					WHEN verb = 'http://activitystrea.ms/schema/1.0/like' THEN 'Like'
-					WHEN verb = 'http://activitystrea.ms/schema/1.0/dislike' THEN 'Dislike'
-					ELSE verb  -- Keep the current
-				END
-				WHERE parent = %d",
-				intval($item['item_id'])
-			);
+			if (!$stmt instanceof PDOStatement) {
+				$stmt = p("UPDATE item
+					SET verb = CASE
+						WHEN verb = 'http://activitystrea.ms/schema/1.0/post' THEN 'Create'
+						WHEN verb = 'http://activitystrea.ms/schema/1.0/like' THEN 'Like'
+						WHEN verb = 'http://activitystrea.ms/schema/1.0/dislike' THEN 'Dislike'
+						ELSE verb  -- Keep the current
+					END
+					WHERE parent = ?"
+				);
+			}
+
+			e($stmt, [$item['item_id']]);
 		}
 	}
 }

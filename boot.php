@@ -71,7 +71,7 @@ require_once('include/security.php');
 
 
 define('PLATFORM_NAME', 'hubzilla');
-define('STD_VERSION', '11.3');
+define('STD_VERSION', '11.4');
 define('ZOT_REVISION', '6.0');
 
 define('DB_UPDATE_VERSION', 1265);
@@ -204,6 +204,12 @@ define('LOGGER_DEBUG', 2);
 define('LOGGER_DATA', 3);
 define('LOGGER_ALL', 4);
 
+/**
+ * log timezone
+ */
+
+define('LTZ_UTC', 0);
+define('LTZ_LOCAL', 1);
 
 /**
  * registration policies
@@ -675,7 +681,7 @@ function sys_boot(): bool {
 	date_default_timezone_set(App::$timezone);
 
 	if (!defined('DEFAULT_PLATFORM_ICON')) {
-		define('DEFAULT_PLATFORM_ICON', '/images/hz-32.png');
+		define('DEFAULT_PLATFORM_ICON', '/images/hubzilla.svg');
 	}
 
 	if (!defined('DEFAULT_NOTIFY_ICON')) {
@@ -715,6 +721,9 @@ function sys_boot(): bool {
 		load_hooks();
 		/**
 		 * @hooks init_1
+		 *		Called when system bootup is complete, but before request processing.
+		 *		The configuration and session has been set up, and hooks loaded
+		 *		at this point. No arguments are passed to this hook.
 		 */
 		call_hooks('init_1');
 	}
@@ -983,7 +992,7 @@ class App {
 			$staticfilecwd      = getcwd();
 			$staticfilerealpath = realpath(self::$cmd);
 			if (strpos($staticfilerealpath, $staticfilecwd) !== 0) {
-				http_status_exit(404, 'not found', 1);
+				http_status_exit(404, 'not found', true);
 			}
 
 			$staticfileetag = '"' . md5($staticfilerealpath . filemtime(self::$cmd)) . '"';
@@ -993,7 +1002,7 @@ class App {
 				// If HTTP_IF_NONE_MATCH is same as the generated ETag => content is the same as browser cache
 				// So send a 304 Not Modified response header and exit
 				if ($_SERVER['HTTP_IF_NONE_MATCH'] == $staticfileetag) {
-					http_status_exit(304, 'not modified', 1);
+					http_status_exit(304, 'not modified', true);
 				}
 			}
 			header("Content-type: " . $serve_rawfiles[$filext]);
@@ -1291,7 +1300,7 @@ class App {
 					'$js_strings'      => js_strings(),
 					'$zid'             => get_my_address(),
 					'$channel_id'      => self::$profile['uid'] ?? 0,
-					'$auto_save_draft' => ((isset(self::$profile_uid) && feature_enabled(self::$profile_uid, 'auto_save_draft')) ? "true" : "false"),
+					'$auto_save_draft' => ((self::$profile_uid && feature_enabled(self::$profile_uid, 'auto_save_draft')) ? "true" : "false"),
 					'$module'          => App::$module,
 					'$lang'            => App::$language
 				]
@@ -1784,23 +1793,27 @@ function login($register = false, $form_id = 'main_login', $hiddens = false, $lo
 
 
 /**
- * @brief Used to end the current process, after saving session state.
+ * Used to end the current request, after saving session state.
+ *
+ * @return never
+ *		This function never returns
  */
-function killme() {
-	register_shutdown_function('shutdown');
+function killme(): never {
 	exit;
 }
 
+
 /**
- * @brief Redirect to another URL and terminate this process.
+ * Redirect to another URL and terminate the request.
+ *
+ * @param string $url
+ *		A URL to redirect to.
+ *
+ * @return never
  */
-function goaway($s) {
-	header("Location: $s");
+function goaway(string $url): never {
+	header("Location: {$url}");
 	killme();
-}
-
-function shutdown() {
-
 }
 
 /**

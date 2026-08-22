@@ -20,13 +20,17 @@ use Zotlabs\Lib\Text;
  */
 class Browser extends DAV\Browser\Plugin {
 
-	public $build_page = false;
 	/**
 	 * @see set_writeable()
 	 * @see \\Sabre\\DAV\\Auth\\Backend\\BackendInterface
 	 * @var BasicAuth $auth
 	 */
 	private $auth;
+
+	/**
+	 * Flag for mod cloud to indicate if we need to call construct_page().
+	 */
+	public $build_page = false;
 
 	/**
 	 * @brief Constructor for Browser class.
@@ -86,6 +90,8 @@ class Browser extends DAV\Browser\Plugin {
 		$nick = $this->auth->owner_nick;
 		$channel_id = $this->auth->owner_id;
 
+		$this->build_page = true;
+
 		// Is visitor owner of this directory?
 		$is_owner = ((local_channel() && $channel_id == local_channel()) ? true : false);
 		$cat = ((x($_REQUEST,'cat')) ? $_REQUEST['cat'] : '');
@@ -94,7 +100,7 @@ class Browser extends DAV\Browser\Plugin {
 			date_default_timezone_set($this->auth->getTimezone());
 		}
 
-		$files = $this->server->getPropertiesForPath($path, [], 1);
+		$files = $this->server->getPropertiesIteratorForPath($path, [], 1);
 		$parent = $this->server->tree->getNodeForPath($path);
 
 		$arr = explode('/', $parent->os_path);
@@ -126,10 +132,26 @@ class Browser extends DAV\Browser\Plugin {
 			'audio/webm'
 		];
 
+		$preview_file_types = [
+			'audio/mpeg',
+			'video/mp4',
+			'video/ogg',
+			'video/webm',
+			'text/plain',
+			'application/epub+zip',
+			'application/pdf'
+		];
+
+
 		$f = [];
+		$photo_hashes = [];
+		$term_ids = [];
+
+		$deftiles = (($is_owner) ? 0 : 1);
+		$tiles = ((array_key_exists('cloud_tiles',$_SESSION)) ? intval($_SESSION['cloud_tiles']) : $deftiles);
+		$_SESSION['cloud_tiles'] = $tiles;
 
 		foreach ($files as $file) {
-
 			$ft = [];
 			$type = null;
 
@@ -214,59 +236,29 @@ class Browser extends DAV\Browser\Plugin {
 			$photo_icon = '';
 			$preview_style = intval(Config::Get('system','thumbnail_security',0));
 
-			$is_creator = (($data['creator'] === get_observer_hash()) ? true : false);
+			$is_creator = $data['creator'] === get_observer_hash();
 
-			if(strpos($type,'image/') === 0 && $attach_hash) {
-				$p = q("select resource_id, imgscale from photo where resource_id = '%s' and imgscale in ( %d, %d ) order by imgscale asc limit 1",
-					dbesc($attach_hash),
-					intval(PHOTO_RES_320),
-					intval(PHOTO_RES_PROFILE_80)
-				);
-				if($p) {
-					$photo_icon = 'photo/' . $p[0]['resource_id'] . '-' . $p[0]['imgscale'];
-				}
-				if($type === 'image/svg+xml' && $preview_style > 0) {
-					$photo_icon = $href;
+			if ($tiles && in_array($type, $preview_file_types)) {
+				$thumb = dbunescbin($data['content']) . '.thumb';
+				if (file_exists($thumb)) {
+					$photo_icon = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($thumb));
 				}
 			}
 
-			$g = [ 'resource_id' => $attach_hash, 'thumbnail' => $photo_icon, 'security' => $preview_style ];
-			call_hooks('file_thumbnail', $g);
-			$photo_icon = $g['thumbnail'];
+			if($tiles && strpos($type,'image/') === 0 && $attach_hash) {
+				$photo_hashes[] = $attach_hash;
+			}
 
 			$lockstate = (($data['allow_cid'] || $data['allow_gid'] || $data['deny_cid'] || $data['deny_gid']) ? 'lock' : 'unlock');
 			$id = $data['id'];
 
-			if($id) {
-				$terms = q("select * from term where oid = %d AND otype = %d",
-					intval($id),
-					intval(TERM_OBJ_FILE)
-				);
-
-				$categories = [];
-				$terms_str = '';
-				if($terms) {
-					foreach($terms as $t) {
-						$term = htmlspecialchars($t['term'],ENT_COMPAT,'UTF-8',false) ;
-						if(! trim($term))
-							continue;
-						$categories[] = array('term' => $term, 'url' => $t['url']);
-						if ($terms_str)
-							$terms_str .= ',';
-						$terms_str .= $term;
-					}
-					$ft['terms'] = replace_macros(get_markup_template('item_categories.tpl'),array(
-						'$categories' => $categories
-					));
-				}
-			}
+			$term_ids[] = $id;
 
 			$display_path_encoded = Text::rawurlencode_parts($data['display_path'] ?? '');
 			$href_encoded = Text::rawurlencode_parts($href);
 
 			// put the array for this file together
 			$ft['attach_id'] = $id;
-			// $ft['icon'] = $icon;
 			$ft['photo_icon'] = $photo_icon;
 			$ft['is_creator'] = $is_creator;
 			$ft['rel_path'] = (($data) ? '/cloud/' . $nick .'/' . $display_path_encoded : $href_encoded);
@@ -294,7 +286,7 @@ class Browser extends DAV\Browser\Plugin {
 			$ft['folder'] = $data['folder'];
 			$ft['revision'] = $data['revision'];
 			$ft['newfilename'] = ['newfilename_' . $id, t('Change filename to'), $name];
-			$ft['categories'] = ['categories_' . $id, t('Categories'), $terms_str];
+			$ft['categories'] = ['categories_' . $id, t('Categories')];
 
 			// create a copy of the list which we can alter for the current resource
 			$folders = $folder_list;
@@ -347,10 +339,6 @@ class Browser extends DAV\Browser\Plugin {
 			$this->server->emit('onHTMLActionsPanel', [$parent, &$output, $path]);
 		}
 
-		$deftiles = (($is_owner) ? 0 : 1);
-
-		$tiles = ((array_key_exists('cloud_tiles',$_SESSION)) ? intval($_SESSION['cloud_tiles']) : $deftiles);
-		$_SESSION['cloud_tiles'] = $tiles;
 
 		$header = (($cat) ? t('File category') . ": " . $this->escapeHTML($cat) : t('Files'));
 
@@ -364,63 +352,91 @@ class Browser extends DAV\Browser\Plugin {
 			$lockstate = (($acl->is_private()) ? 'lock' : 'unlock');
 		}
 
-		$html = replace_macros(get_markup_template('cloud.tpl'), array(
-				'$header' => $header,
-				'$total' => t('Total'),
-				'$actionspanel' => $output,
-				'$shared' => t('Shared'),
-				'$create' => t('Create'),
-				'$upload' => t('Add Files'),
-				'$is_owner' => $is_owner,
-				'$is_admin' => is_site_admin(),
-				'$has_perms' => perm_is_allowed($channel_id, get_observer_hash(), 'write_storage'),
-				'$admin_delete_label' => t('Admin Delete'),
-				'$parentpath' => $parent_path,
-				'$folder_parent' => $folder_parent,
-				'$folder' => $parent->folder_hash,
-				'$is_root_folder' => $is_root_folder,
-				'$cpath' => bin2hex(App::$query_string),
-				'$tiles' => intval($_SESSION['cloud_tiles']),
-				'$entries' => $f,
-				'$name' => t('Name'),
-				'$type' => t('Type'),
-				'$size' => t('Size'),
-				'$lastmod' => t('Last Modified'),
-				'$parent' => t('parent'),
-				'$submit_label' => t('Submit'),
-				'$cancel_label' => t('Cancel'),
-				'$delete_label' => t('Delete'),
-				'$channel_id' => $channel_id,
-				'$cpdesc' => t('Copy/paste this code to attach file to a post'),
-				'$cpldesc' => t('Copy/paste this URL to link file from a web page'),
-				'$categories' => ['categories', t('Categories')],
-				'$recurse' => ['recurse', t('Set permissions for all files and sub folders'), 0, '', [t('No'), t('Yes')]],
-				'$newfolder' => ['newfolder', t('Select a target location'), $parent->folder_hash, '', $folder_list],
-				'$copy' => ['copy', t('Copy to target location'), 0, '', [t('No'), t('Yes')]],
-				'$return_path' => $path,
-				'$lockstate' => $lockstate,
-				'$allow_cid' => ((isset($channel_acl['allow_cid'])) ? acl2json($channel_acl['allow_cid']) : ''),
-				'$allow_gid' => ((isset($channel_acl['allow_gid'])) ? acl2json($channel_acl['allow_gid']) : ''),
-				'$deny_cid' => ((isset($channel_acl['deny_cid'])) ? acl2json($channel_acl['deny_cid']) : ''),
-				'$deny_gid' => ((isset($channel_acl['deny_gid'])) ? acl2json($channel_acl['deny_gid']) : ''),
-				'$select_all_label' => t('Select All'),
-				'$bulk_actions_label' => t('Bulk Actions'),
-				'$adjust_permissions_label' => t('Adjust Permissions'),
-				'$move_copy_label' => t('Move or Copy'),
-				'$categories_label' => t('Categories'),
-				'$download_label' => t('Download'),
-				'$info_label' => t('Info'),
-				'$rename_label' => t('Rename'),
-				'$post_label' => t('Post'),
-				'$attach_bbcode_label' => t('Attachment BBcode'),
-				'$embed_bbcode_label' => t('Embed BBcode'),
-				'$link_bbcode_label' => t('Link BBcode'),
-				'$close_label' => t('Close')
-			));
+		$photo_map = [];
 
-		$a = false;
+		if ($photo_hashes) {
+			$photos = q("select resource_id, imgscale from photo where resource_id in (%s) and imgscale in ( %d, %d ) order by imgscale asc",
+				stringify_array($photo_hashes, true),
+				intval(PHOTO_RES_320),
+				intval(PHOTO_RES_PROFILE_80)
+			);
 
-		nav_set_selected('Files');
+			foreach ($photos as $row) {
+				$photo_map[$row['resource_id']] = 'photo/' . $row['resource_id'] . '-' . $row['imgscale'];
+			}
+		}
+
+		$term_map = [];
+
+		if (!$tiles && $term_ids) {
+			$terms = q("select * from term where oid in (%s) AND otype = %d",
+				implode(',', $term_ids),
+				intval(TERM_OBJ_FILE)
+			);
+
+			foreach ($terms as $row) {
+				$term_map[$row['oid']]['string'] .= (($term_map[$row['oid']]['string']) ? ',' : '') . htmlspecialchars($row['term'], ENT_COMPAT,'UTF-8', false);
+				$term_map[$row['oid']]['form'] = replace_macros(get_markup_template('field_input.tpl'), ['$field' => ['categories_' . $row['oid'], t('Categories'), $term_map[$row['oid']]['string']]]);
+				$term_map[$row['oid']]['html'] .= replace_macros(get_markup_template('item_categories.tpl'), ['$categories' => [['term' => $row['term'], 'url' => $row['url']]]]);
+			}
+		}
+
+		$html = replace_macros(get_markup_template('cloud.tpl'), [
+			'$header' => $header,
+			'$total' => t('Total'),
+			'$actionspanel' => $output,
+			'$shared' => t('Shared'),
+			'$create' => t('Create'),
+			'$upload' => t('Add Files'),
+			'$is_owner' => $is_owner,
+			'$is_admin' => is_site_admin(),
+			'$has_perms' => perm_is_allowed($channel_id, get_observer_hash(), 'write_storage'),
+			'$admin_delete_label' => t('Admin Delete'),
+			'$parentpath' => $parent_path,
+			'$folder_parent' => $folder_parent,
+			'$folder' => $parent->folder_hash,
+			'$is_root_folder' => $is_root_folder,
+			'$cpath' => bin2hex(App::$query_string),
+			'$tiles' => intval($_SESSION['cloud_tiles']),
+			'$entries' => $f,
+			'$name' => t('Name'),
+			'$type' => t('Type'),
+			'$size' => t('Size'),
+			'$lastmod' => t('Last Modified'),
+			'$parent' => t('parent'),
+			'$submit_label' => t('Submit'),
+			'$cancel_label' => t('Cancel'),
+			'$delete_label' => t('Delete'),
+			'$channel_id' => $channel_id,
+			'$cpdesc' => t('Copy/paste this code to attach file to a post'),
+			'$cpldesc' => t('Copy/paste this URL to link file from a web page'),
+			'$categories' => ['categories', t('Categories')],
+			'$recurse' => ['recurse', t('Set permissions for all files and sub folders'), 0, '', [t('No'), t('Yes')]],
+			'$newfolder' => ['newfolder', t('Select a target location'), $parent->folder_hash, '', $folder_list],
+			'$copy' => ['copy', t('Copy to target location'), 0, '', [t('No'), t('Yes')]],
+			'$return_path' => $path,
+			'$lockstate' => $lockstate,
+			'$allow_cid' => ((isset($channel_acl['allow_cid'])) ? acl2json($channel_acl['allow_cid']) : ''),
+			'$allow_gid' => ((isset($channel_acl['allow_gid'])) ? acl2json($channel_acl['allow_gid']) : ''),
+			'$deny_cid' => ((isset($channel_acl['deny_cid'])) ? acl2json($channel_acl['deny_cid']) : ''),
+			'$deny_gid' => ((isset($channel_acl['deny_gid'])) ? acl2json($channel_acl['deny_gid']) : ''),
+			'$select_all_label' => t('Select All'),
+			'$bulk_actions_label' => t('Bulk Actions'),
+			'$adjust_permissions_label' => t('Adjust Permissions'),
+			'$move_copy_label' => t('Move or Copy'),
+			'$categories_label' => t('Categories'),
+			'$download_label' => t('Download'),
+			'$info_label' => t('Info'),
+			'$rename_label' => t('Rename'),
+			'$post_label' => t('Post'),
+			'$attach_bbcode_label' => t('Attachment BBcode'),
+			'$embed_bbcode_label' => t('Embed BBcode'),
+			'$link_bbcode_label' => t('Link BBcode'),
+			'$close_label' => t('Close'),
+			'$term_map' => $term_map,
+			'$photo_map' => $photo_map
+		]);
+
 
 		App::$page['content'] = $html;
 		load_pdl();
@@ -432,11 +448,12 @@ class Browser extends DAV\Browser\Plugin {
 			require_once($theme_info_file);
 			if (function_exists(str_replace('-', '_', $current_theme[0]) . '_init')) {
 				$func = str_replace('-', '_', $current_theme[0]) . '_init';
-				$func($a);
+				$func();
 			}
 		}
-		$this->server->httpResponse->setHeader('Content-Security-Policy', "script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'");
-		$this->build_page = true;
+
+		// We have stored the output in App::$page['content']
+		return EMPTY_STR;
 	}
 
 	/**

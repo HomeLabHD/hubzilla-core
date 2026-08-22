@@ -285,6 +285,7 @@ class Profile_photo extends Controller {
 		$hash      = photo_new_resource();
 		$importing = false;
 		$smallest  = 0;
+		$res = null;
 
 		if ($_REQUEST['importfile']) {
 			$hash      = $_REQUEST['importfile'];

@@ -64,6 +64,11 @@ class UnitTestCase extends TestCase {
 			$this->connect_to_test_db();
 		}
 
+		// Loading any extra schemas needs to be done _before_ starting the
+		// transaction, since any changes to the schema will end the
+		// transaction and commit the results.
+		$this->loadExtraSchemas();
+
 		// The $transactuion variable is needed to hold the transaction until the
 		// function returns.
 		$this->db_transaction = new \DbaTransaction(\DBA::$dba);
@@ -73,6 +78,18 @@ class UnitTestCase extends TestCase {
 		// Make sure app config is reset and loaded from fixtures
 		\App::$config = array();
 		\Zotlabs\Lib\Config::Load('system');
+	}
+
+	/**
+	 * Load any extra schemas required by the test.
+	 *
+	 * This method should be overridden by your test case, if any
+	 * schemas in addition to the ones loaded by Hubzilla core are
+	 * needed.
+	 *
+	 * The default implementation is empty.
+	 */
+	protected function loadExtraSchemas(): void {
 	}
 
 	/**

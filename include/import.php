@@ -1569,7 +1569,7 @@ function sync_addressbook($channel, $data) {
 		$id = $id['id'];
 	}
 
-	$pdo = \DBA::$dba->db;
+	$pdo = DBA::$dba->db;
 
 	$carddavBackend = new \Sabre\CardDAV\Backend\PDO($pdo);
 	$addressbooks = $carddavBackend->getAddressBooksForUser($principalUri);
@@ -1637,7 +1637,7 @@ function sync_calendar($channel, $data) {
 		$id = [ $x['id'], $x['calendarid'] ];
 	}
 
-	$pdo = \DBA::$dba->db;
+	$pdo = DBA::$dba->db;
 
 	$caldavBackend = new \Sabre\CalDAV\Backend\PDO($pdo);
 	$calendars = $caldavBackend->getCalendarsForUser($principalUri);

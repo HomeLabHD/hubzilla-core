@@ -61,7 +61,7 @@ function contact_poll_interval($current, $disabled = false) {
 
 function gender_selector($current="",$suffix="") {
 	$o = '';
-	$select = array('', t('Male'), t('Female'), t('Currently Male'), t('Currently Female'), t('Mostly Male'), t('Mostly Female'), t('Transgender'), t('Intersex'), t('Transsexual'), t('Hermaphrodite'), t('Neuter'), t('Non-specific'), t('Other'), t('Undecided'));
+	$select = array('', t('Male'), t('Female'), t('Currently Male'), t('Currently Female'), t('Mostly Male'), t('Mostly Female'), t('Transgender'), t('Intersex'), t('Transsexual'), t('Hermaphrodite'), t('Neuter'), t('Ambiguous'), t('Other'), t('Undecided'));
 
 	call_hooks('gender_selector', $select);
 

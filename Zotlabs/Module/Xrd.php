@@ -2,13 +2,37 @@
 namespace Zotlabs\Module;
 
 use Zotlabs\Lib\Keyutils;
+use Zotlabs\Web\Controller;
 
 require_once('include/crypto.php');
 
+/**
+ * Handler for the `/xrd` URI endpoint.
+ *
+ * Generates an XRD document for a channel.
+ * See: https://docs.oasis-open.org/xri/xrd/v1.0/xrd-1.0.html
+ *
+ * **Query params:**
+ *
+ *	- `uri` (required): The URI for the resource to describe in one of these
+ *	  forms:
+ *	    - `https://myhub.example/mychannel`
+ *	    - `https://myhub.example/~mychannel`
+ *	    - `acct:mychannel@`
+ *	    - `acct://mychannel@`
+ *	    - `mychannel@`
+ *	    - `//mychannel@`
+ */
+class Xrd extends Controller {
 
-class Xrd extends \Zotlabs\Web\Controller {
-
-	function init() {
+	/**
+	 * Handle the xrd request.
+	 *
+	 * Renders an XRD document in XML format for the channel requested in the
+	 * `url` query parameter. If the requested channel does not exist on this
+	 * server, or an error occurs, a blank HTML page is returned to the client.
+	 */
+	function init(): void {
 
 		$uri = urldecode(notags(trim($_GET['uri'])));
 		$subject = $uri;
@@ -64,6 +88,14 @@ class Xrd extends \Zotlabs\Web\Controller {
 
 
 		$arr = array('user' => $r, 'xml' => $o);
+
+		/**
+		 * @hooks personal_xrd
+		 *   Called with the rendered XML document for a channel.
+		 *	 * \e array \b user - the combined fields of the `channel` and `xchan` of
+		 *	 the requested channel.
+		 *	 * \e string \b xml - The rendered XML to be returned to the client.
+		 */
 		call_hooks('personal_xrd', $arr);
 
 		echo $arr['xml'];

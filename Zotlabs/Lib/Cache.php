@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Lib;
 
+use DBA;
 use Zotlabs\Lib\Config;
 
 /**
@@ -18,7 +19,6 @@ class Cache {
      */
 
 	public static function get($key, $age = '') {
-//		$hash = hash('whirlpool',$key);
 		$hash = uuid_from_url($key);
 
 		$r = q("SELECT v FROM cache WHERE k = '%s' AND updated > %s - INTERVAL %s LIMIT 1",
@@ -33,25 +33,22 @@ class Cache {
 	}
 
 	public static function set($key,$value) {
-//		$hash = hash('whirlpool',$key);
 		$hash = uuid_from_url($key);
 
-		$r = q("SELECT * FROM cache WHERE k = '%s' LIMIT 1",
-			dbesc($hash)
+		DBA::$dba->upsert(
+			'cache',
+			[
+				'k'       => $hash,
+				'v'       => $value,
+				'updated' => datetime_convert(),
+			],
+			[
+				'v',
+				'updated',
+			],
+			[
+				'k',
+			]
 		);
-		if($r) {
-			q("UPDATE cache SET v = '%s', updated = '%s' WHERE k = '%s'",
-				dbesc($value),
-				dbesc(datetime_convert()),
-				dbesc($hash)
-			);
-		}
-		else {
-			q("INSERT INTO cache (k, v, updated) VALUES ('%s', '%s', '%s')",
-				dbesc($hash),
-				dbesc($value),
-				dbesc(datetime_convert())
-			);
-		}
 	}
 }

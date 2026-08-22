@@ -92,7 +92,14 @@ class LDSignatures {
 		jsonld_set_document_loader('jsonld_document_loader');
 
 		if ($expand_and_check_unsafe) {
-			$expanded = jsonld_expand($data);
+			try {
+				$expanded = jsonld_expand($data);
+			}
+			catch (\Exception $e) {
+				logger('json-ld expand error: ' . print_r($data, true));
+				//logger('json-ld expand error: ' . print_r($e,true));
+				return $ret;
+			}
 
 			if (self::contains_unsafe_keys($expanded)) {
 				logger('contains_unsafe_keys: ' . print_r($data,true));

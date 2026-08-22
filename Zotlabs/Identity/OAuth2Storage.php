@@ -55,16 +55,14 @@ class OAuth2Storage extends \OAuth2\Storage\Pdo {
 			return false;
 		}
 
-		$a = q("select * from account where account_id = %d",
-			intval($x['channel_account_id'])
-		);
+		$a = get_account_by_id($x['channel_account_id']);
 
 		$n = explode(' ', $x['channel_name']);
 
 		return( [
 			'webfinger'   => channel_reddress($x),
 			'portable_id' => $x['channel_hash'],
-			'email'       => $a[0]['account_email'],
+			'email'       => $a['account_email'],
 			'username'    => $x['channel_address'],
 			'user_id'     => $x['channel_id'],
 			'name'        => $x['channel_name'],
@@ -119,7 +117,7 @@ class OAuth2Storage extends \OAuth2\Storage\Pdo {
             }
         }
         $userClaims["sub"]=$user_id;
-        return $userClaims; 
+        return $userClaims;
     }
 
     /**
