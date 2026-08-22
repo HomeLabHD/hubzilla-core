@@ -66,6 +66,7 @@ class Cal extends Controller {
 		nav_set_selected('Calendar');
 
 		head_add_js('/library/fullcalendar/dist/index.global.js');
+		head_add_js('/view/js/timeformat.js');
 		head_add_css('cdav_calendar.css');
 
 		$sql_extra = permissions_sql($channel['channel_id'], get_observer_hash(), 'event');
@@ -193,6 +194,7 @@ class Cal extends Controller {
 			'$sources' => $sources,
 			'$lang' => App::$language,
 			'$timezone' => date_default_timezone_get(),
+			'$timeformat' => feature_enabled(local_channel(),'cal_timeformat') ? 1 : 0,
 			'$first_day' => $first_day,
 			'$prev'	=> t('Previous'),
 			'$next'	=> t('Next'),

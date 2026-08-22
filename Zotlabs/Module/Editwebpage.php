@@ -139,7 +139,7 @@ class Editwebpage extends \Zotlabs\Web\Controller {
 			'ptlabel' => t('Page link'),
 			'pagetitle' => $page_title,
 			'writefiles' => (($mimetype  == 'text/bbcode') ? perm_is_allowed($owner, get_observer_hash(), 'write_storage') : false),
-			'button' => t('Edit'),
+			'button' => t('Submit'),
 			'weblink' => (($mimetype  == 'text/bbcode') ? t('Insert web link') : false),
 			'hide_location' => true,
 			'hide_voting' => true,

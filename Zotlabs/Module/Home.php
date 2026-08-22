@@ -106,7 +106,7 @@ class Home extends Controller {
 
 		$sitename = Config::Get('system', 'sitename', 'Hubzilla');
 		$welcome = sprintf(t('Welcome to %s'), $sitename);
-		$login_on_homepage = Config::Get('system', 'login_on_homepage');
+		$login_on_homepage = Config::Get('system', 'login_on_homepage', true);
 
 		$tpl = get_markup_template('home.tpl');
 		return replace_macros($tpl, [

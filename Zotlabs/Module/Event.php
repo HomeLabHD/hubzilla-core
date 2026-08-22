@@ -1,6 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\ASObjectStorage;
 use Zotlabs\Web\Controller;
 use Zotlabs\Lib\ActivityStreams;
 use Zotlabs\Lib\Activity;
@@ -40,14 +41,7 @@ class Event extends Controller {
 			$items = fetch_post_tags($r,true);
 
 			$channel = channelx_by_n($items[0]['uid']);
-
-			if(! is_array($items[0]['obj'])) {
-				$obj = json_decode($items[0]['obj'],true);
-			}
-			else {
-				$obj = $items[0]['obj'];
-			}
-
+            $obj = (new ASObjectStorage($items[0]['obj']))->decode();
 			as_return_and_die($obj, $channel);
 		}
 

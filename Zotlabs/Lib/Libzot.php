@@ -2220,10 +2220,8 @@ class Libzot {
 
 		$i = $r[0];
 
-		if ($i['target'])
-			$i['target'] = json_decode($i['target'], true);
-		if ($i['object'])
-			$i['object'] = json_decode($i['object'], true);
+		$i['object'] = (new ASObjectStorage($i['object']))->decode();
+        $i['target'] = (new ASObjectStorage($i['target']))->decode();
 
 		if (!($i['target'] && $i['object'])) {
 			logger('No target/object');

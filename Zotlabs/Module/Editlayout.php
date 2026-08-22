@@ -111,7 +111,7 @@ class Editlayout extends \Zotlabs\Web\Controller {
 			'editor_autocomplete'=> true,
 			'bbco_autocomplete'=> 'comanche',
 			'return_path' => $rp,
-			'button' => t('Edit'),
+			'button' => t('Submit'),
 			'hide_voting' => true,
 			'hide_future' => true,
 			'hide_expire' => true,

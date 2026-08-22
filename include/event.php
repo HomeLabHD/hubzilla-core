@@ -8,6 +8,7 @@
 use Sabre\VObject;
 
 use Zotlabs\Lib\Activity;
+use Zotlabs\Lib\ASObjectStorage;
 use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libsync;
 use Zotlabs\Access\AccessList;
@@ -76,7 +77,7 @@ function format_event_html($ev) {
 function format_event_obj($jobject) {
 
 	$event = [];
-	$object = json_decode($jobject, true);
+	$object = (new ASObjectStorage($jobject))->decode();
 
 /*******
 	This is our encoded format
@@ -128,7 +129,8 @@ function format_event_obj($jobject) {
 
 		$oneday = false;
 
-		$bd_format = (($allday) ? t('l F d, Y') : t('l F d, Y \@ g:i A')); // Friday January 18, 2011 @ 8:01 AM or Friday January 18, 2011 for allday events
+		$timeformat = feature_enabled(local_channel(),'cal_timeformat') ? t('l F d, Y \@ H:i') : t('l F d, Y \@ g:i A');
+		$bd_format = (($allday) ? t('l F d, Y') : $timeformat); // Friday January 18, 2011 @ 8:01 AM or Friday January 18, 2011 for allday events
 
 		$dtend_title = '';
 		$dtend_dt = '';
@@ -804,7 +806,10 @@ function event_addtocal($item_id, $uid) {
 
 function parse_event_object($event_object_json) {
 
-	$object = json_decode($event_object_json, true);
+	$object = (new ASObjectStorage($event_object_json))->decode();
+    if (! is_array($object)) {
+        return false;
+    }
 
 	$tz = $object['timezone'] ?? 'UTC';
 
