@@ -909,6 +909,19 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 		if ($mimetype === false) {
 			$mimetype = 'application/octet-stream';
 		}
+
+		// Workaround for libmagic misidentifying CSS files as text/plain
+		// Only apply correction if the channel allows code execution
+		if ($mimetype === 'text/plain' && preg_match('/\.css$/i', $filename)) {
+			$allow_code = q("SELECT channel_pageflags FROM channel WHERE channel_id = %d", intval($channel_id));
+
+			if ($allow_code && count($allow_code) > 0) {
+				$pageflags = $allow_code[0]['channel_pageflags'];
+				if (($pageflags & PAGE_ALLOWCODE) !== 0) {
+					$mimetype = 'text/css';
+				}
+			}
+		}
 	}
 
 	if($options === 'replace') {
