@@ -904,24 +904,21 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 
 	if (class_exists('finfo') && is_file($os_basepath . $os_relpath)) {
 		$finfo = new finfo(FILEINFO_MIME_TYPE);
+        // temporarily store the current MIME type (identified by z_mime_content_type)
+		$exmimetype = $mimetype;
 		$mimetype = $finfo->file($os_basepath . $os_relpath);
 
 		if ($mimetype === false) {
 			$mimetype = 'application/octet-stream';
 		}
 
-		// Workaround for libmagic misidentifying CSS files as text/plain
-		// Only apply correction if the channel allows code execution
-		if ($mimetype === 'text/plain' && preg_match('/\.css$/i', $filename)) {
-			$allow_code = q("SELECT channel_pageflags FROM channel WHERE channel_id = %d", intval($channel_id));
+		// For channels where code execution is permitted: partially fallback to MIME type detection based
+		// on the file extension, as finfo() only recognises ‘text/plain’ for CSS, JavaScript pp.
 
-			if ($allow_code && count($allow_code) > 0) {
-				$pageflags = $allow_code[0]['channel_pageflags'];
-				if (($pageflags & PAGE_ALLOWCODE) !== 0) {
-					$mimetype = 'text/css';
-				}
-			}
-		}
+        // if ‘text/plain’ and ‘code’ are permitted, use the temporarily stored value
+		if ($mimetype === 'text/plain' && channel_codeallowed($channel_id)) {
+            $mimetype = $exmimetype;
+        }
 	}
 
 	if($options === 'replace') {
