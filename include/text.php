@@ -2674,6 +2674,8 @@ function xchan_query(&$items, $abook = true, $effective_uid = 0) {
 				$arr[] = "'" . dbesc($item['author_xchan']) . "'";
 			if(!empty($item['source_xchan']) && (! in_array("'" . dbesc($item['source_xchan']) . "'",$arr)))
 				$arr[] = "'" . dbesc($item['source_xchan']) . "'";
+			if(!empty($item['thr_parent_author_xchan']) && (! in_array("'" . dbesc($item['thr_parent_author_xchan']) . "'",$arr)))
+				$arr[] = "'" . dbesc($item['thr_parent_author_xchan']) . "'";
 		}
 	}
 	if(count($arr)) {
@@ -2699,6 +2701,9 @@ function xchan_query(&$items, $abook = true, $effective_uid = 0) {
 			$items[$x]['author'] = find_xchan_in_array($items[$x]['author_xchan'],$chans);
 			if (!empty($items[$x]['source_xchan'])) {
 				$items[$x]['source'] = find_xchan_in_array($items[$x]['source_xchan'],$chans);
+			}
+			if (!empty($items[$x]['thr_parent_author_xchan'])) {
+				$items[$x]['thr_parent_author'] = find_xchan_in_array($items[$x]['thr_parent_author_xchan'],$chans);
 			}
 		}
 	}
