@@ -2015,7 +2015,7 @@ function item_store($arr, $allow_exec = false, $deliver = true, $addAndSync = tr
 
 	// find the item we just created
 
-	$r = q("SELECT item.*, tp.uuid AS thr_parent_uuid FROM item
+	$r = q("SELECT item.*, tp.uuid AS thr_parent_uuid, tp.author_xchan AS thr_parent_author_xchan FROM item
 		LEFT JOIN item tp ON item.thr_parent = tp.mid AND item.uid = tp.uid
 		WHERE item.mid = '%s' AND item.uid = %d and item.revision = %d ORDER BY item.id ASC ",
 		dbesc($arr['mid']),
@@ -2388,7 +2388,7 @@ function item_store_update($arr, $allow_exec = false, $deliver = true, $addAndSy
 
 	// fetch an unescaped complete copy of the stored item
 
-	$r = q("SELECT item.*, tp.uuid AS thr_parent_uuid FROM item
+	$r = q("SELECT item.*, tp.uuid AS thr_parent_uuid, tp.author_xchan AS thr_parent_author_xchan FROM item
 		LEFT JOIN item tp ON item.thr_parent = tp.mid AND item.uid = tp.uid
 		WHERE item.id = %d",
 		intval($orig_post_id)

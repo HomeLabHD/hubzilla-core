@@ -853,13 +853,26 @@ class Enotify {
 			$itemem_text = $item['localize'];
 		}
 		else {
-			$itemem_text = (($item['item_thread_top'])
-				? (($item['obj_type'] === 'Question') ? t('started a poll') : t('started a conversation'))
-				: (($item['obj_type'] === 'Answer') ? sprintf( t('voted on %s\'s poll'), '[bdi]' . $item['owner']['xchan_name'] . '[/bdi]') : sprintf( t('posted in %s\'s conversation'), '[bdi]' . $item['owner']['xchan_name'] . '[/bdi]'))
-			);
+			// TODO: should this be moved to localize_item()?
 
-			if(in_array($item['obj_type'], ['Document', 'Video', 'Audio', 'Image'])) {
-				$itemem_text = t('shared a file with you');
+			if ($item['item_thread_top']) {
+				$itemem_text = $item['obj_type'] === 'Question'
+					? t('started a poll')
+					: t('started a conversation');
+			} else {
+				$author = '[bdi]' . $item['thr_parent_author']['xchan_name'] . '[/bdi]';
+
+				if ($item['obj_type'] === 'Answer') {
+					$itemem_text = sprintf(t('voted on %s\'s poll'), $author);
+				}
+
+				elseif ($item['thr_parent'] === $item['parent_mid']) {
+					$itemem_text = sprintf(t('commented in %s\'s conversation'), $author);
+				}
+
+				else {
+					$itemem_text = sprintf(t('replied to %s\'s comment'), $author);
+				}
 			}
 		}
 

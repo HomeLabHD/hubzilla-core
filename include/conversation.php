@@ -94,57 +94,16 @@ function item_redir_and_replace_images($body, $images, $cid) {
 function localize_item(&$item){
 
 	if (activity_match($item['verb'], ['Like', 'Dislike', ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_SHARE])){
-		if(! $item['obj'])
-			return;
-
 		if(intval($item['item_thread_top']))
 			return;
 
-		$obj = (new ASObjectStorage($item['obj']))->decode();
-		if(! is_array($obj)) {
-			logger('localize_item: failed to decode object: ' . print_r($item['obj'],true));
-		}
-
-		if(isset($obj['author']) && isset($obj['author']['link']))
-			$author_link = get_rel_link($obj['author']['link'],'alternate');
-		elseif(isset($obj['actor']) && isset($obj['actor']['url']))
-			$author_link = ((is_array($obj['actor']['url'])) ? $obj['actor']['url'][0]['href'] : $obj['actor']['url']);
-		elseif (isset($obj['actor']) && is_string($obj['actor']))
-			$author_link = $obj['actor'];
-		elseif (isset($obj['attributedTo']) && is_string($obj['attributedTo']) && $obj['attributedTo'])
-			$author_link = $obj['attributedTo'];
-		else
-			$author_link = '';
-
-		$author_name = $obj['author']['name'] ?? '';
-
-		if(!$author_name)
-			$author_name = $obj['actor']['name'] ?? '';
-
-		if(!$author_name && isset($obj['actor']) && is_string($obj['actor'])) {
-			$cached_actor = Activity::get_cached_actor($obj['actor']);
-			if (is_array($cached_actor)) {
-				$author_name = $cached_actor['name'] ?? $cached_actor['preferredUsername'];
-			}
-		}
-
-		if(!$author_name && isset($obj['attributedTo']) && is_string($obj['attributedTo'])) {
-			$cached_actor = Activity::get_cached_actor($obj['attributedTo']);
-			if (is_array($cached_actor)) {
-				$author_name = $cached_actor['name'] ?? $cached_actor['preferredUsername'];
-			}
-		}
-
-		$item_url = '';
-		if(isset($obj['link']) && is_array($obj['link']))
-			$item_url = get_rel_link($obj['link'],'alternate');
-
-		if(!$item_url)
-			$item_url = $obj['id'];
+		$author_link = $item['thr_parent_author']['xchan_url'];
+		$author_name = $item['thr_parent_author']['xchan_name'];
+		$item_url = $item['thr_parent'];
 
 		$Bphoto = '';
 
-		switch($obj['type']) {
+		switch($obj['obj_type']) {
 			case ACTIVITY_OBJ_PHOTO:
 			case 'Image':
 				$post_type = t('photo');
@@ -157,12 +116,14 @@ function localize_item(&$item){
 			case 'Person':
 				$post_type = t('channel');
 				$author_name = $obj['title'];
+				$obj = (new ASObjectStorage($item['obj']))->decode();
 				if($obj['link']) {
 					$author_link  = get_rel_link($obj['link'],'alternate');
 					$Bphoto = get_rel_link($obj['link'],'photo');
 				}
 				break;
 			case ACTIVITY_OBJ_THING:
+				$obj = (new ASObjectStorage($item['obj']))->decode();
 				$post_type = $obj['title'];
 				if($obj['owner']) {
 					if(array_key_exists('name',$obj['owner']))
@@ -217,7 +178,6 @@ function localize_item(&$item){
 		}
 
 	}
-
 }
 
 /**
