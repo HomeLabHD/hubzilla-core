@@ -190,6 +190,7 @@ class Layouts extends \Zotlabs\Web\Controller {
 			'$edited' => t('Edited'),
 			'$edit'    => t('Edit'),
 			'$share'   => t('Share'),
+			'$delete'   => t('Delete'),
 			'$download'   => t('Download PDL file'),
 			'$pages'   => $pages,
 			'$channel' => $which,
