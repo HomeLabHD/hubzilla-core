@@ -253,6 +253,8 @@ class Sse_bs extends Controller {
 			);
 
 			if($items) {
+				call_hooks('sse_filter_items', [ 'uid' => self::$uid, 'items' => $items ]);
+
 				$result['network']['offset'] = ((count($items) == $limit) ? intval($offset + $limit) : -1);
 				xchan_query($items);
 				foreach($items as $item) {
@@ -261,16 +263,20 @@ class Sse_bs extends Controller {
 						$result['network']['notifications'][] = $parsed;
 					}
 				}
+
+				$result['network']['count'] = count($result['network']['notifications']);
 			}
 			else {
 				$result['network']['offset'] = -1;
 			}
 
+			return $result;
 		}
 
 		$r = q("SELECT id FROM item
 			WHERE uid = %d and item_unseen = 1 AND item_wall = 0 AND item_private IN (0, 1)
 			AND obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
+			AND NOT (item.verb = 'Announce' AND item.item_thread_top = 1) -- only show the announce activity and not the resulting item
 			AND author_xchan != '%s'
 			$item_normal
 			$sql_extra LIMIT $count_limit",
