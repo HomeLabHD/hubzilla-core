@@ -898,7 +898,7 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 
 	if (class_exists('finfo') && is_file($os_basepath . $os_relpath)) {
 		$finfo = new finfo(FILEINFO_MIME_TYPE);
-		// temporarily store the current MIME type (identified by z_mime_content_type)
+		// temporarily store the current MIME type (passed by the server or identified by z_mime_content_type)
 		$exmimetype = $mimetype;
 		$mimetype = $finfo->file($os_basepath . $os_relpath);
 
