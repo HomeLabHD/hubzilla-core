@@ -140,7 +140,7 @@ function localize_item(&$item){
 			case 'Note':
 			default:
 				if ($item['thr_parent'] === $item['parent_mid']) {
-					$post_type = t('conversation');
+					$post_type =  activity_match($item['verb'], [ACTIVITY_SHARE]) ? t('message') : t('conversation');
 				}
 
 				elseif ($item['thr_parent_thr_parent'] === $item['parent_mid']) {
