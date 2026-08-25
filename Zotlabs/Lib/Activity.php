@@ -3829,9 +3829,6 @@ class Activity {
 		if ($channel) {
 			$proof = (new JcsEddsa2022)->sign($arr, $channel);
 			$arr['proof'] = $proof;
-
-			$signature = LDSignatures::sign($arr, $channel);
-			$arr['signature'] = $signature;
 		}
 
 		if ($json_encode) {
