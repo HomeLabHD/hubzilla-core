@@ -164,13 +164,13 @@ function localize_item(&$item){
 			$plink = '[zrl=' . zid($item_url) . ']' . $post_type . '[/zrl]';
 
 			if(activity_match($item['verb'], ['Like', ACTIVITY_LIKE])) {
-				$bodyverb = t('%1$s likes %2$s\'s %3$s');
+				$bodyverb = t('%1$s liked %2$s\'s %3$s');
 				// short version, in notification strings the author will be displayed separately
-				$shortbodyverb = t('likes %1$s\'s %2$s');
+				$shortbodyverb = t('liked %1$s\'s %2$s');
 			}
 			elseif(activity_match($item['verb'], ['Dislike', ACTIVITY_DISLIKE])) {
-				$bodyverb = t('%1$s doesn\'t like %2$s\'s %3$s');
-				$shortbodyverb = t('doesn\'t like %1$s\'s %2$s');
+				$bodyverb = t('%1$s disliked %2$s\'s %3$s');
+				$shortbodyverb = t('disliked %1$s\'s %2$s');
 			}
 			elseif(activity_match($item['verb'], ACTIVITY_SHARE)) {
 				$bodyverb = t('%1$s repeated %2$s\'s %3$s');
