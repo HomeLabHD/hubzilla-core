@@ -563,7 +563,7 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 	$remove_when_processed = true;
 	$import_replace = false;
 
-	$type = '';
+	$type = $arr['type'] ?? '';
 
 	if($options === 'import') {
 		$src      = $arr['src'];
@@ -574,8 +574,6 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 
 		if(array_key_exists('hash',$arr))
 			$hash = $arr['hash'];
-		if(array_key_exists('type',$arr))
-			$type = $arr['type'];
 
 		if($arr['preserve_original'])
 			$remove_when_processed = false;
@@ -636,12 +634,9 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 			$src      = $_FILES['userfile']['tmp_name'];
 			$filename = basename($_FILES['userfile']['name']);
 			$filesize = intval($_FILES['userfile']['size']);
+			$type     = $_FILES['userfile']['type'];
 		}
 	}
-
-	// AndStatus sends jpegs with a non-standard mimetype
-	if($type === 'image/jpg')
-		$type = 'image/jpeg';
 
 	$existing_size = 0;
 
@@ -700,7 +695,6 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 	}
 
 	// If we know it's a photo, over-ride the type in case the source system could not determine what it was
-
 	if($is_photo) {
 		$type = $gis['mime'];
 	}
@@ -859,7 +853,7 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 				return $ret;
 			}
 		}
-		$mimetype = ((isset($type) && $type) ? $type : z_mime_content_type($filename));
+		$mimetype = $type ?: z_mime_content_type($filename);
 	}
 
 	$os_basepath = 'store/' . $channel['channel_address'] . '/' ;

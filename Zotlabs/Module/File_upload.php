@@ -93,6 +93,8 @@ class File_upload extends \Zotlabs\Web\Controller {
 				}
 			}
 
+			$_POST['type'] = $_FILES['userfile']['type'] ?? '';
+
 			$r = attach_store($channel, get_observer_hash(), '', $_POST);
 			if (!$r['success']) {
 				notice($r['message'] . EOL);

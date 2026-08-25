@@ -92,7 +92,8 @@ class Wall_attach extends \Zotlabs\Web\Controller {
 			'allow_cid' => '<' . $channel['channel_hash'] . '>',
 			'allow_gid' => '',
 			'deny_cid' => '',
-			'deny_gid' => ''
+			'deny_gid' => '',
+			'type' => $_FILES['userfile']['type']
 		];
 
 		$r = attach_store($channel, get_observer_hash(), '', $data);
