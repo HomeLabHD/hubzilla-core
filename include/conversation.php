@@ -139,7 +139,18 @@ function localize_item(&$item){
 			case ACTIVITY_OBJ_NOTE:
 			case 'Note':
 			default:
-				$post_type = t('message');
+				if ($item['thr_parent'] === $item['parent_mid']) {
+					$post_type = t('conversation');
+				}
+
+				elseif ($item['thr_parent_thr_parent'] === $item['parent_mid']) {
+					$post_type = t('comment');
+				}
+
+				else {
+					$post_type = t('reply');
+				}
+
 				break;
 		}
 

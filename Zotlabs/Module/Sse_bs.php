@@ -235,7 +235,7 @@ class Sse_bs extends Controller {
 		$item_normal .= " AND item.verb NOT IN ('Add', 'Remove', 'Follow', 'Ignore', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
 
 		if ($notifications) {
-			$items = q("SELECT item.*, tp.uuid AS thr_parent_uuid, tp.author_xchan AS thr_parent_author_xchan FROM item
+			$items = q("SELECT item.*, tp.uuid AS thr_parent_uuid, tp.thr_parent AS thr_parent_thr_parent, tp.author_xchan AS thr_parent_author_xchan FROM item
 				LEFT JOIN item tp ON item.thr_parent = tp.mid AND item.uid = tp.uid
 				WHERE item.uid = %d
 				AND item.created <= '%s'
@@ -322,7 +322,7 @@ class Sse_bs extends Controller {
 		$item_normal .= " AND item.verb NOT IN ('Add', 'Remove', 'Follow', 'Ignore', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
 
 		if ($notifications) {
-			$items = q("SELECT item.*, tp.uuid AS thr_parent_uuid, tp.author_xchan AS thr_parent_author_xchan FROM item
+			$items = q("SELECT item.*, tp.uuid AS thr_parent_uuid, tp.thr_parent AS thr_parent_thr_parent, tp.author_xchan AS thr_parent_author_xchan FROM item
 				LEFT JOIN item tp ON item.thr_parent = tp.mid AND item.uid = tp.uid
 				WHERE item.uid = %d
 				AND item.created <= '%s'
@@ -409,7 +409,7 @@ class Sse_bs extends Controller {
 		$item_normal .= " AND item.verb NOT IN ('Add', 'Remove', 'Follow', 'Ignore', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
 
 		if ($notifications) {
-			$items = q("SELECT item.*, tp.uuid AS thr_parent_uuid, tp.author_xchan AS thr_parent_author_xchan FROM item
+			$items = q("SELECT item.*, tp.uuid AS thr_parent_uuid, tp.thr_parent AS thr_parent_thr_parent, tp.author_xchan AS thr_parent_author_xchan FROM item
 				LEFT JOIN item tp ON item.thr_parent = tp.mid AND item.uid = tp.uid
 				WHERE item.uid = %d
 				AND item.created <= '%s'
@@ -520,7 +520,7 @@ class Sse_bs extends Controller {
 		$item_normal .= " AND item.verb NOT IN ('Add', 'Remove', 'Follow', 'Ignore', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
 
 		if ($notifications) {
-			$items = q("SELECT item.*, tp.uuid AS thr_parent_uuid, tp.author_xchan AS thr_parent_author_xchan FROM item
+			$items = q("SELECT item.*, tp.uuid AS thr_parent_uuid, tp.thr_parent AS thr_parent_thr_parent, tp.author_xchan AS thr_parent_author_xchan FROM item
 				LEFT JOIN item tp ON item.thr_parent = tp.mid AND item.uid = tp.uid
 				WHERE true $uids
 				AND item.created <= '%s'
@@ -662,7 +662,7 @@ class Sse_bs extends Controller {
 			// Filter internal follow activities and strerams add/remove activities
 			$item_normal .= " AND item.verb NOT IN ('Add', 'Remove', 'Follow', 'Ignore', '" . dbesc(ACTIVITY_FOLLOW) . "') ";
 
-			$items_stmt = p("SELECT item.*, tp.uuid AS thr_parent_uuid, tp.author_xchan AS thr_parent_author_xchan FROM item
+			$items_stmt = p("SELECT item.*, tp.uuid AS thr_parent_uuid, tp.thr_parent AS thr_parent_thr_parent, tp.author_xchan AS thr_parent_author_xchan FROM item
 				LEFT JOIN item tp ON item.thr_parent = tp.mid AND item.uid = tp.uid
 				WHERE item.uid = ?
 				AND item.created <= ?

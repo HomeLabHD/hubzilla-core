@@ -870,8 +870,12 @@ class Enotify {
 					$itemem_text = sprintf(t('commented in %s\'s conversation'), $author);
 				}
 
-				else {
+				elseif ($item['thr_parent_thr_parent'] === $item['parent_mid']) {
 					$itemem_text = sprintf(t('replied to %s\'s comment'), $author);
+				}
+
+				else {
+					$itemem_text = sprintf(t('replied to %s\'s reply'), $author);
 				}
 			}
 		}
