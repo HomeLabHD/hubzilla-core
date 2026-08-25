@@ -26,3 +26,16 @@ if (!function_exists('array_find')) {
 		return null;
 	}
 }
+
+if (!function_exists('array_find_key')) {
+
+	function array_find_key(array $array, callable $callback): mixed {
+		foreach ($array as $key => $entry) {
+			if ($callback($entry, $key) === true) {
+				return $key;
+			}
+		}
+
+		return null;
+	}
+}
