@@ -103,7 +103,7 @@ function localize_item(&$item){
 
 		$Bphoto = '';
 
-		switch($obj['obj_type']) {
+		switch($item['obj_type']) {
 			case ACTIVITY_OBJ_PHOTO:
 			case 'Image':
 				$post_type = t('photo');
@@ -115,8 +115,8 @@ function localize_item(&$item){
 			case ACTIVITY_OBJ_PERSON:
 			case 'Person':
 				$post_type = t('channel');
-				$author_name = $obj['title'];
 				$obj = (new ASObjectStorage($item['obj']))->decode();
+				$author_name = $obj['title'];
 				if($obj['link']) {
 					$author_link  = get_rel_link($obj['link'],'alternate');
 					$Bphoto = get_rel_link($obj['link'],'photo');
