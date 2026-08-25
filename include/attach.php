@@ -904,10 +904,20 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 
 	if (class_exists('finfo') && is_file($os_basepath . $os_relpath)) {
 		$finfo = new finfo(FILEINFO_MIME_TYPE);
+		// temporarily store the current MIME type (identified by z_mime_content_type)
+		$exmimetype = $mimetype;
 		$mimetype = $finfo->file($os_basepath . $os_relpath);
 
 		if ($mimetype === false) {
 			$mimetype = 'application/octet-stream';
+		}
+
+		// For channels where code execution is permitted: partially fallback to MIME type detection based
+		// on the file extension, as finfo() only recognises ‘text/plain’ for CSS, JavaScript etc.
+
+		// if ‘text/plain’ and ‘code’ are permitted, use the temporarily stored value
+		if ($mimetype === 'text/plain' && channel_codeallowed($channel_id)) {
+			$mimetype = $exmimetype;
 		}
 	}
 
