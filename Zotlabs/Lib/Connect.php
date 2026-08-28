@@ -5,6 +5,7 @@ namespace Zotlabs\Lib;
 use App;
 use Zotlabs\Access\Permissions;
 use Zotlabs\Daemon\Master;
+use Zotlabs\Entity\Abook;
 use Zotlabs\Lib\Config;
 
 class Connect {
@@ -59,14 +60,7 @@ class Connect {
 
 		// check service class limits
 
-		$r = q("select count(*) as total from abook where abook_channel = %d and abook_self = 0 ",
-			intval($uid)
-		);
-		if ($r) {
-			$total_channels = $r[0]['total'];
-		}
-
-		if (! service_class_allows($uid,'total_channels',$total_channels)) {
+		if (! service_class_allows($uid, 'total_channels', Abook::countContactsForChannel($uid))) {
 			$result['message'] = upgrade_message();
 			return $result;
 		}
@@ -142,7 +136,7 @@ class Connect {
 
 		// failure case
 
-		if (! $xchan_hash) {
+		if (! $xchan_hash || empty($xchan)) {
 			$result['message'] = t('Channel discovery failed.');
 			logger('follow: ' . $result['message']);
 			return $result;
@@ -181,14 +175,7 @@ class Connect {
 
 			// check service class feed limits
 
-			$t = q("select count(*) as total from abook where abook_account = %d and abook_feed = 1 ",
-				intval($aid)
-			);
-			if ($t) {
-				$total_feeds = $t[0]['total'];
-			}
-
-			if (! service_class_allows($uid,'total_feeds',$total_feeds)) {
+			if (! service_class_allows($uid, 'total_feeds', Abook::countFeedsForAccount($aid))) {
 				$result['message'] = upgrade_message();
 				return $result;
 			}
