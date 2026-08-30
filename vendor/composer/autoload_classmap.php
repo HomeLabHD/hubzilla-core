@@ -1907,6 +1907,7 @@ return array(
     'Zotlabs\\Daemon\\Thumbnail' => $baseDir . '/Zotlabs/Daemon/Thumbnail.php',
     'Zotlabs\\Daemon\\Xchan_photo' => $baseDir . '/Zotlabs/Daemon/Xchan_photo.php',
     'Zotlabs\\Daemon\\Zotconvo' => $baseDir . '/Zotlabs/Daemon/Zotconvo.php',
+    'Zotlabs\\Entity\\Abook' => $baseDir . '/Zotlabs/Entity/Abook.php',
     'Zotlabs\\Entity\\Account' => $baseDir . '/Zotlabs/Entity/Account.php',
     'Zotlabs\\Entity\\Channel' => $baseDir . '/Zotlabs/Entity/Channel.php',
     'Zotlabs\\Entity\\Item' => $baseDir . '/Zotlabs/Entity/Item.php',

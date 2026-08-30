@@ -2252,6 +2252,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Daemon\\Thumbnail' => __DIR__ . '/../..' . '/Zotlabs/Daemon/Thumbnail.php',
         'Zotlabs\\Daemon\\Xchan_photo' => __DIR__ . '/../..' . '/Zotlabs/Daemon/Xchan_photo.php',
         'Zotlabs\\Daemon\\Zotconvo' => __DIR__ . '/../..' . '/Zotlabs/Daemon/Zotconvo.php',
+        'Zotlabs\\Entity\\Abook' => __DIR__ . '/../..' . '/Zotlabs/Entity/Abook.php',
         'Zotlabs\\Entity\\Account' => __DIR__ . '/../..' . '/Zotlabs/Entity/Account.php',
         'Zotlabs\\Entity\\Channel' => __DIR__ . '/../..' . '/Zotlabs/Entity/Channel.php',
         'Zotlabs\\Entity\\Item' => __DIR__ . '/../..' . '/Zotlabs/Entity/Item.php',
