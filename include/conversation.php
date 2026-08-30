@@ -493,7 +493,6 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 				$location = format_location($item);
 
-				localize_item($item);
 				if($mode === 'network-new')
 					$dropping = true;
 				else
