@@ -58,7 +58,7 @@ class HttpMessageSigner
      * @throws UnProcessableSignatureException
      */
 
-    public function signRequest(string $coveredFields, MessageInterface $interface, RequestInterface $originalRequest = null): MessageInterface
+    public function signRequest(string $coveredFields, MessageInterface $interface, ?RequestInterface $originalRequest = null): MessageInterface
     {
         $headers = $this->getHeaders($interface);
         if ($originalRequest) {
@@ -86,7 +86,7 @@ class HttpMessageSigner
      * @throws UnProcessableSignatureException
      */
 
-    public function verifyRequest(MessageInterface $interface, RequestInterface $originalRequest = null): bool
+    public function verifyRequest(MessageInterface $interface, ?RequestInterface $originalRequest = null): bool
     {
         $headers = [];
         if ($originalRequest) {
@@ -279,15 +279,15 @@ class HttpMessageSigner
         }
 
         $whichRequest = $interface;
+        $whichHeaders = $headers;
         if (isset($parameters['req'])) {
             if ($interface instanceof ResponseInterface) {
                 $whichRequest = $this->getOriginalRequest();
-            }
-            else {
+                $whichHeaders = $this->getHeaders($whichRequest);
+            } else {
                 throw new UnProcessableSignatureException('missing request for req parameter');
             }
         }
-        $whichHeaders = $headers;
 
         if (isset($parameters['tr'])) {
             $whichHeaders = $whichRequest->getTrailers();
@@ -343,10 +343,14 @@ class HttpMessageSigner
         else {
             $value = match ($fieldName) {
                 '@signature-params' => ['', ''],
-                '@status' => ['"@status"', '"@status": ' . $interface->getStatusCode()],
+                '@status' => ['"@status"', $interface->getStatusCode()],
                 default => ['"' . $fieldName . '"', trim($headers[$fieldName] ?? '')],
             };
         }
+
+        if(isset($parameters['req']))
+            $value[0] .= ';req';
+
         return $value;
     }
 
