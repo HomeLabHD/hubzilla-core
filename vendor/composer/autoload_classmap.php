@@ -882,6 +882,7 @@ return array(
     'Ramsey\\Uuid\\Guid\\GuidBuilder' => $vendorDir . '/ramsey/uuid/src/Guid/GuidBuilder.php',
     'Ramsey\\Uuid\\Lazy\\LazyUuidFromString' => $vendorDir . '/ramsey/uuid/src/Lazy/LazyUuidFromString.php',
     'Ramsey\\Uuid\\Math\\BrickMathCalculator' => $vendorDir . '/ramsey/uuid/src/Math/BrickMathCalculator.php',
+    'Ramsey\\Uuid\\Math\\BrickMathRoundingMode' => $vendorDir . '/ramsey/uuid/src/Math/BrickMathRoundingMode.php',
     'Ramsey\\Uuid\\Math\\CalculatorInterface' => $vendorDir . '/ramsey/uuid/src/Math/CalculatorInterface.php',
     'Ramsey\\Uuid\\Math\\RoundingMode' => $vendorDir . '/ramsey/uuid/src/Math/RoundingMode.php',
     'Ramsey\\Uuid\\Nonstandard\\Fields' => $vendorDir . '/ramsey/uuid/src/Nonstandard/Fields.php',
