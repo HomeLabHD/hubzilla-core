@@ -448,17 +448,17 @@
         },
         {
             "name": "commerceguys/intl",
-            "version": "v2.0.7",
-            "version_normalized": "2.0.7.0",
+            "version": "v2.0.8",
+            "version_normalized": "2.0.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/commerceguys/intl.git",
-                "reference": "2cf8f74987095aedff45249ce6fc7b0427beefee"
+                "reference": "f5c5ecb1ec2ed7e258c22f7db73e25c1a589f9c5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/commerceguys/intl/zipball/2cf8f74987095aedff45249ce6fc7b0427beefee",
-                "reference": "2cf8f74987095aedff45249ce6fc7b0427beefee",
+                "url": "https://api.github.com/repos/commerceguys/intl/zipball/f5c5ecb1ec2ed7e258c22f7db73e25c1a589f9c5",
+                "reference": "f5c5ecb1ec2ed7e258c22f7db73e25c1a589f9c5",
                 "shasum": ""
             },
             "require": {
@@ -468,7 +468,7 @@
                 "mikey179/vfsstream": "1.*",
                 "phpunit/phpunit": "^10"
             },
-            "time": "2025-04-11T08:13:51+00:00",
+            "time": "2026-08-21T08:01:00+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -496,7 +496,7 @@
             "description": "Internationalization library powered by CLDR data.",
             "support": {
                 "issues": "https://github.com/commerceguys/intl/issues",
-                "source": "https://github.com/commerceguys/intl/tree/v2.0.7"
+                "source": "https://github.com/commerceguys/intl/tree/v2.0.8"
             },
             "install-path": "../commerceguys/intl"
         },
