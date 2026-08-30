@@ -130,6 +130,10 @@ class HTTPSig {
 
 			$publicKey = $keyInfo['public_key'];
 
+			if (!($publicKey && $alg))  {
+				return $result;
+			}
+
 			$messageSigner = new HttpMessageSigner();
 
 			$messageSigner->setPublicKey($publicKey);
