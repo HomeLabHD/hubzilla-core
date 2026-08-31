@@ -1,4 +1,0 @@
-#### Enforcement 
-
-Instances of offensive, harassing or otherwise unacceptable behaviour can be reported to the project team at [project@hubzilla.org](mailto:project@hubzilla.org). All complaints will be reviewed and investigated and will result in a response that is deemed necessary and appropriate to the circumstances. The project team is committed to confidentiality towards the person reporting an incident. Further details of specific enforcement policies may be published separately.
-Project supervisors who fail to follow or enforce the Code of Conduct in good faith may face temporary or permanent consequences as determined by other members of the project management team.
