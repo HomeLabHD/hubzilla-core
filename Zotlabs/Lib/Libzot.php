@@ -8,6 +8,8 @@ use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Access\Permissions;
 use Zotlabs\Daemon\Master;
 use Zotlabs\Web\HTTPSig;
+use GuzzleHttp\Psr7\Request;
+use HttpSignature\HttpMessageSigner;
 
 require_once('include/crypto.php');
 
@@ -192,17 +194,50 @@ class Libzot {
 	 *
 	 */
 	static function zot($url, $data, $channel = null, $crypto = null) {
-
+		$curlHeaders = [];
 		if ($channel) {
-			$headers = [
-				'X-Zot-Token'      => random_string(),
-				'Digest'           => HTTPSig::generate_digest_header($data),
-				'Content-type'     => 'application/x-zot+json',
-				'(request-target)' => 'post ' . get_request_string($url)
-			];
+			if (Config::Get('system', 'send_rfc9421')) {
+				$parsedUrl = parse_url($url);
+				$signer = new HttpMessageSigner();
+				$request = new Request(
+					'POST',
+					$url,
+					[
+						'X-Zot-Token' => random_string(),
+						'Content-Digest' => $signer->createContentDigestHeader($data),
+						'Content-Type' => 'application/x-zot+json',
+						'Host' => $parsedUrl['host'],
+						'Date' => gmdate('D, d M Y H:i:s T'),
+					],
+					$data
+				);
 
-			$h = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel), false, 'sha512',
-				(($crypto) ? ['key' => $crypto['hubloc_sitekey'], 'algorithm' => self::best_algorithm($crypto['site_crypto'])] : false));
+				$signer->setPrivateKey($channel['channel_prvkey'])
+					->setAlgorithm('rsa-v1_5-sha256')
+					->setKeyId(channel_url($channel))
+					->setCreated(time())
+					->setExpires(time() + 3600);
+
+				$coveredFields = '("@method" "@target-uri" "host" "date" "x-zot-token" "content-digest" "content-type")';
+				$request = $signer->signRequest($coveredFields, $request);
+				$signedHeaders = $signer->getHeaders($request);
+				$curlHeaders = [];
+				foreach ($signedHeaders as $key => $value) {
+					$curlHeaders[] = $key . ': ' . $value;
+				}
+			}
+			else {
+
+				$headers = [
+					'X-Zot-Token'      => random_string(),
+					'Digest'           => HTTPSig::generate_digest_header($data),
+					'Content-type'     => 'application/x-zot+json',
+					'(request-target)' => 'post ' . get_request_string($url)
+				];
+
+				$curlHeaders = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel), false, 'sha512',
+					(($crypto) ? ['key' => $crypto['hubloc_sitekey'], 'algorithm' => self::best_algorithm($crypto['site_crypto'])] : false));
+			}
 		}
 		else {
 			$h = [];
@@ -210,7 +245,7 @@ class Libzot {
 
 		$redirects = 0;
 
-		return z_post_url($url, $data, $redirects, ((empty($h)) ? [] : ['headers' => $h]));
+		return z_post_url($url, $data, $redirects, ((empty($curlHeaders)) ? [] : ['headers' => $curlHeaders]));
 	}
 
 
