@@ -812,7 +812,7 @@ class Sse_bs extends Controller {
 		$result['register']['count'] = 0;
 		$result['register']['offset'] = -1;
 
-		if(! self::$uid && ! is_site_admin())
+		if(! is_site_admin())
 			return $result;
 
 		$policy  = intval(Config::Get('system','register_policy'));
