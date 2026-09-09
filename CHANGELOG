@@ -1,3 +1,9 @@
+Hubzilla 11.4.1 (2026-09-09)
+	- Fix regression in settings in case where advanced theme settings were disabled
+	- Pubcrawl: fix PHP fatal error if a field in "to" was not a string
+	- Gallery: fix issue where alt text would cover the whole image
+
+
 Hubzilla 11.4 (2026-08-07)
 	Features
 	- Introduce DBA upsert function wich will insert or update a row in one go to reduce integrity constraint violation warnings due to race conditions
