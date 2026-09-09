@@ -9,6 +9,8 @@ use Zotlabs\Lib\Queue;
 use Zotlabs\Lib\Url;
 use Zotlabs\Lib\System;
 use Zotlabs\Web\HTTPSig;
+use GuzzleHttp\Psr7\Response;
+use HttpSignature\HttpMessageSigner;
 
 /**
  * @file include/network.php
@@ -425,19 +427,48 @@ function json_return_and_die($x, $content_type = 'application/json'): never {
 
 function as_return_and_die($obj, $channel = []) {
 
-	$ret = Activity::build_packet($obj, $channel);
-	logger('data: ' . jindent($ret), LOGGER_DATA);
+	$json = Activity::build_packet($obj, $channel);
+	logger('data: ' . jindent($json), LOGGER_DATA);
 
-	$headers['Content-Type'] = 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"' ;
-	$headers['Date'] = datetime_convert('UTC','UTC', 'now', 'D, d M Y H:i:s \\G\\M\\T');
-	$headers['Digest'] = HTTPSig::generate_digest_header($ret);
+	if ($channel && Config::Get('system', 'send_rfc9421')) {
+		$signer = new HttpMessageSigner();
 
-	if ($channel) {
-		$h = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel));
-		HTTPSig::set_headers($h);
+		$response = new Response(
+			200,
+			[
+				'Date' => gmdate('D, d M Y H:i:s T'),
+				'Content-Digest' => $signer->createContentDigestHeader($json),
+				'Content-Type' => 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+			],
+			$json
+		);
+
+		$signer->setPrivateKey($channel['channel_prvkey'])
+			->setAlgorithm('rsa-v1_5-sha256')
+			->setKeyId(channel_url($channel))
+			->setCreated(time())
+			->setExpires(time() + 3600);
+		$coveredFields = '("date" "content-digest" "content-type" "@status")';
+		$response = $signer->signRequest($coveredFields, $response);
+		$signedHeaders = $signer->getHeaders($response);
+		$curlHeaders = [];
+		foreach ($signedHeaders as $key => $value) {
+			$curlHeaders[] = $key . ': ' . $value;
+		}
+		HTTPSig::set_headers($curlHeaders);
+	}
+	else {
+		$headers['Content-Type'] = 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"';
+		$headers['Date'] = datetime_convert('UTC','UTC', 'now', 'D, d M Y H:i:s \\G\\M\\T');
+		$headers['Digest'] = HTTPSig::generate_digest_header($json);
+
+		if ($channel) {
+			$h = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel));
+			HTTPSig::set_headers($h);
+		}
 	}
 
-	echo $ret;
+	echo $json;
 	killme();
 
 }

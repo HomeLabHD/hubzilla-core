@@ -3,8 +3,10 @@
 namespace Zotlabs\Daemon;
 
 use Zotlabs\Web\HTTPSig;
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\PConfig;
-
+use GuzzleHttp\Psr7\Request;
+use HttpSignature\HttpMessageSigner;
 
 require_once('include/cli_startup.php');
 require_once('include/attach.php');
@@ -28,22 +30,52 @@ class File_importer {
 			return;
 		}
 
-		$headers = [
-			'X-API-Token'      => random_string(),
-			'X-API-Request'    => $hz_server . '/api/z/1.0/file/export_page?f=records=1&page=' . $page,
-			'Host'             => $m['host'],
-			'(request-target)' => 'get /api/z/1.0/file/export_page?f=records=1&page=' . $page,
-		];
+		if (Config::Get('system', 'send_rfc9421')) {
+			$signer = new HttpMessageSigner();
+			$request = new Request(
+				'GET',
+				$hz_server . '/api/z/1.0/file/export_page?records=1&page=' . $page,
+				[
+					'X-API-Token' => random_string(),
+					'X-API-Request' => $hz_server . '/api/z/1.0/file/export_page?records=1&page=' . $page,
+					'Host' => $m['host'],
+					'Date' => gmdate('D, d M Y H:i:s T'),
+				]
+			);
 
-		$headers = HTTPSig::create_sig($headers,$channel['channel_prvkey'],channel_url($channel),true,'sha512');
+			$signer->setPrivateKey($channel['channel_prvkey'])
+				->setAlgorithm('rsa-v1_5-sha256')
+				->setKeyId(channel_url($channel))
+				->setCreated(time())
+				->setExpires(time() + 3600);
+
+			$coveredFields = '("@method" "@target-uri" "host" "date" "x-api-token" "x-api-request")';
+			$request = $signer->signRequest($coveredFields, $request);
+			$signedHeaders = $signer->getHeaders($request);
+			$curlHeaders = [];
+			foreach ($signedHeaders as $key => $value) {
+				$curlHeaders[] = $key . ': ' . $value;
+			}
+		}
+		else {
+			$headers = [
+				'X-API-Token'      => random_string(),
+				'X-API-Request'    => $hz_server . '/api/z/1.0/file/export_page?records=1&page=' . $page,
+				'Host'             => $m['host'],
+				'(request-target)' => 'get /api/z/1.0/file/export_page?records=1&page=' . $page,
+			];
+
+			$curlHeaders = HTTPSig::create_sig($headers,$channel['channel_prvkey'],channel_url($channel),true,'sha512');
+		}
+
 
 		// TODO: implement total count
 		$redirects = 0;
 		$x = z_fetch_url(
-			$hz_server . '/api/z/1.0/file/export_page?f=records=1&page=' . $page,
+			$hz_server . '/api/z/1.0/file/export_page?records=1&page=' . $page,
 			false,
 			$redirects,
-			[ 'headers' => $headers ]
+			[ 'headers' => $curlHeaders ]
 		);
 		// logger('file fetch: ' . print_r($x,true));
 

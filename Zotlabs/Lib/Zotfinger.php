@@ -4,6 +4,11 @@ namespace Zotlabs\Lib;
 
 use Zotlabs\Lib\Config;
 use Zotlabs\Web\HTTPSig;
+use Zotlabs\Web\HTTPHeaders;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\Message;
+use HttpSignature\HttpMessageSigner;
 
 class Zotfinger {
 
@@ -18,27 +23,58 @@ class Zotfinger {
 		$data = json_encode([ 'zot_token' => random_string() ]);
 
 		if($channel && $m) {
+			if (Config::Get('system', 'send_rfc9421')) {
+				$signer = new HttpMessageSigner();
+				$request = new Request(
+					'POST',
+					$resource,
+					[
+						'Accept' => 'application/x-zot+json',
+						'Content-Type' => 'application/x-zot+json',
+						'X-API-Token' => random_string(),
+						'Content-Digest' => $signer->createContentDigestHeader($data),
+						'Host' => $m['host'],
+						'Date' => gmdate('D, d M Y H:i:s T'),
+					],
+					$data
+				);
 
-			$headers = [
-				'Accept'           => 'application/x-zot+json',
-				'Content-Type'     => 'application/x-zot+json',
-				'X-Zot-Token'      => random_string(),
-				'Digest'           => HTTPSig::generate_digest_header($data),
-				'Host'             => $m['host'],
-				'(request-target)' => 'post ' . get_request_string($resource)
-			];
-			$h = HTTPSig::create_sig($headers,$channel['channel_prvkey'],channel_url($channel),false);
+				$signer->setPrivateKey($channel['channel_prvkey'])
+					->setAlgorithm('rsa-v1_5-sha256')
+					->setKeyId(channel_url($channel))
+					->setCreated(time())
+					->setExpires(time() + 3600);
+
+				$coveredFields = '("@method" "@target-uri" "host" "date" "x-api-token" "content-digest" "content-type" "accept")';
+				$request = $signer->signRequest($coveredFields, $request);
+				$signedHeaders = $signer->getHeaders($request);
+				$curlHeaders = [];
+				foreach ($signedHeaders as $key => $value) {
+					$curlHeaders[] = $key . ': ' . $value;
+				}
+			}
+            else {
+				$headers = [
+					'Accept'           => 'application/x-zot+json',
+					'Content-Type'     => 'application/x-zot+json',
+					'X-Zot-Token'      => random_string(),
+					'Digest'           => HTTPSig::generate_digest_header($data),
+					'Host'             => $m['host'],
+					'(request-target)' => 'post ' . get_request_string($resource)
+				];
+				$curlHeaders = HTTPSig::create_sig($headers,$channel['channel_prvkey'],channel_url($channel),false);
+			}
 		}
 		else {
-			$h = [ 'Accept: application/x-zot+json' ];
+			$curlHeaders = [ 'Accept: application/x-zot+json' ];
 		}
 
 		$result = [];
-
 		$redirects = 0;
 
 		$start_timestamp = microtime(true);
-		$x = z_post_url($resource,$data,$redirects, [ 'headers' => $h  ] );
+		$x = z_post_url($resource, $data, $redirects, ['headers' => $curlHeaders]);
+
 		logger('logger_stats_data cmd:Zotfinger' . ' start:' . $start_timestamp . ' ' . 'end:' . microtime(true) . ' meta:' . $resource . '#' . random_string(16));
 		btlogger('Zotfinger');
 
@@ -69,8 +105,10 @@ class Zotfinger {
         }
 
 		if($x['success']) {
+			$response = Message::parseResponse($x['header'] . $x['body']);
+
 			if ($verify) {
-				$result['signature'] = HTTPSig::verify($x, EMPTY_STR, 'zot6');
+				$result['signature'] = HTTPSig::verify($x, EMPTY_STR, 'zot6', $response, $request ?? null);
 			}
 
 			$result['data'] = json_decode($x['body'],true);

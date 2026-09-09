@@ -5,8 +5,9 @@ use Zotlabs\Lib\Apps;
 use Zotlabs\Lib\Config;
 use Zotlabs\Lib\IConfig;
 use Zotlabs\Lib\Libzot;
-
 use Zotlabs\Web\HTTPSig;
+use GuzzleHttp\Psr7\Request;
+use HttpSignature\HttpMessageSigner;
 
 require_once('include/menu.php');
 require_once('include/perm_upgrade.php');
@@ -868,23 +869,25 @@ function import_items($channel, $items, $sync = false, $relocate = null) {
  */
 function sync_items($channel, $items, $relocate = null) {
 
-        // Check if this is sync of not Zot-related content and we're connected to the top post owner
-        // to avoid confusing with cloned channels
-        $size = count($items);
-        for($i = 0; $i < $size; $i++) {
-                if($items[$i]['owner']['network'] !== 'zot6') {
-                        $r = q("SELECT * FROM abook WHERE abook_channel = %d
-                                        AND abook_xchan = ( SELECT xchan_hash FROM xchan WHERE xchan_guid = '%s' LIMIT 1 )
-                                        AND abook_not_here = 0 AND abook_ignored = 0 AND abook_blocked = 0",
-                                intval($channel['channel_id']),
-                                dbesc($items[$i]['owner']['guid'])
-                        );
-                        if(! $r)
-                                unset($items[$i]);
-                }
-        }
-        if(count($items) > 0)
-                import_items($channel, $items, true, $relocate);
+	// Check if this is sync of not Zot-related content and we're connected to the top post owner
+	// to avoid confusing with cloned channels
+	$size = count($items);
+	for($i = 0; $i < $size; $i++) {
+		if ($items[$i]['owner']['network'] !== 'zot6') {
+			$r = q("SELECT * FROM abook WHERE abook_channel = %d
+				AND abook_xchan = ( SELECT xchan_hash FROM xchan WHERE xchan_guid = '%s' LIMIT 1 )
+				AND abook_not_here = 0 AND abook_ignored = 0 AND abook_blocked = 0",
+				intval($channel['channel_id']),
+				dbesc($items[$i]['owner']['guid'])
+			);
+			if (!$r) {
+				unset($items[$i]);
+			}
+		}
+	}
+	if(count($items) > 0) {
+		import_items($channel, $items, true, $relocate);
+	}
 }
 
 /**
@@ -1321,13 +1324,13 @@ function sync_files($channel, $files) {
 					else {
 						logger('sync_files attach does not exists: ' . print_r($att,true), LOGGER_DEBUG);
 
-				        if($limit !== false) {
-				            $r = q("select sum(filesize) as total from attach where aid = %d ",
-                				intval($channel['channel_account_id'])
-            				);
-				            if(($r) &&  (($r[0]['total'] + $att['filesize']) > $limit)) {
+						if($limit !== false) {
+							$r = q("select sum(filesize) as total from attach where aid = %d ",
+								intval($channel['channel_account_id'])
+							);
+							if(($r) &&  (($r[0]['total'] + $att['filesize']) > $limit)) {
 								logger('service class limit exceeded');
-                				continue;
+								continue;
 							}
 						}
 
@@ -1365,14 +1368,45 @@ function sync_files($channel, $files) {
 							logger('failed to open storage file.',LOGGER_NORMAL,LOG_ERR);
 							continue;
 						}
+
+						if (Config::Get('system', 'send_rfc9421')) {
+							$signer = new HttpMessageSigner();
+							$request = new Request(
+								'POST',
+								$fetch_url,
+								[
+									'Accept' => 'application/x-zot+json',
+									'X-API-Token' => random_string(),
+									'X-API-Request' => $fetch_url,
+									'Host' => $m['host'],
+									'Date' => gmdate('D, d M Y H:i:s T'),
+								],
+								$parr
+							);
+							$signer->setPrivateKey($channel['channel_prvkey'])
+								->setAlgorithm('rsa-v1_5-sha256')
+								->setKeyId(channel_url($channel))
+								->setCreated(time())
+								->setExpires(time() + 3600);
+
+							$coveredFields = '("@method" "@target-uri" "host" "date" "x-api-token" "x-api-request")';
+							$request = $signer->signRequest($coveredFields, $request);
+							$signedHeaders = $signer->getHeaders($request);
+							$curlHeaders = [];
+							foreach ($signedHeaders as $key => $value) {
+								$curlHeaders[] = $key . ': ' . $value;
+							}
+						}
+						else {
+							$headers = [];
+							$headers['Accept'] = 'application/x-zot+json' ;
+							$headers['Sigtoken'] = random_string();
+							$curlHeaders = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel), true, 'sha512');
+						}
+
 						$redirects = 0;
+						$x = z_post_url($fetch_url,$parr,$redirects,[ 'filep' => $fp, 'headers' => $curlHeaders]);
 
-						$headers = [];
-						$headers['Accept'] = 'application/x-zot+json' ;
-						$headers['Sigtoken'] = random_string();
-						$headers = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel), true, 'sha512');
-
-						$x = z_post_url($fetch_url,$parr,$redirects,[ 'filep' => $fp, 'headers' => $headers]);
 						fclose($fp);
 
 						if($x['success']) {
@@ -1455,7 +1489,7 @@ function sync_files($channel, $files) {
 						$time = datetime_convert();
 
 						$parr = array(
-						    'hash' => $channel['channel_hash'],
+							'hash' => $channel['channel_hash'],
 							'time' => $time,
 							'resource' => $p['resource_id'],
 							'revision' => 0,
@@ -1470,14 +1504,44 @@ function sync_files($channel, $files) {
 							logger('failed to open storage file.',LOGGER_NORMAL,LOG_ERR);
 							continue;
 						}
+
+						if (Config::Get('system', 'send_rfc9421')) {
+							$signer = new HttpMessageSigner();
+							$request = new Request(
+								'POST',
+								$fetch_url,
+								[
+									'Accept' => 'application/x-zot+json',
+									'X-API-Token' => random_string(),
+									'X-API-Request' => $fetch_url,
+									'Host' => $m['host'],
+									'Date' => gmdate('D, d M Y H:i:s T'),
+								],
+								$parr
+							);
+							$signer->setPrivateKey($channel['channel_prvkey'])
+								->setAlgorithm('rsa-v1_5-sha256')
+								->setKeyId(channel_url($channel))
+								->setCreated(time())
+								->setExpires(time() + 3600);
+
+							$coveredFields = '("@method" "@target-uri" "host" "date" "x-api-token" "x-api-request")';
+							$request = $signer->signRequest($coveredFields, $request);
+							$signedHeaders = $signer->getHeaders($request);
+							$curlHeaders = [];
+							foreach ($signedHeaders as $key => $value) {
+								$curlHeaders[] = $key . ': ' . $value;
+							}
+						}
+						else {
+							$headers = [];
+							$headers['Accept'] = 'application/x-zot+json' ;
+							$headers['Sigtoken'] = random_string();
+							$curlHeaders = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel), true, 'sha512');
+						}
+
 						$redirects = 0;
-
-						$headers = [];
-						$headers['Accept'] = 'application/x-zot+json' ;
-						$headers['Sigtoken'] = random_string();
-						$headers = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel), true, 'sha512');
-
-						$x = z_post_url($fetch_url,$parr,$redirects,[ 'filep' => $fp, 'headers' => $headers]);
+						$x = z_post_url($fetch_url,$parr,$redirects,[ 'filep' => $fp, 'headers' => $curlHeaders]);
 						fclose($fp);
 
 						// Override remote hub thumbnails storage settings
@@ -1524,7 +1588,7 @@ function sync_files($channel, $files) {
 
 			}
 
-            // Set xchan photo date to prevent thumbnails fetch for clones on profile update packet recieve
+			// Set xchan photo date to prevent thumbnails fetch for clones on profile update packet recieve
 			if(isset($update_xchan)) {
 
 				$x = q("UPDATE xchan SET xchan_photo_date = '%s' WHERE xchan_hash = '%s'",
@@ -1563,9 +1627,9 @@ function sync_addressbook($channel, $data) {
 	$principalUri = 'principals/' . $channel['channel_address'];
 
 	if($data['action'] !== 'create') {
-	    $id = get_cdav_id($principalUri, $data['uri'], 'addressbooks');
-	    if(! $id)
-	        return;
+		$id = get_cdav_id($principalUri, $data['uri'], 'addressbooks');
+		if(! $id)
+			return;
 		$id = $id['id'];
 	}
 
@@ -1628,7 +1692,7 @@ function sync_calendar($channel, $data) {
 
 	require_once('include/cdav.php');
 
-        $principalUri = 'principals/' . $channel['channel_address'];
+	$principalUri = 'principals/' . $channel['channel_address'];
 
 	if($data['action'] !== 'create') {
 		$x = get_cdav_id($principalUri, $data['uri'], 'calendarinstances');

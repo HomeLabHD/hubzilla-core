@@ -25,31 +25,13 @@ class Zot_probe extends \Zotlabs\Web\Controller {
 		$o .= '<br /><br />';
 
 		if($addr) {
-
 			$channel = null;
 			if ($_GET['sign']) {
 				$channel = get_sys_channel();
 			}
 
 			$x = Zotfinger::exec($addr, $channel);
-
 			$o .= '<pre>' . htmlspecialchars(print_array($x)) . '</pre>';
-
-			$headers = 'Accept: application/x-zot+json, application/jrd+json, application/json';
-
-			$redirects = 0;
-		    $x = z_fetch_url($addr,true,$redirects, [ 'headers' => [ $headers ]]);
-
-	    	if($x['success']) {
-
-				$o .= '<pre>' . htmlspecialchars($x['header']) . '</pre>' . EOL;
-
-				$o .= 'verify returns: ' . str_replace("\n",EOL,print_r(HTTPSig::verify($x, EMPTY_STR, 'zot6'),true)) . EOL;
-
-				$o .= '<pre>' . htmlspecialchars(json_encode(json_decode($x['body']),JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES)) . '</pre>' . EOL;
-
-			}
-
 		}
 		return $o;
 	}

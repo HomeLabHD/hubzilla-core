@@ -10,6 +10,8 @@ use Zotlabs\Access\Permissions;
 use Zotlabs\Daemon\Master;
 use Zotlabs\Web\HTTPSig;
 use Zotlabs\Entity\Item;
+use GuzzleHttp\Psr7\Request;
+use HttpSignature\HttpMessageSigner;
 
 require_once('include/event.php');
 require_once('include/html2plain.php');
@@ -92,32 +94,57 @@ class Activity {
 
 		$start_timestamp = microtime(true);
 
-		if (strpos($url, 'x-zot:') === 0) {
-			$x = ZotURL::fetch($url, $channel);
+		$m = parse_url($url);
+
+		if (!$m) {
+			return null;
+		}
+
+		// handle bearcaps
+		if ($m['scheme'] === 'bear') {
+			$params = explode('&', $m['query']);
+			if ($params) {
+				foreach ($params as $p) {
+					if (substr($p, 0, 2) === 'u=') {
+						$url = substr($p, 2);
+					}
+					if (substr($p, 0, 2) === 't=') {
+						$token = substr($p, 2);
+					}
+				}
+				$m = parse_url($url);
+			}
+		}
+
+		if (Config::Get('system', 'send_rfc9421')) {
+			$request = new Request(
+				'GET',
+				$url,
+				[
+					'Accept' => ActivityStreams::get_accept_header_string($channel),
+					'Host' => $m['host'],
+					'Date' => gmdate('D, d M Y H:i:s T'),
+				]
+			);
+			if (isset($token)) {
+				$request->withHeader('Authorization', 'Bearer ' . $token);
+			}
+			$signer = new HttpMessageSigner();
+			$signer->setPrivateKey($channel['channel_prvkey'])
+				->setAlgorithm('rsa-v1_5-sha256')
+				->setKeyId(channel_url($channel))
+				->setCreated(time())
+				->setExpires(time() + 3600);
+			$coveredFields = '("@method" "@target-uri" "host" "date")';
+			$request = $signer->signRequest($coveredFields, $request);
+			$signedHeaders = $signer->getHeaders($request);
+			$curlHeaders = [];
+
+			foreach ($signedHeaders as $key => $value) {
+				$curlHeaders[] = $key . ': ' . $value;
+			}
 		}
 		else {
-			$m = parse_url($url);
-
-			if (!$m) {
-				return null;
-			}
-
-			// handle bearcaps
-			if ($m['scheme'] === 'bear') {
-				$params = explode('&', $m['query']);
-				if ($params) {
-					foreach ($params as $p) {
-						if (substr($p, 0, 2) === 'u=') {
-							$url = substr($p, 2);
-						}
-						if (substr($p, 0, 2) === 't=') {
-							$token = substr($p, 2);
-						}
-					}
-					$m = parse_url($url);
-				}
-			}
-
 			$headers = [
 				'Accept'           => ActivityStreams::get_accept_header_string($channel),
 				'Host'             => $m['host'],
@@ -129,9 +156,10 @@ class Activity {
 				$headers['Authorization'] = 'Bearer ' . $token;
 			}
 
-			$h = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel), false);
-			$x = z_fetch_url($url, true, $redirects, ['headers' => $h]);
+			$curlHeaders = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel), false);
 		}
+
+		$x = z_fetch_url($url, true, $redirects, ['headers' => $curlHeaders]);
 
 		if ($x['success']) {
 			$m = parse_url($url);
