@@ -92,7 +92,7 @@ class HTTPSig {
 
 	// See draft-cavage-http-signatures-10
 
-	public static function verify($data, $key = '', $keytype = '') {
+	public static function verify($data, $key = '', $keytype = '', $interface = null, $originalRequest = null) {
 
 		$body    = $data;
 		$headers = null;
@@ -112,7 +112,13 @@ class HTTPSig {
 			return $result;
 		}
 
-		if (App::$request && array_key_exists('signature-input', $headers) && array_key_exists('signature', $headers)) {
+		$hasInterface = $interface || App::$request;
+
+		if (array_key_exists('signature-input', $headers) && !$hasInterface) {
+			btlogger('RFC9421: Missing interface');
+		}
+
+		if (App::$request && array_key_exists('signature-input', $headers) && array_key_exists('signature', $headers) && $hasInterface) {
 			$found = preg_match('/keyid="(.*?)"/', $headers['signature-input'], $matches);
 			$keyId = ($found) ? $matches[1] : '';
 
@@ -146,7 +152,7 @@ class HTTPSig {
 			$messageSigner->setExpires(preg_match('/expires=([0-9]+)/', $headers['signature-input'], $matches) ? $matches[1] : '');
 
 			try {
-				$verified = $messageSigner->verifyRequest(App::$request);
+				$verified = $messageSigner->verifyRequest($interface ?? App::$request, $originalRequest);
 				if (!$verified) {
 					btlogger('RFC9421: Unable to verify request: ' . print_r($headers, true), LOGGER_DATA);
 				}

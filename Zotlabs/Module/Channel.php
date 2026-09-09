@@ -12,6 +12,8 @@ use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\PermissionDescription;
 use Zotlabs\Web\Controller;
 use Zotlabs\Web\HTTPSig;
+use GuzzleHttp\Psr7\Response;
+use HttpSignature\HttpMessageSigner;
 
 require_once('include/items.php');
 require_once('include/security.php');
@@ -82,14 +84,43 @@ class Channel extends Controller {
 				$data = json_encode(Libzot::zotinfo(['guid_hash' => $channel['channel_hash']]));
 			}
 
-			$headers = [
-				'Content-Type'     => 'application/x-zot+json',
-				'Digest'           => HTTPSig::generate_digest_header($data),
-				'Date'             => datetime_convert('UTC','UTC', 'now', 'D, d M Y H:i:s \\G\\M\\T')
-			];
+			if (Config::Get('system', 'send_rfc9421')) {
+				$signer = new HttpMessageSigner();
 
-			$h = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel));
-			HTTPSig::set_headers($h);
+				$response = new Response(
+					200,
+					[
+						'Date' => gmdate('D, d M Y H:i:s T'),
+						'Content-Digest' => $signer->createContentDigestHeader($data),
+						'Content-Type' => 'application/x-zot+json'
+					],
+					$data
+				);
+
+				$signer->setPrivateKey($channel['channel_prvkey'])
+					->setAlgorithm('rsa-v1_5-sha256')
+					->setKeyId(channel_url($channel))
+					->setCreated(time())
+					->setExpires(time() + 3600);
+				$coveredFields = '("date" "content-digest" "content-type" "@status")';
+				$response = $signer->signRequest($coveredFields, $response);
+				$signedHeaders = $signer->getHeaders($response);
+				$curlHeaders = [];
+				foreach ($signedHeaders as $key => $value) {
+					$curlHeaders[] = $key . ': ' . $value;
+				}
+				HTTPSig::set_headers($curlHeaders);
+			}
+			else {
+				$headers = [
+					'Content-Type'     => 'application/x-zot+json',
+					'Digest'           => HTTPSig::generate_digest_header($data),
+					'Date'             => datetime_convert('UTC','UTC', 'now', 'D, d M Y H:i:s \\G\\M\\T')
+				];
+
+				$curlHeaders = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel));
+				HTTPSig::set_headers($curlHeaders);
+			}
 			echo $data;
 			killme();
 		}

@@ -58,6 +58,7 @@ class ZotfingerTest extends UnitTestCase
 			   ->willReturn([
 					'return_code' => 200,
 					'success' => true,
+					'header' => "HTTP/1 200\r\ncontent-type: application/json\r\n\r\n",
 					'body' => '{"subject":"acct:user@example.test"}',
 			   ]);
 
@@ -92,6 +93,7 @@ class ZotfingerTest extends UnitTestCase
 				->willReturn([
 					'return_code' => 200,
 					'success' => true,
+					'header' => "HTTP/1 200\r\ncontent-type: application/json\r\n\r\n",
 					'body' => '{"subject":"acct:user@example.test"}',
 				]);
 
