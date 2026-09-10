@@ -1299,17 +1299,10 @@ function find_thread_parent_index($arr,$x) {
 }
 
 function format_location($item) {
+	$locate = ['location' => $item['location'], 'coord' => $item['coord'], 'html' => ''];
+	call_hooks('render_location', $locate);
 
-	if(strpos($item['location'],'#') === 0) {
-		$location = substr($item['location'],1);
-		$location = ((strpos($location,'[') !== false) ? zidify_links(bbcode($location)) : $location);
-	}
-	else {
-		$locate = array('location' => $item['location'], 'coord' => $item['coord'], 'html' => '');
-		call_hooks('render_location',$locate);
-		$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_default($locate));
-	}
-	return $location;
+	return  ((strlen($locate['html'])) ? $locate['html'] : render_location_default($locate));
 }
 
 function render_location_default($item) {
