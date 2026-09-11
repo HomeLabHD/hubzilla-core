@@ -1933,16 +1933,17 @@ class Activity {
 			}
 
 			q("UPDATE site SET site_update = '%s', site_dead = 0 WHERE site_url = '%s'",
-				dbesc(datetime_convert()),
+				dbescdate(datetime_convert()),
 				dbesc($baseurl)
 			);
 
 			// update existing xchan record
-			q("update xchan set xchan_name = '%s', xchan_pubkey = '%s', xchan_epubkey = '%s', xchan_addr = '%s', xchan_network = 'activitypub', xchan_name_date = '%s', xchan_pubforum = %d where xchan_hash = '%s'",
+			q("update xchan set xchan_name = '%s', xchan_pubkey = '%s', xchan_epubkey = '%s', xchan_addr = '%s', xchan_network = 'activitypub', xchan_name_date = '%s', xchan_updated = '%s', xchan_pubforum = %d where xchan_hash = '%s'",
 				dbesc($name),
 				dbesc($pubkey),
 				dbesc($epubkey),
 				dbesc($webfinger_addr),
+				dbescdate(datetime_convert()),
 				dbescdate(datetime_convert()),
 				intval($group_actor),
 				dbesc($url)

@@ -800,11 +800,12 @@ class Libzot {
 				|| ($r[0]['xchan_connpage'] != $arr['connect_url'])
 				|| ($r[0]['xchan_url'] != $arr['primary_location']['url'])
 				|| $hidden_changed || $adult_changed || $deleted_changed || $pubforum_changed) {
-				$rup = q("update xchan set xchan_name = '%s', xchan_name_date = '%s', xchan_connurl = '%s', xchan_follow = '%s',
+				$rup = q("update xchan set xchan_name = '%s', xchan_name_date = '%s', xchan_updated = '%s', xchan_connurl = '%s', xchan_follow = '%s',
 					xchan_connpage = '%s', xchan_hidden = %d, xchan_selfcensored = %d, xchan_deleted = %d, xchan_pubforum = %d,
 					xchan_addr = '%s', xchan_url = '%s', xchan_epubkey = '%s' where xchan_hash = '%s'",
 					dbesc(($arr['name']) ? escape_tags($arr['name']) : '-'),
-					dbesc($arr['name_updated']),
+					dbescdate($arr['name_updated']),
+					dbescdate(datetime_convert()),
 					dbesc($arr['primary_location']['connections_url']),
 					dbesc($arr['primary_location']['follow_url']),
 					dbesc($arr['connect_url']),

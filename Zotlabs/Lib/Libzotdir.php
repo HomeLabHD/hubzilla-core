@@ -351,9 +351,7 @@ class Libzotdir {
 
 		logger('update_directory_entry: ' . print_r($ud,true), LOGGER_DATA);
 
-		// TODO: remove this check after all directory servers have version > 8.4
-		// ud_addr will always be the channel url at that time
-		$href = ((strpos($ud['ud_addr'], '://') === false) ? Webfinger::zot_url(punify($ud['ud_addr'])) : punify($ud['ud_addr']));
+		$href = punify($ud['ud_addr']);
 		if($href) {
 			$zf = Zotfinger::exec($href);
 			if($zf && array_path_exists('signature/signer',$zf) && $zf['signature']['signer'] === $href && intval($zf['signature']['header_valid'])) {
@@ -369,14 +367,10 @@ class Libzotdir {
 					self::delete_by_hash($ud['ud_hash']);
 				}
 
-				// This is a workaround for a missing xchan_updated column
-				// TODO: implement xchan_updated in the xchan table and update this column instead
-				if(!empty($zf['data']['primary_location']['url'])) {
-					q("UPDATE hubloc SET hubloc_updated = '%s' WHERE hubloc_id_url = '%s' AND hubloc_primary = 1",
-						dbesc(datetime_convert()),
-						dbesc($zf['data']['primary_location']['url'])
-					);
-				}
+				q("UPDATE xchan SET xchan_updated = '%s' WHERE xchan_hash = '%s'",
+					dbesc(datetime_convert()),
+					dbesc($zf['signature']['portable_id'])
+				);
 
 				return true;
 			}
