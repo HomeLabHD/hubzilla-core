@@ -278,7 +278,7 @@ class Dirsearch extends Controller {
 				xprof.xprof_hometown as hometown,
 				xprof.xprof_keywords as keywords
 				from xchan left join xprof on xchan_hash = xprof_hash
-				where xchan_updated > %s - INTERVAL %s and ( $logic $sql_extra ) $hub_query $keywords_query and xchan_network = 'zot6' and xchan_system = 0 and xchan_hidden = 0 and xchan_orphan = 0 and xchan_deleted = 0 and hubloc_deleted = 0
+				where xchan_updated > %s - INTERVAL %s and ( $logic $sql_extra ) $hub_query $keywords_query and xchan_network = 'zot6' and xchan_system = 0 and xchan_hidden = 0 and xchan_orphan = 0 and xchan_deleted = 0
 				$safesql $order $qlimit",
 				db_utcnow(),
 				db_quoteinterval('30 DAY')
