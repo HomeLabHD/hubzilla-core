@@ -1293,7 +1293,7 @@ CREATE TABLE IF NOT EXISTS `xchan` (
   KEY `xchan_system` (`xchan_system`),
   KEY `xchan_pubforum` (`xchan_pubforum`),
   KEY `xchan_deleted` (`xchan_deleted`),
-  KEY `xchan_photo_m` (`xchan_photo_m`)
+  KEY `xchan_photo_m` (`xchan_photo_m`),
   KEY `xchan_updated` (`xchan_updated`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

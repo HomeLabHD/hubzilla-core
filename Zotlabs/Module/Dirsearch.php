@@ -252,6 +252,11 @@ class Dirsearch extends Controller {
 			json_return_and_die($spkt);
 		}
 		else {
+			$fresh = '';
+
+			// TODO: enable this after 11.6 release
+			//$fresh = sprintf('xchan_updated > %s - INTERVAL %s and', db_utcnow(), db_quoteinterval('30 DAY'));
+
 			$r = q("SELECT
 				xchan.xchan_name as name,
 				xchan.xchan_hash as hash,
@@ -277,12 +282,9 @@ class Dirsearch extends Controller {
 				xprof.xprof_hometown as hometown,
 				xprof.xprof_keywords as keywords
 				from xchan left join xprof on xchan_hash = xprof_hash
-				where xchan_updated > %s - INTERVAL %s and ( $logic $sql_extra ) $hub_query $keywords_query and xchan_network = 'zot6' and xchan_system = 0 and xchan_hidden = 0 and xchan_orphan = 0 and xchan_deleted = 0
-				$safesql $order $qlimit",
-				db_utcnow(),
-				db_quoteinterval('30 DAY')
+				where $fresh ( $logic $sql_extra ) $hub_query $keywords_query and xchan_network = 'zot6' and xchan_system = 0 and xchan_hidden = 0 and xchan_orphan = 0 and xchan_deleted = 0
+				$safesql $order $qlimit"
 			);
-
 		}
 
 		if($r) {
