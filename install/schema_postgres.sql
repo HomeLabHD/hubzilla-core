@@ -1286,6 +1286,7 @@ create index "xchan_system" on xchan ("xchan_system");
 create index "xchan_pubforum" on xchan ("xchan_pubforum");
 create index "xchan_deleted" on xchan ("xchan_deleted");
 create index "xchan_photo_m" on xchan ("xchan_photo_m");
+create index "xchan_updated" on xchan ("xchan_updated");
 
 CREATE TABLE "xchat" (
   "xchat_id" serial  NOT NULL,
