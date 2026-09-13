@@ -60,6 +60,7 @@ class ZotfingerTest extends UnitTestCase
 					'success' => true,
 					'header' => "HTTP/1 200\r\ncontent-type: application/json\r\n\r\n",
 					'body' => '{"subject":"acct:user@example.test"}',
+					'request_target' => 'post /channel/user'
 			   ]);
 
 		//
@@ -95,12 +96,13 @@ class ZotfingerTest extends UnitTestCase
 					'success' => true,
 					'header' => "HTTP/1 200\r\ncontent-type: application/json\r\n\r\n",
 					'body' => '{"subject":"acct:user@example.test"}',
+					'request_target' => 'post /channel/user'
 				]);
 
 		//
 		// Initialize some $_SERVER superglobal values needed by HTTPSig:
 		//
-		$_SERVER['REQUEST_METHOD'] = 'GET';
+		$_SERVER['REQUEST_METHOD'] = 'POST';
 		$_SERVER['REQUEST_URI'] = 'some_uri';
 		$_SERVER['CONTENT_TYPE'] = 'application/json';
 		$_SERVER['CONTENT_LENGTH'] = 42;
