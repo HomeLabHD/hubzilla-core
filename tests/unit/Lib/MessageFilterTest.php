@@ -273,6 +273,36 @@ class MessageFilterTest extends UnitTestCase {
 				'?verb == Announce',
 				false
 			],
+			'incl: three criteria with OR, all keywords expected in the body, first one present in the body' => [
+				'?body ~= grasshopper || ?body ~= rosencrantz || ?body ~= guildenstern',
+				'',
+				true
+			],
+			'incl: three criteria with OR, all keywords expected in the body, second one present in the body' => [
+				'?body ~= rosencrantz || ?body ~= grasshopper || ?body ~= guildenstern',
+				'',
+				true
+			],
+			'incl: three criteria with OR, all keywords expected in the body, last one present in the body' => [
+				'?body ~= rosencrantz || ?body ~= guildenstern || ?body ~= grasshopper',
+				'',
+				true
+			],
+			'incl: three criteria with OR, all keywords expected in the body, first one present in the body; excl: item must not be a repeat' => [
+				'?body ~= grasshopper || ?body ~= rosencrantz || ?body ~= guildenstern',
+				'?verb == Announce',
+				true
+			],
+			'incl: three criteria with OR, all keywords expected in the body, second one present in the body; excl: item must not be a repeat' => [
+				'?body ~= rosencrantz || ?body ~= grasshopper || ?body ~= guildenstern',
+				'?verb == Announce',
+				true
+			],
+			'incl: three criteria with OR, all keywords expected in the body, last one present in the body; excl: item must not be a repeat' => [
+				'?body ~= rosencrantz || ?body ~= guildenstern || ?body ~= grasshopper',
+				'?verb == Announce',
+				true
+			],
 		];
 	}
 }

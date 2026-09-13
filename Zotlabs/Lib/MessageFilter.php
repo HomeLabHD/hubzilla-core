@@ -111,7 +111,7 @@ class MessageFilter
 
                 switch ($rule['operation']) {
                     case '':
-                        $previousResult = $newResult = $result;
+                        $newResult = $result;
                         break;
                     case ' || ':
                         $newResult = $previousResult || $result;
@@ -120,6 +120,7 @@ class MessageFilter
                         $newResult = $previousResult && $result;
                         break;
                 }
+                $previousResult = $newResult;
             }
             if ($newResult) {
                 return false;
@@ -140,7 +141,7 @@ class MessageFilter
 
                 switch ($rule['operation']) {
                     case '':
-                        $previousResult = $newResult = $result;
+                        $newResult = $result;
                         break;
                     case ' || ':
                         $newResult = $previousResult || $result;
@@ -148,8 +149,8 @@ class MessageFilter
                     case ' && ':
                         $newResult = $previousResult && $result;
                         break;
-
                 }
+                $previousResult = $newResult;
             }
         }
         return $newResult ?? true;
