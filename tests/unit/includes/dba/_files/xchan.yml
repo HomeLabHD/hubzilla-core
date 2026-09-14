@@ -1,0 +1,45 @@
+---
+xchan:
+  -
+    xchan_hash: 'de3-bhcFpdY5PZ-ef4vy-6PpSeGrEHB8DNQFC6uP9lG-RkPaMceUMdvIRYHvHIvRzjJ0RPII2sJ1ffz4ATQOHQ'
+    xchan_guid: uGp_IvDBQ7b_-s3HV7IehysbKFyx1w0oG4dm1Q3-trFlnw01H-rJhNRQ8QNdDRSiolJmIMizCiexogrHy3_kpg
+    xchan_guid_sig: sha256.bawP2sNBcfnjpKx2OCMlISbLJBByejs0KkbWcKvFj_vfQ_TnKvTZ9PvfxPz0puUkSqaJVskwz7mY59d56aRqc3kTCniuuR_3L8padNElwkyqoPLgIBQlffeqoa0ax0R_kF667_MmlUj6F6RyQHuCNeElWRfy0LW4SzIsn72ogHevvbOa5gh27jDcjUqkY5C0i8wyxEHzI5Ue4zNwJ7JS6WETZVL_z2WgFemKagZ8SWNVdFQfHCmhJ-scBZZK9rM0rdLf1O9HjkxgdvzImSHH3ODT-qOfE-IKwlum0hCUJqmGwOQAHTydRHKn-pdEHX1eFE_Y15lwBPToyQW1zTso9PPzwRXKqJkrqapO6hqerRCWqI5dtgE_6Up3AFolWCU82h5to0Y5LT2iEvMids9x64laGKNw-bzdYpJtKZZqgxejchIuYoqZZJp4ivGzHeJktBveTCluP2lRXw2W1TupMOVADlfUGPFMTYj2LPPIp3CTD6RsSZobh9VvT22J1SzwwTFvHG2VoZbezOPKvWj-PHRb3iBTSYoQAgL8ecI4oWnn9HK-KHwUsoWOtIXDSKVRiySun3AXGjI8iIVI7ORk7-33aVrxuVuh76_ni7LEadFFGClbxZtzoM44QizkPDHVS4rYl1fsuYDbxr93FvG7_QCBsOzgfWgE2eN65poE7mU
+    xchan_pubkey: |
+      -----BEGIN PUBLIC KEY-----
+      MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAzdcYmePsZG3vIX1Ksj4a
+      JU9muAU7aZJfGlW2Fskr+LDZ/uHWEHwLmPc1+9uEXmItuTUxZRow3QicdB0zanGR
+      +v0HHpMqGV0icJN6nlUhhlEk1nBOiOEjwpA0+fMeNmjk4JKV+jpYEfdzsf9dbQN9
+      V2JstjXLA2ydKkzcs9Ph+xDqdyGAVkwNx1zMkFJ91WDsUhy8ECet4OxRmkjx7hTU
+      1mqDSj4DmhWAxBlwknZYmagtqMejnjR/D31Pkn8yPymQlF8ZBYkNm9HBUT3zzbIn
+      it92pjXOfg9KI+MbWsnBVyiv67cXq0QF6omy97YNrltSIwlyp7UbfsThpakIFcCW
+      1y9ez+i7ehgm8yYaV6MXvZjhQcH8WWVeNFRu+EySY8XBfvQVEw9k5KAJf+PAKGKq
+      qLqIVeTI1Au6fZ/dJncVawbyXV9J1om/Uf4KXlRBmbCShZxSC0Kj7gq25pDiH1iF
+      xPuunUCz3fnb57JOJNUayF2PzKyX+IBjzCIKTKsvd9qvDlRrVP/DZhGLNQsNk39R
+      adF4P+4Xpvp+U3GsgcvdKyWVSgBmLrspXd7XloaEpVK9h2cMV/cB2Mu+y5eXMLOf
+      6lcK1ULClDfWSE0llGK0BxM5Fui/GSg+aKlBjlB4wVm2nmBICNLbZmcecOReMT7Z
+      xU1Z9tjiAry3iytaMw+PltcCAwEAAQ==
+      -----END PUBLIC KEY-----
+    xchan_epubkey: aaa
+    xchan_photo_mimetype: image/jpeg
+    xchan_photo_l: ''
+    xchan_photo_m: ''
+    xchan_photo_s: ''
+    xchan_addr: ''
+    xchan_url: ''
+    xchan_connurl: ''
+    xchan_follow: ''
+    xchan_connpage: ''
+    xchan_name: ''
+    xchan_network: 'zot6'
+    xchan_instance_url: ''
+    xchan_flags: 0
+    xchan_photo_date: '0001-01-01 00:00:00'
+    xchan_name_date: '0001-01-01 00:00:00'
+    xchan_updated: '0001-01-01 00:00:00'
+    xchan_hidden: 0
+    xchan_orphan: 0
+    xchan_censored: 0
+    xchan_selfcensored: 0
+    xchan_system: 0
+    xchan_pubforum: 0
+    xchan_deleted: 0
