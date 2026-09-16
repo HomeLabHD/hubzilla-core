@@ -993,13 +993,19 @@ function imagesLoaded(elements, callback) {
 		processed.add(src);
 		loadedCount++;
 
-		// Update progress
-		const progress = Math.round((loadedCount * 100) / totalImages);
-		document.getElementById('image_counter').innerText = `${progress}%`;
+		// Update progress if applicable
+
+		const counter = document.getElementById('image_counter');
+
+		if (counter) {
+			counter.innerText = Math.round((loadedCount * 100) / totalImages) + '%';
+		}
 
 		// If all images are loaded, trigger the callback
 		if (loadedCount === totalImages) {
-			document.getElementById('image_counter').innerText = '';
+			if (counter) {
+				counter.innerText = '';
+			}
 			clearTimeout(timeoutId);
 			callback();
 		}
