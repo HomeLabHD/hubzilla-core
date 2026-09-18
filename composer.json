@@ -40,7 +40,6 @@
         "ezyang/htmlpurifier": "^4.9",
         "simplepie/simplepie": "~1.5",
         "league/html-to-markdown": "^5.0",
-        "pear/text_languagedetect": "^1.0",
         "commerceguys/intl": "^2.0.6",
         "smarty/smarty": "^5.4",
         "ramsey/uuid": "^4.1",
