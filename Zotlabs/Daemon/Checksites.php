@@ -25,10 +25,9 @@ class Checksites {
 		if ($days < 1)
 			$days = 30;
 
-		$r = q("select * from site where site_dead = 0 and site_update < %s - INTERVAL %s and site_type = %d $sql_options ",
+		$r = q("select * from site where site_dead = 0 and site_update < %s - INTERVAL %s $sql_options",
 			db_utcnow(),
-			db_quoteinterval($days . ' DAY'),
-			intval(SITE_TYPE_ZOT)
+			db_quoteinterval($days . ' DAY')
 		);
 
 		if (!$r)

@@ -28,7 +28,8 @@ class QueueWorker {
 	// Currently the value is overriden with 3600 seconds (1h).
 	public static $long_running_cmd = [
 		'Queue',
-		'Expire'
+		'Expire',
+		'Checksites'
 	];
 
 	public static function Summon($argv) {
