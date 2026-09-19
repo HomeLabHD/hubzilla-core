@@ -337,20 +337,28 @@ function locations_by_netid($netid) {
 
 
 
-function ping_site($url) {
+function ping_site($url, $type) {
+	$hookdata = [
+		'url' => $url,
+		'type' => $type,
+		'message' => '',
+		'success' => false
+	];
 
-	$ret = array('success' => false);
-
-	$r = Zotlabs\Lib\Zotfinger::exec($url);
-
-	if(! $r['data']) {
-		$ret['message'] = 'no answer from ' . $url;
-		return $ret;
+	if ($type === SITE_TYPE_ZOT) {
+		$r = Zotlabs\Lib\Zotfinger::exec($url);
+		if (empty($r['data'])) {
+			$hookdata['message'] = 'no answer from ' . $url;
+		}
+		else {
+			$hookdata['success'] = true;
+		}
+	}
+	else {
+		call_hooks('ping_site', $hookdata);
 	}
 
-	$ret['success'] = true;
-	return $ret;
-
+	return $hookdata;
 }
 
 

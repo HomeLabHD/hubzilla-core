@@ -38,7 +38,7 @@ class Checksites {
 			if (!strcasecmp($rr['site_url'], z_root()))
 				continue;
 
-			$x = ping_site($rr['site_url']);
+			$x = ping_site($rr['site_url'], $rr['site_type']);
 			if ($x['success']) {
 				logger('checksites: ' . $rr['site_url']);
 				q("update site set site_update = '%s' where site_url = '%s' ",
