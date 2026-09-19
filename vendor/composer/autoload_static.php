@@ -320,13 +320,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
                 0 => __DIR__ . '/..' . '/jbroadway/urlify',
             ),
         ),
-        'T' =>
-        array (
-            'Text' =>
-            array (
-                0 => __DIR__ . '/..' . '/pear/text_languagedetect',
-            ),
-        ),
         'S' =>
         array (
             'SimplePie' =>
@@ -2190,10 +2183,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Symfony\\Polyfill\\Mbstring\\Mbstring' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/Mbstring.php',
         'Symfony\\Polyfill\\Php80\\Php80' => __DIR__ . '/..' . '/symfony/polyfill-php80/Php80.php',
         'Symfony\\Polyfill\\Php80\\PhpToken' => __DIR__ . '/..' . '/symfony/polyfill-php80/PhpToken.php',
-        'Text_LanguageDetect' => __DIR__ . '/..' . '/pear/text_languagedetect/Text/LanguageDetect.php',
-        'Text_LanguageDetect_Exception' => __DIR__ . '/..' . '/pear/text_languagedetect/Text/LanguageDetect/Exception.php',
-        'Text_LanguageDetect_ISO639' => __DIR__ . '/..' . '/pear/text_languagedetect/Text/LanguageDetect/ISO639.php',
-        'Text_LanguageDetect_Parser' => __DIR__ . '/..' . '/pear/text_languagedetect/Text/LanguageDetect/Parser.php',
         'URLify' => __DIR__ . '/..' . '/jbroadway/urlify/URLify.php',
         'UnhandledMatchError' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/UnhandledMatchError.php',
         'UploadHandler' => __DIR__ . '/..' . '/blueimp/jquery-file-upload/server/php/UploadHandler.php',

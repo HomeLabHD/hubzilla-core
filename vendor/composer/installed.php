@@ -3,7 +3,7 @@
         'name' => 'zotlabs/hubzilla',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '993340d5ff9e0248bfb4532924b149b08501215e',
+        'reference' => '7e231f44d4a94150a4d05a34f5050f762f335ff4',
         'type' => 'application',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -92,9 +92,9 @@
             'dev_requirement' => false,
         ),
         'ezyang/htmlpurifier' => array(
-            'pretty_version' => 'v4.19.0',
-            'version' => '4.19.0.0',
-            'reference' => 'b287d2a16aceffbf6e0295559b39662612b77fcf',
+            'pretty_version' => 'v4.19.1',
+            'version' => '4.19.1.0',
+            'reference' => '5e0539132d934f936fbae2c88b55d58f9438623f',
             'type' => 'library',
             'install_path' => __DIR__ . '/../ezyang/htmlpurifier',
             'aliases' => array(),
@@ -226,15 +226,6 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-        'pear/text_languagedetect' => array(
-            'pretty_version' => 'v1.0.2',
-            'version' => '1.0.2.0',
-            'reference' => '655b269959782416426cf0aa7bd47e19fed63210',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../pear/text_languagedetect',
-            'aliases' => array(),
-            'dev_requirement' => false,
-        ),
         'phpseclib/phpseclib' => array(
             'pretty_version' => '3.0.55',
             'version' => '3.0.55.0',
@@ -323,9 +314,9 @@
             'dev_requirement' => false,
         ),
         'ramsey/uuid' => array(
-            'pretty_version' => '4.9.3',
-            'version' => '4.9.3.0',
-            'reference' => '1df15849d00943a67d677dc9cfd80795f038c9f8',
+            'pretty_version' => '4.9.4',
+            'version' => '4.9.4.0',
+            'reference' => '75d73f48d02797c2c285a7e9f348fadc0102ffe2',
             'type' => 'library',
             'install_path' => __DIR__ . '/../ramsey/uuid',
             'aliases' => array(),
@@ -334,7 +325,7 @@
         'rhumsaa/uuid' => array(
             'dev_requirement' => false,
             'replaced' => array(
-                0 => '4.9.3',
+                0 => '4.9.4',
             ),
         ),
         'root23/php-json-canonicalization' => array(
@@ -553,7 +544,7 @@
         'zotlabs/hubzilla' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '993340d5ff9e0248bfb4532924b149b08501215e',
+            'reference' => '7e231f44d4a94150a4d05a34f5050f762f335ff4',
             'type' => 'application',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

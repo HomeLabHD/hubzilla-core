@@ -614,17 +614,17 @@
         },
         {
             "name": "ezyang/htmlpurifier",
-            "version": "v4.19.0",
-            "version_normalized": "4.19.0.0",
+            "version": "v4.19.1",
+            "version_normalized": "4.19.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ezyang/htmlpurifier.git",
-                "reference": "b287d2a16aceffbf6e0295559b39662612b77fcf"
+                "reference": "5e0539132d934f936fbae2c88b55d58f9438623f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ezyang/htmlpurifier/zipball/b287d2a16aceffbf6e0295559b39662612b77fcf",
-                "reference": "b287d2a16aceffbf6e0295559b39662612b77fcf",
+                "url": "https://api.github.com/repos/ezyang/htmlpurifier/zipball/5e0539132d934f936fbae2c88b55d58f9438623f",
+                "reference": "5e0539132d934f936fbae2c88b55d58f9438623f",
                 "shasum": ""
             },
             "require": {
@@ -640,7 +640,7 @@
                 "ext-iconv": "Converts text to and from non-UTF-8 encodings",
                 "ext-tidy": "Used for pretty-printing HTML"
             },
-            "time": "2025-10-17T16:34:55+00:00",
+            "time": "2026-09-15T15:42:51+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -672,7 +672,7 @@
             ],
             "support": {
                 "issues": "https://github.com/ezyang/htmlpurifier/issues",
-                "source": "https://github.com/ezyang/htmlpurifier/tree/v4.19.0"
+                "source": "https://github.com/ezyang/htmlpurifier/tree/v4.19.1"
             },
             "install-path": "../ezyang/htmlpurifier"
         },
@@ -1771,58 +1771,6 @@
             "install-path": "../patrickschur/language-detection"
         },
         {
-            "name": "pear/text_languagedetect",
-            "version": "v1.0.2",
-            "version_normalized": "1.0.2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/pear/Text_LanguageDetect.git",
-                "reference": "655b269959782416426cf0aa7bd47e19fed63210"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/pear/Text_LanguageDetect/zipball/655b269959782416426cf0aa7bd47e19fed63210",
-                "reference": "655b269959782416426cf0aa7bd47e19fed63210",
-                "shasum": ""
-            },
-            "require-dev": {
-                "phpunit/phpunit": "8.*|9.*"
-            },
-            "suggest": {
-                "ext-mbstring": "May require the mbstring PHP extension"
-            },
-            "time": "2023-02-27T20:54:21+00:00",
-            "type": "library",
-            "installation-source": "dist",
-            "autoload": {
-                "psr-0": {
-                    "Text": "./"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "include-path": [
-                "./"
-            ],
-            "license": [
-                "BSD-2-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Nicholas Pisarro",
-                    "email": "taak@php.net",
-                    "role": "Lead"
-                }
-            ],
-            "description": "Identify human languages from text samples",
-            "homepage": "http://pear.php.net/package/Text_LanguageDetect",
-            "support": {
-                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=Text_LanguageDetect",
-                "source": "https://github.com/pear/Text_LanguageDetect"
-            },
-            "abandoned": true,
-            "install-path": "../pear/text_languagedetect"
-        },
-        {
             "name": "phpseclib/phpseclib",
             "version": "3.0.55",
             "version_normalized": "3.0.55.0",
@@ -2332,21 +2280,21 @@
         },
         {
             "name": "ramsey/uuid",
-            "version": "4.9.3",
-            "version_normalized": "4.9.3.0",
+            "version": "4.9.4",
+            "version_normalized": "4.9.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ramsey/uuid.git",
-                "reference": "1df15849d00943a67d677dc9cfd80795f038c9f8"
+                "reference": "75d73f48d02797c2c285a7e9f348fadc0102ffe2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ramsey/uuid/zipball/1df15849d00943a67d677dc9cfd80795f038c9f8",
-                "reference": "1df15849d00943a67d677dc9cfd80795f038c9f8",
+                "url": "https://api.github.com/repos/ramsey/uuid/zipball/75d73f48d02797c2c285a7e9f348fadc0102ffe2",
+                "reference": "75d73f48d02797c2c285a7e9f348fadc0102ffe2",
                 "shasum": ""
             },
             "require": {
-                "brick/math": ">=0.8.16 <=0.18",
+                "brick/math": "^0.8.16 || ^0.9 || ^0.10 || ^0.11 || ^0.12 || ^0.13 || ^0.14 || ^0.15 || ^0.16 || ^0.17 || ^0.18 || ^0.19 || ^0.20 || ^1.0",
                 "php": "^8.0",
                 "ramsey/collection": "^1.2 || ^2.0"
             },
@@ -2379,7 +2327,7 @@
                 "paragonie/random-lib": "Provides RandomLib for use with the RandomLibAdapter",
                 "ramsey/uuid-doctrine": "Allows the use of Ramsey\\Uuid\\Uuid as Doctrine field type."
             },
-            "time": "2026-06-18T03:57:49+00:00",
+            "time": "2026-09-16T11:39:30+00:00",
             "type": "library",
             "extra": {
                 "captainhook": {
@@ -2407,7 +2355,7 @@
             ],
             "support": {
                 "issues": "https://github.com/ramsey/uuid/issues",
-                "source": "https://github.com/ramsey/uuid/tree/4.9.3"
+                "source": "https://github.com/ramsey/uuid/tree/4.9.4"
             },
             "install-path": "../ramsey/uuid"
         },
