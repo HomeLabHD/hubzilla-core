@@ -335,14 +335,14 @@ function locations_by_netid($netid) {
 
 }
 
-
-
 function ping_site($url, $type) {
 	$hookdata = [
+		'success' => false,
+		'message' => '',
 		'url' => $url,
 		'type' => $type,
-		'message' => '',
-		'success' => false
+		'project' => '',
+		'version' => ''
 	];
 
 	if ($type === SITE_TYPE_ZOT) {
@@ -352,6 +352,9 @@ function ping_site($url, $type) {
 		}
 		else {
 			$hookdata['success'] = true;
+			$hookdata['type'] = 0;
+			$hookdata['project'] = $r['data']['project'] ?? '';
+			$hookdata['version'] = $r['data']['version'] ?? '';
 		}
 	}
 	else {

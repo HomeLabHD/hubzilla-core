@@ -228,7 +228,6 @@ class Site {
 	 * @return string with HTML
 	 */
 	function get() {
-
 		/* Installed themes */
 		$theme_choices_mobile["---"] = t("Default");
 		$theme_choices = array();

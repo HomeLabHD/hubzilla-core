@@ -2192,4 +2192,63 @@ function unparse_url(array $parsed_url, array $parts = ['scheme', 'host', 'port'
 	return Url::unparse($parsed_url, $parts);
 }
 
+function nodeinfo_fetch(string $url): array
+{
+	$parsed = parse_url($url);
+
+	if (
+		empty($parsed['scheme']) ||
+		empty($parsed['host'])
+	) {
+		return [];
+	}
+
+	$nodeinfoUrl = sprintf(
+		'%s://%s/.well-known/nodeinfo',
+		$parsed['scheme'],
+		$parsed['host']
+	);
+
+	$nodeinfoBase = z_fetch_url($nodeinfoUrl);
+
+	if (empty($nodeinfoBase['success']) || empty($nodeinfoBase['body'])) {
+		return [];
+	}
+
+	$body = json_decode($nodeinfoBase['body'], true);
+
+	if (!is_array($body) || empty($body['links']) || !is_array($body['links'])) {
+		return [];
+	}
+
+	$href = '';
+	$version = 0.0;
+
+	foreach ($body['links'] as $link) {
+		if (empty($link['rel']) || empty($link['href']) || !str_contains($link['rel'], 'nodeinfo.diaspora.software/ns/schema/')) {
+			continue;
+		}
+
+		$currentVersion = (float) basename($link['rel']);
+
+		if ($currentVersion > $version) {
+			$version = $currentVersion;
+			$href = $link['href'];
+		}
+	}
+
+	if (!$href) {
+		return [];
+	}
+
+	$nodeinfo = z_fetch_url($href);
+
+	if (empty($nodeinfo['success']) || empty($nodeinfo['body'])) {
+		return [];
+	}
+
+	$result = json_decode($nodeinfo['body'], true);
+
+	return is_array($result) ? $result : [];
+}
 

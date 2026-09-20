@@ -40,8 +40,10 @@ class Checksites {
 			$x = ping_site($rr['site_url'], $rr['site_type']);
 			if ($x['success']) {
 				logger('checksites: ' . $rr['site_url']);
-				q("update site set site_update = '%s' where site_url = '%s' ",
+				q("update site set site_update = '%s', site_project = '%s', site_version = '%s' where site_url = '%s'",
 					dbesc(datetime_convert()),
+					dbesc($x['project']),
+					dbesc($x['version']),
 					dbesc($rr['site_url'])
 				);
 			}

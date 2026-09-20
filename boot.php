@@ -392,8 +392,9 @@ define('MENU_ITEM_CHATROOM', 0x0004);
 
 
 define('SITE_TYPE_ZOT', 0);
-define('SITE_TYPE_NOTZOT', 1);
-define('SITE_TYPE_UNKNOWN', 2);
+define('SITE_TYPE_DIASPORA', 1);
+define('SITE_TYPE_ACTIVITYPUB', 2);
+define('SITE_TYPE_UNKNOWN', 3);
 
 /**
  * Poll/Survey types
