@@ -205,15 +205,14 @@ class Queue {
 			else {
 
 				// zot sites should all have a site record, unless they've been dead for as long as
-				// your site has existed. Since we don't know for sure what these sites are,
-				// call them unknown
+				// your site has existed.
 
 				site_store_lowlevel(
 					[
 						'site_url'    => $base,
 						'site_update' => datetime_convert(),
 						'site_dead'   => 0,
-						'site_type'   => SITE_TYPE_UNKNOWN,
+						'site_type'   => site_type_by_handler($outq['outq_driver']),
 						'site_crypto' => ''
 					]
 				);

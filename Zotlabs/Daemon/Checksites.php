@@ -34,14 +34,21 @@ class Checksites {
 			return;
 
 		foreach ($r as $rr) {
-			if (!strcasecmp($rr['site_url'], z_root()))
+			if (!strcasecmp($rr['site_url'], z_root())) {
 				continue;
+			}
 
 			$x = ping_site($rr['site_url'], $rr['site_type']);
 			if ($x['success']) {
 				logger('checksites: ' . $rr['site_url']);
-				q("update site set site_update = '%s', site_project = '%s', site_version = '%s' where site_url = '%s'",
+
+				// We should not actually update the site type here as it should have been set correctly when the site was stored.
+				// However, the site type was not always stored correctly for addon handlers like diaspora or pubcrawl.
+				// ping_site() will now try to determine the correct type to fix the situation.
+				// We might want to remove updating of site type here again after a while (maybe version 13).
+				q("update site set site_update = '%s', site_type = %d, site_project = '%s', site_version = '%s' where site_url = '%s'",
 					dbesc(datetime_convert()),
+					intval($x['type']),
 					dbesc($x['project']),
 					dbesc($x['version']),
 					dbesc($rr['site_url'])

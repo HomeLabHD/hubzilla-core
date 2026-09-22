@@ -352,7 +352,7 @@ function ping_site($url, $type) {
 		}
 		else {
 			$hookdata['success'] = true;
-			$hookdata['type'] = 0;
+			$hookdata['type'] = SITE_TYPE_ZOT;
 			$hookdata['project'] = $r['data']['project'] ?? '';
 			$hookdata['version'] = $r['data']['version'] ?? '';
 		}

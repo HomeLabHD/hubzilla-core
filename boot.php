@@ -396,6 +396,17 @@ define('SITE_TYPE_DIASPORA', 1);
 define('SITE_TYPE_ACTIVITYPUB', 2);
 define('SITE_TYPE_UNKNOWN', 3);
 
+function site_type_by_handler(string $handler): int
+{
+	$map = [
+		'zot6' => SITE_TYPE_ZOT,
+		'diaspora' => SITE_TYPE_DIASPORA,
+		'pubcrawl' => SITE_TYPE_ACTIVITYPUB
+	];
+
+	return $map[$handler] ?? SITE_TYPE_UNKNOWN;
+}
+
 /**
  * Poll/Survey types
  */
