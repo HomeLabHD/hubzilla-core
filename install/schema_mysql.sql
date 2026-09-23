@@ -646,6 +646,7 @@ CREATE TABLE IF NOT EXISTS `item` (
   KEY `uid_resource_type` (`uid`, `resource_type`),
   KEY `owner_xchan` (`owner_xchan`),
   KEY `author_xchan` (`author_xchan`),
+  KEY `source_xchan` (`source_xchan`),
   KEY `resource_id` (`resource_id`),
   KEY `resource_type` (`resource_type`),
   KEY `commented` (`commented`),

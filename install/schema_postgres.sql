@@ -633,6 +633,7 @@ create index "item_changed" on item ("changed");
 create index "item_comments_closed" on item ("comments_closed");
 create index "item_owner_xchan" on item ("owner_xchan");
 create index "item_author_xchan" on item ("author_xchan");
+create index "item_source_xchan" on item ("source_xchan");
 create index "item_resource_id" on item ("resource_id");
 create index "item_resource_type" on item ("resource_type");
 create index "item_commented" on item ("commented");
