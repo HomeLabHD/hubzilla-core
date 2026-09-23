@@ -25,16 +25,25 @@ class Checksites {
 		if ($days < 1)
 			$days = 30;
 
-		// TODO: we should only check sites that have not communicated with us in 30 days.
-		// To fix the entries we will also look for empty site project for a while.
-		// Remove site_project check and limit again after version 12 has been released
-		$r = q("select * from site where site_dead = 0 and ((site_update < %s - INTERVAL %s) OR site_project = '') $sql_options LIMIT 1000",
+		$pull_days = 90;
+
+		$r = q("SELECT site_url, site_type FROM site
+			WHERE site_dead = 0
+			AND ((site_update < %s - INTERVAL %s) OR (site_pull < %s - INTERVAL %s))
+			$sql_options
+			ORDER BY (site_update >= %s - INTERVAL %s), site_update
+			LIMIT 1000",
 			db_utcnow(),
-			db_quoteinterval($days . ' DAY')
+			db_quoteinterval($days . ' DAY'),
+			db_utcnow(),
+			db_quoteinterval($pull_days . ' DAY'),
+			db_utcnow(),
+			db_quoteinterval($days . ' DAY'),
 		);
 
-		if (!$r)
+		if (!$r) {
 			return;
+		}
 
 		foreach ($r as $rr) {
 			if (!strcasecmp($rr['site_url'], z_root())) {
@@ -51,8 +60,9 @@ class Checksites {
 				// We should not actually update the site type here as it should have been set correctly when the site was stored.
 				// However, the site type was not always stored correctly for addon handlers like diaspora or pubcrawl.
 				// ping_site() will now try to determine the correct type to fix the situation.
-				// We might want to remove updating of site type here again after a while (maybe version 13).
-				q("update site set site_update = '%s', site_type = %d, site_project = '%s', site_version = '%s' where site_url = '%s'",
+				// We might want to remove updating of site type here again after a while (maybe version 12).
+				q("update site set site_update = '%s', site_pull = '%s', site_type = %d, site_project = '%s', site_version = '%s' where site_url = '%s'",
+					dbesc(datetime_convert()),
 					dbesc(datetime_convert()),
 					intval($x['type']),
 					dbesc($x['project']),
@@ -62,7 +72,8 @@ class Checksites {
 			}
 			else {
 				logger('marking dead site: ' . $x['message']);
-				q("update site set site_dead = 1 where site_url = '%s' ",
+				q("update site set site_dead = 1, site_pull = '%s' where site_url = '%s' ",
+					dbesc(datetime_convert()),
 					dbesc($rr['site_url'])
 				);
 			}
