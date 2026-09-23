@@ -51,9 +51,6 @@ class Cron_weekly {
 			logger('regdir: ' . print_r(z_fetch_url(get_directory_primary() . '/regdir?f=&url=' . urlencode(z_root()) . '&realm=' . urlencode(get_directory_realm())), true));
 		}
 
-		// Check for dead sites
-		Master::Summon(array('Checksites'));
-
 		// update searchable doc indexes
 		Master::Summon(array('Importdoc'));
 

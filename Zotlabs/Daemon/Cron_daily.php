@@ -98,6 +98,10 @@ class Cron_daily {
 		Master::Summon(array('Expire'));
 		Master::Summon(array('Cli_suggest'));
 
+		// Check for dead sites
+		// TODO: move this back to cron_weekly after version 12 has been released.
+		Master::Summon(array('Checksites'));
+
 		remove_obsolete_hublocs();
 		remove_duplicate_singleton_hublocs();
 

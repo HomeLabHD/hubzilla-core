@@ -25,7 +25,10 @@ class Checksites {
 		if ($days < 1)
 			$days = 30;
 
-		$r = q("select * from site where site_dead = 0 and site_update < %s - INTERVAL %s $sql_options",
+		// TODO: we should only check sites that have not communicated with us in 30 days.
+		// To fix the entries we will also look for empty site project for a while.
+		// Remove site_project check and limit again after version 12 has been released
+		$r = q("select * from site where site_dead = 0 and ((site_update < %s - INTERVAL %s) OR site_project = '') $sql_options LIMIT 1000",
 			db_utcnow(),
 			db_quoteinterval($days . ' DAY')
 		);
@@ -39,8 +42,11 @@ class Checksites {
 			}
 
 			$x = ping_site($rr['site_url'], $rr['site_type']);
+
 			if ($x['success']) {
 				logger('checksites: ' . $rr['site_url']);
+
+				$main_version = preg_split('/[-+]/', $x['version'])[0];
 
 				// We should not actually update the site type here as it should have been set correctly when the site was stored.
 				// However, the site type was not always stored correctly for addon handlers like diaspora or pubcrawl.
@@ -50,7 +56,7 @@ class Checksites {
 					dbesc(datetime_convert()),
 					intval($x['type']),
 					dbesc($x['project']),
-					dbesc($x['version']),
+					dbesc($main_version),
 					dbesc($rr['site_url'])
 				);
 			}
