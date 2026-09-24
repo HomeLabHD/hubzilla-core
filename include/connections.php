@@ -368,12 +368,32 @@ function remove_all_xchan_resources($xchan, $channel_id = 0) {
 			dbesc($xchan)
 		);
 
+		$r = q("delete from chat where chat_xchan = '%s'",
+			dbesc($xchan)
+		);
+
+		$r = q("delete from chatpresence where cp_xchan = '%s'",
+			dbesc($xchan)
+		);
+
 		$r = q("delete from xlink where (xlink_xchan = '%s' or xlink_link = '%s')",
 			dbesc($xchan),
 			dbesc($xchan)
 		);
 
+		$r = q("delete from xconfig where xchan = '%s'",
+			dbesc($xchan)
+		);
+
 		$r = q("delete from xprof where xprof_hash = '%s'",
+			dbesc($xchan)
+		);
+
+		$r = q("delete from xtag where xtag_hash = '%s'",
+			dbesc($xchan)
+		);
+
+		$r = q("delete from xchat where xchat_xchan = '%s'",
 			dbesc($xchan)
 		);
 
