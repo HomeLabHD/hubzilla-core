@@ -71,7 +71,7 @@ function cleanup_dead_sites($delete = false) {
 				dbesc($site['site_url'])
 			);
 
-			echo('❤️ Ping successful, marked site alive: ' . $site['site_url'] . PHP_EOL);
+			echo('❤️  Ping successful, marked site alive: ' . $site['site_url'] . PHP_EOL);
 
 			$revived_sites++;
 			new_line_and_sleep();
@@ -202,7 +202,7 @@ function cleanup_dead_sites($delete = false) {
 
 	echo('✅ Deleted xchans: ' . $deleted_xchans . PHP_EOL);
 	echo('🔥 Deleted sites: ' . $deleted_sites . PHP_EOL);
-	echo('❤️ Revived sites: ' . $revived_sites . PHP_EOL);
+	echo('❤️  Revived sites: ' . $revived_sites . PHP_EOL);
 }
 
 
