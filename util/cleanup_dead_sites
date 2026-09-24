@@ -29,13 +29,14 @@ cleanup_dead_sites($delete);
 
 function cleanup_dead_sites($delete = false) {
 	$years = 3;
+	$limit = 100;
 
 	$sites = q("SELECT site_url, site_type FROM site
 		WHERE site_dead = 1
 		AND site_pull < %s - INTERVAL %s
 		AND site_url <> '%s'
 		ORDER BY site_pull
-		LIMIT 100",
+		LIMIT $limit",
 		db_utcnow(),
 		db_quoteinterval($years . ' YEAR'),
 		dbesc(z_root())
@@ -156,12 +157,12 @@ function cleanup_dead_sites($delete = false) {
 			if ($delete) {
 				remove_all_xchan_resources($hubloc['hubloc_hash']);
 
-				q("DELETE FROM hubloc WHERE hubloc_hash = '%s' and hubloc_url = '%s'",
+				q("DELETE FROM hubloc WHERE hubloc_hash = '%s' AND hubloc_url = '%s' AND hubloc_deleted = 1",
 					dbesc($hubloc['hubloc_hash']),
 					dbesc($site['site_url'])
 				);
 
-				q("DELETE FROM xchan WHERE xchan_hash = '%s'",
+				q("DELETE FROM xchan WHERE xchan_hash = '%s' AND xchan_deleted = 1",
 					dbesc($hubloc['hubloc_hash'])
 				);
 			}
