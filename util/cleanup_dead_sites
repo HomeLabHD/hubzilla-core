@@ -48,6 +48,7 @@ function cleanup_dead_sites($delete = false) {
 
 	$deleted_xchans = 0;
 	$deleted_sites = 0;
+	$revived_sites = 0;
 
 	foreach($sites as $site) {
 		// This should not happen, but check anyway
@@ -71,6 +72,8 @@ function cleanup_dead_sites($delete = false) {
 			);
 
 			echo('❤️ Ping successful, marked site alive: ' . $site['site_url'] . PHP_EOL);
+
+			$revived_sites++;
 			new_line_and_sleep();
 			continue;
 		}
@@ -197,8 +200,9 @@ function cleanup_dead_sites($delete = false) {
 		new_line_and_sleep();
 	}
 
-	echo('Deleted xchans: ' . $deleted_xchans . PHP_EOL);
-	echo('Deleted sites: ' . $deleted_sites . PHP_EOL);
+	echo('✅ Deleted xchans: ' . $deleted_xchans . PHP_EOL);
+	echo('🔥 Deleted sites: ' . $deleted_sites . PHP_EOL);
+	echo('❤️ Revived sites: ' . $revived_sites . PHP_EOL);
 }
 
 
