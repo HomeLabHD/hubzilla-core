@@ -3,6 +3,7 @@
 namespace Zotlabs\Web;
 
 use DBA;
+use PDO;
 
 class SessionHandler implements \SessionHandlerInterface {
 
@@ -17,19 +18,16 @@ class SessionHandler implements \SessionHandlerInterface {
 	// just after sid regeneration to force a record to exist.
 
 	function read ($id) : string {
-
 		if($id) {
-			$r = q("SELECT sess_data FROM session WHERE sid= '%s'", dbesc($id));
-
+			$stmt = DBA::$dba->db->prepare('SELECT sess_data FROM session WHERE sid = :sid');
+			$stmt->execute(['sid' => $id]);
+			$r = $stmt->fetch(PDO::FETCH_ASSOC);
 			if($r) {
-				return $r[0]['sess_data'];
+				return $r['sess_data'];
 			}
 			else {
-				q("INSERT INTO session (sess_data, sid, expire) values ('%s', '%s', '%s')",
-					dbesc(''),
-					dbesc($id),
-					dbesc(time() + 300)
-				);
+				$stmt = DBA::$dba->db->prepare('INSERT INTO session (sess_data, expire, sid) values (:data, :expire, :sid)');
+				$stmt->execute(['data' => '', 'expire' => time() + 300, 'sid' => $id]);
 			}
 		}
 
@@ -65,14 +63,9 @@ class SessionHandler implements \SessionHandlerInterface {
 				$expire = time() + (60 * 60 * 24 * 1);
 		}
 
-		q("UPDATE session
-			SET sess_data = '%s', expire = '%s' WHERE sid = '%s'",
-			dbesc($data),
-			dbesc($expire),
-			dbesc($id)
-		);
+		$stmt = DBA::$dba->db->prepare('UPDATE session SET sess_data = :data, expire = :expire WHERE sid = :sid');
 
-		return true;
+		return $stmt->execute(['data' => $data, 'expire' => $expire, 'sid' => $id]);
 	}
 
 
@@ -82,8 +75,9 @@ class SessionHandler implements \SessionHandlerInterface {
 
 
 	function destroy ($id) : bool {
-		q("DELETE FROM session WHERE sid = '%s'", dbesc($id));
-		return true;
+		$stmt = DBA::$dba->db->prepare('DELETE FROM session WHERE sid = :sid');
+
+		return $stmt->execute(['sid' => $id]);
 	}
 
 
