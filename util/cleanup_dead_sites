@@ -10,6 +10,7 @@ require_once('include/cli_startup.php');
 
 cli_startup();
 
+$delete = false;
 if (isset($argv[1]) && $argv[1] === 'delete') {
 	$delete = true;
 }
@@ -22,14 +23,18 @@ else {
 	echo '️🔵 Use "util/cleanup_dead_sites delete" to perform the cleanup.' . PHP_EOL;
 }
 
+$limit = 100;
+if (isset($argv[2])) {
+	$limit = intval($argv[2]);
+}
+
 echo PHP_EOL;
 sleep(3);
 
-cleanup_dead_sites($delete);
+cleanup_dead_sites($delete, $limit);
 
-function cleanup_dead_sites($delete = false) {
+function cleanup_dead_sites($delete = false, $limit = 100) {
 	$years = 3;
-	$limit = 100;
 
 	$sites = q("SELECT site_url, site_type FROM site
 		WHERE site_dead = 1
