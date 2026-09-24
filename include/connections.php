@@ -326,11 +326,22 @@ function remove_all_xchan_resources($xchan, $channel_id = 0) {
 			return;
 		}
 
-		$r = q("delete from photo where xchan = '%s'",
-			dbesc($xchan)
+
+		// We should not delete guest submitted photos and files uploaded to someones filespace on this hub
+		// We should look to remove the cashed profile photo though
+
+		$xchan_photo = q("SELECT resource_id FROM photo WHERE xchan = '%s' and photo_usage = %d LIMIT 1",
+			dbesc($xchan),
+			intval(PHOTO_XCHAN)
 		);
 
-		$r = q("select id from item where ( author_xchan = '%s' or owner_xchan = '%s' ) ",
+		if ($xchan_photo) {
+			// uid = 0 for PHOTO_XCHAN type photos
+			attach_drop_photo(0, $xchan_photo[0]['resource_id']);
+		}
+
+		$r = q("select id from item where author_xchan = '%s' or owner_xchan = '%s' or source_xchan = '%s'",
+			dbesc($xchan),
 			dbesc($xchan),
 			dbesc($xchan)
 		);
