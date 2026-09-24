@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Web;
 
+use DBA;
 
 class SessionHandler implements \SessionHandlerInterface {
 
@@ -86,9 +87,11 @@ class SessionHandler implements \SessionHandlerInterface {
 	}
 
 
-	function gc($expire) : int {
-		q("DELETE FROM session WHERE expire < %d", dbesc(time()));
-		return true;
+	function gc($expire) : int|false {
+		$stmt = DBA::$dba->db->prepare('DELETE FROM session WHERE expire < :expire');
+		$stmt->execute(['expire' => time()]);
+
+		return $stmt->rowCount();
 	}
 
 }
