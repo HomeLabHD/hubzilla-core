@@ -195,7 +195,7 @@ function cleanup_dead_sites($delete = false, $limit = 100) {
 		else {
 			if ($delete) {
 				// Set site_pull to one month less than $years before now so that we will recheck after one month.
-				echo('❌ Hublocs remain, scheduling site for another check in one month: ' . $site['site_url'] . PHP_EOL);
+				echo('❌ Hublocs remain, scheduling site for another check after one month: ' . $site['site_url'] . PHP_EOL);
 
 				$months = $years * 12 - 1;
 
