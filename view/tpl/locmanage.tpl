@@ -19,7 +19,6 @@
 				<th>{{$drop}}</th>
 			</tr>
 			{{foreach $hubs as $hub}}
-			{{if ! $hub.hubloc_deleted }}
 			<tr class="locs-index-row">
 				<td>{{$hub.hubloc_addr}}</td>
 				<td class="d-none d-md-table-cell">{{$hub.hubloc_url}}</td>
@@ -30,7 +29,6 @@
 					{{/if}}
 				</td>
 			</tr>
-			{{/if}}
 			{{/foreach}}
 		</table>
 	</div>

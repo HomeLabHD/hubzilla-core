@@ -4,6 +4,7 @@ namespace Zotlabs\Module; /** @file */
 use App;
 use Zotlabs\Web\Controller;
 use Zotlabs\Daemon\Master;
+use Zotlabs\Lib\Libzot;
 
 class Locs extends Controller {
 
@@ -107,9 +108,7 @@ class Locs extends Controller {
 			goaway(z_root() . '/locs');
 		}
 
-		$r = q("select * from hubloc where hubloc_hash = '%s'",
-			dbesc($channel['channel_hash'])
-		);
+		$r = Libzot::get_hublocs($channel['channel_hash']);
 
 		if(! $r) {
 			notice( t('No locations found.') . EOL);
