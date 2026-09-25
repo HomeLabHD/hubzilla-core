@@ -34,7 +34,7 @@ sleep(3);
 cleanup_dead_sites($delete, $limit);
 
 function cleanup_dead_sites($delete = false, $limit = 100) {
-	$years = 3;
+	$years = 1;
 
 	$sites = q("SELECT site_url, site_type FROM site
 		WHERE site_dead = 1
@@ -54,6 +54,7 @@ function cleanup_dead_sites($delete = false, $limit = 100) {
 
 	$deleted_xchans = 0;
 	$deleted_sites = 0;
+	$retained_sites = 0;
 	$revived_sites = 0;
 
 	foreach($sites as $site) {
@@ -193,14 +194,18 @@ function cleanup_dead_sites($delete = false, $limit = 100) {
 		}
 		else {
 			if ($delete) {
-				// Set site_pull to -35 (one month less than 3 years) before now.
+				// Set site_pull to one month less than $years before now so that we will recheck after one month.
 				echo('❌ Hublocs remain, scheduling site for another check in one month: ' . $site['site_url'] . PHP_EOL);
 
+				$months = $years * 12 - 1;
+
 				q("UPDATE site SET site_pull = '%s' WHERE site_url = '%s'",
-					dbesc(datetime_convert('UTC', 'UTC', 'now  - 35 months')),
+					dbesc(datetime_convert('UTC', 'UTC', "now - $months months")),
 					dbesc($site['site_url'])
 				);
 			}
+
+			$retained_sites++;
 		}
 
 		new_line_and_sleep();
@@ -208,6 +213,7 @@ function cleanup_dead_sites($delete = false, $limit = 100) {
 
 	echo('✅ Deleted xchans: ' . $deleted_xchans . PHP_EOL);
 	echo('🔥 Deleted sites: ' . $deleted_sites . PHP_EOL);
+	echo('❌ Retained sites: ' . $retained_sites . PHP_EOL);
 	echo('❤️  Revived sites: ' . $revived_sites . PHP_EOL);
 }
 
