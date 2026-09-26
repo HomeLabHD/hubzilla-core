@@ -163,9 +163,8 @@ function cleanup_dead_sites($delete = false, $limit = 100) {
 			if ($delete) {
 				remove_all_xchan_resources($hubloc['hubloc_hash']);
 
-				q("DELETE FROM hubloc WHERE hubloc_hash = '%s' AND hubloc_url = '%s' AND hubloc_deleted = 1",
-					dbesc($hubloc['hubloc_hash']),
-					dbesc($site['site_url'])
+				q("DELETE FROM hubloc WHERE hubloc_hash = '%s' AND hubloc_deleted = 1",
+					dbesc($hubloc['hubloc_hash'])
 				);
 
 				q("DELETE FROM xchan WHERE xchan_hash = '%s' AND xchan_deleted = 1",
@@ -216,7 +215,6 @@ function cleanup_dead_sites($delete = false, $limit = 100) {
 	echo('❌ Retained sites: ' . $retained_sites . PHP_EOL);
 	echo('❤️  Revived sites: ' . $revived_sites . PHP_EOL);
 }
-
 
 function new_line_and_sleep() {
 	echo(PHP_EOL);
