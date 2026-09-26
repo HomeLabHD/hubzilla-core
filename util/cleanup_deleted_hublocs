@@ -1,0 +1,187 @@
+#!/usr/bin/env php
+<?php
+
+if(!file_exists('include/cli_startup.php')) {
+	echo 'Run from the top level Hubzilla web directory, as util/cleanup_deleted_hublocs' . PHP_EOL;
+	exit(1);
+}
+
+require_once('include/cli_startup.php');
+
+cli_startup();
+
+$delete = false;
+if (isset($argv[1]) && $argv[1] === 'delete') {
+	$delete = true;
+}
+
+if ($delete) {
+	echo '🔴 CLEANUP STARTS IN 3 SECONDS!!!' . PHP_EOL;
+}
+else {
+	echo '🔵 Dry run starts in 3 seconds!' . PHP_EOL;
+	echo '️🔵 Use "util/cleanup_deleted_hublocs delete" to perform the cleanup.' . PHP_EOL;
+}
+
+$limit = 100;
+if (isset($argv[2])) {
+	$limit = intval($argv[2]);
+}
+
+echo PHP_EOL;
+sleep(3);
+
+cleanup_deleted_hublocs($delete, $limit);
+
+function cleanup_deleted_hublocs($delete = false, $limit = 100) {
+	$years = 1;
+
+	$hublocs = q("SELECT DISTINCT hubloc_hash, hubloc_url FROM hubloc
+		WHERE hubloc_deleted = 1
+		AND hubloc_updated < %s - INTERVAL %s
+		AND hubloc_url <> '%s'
+		ORDER BY hubloc_url
+		LIMIT $limit",
+		db_utcnow(),
+		db_quoteinterval($years . ' YEAR'),
+		dbesc(z_root())
+	);
+
+	if (!$hublocs) {
+		echo('No candidates to process.' . PHP_EOL);
+		return;
+	}
+
+	$deleted_xchans = 0;
+	$retained_xchans = 0;
+	$current_site = '';
+
+	foreach($hublocs as $hubloc) {
+		// This should not happen, but check anyway
+		if (!strcasecmp($hubloc['hubloc_url'], z_root())) {
+			continue;
+		}
+
+		if ($current_site !== $hubloc['hubloc_url']) {
+			echo('🟠 Checking site: ' . $hubloc['hubloc_url'] . PHP_EOL);
+			$current_site = $hubloc['hubloc_url'];
+			new_line_and_sleep();
+		}
+
+		// See remove_all_xchan_resources()
+		echo('️🔵 Checking xchan: ' . $hubloc['hubloc_hash'] . PHP_EOL);
+
+		// If we have other hublocs, we can safely remove the deleted one and go on.
+		$alt_locs = q("SELECT hubloc_hash FROM hubloc WHERE hubloc_hash = '%s' AND hubloc_url != '%s' AND hubloc_deleted = 0 LIMIT 1",
+			dbesc($hubloc['hubloc_hash']),
+			dbesc($hubloc['hubloc_url'])
+		);
+
+		if ($alt_locs) {
+			echo('✅ Removing dead hubloc: an active alternative exists: ' . $hubloc['hubloc_hash'] . PHP_EOL);
+			if ($delete) {
+				q("DELETE FROM hubloc WHERE hubloc_hash = '%s' and hubloc_url = '%s'",
+					dbesc($hubloc['hubloc_hash']),
+					dbesc($hubloc['hubloc_url'])
+				);
+			}
+
+			$retained_xchans++;
+			new_line_and_sleep();
+			continue;
+		}
+
+		$remove = true;
+
+		// Is it a connection from somebody?
+		$r = q("SELECT abook_id FROM abook WHERE abook_xchan = '%s' LIMIT 1",
+			dbesc($hubloc['hubloc_hash'])
+		);
+		if ($r) {
+			echo('❌ Skipping xchan: active connection exists: ' . $hubloc['hubloc_hash'] . PHP_EOL);
+			$remove = false;
+			new_line_and_sleep();
+		}
+
+		if ($remove) {
+			// Do we have any items?
+			$r = q("SELECT id FROM item WHERE author_xchan = '%s' OR owner_xchan = '%s' OR source_xchan = '%s' LIMIT 1",
+				dbesc($hubloc['hubloc_hash']),
+				dbesc($hubloc['hubloc_hash']),
+				dbesc($hubloc['hubloc_hash'])
+			);
+			if ($r) {
+				echo('❌ Skipping xchan: items exist: ' . $hubloc['hubloc_hash'] . PHP_EOL);
+				$remove = false;
+			}
+		}
+
+		if ($remove) {
+			// Do we have any photos? Disregard profile images.
+			$r = q("SELECT id FROM photo WHERE xchan = '%s' and photo_usage <> %d LIMIT 1",
+				dbesc($hubloc['hubloc_hash']),
+				intval(PHOTO_XCHAN)
+			);
+			if ($r) {
+				echo('❌ Skipping xchan: photos exist: ' . $hubloc['hubloc_hash'] . PHP_EOL);
+				$remove = false;
+			}
+		}
+
+		if ($remove) {
+			// Do we have any events?
+			$r = q("SELECT id FROM event WHERE event_xchan = '%s' LIMIT 1",
+				dbesc($hubloc['hubloc_hash'])
+			);
+			if ($r) {
+				echo('❌ Skipping xchan: events exist: ' . $hubloc['hubloc_hash'] . PHP_EOL);
+				$remove = false;
+			}
+		}
+
+		// What about addons like cart?
+		// Provide a hook to clean up additional resources?
+
+		if (!$remove) {
+			if ($delete) {
+				$months = $years * 12 - 1;
+				q("UPDATE hubloc SET hubloc_updated = '%s' WHERE hubloc_hash = '%s' AND hubloc_url = '%s'",
+					dbesc(datetime_convert('UTC', 'UTC', "now - $months months")),
+					dbesc($hubloc['hubloc_hash']),
+					dbesc($hubloc['hubloc_url'])
+				);
+			}
+
+			$retained_xchans++;
+			new_line_and_sleep();
+			continue;
+		}
+
+		// If we get here, the xchan resources, hubloc, and xchan should be safe to remove.
+		echo('✅ Removing xchan resources: ' . $hubloc['hubloc_hash'] . PHP_EOL);
+		if ($delete) {
+			remove_all_xchan_resources($hubloc['hubloc_hash']);
+
+			q("DELETE FROM hubloc WHERE hubloc_hash = '%s' AND hubloc_deleted = 1",
+				dbesc($hubloc['hubloc_hash'])
+			);
+
+			q("DELETE FROM xchan WHERE xchan_hash = '%s' AND xchan_deleted = 1",
+				dbesc($hubloc['hubloc_hash'])
+			);
+		}
+
+		$deleted_xchans++;
+		new_line_and_sleep();
+
+
+	}
+
+	echo('✅ Deleted xchans: ' . $deleted_xchans . PHP_EOL);
+	echo('❌ Retained xchans: ' . $retained_xchans . PHP_EOL);
+}
+
+function new_line_and_sleep() {
+	echo(PHP_EOL);
+	sleep(1);
+}
