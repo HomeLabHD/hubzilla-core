@@ -117,7 +117,7 @@ function cleanup_dead_sites($delete = false, $limit = 100) {
 				dbesc($hubloc['hubloc_hash'])
 			);
 			if ($r) {
-				echo('❌ Skipping xchan: active connection exists: ' . $hubloc['hubloc_hash'] . PHP_EOL);
+				echo('❌ Skipping xchan: abook exists: ' . $hubloc['hubloc_hash'] . PHP_EOL);
 				new_line_and_sleep();
 				continue;
 			}
@@ -129,7 +129,7 @@ function cleanup_dead_sites($delete = false, $limit = 100) {
 				dbesc($hubloc['hubloc_hash'])
 			);
 			if ($r) {
-				echo('❌ Skipping xchan: items exist: ' . $hubloc['hubloc_hash'] . PHP_EOL);
+				echo('❌ Skipping xchan: item exists: ' . $hubloc['hubloc_hash'] . PHP_EOL);
 				new_line_and_sleep();
 				continue;
 			}
@@ -140,7 +140,7 @@ function cleanup_dead_sites($delete = false, $limit = 100) {
 				intval(PHOTO_XCHAN)
 			);
 			if ($r) {
-				echo('❌ Skipping xchan: photos exist: ' . $hubloc['hubloc_hash'] . PHP_EOL);
+				echo('❌ Skipping xchan: photo exists: ' . $hubloc['hubloc_hash'] . PHP_EOL);
 				new_line_and_sleep();
 				continue;
 			}
@@ -150,7 +150,7 @@ function cleanup_dead_sites($delete = false, $limit = 100) {
 				dbesc($hubloc['hubloc_hash'])
 			);
 			if ($r) {
-				echo('❌ Skipping xchan: events exist: ' . $hubloc['hubloc_hash'] . PHP_EOL);
+				echo('❌ Skipping xchan: event exists: ' . $hubloc['hubloc_hash'] . PHP_EOL);
 				new_line_and_sleep();
 				continue;
 			}
@@ -164,7 +164,7 @@ function cleanup_dead_sites($delete = false, $limit = 100) {
 			if ($hookdata['success']) {
 				echo('❌ Skipping xchan: addon data exists: ' . $hubloc['hubloc_hash'] . PHP_EOL);
 				new_line_and_sleep();
-				continue
+				continue;
 			}
 
 			// If we get here, the xchan resources, hubloc, and xchan should be safe to remove.
