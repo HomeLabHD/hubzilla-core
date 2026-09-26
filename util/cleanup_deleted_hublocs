@@ -91,19 +91,19 @@ function cleanup_deleted_hublocs($delete = false, $limit = 100) {
 			continue;
 		}
 
-		$remove = true;
+		$retain = false;
 
 		// Is it a connection from somebody?
 		$r = q("SELECT abook_id FROM abook WHERE abook_xchan = '%s' LIMIT 1",
 			dbesc($hubloc['hubloc_hash'])
 		);
 		if ($r) {
-			echo('❌ Skipping xchan: active connection exists: ' . $hubloc['hubloc_hash'] . PHP_EOL);
-			$remove = false;
+			echo('❌ Skipping xchan: abook exists: ' . $hubloc['hubloc_hash'] . PHP_EOL);
+			$retain = true;
 			new_line_and_sleep();
 		}
 
-		if ($remove) {
+		if (!$retain) {
 			// Do we have any items?
 			$r = q("SELECT id FROM item WHERE author_xchan = '%s' OR owner_xchan = '%s' OR source_xchan = '%s' LIMIT 1",
 				dbesc($hubloc['hubloc_hash']),
@@ -111,38 +111,52 @@ function cleanup_deleted_hublocs($delete = false, $limit = 100) {
 				dbesc($hubloc['hubloc_hash'])
 			);
 			if ($r) {
-				echo('❌ Skipping xchan: items exist: ' . $hubloc['hubloc_hash'] . PHP_EOL);
-				$remove = false;
+				echo('❌ Skipping xchan: item exists: ' . $hubloc['hubloc_hash'] . PHP_EOL);
+				$retain = true;
+				new_line_and_sleep();
 			}
 		}
 
-		if ($remove) {
+		if (!$retain) {
 			// Do we have any photos? Disregard profile images.
 			$r = q("SELECT id FROM photo WHERE xchan = '%s' and photo_usage <> %d LIMIT 1",
 				dbesc($hubloc['hubloc_hash']),
 				intval(PHOTO_XCHAN)
 			);
 			if ($r) {
-				echo('❌ Skipping xchan: photos exist: ' . $hubloc['hubloc_hash'] . PHP_EOL);
-				$remove = false;
+				echo('❌ Skipping xchan: photo exists: ' . $hubloc['hubloc_hash'] . PHP_EOL);
+				$retain = true;
+				new_line_and_sleep();
 			}
 		}
 
-		if ($remove) {
+		if (!$retain) {
 			// Do we have any events?
 			$r = q("SELECT id FROM event WHERE event_xchan = '%s' LIMIT 1",
 				dbesc($hubloc['hubloc_hash'])
 			);
 			if ($r) {
-				echo('❌ Skipping xchan: events exist: ' . $hubloc['hubloc_hash'] . PHP_EOL);
-				$remove = false;
+				echo('❌ Skipping xchan: event exists: ' . $hubloc['hubloc_hash'] . PHP_EOL);
+				$retain = true;
+				new_line_and_sleep();
 			}
 		}
 
-		// What about addons like cart?
-		// Provide a hook to clean up additional resources?
+		if (!$retain) {
+			$hookdata = [
+				'xchan' => $hubloc['hubloc_hash'],
+				'success' => false
+			];
 
-		if (!$remove) {
+			call_hooks('xchan_has_data', $hookdata);
+			if ($hookdata['success']) {
+				echo('❌ Skipping xchan: addon data exists: ' . $hubloc['hubloc_hash'] . PHP_EOL);
+				$retain = true;
+				new_line_and_sleep();
+			}
+		}
+
+		if ($retain) {
 			if ($delete) {
 				$months = $years * 12 - 1;
 				q("UPDATE hubloc SET hubloc_updated = '%s' WHERE hubloc_hash = '%s' AND hubloc_url = '%s'",

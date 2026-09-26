@@ -155,8 +155,17 @@ function cleanup_dead_sites($delete = false, $limit = 100) {
 				continue;
 			}
 
-			// What about addons like cart?
-			// Provide a hook to clean up additional resources?
+			$hookdata = [
+				'xchan' => $hubloc['hubloc_hash'],
+				'success' => false
+			];
+
+			call_hooks('xchan_has_data', $hookdata);
+			if ($hookdata['success']) {
+				echo('❌ Skipping xchan: addon data exists: ' . $hubloc['hubloc_hash'] . PHP_EOL);
+				new_line_and_sleep();
+				continue
+			}
 
 			// If we get here, the xchan resources, hubloc, and xchan should be safe to remove.
 			echo('✅ Removing xchan resources: ' . $hubloc['hubloc_hash'] . PHP_EOL);
