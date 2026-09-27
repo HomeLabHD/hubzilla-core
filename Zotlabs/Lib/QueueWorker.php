@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Lib;
 
+use Exception;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\Exception\UnableToBuildUuidException;
 use Zotlabs\Lib\Config;
@@ -302,18 +303,23 @@ class QueueWorker {
 
 				$start_timestamp = microtime(true);
 
-				$cls::run($argc, $argv);
+				try {
+					$cls::run($argc, $argv);
 
-				logger('logger_stats_data cmd:' . $argv[0] . ' start:' . $start_timestamp . ' ' . 'end:' . microtime(true) . ' meta:' . $rnd);
+					logger('logger_stats_data cmd:' . $argv[0] . ' start:' . $start_timestamp . ' ' . 'end:' . microtime(true) . ' meta:' . $rnd);
 
-				logger('COMPLETED: ' . $rnd);
+					logger('COMPLETED: ' . $rnd);
 
-				// @FIXME: Right now we assume that if we get a return, everything is OK.
-				// At some point we may want to test whether the run returns true/false
-				// and requeue the work to be tried again if needed.  But we probably want
-				// to implement some sort of "retry interval" first.
+					// @FIXME: Right now we assume that if we get a return, everything is OK.
+					// At some point we may want to test whether the run returns true/false
+					// and requeue the work to be tried again if needed.  But we probably want
+					// to implement some sort of "retry interval" first.
 
-				e($delete_stmt, [$workid]);
+					e($delete_stmt, [$workid]);
+				} catch (Exception $ex) {
+					$class = get_class($ex);
+					logger("EXCEPTION: {$rnd} {$class}: {$ex->getMessage()}");
+				}
 			}
 			else {
 				logger("NO WORKITEM!", LOGGER_DEBUG);
