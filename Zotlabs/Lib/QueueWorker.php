@@ -170,8 +170,6 @@ class QueueWorker {
 			return self::$queueworker;
 		}
 
-		$wid = uniqid('', true);
-
 		//usleep(mt_rand(300000, 1000000)); //Sleep .3 - 1 seconds before creating a new worker.
 
 		$workers = self::GetWorkerCount();
@@ -181,9 +179,8 @@ class QueueWorker {
 			return false;
 		}
 
-		self::$queueworker = $wid;
-
-		return $wid;
+		self::$queueworker = uniqid('', true);
+		return self::$queueworker;
 	}
 
 	private static function getWorkId() {
