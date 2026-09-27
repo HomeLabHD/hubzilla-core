@@ -326,7 +326,6 @@ function remove_all_xchan_resources($xchan, $channel_id = 0) {
 			return;
 		}
 
-
 		// We should not delete guest submitted photos and files uploaded to someones filespace on this hub
 		// We should look to remove the cashed profile photo though
 
@@ -352,56 +351,56 @@ function remove_all_xchan_resources($xchan, $channel_id = 0) {
 			}
 		}
 
-		$r = q("delete from event where event_xchan = '%s'",
+		q("delete from event where event_xchan = '%s'",
 			dbesc($xchan)
 		);
 
-		$r = q("delete from pgrp_member where xchan = '%s'",
+		q("delete from pgrp_member where xchan = '%s'",
 			dbesc($xchan)
 		);
 
-		$r = q("delete from abook where abook_xchan = '%s'",
+		q("delete from abook where abook_xchan = '%s'",
 			dbesc($xchan)
 		);
 
-		$r = q("delete from abconfig where xchan = '%s'",
+		q("delete from abconfig where xchan = '%s'",
 			dbesc($xchan)
 		);
 
-		$r = q("delete from chat where chat_xchan = '%s'",
+		q("delete from chat where chat_xchan = '%s'",
 			dbesc($xchan)
 		);
 
-		$r = q("delete from chatpresence where cp_xchan = '%s'",
+		q("delete from chatpresence where cp_xchan = '%s'",
 			dbesc($xchan)
 		);
 
-		$r = q("delete from xlink where (xlink_xchan = '%s' or xlink_link = '%s')",
+		q("delete from xlink where (xlink_xchan = '%s' or xlink_link = '%s')",
 			dbesc($xchan),
 			dbesc($xchan)
 		);
 
-		$r = q("delete from xconfig where xchan = '%s'",
+		q("delete from xconfig where xchan = '%s'",
 			dbesc($xchan)
 		);
 
-		$r = q("delete from xprof where xprof_hash = '%s'",
+		q("delete from xprof where xprof_hash = '%s'",
 			dbesc($xchan)
 		);
 
-		$r = q("delete from xtag where xtag_hash = '%s'",
+		q("delete from xtag where xtag_hash = '%s'",
 			dbesc($xchan)
 		);
 
-		$r = q("delete from xchat where xchat_xchan = '%s'",
+		q("delete from xchat where xchat_xchan = '%s'",
 			dbesc($xchan)
 		);
 
-		$r = q("update hubloc set hubloc_deleted = 1 where hubloc_hash = '%s'",
+		q("update hubloc set hubloc_deleted = 1 where hubloc_hash = '%s'",
 			dbesc($xchan)
 		);
 
-		$r = q("update xchan set xchan_deleted = 1 where xchan_hash = '%s'",
+		q("update xchan set xchan_deleted = 1 where xchan_hash = '%s'",
 			dbesc($xchan)
 		);
 	}
